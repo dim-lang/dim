@@ -8,3 +8,6 @@ name = "core"
 
 [dependencies]
 slog = "2"
+slog-term = "2"
+slog-async = "2"
+slog-stdlog = "3"

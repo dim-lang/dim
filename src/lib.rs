@@ -1,7 +1,6 @@
 mod log;
 
 pub fn hello() {
-    log::info();
-    log::debug();
-    println!("core");
+    //log::init();
+    info!(log::getLogger("core"), "hello");
 }
