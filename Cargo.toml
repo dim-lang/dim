@@ -5,3 +5,6 @@ authors = ["fastype <linrongbin16@outlook.com>"]
 
 [lib]
 name = "fastype_core"
+
+[dependencies]
+slog = "2"
