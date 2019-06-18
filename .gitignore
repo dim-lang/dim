@@ -1,5 +1,10 @@
 # executable
 /target/
+*.exe
+*.o
+*.a
+*.dylib
+*.so
 
 # idea
 /.idea
@@ -10,5 +15,9 @@ Cargo.lock
 # backup
 **/*.rs.bk
 
+# cmake
+
+
 # log
 *.log
+*.tlog

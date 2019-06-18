@@ -1,2 +1,3 @@
-# fastype
-fastype - modern text editor
+# Fastype
+
+Fastype - A Fast Modern Text Editor
