@@ -1,5 +1,15 @@
 #! /usr/bin/env bash
 
-
 DEBUG=debug
 RELEASE=release
+
+make_dir() {
+    if [ ! -d $1 ]; then
+        mkdir $1
+    fi
+}
+
+make_dir $DEBUG
+make_dir $RELEASE
+cd $DEBUG && cmake -DCMAKE_BUILD_TYPE=Debug ../src && make VERBOSE=1 && cd ..
+cd $RELEASE && cmake -DCMAKE_BUILD_TYPE=Release ../src && make VERBOSE=1 && cd ..

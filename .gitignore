@@ -1,22 +1,13 @@
 # executable
-/target/
 *.exe
 *.o
 *.a
 *.dylib
 *.so
 
-# idea
-/.idea
-
-# cargo
-Cargo.lock
-
-# backup
-**/*.rs.bk
-
 # cmake
-
+/release
+/debug
 
 # log
 *.log
