@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <stdio.h>
+#include <string>
 
 namespace fastype {
 
