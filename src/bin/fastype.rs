@@ -1,6 +1,8 @@
+#[macro_use]
 extern crate core;
+extern crate log;
 
 fn main() {
-    core::hello();
-    println!("fastype");
+    core::init();
+    info!("hello");
 }

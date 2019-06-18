@@ -1,8 +1,14 @@
 # executable
 /target/
 
+# idea
+/.idea
+
 # cargo
 Cargo.lock
 
 # backup
 **/*.rs.bk
+
+# log
+*.log
