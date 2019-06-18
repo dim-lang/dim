@@ -3,38 +3,43 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if (UNIX)
+    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+endif(UNIX)
 
-set(FT
+set(F
     fastype.cpp
     Log.cpp
     )
-set(FTD
+set(FD
     fastyped.cpp
     Log.cpp
     )
-set(FT_INC
+set(F_INC
+    .
     )
-set(FT_LIB
+set(F_LIB
     )
-set(FT_LIB_DIR
+set(F_LIB_DIR
     )
 
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
-message(FT_LIB: ${FT_LIB})
-message(FT_LIB_DIR: ${FT_LIB_DIR})
+message(F_LIB: ${F_LIB})
+message(F_INC: ${F_INC})
+message(F_LIB_DIR: ${F_LIB_DIR})
 
-include_directories(.)
-link_directories(${FT_LIB_DIR})
+include_directories(${F_INC})
+link_directories(${F_LIB_DIR})
 
-target_include_directories(fastype ${FT_INC})
-add_executable(fastype ${FT})
-target_link_libraries(fastype ${FT_LIB})
+add_executable(fastype ${F})
+target_include_directories(fastype PRIVATE ${F_INC})
+target_link_libraries(fastype ${F_LIB})
 
-target_include_directories(fastyped ${FT_INC})
-add_executable(fastyped ${FTD})
-target_link_libraries(fastyped ${FT_LIB})
+add_executable(fastyped ${FD})
+target_include_directories(fastyped PRIVATE ${F_INC})
+target_link_libraries(fastyped ${F_LIB})

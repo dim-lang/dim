@@ -6,5 +6,5 @@ set RELEASE=release
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
 
-cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug ..\src && cd ..
-cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release ..\src && cd ..
+cd %DEBUG% && cmake --config Debug ..\src && cd ..
+cd %RELEASE% && cmake --config Release ..\src && cd ..
