@@ -1,0 +1,7 @@
+[package]
+name = "fastype"
+version = "0.1.0"
+authors = ["fastype <linrongbin16@outlook.com>"]
+
+[lib]
+name = "fastype_core"
