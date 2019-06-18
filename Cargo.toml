@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["fastype <linrongbin16@outlook.com>"]
 
 [lib]
-name = "fastype_core"
+name = "core"
 
 [dependencies]
 slog = "2"

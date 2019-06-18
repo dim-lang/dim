@@ -1,6 +1,6 @@
-extern crate fastype_core;
+extern crate core;
 
 fn main() {
-    fastype_core::hello();
+    core::hello();
     println!("fastype");
 }
