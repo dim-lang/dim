@@ -7,17 +7,10 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
 
 if (UNIX)
-    set(CMAKE_CXX_STANDARD 14)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    include(CMakeUNIX.cmake)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    include(CMakeWindows.cmake)
 endif(UNIX)
-
-find_package(Curses REQUIRED)
-message(CURSES_INCLUDE_DIR: ${CURSES_INCLUDE_DIR})
-message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
-message(CURSES_LIBRARY_DIR: ${CURSES_LIBRARY_DIR})
 
 set(F
     fastype.cpp
@@ -33,13 +26,13 @@ set(FD
 set(F_INC
     .
     spdlog/include
-    ${CURSES_INCLUDE_DIR}
+    ${F_INCLUDE_DIR}
     )
 set(F_LIB
-    ${CURSES_LIBRARIES}
+    ${F_LIBRARIES}
     )
 set(F_LIB_DIR
-    ${CURSES_LIBRARY_DIR}
+    ${F_LIBRARY_DIR}
     )
 
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
