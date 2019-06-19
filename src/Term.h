@@ -10,6 +10,9 @@ class Term {
 public:
   virtual ~Term() = default;
 
+private:
+  Term();
+
   static std::shared_ptr<Term> open();
 };
 

@@ -20,9 +20,10 @@ public:
   std::string functionName;
 };
 
+class LogManager;
+
 class Logger {
 public:
-  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
   virtual ~Logger() = default;
 
   template <typename... Args>
@@ -44,15 +45,18 @@ public:
   }
 
 private:
+  friend class LogManager;
+
+  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
+
   std::string formatLocation(const LogLocation &location, const char *fmt);
 
   std::shared_ptr<spdlog::logger> logger;
 };
 
-class LoggerManager {
+class LogManager {
 public:
-  virtual ~LoggerManager() = default;
-
+  virtual ~LogManager() = default;
   static std::shared_ptr<Logger> getLogger(const std::string &loggerName);
 };
 

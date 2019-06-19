@@ -5,8 +5,8 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-  auto log = fastype::LoggerManager::getLogger("root");
-  F_INFOF(log, "{} {}", "INFOF", 2);
-  F_INFO(log, "INFO");
+  auto log = fastype::LogManager::getLogger("root");
+  F_DEBUGF(log, "{} {}", "DEBUGF", 2);
+  F_DEBUG(log, "DEBUG");
   return 0;
 }

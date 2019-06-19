@@ -14,6 +14,11 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
 endif(UNIX)
 
+find_package(Curses REQUIRED)
+message(CURSES_INCLUDE_DIR: ${CURSES_INCLUDE_DIR})
+message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
+message(CURSES_LIBRARY_DIR: ${CURSES_LIBRARY_DIR})
+
 set(F
     fastype.cpp
     Log.cpp
@@ -28,10 +33,13 @@ set(FD
 set(F_INC
     .
     spdlog/include
+    ${CURSES_INCLUDE_DIR}
     )
 set(F_LIB
+    ${CURSES_LIBRARIES}
     )
 set(F_LIB_DIR
+    ${CURSES_LIBRARY_DIR}
     )
 
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})

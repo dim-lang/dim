@@ -4,6 +4,7 @@
 *.a
 *.dylib
 *.so
+*.e
 
 # cmake
 /release
