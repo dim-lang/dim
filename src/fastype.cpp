@@ -5,9 +5,8 @@
 #include <stdio.h>
 
 int main(int argc, char **argv) {
-  std::shared_ptr<fastype::Logger> log =
-      fastype::LoggerManager::getLogger("root");
-  log->debug();
-  log->info();
+  auto log = fastype::LoggerManager::getLogger("root");
+  log->debug("debug");
+  log->info("info");
   return 0;
 }
