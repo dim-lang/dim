@@ -28,31 +28,25 @@ public:
   template <typename... Args>
   inline void debug(const LogLocation &location, const char *fmt,
                     const Args &... args) {
-    std::string sb(std::string("[") + location.fileName + "] [" +
-                   location.functionName + " : " +
-                   std::to_string(location.lineNumber) + "] " + fmt);
-    logger->debug(sb.data(), args...);
+    logger->debug(formatLocation(location, fmt).data(), args...);
   }
 
   template <typename... Args>
   inline void info(const LogLocation &location, const char *fmt,
                    const Args &... args) {
-    std::string sb(std::string("[") + location.fileName + "] [" +
-                   location.functionName + " : " +
-                   std::to_string(location.lineNumber) + "] " + fmt);
-    logger->info(sb.data(), args...);
+    logger->info(formatLocation(location, fmt).data(), args...);
   }
 
   template <typename... Args>
   inline void error(const LogLocation &location, const char *fmt,
                     const Args &... args) {
-    std::string sb(std::string("[") + location.fileName + "] [" +
-                   location.functionName + " : " +
-                   std::to_string(location.lineNumber) + "] " + fmt);
-    logger->error(sb.data(), args...);
+    logger->error(formatLocation(location, fmt).data(), args...);
   }
 
 private:
+  inline std::string formatLocation(const LogLocation &location,
+                                    const char *fmt);
+
   std::shared_ptr<spdlog::logger> logger;
 };
 

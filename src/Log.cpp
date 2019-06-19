@@ -10,6 +10,13 @@
 
 namespace fastype {
 
+std::string Logger::formatLocation(const LogLocation &location,
+                                   const char *fmt) {
+  return std::string(std::string("[") + location.fileName + "] [" +
+                     location.functionName + ":" +
+                     std::to_string(location.lineNumber) + "] " + fmt);
+}
+
 static std::unordered_map<std::string, std::shared_ptr<Logger>> LoggerMap =
     std::unordered_map<std::string, std::shared_ptr<Logger>>();
 static const char *FileName = "fastype.log";
