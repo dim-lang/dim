@@ -58,6 +58,26 @@ public:
 
 } // namespace fastype
 
+#ifdef NDEBUG
+
+#ifndef F_DEBUGF
+#define F_DEBUGF(logger, fmt, ...)
+#endif
+
+#ifndef F_DEBUG
+#define F_DEBUG(logger, msg)
+#endif
+
+#ifndef F_INFOF
+#define F_INFOF(logger, fmt, ...)
+#endif
+
+#ifndef F_INFO
+#define F_INFO(logger, msg)
+#endif
+
+#else
+
 #ifndef F_DEBUGF
 #define F_DEBUGF(logger, fmt, ...)                                             \
   do {                                                                         \
@@ -89,6 +109,8 @@ public:
                    msg);                                                       \
   } while (0)
 #endif
+
+#endif // #ifdef NDEBUG
 
 #ifndef F_ERRORF
 #define F_ERRORF(logger, fmt, ...)                                             \
