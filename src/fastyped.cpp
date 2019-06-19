@@ -4,9 +4,4 @@
 #include "Log.h"
 #include <stdio.h>
 
-int main(int argc, char **argv) {
-  auto log = fastype::LoggerManager::getLogger("root");
-  log->debug("debug");
-  log->info("info");
-  return 0;
-}
+int main(int argc, char **argv) { return 0; }

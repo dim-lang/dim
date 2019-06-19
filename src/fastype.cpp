@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv) {
   auto log = fastype::LoggerManager::getLogger("root");
-  log->debug("debug");
-  log->info("info");
+  F_INFOF(log, "{} {}", "INFOF", 2);
+  F_INFO(log, "INFO");
   return 0;
 }

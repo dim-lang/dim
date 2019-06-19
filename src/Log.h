@@ -20,17 +20,95 @@ public:
   std::string functionName;
 };
 
+class Logger {
+public:
+  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
+  virtual ~Logger() = default;
+
+  template <typename... Args>
+  inline void debug(const LogLocation &location, const char *fmt,
+                    const Args &... args) {
+    std::string sb(std::string("[") + location.fileName + "] [" +
+                   location.functionName + " : " +
+                   std::to_string(location.lineNumber) + "] " + fmt);
+    logger->debug(sb.data(), args...);
+  }
+
+  template <typename... Args>
+  inline void info(const LogLocation &location, const char *fmt,
+                   const Args &... args) {
+    std::string sb(std::string("[") + location.fileName + "] [" +
+                   location.functionName + " : " +
+                   std::to_string(location.lineNumber) + "] " + fmt);
+    logger->info(sb.data(), args...);
+  }
+
+  template <typename... Args>
+  inline void error(const LogLocation &location, const char *fmt,
+                    const Args &... args) {
+    std::string sb(std::string("[") + location.fileName + "] [" +
+                   location.functionName + " : " +
+                   std::to_string(location.lineNumber) + "] " + fmt);
+    logger->error(sb.data(), args...);
+  }
+
+private:
+  std::shared_ptr<spdlog::logger> logger;
+};
+
 class LoggerManager {
 public:
   virtual ~LoggerManager() = default;
 
-  static std::shared_ptr<spdlog::logger>
-  getLogger(const std::string &loggerName);
-
-  void log() {
-    std::stringbuf sb;
-    sb.append("[");
-  }
+  static std::shared_ptr<Logger> getLogger(const std::string &loggerName);
 };
 
 } // namespace fastype
+
+#ifndef F_DEBUGF
+#define F_DEBUGF(logger, fmt, ...)                                             \
+  do {                                                                         \
+    (logger)->debug(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
+                    fmt, __VA_ARGS__);                                         \
+  } while (0)
+#endif
+
+#ifndef F_DEBUG
+#define F_DEBUG(logger, msg)                                                   \
+  do {                                                                         \
+    (logger)->debug(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
+                    msg);                                                      \
+  } while (0)
+#endif
+
+#ifndef F_INFOF
+#define F_INFOF(logger, fmt, ...)                                              \
+  do {                                                                         \
+    (logger)->info(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),     \
+                   fmt, __VA_ARGS__);                                          \
+  } while (0)
+#endif
+
+#ifndef F_INFO
+#define F_INFO(logger, msg)                                                    \
+  do {                                                                         \
+    (logger)->info(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),     \
+                   msg);                                                       \
+  } while (0)
+#endif
+
+#ifndef F_ERRORF
+#define F_ERRORF(logger, fmt, ...)                                             \
+  do {                                                                         \
+    (logger)->error(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
+                    fmt, __VA_ARGS__);                                         \
+  } while (0)
+#endif
+
+#ifndef F_ERROR
+#define F_ERROR(logger, msg)                                                   \
+  do {                                                                         \
+    (logger)->error(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
+                    msg);                                                      \
+  } while (0)
+#endif
