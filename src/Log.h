@@ -44,8 +44,7 @@ public:
   }
 
 private:
-  inline std::string formatLocation(const LogLocation &location,
-                                    const char *fmt);
+  std::string formatLocation(const LogLocation &location, const char *fmt);
 
   std::shared_ptr<spdlog::logger> logger;
 };
