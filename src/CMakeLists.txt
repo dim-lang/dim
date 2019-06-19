@@ -24,6 +24,7 @@ set(FD
     )
 set(F_INC
     .
+    spdlog/include
     )
 set(F_LIB
     )

@@ -9,14 +9,17 @@ namespace fastype {
 
 class Logger {
 public:
-  void info() { printf("info\n"); }
-  void debug() { printf("debug\n"); }
+  virtual ~Logger() = default;
+
+  virtual void info() = 0;
+  virtual void debug() = 0;
 };
 
 class LoggerManager {
 public:
+  virtual ~LoggerManager() = default;
+
   static std::shared_ptr<Logger> getLogger(const std::string &loggerName);
 };
 
 } // namespace fastype
-
