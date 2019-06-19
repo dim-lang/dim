@@ -17,6 +17,9 @@ endif(UNIX)
 set(F
     fastype.cpp
     Log.cpp
+    Term.cpp
+    NCursesTerm.cpp
+    WinTerm.cpp
     )
 set(FD
     fastyped.cpp
