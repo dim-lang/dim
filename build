@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+# create boost header
+cd src/boost && ./bootstrap.sh && ./b2 headers && cd ../..
+
 # prepare build folder
 DEBUG=debug
 RELEASE=release
