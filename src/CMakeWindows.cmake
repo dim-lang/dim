@@ -3,7 +3,7 @@
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
 
-set(F_INCLUDE_DIR 
+set(F_INCLUDE_DIR
     )
 
 set(F_LIBRARIES

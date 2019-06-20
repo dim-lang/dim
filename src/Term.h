@@ -10,10 +10,10 @@ class Term {
 public:
   virtual ~Term() = default;
 
+  static std::shared_ptr<Term> open();
+
 private:
   Term();
-
-  static std::shared_ptr<Term> open();
 };
 
 } // namespace fastype

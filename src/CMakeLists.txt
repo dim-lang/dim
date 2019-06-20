@@ -18,6 +18,7 @@ set(F
     Term.cpp
     NCursesTerm.cpp
     WinTerm.cpp
+    Util.cpp
     )
 set(FD
     fastyped.cpp
