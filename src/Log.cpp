@@ -27,7 +27,7 @@ std::string Logger::formatLocation(const LogLocation &location,
 
 static std::unordered_map<std::string, std::shared_ptr<Logger>> LoggerMap =
     std::unordered_map<std::string, std::shared_ptr<Logger>>();
-static std::string FileName;
+static const std::string FileName = "fastype.log";
 static const int MaxFileSize = 1048576 * 10;
 static const int MaxFiles = 100;
 
@@ -44,9 +44,6 @@ std::shared_ptr<Logger> LogManager::getLogger(const std::string &loggerName) {
 F_STATIC_BEGIN(Log)
 spdlog::set_level(spdlog::level::debug);
 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e %z] [%n] [%l] [thread %t] %v");
-FileName = std::string("fastype-") +
-           fastype::formatDatetime(fastype::nowTimestamp(), "%Y%m%d-%H%M%S") +
-           ".log";
 F_STATIC_END(Log)
 
 } // namespace fastype
