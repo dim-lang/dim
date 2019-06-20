@@ -3,6 +3,7 @@
 
 #include "Term.h"
 #include "Log.h"
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
@@ -41,10 +42,13 @@ void Term::show(const std::string &fileName) {
 
   size_t lineSize = 1024;
   char *lineBuf = (char *)std::malloc(lineSize);
-  while (std::fgets(lineBuf, lineSize, fp)) {
+  for (int i = 0; i < ty - 2 && std::fgets(lineBuf, lineSize, fp); i++) {
+    lineBuf[std::min<uint64_t>(tx - 1, std::strlen(lineBuf))] = '\0';
     printw(lineBuf);
   }
+  printw("press any to quit...\n");
   refresh();
+  getch();
   std::free(lineBuf);
   fclose(fp);
 }
