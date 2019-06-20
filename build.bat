@@ -1,7 +1,9 @@
 @echo off
 
 @REM create boost header
-cd src\boost && .\bootstrap.bat && .\b2.bat headers && cd ..\..
+if not exist src\boost\boost (
+    cd src\boost && .\bootstrap.bat && .\b2.bat headers && cd ..\..
+)
 
 @REM prepare build folder
 set DEBUG=debug

@@ -3,22 +3,35 @@
 
 #include "Term.h"
 #include "Log.h"
+#include <cstdlib>
 #include <ncurses.h>
 
 namespace fastype {
 
 Term::Term() {
   auto log = fastype::LogManager::getLogger("Term");
-  F_DEBUG(log, "initscr");
+
   initscr();
-  F_DEBUG(log, "printw");
-  printw("Hello Terminal!!!\nPress any key to quit...");
+  raw();
+  keypad(stdscr, TRUE);
+  noecho();
+  F_DEBUG(log, "initscr, raw, noecho, keypad");
+
+  printw("Please type, press Q to quit...\n");
   F_DEBUG(log, "refresh");
   refresh();
-  F_DEBUG(log, "getch");
-  getch();
-  F_DEBUG(log, "endwin");
-  endwin();
+
+  while (1) {
+    int ch = getch();
+    F_DEBUGF(log, "getch: {}", (char)ch);
+    if (ch == (int)'Q') {
+      endwin();
+      exit(0);
+    } else {
+      printw("%c", ch);
+      refresh();
+    }
+  }
 }
 
 std::shared_ptr<Term> Term::open() { return std::shared_ptr<Term>(new Term()); }
