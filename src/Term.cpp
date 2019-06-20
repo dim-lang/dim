@@ -3,6 +3,7 @@
 
 #include "Term.h"
 #include "Log.h"
+#include <cstdio>
 #include <cstdlib>
 #include <memory>
 #include <mutex>
@@ -17,7 +18,16 @@ static std::mutex TermLock;
 static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
     std::unordered_map<std::string, std::shared_ptr<Term>>();
 
-Term::Term() {
+Term::Term() {}
+
+Term::~Term() {
+  endwin();
+
+  auto log = fastype::LogManager::getLogger("Term");
+  F_DEBUG(log, "Destruct");
+}
+
+void Term::show(const std::string &fileName) {
   initscr();
   raw();
   keypad(stdscr, TRUE);
@@ -25,24 +35,24 @@ Term::Term() {
   getmaxyx(stdscr, ty, tx);
 
   auto log = fastype::LogManager::getLogger("Term");
-  F_DEBUGF(log, "initscr, raw, keypad, noecho, getmaxyx({}, {})", ty, tx);
-}
+  F_DEBUGF(log, "show getmaxyx({}, {})", ty, tx);
 
-Term::~Term() {
-  endwin();
+  FILE *fp = fopen(fileName.data(), "r");
 
-  auto log = fastype::LogManager::getLogger("Term");
-  F_DEBUG(log, "endwin");
-}
-
-void Term::show(const std::string &fileName) {
-  printw("Please type, press Q to quit...\n");
+  size_t lineSize = 1024;
+  char *lineBuf = (char *)std::malloc(lineSize);
+  while (std::fgets(lineBuf, lineSize, fp)) {
+    printw(lineBuf);
+  }
+  refresh();
+  std::free(lineBuf);
+  fclose(fp);
 }
 
 std::shared_ptr<Term> Term::open(const std::string &termName) {
   std::lock_guard<std::mutex> guard(TermLock);
   if (TermMap.find(termName) == TermMap.end()) {
-    std::shared_ptr<Term> term = std::shared_ptr<Term>(new Term());
+    std::shared_ptr<Term> term = std::shared_ptr<Term>();
     TermMap.insert(std::make_pair(termName, term));
   }
   return TermMap[termName];

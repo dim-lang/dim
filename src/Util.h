@@ -23,6 +23,8 @@
 
 namespace fastype {
 
+/// Date Time
+
 uint64_t nowTimestamp();
 
 std::string nowDatetime();
@@ -30,5 +32,7 @@ std::string nowDatetime();
 std::string formatDatetime(uint64_t t, const std::string &fmt);
 
 uint64_t parseDatetime(const std::string &datetime, const std::string &fmt);
+
+/// File IO
 
 } // namespace fastype

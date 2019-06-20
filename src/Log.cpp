@@ -46,7 +46,13 @@ std::shared_ptr<Logger> LogManager::getLogger(const std::string &loggerName) {
 }
 
 F_STATIC_BEGIN(Log)
+
+#ifndef NDEBUG
 spdlog::set_level(spdlog::level::debug);
+#else
+spdlog::set_level(spdlog::level::err);
+#endif
+
 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
 F_STATIC_END(Log)
 

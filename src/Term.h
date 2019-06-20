@@ -9,6 +9,7 @@ namespace fastype {
 
 class Term {
 public:
+  explicit Term();
   virtual ~Term();
 
   static std::shared_ptr<Term> open(const std::string &termName);
@@ -16,8 +17,6 @@ public:
   void show(const std::string &fileName);
 
 private:
-  Term();
-
   int ty;
   int tx;
 };

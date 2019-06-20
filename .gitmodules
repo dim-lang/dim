@@ -10,3 +10,6 @@
 [submodule "src/grpc"]
 	path = src/grpc
 	url = https://github.com/grpc/grpc.git
+[submodule "src/icu"]
+	path = src/icu
+	url = https://github.com/unicode-org/icu.git
