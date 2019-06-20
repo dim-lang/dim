@@ -44,6 +44,7 @@ message(F_LIB_DIR: ${F_LIB_DIR})
 
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
+add_definitions(FMT_HEADER_ONLY)
 
 add_executable(fastype ${F})
 target_include_directories(fastype PRIVATE ${F_INC})

@@ -16,3 +16,19 @@
   }                                                                            \
   FastypeStaticBlock##name;
 #endif
+
+#include <cstdint>
+#include <cstdlib>
+#include <string>
+
+namespace fastype {
+
+uint64_t nowTimestamp();
+
+std::string nowDatetime();
+
+std::string formatDatetime(uint64_t t, const std::string &fmt);
+
+uint64_t parseDatetime(const std::string &datetime, const std::string &fmt);
+
+} // namespace fastype
