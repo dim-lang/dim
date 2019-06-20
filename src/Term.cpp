@@ -5,41 +5,47 @@
 #include "Log.h"
 #include <cstdlib>
 #include <memory>
+#include <mutex>
 #include <ncurses.h>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 namespace fastype {
 
+static std::mutex TermLock;
 static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
     std::unordered_map<std::string, std::shared_ptr<Term>>();
 
 Term::Term() {
-  auto log = fastype::LogManager::getLogger("Term");
-
   initscr();
   raw();
   keypad(stdscr, TRUE);
   noecho();
-  F_DEBUG(log, "initscr, raw, noecho, keypad");
+  getmaxyx(stdscr, ty, tx);
 
-  printw("Please type, press Q to quit...\n");
-  F_DEBUG(log, "refresh");
-  refresh();
-
-  while (1) {
-    int ch = getch();
-    F_DEBUGF(log, "getch: {}", (char)ch);
-    if (ch == (int)'Q') {
-      endwin();
-      exit(0);
-    } else {
-      printw("%c", ch);
-      refresh();
-    }
-  }
+  auto log = fastype::LogManager::getLogger("Term");
+  F_DEBUGF(log, "initscr, raw, keypad, noecho, getmaxyx({}, {})", ty, tx);
 }
 
-std::shared_ptr<Term> Term::open() { return std::shared_ptr<Term>(new Term()); }
+Term::~Term() {
+  endwin();
+
+  auto log = fastype::LogManager::getLogger("Term");
+  F_DEBUG(log, "endwin");
+}
+
+void Term::show(const std::string &fileName) {
+  printw("Please type, press Q to quit...\n");
+}
+
+std::shared_ptr<Term> Term::open(const std::string &termName) {
+  std::lock_guard<std::mutex> guard(TermLock);
+  if (TermMap.find(termName) == TermMap.end()) {
+    std::shared_ptr<Term> term = std::shared_ptr<Term>(new Term());
+    TermMap.insert(std::make_pair(termName, term));
+  }
+  return TermMap[termName];
+}
 
 } // namespace fastype

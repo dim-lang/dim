@@ -3,17 +3,23 @@
 
 #pragma once
 #include <memory>
+#include <string>
 
 namespace fastype {
 
 class Term {
 public:
-  virtual ~Term() = default;
+  virtual ~Term();
 
-  static std::shared_ptr<Term> open();
+  static std::shared_ptr<Term> open(const std::string &termName);
+
+  void show(const std::string &fileName);
 
 private:
   Term();
+
+  int ty;
+  int tx;
 };
 
 } // namespace fastype
