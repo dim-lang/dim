@@ -7,3 +7,6 @@
 [submodule "src/fmt"]
 	path = src/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "src/grpc"]
+	path = src/grpc
+	url = https://github.com/grpc/grpc.git
