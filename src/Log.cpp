@@ -43,7 +43,7 @@ std::shared_ptr<Logger> LogManager::getLogger(const std::string &loggerName) {
 
 F_STATIC_BEGIN(Log)
 spdlog::set_level(spdlog::level::debug);
-spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e %z] [%n] [%l] [thread %t] %v");
+spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
 F_STATIC_END(Log)
 
 } // namespace fastype
