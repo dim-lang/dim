@@ -4,9 +4,15 @@
 #include "Term.h"
 #include "Log.h"
 #include <cstdlib>
+#include <memory>
 #include <ncurses.h>
+#include <string>
+#include <unordered_map>
 
 namespace fastype {
+
+static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
+    std::unordered_map<std::string, std::shared_ptr<Term>>();
 
 Term::Term() {
   auto log = fastype::LogManager::getLogger("Term");

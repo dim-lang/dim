@@ -6,7 +6,9 @@
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 namespace fastype {
@@ -25,6 +27,7 @@ std::string Logger::formatLocation(const LogLocation &location,
                      std::to_string(location.lineNumber) + "] " + fmt);
 }
 
+static std::mutex LoggerLock;
 static std::unordered_map<std::string, std::shared_ptr<Logger>> LoggerMap =
     std::unordered_map<std::string, std::shared_ptr<Logger>>();
 static const std::string FileName = "fastype.log";
@@ -32,6 +35,7 @@ static const int MaxFileSize = 1048576 * 10;
 static const int MaxFiles = 100;
 
 std::shared_ptr<Logger> LogManager::getLogger(const std::string &loggerName) {
+  std::lock_guard<std::mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
     std::shared_ptr<spdlog::logger> spdLogger =
         spdlog::rotating_logger_mt(loggerName, FileName, MaxFileSize, MaxFiles);
