@@ -18,8 +18,6 @@ public:
   virtual void show(const std::string &fileName);
 
 private:
-  int ty;
-  int tx;
   std::shared_ptr<Logger> log;
 };
 

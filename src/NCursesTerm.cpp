@@ -20,33 +20,31 @@ NCursesTerm::NCursesTerm()
   F_DEBUG(log, "Construct");
 }
 
-NCursesTerm::~NCursesTerm() {
-  endwin();
-  F_DEBUG(log, "Destruct");
-}
+NCursesTerm::~NCursesTerm() { F_DEBUG(log, "Destruct"); }
 
 void NCursesTerm::show(const std::string &fileName) {
+  int row, col, y, x;
+
   initscr();
-  raw();
-  keypad(stdscr, TRUE);
-  noecho();
-  getmaxyx(stdscr, ty, tx);
-
-  F_DEBUGF(log, "show getmaxyx({}, {})", ty, tx);
-
-  FILE *fp = fopen(fileName.data(), "r");
-
-  size_t lineSize = 1024;
-  char *lineBuf = (char *)std::malloc(lineSize);
-  for (int i = 0; i < ty - 2 && std::fgets(lineBuf, lineSize, fp); i++) {
-    lineBuf[std::min<uint64_t>(tx - 1, std::strlen(lineBuf))] = '\0';
-    printw(lineBuf);
-  }
-  printw("press any to quit...\n");
-  refresh();
+  getmaxyx(stdscr, row, col);
+  F_DEBUGF(log, "row:{}, col:{}, LINES:{}", row, col, LINES);
+  y = 0;
+  x = 0;
+  mvprintw(y, x, "(%d,%d)", y, x);
+  y = row;
+  x = 0;
+  mvprintw(y - 1, x, "(%d-1,%d)", y, x);
+  y = 0;
+  x = col;
+  mvprintw(y, x - 10, "(%d,%d-10)", y, x);
+  y = row / 2;
+  x = col / 2;
+  mvprintw(y, x, "(%d,%d) (row:%d,col:%d)", y, x, row, col);
+  y = row;
+  x = col;
+  mvprintw(y - 1, x - 10, "(%d-1,%d-10)", y, x);
   getch();
-  std::free(lineBuf);
-  fclose(fp);
+  endwin();
 }
 
 } // namespace fastype

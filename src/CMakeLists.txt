@@ -2,11 +2,13 @@
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
+configure_file(config.h.in ../src/config.h)
 
+message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
+message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
+
 if (APPLE)
     # MacOSX
     include(CMakeMacOSX.cmake)

@@ -12,7 +12,7 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)  
 set(Boost_USE_STATIC_RUNTIME OFF) 
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
 message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
@@ -27,7 +27,7 @@ set(F_INC
     .
     ${CURSES_INCLUDE_DIRS}
     spdlog::spdlog
-    Boost::Boost
+    ${Boost_INCLUDE_DIRS}
     )
 set(F_LIB
     ${CURSES_LIBRARIES}

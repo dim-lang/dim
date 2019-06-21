@@ -3,8 +3,13 @@
 
 #include "Log.h"
 #include "Term.h"
+#include "config.h"
+#include <exception>
+#include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <stdio.h>
+#include <string>
 
 int main(int argc, char **argv) {
   auto log = fastype::LogManager::getLogger("main");
@@ -13,14 +18,8 @@ int main(int argc, char **argv) {
     F_DEBUGF(log, "argv[{}]: {}", i, argv[i]);
   }
 
-  if (argc < 2) {
-    F_INFO(log, "file name missing!");
-    return 3;
-  }
-
-  F_DEBUGF(log, "open file: {}", argv[1]);
-  // std::shared_ptr<fastype::Term> term = fastype::Term::open(argv[1]);
-  // term->show(argv[1]);
+  std::shared_ptr<fastype::Term> term = fastype::Term::open("NCursesTerm");
+  term->show("NCursesTerm");
 
   return 0;
 }
