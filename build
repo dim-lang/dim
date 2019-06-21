@@ -1,5 +1,14 @@
 #! /usr/bin/env bash
 
+OS="Unknown-OS"
+case "$OSTYPE" in
+  solaris*) OS="Solaris" ;;
+  darwin*)  OS="MacOSX" ;; 
+  linux*)   OS="Linux" ;;
+  bsd*)     OS="FreeBSD" ;;
+  *)        OS="Unknown-$OSTYPE" ;;
+esac
+
 # git submodules
 ROOT=`pwd`
 git submodule update --init
@@ -7,11 +16,20 @@ cd src/boost && git submodule update --init && cd $ROOT
 
 # third party library
 if [ ! -d src/boost/boost ]; then
-    cd src/boost && ./bootstrap.sh && ./b2 headers && cd $ROOT
+    echo "[fastype] prepare *Boost* library for $OS"
+    cd src/boost 
+    ./bootstrap.sh && ./b2 headers 
+    cd ../..
 fi
 if [ ! -d src/icu/build ]; then
-    mkdir -p src/icu/build && cd src/icu/build && ../icu4c/source/runConfigureICU MacOSX && make -j6 check && cd $ROOT
+    echo "[fastype] prepare *ICU4C* library for $OS"
+    mkdir -p src/icu/build 
+    cd src/icu/build 
+    ../icu4c/source/runConfigureICU $OS && make -j6 check
+    cd ../../..
 fi
+
+echo "[fastype] Build for $OS"
 
 # build folder
 cd $ROOT
