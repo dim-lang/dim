@@ -1,29 +1,43 @@
 @echo off
+@rem Copyright 2019- <fastype.org>
+@rem Apache License Version 2.0
 
 set ROOT=%cd%
-echo "[fastype] Build for Windows"
+set OS="Windows"
+echo "[fastype] Build for %OS%"
 
-@REM git submodules
-git submodule update --init
-cd src\boost && git submodule update --init && cd %ROOT%
-
-@REM third party library
-if not exist src\boost\boost (
-    echo "[fastype] prepare *Boost* library for Windows"
-    cd src\boost && .\bootstrap.bat && .\b2.bat headers && cd %ROOT%
+@rem third party library
+if not exist spdlog (
+    echo "[fastype] prepare *spdlog* v1.3.1"
+    git clone https://github.com/gabime/spdlog.git
+    cd spdlog && git checkout v1.3.1 && cd %ROOT%
+    echo "[fastype] prepare *spdlog* v1.3.1 - done"
 )
-if not exist -d src\icu\build (
-    echo "[fastype] prepare *ICU4C* library for Windows manually"
-    echo "[fastype] https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows"
-    cd src\icu && md src\icu\build && cd %ROOT%
+if not exist fmt (
+    echo "[fastype] prepare *fmt* v5.3.0"
+    git clone https://github.com/fmtlib/fmt.git
+    cd fmt && git checkout v5.3.0 && cd %ROOT%
+    echo "[fastype] prepare *fmt* v5.3.0 - done"
+)
+if not exist icu (
+    echo "[fastype] prepare *icu4c* release-64-2"
+    git clone https://github.com/unicode-org/icu.git
+    cd icu && git checkout release-64-2 && cd %ROOT%
+    echo "[fastype] build *icu4c* release-64-2 manually: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows"
+)
+if not exist boost (
+    echo "[fastype] prepare *boost* boost-1.70.0"
+    git clone https://github.com/boostorg/boost.git
+    cd boost && git checkout boost-1.70.0 && .\bootstrap.bat && .\b2 headers && cd %ROOT%
+    echo "[fastype] prepare *boost* boost-1.70.0 - done"
 )
 
-@REM build folder
+@rem build folder
 set DEBUG=debug
 set RELEASE=release
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
 
-@REM build
+@rem build
 cd %DEBUG% && cmake --config Debug ..\src && cd %ROOT%
 cd %RELEASE% && cmake --config Release ..\src && cd %ROOT%

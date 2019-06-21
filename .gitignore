@@ -13,3 +13,9 @@
 # log
 *.log
 *.tlog
+
+# third party library
+spdlog
+boost
+fmt
+

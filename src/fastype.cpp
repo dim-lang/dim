@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
   }
 
   F_DEBUGF(log, "open file: {}", argv[1]);
-  std::shared_ptr<fastype::Term> term = fastype::Term::open(argv[1]);
-  term->show(argv[1]);
+  // std::shared_ptr<fastype::Term> term = fastype::Term::open(argv[1]);
+  // term->show(argv[1]);
 
   return 0;
 }

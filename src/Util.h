@@ -3,6 +3,11 @@
 
 #pragma once
 
+#include "boost/type_index.hpp"
+#include <cstdint>
+#include <cstdlib>
+#include <string>
+
 #ifndef F_STATIC_BEGIN
 #define F_STATIC_BEGIN(name)                                                   \
   class FastypeStaticBlock##name {                                             \
@@ -17,9 +22,14 @@
   FastypeStaticBlock##name;
 #endif
 
-#include <cstdint>
-#include <cstdlib>
-#include <string>
+#ifndef F_CLASS_NAME
+#define F_CLASS_NAME                                                           \
+  boost::typeindex::type_id_with_cvr<decltype(*this)>().pretty_name()
+#endif
+
+#ifndef F_FUNCTION_NAME
+#define F_FUNCTION_NAME __FUNCTION__
+#endif
 
 namespace fastype {
 

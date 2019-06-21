@@ -3,6 +3,7 @@
 
 #include "Term.h"
 #include "Log.h"
+#include "boost/config.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -13,50 +14,27 @@
 #include <thread>
 #include <unordered_map>
 
+#if BOOST_WINDOWS
+#include "WinTerm.h"
+#else
+#include "NCursesTerm.h"
+#endif // #if BOOST_WINDOWS
+
 namespace fastype {
 
 static std::mutex TermLock;
 static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
     std::unordered_map<std::string, std::shared_ptr<Term>>();
 
-Term::Term() {}
-
-Term::~Term() {
-  endwin();
-
-  auto log = fastype::LogManager::getLogger("Term");
-  F_DEBUG(log, "Destruct");
-}
-
-void Term::show(const std::string &fileName) {
-  initscr();
-  raw();
-  keypad(stdscr, TRUE);
-  noecho();
-  getmaxyx(stdscr, ty, tx);
-
-  auto log = fastype::LogManager::getLogger("Term");
-  F_DEBUGF(log, "show getmaxyx({}, {})", ty, tx);
-
-  FILE *fp = fopen(fileName.data(), "r");
-
-  size_t lineSize = 1024;
-  char *lineBuf = (char *)std::malloc(lineSize);
-  for (int i = 0; i < ty - 2 && std::fgets(lineBuf, lineSize, fp); i++) {
-    lineBuf[std::min<uint64_t>(tx - 1, std::strlen(lineBuf))] = '\0';
-    printw(lineBuf);
-  }
-  printw("press any to quit...\n");
-  refresh();
-  getch();
-  std::free(lineBuf);
-  fclose(fp);
-}
-
 std::shared_ptr<Term> Term::open(const std::string &termName) {
   std::lock_guard<std::mutex> guard(TermLock);
   if (TermMap.find(termName) == TermMap.end()) {
-    std::shared_ptr<Term> term = std::shared_ptr<Term>();
+#if BOOST_WINDOWS
+    std::shared_ptr<Term> term = std::shared_ptr<WinTerm>(new WinTerm());
+#else
+    std::shared_ptr<Term> term =
+        std::shared_ptr<NCursesTerm>(new NCursesTerm());
+#endif
     TermMap.insert(std::make_pair(termName, term));
   }
   return TermMap[termName];

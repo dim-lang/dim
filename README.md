@@ -24,9 +24,10 @@ For this goal, Fastype introduce below techniques.
 ## How to install?
 
 * Third Party Dependencies
-    * [spdlog](https://github.com/gabime/spdlog) - v1.3.1
-    * [boost](https://github.com/boostorg/boost) - boost-1.70.0
-    * [ICU](https://github.com/boostorg/boost) - boost-1.70.0
+    * [spdlog](https://github.com/gabime/spdlog)
+    * [boost](https://github.com/boostorg/boost)
+    * [icu4c](https://github.com/unicode-org/icu)
+    * [fmt](https://github.com/fmtlib/fmt)
 
 * Manual Build
     * Linux/UNIX

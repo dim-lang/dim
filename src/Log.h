@@ -1,8 +1,8 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "spdlog/spdlog.h"
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <stdio.h>
 #include <string>
 

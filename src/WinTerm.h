@@ -2,18 +2,17 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Term.h"
 #include <memory>
 #include <string>
 
 namespace fastype {
 
-class Term {
+class WinTerm : public Term {
 public:
-  virtual ~Term();
+  virtual ~WinTerm();
 
-  virtual void show(const std::string &fileName) = 0;
-
-  static std::shared_ptr<Term> open(const std::string &termName);
+  virtual void show(const std::string &fileName);
 };
 
 } // namespace fastype

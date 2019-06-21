@@ -6,51 +6,45 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
 
-if (UNIX)
-    include(CMakeUNIX.cmake)
-else()
+message(F_OS: ${F_OS})
+if (APPLE)
+    # MacOSX
+    include(CMakeMacOSX.cmake)
+elseif (UNIX AND NOT APPLE)
+    if (${F_OS} STREQUAL "BSD")
+        # BSD
+        include(CMakeBSD.cmake)
+    elseif (${F_OS} STREQUAL "Linux")
+        # Linux
+        include(CMakeLinux.cmake)
+    else()
+        message(FATAL_ERROR "${F_OS} Not Support!")
+    endif(${F_OS} STREQUAL "BSD")
+elseif (MSVC)
+    # Windows
     include(CMakeWindows.cmake)
-endif(UNIX)
+endif(APPLE)
 
-set(F
+set(F_SRC
     fastype.cpp
     Log.cpp
-    Term.cpp
-    NCursesTerm.cpp
-    WinTerm.cpp
+    #Term.cpp
+    #NCursesTerm.cpp
+    #WinTerm.cpp
     Util.cpp
     )
-set(FD
+set(FD_SRC
     fastyped.cpp
     Log.cpp
     )
-set(F_INC
-    .
-    spdlog/include
-    fmt/include
-    ${F_INCLUDE_DIR}
-    )
-set(F_LIB
-    ${F_LIBRARIES}
-    )
-set(F_LIB_DIR
-    ${F_LIBRARY_DIR}
-    )
-
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
-message(F_LIB: ${F_LIB})
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
 
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
-add_definitions(-DFMT_HEADER_ONLY)
 
-add_executable(fastype ${F})
+add_executable(fastype ${F_SRC})
 target_include_directories(fastype PRIVATE ${F_INC})
 target_link_libraries(fastype ${F_LIB})
 
-add_executable(fastyped ${FD})
+add_executable(fastyped ${FD_SRC})
 target_include_directories(fastyped PRIVATE ${F_INC})
 target_link_libraries(fastyped ${F_LIB})
