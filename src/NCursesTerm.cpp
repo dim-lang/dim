@@ -15,23 +15,23 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() {}
+NCursesTerm::NCursesTerm()
+    : Term(), log(fastype::LogManager::getLogger("NCursesTerm")) {
+  F_DEBUG(log, "Construct");
+}
 
 NCursesTerm::~NCursesTerm() {
   endwin();
-
-  auto log = fastype::LogManager::getLogger("NCursesTerm");
   F_DEBUG(log, "Destruct");
 }
 
-void Term::show(const std::string &fileName) {
+void NCursesTerm::show(const std::string &fileName) {
   initscr();
   raw();
   keypad(stdscr, TRUE);
   noecho();
   getmaxyx(stdscr, ty, tx);
 
-  auto log = fastype::LogManager::getLogger("Term");
   F_DEBUGF(log, "show getmaxyx({}, {})", ty, tx);
 
   FILE *fp = fopen(fileName.data(), "r");

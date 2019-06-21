@@ -28,8 +28,8 @@ endif(APPLE)
 set(F_SRC
     fastype.cpp
     Log.cpp
-    #Term.cpp
-    #NCursesTerm.cpp
+    Term.cpp
+    NCursesTerm.cpp
     #WinTerm.cpp
     Util.cpp
     )

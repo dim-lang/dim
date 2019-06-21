@@ -3,7 +3,7 @@
 
 #include "Term.h"
 #include "Log.h"
-#include "boost/config.hpp"
+#include <boost/config.hpp>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -29,12 +29,13 @@ static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
 std::shared_ptr<Term> Term::open(const std::string &termName) {
   std::lock_guard<std::mutex> guard(TermLock);
   if (TermMap.find(termName) == TermMap.end()) {
+
 #if BOOST_WINDOWS
-    std::shared_ptr<Term> term = std::shared_ptr<WinTerm>(new WinTerm());
+    std::shared_ptr<Term> term = std::shared_ptr<Term>(new WinTerm());
 #else
-    std::shared_ptr<Term> term =
-        std::shared_ptr<NCursesTerm>(new NCursesTerm());
+    std::shared_ptr<Term> term = std::shared_ptr<Term>(new NCursesTerm());
 #endif
+
     TermMap.insert(std::make_pair(termName, term));
   }
   return TermMap[termName];

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Log.h"
 #include "Term.h"
 #include <memory>
 #include <string>
@@ -19,6 +20,7 @@ public:
 private:
   int ty;
   int tx;
+  std::shared_ptr<Logger> log;
 };
 
 } // namespace fastype

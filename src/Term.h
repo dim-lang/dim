@@ -9,7 +9,7 @@ namespace fastype {
 
 class Term {
 public:
-  virtual ~Term();
+  virtual ~Term() = default;
 
   virtual void show(const std::string &fileName) = 0;
 
