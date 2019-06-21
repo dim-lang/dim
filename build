@@ -1,8 +1,11 @@
 #! /usr/bin/env bash
 
-# create boost header
+# build third party library
 if [ ! -d src/boost/boost ]; then
     cd src/boost && ./bootstrap.sh && ./b2 headers && cd ../..
+fi
+if [ ! -d src/icu/build ]; then
+    mkdir -p src/icu/build && cd src/icu/build && ../icu4c/source/runConfigureICU MacOSX && make -j6 check && cd ../../..
 fi
 
 # prepare build folder
