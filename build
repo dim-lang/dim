@@ -1,14 +1,20 @@
 #! /usr/bin/env bash
 
-# build third party library
+# git submodules
+ROOT=`pwd`
+git submodule update --init
+cd src/boost && git submodule update --init && cd $ROOT
+
+# third party library
 if [ ! -d src/boost/boost ]; then
-    cd src/boost && ./bootstrap.sh && ./b2 headers && cd ../..
+    cd src/boost && ./bootstrap.sh && ./b2 headers && cd $ROOT
 fi
 if [ ! -d src/icu/build ]; then
-    mkdir -p src/icu/build && cd src/icu/build && ../icu4c/source/runConfigureICU MacOSX && make -j6 check && cd ../../..
+    mkdir -p src/icu/build && cd src/icu/build && ../icu4c/source/runConfigureICU MacOSX && make -j6 check && cd $ROOT
 fi
 
-# prepare build folder
+# build folder
+cd $ROOT
 DEBUG=debug
 RELEASE=release
 if [ ! -d $DEBUG ]; then mkdir $DEBUG; fi
