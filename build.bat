@@ -13,8 +13,9 @@ if not exist src\boost\boost (
     cd src\boost && .\bootstrap.bat && .\b2.bat headers && cd %ROOT%
 )
 if not exist -d src\icu\build (
-    echo "[fastype] prepare *ICU4C* library for Windows"
-    md src\icu\build && cd src\icu\build && ..\icu4c\source\runConfigureICU Windows && cd %ROOT%
+    echo "[fastype] prepare *ICU4C* library for Windows see manual"
+    echo "[fastype] https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows"
+    cd src\icu && md src\icu\build && cd %ROOT%
 )
 
 @REM build folder
