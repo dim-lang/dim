@@ -9,7 +9,6 @@ case "$OSTYPE" in
   bsd*)     OS="FreeBSD" ;;
   *)        OS="Unknown-$OSTYPE" ;;
 esac
-
 echo "[fastype] Build for $OS"
 
 # git submodules
@@ -19,16 +18,11 @@ cd src/boost && git submodule update --init && cd $ROOT
 # third party library
 if [ ! -d src/boost/boost ]; then
     echo "[fastype] prepare *Boost* library for $OS"
-    cd src/boost 
-    ./bootstrap.sh && ./b2 headers 
-    cd $ROOT
+    cd src/boost && ./bootstrap.sh && ./b2 headers && cd $ROOT
 fi
 if [ ! -d src/icu/build ]; then
     echo "[fastype] prepare *ICU4C* library for $OS"
-    mkdir -p src/icu/build
-    cd src/icu/build
-    ../icu4c/source/runConfigureICU $OS && make -j6 check
-    cd $ROOT
+    mkdir -p src/icu/build && cd src/icu/build && ../icu4c/source/runConfigureICU $OS && make -j6 check && cd $ROOT
 fi
 
 # build folder
