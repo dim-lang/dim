@@ -32,7 +32,7 @@ For this goal, Fastype introduce below techniques.
     * Linux/UNIX
 
 ```
-$ git clone --recurse-submodules https://github.com/fastype/fastype.git
+$ git clone https://github.com/fastype/fastype.git
 $ cd fastype
 $ ./build
 ```
@@ -40,7 +40,7 @@ $ ./build
     * Windows
 
 ```
-$ git clone --recurse-submodules https://github.com/fastype/fastype.git
+$ git clone https://github.com/fastype/fastype.git
 $ cd fastype
 $ build.bat
 ```
