@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <time.h>
+#include <chrono>
 
 namespace fastype {
 
