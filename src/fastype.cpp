@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "Term.h"
 #include "config.h"
+#include <boost/program_options.hpp>
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -23,3 +24,4 @@ int main(int argc, char **argv) {
 
   return 0;
 }
+
