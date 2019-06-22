@@ -18,6 +18,7 @@
 spdlog
 boost
 fmt
+icu
 
 # config.h
 config.h
