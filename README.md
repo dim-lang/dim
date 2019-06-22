@@ -16,7 +16,7 @@ Fastype is a modern text editor, focused on features below.
 
 ## How to install?
 
-### Third Party Dependencies
+### Dependencies
 
 * [spdlog](https://github.com/gabime/spdlog)
 * [boost](https://github.com/boostorg/boost)
@@ -24,6 +24,15 @@ Fastype is a modern text editor, focused on features below.
 * [fmt](https://github.com/fmtlib/fmt)
 
 ### Build from source
+
+#### Software Environment
+
+| Platform |                       | |
+|----------|-----------------------|-|
+|  MacOSX  | `brew install spdlog` | |
+|          | `brew install boost`  | |
+|          | `brew install icu4c`  | |
+|          | `brew install fmt`    | |
 
 #### Linux/UNIX
 
