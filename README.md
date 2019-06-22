@@ -16,36 +16,32 @@ Fastype is a modern text editor, focused on features below.
 
 ## How to install?
 
-### Dependencies
-
-* [spdlog](https://github.com/gabime/spdlog)
-* [boost](https://github.com/boostorg/boost)
-* [icu4c](https://github.com/unicode-org/icu)
-* [fmt](https://github.com/fmtlib/fmt)
-
 ### Build from source
 
 #### Software Environment
 
-| Platform |                       | |
-|----------|-----------------------|-|
-|  MacOSX  | `brew install spdlog` | |
-|          | `brew install boost`  | |
-|          | `brew install icu4c`  | |
-|          | `brew install fmt`    | |
+| Platform |                            |
+|----------|----------------------------|
+|  MacOSX  | clang++ >=3.4, cmake >=3.4 |
+|  Macjaro | g++ >=5, cmake >=3.4       |
+|  Ubuntu  | g++ >=5, cmake >=3.4       |
+|  Windows | msvc >=2015, cmake >=3.4   |
 
-#### Linux/UNIX
 
-```
-$ git clone https://github.com/fastype/fastype.git
-$ cd fastype
-$ ./build
-```
+#### Dependencies
 
-#### Windows
+| Platform |                                                                       |
+|----------|-----------------------------------------------------------------------|
+|  MacOSX  | `brew install spdlog boost icu4c fmt`                                 |
+|  Macjaro | `yaourt install spdlog-git && sudo pacman -S fmt boost icu4c`         |
+|  Ubuntu  | `sudo apt install libspdlog-dev libfmt-dev libboost-dev libicu4c-dev` |
+|  Windows |                                                                       |
 
-```
-$ git clone https://github.com/fastype/fastype.git
-$ cd fastype
-$ build.bat
-```
+#### Build
+
+| Platform |                                                                                 |
+|----------|---------------------------------------------------------------------------------|
+|  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
+|  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
+|  Ubuntu  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
+|  Windows | `git clone https://github.com/fastype/fastype.git && cd fastype && .\build.bat` |
