@@ -17,12 +17,14 @@ Fastype is a modern text editor, focused on features below.
 ## How to install?
 
 ### Third Party Dependencies
-    * [spdlog](https://github.com/gabime/spdlog)
-    * [boost](https://github.com/boostorg/boost)
-    * [icu4c](https://github.com/unicode-org/icu)
-    * [fmt](https://github.com/fmtlib/fmt)
 
-### Manual Build
+* [spdlog](https://github.com/gabime/spdlog)
+* [boost](https://github.com/boostorg/boost)
+* [icu4c](https://github.com/unicode-org/icu)
+* [fmt](https://github.com/fmtlib/fmt)
+
+### Build from source
+
 #### Linux/UNIX
 
 ```
