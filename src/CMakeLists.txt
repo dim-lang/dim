@@ -27,6 +27,19 @@ elseif (MSVC)
     include(CMakeWindows.cmake)
 endif(APPLE)
 
+if (MSVC)
+set(F_SRC
+    fastype.cpp
+    Log.cpp
+    Term.cpp
+    WinTerm.cpp
+    Util.cpp
+    )
+set(FD_SRC
+    fastyped.cpp
+    Log.cpp
+    )
+else()
 set(F_SRC
     fastype.cpp
     Log.cpp
@@ -39,6 +52,7 @@ set(FD_SRC
     fastyped.cpp
     Log.cpp
     )
+endif(MSVC)
 
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})

@@ -28,6 +28,7 @@ set(F_INC
     ${CURSES_INCLUDE_DIRS}
     spdlog::spdlog
     ${Boost_INCLUDE_DIRS}
+    boost
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
@@ -37,4 +38,5 @@ set(F_LIB
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
+    boost\stage\lib
     )
