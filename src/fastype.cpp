@@ -4,7 +4,7 @@
 #include "Log.h"
 #include "Term.h"
 #include "config.h"
-#include <boost/program_options.hpp>
+#include "boost/program_options.hpp"
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
     F_DEBUGF(log, "argv[{}]: {}", i, argv[i]);
   }
 
-  std::shared_ptr<fastype::Term> term = fastype::Term::open("NCursesTerm");
-  term->show("NCursesTerm");
+  std::shared_ptr<fastype::Term> term = fastype::Term::open("Term");
+  term->show("Term");
 
   return 0;
 }

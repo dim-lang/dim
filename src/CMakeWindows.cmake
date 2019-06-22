@@ -5,35 +5,38 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
 add_definitions(-DFMT_HEADER_ONLY)
 
-find_package(spdlog REQUIRED)
-find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost COMPONENTS program_options REQUIRED)
 
-message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
-message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
-message(CURSES_INCLUDE_DIRS: ${CURSES_INCLUDE_DIRS})
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
-message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
-message(Boost_LIBRARIES: ${Boost_LIBRARIES})
-message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
 
 set(F_INC
     .
-    ${CURSES_INCLUDE_DIRS}
-    spdlog::spdlog
+    ../src/spdlog/include
+    ../src/boost
     ${Boost_INCLUDE_DIRS}
     )
-set(F_LIB
-    ${CURSES_LIBRARIES}
-    Threads::Threads
-    spdlog::spdlog
-    Boost::program_options
-    )
-set(F_LIB_DIR
-    ${CURSES_LIBRARY_DIRS}
-    )
+
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(F_LIB
+        Threads::Threads
+        libboost_program_options-vc141-mt-gd-x64-1_70.lib
+        )
+    set(F_LIB_DIR
+        ../src/boost/stage/lib
+        )
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    set(F_LIB
+        Threads::Threads
+        libboost_program_options-vc141-mt-x64-1_70.lib
+        )
+    set(F_LIB_DIR
+        ../src/boost/stage/lib
+        )
+else()
+    message(FATAL_ERROR "CMAKE_BUILD_TYPE missing!")
+endif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+

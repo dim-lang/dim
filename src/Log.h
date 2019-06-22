@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "spdlog/spdlog.h"
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <stdio.h>
 #include <string>
 
@@ -132,3 +132,4 @@ public:
                     msg);                                                      \
   } while (0)
 #endif
+

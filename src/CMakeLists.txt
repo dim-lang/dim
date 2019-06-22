@@ -27,31 +27,35 @@ elseif (MSVC)
     include(CMakeWindows.cmake)
 endif(APPLE)
 
+message(F_INC: ${F_INC})
+message(F_LIB_DIR: ${F_LIB_DIR})
+message(F_LIB: ${F_LIB})
+
 if (MSVC)
-set(F_SRC
-    fastype.cpp
-    Log.cpp
-    Term.cpp
-    WinTerm.cpp
-    Util.cpp
-    )
-set(FD_SRC
-    fastyped.cpp
-    Log.cpp
-    )
+    set(F_SRC
+        fastype.cpp
+        Log.cpp
+        Term.cpp
+        WinTerm.cpp
+        Util.cpp
+        )
+    set(FD_SRC
+        fastyped.cpp
+        Log.cpp
+        )
 else()
-set(F_SRC
-    fastype.cpp
-    Log.cpp
-    Term.cpp
-    NCursesTerm.cpp
-    #WinTerm.cpp
-    Util.cpp
-    )
-set(FD_SRC
-    fastyped.cpp
-    Log.cpp
-    )
+    set(F_SRC
+        fastype.cpp
+        Log.cpp
+        Term.cpp
+        NCursesTerm.cpp
+        #WinTerm.cpp
+        Util.cpp
+        )
+    set(FD_SRC
+        fastyped.cpp
+        Log.cpp
+        )
 endif(MSVC)
 
 include_directories(${F_INC})

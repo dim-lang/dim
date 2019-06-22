@@ -3,10 +3,10 @@
 
 #include "Log.h"
 #include "Util.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/spdlog.h"
 #include <memory>
 #include <mutex>
-#include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/spdlog.h>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -57,3 +57,4 @@ spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
 F_STATIC_END(Log)
 
 } // namespace fastype
+
