@@ -18,9 +18,9 @@ Fastype is a modern text editor, focused on features below.
 
 ### Build from source
 
-#### Toolchain
+#### Compiler
 
-| Platform | Toolchain                  |
+| Platform | Compiler                   |
 |----------|----------------------------|
 |  MacOSX  | clang++ >=3.4, cmake >=3.4 |
 |  Macjaro | g++ >=5, cmake >=3.4       |
@@ -30,7 +30,7 @@ Fastype is a modern text editor, focused on features below.
 
 #### Dependencies
 
-| Platform | Install Command                                                       |
+| Platform | Dependencies                                                          |
 |----------|-----------------------------------------------------------------------|
 |  MacOSX  | `brew install spdlog boost icu4c fmt`                                 |
 |  Macjaro | `yaourt install spdlog-git && sudo pacman -S fmt boost icu4c`         |
@@ -39,7 +39,7 @@ Fastype is a modern text editor, focused on features below.
 
 #### Build
 
-| Platform | Build Command                                                                   |
+| Platform | Build                                                                           |
 |----------|---------------------------------------------------------------------------------|
 |  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
 |  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
