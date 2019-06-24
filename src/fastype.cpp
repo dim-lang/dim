@@ -42,19 +42,19 @@ int main(int argc, char **argv) {
   }
 
   vector<string> fileNameList;
-  if (vm.count("file-name")) {
-    F_DEBUG(log, "file-name");
-    fileNameList = vm["file-name"].as<vector<string>>();
-    for (int i = 0; i < fileNameList.size(); i++) {
-      F_DEBUGF(log, "file-name[{}]: {}", i, fileNameList[i]);
-      cout << i << ": " << fileNameList[i] << endl;
-    }
+  if (!vm.count("file-name")) {
+    cout << "file name missing!" << endl;
+    return 0;
   }
-  cout << endl;
-  return 0;
 
-  shared_ptr<fastype::Term> term = fastype::Term::open("Term");
-  term->show("Term");
+  F_DEBUG(log, "file-name");
+  fileNameList = vm["file-name"].as<vector<string>>();
+  for (int i = 0; i < fileNameList.size(); i++) {
+    F_DEBUGF(log, "file-name[{}]: {}", i, fileNameList[i]);
+  }
+
+  shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
+  term->show(fileNameList[0]);
 
   return 0;
 }
