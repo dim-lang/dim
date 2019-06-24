@@ -132,4 +132,3 @@ public:
                     msg);                                                      \
   } while (0)
 #endif
-

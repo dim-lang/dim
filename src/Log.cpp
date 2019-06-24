@@ -10,42 +10,47 @@
 #include <string>
 #include <thread>
 #include <unordered_map>
+using std::lock_guard;
+using std::make_pair;
+using std::mutex;
+using std::shared_ptr;
+using std::string;
+using std::to_string;
+using std::unordered_map;
 
 namespace fastype {
 
-std::string Logger::formatLocation(const LogLocation &location,
-                                   const char *fmt) {
-  std::string shortFileName(location.fileName);
+string Logger::formatLocation(const LogLocation &location, const char *fmt) {
+  string shortFileName(location.fileName);
   size_t slashPos = shortFileName.find_last_of("/");
-  slashPos = slashPos != std::string::npos ? slashPos
-                                           : shortFileName.find_last_of("\\");
-  if (slashPos != std::string::npos) {
+  slashPos =
+      slashPos != string::npos ? slashPos : shortFileName.find_last_of("\\");
+  if (slashPos != string::npos) {
     shortFileName = shortFileName.substr(slashPos + 1);
   }
-  return std::string(std::string("[") + shortFileName + "] [" +
-                     location.functionName + ":" +
-                     std::to_string(location.lineNumber) + "] " + fmt);
+  return string(string("[") + shortFileName + "] [" + location.functionName +
+                ":" + to_string(location.lineNumber) + "] " + fmt);
 }
 
-static std::mutex LoggerLock;
-static std::unordered_map<std::string, std::shared_ptr<Logger>> LoggerMap =
-    std::unordered_map<std::string, std::shared_ptr<Logger>>();
-static const std::string FileName = "fastype.log";
+static mutex LoggerLock;
+static unordered_map<string, shared_ptr<Logger>> LoggerMap =
+    unordered_map<string, shared_ptr<Logger>>();
+static const string FileName = "fastype.log";
 static const int MaxFileSize = 1048576 * 10;
 static const int MaxFiles = 100;
 
-std::shared_ptr<Logger> LogManager::getLogger(const std::string &loggerName) {
-  std::lock_guard<std::mutex> guard(LoggerLock);
+shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
+  lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
-    std::shared_ptr<spdlog::logger> spdLogger =
+    shared_ptr<spdlog::logger> spdLogger =
         spdlog::rotating_logger_mt(loggerName, FileName, MaxFileSize, MaxFiles);
-    LoggerMap.insert(std::make_pair(
-        loggerName, std::shared_ptr<Logger>(new Logger(spdLogger))));
+    LoggerMap.insert(
+        make_pair(loggerName, shared_ptr<Logger>(new Logger(spdLogger))));
   }
   return LoggerMap[loggerName];
 }
 
-F_STATIC_BEGIN(Log)
+F_STATIC_BLOCK_BEGIN(Log)
 
 #ifndef NDEBUG
 spdlog::set_level(spdlog::level::debug);
@@ -54,7 +59,6 @@ spdlog::set_level(spdlog::level::err);
 #endif
 
 spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
-F_STATIC_END(Log)
+F_STATIC_BLOCK_END(Log)
 
 } // namespace fastype
-
