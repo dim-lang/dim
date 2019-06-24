@@ -23,6 +23,8 @@ NCursesTerm::NCursesTerm()
 NCursesTerm::~NCursesTerm() { F_DEBUG(log, "Destruct"); }
 
 void NCursesTerm::show(const std::string &fileName) {
+  F_DEBUGF(log, "fileName: {}", fileName);
+
   int row, col, y, x;
 
   initscr();
