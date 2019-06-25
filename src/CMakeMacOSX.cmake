@@ -9,10 +9,6 @@ add_definitions(FMT_HEADER_ONLY)
 
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost COMPONENTS program_options REQUIRED)
 
 message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
 message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
