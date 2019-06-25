@@ -5,7 +5,6 @@ message(CMakeMacOSX.cmake)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-add_definitions(-DFMT_HEADER_ONLY)
 
 find_package(fmt REQUIRED)
 find_package(Curses REQUIRED)
@@ -23,6 +22,9 @@ message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
 message(Boost_LIBRARIES: ${Boost_LIBRARIES})
 message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+message(FMT_LIBRARIES: ${FMT_LIBRARIES})
+message(FMT_INCLUDE_DIRS: ${FMT_INCLUDE_DIRS})
+message(FMT_LIBRARY_DIRS: ${FMT_LIBRARY_DIRS})
 
 set(F_INC
     .
@@ -34,6 +36,7 @@ set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     Boost::program_options
+    fmt::fmt
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
