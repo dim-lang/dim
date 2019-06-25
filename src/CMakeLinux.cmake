@@ -23,6 +23,9 @@ message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
 message(Boost_LIBRARIES: ${Boost_LIBRARIES})
 message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+message(FMT_LIBRARIES: ${FMT_LIBRARIES})
+message(FMT_INCLUDE_DIRS: ${FMT_INCLUDE_DIRS})
+message(FMT_LIBRARY_DIRS: ${FMT_LIBRARY_DIRS})
 
 set(F_INC
     .
@@ -34,6 +37,7 @@ set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     Boost::program_options
+    fmt::fmt
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
