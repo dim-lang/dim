@@ -3,8 +3,6 @@
 
 #include "Log.h"
 #include "Util.h"
-#include "spdlog/sinks/rotating_file_sink.h"
-#include "spdlog/spdlog.h"
 #include <memory>
 #include <mutex>
 #include <string>
@@ -101,13 +99,6 @@ shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
 
 F_STATIC_BLOCK_BEGIN(Log)
 
-#ifndef NDEBUG
-spdlog::set_level(spdlog::level::debug);
-#else
-spdlog::set_level(spdlog::level::err);
-#endif
-
-spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
 F_STATIC_BLOCK_END(Log)
 
 } // namespace fastype
