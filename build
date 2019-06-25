@@ -21,17 +21,10 @@ if [ ! -d spdlog ]; then
     cd spdlog && git checkout v1.3.1 && cd $ROOT/src
     echo [fastype] prepare *spdlog* v1.3.1 - done
 fi
-if [ ! -d fmt ]; then
-    echo [fastype] prepare *fmt* v5.3.0
-    git clone https://github.com/fmtlib/fmt.git
-    cd fmt && git checkout v5.3.0 && cd $ROOT/src
-    echo [fastype] prepare *fmt* v5.3.0 - done
-fi
 if [ ! -d icu ]; then
     echo [fastype] prepare *icu4c* release-64-2
     git clone https://github.com/unicode-org/icu.git
-    cd icu && git checkout release-64-2 && cd $ROOT/src
-    echo [fastype] build *icu4c* release-64-2 manually: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
+    cd icu && git checkout release-64-2 && mkdir build && cd build && ../icu4c/source/runConfigureICU $OS && make -j8 && cd $ROOT/src
 fi
 if [ ! -d boost ]; then
     echo [fastype] prepare *boost* boost-1.70.0

@@ -14,12 +14,6 @@ if not exist spdlog (
     cd spdlog && git checkout v1.3.1 && cd %ROOT%\src
     echo [fastype] prepare *spdlog* v1.3.1 - done
 )
-if not exist fmt (
-    echo [fastype] prepare *fmt* v5.3.0
-    git clone https://github.com/fmtlib/fmt.git
-    cd fmt && git checkout v5.3.0 && cd %ROOT%\src
-    echo [fastype] prepare *fmt* v5.3.0 - done
-)
 if not exist icu (
     echo [fastype] prepare *icu4c* release-64-2
     git clone https://github.com/unicode-org/icu.git
@@ -39,5 +33,5 @@ set DEBUG=debug
 set RELEASE=release
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
-cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug ..\src && cd %ROOT%
-cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release ..\src && cd %ROOT%
+cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON --config Debug ..\src && cd %ROOT%
+cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release --config Release ..\src && cd %ROOT%
