@@ -7,25 +7,13 @@ set OS="Windows"
 echo [fastype] Build for %OS%
 
 @rem third party library
-cd src
-if not exist spdlog (
-    echo [fastype] prepare *spdlog* v1.3.1
-    git clone https://github.com/gabime/spdlog.git
-    cd spdlog && git checkout v1.3.1 && cd %ROOT%\src
-    echo [fastype] prepare *spdlog* v1.3.1 - done
-)
-if not exist icu (
-    echo [fastype] prepare *icu4c* release-64-2
-    git clone https://github.com/unicode-org/icu.git
-    cd icu && git checkout release-64-2 && cd %ROOT%\src
-    echo [fastype] build *icu4c* release-64-2 manually: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
-)
-if not exist boost (
-    echo [fastype] prepare *boost* boost-1.70.0
-    git clone https://github.com/boostorg/boost.git
-    cd boost && git checkout boost-1.70.0 && git submodule update --init && .\bootstrap.bat && .\b2 && cd %ROOT%\src
-    echo [fastype] prepare *boost* boost-1.70.0 - done
-)
+git submodule update --init
+echo [fastype] prepare *boost* boost-1.70.0
+cd %ROOT%\src\boost && git submodule update --init && .\bootstrap.bat && .\b2 && cd %ROOT%
+echo [fastype] prepare *boost* boost-1.70.0 - done
+echo [fastype] prepare *icu4c* release-64-2
+cd %ROOT%\src\icu && md build && cd build && ..\icu4c\source\runConfigureICU %OS% && make -j8 && cd %ROOT%
+echo [fastype] prepare *icu4c* release-64-2
 
 @rem build
 cd %ROOT%
