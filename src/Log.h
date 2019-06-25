@@ -31,20 +31,9 @@ public:
 
 class LogSink {
 public:
-  LogSink(const std::string &sinkName) : sinkName(sinkName) {
-    fd = std::fopen(sinkName.data(), "a");
-  }
-
-  virtual ~LogSink() {
-    if (fd) {
-      std::fclose(fd);
-    }
-  }
-
-  void append(const std::string &record) {
-    std::lock_guard<std::mutex> guard(sinkLock);
-    std::fwrite(record.data(), sizeof(char), record.length(), fd);
-  }
+  LogSink(const std::string &sinkName);
+  virtual ~LogSink();
+  void append(const std::string &record);
 
 private:
   std::string sinkName;
@@ -98,7 +87,7 @@ private:
   std::string formatLocation(const detail::LogLocation &location,
                              const char *fmt);
 
-  bool isEnableFor(const LogLevel &level);
+  bool isEnableFor(const LogLevel &level) const;
 
   template <typename... Args>
   inline void log(const LogLevel &level, const detail::LogLocation &location,

@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 add_definitions(-DFMT_HEADER_ONLY)
 
-find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS OFF)
@@ -27,7 +27,7 @@ message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
 set(F_INC
     .
     ${CURSES_INCLUDE_DIRS}
-    spdlog::spdlog
+    fmt::fmt
     ${Boost_INCLUDE_DIRS}
     )
 set(F_LIB

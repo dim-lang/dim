@@ -20,6 +20,47 @@ using std::unordered_map;
 
 namespace fastype {
 
+static mutex LoggerLock;
+static mutex LogSinkLock;
+static unordered_map<string, shared_ptr<Logger>> LoggerMap =
+    unordered_map<string, shared_ptr<Logger>>();
+static unordered_map<string, shared_ptr<detail::LogSink>> LogSinkMap =
+    unordered_map<string, shared_ptr<detail::LogSink>>();
+static const string FileName = "fastype.log";
+static const int MaxFileSize = 1048576 * 10;
+static const int MaxFiles = 100;
+static const unordered_map<const LogLevel, const int> LogLevelValue = {
+    {LogLevel::DEBUG, 1000},
+    {LogLevel::INFO, 2000},
+    {LogLevel::WARN, 3000},
+    {LogLevel::ERROR, 4000},
+    {LogLevel::FATAL, 5000}};
+static const unordered_map<const LogLevel, const string> LogLevelString = {
+    {LogLevel::DEBUG, "DEBUG"},
+    {LogLevel::INFO, "INFO"},
+    {LogLevel::WARN, "WARN"},
+    {LogLevel::ERROR, "ERROR"},
+    {LogLevel::FATAL, "FATAL"}};
+
+namespace detail {
+
+LogSink::LogSink(const std::string &sinkName) : sinkName(sinkName) {
+  fd = std::fopen(sinkName.data(), "a");
+}
+
+LogSink::~LogSink() {
+  if (fd) {
+    std::fclose(fd);
+  }
+}
+
+void LogSink::append(const std::string &record) {
+  std::lock_guard<std::mutex> guard(sinkLock);
+  std::fwrite(record.data(), sizeof(char), record.length(), fd);
+}
+
+} // namespace detail
+
 string Logger::formatLocation(const detail::LogLocation &location,
                               const char *fmt) {
   string shortFileName(location.fileName);
@@ -33,15 +74,10 @@ string Logger::formatLocation(const detail::LogLocation &location,
                 ":" + to_string(location.lineNumber) + "] " + fmt);
 }
 
-static mutex LoggerLock;
-static mutex LogSinkLock;
-static unordered_map<string, shared_ptr<Logger>> LoggerMap =
-    unordered_map<string, shared_ptr<Logger>>();
-static unordered_map<string, shared_ptr<detail::LogSink>> LogSinkMap =
-    unordered_map<string, shared_ptr<detail::LogSink>>();
-static const string FileName = "fastype.log";
-static const int MaxFileSize = 1048576 * 10;
-static const int MaxFiles = 100;
+bool Logger::isEnableFor(const LogLevel &level) const {
+  return LogLevelValue.find(level)->second >
+         LogLevelValue.find(this->level)->second;
+}
 
 static shared_ptr<detail::LogSink> openSink(const string &sinkName) {
   lock_guard<mutex> guard(LogSinkLock);
