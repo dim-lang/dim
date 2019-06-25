@@ -7,35 +7,23 @@ Fastype - A Fast Modern Text Editor
 Fastype is a modern text editor, focused on features below.
 
 * Friendly: out of box, nothing to learn in plain mode.
-* Effective: minimum time cost while maximum job done.
-* Cross Platform: same experience cross windows, macOS, linux, bsd.
-* Configurable: configurations via scripts like vim/emacs.
-* Scalabble: extensions and plugins via scripts like vim/emacs.
-* Distributed: daemon server for data, client editor for rendering.
-* Batch Processed: script jobs submitted and processed asynchronously and concurrently.
+* Effective: minimum time cost with maximum job done.
+* Performance: split into server-client model, server for data, client for rendering.
+* Programmable: configurations, extensions, plugins and jobs done with scripts.
+* Cross Platform: mainstream system such as windows, macOS, linux, bsd, etc.
 
 ## How to install?
 
 ### Build from source
 
-#### Compiler
+#### Dependencies
 
-| Platform | Compiler                   |
+| Platform | Dependencies               |
 |----------|----------------------------|
 |  MacOSX  | clang++ >=3.4, cmake >=3.4 |
 |  Macjaro | g++ >=5, cmake >=3.4       |
 |  Ubuntu  | g++ >=5, cmake >=3.4       |
 |  Windows | msvc >=2015, cmake >=3.4   |
-
-
-#### Dependencies
-
-| Platform | Dependencies                                                          |
-|----------|-----------------------------------------------------------------------|
-|  MacOSX  | `brew install spdlog boost icu4c fmt`                                 |
-|  Macjaro | `yaourt install spdlog-git && sudo pacman -S fmt boost icu4c`         |
-|  Ubuntu  | `sudo apt install libspdlog-dev libfmt-dev libboost-dev libicu4c-dev` |
-|  Windows |                                                                       |
 
 #### Build
 
