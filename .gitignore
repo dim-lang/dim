@@ -14,11 +14,5 @@
 *.log
 *.tlog
 
-# third party library
-spdlog
-boost
-fmt
-icu
-
 # config.h
 Config.h
