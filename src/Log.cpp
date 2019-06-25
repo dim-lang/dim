@@ -20,7 +20,8 @@ using std::unordered_map;
 
 namespace fastype {
 
-string Logger::formatLocation(const LogLocation &location, const char *fmt) {
+string Logger::formatLocation(const detail::LogLocation &location,
+                              const char *fmt) {
   string shortFileName(location.fileName);
   size_t slashPos = shortFileName.find_last_of("/");
   slashPos =
@@ -33,19 +34,31 @@ string Logger::formatLocation(const LogLocation &location, const char *fmt) {
 }
 
 static mutex LoggerLock;
+static mutex LogSinkLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
+static unordered_map<string, shared_ptr<detail::LogSink>> LogSinkMap =
+    unordered_map<string, shared_ptr<detail::LogSink>>();
 static const string FileName = "fastype.log";
 static const int MaxFileSize = 1048576 * 10;
 static const int MaxFiles = 100;
 
+static shared_ptr<detail::LogSink> openSink(const string &sinkName) {
+  lock_guard<mutex> guard(LogSinkLock);
+  if (LogSinkMap.find(sinkName) == LogSinkMap.end()) {
+    shared_ptr<detail::LogSink> sink =
+        shared_ptr<detail::LogSink>(new detail::LogSink(sinkName));
+    LogSinkMap.insert(make_pair(sinkName, sink));
+  }
+  return LogSinkMap[sinkName];
+}
+
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
-    shared_ptr<spdlog::logger> spdLogger =
-        spdlog::rotating_logger_mt(loggerName, FileName, MaxFileSize, MaxFiles);
-    LoggerMap.insert(
-        make_pair(loggerName, shared_ptr<Logger>(new Logger(spdLogger))));
+    shared_ptr<Logger> logger =
+        shared_ptr<Logger>(new Logger(openSink(FileName)));
+    LoggerMap.insert(make_pair(loggerName, logger));
   }
   return LoggerMap[loggerName];
 }

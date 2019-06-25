@@ -2,12 +2,20 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "fmt/format.h"
 #include "spdlog/spdlog.h"
+#include <cstdio>
 #include <memory>
+#include <mutex>
 #include <stdio.h>
 #include <string>
+#include <thread>
 
 namespace fastype {
+
+enum LogLevel { DEBUG, INFO, WARN, ERROR, FATAL };
+
+namespace detail {
 
 class LogLocation {
 public:
@@ -21,6 +29,31 @@ public:
   std::string functionName;
 };
 
+class LogSink {
+public:
+  LogSink(const std::string &sinkName) : sinkName(sinkName) {
+    fd = std::fopen(sinkName.data(), "a");
+  }
+
+  virtual ~LogSink() {
+    if (fd) {
+      std::fclose(fd);
+    }
+  }
+
+  void append(const std::string &record) {
+    std::lock_guard<std::mutex> guard(sinkLock);
+    std::fwrite(record.data(), sizeof(char), record.length(), fd);
+  }
+
+private:
+  std::string sinkName;
+  std::FILE *fd;
+  std::mutex sinkLock;
+};
+
+} // namespace detail
+
 class LogManager;
 
 class Logger {
@@ -28,31 +61,57 @@ public:
   virtual ~Logger() = default;
 
   template <typename... Args>
-  inline void debug(const LogLocation &location, const char *fmt,
+  inline void debug(const detail::LogLocation &location, const char *fmt,
                     const Args &... args) {
-    logger->debug(formatLocation(location, fmt).data(), args...);
+    log(LogLevel::DEBUG, location, fmt, args...);
   }
 
   template <typename... Args>
-  inline void info(const LogLocation &location, const char *fmt,
+  inline void info(const detail::LogLocation &location, const char *fmt,
                    const Args &... args) {
-    logger->info(formatLocation(location, fmt).data(), args...);
+    log(LogLevel::INFO, location, fmt, args...);
   }
 
   template <typename... Args>
-  inline void error(const LogLocation &location, const char *fmt,
+  inline void warn(const detail::LogLocation &location, const char *fmt,
+                   const Args &... args) {
+    log(LogLevel::WARN, location, fmt, args...);
+  }
+
+  template <typename... Args>
+  inline void error(const detail::LogLocation &location, const char *fmt,
                     const Args &... args) {
-    logger->error(formatLocation(location, fmt).data(), args...);
+    log(LogLevel::ERROR, location, fmt, args...);
+  }
+
+  template <typename... Args>
+  inline void fatal(const detail::LogLocation &location, const char *fmt,
+                    const Args &... args) {
+    log(LogLevel::FATAL, location, fmt, args...);
   }
 
 private:
   friend class LogManager;
 
-  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
+  explicit Logger(std::shared_ptr<detail::LogSink> sink) : sink(sink) {}
 
-  std::string formatLocation(const LogLocation &location, const char *fmt);
+  std::string formatLocation(const detail::LogLocation &location,
+                             const char *fmt);
 
-  std::shared_ptr<spdlog::logger> logger;
+  bool isEnableFor(const LogLevel &level);
+
+  template <typename... Args>
+  inline void log(const LogLevel &level, const detail::LogLocation &location,
+                  const char *fmt, const Args &... args) {
+    if (!isEnableFor(level)) {
+      return;
+    }
+    std::string record = fmt::format(fmt, args...);
+    sink->append(record);
+  }
+
+  LogLevel level;
+  std::shared_ptr<detail::LogSink> sink;
 };
 
 class LogManager {
@@ -86,32 +145,34 @@ public:
 #ifndef F_DEBUGF
 #define F_DEBUGF(logger, fmt, ...)                                             \
   do {                                                                         \
-    (logger)->debug(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
-                    fmt, __VA_ARGS__);                                         \
+    (logger)->debug(                                                           \
+        fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
+        __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
 #ifndef F_DEBUG
 #define F_DEBUG(logger, msg)                                                   \
   do {                                                                         \
-    (logger)->debug(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
-                    msg);                                                      \
+    (logger)->debug(                                                           \
+        fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), msg);  \
   } while (0)
 #endif
 
 #ifndef F_INFOF
 #define F_INFOF(logger, fmt, ...)                                              \
   do {                                                                         \
-    (logger)->info(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),     \
-                   fmt, __VA_ARGS__);                                          \
+    (logger)->info(                                                            \
+        fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
+        __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
 #ifndef F_INFO
 #define F_INFO(logger, msg)                                                    \
   do {                                                                         \
-    (logger)->info(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),     \
-                   msg);                                                       \
+    (logger)->info(                                                            \
+        fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), msg);  \
   } while (0)
 #endif
 
@@ -120,8 +181,9 @@ public:
 #ifndef F_ERRORF
 #define F_ERRORF(logger, fmt, ...)                                             \
   do {                                                                         \
-    (logger)->error(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
-                    fmt, __VA_ARGS__);                                         \
+    (logger)->error(                                                           \
+        fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
+        __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
