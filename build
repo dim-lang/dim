@@ -14,7 +14,7 @@ case "$OSTYPE" in
 esac
 echo "[fastype] Build for $OS"
 
-git submodule update --init
+git submodule update --init --recursive
 echo [fastype] prepare *boost* boost-1.70.0
 cd $ROOT/src/boost && git submodule update --init && ./bootstrap.sh && ./b2 && cd $ROOT
 echo [fastype] prepare *boost* boost-1.70.0 - done
