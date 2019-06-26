@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "fmt/format.h"
 #include <cstdio>
 #include <memory>
 #include <mutex>
@@ -94,8 +93,8 @@ private:
     if (!isEnableFor(level)) {
       return;
     }
-    std::string record = fmt::format(fmt, args...);
-    sink->append(record);
+    // std::string record = fmt::format(fmt, args...);
+    // sink->append(record);
   }
 
   LogLevel level;
