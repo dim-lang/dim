@@ -18,7 +18,7 @@ git submodule update --init --recursive
 echo [fastype] prepare spdlog v1.3.1 - done
 echo [fastype] prepare boost boost-1.70.0
 if [ ! -d src/boost/stage/lib ]; then
-    cd $ROOT/src/boost && ./bootstrap.sh && ./b2 && cd $ROOT
+    cd $ROOT/src/boost && ./bootstrap.sh && ./b2 link=shared -j8 && cd $ROOT
 fi
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2
