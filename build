@@ -21,7 +21,7 @@ echo [fastype] prepare spdlog v1.3.1 - done
 echo [fastype] prepare boost boost-1.70.0
 cd $ROOT/src/boost && git checkout tags/boost-1.70.0 && cd $ROOT
 if [ ! -d src/boost/stage/lib ]; then
-    cd $ROOT/src/boost && ./bootstrap.sh && ./b2 link=shared -j8 && cd $ROOT
+    cd $ROOT/src/boost && ./bootstrap.sh && ./b2 link=shared runtime-debugging=off runtime-link=shared variant=release -j8 && cd $ROOT
 fi
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2

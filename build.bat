@@ -3,7 +3,7 @@
 @rem Apache License Version 2.0
 
 set ROOT=%cd%
-set OS="Windows"
+set OS=Windows
 echo [fastype] Build for %OS%
 
 @rem third party library
@@ -14,21 +14,23 @@ echo [fastype] prepare spdlog v1.3.1 - done
 echo [fastype] prepare boost boost-1.70.0
 cd %ROOT%\src\boost && git checkout tags/boost-1.70.0 && cd %ROOT%
 if not exist src\boost\stage\lib (
-    cd %ROOT%\src\boost .\bootstrap.bat && .\b2 link=shared -j8 && cd %ROOT%
+    cd %ROOT%\src\boost && .\bootstrap.bat && call .\b2 link=shared runtime-debugging=off runtime-link=shared variant=release -j8 && cd %ROOT%
 )
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2
 cd %ROOT%\src\icu && git checkout tags/release-64-2 && cd %ROOT%
 if not exist src\icu\build (
-    cd %ROOT%\src\icu && md build && cd build && ..\icu4c\source\runConfigureICU %OS% && make -j8 && cd %ROOT%
+    echo [fastype] prepare icu4c release-64-2 manually: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
 )
 echo [fastype] prepare icu4c release-64-2 - done
 
 @rem build
-cd %ROOT%
+echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
 cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON --config Debug ..\src && cd %ROOT%
 cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release --config Release ..\src && cd %ROOT%
+echo [fastype] prepare msvc project - done
+echo [fastype] build manually via msvc project
