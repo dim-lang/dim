@@ -26,7 +26,9 @@ set(F_INC
 set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
+    boost_program_options
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
+    boost/stage/lib
     )
