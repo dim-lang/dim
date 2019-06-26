@@ -19,8 +19,9 @@ if not exist src\boost\stage\lib (
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2
 cd %ROOT%\src\icu && git checkout tags/release-64-2 && cd %ROOT%
-if not exist src\icu\build (
-    echo [fastype] prepare icu4c release-64-2 manually: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
+if not exist src\icu\icu4c\lib (
+    echo [fastype] prepare icu4c release-64-2 manually via src\icu\icu4c\\source\allinone\allinone.sln
+    echo [fastype] see reference: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
 )
 echo [fastype] prepare icu4c release-64-2 - done
 
@@ -30,7 +31,7 @@ set DEBUG=debug
 set RELEASE=release
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
-cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON --config Debug ..\src && cd %ROOT%
-cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release --config Release ..\src && cd %ROOT%
+cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x86 --config Debug ..\src && cd %ROOT%
+cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x86 --config Release ..\src && cd %ROOT%
 echo [fastype] prepare msvc project - done
 echo [fastype] build manually via msvc project
