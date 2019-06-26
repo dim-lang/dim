@@ -8,12 +8,20 @@ echo [fastype] Build for %OS%
 
 @rem third party library
 git submodule update --init --recursive
+echo [fastype] prepare spdlog v1.3.1
+cd %ROOT%\src\spdlog && git checkout tags/v1.3.1 && cd %ROOT%
 echo [fastype] prepare spdlog v1.3.1 - done
 echo [fastype] prepare boost boost-1.70.0
-cd %ROOT%\src\boost .\bootstrap.bat && .\b2 link=shared -j8 && cd %ROOT%
+cd %ROOT%\src\boost && git checkout tags/boost-1.70.0 && cd %ROOT%
+if not exist src\boost\stage\lib (
+    cd %ROOT%\src\boost .\bootstrap.bat && .\b2 link=shared -j8 && cd %ROOT%
+)
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2
-cd %ROOT%\src\icu && md build && cd build && ..\icu4c\source\runConfigureICU %OS% && make -j8 && cd %ROOT%
+cd %ROOT%\src\icu && git checkout tags/release-64-2 && cd %ROOT%
+if not exist src\icu\build (
+    cd %ROOT%\src\icu && md build && cd build && ..\icu4c\source\runConfigureICU %OS% && make -j8 && cd %ROOT%
+)
 echo [fastype] prepare icu4c release-64-2 - done
 
 @rem build

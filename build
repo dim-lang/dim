@@ -15,13 +15,17 @@ esac
 echo "[fastype] Build for $OS"
 
 git submodule update --init --recursive
+echo [fastype] prepare spdlog v1.3.1
+cd $ROOT/src/spdlog && git checkout tags/v1.3.1 && cd $ROOT
 echo [fastype] prepare spdlog v1.3.1 - done
 echo [fastype] prepare boost boost-1.70.0
+cd $ROOT/src/boost && git checkout tags/boost-1.70.0 && cd $ROOT
 if [ ! -d src/boost/stage/lib ]; then
     cd $ROOT/src/boost && ./bootstrap.sh && ./b2 link=shared -j8 && cd $ROOT
 fi
 echo [fastype] prepare boost boost-1.70.0 - done
 echo [fastype] prepare icu4c release-64-2
+cd $ROOT/src/icu && git checkout tags/release-64-2 && cd $ROOT
 if [ ! -d src/icu/build ]; then
     cd $ROOT/src/icu && mkdir build && cd build && ../icu4c/source/runConfigureICU $OS && make -j8 && cd $ROOT
 fi
