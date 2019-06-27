@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "spdlog/spdlog.h"
 #include <cstdio>
 #include <memory>
 #include <mutex>
@@ -10,8 +11,6 @@
 #include <thread>
 
 namespace fastype {
-
-enum LogLevel { DEBUG, INFO, WARN, ERROR, FATAL };
 
 namespace detail {
 
@@ -27,18 +26,6 @@ public:
   std::string functionName;
 };
 
-class LogSink {
-public:
-  LogSink(const std::string &sinkName);
-  virtual ~LogSink();
-  void append(const std::string &record);
-
-private:
-  std::string sinkName;
-  std::FILE *fd;
-  std::mutex sinkLock;
-};
-
 } // namespace detail
 
 class LogManager;
@@ -50,55 +37,40 @@ public:
   template <typename... Args>
   inline void debug(const detail::LogLocation &location, const char *fmt,
                     const Args &... args) {
-    log(LogLevel::DEBUG, location, fmt, args...);
+    std::string rfmt = formatLocation(location, fmt);
+    logger->debug(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void info(const detail::LogLocation &location, const char *fmt,
                    const Args &... args) {
-    log(LogLevel::INFO, location, fmt, args...);
+    std::string rfmt = formatLocation(location, fmt);
+    logger->info(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void warn(const detail::LogLocation &location, const char *fmt,
                    const Args &... args) {
-    log(LogLevel::WARN, location, fmt, args...);
+    std::string rfmt = formatLocation(location, fmt);
+    logger->warn(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void error(const detail::LogLocation &location, const char *fmt,
                     const Args &... args) {
-    log(LogLevel::ERROR, location, fmt, args...);
-  }
-
-  template <typename... Args>
-  inline void fatal(const detail::LogLocation &location, const char *fmt,
-                    const Args &... args) {
-    log(LogLevel::FATAL, location, fmt, args...);
+    std::string rfmt = formatLocation(location, fmt);
+    logger->error(rfmt.data(), args...);
   }
 
 private:
   friend class LogManager;
 
-  explicit Logger(std::shared_ptr<detail::LogSink> sink) : sink(sink) {}
+  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
 
   std::string formatLocation(const detail::LogLocation &location,
                              const char *fmt);
 
-  bool isEnableFor(const LogLevel &level) const;
-
-  template <typename... Args>
-  inline void log(const LogLevel &level, const detail::LogLocation &location,
-                  const char *fmt, const Args &... args) {
-    if (!isEnableFor(level)) {
-      return;
-    }
-    // std::string record = fmt::format(fmt, args...);
-    // sink->append(record);
-  }
-
-  LogLevel level;
-  std::shared_ptr<detail::LogSink> sink;
+  std::shared_ptr<spdlog::logger> logger;
 };
 
 class LogManager {

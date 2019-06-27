@@ -28,15 +28,23 @@ int main(int argc, char **argv) {
   desc.add_options()("help,h", "produce help message")(
       "version,v", fastype::Global::FastypeVersion)(
       "file-name,f", boost_po::value<vector<string>>(), "file name");
+  boost_po::positional_options_description posDesc;
+  posDesc.add("file-name", -1);
 
   boost_po::variables_map vm;
-  boost_po::store(boost_po::parse_command_line(argc, argv, desc), vm);
+  boost_po::store(boost_po::command_line_parser(argc, argv)
+                      .options(desc)
+                      .positional(posDesc)
+                      .run(),
+                  vm);
   boost_po::notify(vm);
   if (vm.count("help")) {
+    F_DEBUG(log, "option: help");
     cout << desc << endl;
     return 0;
   }
   if (vm.count("version")) {
+    F_DEBUGF(log, "option: version {}", fastype::Global::FastypeVersion);
     cout << fastype::Global::FastypeVersion << endl;
     return 0;
   }

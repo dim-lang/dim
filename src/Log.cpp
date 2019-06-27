@@ -3,6 +3,8 @@
 
 #include "Log.h"
 #include "Util.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/spdlog.h"
 #include <memory>
 #include <mutex>
 #include <string>
@@ -19,45 +21,11 @@ using std::unordered_map;
 namespace fastype {
 
 static mutex LoggerLock;
-static mutex LogSinkLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
-static unordered_map<string, shared_ptr<detail::LogSink>> LogSinkMap =
-    unordered_map<string, shared_ptr<detail::LogSink>>();
 static const string FileName = "fastype.log";
 static const int MaxFileSize = 1048576 * 10;
 static const int MaxFiles = 100;
-static const unordered_map<const LogLevel, const int> LogLevelValue = {
-    {LogLevel::DEBUG, 1000},
-    {LogLevel::INFO, 2000},
-    {LogLevel::WARN, 3000},
-    {LogLevel::ERROR, 4000},
-    {LogLevel::FATAL, 5000}};
-static const unordered_map<const LogLevel, const string> LogLevelString = {
-    {LogLevel::DEBUG, "DEBUG"},
-    {LogLevel::INFO, "INFO"},
-    {LogLevel::WARN, "WARN"},
-    {LogLevel::ERROR, "ERROR"},
-    {LogLevel::FATAL, "FATAL"}};
-
-namespace detail {
-
-LogSink::LogSink(const std::string &sinkName) : sinkName(sinkName) {
-  fd = std::fopen(sinkName.data(), "a");
-}
-
-LogSink::~LogSink() {
-  if (fd) {
-    std::fclose(fd);
-  }
-}
-
-void LogSink::append(const std::string &record) {
-  std::lock_guard<std::mutex> guard(sinkLock);
-  std::fwrite(record.data(), sizeof(char), record.length(), fd);
-}
-
-} // namespace detail
 
 string Logger::formatLocation(const detail::LogLocation &location,
                               const char *fmt) {
@@ -72,32 +40,25 @@ string Logger::formatLocation(const detail::LogLocation &location,
                 ":" + to_string(location.lineNumber) + "] " + fmt);
 }
 
-bool Logger::isEnableFor(const LogLevel &level) const {
-  return LogLevelValue.find(level)->second >
-         LogLevelValue.find(this->level)->second;
-}
-
-static shared_ptr<detail::LogSink> openSink(const string &sinkName) {
-  lock_guard<mutex> guard(LogSinkLock);
-  if (LogSinkMap.find(sinkName) == LogSinkMap.end()) {
-    shared_ptr<detail::LogSink> sink =
-        shared_ptr<detail::LogSink>(new detail::LogSink(sinkName));
-    LogSinkMap.insert(make_pair(sinkName, sink));
-  }
-  return LogSinkMap[sinkName];
-}
-
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
-    shared_ptr<Logger> logger =
-        shared_ptr<Logger>(new Logger(openSink(FileName)));
+    shared_ptr<spdlog::logger> rotateLogger =
+        spdlog::rotating_logger_mt(loggerName, FileName, MaxFileSize, MaxFiles);
+    shared_ptr<Logger> logger = shared_ptr<Logger>(new Logger(rotateLogger));
     LoggerMap.insert(make_pair(loggerName, logger));
   }
   return LoggerMap[loggerName];
 }
 
 F_STATIC_BLOCK_BEGIN(Log)
+
+#ifdef NDEBUG
+spdlog::set_level(spdlog::level::err);
+#else
+spdlog::set_level(spdlog::level::debug);
+#endif
+spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
 
 F_STATIC_BLOCK_END(Log)
 
