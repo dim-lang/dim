@@ -24,6 +24,9 @@ set(F_INC
     Threads::Threads
     spdlog/include/
     boost/
+    icu/icu4c/source/common
+    icu/icu4c/source/i18n
+    icu/icu4c/source/io
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
