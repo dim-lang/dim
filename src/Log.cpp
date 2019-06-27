@@ -25,8 +25,8 @@ static mutex LoggerLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
 static const string FileName = "fastype.log";
-static const int MaxFileSize = 1048576 * 10;
-static const int MaxFiles = 100;
+// static const int MaxFileSize = 1048576 * 10;
+// static const int MaxFiles = 100;
 
 string Logger::formatLocation(const detail::LogLocation &location,
                               const char *fmt) {
@@ -59,7 +59,8 @@ spdlog::set_level(spdlog::level::err);
 #else
 spdlog::set_level(spdlog::level::debug);
 #endif
-spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [thread %t] %v");
+spdlog::set_pattern(
+    "[%Y-%m-%d %H:%M:%S.%e] [process %P] [thread %t] [%n] [%l] %v");
 
 F_STATIC_BLOCK_END(Log)
 
