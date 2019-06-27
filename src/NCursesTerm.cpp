@@ -32,7 +32,7 @@ void NCursesTerm::show(const std::string &fileName) {
 
   initscr();
   getmaxyx(stdscr, row, col);
-  F_DEBUGF(log, "start loop, fp:{}", (void *)fp);
+  F_DEBUGF(log, "start loop - fp:{}", (void *)fp);
   while ((ch = fgetc(fp)) != EOF) {
     getyx(stdscr, y, x);
     F_DEBUGF(log, "loop, ch:{} prev:{} y:{} x:{} row:{} col:{}", ch, prev, y, x,
@@ -61,7 +61,7 @@ void NCursesTerm::show(const std::string &fileName) {
     }
     prev = ch;
   }
-  F_DEBUGF(log, "end loop, fp:{}", (void *)fp);
+  F_DEBUGF(log, "end loop - fp:{}", (void *)fp);
   getch();
   endwin();
   fclose(fp);

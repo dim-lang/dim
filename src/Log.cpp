@@ -3,6 +3,7 @@
 
 #include "Log.h"
 #include "Util.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
 #include <memory>
@@ -43,10 +44,10 @@ string Logger::formatLocation(const detail::LogLocation &location,
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
-    shared_ptr<spdlog::logger> rotateLogger =
-        spdlog::rotating_logger_mt(loggerName, FileName, MaxFileSize, MaxFiles);
-    shared_ptr<Logger> logger = shared_ptr<Logger>(new Logger(rotateLogger));
-    LoggerMap.insert(make_pair(loggerName, logger));
+    shared_ptr<spdlog::logger> spdlogger =
+        spdlog::basic_logger_mt(loggerName, FileName);
+    LoggerMap.insert(
+        make_pair(loggerName, shared_ptr<Logger>(new Logger(spdlogger))));
   }
   return LoggerMap[loggerName];
 }
