@@ -24,13 +24,21 @@ set(F_INC
     Threads::Threads
     spdlog/include/
     boost/
+    icu/icu4c/source/common
+    icu/icu4c/source/i18n
+    icu/icu4c/source/io
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     boost_program_options
+    icuuc
+    icudata
+    icuio
+    icui18n
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
     boost/stage/lib
+    icu/build/lib
     )

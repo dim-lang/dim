@@ -3,6 +3,7 @@
 
 #include "NCursesTerm.h"
 #include "Log.h"
+#include "unicode/ustring.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
