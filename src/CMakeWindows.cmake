@@ -13,15 +13,17 @@ message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
 set(F_INC
     .
-    ../src/spdlog/include
-    ../src/boost
+    spdlog/include/
+    boost/
+    icu/icu4c/include
     )
 
 set(F_LIB
-    boost_program_options-vc141-mt-x32-1_70.lib
+    boost_program_options-vc141-mt-x64-1_70.lib
     )
 
 set(F_LIB_DIR
-    ../src/boost/stage/lib
+    boost/stage/lib
+    icu/icu4c/lib64
     )
 
