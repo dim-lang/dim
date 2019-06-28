@@ -1,10 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
+#include "File.h"
 #include "Global.h"
 #include "Log.h"
 #include "Term.h"
 #include "boost/program_options.hpp"
+#include "unicode/unistr.h"
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -13,6 +15,7 @@
 #include <string>
 #include <vector>
 namespace boost_po = boost::program_options;
+using fastype::File;
 using fastype::Logger;
 using fastype::LogManager;
 using std::cout;
@@ -61,8 +64,15 @@ int main(int argc, char **argv) {
     F_DEBUGF(log, "file-name[{}]: {}", i, fileNameList[i]);
   }
 
-  shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
-  term->show(fileNameList[0]);
+  // shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
+  // term->show(fileNameList[0]);
+
+  shared_ptr<File> f =
+      File::open(icu::UnicodeString::fromUTF8(fileNameList[0]));
+  int r = f->read(10);
+  string fileName;
+  f->getFileName().toUTF8String(fileName);
+  F_DEBUGF(log, "file: {} read: {}", fileName.data(), r);
 
   return 0;
 }

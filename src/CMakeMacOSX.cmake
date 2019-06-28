@@ -32,6 +32,9 @@ set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     boost_program_options
+    icuuc
+    icuio
+    icudata
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
