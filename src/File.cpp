@@ -12,11 +12,11 @@ namespace fastype {
 File::File(icu::UnicodeString &fileName) : fileName(fileName) {
   std::string tmpName;
   fileName.toUTF8String(tmpName);
-  log_ = LogManager::getLogger(tmpName);
+  log = LogManager::getLogger(tmpName);
   readBuf_ = new char[READ_BUF];
-  fd_ = u_fopen(tmpName.data(), "rw", nullptr, nullptr);
-  F_DEBUGF(log_, "fileName:{} codePage: {} locale: {}", tmpName.data(),
-           u_fgetcodepage(fd_), u_fgetlocale(fd_));
+  fd = u_fopen(tmpName.data(), "rw", nullptr, nullptr);
+  F_DEBUGF(log, "fileName:{} codePage: {} locale: {}", tmpName.data(),
+           u_fgetcodepage(fd), u_fgetlocale(fd));
 }
 
 File::~File() {
@@ -24,9 +24,9 @@ File::~File() {
     delete[] readBuf_;
     readBuf_ = nullptr;
   }
-  if (fd_) {
-    u_fclose(fd_);
-    fd_ = nullptr;
+  if (fd) {
+    u_fclose(fd);
+    fd = nullptr;
   }
 }
 

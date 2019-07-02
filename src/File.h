@@ -6,6 +6,8 @@
 #include "boost/core/noncopyable.hpp"
 #include "unicode/unistr.h"
 #include "unicode/ustdio.h"
+#include <cstdio>
+#include <cstring>
 #include <memory>
 #include <vector>
 
@@ -24,12 +26,12 @@ public:
 private:
   File(const icu::UnicodeString &fileName);
 
-  UFILE *fd_;
-  icu::UnicodeString fileName_;
-  std::shared_ptr<Logger> log_;
+  FILE *fd;
+  icu::UnicodeString fileName;
+  std::shared_ptr<Logger> log;
 
   char *readBuf_;
-  std::vector<char *> lineBuf_;
+  std::vector<char *> lineBuf;
 };
 
 } // namespace fastype
