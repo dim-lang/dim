@@ -32,6 +32,7 @@ echo [fastype] prepare icu4c release-64-2 - done
 echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
+cd %ROOT%
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
 cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug ..\src && cd %ROOT%

@@ -29,7 +29,7 @@ Fastype is a modern text editor, focused on features below.
 
 | Platform | Build                                                                           |
 |----------|---------------------------------------------------------------------------------|
-|  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
-|  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
-|  Ubuntu  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
+|  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
+|  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
+|  Ubuntu  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
 |  Windows | `git clone https://github.com/fastype/fastype.git && cd fastype && .\build.bat` |

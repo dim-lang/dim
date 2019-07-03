@@ -21,13 +21,13 @@ set(F_INC
     .
     ${CURSES_INCLUDE_DIRS}
     Threads::Threads
+    spdlog/include
     /usr/include
     /usr/include/x86_64-linux-gnu
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
-    fmt
     boost_program_options
     icuuc
     icuio
