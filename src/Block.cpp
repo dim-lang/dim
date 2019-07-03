@@ -11,22 +11,48 @@
 
 namespace fastype {
 
-Block::Block() : b(nullptr), capacity(0), size(0) {}
+std::shared_ptr<Block> Block::moveFrom(char *buf, int32_t len,
+                                       int32_t capacity) {
+  std::shared_ptr<Block> block = std::shared_ptr<Block>(new Block());
+  block->buffer = buf;
+  block->size = len;
+  block->capacity = capacity;
+  return block;
+}
 
-Block::Block(int32_t capacity)
-    : b(new char[capacity]), capacity(capacity), size(0) {}
+std::shared_ptr<Block> Block::copyFrom(char *buf, int32_t len) {
+  std::shared_ptr<Block> block = std::shared_ptr<Block>(new Block(len));
+  std::memcpy(block->buffer, buf, len);
+  return block;
+}
 
-Block::Block(char *b, int32_t len) : b(nullptr), capacity(0), size(0) {
-  assert(b);
-  assert(len > 0);
-  capacity = boost::alignment::align_up(len, ALLOC_ALIGN);
-  this->b = new char[capacity];
-  std::memcpy(this->b, b, len * sizeof(char));
+std::shared_ptr<Block> Block::create(int32_t capacity);
+
+std::shared_ptr<Block> Block::create(int32_t capacity, char value);
+
+void Block::free(std::shared_ptr<Block> block);
+
+Block::Block() : buffer(nullptr), capacity(0), size(0) {}
+
+Block::Block(int32_t capacity) : Block() {
+  int align_cap = boost::alignment::align_up(ALLOC_ALIGN, capacity);
+  capacity = align_cap;
+  size = 0;
+  buffer = new char[align_cap];
+  std::memset(buffer, 0, align_cap);
+}
+
+Block::Block(int32_t capacity, char value) : Block(capacity) {
+  if ((int)value != 0) {
+    int align_cap = boost::alignment::align_up(ALLOC_ALIGN, capacity);
+    for (int32_t i = 0; i < align_cap; i++)
+      buffer[i] = value;
+  }
 }
 
 Block::~Block() {
-  if (b) {
-    delete[] b;
+  if (buffer) {
+    delete[] buffer;
     capacity = 0;
     size = 0;
   }

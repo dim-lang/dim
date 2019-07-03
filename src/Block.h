@@ -3,18 +3,30 @@
 
 #pragma once
 #include "boost/core/noncopyable.hpp"
+#include <memory>
 
 namespace fastype {
 
 class Block : private boost::noncopyable {
 public:
-  Block();
-  Block(int32_t capacity);
-  Block(char *b, int32_t len);
-  virtual ~Block();
+  static std::shared_ptr<Block> moveFrom(char *buf, int32_t len,
+                                         int32_t capacity);
+
+  static std::shared_ptr<Block> copyFrom(char *buf, int32_t len);
+
+  static std::shared_ptr<Block> create(int32_t capacity);
+
+  static std::shared_ptr<Block> create(int32_t capacity, char value);
+
+  static void free(std::shared_ptr<Block> block);
 
 private:
-  char *b;
+  Block();
+  Block(int32_t capacity);
+  Block(int32_t capacity, char value);
+  virtual ~Block();
+
+  char *buffer;
   int32_t capacity;
   int32_t size;
 };
