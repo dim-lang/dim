@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "NCursesTerm.h"
+#include "File.h"
 #include "Log.h"
 #include <cmath>
 #include <cstdio>
@@ -38,6 +39,8 @@ static void destroy_win(WINDOW *local_win) {
 }
 
 void NCursesTerm::show(const std::string &fileName) {
+  std::shared_ptr<File> f = File::open(fileName);
+
   F_DEBUGF(log, "fileName: {}", fileName);
 
   WINDOW *my_win;
