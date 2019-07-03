@@ -22,12 +22,13 @@ set(F_INC
     ${CURSES_INCLUDE_DIRS}
     Threads::Threads
     /usr/include
+    /usr/include/x86_64-linux-gnu
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     fmt
-    boost_program_options-mt
+    boost_program_options
     icuuc
     icuio
     icudata
@@ -35,4 +36,5 @@ set(F_LIB
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
     /usr/lib
+    /usr/lib/x86_64-linux-gnu
     )
