@@ -67,12 +67,9 @@ int main(int argc, char **argv) {
   // shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
   // term->show(fileNameList[0]);
 
-  shared_ptr<File> f =
-      File::open(icu::UnicodeString::fromUTF8(fileNameList[0]));
+  shared_ptr<File> f = File::open(fileNameList[0]);
   int r = f->read(10);
-  string fileName;
-  f->getFileName().toUTF8String(fileName);
-  F_DEBUGF(log, "file: {} read: {}", fileName.data(), r);
+  F_DEBUGF(log, "file: {} read: {}", fileNameList[0], r);
 
   return 0;
 }

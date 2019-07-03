@@ -3,41 +3,39 @@
 
 #include "File.h"
 #include "Log.h"
+#include <cstdio>
 #include <string>
 
 #define READ_BUF 4096
 
 namespace fastype {
 
-File::File(icu::UnicodeString &fileName) : fileName(fileName) {
-  std::string tmpName;
-  fileName.toUTF8String(tmpName);
-  log = LogManager::getLogger(tmpName);
-  readBuf_ = new char[READ_BUF];
-  fd = u_fopen(tmpName.data(), "rw", nullptr, nullptr);
-  F_DEBUGF(log, "fileName:{} codePage: {} locale: {}", tmpName.data(),
-           u_fgetcodepage(fd), u_fgetlocale(fd));
+File::File(const std::string &fileName) : fileName(fileName) {
+  log = LogManager::getLogger(fileName);
+  readBuf = new char[READ_BUF];
+  fd = std::fopen(fileName.data(), "rw");
+  F_DEBUGF(log, "fileName:{}", fileName);
 }
 
 File::~File() {
-  if (readBuf_) {
-    delete[] readBuf_;
-    readBuf_ = nullptr;
+  if (readBuf) {
+    delete[] readBuf;
+    readBuf = nullptr;
   }
   if (fd) {
-    u_fclose(fd);
+    std::fclose(fd);
     fd = nullptr;
   }
 }
 
-const icu::UnicodeString &File::getFileName() const { return fileName_; }
+const std::string &File::getFileName() const { return fileName; }
 
 int File::read(int line) {
   (void)line;
   return 0;
 }
 
-std::shared_ptr<File> File::open(const icu::UnicodeString &fileName) {
+std::shared_ptr<File> File::open(const std::string &fileName) {
   return std::shared_ptr<File>(new File(fileName));
 }
 

@@ -17,20 +17,20 @@ class File : private boost::noncopyable {
 public:
   virtual ~File();
 
-  const icu::UnicodeString &getFileName() const;
+  const std::string &getFileName() const;
   int read(int line);
 
-  static std::shared_ptr<File> open(const icu::UnicodeString &fileName);
+  static std::shared_ptr<File> open(const std::string &fileName);
   static void close(std::shared_ptr<File> file);
 
 private:
-  File(const icu::UnicodeString &fileName);
+  File(const std::string &fileName);
 
   FILE *fd;
-  icu::UnicodeString fileName;
+  std::string fileName;
   std::shared_ptr<Logger> log;
 
-  char *readBuf_;
+  char *readBuf;
   std::vector<char *> lineBuf;
 };
 
