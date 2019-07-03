@@ -13,38 +13,43 @@ namespace fastype {
 
 File::File(const std::string &fileName) : fileName(fileName) {
   log = LogManager::getLogger(fileName);
-  readBuf = new char[BUF_SIZE];
+  readBuffer = new char[BUF_SIZE];
+  writeBuffer = new char[BUF_SIZE];
   fd = std::fopen(fileName.data(), "rw");
   F_DEBUGF(log, "fileName:{}", fileName);
 }
 
 File::~File() {
-  if (readBuf) {
-    delete[] readBuf;
-    readBuf = nullptr;
+  if (readBuffer) {
+    delete[] readBuffer;
+    readBuffer = nullptr;
+  }
+  if (writeBuffer) {
+    delete[] writeBuffer;
+    writeBuffer = nullptr;
   }
   if (fd) {
     std::fclose(fd);
     fd = nullptr;
   }
-  for (int i = 0; i < lineBuf.size(); i++) {
-    if (lineBuf[i]) {
-      delete[] lineBuf[i];
-      lineBuf[i] = nullptr;
+  for (int i = 0; i < buffer.size(); i++) {
+    if (buffer[i]) {
+      delete[] buffer[i];
+      buffer[i] = nullptr;
     }
   }
 }
 
 const std::string &File::getFileName() const { return fileName; }
 
-int64_t File::readToBuffer() {
+int64_t File::readBufferferImpl(int count) {
   int64_t r = 0;
-  int32_t n = 0;
-  while ((n = fread(fd, readBuf, BUF_SIZE)) > 0) {
-    char *buf = new char[BUF_SIZE];
-    std::memset(buf, 0, BUF_SIZE);
-    std::memcpy(buf, readBuf, n);
-    lineBuf.append(buf);
+  size_t n = 0;
+  while ((n = fread(readBuffer, sizeof(char), BUF_SIZE, fd)) > 0) {
+    char *block = new char[BUF_SIZE];
+    std::memcpy(block, readBuffer, n);
+    block[n + 1] = (char)0;
+    buffer.append(block);
     r += (int64_t)n;
   }
   return r;

@@ -36,13 +36,14 @@ public:
 
 private:
   File(const std::string &fileName);
-  int64_t readToBuffer();
+  int64_t readBufferImpl(int count);
 
   FILE *fd;
   std::string fileName;
   std::shared_ptr<Logger> log;
 
-  char *readBuf;
+  char *readBuffer;
+  char *writeBuffer;
   std::vector<char *> buffer;
 
   friend class LineIterator;
