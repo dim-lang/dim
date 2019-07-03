@@ -41,6 +41,7 @@ if (MSVC)
         WinTerm.cpp
         Util.cpp
         Global.cpp
+        File.cpp
         )
     set(FD_SRC
         fastyped.cpp
@@ -55,6 +56,7 @@ else()
         #WinTerm.cpp
         Util.cpp
         Global.cpp
+        File.cpp
         )
     set(FD_SRC
         fastyped.cpp
