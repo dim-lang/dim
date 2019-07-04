@@ -42,6 +42,7 @@ if (MSVC)
         Util.cpp
         Global.cpp
         File.cpp
+        Buffer.cpp
         )
     set(FD_SRC
         fastyped.cpp
@@ -57,6 +58,7 @@ else()
         Util.cpp
         Global.cpp
         File.cpp
+        Buffer.cpp
         )
     set(FD_SRC
         fastyped.cpp

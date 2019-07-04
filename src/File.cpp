@@ -42,14 +42,14 @@ File::~File() {
 
 const std::string &File::getFileName() const { return fileName; }
 
-int64_t File::readBufferferImpl(int count) {
+int64_t File::readBufferImpl(int count) {
   int64_t r = 0;
   size_t n = 0;
   while ((n = fread(readBuffer, sizeof(char), BUF_SIZE, fd)) > 0) {
     char *block = new char[BUF_SIZE];
     std::memcpy(block, readBuffer, n);
     block[n + 1] = (char)0;
-    buffer.append(block);
+    buffer.push_back(block);
     r += (int64_t)n;
   }
   return r;

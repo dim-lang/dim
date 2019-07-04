@@ -9,6 +9,9 @@ namespace fastype {
 
 class Buffer : private boost::noncopyable {
 public:
+  Buffer(Buffer &&other);
+  Buffer &operator=(Buffer &&other);
+
   static Buffer moveFrom(char *buf, int32_t len, int32_t capacity);
 
   static Buffer copyFrom(char *buf, int32_t len);

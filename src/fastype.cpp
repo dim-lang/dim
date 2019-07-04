@@ -68,8 +68,5 @@ int main(int argc, char **argv) {
   // term->show(fileNameList[0]);
 
   shared_ptr<File> f = File::open(fileNameList[0]);
-  int r = f->read(10);
-  F_DEBUGF(log, "file: {} read: {}", fileNameList[0], r);
-
   return 0;
 }

@@ -34,6 +34,18 @@ Buffer Buffer::create(int32_t capacity, char value) {
 
 void Buffer::free(Buffer buf) { buf.~Buffer(); }
 
+Buffer::Buffer(Buffer &&other)
+    : buffer(std::exchange(other.buffer, nullptr)),
+      capacity(std::exchange(other.capacity, 0)),
+      size(std::exchange(other.size, 0)) {}
+
+Buffer &Buffer::operator=(Buffer &&other) {
+  std::swap(buffer, other.buffer);
+  std::swap(capacity, other.capacity);
+  std::swap(size, other.size);
+  return *this;
+}
+
 Buffer::Buffer() : buffer(nullptr), capacity(0), size(0) {}
 
 Buffer::Buffer(int32_t capacity) : Buffer() {
