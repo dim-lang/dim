@@ -12,40 +12,6 @@
 
 namespace fastype {
 
-Buffer Buffer::moveFrom(char *buf, int32_t len, int32_t capacity) {
-  Buffer b;
-  b.buffer = buf;
-  b.size = len;
-  b.capacity = capacity;
-  return b;
-}
-
-Buffer Buffer::copyFrom(char *buf, int32_t len) {
-  Buffer b(len);
-  std::memcpy(b.buffer, buf, len);
-  return b;
-}
-
-Buffer Buffer::create(int32_t capacity) { return Buffer(capacity); }
-
-Buffer Buffer::create(int32_t capacity, char value) {
-  return Buffer(capacity, value);
-}
-
-void Buffer::free(Buffer buf) { buf.~Buffer(); }
-
-Buffer::Buffer(Buffer &&other)
-    : buffer(std::exchange(other.buffer, nullptr)),
-      capacity(std::exchange(other.capacity, 0)),
-      size(std::exchange(other.size, 0)) {}
-
-Buffer &Buffer::operator=(Buffer &&other) {
-  std::swap(buffer, other.buffer);
-  std::swap(capacity, other.capacity);
-  std::swap(size, other.size);
-  return *this;
-}
-
 Buffer::Buffer() : buffer(nullptr), capacity(0), size(0) {}
 
 Buffer::Buffer(int32_t capacity) : Buffer() {
