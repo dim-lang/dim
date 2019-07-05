@@ -22,7 +22,8 @@ public:
   Line &operator=(const Line &) = default;
 
 private:
-  Line();
+  Line(std::shared_ptr<File> file, int32_t startBuffer, int32_t startByte,
+       int32_t endBuffer, int32_t endByte);
 
   std::shared_ptr<File> file;
 

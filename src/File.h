@@ -21,6 +21,9 @@ public:
   File &operator(File &&) = default;
 
   const std::string &getFileName() const;
+  Line beginLine();
+  Line endLine();
+  Line getLine(int32_t line);
 
   static std::unique_ptr<File> open(const std::string &fileName);
   static void close(std::unique_ptr<File> file);
