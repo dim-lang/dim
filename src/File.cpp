@@ -58,7 +58,15 @@ Line File::beginLine() {
               endByte);
 }
 
-Line File::endLine() {}
+Line File::endLine() {
+  loadAll();
+  int32_t startBuffer = 0;
+  int32_t startByte = 0;
+  int32_t endBuffer = 0;
+  int32_t endBuffer = 0;
+  return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
+              endByte);
+}
 
 Line File::getLine(int32_t line) {}
 
