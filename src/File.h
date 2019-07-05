@@ -2,6 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Buffer.h"
+#include "Line.h"
 #include "Log.h"
 #include "boost/core/noncopyable.hpp"
 #include "unicode/ustring.h"
@@ -12,31 +14,23 @@
 
 namespace fastype {
 
-class File;
-
-class FileIterator {
-public:
-  virtual ~FileIterator() = default;
-
-private:
-  FileIterator();
-
-  friend class File;
-};
-
 class File : private boost::noncopyable {
 public:
   virtual ~File();
+  File(File &&) = default;
+  File &operator(File &&) = default;
 
   const std::string &getFileName() const;
-  FileIterator getFileIterator();
 
-  static std::shared_ptr<File> open(const std::string &fileName);
-  static void close(std::shared_ptr<File> file);
+  static std::unique_ptr<File> open(const std::string &fileName);
+  static void close(std::unique_ptr<File> file);
 
 private:
   File(const std::string &fileName);
-  int64_t readBufferImpl(int count);
+
+  int64_t load(int count);
+  int64_t loadOne();
+  int64_t loadAll();
 
   FILE *fd;
   std::string fileName;
@@ -44,7 +38,7 @@ private:
 
   char *readBuffer;
   char *writeBuffer;
-  std::vector<char *> buffer;
+  std::vector<std::unique_ptr<Buffer>> buffer;
 
   friend class LineIterator;
 };

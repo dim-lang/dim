@@ -2,7 +2,10 @@
 // Apache License Version 2.0
 
 #include "File.h"
+#include "Buffer.h"
+#include "Line.h"
 #include "Log.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -32,33 +35,18 @@ File::~File() {
     std::fclose(fd);
     fd = nullptr;
   }
-  for (int i = 0; i < buffer.size(); i++) {
-    if (buffer[i]) {
-      delete[] buffer[i];
-      buffer[i] = nullptr;
-    }
-  }
+  std::for_each(
+      buffer.begin(), buffer.end(),
+      [](std::vector<std::unique_ptr<Buffer>>::iterator i) { delete i; });
+  buffer.clear();
 }
 
 const std::string &File::getFileName() const { return fileName; }
 
-int64_t File::readBufferImpl(int count) {
-  int64_t r = 0;
-  size_t n = 0;
-  while ((n = fread(readBuffer, sizeof(char), BUF_SIZE, fd)) > 0) {
-    char *block = new char[BUF_SIZE];
-    std::memcpy(block, readBuffer, n);
-    block[n + 1] = (char)0;
-    buffer.push_back(block);
-    r += (int64_t)n;
-  }
-  return r;
+std::unique_ptr<File> File::open(const std::string &fileName) {
+  return std::unique_ptr(new File(fileName));
 }
 
-std::shared_ptr<File> File::open(const std::string &fileName) {
-  return std::shared_ptr<File>(new File(fileName));
-}
-
-void File::close(const std::shared_ptr<File> file) { file->~File(); }
+void File::close(std::unique_ptr<File> file) { delete file; }
 
 } // namespace fastype

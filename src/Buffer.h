@@ -9,48 +9,58 @@ namespace fastype {
 
 class Buffer : private boost::noncopyable {
 public:
+  // empty buffer
   Buffer();
+  // empty buffer with capacity
   Buffer(int32_t capacity);
+  // initialize buffer with value of capacity
   Buffer(int32_t capacity, char value);
-  Buffer(char *src, int32_t n);
+  // copy src of len
+  Buffer(char *src, int32_t off, int32_t len);
   virtual ~Buffer();
 
-  // clear buffer
+  Buffer(Buffer &&) = default;
+  Buffer &operator=(Buffer &&) = default;
+
+  // clear buffer, reset seek and size
   void clear();
+
   // release buffer
   void release();
-  // expand capacity
-  void expand(int32_t capacity);
 
-  // seek operation
+  // capacity
+  // @return expanded capacity
+  int32_t expandCapacity(int32_t capacity);
+
+  // capacity is full, size == capacity
+  bool full() const;
+  // capacity is empty, size == 0
+  bool empty() const;
+
+  // seek
   int32_t getSeek() const;
   int32_t setSeek(int32_t seek);
   int32_t reseek();
 
-  // get raw buffer data
+  // seek position at begin, seek == 0
+  bool begin() const;
+  // seek position at begin, seek == size
+  bool end() const;
+
+  // get raw data
   const char *getData() const;
   // get size
   int32_t getSize() const;
   // get capacity
   int32_t getCapacity() const;
 
-  // read n
-  int32_t read(char *dest, int32_t n);
-  int32_t read(std::shared_ptr<Buffer> buf, int32_t n);
-  // read n or until pattern
-  int32_t read(char *dest, int32_t n, char *pattern);
-  int32_t read(std::shared_ptr<Buffer> buf, int32_t n, char *pattern);
+  // read len bytes start from off
+  int32_t read(const char *src, int32_t off, int32_t len);
+  int32_t read(Buffer &buf, int32_t len);
 
-  // write n
-  int32_t write(char *src, int32_t n);
-  int32_t write(std::shared_ptr<Buffer> buf, int32_t n);
-  // write n or until pattern
-  int32_t write(char *src, int32_t n, char *pattern);
-  int32_t write(std::shared_ptr<Buffer> buf, int32_t n, char *pattern);
-
-  // copy buffer
-  std::shared_ptr<Buffer> copy();
-  std::shared_ptr<Buffer> copy(int32_t n);
+  // write len
+  int32_t write(char *dest, int32_t off, int32_t len) const;
+  int32_t write(Buffer &buf, int32_t len) const;
 
 private:
   char *buffer;
