@@ -2,71 +2,92 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "File.h"
 #include "boost/core/noncopyable.hpp"
+#include "unicode/ustring.h"
 #include <memory>
 
 namespace fastype {
 
 class Line : private boost::noncopyable {
 public:
-  // empty buffer
+  // empty line
   Line();
-  // empty buffer with capacity
+  // empty line with capacity
   Line(int32_t capacity);
-  // initialize buffer with value of capacity
+  // initialize line with value of capacity
   Line(int32_t capacity, char value);
-  // copy src of len
-  Line(char *src, int32_t off, int32_t len);
+  // copy n bytes of src, start from offset
+  Line(char *src, int32_t offset, int32_t n);
   virtual ~Line();
 
   Line(Line &&) = default;
   Line &operator=(Line &&) = default;
 
-  // clear buffer, reset seek and size
+  // clear data, reset seek and size
   void clear();
 
-  // release buffer
+  // release line
   void release();
 
-  // capacity
+  // expand more capacity
   // @return expanded capacity
-  int32_t expandCapacity(int32_t capacity);
+  int32_t expand(int32_t capacity);
 
-  // capacity is full, size == capacity
+  // check if capacity is full
+  // @return true if size == capacity
   bool full() const;
-  // capacity is empty, size == 0
+  // check if capacity is empty
+  // @return true if size == 0
   bool empty() const;
 
-  // seek
+  // @return seek
   int32_t getSeek() const;
+  // @return old seek
   int32_t setSeek(int32_t seek);
-  int32_t reseek();
+  // @return old seek
+  int32_t increaseSeek(int32_t inc);
+  // @return old seek
+  int32_t decreaseSeek(int32_t dec);
+  // reset seek potision at 0
+  // @return old seek position
+  int32_t reset();
 
-  // seek position at begin, seek == 0
+  // check if seek position is at begin
+  // @return true if seek == 0
   bool begin() const;
-  // seek position at begin, seek == size
+  // check if seek position is at end
+  // @return true if seek == size
   bool end() const;
 
-  // get raw data
+  // @return raw data at seek position
   const char *getData() const;
-  // get size
+  // @return size
   int32_t getSize() const;
-  // get capacity
+  // @return capacity
   int32_t getCapacity() const;
 
-  // read len bytes start from off
-  int32_t read(const char *src, int32_t off, int32_t len);
-  int32_t read(Line &l, int32_t len);
+  // read at most n bytes from src, start from offset
+  // @return read bytes
+  int32_t read(const char *src, int32_t offset, int32_t n);
+  // read at most n bytes from l, start from l.seek
+  // @return read bytes
+  int32_t read(Line &l, int32_t n);
 
-  // write len
-  int32_t write(char *dest, int32_t off, int32_t len) const;
-  int32_t write(Line &l, int32_t len) const;
+  // write at most n bytes to dest, start from offset
+  // @return write bytes
+  int32_t write(char *dest, int32_t offset, int32_t n) const;
+  // write at most n bytes to l, start from l.seek
+  // @return write bytes
+  int32_t write(Line &l, int32_t n) const;
 
 private:
   char *buffer;
   int32_t capacity;
   int32_t size;
   int32_t seek;
+
+  friend class File;
 };
 
 } // namespace fastype

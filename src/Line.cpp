@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Line.h"
+#include "Util.h"
 #include "boost/align/align_up.hpp"
 #include <algorithm>
 #include <cassert>
@@ -54,7 +55,7 @@ Line::Line() : buffer(nullptr), capacity(0), size(0), seek(0) {
 
 Line::Line(int32_t capacity) : Line() {
   fdebug_assert_null();
-  expandCapacity(capacity);
+  expand(capacity);
 }
 
 Line::Line(int32_t capacity, char value) : Line(capacity) {
@@ -64,9 +65,9 @@ Line::Line(int32_t capacity, char value) : Line(capacity) {
       buffer[i] = value;
   }
 }
-Line::Line(char *src, int32_t off, int32_t len) : Line(len) {
+Line::Line(char *src, int32_t offset, int32_t n) : Line(n) {
   fdebug_assert_state();
-  std::memcpy(buffer, src + off, len);
+  std::memcpy(buffer, src + offset, n);
 }
 
 Line::~Line() {
@@ -94,13 +95,13 @@ void Line::release() {
   fdebug_assert_null();
 }
 
-int32_t Line::expandCapacity(int32_t capacity) {
+int32_t Line::expand(int32_t capacity) {
   fdebug_assert_state();
   if (capacity <= this->size) {
     return this->capacity;
   }
-  int32_t new_capacity = std::max<int32_t>(
-      ALLOC_ALIGN, boost::alignment::align_up(ALLOC_ALIGN, capacity));
+  int32_t new_capacity =
+      F_MAX_I32(ALLOC_ALIGN, boost::alignment::align_up(ALLOC_ALIGN, capacity));
   char *new_buffer = new char[new_capacity];
   int32_t new_size = this->size;
   int32_t new_seek = this->seek;
@@ -139,9 +140,35 @@ int32_t Line::setSeek(int32_t seek) {
   return old_seek;
 }
 
-int32_t Line::reseek() {
+int32_t Line::increaseSeek(int32_t inc) {
   fdebug_assert_state();
+  assert(seek >= 0);
+  assert(seek < this->size);
+  if (inc < 0) {
+    return decreaseSeek(-inc);
+  }
+  int32_t old_seek = this->seek;
+  this->seek += F_MIN_I32(this->size - this->seek, inc);
+  return old_seek;
+}
+
+int32_t Line::decreaseSeek(int32_t dec) {
+  fdebug_assert_state();
+  assert(seek >= 0);
+  assert(seek < this->size);
+  if (dec < 0) {
+    return increaseSeek(-dec);
+  }
+  int32_t old_seek = this->seek;
+  this->seek -= F_MAX_I32(this->seek, dec);
+  return old_seek;
+}
+
+int32_t Line::reset() {
+  fdebug_assert_state();
+  int32_t old_seek = this->seek;
   this->seek = 0;
+  return old_seek;
 }
 
 bool Line::begin() const {
@@ -169,45 +196,45 @@ int32_t Line::getCapacity() const {
   return this->capacity;
 }
 
-int32_t Line::read(const char *src, int32_t off, int32_t len) {
+int32_t Line::read(const char *src, int32_t offset, int32_t n) {
   assert(src);
-  assert(len >= 0);
-  assert(off >= 0);
+  assert(n >= 0);
+  assert(offset >= 0);
   fdebug_assert_state();
 
-  int32_t n = std::max(len, this->capacity - this->size);
+  int32_t n = F_MAX_I32(n, this->capacity - this->size);
   if (n > 0) {
-    std::memcpy(this->buffer, src + off, n);
+    std::memcpy(this->buffer, src + offset, n);
   }
-  return std::max(0, n);
+  return F_MAX_I32(0, n);
 }
 
-int32_t Line::read(Line &l, int32_t len) {
-  int32_t n = this->read(l.buffer + l.seek, 0,
-                         std::max<int32_t>(l.getSize() - l.getSeek(), len));
+int32_t Line::read(Line &l, int32_t n) {
+  int32_t n =
+      this->read(l.buffer + l.seek, 0, F_MAX_I32(l.getSize() - l.getSeek(), n));
   l.setSeek(l.getSeek() + n);
   return n;
 }
 
-int32_t Line::write(char *dest, int32_t off, int32_t len) const {
+int32_t Line::write(char *dest, int32_t offset, int32_t n) const {
   assert(dest);
-  assert(len >= 0);
-  assert(off >= 0);
+  assert(n >= 0);
+  assert(offset >= 0);
   fdebug_assert_state();
 
-  int32_t n = std::max(len, this->capacity - this->size);
+  int32_t n = F_MAX_I32(n, this->capacity - this->size);
   if (n > 0) {
-    std::memcpy(dest + off, this->buffer + this->seek, n);
+    std::memcpy(dest + offset, this->buffer + this->seek, n);
+    this->setSeek(this->seek + n);
   }
-  return std::max(0, n);
+  return F_MAX_I32(0, n);
 }
 
-int32_t Line::write(Line &l, int32_t len) const {
-  int32_t n = this->write(
-      l.buffer, l.seek,
-      std::max<int32_t>(this->getSize() - this->getSeek(),
-                        std::max<int32_t>(l.getSize() - l.getSeek(), len)));
-  return std::max(0, n);
+int32_t Line::write(Line &l, int32_t n) const {
+  int32_t n = this->write(l.buffer, l.seek,
+                          F_MAX_I32(this->getSize() - this->getSeek(),
+                                    F_MAX_I32(l.getSize() - l.getSeek(), n)));
+  return F_MAX_I32(0, n);
 }
 
 } // namespace fastype
