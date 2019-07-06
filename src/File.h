@@ -18,7 +18,7 @@ class File : private boost::noncopyable {
 public:
   virtual ~File();
   File(File &&) = default;
-  File &operator(File &&) = default;
+  File &operator=(File &&) = default;
 
   const std::string &getFileName() const;
   Line beginLine();

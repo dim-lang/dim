@@ -63,11 +63,19 @@ Line File::endLine() {
   int32_t startBuffer = 0;
   int32_t startByte = 0;
   int32_t endBuffer = 0;
-  int32_t endBuffer = 0;
+  int32_t endByte = 0;
   return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
               endByte);
 }
 
-Line File::getLine(int32_t line) {}
+Line File::getLine(int32_t line) {
+  loadAll();
+  int32_t startBuffer = 0;
+  int32_t startByte = 0;
+  int32_t endBuffer = 0;
+  int32_t endByte = 0;
+  return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
+              endByte);
+}
 
 } // namespace fastype
