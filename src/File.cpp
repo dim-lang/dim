@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "File.h"
-#include "Buffer.h"
 #include "Line.h"
 #include "Log.h"
 #include <algorithm>
@@ -37,17 +36,17 @@ File::~File() {
   }
   std::for_each(
       buffer.begin(), buffer.end(),
-      [](std::vector<std::unique_ptr<Buffer>>::iterator i) { delete i; });
+      [](std::vector<std::shared_ptr<Line>>::iterator i) { delete i; });
   buffer.clear();
 }
 
 const std::string &File::getFileName() const { return fileName; }
 
-std::unique_ptr<File> File::open(const std::string &fileName) {
-  return std::unique_ptr(new File(fileName));
+std::shared_ptr<File> File::open(const std::string &fileName) {
+  return std::shared_ptr(new File(fileName));
 }
 
-void File::close(std::unique_ptr<File> file) { delete file; }
+void File::close(std::shared_ptr<File> file) { delete file; }
 
 Line File::beginLine() {
   int32_t startBuffer = 0;
