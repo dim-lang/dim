@@ -13,30 +13,23 @@
 
 namespace fastype {
 
-File::File(const std::string &fileName) : fileName(fileName) {
+File::File(const std::string &fileName)
+    : fileName(fileName), readBuffer(BUF_SIZE), writeBuffer(BUF_SIZE) {
   log = LogManager::getLogger(fileName);
-  readBuffer = new char[BUF_SIZE];
-  writeBuffer = new char[BUF_SIZE];
   fd = std::fopen(fileName.data(), "rw");
   F_DEBUGF(log, "fileName:{}", fileName);
 }
 
 File::~File() {
-  if (readBuffer) {
-    delete[] readBuffer;
-    readBuffer = nullptr;
-  }
-  if (writeBuffer) {
-    delete[] writeBuffer;
-    writeBuffer = nullptr;
-  }
+  readBuffer.release();
+  writeBuffer.release();
   if (fd) {
     std::fclose(fd);
     fd = nullptr;
   }
   std::for_each(
       buffer.begin(), buffer.end(),
-      [](std::vector<std::shared_ptr<Line>>::iterator i) { delete i; });
+      [](std::vector<std::shared_ptr<Line>>::iterator i) { (*i).reset(); });
   buffer.clear();
 }
 
@@ -46,28 +39,17 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
   return std::shared_ptr(new File(fileName));
 }
 
-void File::close(std::shared_ptr<File> file) { delete file; }
+void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-Line File::beginLine() {
-  int32_t startBuffer = 0;
-  int32_t startByte = 0;
-  int32_t endBuffer = 0;
-  int32_t endBuffer = 0;
-  return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
-              endByte);
+std::shared_ptr<Line> File::firstLine() {
+  return std::shared_ptr<Line>(new Line(std::shared_ptr<File>(this), 0));
 }
 
-Line File::endLine() {
-  loadAll();
-  int32_t startBuffer = 0;
-  int32_t startByte = 0;
-  int32_t endBuffer = 0;
-  int32_t endByte = 0;
-  return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
-              endByte);
+std::shared_ptr<Line> File::lastLine() {
+  return std::shared_ptr<Line>(new Line());
 }
 
-Line File::getLine(int32_t line) {
+std::shared_ptr<Line> File::getLine(int32_t lineNumber) {
   loadAll();
   int32_t startBuffer = 0;
   int32_t startByte = 0;

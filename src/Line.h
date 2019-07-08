@@ -15,15 +15,21 @@ class File;
 
 class Line {
 public:
-  Line();
-  Line(int32_t index);
   Line(const Line &) = default;
   Line &operator=(const Line &) = default;
   virtual ~Line();
 
+  bool sameFile(const Line &other) const;
+
+  static const Line &nil();
+
 private:
+  Line(int32_t index);
+  Line(std::shared_ptr<File> fp, int32_t index);
+
   int32_t index;
   std::list<std::shared_ptr<Buffer>> bufferList;
+  std::shared_ptr<File> fp;
 
   friend class File;
 };

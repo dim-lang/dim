@@ -8,8 +8,8 @@
 #include "unicode/ustring.h"
 #include <cstdio>
 #include <cstring>
-#include <list>
 #include <memory>
+#include <vector>
 
 namespace fastype {
 
@@ -20,12 +20,30 @@ public:
   File &operator=(File &&) = default;
 
   const std::string &getFileName() const;
-  Line beginLine();
-  Line endLine();
-  Line getLine(int32_t line);
+  LineIterator begin();
+  LineIterator end();
+  LineIterator getLine(int32_t lineNumber);
 
   static std::shared_ptr<File> open(const std::string &fileName);
   static void close(std::shared_ptr<File> file);
+
+  class LineIterator {
+  public:
+    virtual ~LineIterator() = default;
+
+    bool hasNext() const { return iter != fp->end(); }
+    LineIterator next() { return iter + 1; }
+    bool hasPrevious() const { return fp->begin() != iter; }
+    LineIterator previous() { return iter - 1; }
+
+  private:
+    LineIterator(std::shared_ptr<File> fp,
+                 std::vector<std::shared_ptr<Line>>::iterator iter)
+        : fp(fp), iter(iter) {}
+
+    std::vector<std::shared_ptr<Line>>::iterator iter;
+    std::shared_ptr<File> fp;
+  };
 
 private:
   File(const std::string &fileName);
@@ -38,9 +56,9 @@ private:
   std::string fileName;
   std::shared_ptr<Logger> log;
 
-  char *readBuffer;
-  char *writeBuffer;
-  std::list<std::shared_ptr<Line>> lineList;
+  Buffer readBuffer;
+  Buffer writeBuffer;
+  std::vector<std::shared_ptr<Line>> lineList;
 
   friend class LineIterator;
 };
