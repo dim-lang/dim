@@ -3,63 +3,70 @@
 
 #pragma once
 #include "Buffer.h"
+#include "File.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <list>
+#include <iterator>
 #include <memory>
+#include <vector>
 
 namespace fastype {
 
 class File;
+namespace detail {
+class LineImpl;
+}
 
 class Line {
 public:
   Line(const Line &) = default;
   Line &operator=(const Line &) = default;
-  virtual ~Line();
+  virtual ~Line() = default;
 
-  bool sameFile(const Line &other) const;
+  Line &operator++();
+  Line &operator--();
+  int32_t index() const;
+  bool sameFile(const Line &other);
 
-  static const Line &nil();
+  bool operator==(const Line &other) const;
+  bool operator!=(const Line &other) const;
+  bool operator>(const Line &other) const;
+  bool operator>=(const Line &other) const;
+  bool operator<(const Line &other) const;
+  bool operator<=(const Line &other) const;
 
 private:
-  Line(int32_t index);
-  Line(std::shared_ptr<File> fp, int32_t index);
+  Line(std::vector<std::shared_ptr<detail::LineImpl>>::iterator iter,
+       std::shared_ptr<File> fp);
+
+  std::vector<std::shared_ptr<detail::LineImpl>>::iterator iter;
+  std::shared_ptr<File> fp;
+};
+
+namespace detail {
+
+class LineImpl {
+public:
+  LineImpl(const LineImpl &) = default;
+  LineImpl &operator=(const LineImpl &) = default;
+  virtual ~LineImpl();
+
+  bool sameFile(const LineImpl &other) const;
+
+  static const LineImpl &nil();
+
+private:
+  LineImpl(int32_t index);
+  LineImpl(std::shared_ptr<File> fp, int32_t index);
 
   int32_t index;
-  std::list<std::shared_ptr<Buffer>> bufferList;
+  std::vector<std::shared_ptr<Buffer>> bufferList;
   std::shared_ptr<File> fp;
 
   friend class File;
 };
 
-// equal
-inline bool operator==(const Line &a, const Line &b) const {
-  return a.index == b.index;
-}
-
-// not equal
-inline bool operator!=(const Line &a, const Line &b) const { return !(a == b); }
-
-// greater
-inline bool operator>(const Line &a, const Line &b) const {
-  return a.index > b.index;
-}
-
-// greater equal
-inline bool operator>=(const Line &a, const Line &b) const {
-  return a > b || a == b;
-}
-
-// less
-inline bool operator<(const Line &a, const Line &b) const {
-  return a.index < b.index;
-}
-
-// less equal
-inline bool operator<=(const Line &a, const Line &b) const {
-  return a < b || a == b;
-}
+} // namespace detail
 
 } // namespace fastype

@@ -129,6 +129,8 @@ bool Buffer::empty() const {
   return this->size == 0;
 }
 
+int32_t Buffer::getMargin() const { return this->capacity - this->size; }
+
 int32_t Buffer::getSeek() const {
   fdebug_assert_state();
   return seek;

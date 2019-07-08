@@ -42,6 +42,8 @@ public:
   // check if capacity is empty
   // @return true if size == 0
   bool empty() const;
+  // @return margin, capacity - size
+  int32_t getMargin() const;
 
   // @return seek
   int32_t getSeek() const;

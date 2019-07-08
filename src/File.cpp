@@ -10,27 +10,30 @@
 #include <string>
 
 #define BUF_SIZE 4096
+#define F_LI detail::LineImpl
 
 namespace fastype {
 
 File::File(const std::string &fileName)
     : fileName(fileName), readBuffer(BUF_SIZE), writeBuffer(BUF_SIZE) {
   log = LogManager::getLogger(fileName);
-  fd = std::fopen(fileName.data(), "rw");
-  F_DEBUGF(log, "fileName:{}", fileName);
+  fd = std::make_shared<File>(std::fopen(fileName.data(), "rw"));
+  F_DEBUGF(log, "fileName: {}", fileName);
 }
 
 File::~File() {
   readBuffer.release();
   writeBuffer.release();
   if (fd) {
-    std::fclose(fd);
-    fd = nullptr;
+    std::fclose(fd.get());
+    fd.reset();
   }
-  std::for_each(
-      buffer.begin(), buffer.end(),
-      [](std::vector<std::shared_ptr<Line>>::iterator i) { (*i).reset(); });
+  std::for_each(buffer.begin(), buffer.end(),
+                [](std::vector<std::shared_ptr<detail::LineImpl>>::iterator i) {
+                  (*i).reset();
+                });
   buffer.clear();
+  F_DEBUGF(log, "fileName: {}", fileName);
 }
 
 const std::string &File::getFileName() const { return fileName; }
@@ -41,13 +44,11 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-std::shared_ptr<Line> File::firstLine() {
-  return std::shared_ptr<Line>(new Line(std::shared_ptr<File>(this), 0));
+Line File::begin() {
+  return Line(lineList.begin(), std::shared_ptr<File>(this));
 }
 
-std::shared_ptr<Line> File::lastLine() {
-  return std::shared_ptr<Line>(new Line());
-}
+Line File::end() { return Line(lineList.end(), std::shared_ptr<File>(this)); }
 
 std::shared_ptr<Line> File::getLine(int32_t lineNumber) {
   loadAll();
@@ -59,4 +60,17 @@ std::shared_ptr<Line> File::getLine(int32_t lineNumber) {
               endByte);
 }
 
+int64_t File::loadOne() {
+  std::shared_ptr<detail::LineImpl> lineImpl =
+      std::shared_ptr<detail::LineImpl>(
+          new detail::LineImpl(std::shared_ptr<File>(this), lineList.size()));
+  if (!readBuffer.empty()) {
+  }
+  int64_t n = (int64_t)std::fread(readBuffer.getData(), readBuffer.getMargin(),
+                                  sizeof(char), this->fd.get());
+}
+
 } // namespace fastype
+
+#undef BUF_SIZE
+#undef F_LI
