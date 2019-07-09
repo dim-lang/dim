@@ -58,7 +58,8 @@ public:
 
 private:
   LineImpl(int32_t index);
-  LineImpl(std::shared_ptr<File> fp, int32_t index);
+  LineImpl(std::shared_ptr<File> fp,
+           std::vector<std::shared_ptr<Buffer>> &&bufferList, int32_t index);
 
   int32_t index;
   std::vector<std::shared_ptr<Buffer>> bufferList;

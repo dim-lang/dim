@@ -88,6 +88,8 @@ public:
   // @return write bytes
   int32_t write(Buffer &l, int32_t n) const;
 
+  std::string toString() const;
+
 private:
   char *buffer;
   int32_t capacity;

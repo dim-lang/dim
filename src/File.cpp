@@ -61,11 +61,28 @@ std::shared_ptr<Line> File::getLine(int32_t lineNumber) {
 }
 
 int64_t File::loadOne() {
+  // if readBuffer has left bytes
+  // try read them to new line
+  if (!readBuffer.empty()) {
+    F_DEBUGF(log, "readBuffer not empty: {}", readBuffer.toString());
+    char *rend = readBuffer.buffer + readBuffer.seek + 1;
+    char *p = std::find_first_of(readBuffer.buffer + readBuffer.seek, rend,
+                                 [](char *i) { return *i == '\n' });
+    F_DEBUGF(log, "readBuffer not empty, p: {} rend:{}", p, rend);
+    if (p != rend) {
+      std::shared_ptr<Buffer> b = std::shared_ptr<Buffer>(new Buffer(BUF_SIZE));
+      int32_t bRead =
+          b->read(readBuffer, p - (readBuffer.buffer + readBuffer.seek));
+      F_DEBUGF(log, "b read: {}", bRead);
+      std::shared_ptr<detail::LineImpl> lineImpl =
+          std::shared_ptr<detail::LineImpl>(new detail::LineImpl(
+              std::shared_ptr<File>(this), {b}, lineList.size()));
+    }
+  }
+
   std::shared_ptr<detail::LineImpl> lineImpl =
       std::shared_ptr<detail::LineImpl>(
           new detail::LineImpl(std::shared_ptr<File>(this), lineList.size()));
-  if (!readBuffer.empty()) {
-  }
   int64_t n = (int64_t)std::fread(readBuffer.getData(), readBuffer.getMargin(),
                                   sizeof(char), this->fd.get());
 }

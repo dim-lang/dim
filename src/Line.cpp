@@ -60,8 +60,13 @@ namespace detail {
 
 LineImpl::LineImpl() : fp(std::shared_ptr<File>(nullptr)), index(-1) {}
 
-LineImpl::LineImpl(std::shared_ptr<File> fp, int32_t index)
-    : fp(fp), index(index) {}
+LineImpl::LineImpl(std::shared_ptr<File> fp,
+                   std::vector<std::shared_ptr<Buffer>> &&bufferList,
+                   int32_t index)
+    : fp(fp), index(index) {
+  assert(this->bufferList.empty());
+  std::swap(this->bufferList, bufferList);
+}
 
 LineImpl::~LineImpl() {
   std::for_each(

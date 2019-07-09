@@ -249,6 +249,13 @@ int32_t Buffer::write(Buffer &l, int32_t n) const {
   return F_MAX_I32(0, n);
 }
 
+std::string Buffer::toString() const {
+  return "[ @Buffer buffer: " + std::to_string(buffer) +
+         ", capacity: " + std::to_string(capacity) +
+         ", size: " + std::to_string(size) + " seek: " + std::to_string(seek) +
+         " ]";
+}
+
 } // namespace fastype
 
 #undef ALLOC_ALIGN
