@@ -15,7 +15,6 @@ namespace fastype {
 
 class File : private boost::noncopyable {
 public:
-  virtual ~File();
   File(File &&) = default;
   File &operator=(File &&) = default;
 
@@ -23,29 +22,32 @@ public:
   Line begin();
   Line end();
   Line getLine(int32_t lineNumber);
+  std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
   static void close(std::shared_ptr<File> file);
 
 private:
   File(const std::string &fileName);
+  virtual ~File();
 
-  // load n lines
-  int64_t load(int n);
-  // load 1 line
-  int64_t loadOne();
-  // load all lines
-  int64_t loadAll();
+  // read n buffers and lines
+  // @return readed bytes
+  int64_t read(int n);
+  // read 1 buffer and lines
+  // @return readed bytes
+  int64_t readOne();
+  // read all buffers and lines
+  // @return readed bytes
+  int64_t readAll();
 
-  std::shared_ptr<FILE> fd;
   std::string fileName;
-  std::shared_ptr<Logger> log;
-
+  FILE *fd;
+  bool eof;
   Buffer readBuffer;
-  Buffer writeBuffer;
-  std::vector<std::shared_ptr<detail::LineImpl>> lineList;
-
-  friend class detail::LineImpl;
+  std::vector<std::shared_ptr<Buffer>> bufferList;
+  std::vector<Line> lineList;
+  std::shared_ptr<Logger> log;
 };
 
 } // namespace fastype

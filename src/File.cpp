@@ -10,29 +10,27 @@
 #include <string>
 
 #define BUF_SIZE 4096
-#define F_LI detail::LineImpl
 
 namespace fastype {
 
 File::File(const std::string &fileName)
-    : fileName(fileName), readBuffer(BUF_SIZE), writeBuffer(BUF_SIZE) {
-  log = LogManager::getLogger(fileName);
-  fd = std::make_shared<File>(std::fopen(fileName.data(), "rw"));
+    : fileName(fileName), fd(std::fopen(fileName.data(), "rw")), eof(false),
+      readBuffer(BUF_SIZE), bufferList(), lineList(),
+      log(LogManager::getLogger(fileName)) {
   F_DEBUGF(log, "fileName: {}", fileName);
 }
 
 File::~File() {
-  readBuffer.release();
-  writeBuffer.release();
   if (fd) {
-    std::fclose(fd.get());
-    fd.reset();
+    std::fclose(fd);
+    fd = nullptr;
   }
-  std::for_each(buffer.begin(), buffer.end(),
-                [](std::vector<std::shared_ptr<detail::LineImpl>>::iterator i) {
-                  (*i).reset();
-                });
-  buffer.clear();
+  readBuffer.release();
+  std::for_each(
+      bufferList.begin(), bufferList.end(),
+      [](std::vector<std::shared_ptr<Buffer>>::iterator i) { (*i).reset(); });
+  bufferList.clear();
+  lineList.clear();
   F_DEBUGF(log, "fileName: {}", fileName);
 }
 
@@ -44,25 +42,26 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-Line File::begin() {
-  return Line(lineList.begin(), std::shared_ptr<File>(this));
-}
+Line File::begin() {}
 
-Line File::end() { return Line(lineList.end(), std::shared_ptr<File>(this)); }
+Line File::end() {}
 
-std::shared_ptr<Line> File::getLine(int32_t lineNumber) {
-  loadAll();
-  int32_t startBuffer = 0;
-  int32_t startByte = 0;
-  int32_t endBuffer = 0;
-  int32_t endByte = 0;
-  return Line(std::shared_ptr<File>(this), startBuffer, startByte, endBuffer,
-              endByte);
+Line File::getLine(int32_t lineNumber) {}
+
+std::string File::toString() const {
+  return "[ @File fileName: " + fileName + ", fd: 0x" + fd +
+         ", eof: " + std::to_string(eof) +
+         ", bufferList.size: " + bufferList.size() +
+         ", lineList.size: " + lineList.size() + " ]";
 }
 
 int64_t File::loadOne() {
-  // if readBuffer has left bytes
-  // try read them to new line
+  // read 1 buffer
+  readBuffer.clear();
+
+  // if new buffer has line break character
+  // tag them to new line
+
   if (!readBuffer.empty()) {
     F_DEBUGF(log, "readBuffer not empty: {}", readBuffer.toString());
     char *rend = readBuffer.buffer + readBuffer.seek + 1;
@@ -80,14 +79,9 @@ int64_t File::loadOne() {
     }
   }
 
-  std::shared_ptr<detail::LineImpl> lineImpl =
-      std::shared_ptr<detail::LineImpl>(
-          new detail::LineImpl(std::shared_ptr<File>(this), lineList.size()));
-  int64_t n = (int64_t)std::fread(readBuffer.getData(), readBuffer.getMargin(),
-                                  sizeof(char), this->fd.get());
+  // return readed bytes
 }
 
 } // namespace fastype
 
 #undef BUF_SIZE
-#undef F_LI

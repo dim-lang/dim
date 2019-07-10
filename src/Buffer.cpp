@@ -77,7 +77,7 @@ Buffer::~Buffer() {
 }
 
 void Buffer::clear() {
-  if (buffer) {
+  if (buffer && size > 0) {
     std::memset(buffer, 0, capacity);
     size = 0;
     seek = 0;
