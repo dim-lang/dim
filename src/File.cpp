@@ -73,16 +73,14 @@ int64_t File::loadOne() {
   b->read(readBuffer_, readBuffer_.size());
   bufferList_.push_back(b);
 
-  Line line(std::shared_ptr<File>(this), lineList_.size());
-
   for (int i = 0; i < b->size(); i++) {
-    // line break
     if (b->data()[i] != '\n') {
       continue;
     }
 
+    // at line break
     if (lineList_.size() > 0 && lineList_.back().right().undefined()) {
-      // case 1: has previous lines, and last line is opened
+      // if has previous lines, and last line is opened
 
       // close last line
       Line &lastLine = lineList_.back();
@@ -90,16 +88,17 @@ int64_t File::loadOne() {
       lastLine.right().setByte(i + 1);
 
       // open new line
-      line.setLineNumber(lineList_.size());
+      Line line(std::shared_ptr<File>(this), lineList_.size());
       line.right().reset();
       line.setLeft(LineBound(bufferList_.size(), i + 1));
+      lineList_.push_back(line);
 
     } else if (lineList_.size() == 0 || !lineList_.back().right().undefined()) {
       // case 2: has no previous lines
       // case 3: has previous lines, but last line is closed
 
       // open new line
-      line.setLineNumber(lineList_.size());
+      Line line(std::shared_ptr<File>(this), lineList_.size());
       line.right().reset();
       line.setLeft(LineBound(bufferList_.size() - 1, i + 1));
       lineList_.push_back(line);
