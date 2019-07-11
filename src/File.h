@@ -18,10 +18,10 @@ public:
   File(File &&) = default;
   File &operator=(File &&) = default;
 
-  const std::string &getFileName() const;
+  const std::string &fileName() const;
   Line begin();
   Line end();
-  Line getLine(int32_t lineNumber);
+  Line line(int32_t lineNumber);
   std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
@@ -41,13 +41,16 @@ private:
   // @return readed bytes
   int64_t readAll();
 
-  std::string fileName;
-  FILE *fd;
-  bool eof;
-  Buffer readBuffer;
-  std::vector<std::shared_ptr<Buffer>> bufferList;
-  std::vector<Line> lineList;
-  std::shared_ptr<Logger> log;
+  std::string fileName_;
+  FILE *fd_;
+  bool eof_;
+  Buffer readBuffer_;
+  std::vector<std::shared_ptr<Buffer>> bufferList_;
+  std::vector<Line> lineList_;
+  std::shared_ptr<Logger> log_;
+
+  friend class Line;
+  friend class Buffer;
 };
 
 } // namespace fastype

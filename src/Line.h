@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Buffer.h"
 #include "File.h"
+#include "LineBound.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -14,9 +14,6 @@
 namespace fastype {
 
 class File;
-namespace detail {
-class LineImpl;
-}
 
 class Line {
 public:
@@ -26,8 +23,7 @@ public:
 
   Line &operator++();
   Line &operator--();
-  int32_t index() const;
-  bool sameFile(const Line &other);
+  bool sameFile(const Line &other) const;
 
   bool operator==(const Line &other) const;
   bool operator!=(const Line &other) const;
@@ -36,38 +32,28 @@ public:
   bool operator<(const Line &other) const;
   bool operator<=(const Line &other) const;
 
-private:
-  Line(std::vector<std::shared_ptr<detail::LineImpl>>::iterator iter,
-       std::shared_ptr<File> fp);
-
-  std::vector<std::shared_ptr<detail::LineImpl>>::iterator iter;
-  std::shared_ptr<File> fp;
-};
-
-namespace detail {
-
-class LineImpl {
-public:
-  LineImpl(const LineImpl &) = default;
-  LineImpl &operator=(const LineImpl &) = default;
-  virtual ~LineImpl();
-
-  bool sameFile(const LineImpl &other) const;
-
-  static const LineImpl &nil();
+  int32_t lineNumber() const;
+  int32_t setLineNumber(int32_t lineNumber);
+  const LineBound &left() const;
+  LineBound setLeft(const LineBound &left);
+  const LineBound &right() const;
+  LineBound setRight(const LineBound &right);
 
 private:
-  LineImpl(int32_t index);
-  LineImpl(std::shared_ptr<File> fp,
-           std::vector<std::shared_ptr<Buffer>> &&bufferList, int32_t index);
+  Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
+       const LineBound &right);
+  Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left);
+  Line(std::shared_ptr<File> fp, int32_t lineNumber);
 
-  int32_t index;
-  std::vector<std::shared_ptr<Buffer>> bufferList;
-  std::shared_ptr<File> fp;
+  static const Line &undefinedLine();
+
+  std::shared_ptr<File> fp_;
+  int32_t lineNumber_;
+  LineBound left_;
+  LineBound right_;
 
   friend class File;
+  friend class Buffer;
 };
-
-} // namespace detail
 
 } // namespace fastype

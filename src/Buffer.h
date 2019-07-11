@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Log.h"
 #include "boost/core/noncopyable.hpp"
 #include "unicode/ustring.h"
 #include <memory>
@@ -43,22 +44,20 @@ public:
   // @return true if size == 0
   bool empty() const;
   // @return margin, capacity - size
-  int32_t getMargin() const;
+  int32_t margin() const;
 
   // @return seek
-  int32_t getSeek() const;
+  int32_t seek() const;
   // @return old seek
-  int32_t setSeek(int32_t seek);
+  int32_t increase(int32_t inc);
   // @return old seek
-  int32_t increaseSeek(int32_t inc);
-  // @return old seek
-  int32_t decreaseSeek(int32_t dec);
+  int32_t decrease(int32_t dec);
   // reset seek potision at 0
   // @return old seek position
-  int32_t reset();
+  int32_t reseek();
 
   // @return index
-  int32_t getIndex() const;
+  int32_t index() const;
 
   // check if seek position is at begin
   // @return true if seek == 0
@@ -68,11 +67,15 @@ public:
   bool end() const;
 
   // @return raw data at seek position
-  const char *getData() const;
+  char *data() const;
+
   // @return size
-  int32_t getSize() const;
+  int32_t size() const;
+  // @return old size
+  int32_t setSize(int32_t size);
+
   // @return capacity
-  int32_t getCapacity() const;
+  int32_t capacity() const;
 
   // read at most one buffer or n bytes from src, start from offset
   // @return read bytes
@@ -91,10 +94,11 @@ public:
   std::string toString() const;
 
 private:
-  char *buffer;
-  int32_t capacity;
-  int32_t size;
-  int32_t seek;
+  char *buffer_;
+  int32_t capacity_;
+  int32_t size_;
+  int32_t seek_;
+  std::shared_ptr<Logger> log_;
 
   friend class File;
   friend class Line;

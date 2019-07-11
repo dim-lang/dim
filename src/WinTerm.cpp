@@ -16,4 +16,3 @@ void WinTerm::show(const std::string &fileName) {
 }
 
 } // namespace fastype
-

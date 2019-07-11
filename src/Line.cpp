@@ -2,90 +2,81 @@
 // Apache License Version 2.0
 
 #include "Line.h"
-#include "Buffer.h"
 #include <algorithm>
+#include <utility>
 
 namespace fastype {
 
 Line &Line::operator++() {
-  Line tmp(this->iter);
-  this->iter++;
+  Line tmp(fp, lineNumber, startBuffer, startByte, endBuffer, endByte);
+  // if has next line, or set endline
+  *this = (lineNumber + 1 < fp->lineList.size()) ? fp->lineList[lineNumber + 1]
+                                                 : getEndLine();
   return tmp;
 }
 
 Line &Line::operator--() {
-  Line tmp(this->iter);
-  this->iter--;
+  Line tmp(fp, lineNumber, startBuffer, startByte, endBuffer, endByte);
+  // if has previous line, or set endline
+  *this = (lineNumber - 1 >= 0) ? fp->lineList[lineNumber - 1] : getEndLine();
   return tmp;
 }
 
-int32_t Line::index() const {
-  return std::distance(fp->lineList.begin(), iter);
-}
-
-bool Line::sameFile(const Line &other) const {
-  return (*iter)->sameFile(*(*other));
-}
+bool Line::sameFile(const Line &other) const { return fp == other.fp; }
 
 bool Line::operator==(const Line &other) const {
-  assert(fp == other.fp);
-  return iter == other.iter;
+  return fp == other.fp && lineNumber == other.lineNumber;
 }
-bool Line::operator!=(const Line &other) const {
-  assert(fp == other.fp);
-  return iter != other.iter;
-}
+
+bool Line::operator!=(const Line &other) const { return !(*this == other); }
+
 bool Line::operator>(const Line &other) const {
-  assert(fp == other.fp);
-  return std::distance(other.index, iter) > 0;
+  return fp == other.fp && lineNumber > other.lineNumber;
 }
+
 bool Line::operator>=(const Line &other) const {
-  assert(fp == other.fp);
-  return *this > other || *this == other;
+  return *this == other || *this > other;
 }
+
 bool Line::operator<(const Line &other) const {
-  assert(fp == other.fp);
-  return std::distance(other.index, iter) < 0;
+  return fp == other.fp && lineNumber < other.lineNumber;
 }
+
 bool Line::operator<=(const Line &other) const {
-  assert(fp == other.fp);
-  return *this < other || *this == other;
+  return *this == other || *this < other;
 }
 
-Line::Line(std::vector<std::shared_ptr<detail::LineImpl>>::iterator iter,
-           std::shared_ptr<File> fp)
-    : iter(iter), fp(fp) {}
+int32_t Line::lineNumber() const { return lineNumber_; }
 
-namespace detail {
-
-LineImpl::LineImpl() : fp(std::shared_ptr<File>(nullptr)), index(-1) {}
-
-LineImpl::LineImpl(std::shared_ptr<File> fp,
-                   std::vector<std::shared_ptr<Buffer>> &&bufferList,
-                   int32_t index)
-    : fp(fp), index(index) {
-  assert(this->bufferList.empty());
-  std::swap(this->bufferList, bufferList);
+int32_t Line::setLineNumber(int32_t lineNumber) {
+  return std::exchange(lineNumber_, lineNumber);
 }
 
-LineImpl::~LineImpl() {
-  std::for_each(
-      bufferList.begin(), bufferList.end();
-      [](std::list<std::shared_ptr<Buffer>>::iterator i) { (*i).reset(); });
-  bufferList.clear();
-  index = -1;
-  fp.reset();
+LineBound &Line::left() const { return left_; }
+
+LineBound Line::setLeft(const LineBound &left) {
+  return std::exchange(left_, left);
 }
 
-bool LineImpl::sameFile(const LineImpl &other) const {
-  return this->fp == other.fp;
+LineBound &Line::right() const { return right_; }
+
+LineBound Line::setRight(const LineBound &right) {
+  return std::exchange(right_, right);
 }
 
-const LineImpl &LineImpl::nil() {
-  static LineImpl n;
-  return n;
-}
+Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
+           const LineBound &right)
+    : fp(fp), lineNumber(lineNumber), left_(left), right_(right) {}
 
-} // namespace detail
+Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left)
+    : fp(fp), lineNumber(lineNumber), left_(left), right_() {}
+
+Line::Line(std::shared_ptr<File> fp, int32_t lineNumber)
+    : fp(fp), lineNumber(lineNumber), left_(), right_() {}
+
+const Line &Line::undefinedLine() {
+  static Line undef(std::shared_ptr<File>(nullptr), -1);
+  return undef;
+}
 
 } // namespace fastype

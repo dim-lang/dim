@@ -16,9 +16,9 @@ namespace detail {
 
 class LogLocation {
 public:
-  LogLocation(const char *fileName, int lineNumber, const char *functionName)
-      : fileName(fileName), lineNumber(lineNumber), functionName(functionName) {
-  }
+  LogLocation(const char *aFileName, int aLineNumber, const char *aFunctionName)
+      : fileName(aFileName), lineNumber(aLineNumber),
+        functionName(aFunctionName) {}
   virtual ~LogLocation() = default;
 
   std::string fileName;
@@ -84,53 +84,53 @@ public:
 #ifdef NDEBUG
 
 #ifndef F_DEBUGF
-#define F_DEBUGF(logger, fmt, ...)
+#define F_DEBUGF(fmt, ...)
 #endif
 
 #ifndef F_DEBUG
-#define F_DEBUG(logger, msg)
+#define F_DEBUG(msg)
 #endif
 
 #ifndef F_INFOF
-#define F_INFOF(logger, fmt, ...)
+#define F_INFOF(fmt, ...)
 #endif
 
 #ifndef F_INFO
-#define F_INFO(logger, msg)
+#define F_INFO(msg)
 #endif
 
 #else
 
 #ifndef F_DEBUGF
-#define F_DEBUGF(logger, fmt, ...)                                             \
+#define F_DEBUGF(fmt, ...)                                                     \
   do {                                                                         \
-    (logger)->debug(                                                           \
+    (log_)->debug(                                                             \
         fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
         __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
 #ifndef F_DEBUG
-#define F_DEBUG(logger, msg)                                                   \
+#define F_DEBUG(msg)                                                           \
   do {                                                                         \
-    (logger)->debug(                                                           \
+    (log_)->debug(                                                             \
         fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), msg);  \
   } while (0)
 #endif
 
 #ifndef F_INFOF
-#define F_INFOF(logger, fmt, ...)                                              \
+#define F_INFOF(fmt, ...)                                                      \
   do {                                                                         \
-    (logger)->info(                                                            \
+    (log_)->info(                                                              \
         fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
         __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
 #ifndef F_INFO
-#define F_INFO(logger, msg)                                                    \
+#define F_INFO(msg)                                                            \
   do {                                                                         \
-    (logger)->info(                                                            \
+    (log_)->info(                                                              \
         fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), msg);  \
   } while (0)
 #endif
@@ -138,18 +138,18 @@ public:
 #endif // #ifdef NDEBUG
 
 #ifndef F_ERRORF
-#define F_ERRORF(logger, fmt, ...)                                             \
+#define F_ERRORF(fmt, ...)                                                     \
   do {                                                                         \
-    (logger)->error(                                                           \
+    (log_)->error(                                                             \
         fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__), fmt,   \
         __VA_ARGS__);                                                          \
   } while (0)
 #endif
 
 #ifndef F_ERROR
-#define F_ERROR(logger, msg)                                                   \
+#define F_ERROR(msg)                                                           \
   do {                                                                         \
-    (logger)->error(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),    \
-                    msg);                                                      \
+    (log_)->error(fastype::LogLocation(__FILE__, __LINE__, __FUNCTION__),      \
+                  msg);                                                        \
   } while (0)
 #endif
