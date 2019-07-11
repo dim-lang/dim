@@ -81,29 +81,27 @@ int64_t File::loadOne() {
       continue;
     }
 
-    // case 1: has previous lines, and last line is opened
     if (lineList_.size() > 0 && lineList_.back().right().undefined()) {
+      // case 1: has previous lines, and last line is opened
+
+      // close last line
       Line &lastLine = lineList_.back();
-      line = lastLine;
-      line.right().setBuffer(bufferList_.size() - 1);
-      line.right().setByte(i + 1);
-      lineList_.push_back(line);
+      lastLine.right().setBuffer(bufferList_.size() - 1);
+      lastLine.right().setByte(i + 1);
 
+      // open new line
       line.setLineNumber(lineList_.size());
       line.right().reset();
+      line.setLeft(LineBound(bufferList_.size(), i + 1));
 
-      LineBound nextLeft(bufferList_.size(), i + 1);
-      line.setLeft(nextLeft);
-    }
+    } else if (lineList_.size() == 0 || !lineList_.back().right().undefined()) {
+      // case 2: has no previous lines
+      // case 3: has previous lines, but last line is closed
 
-    // case 2: has no previous lines
-    // case 3: has previous lines, but last line is closed
-    if (lineList_.size() == 0 || !lineList_.back().right().undefined()) {
-      // add new opened line
+      // open new line
       line.setLineNumber(lineList_.size());
       line.right().reset();
-      line.left().setBuffer(bufferList_.size() - 1);
-      line.left().setByte(i + 1);
+      line.setLeft(LineBound(bufferList_.size() - 1, i + 1));
       lineList_.push_back(line);
     }
   }
