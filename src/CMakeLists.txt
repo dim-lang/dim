@@ -34,7 +34,7 @@ message(F_LIB_DIR: ${F_LIB_DIR})
 message(F_LIB: ${F_LIB})
 
 
-set(F_SHARE
+set(F_CORE
     Log.cpp
     Term.cpp
     Util.cpp
@@ -53,25 +53,25 @@ set(FD_SRC
     )
 
 if (MSVC)
-    set(F_SHARE ${F_SHARE} WinTerm.cpp)
+    set(F_CORE ${F_CORE} WinTerm.cpp)
 else()
-    set(F_SHARE ${F_SHARE} NCursesTerm.cpp)
+    set(F_CORE ${F_CORE} NCursesTerm.cpp)
 endif(MSVC)
 
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
-add_library(fts SHARED ${F_SHARE})
-target_include_directories(fts PRIVATE ${F_INC})
-target_link_libraries(fts ${F_LIB})
-set_target_properties(fts PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(ftcore SHARED ${F_CORE})
+target_include_directories(ftcore PRIVATE ${F_INC})
+target_link_libraries(ftcore ${F_LIB})
+set_target_properties(ftcore PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastype ${F_SRC})
 target_include_directories(fastype PRIVATE ${F_INC})
-target_link_libraries(fastype ${F_LIB} fts)
+target_link_libraries(fastype ${F_LIB} ftcore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastyped ${FD_SRC})
 target_include_directories(fastyped PRIVATE ${F_INC})
-target_link_libraries(fastyped ${F_LIB} fts)
+target_link_libraries(fastyped ${F_LIB} ftcore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})

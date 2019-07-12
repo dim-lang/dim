@@ -49,5 +49,5 @@ link_directories(../src)
 
 add_executable(fastype-test ${T_SRC})
 target_include_directories(fastype-test PRIVATE ${F_INC})
-target_link_libraries(fastype-test ${F_LIB} fts)
+target_link_libraries(fastype-test ${F_LIB} ftcore)
 set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})
