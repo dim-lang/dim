@@ -33,7 +33,8 @@ message(F_LIB_DIR: ${F_LIB_DIR})
 message(F_LIB: ${F_LIB})
 
 set(T_SRC
-    LineBoundTest.cpp
+    MainTest.cpp
+    LogTest.cpp
     )
 
 include_directories(${F_INC})

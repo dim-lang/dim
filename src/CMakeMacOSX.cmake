@@ -25,6 +25,7 @@ set(F_INC
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
+    /usr/local/opt/catch2/include
     )
 set(F_LIB
     ${CURSES_LIBRARIES}
