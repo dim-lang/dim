@@ -33,40 +33,28 @@ message(F_INC: ${F_INC})
 message(F_LIB_DIR: ${F_LIB_DIR})
 message(F_LIB: ${F_LIB})
 
+
+set(F_SRC
+    fastype.cpp
+    Log.cpp
+    Term.cpp
+    Util.cpp
+    Global.cpp
+    File.cpp
+    Buffer.cpp
+    Line.cpp
+    LineBound.cpp
+    View.cpp
+    )
+set(FD_SRC
+    fastyped.cpp
+    Log.cpp
+    )
+
 if (MSVC)
-    set(F_SRC
-        fastype.cpp
-        Log.cpp
-        Term.cpp
-        WinTerm.cpp
-        Util.cpp
-        Global.cpp
-        File.cpp
-        Buffer.cpp
-        Line.cpp
-        LineBound.cpp
-        )
-    set(FD_SRC
-        fastyped.cpp
-        Log.cpp
-        )
+    set(F_SRC ${F_SRC} WinTerm.cpp)
 else()
-    set(F_SRC
-        fastype.cpp
-        Log.cpp
-        Term.cpp
-        NCursesTerm.cpp
-        Util.cpp
-        Global.cpp
-        File.cpp
-        Buffer.cpp
-        Line.cpp
-        LineBound.cpp
-        )
-    set(FD_SRC
-        fastyped.cpp
-        Log.cpp
-        )
+    set(F_SRC ${F_SRC} NCursesTerm.cpp)
 endif(MSVC)
 
 include_directories(${F_INC})
