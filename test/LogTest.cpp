@@ -8,9 +8,9 @@ TEST_CASE("Log", "[Log]") {
   SECTION("log location") {
     INFO("Log Location");
     fastype::detail::LogLocation ll("fileName", 1, "main");
-    REQUIRE(ll.fileName == "fileName");
-    REQUIRE(ll.lineNumber == 1);
-    REQUIRE(ll.functionName == "main");
+    REQUIRE(ll.fileName() == "fileName");
+    REQUIRE(ll.lineNumber() == 1);
+    REQUIRE(ll.functionName() == "main");
   }
 
   SECTION("log operations") {

@@ -52,8 +52,7 @@
 namespace fastype {
 
 Buffer::Buffer()
-    : buffer_(nullptr), capacity_(0), size_(0), seek_(0),
-      log_(LogManager::getLogger("Buffer")) {
+    : Logging("Buffer"), buffer_(nullptr), capacity_(0), size_(0), seek_(0) {
   F_DEBUGF("Buffer at: {}", (void *)this);
 }
 

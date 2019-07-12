@@ -5,6 +5,7 @@
 
 namespace fastype {
 
+// a logic term view
 class View {};
 
 } // namespace fastype

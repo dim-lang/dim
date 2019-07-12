@@ -4,6 +4,7 @@
 #pragma once
 #include "File.h"
 #include "LineBound.h"
+#include "Log.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -15,7 +16,7 @@ namespace fastype {
 
 class File;
 
-class Line {
+class Line : public Logging {
 public:
   Line(const Line &) = default;
   Line &operator=(const Line &) = default;

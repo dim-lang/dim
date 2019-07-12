@@ -3,6 +3,7 @@
 
 #include "Log.h"
 #include "Util.h"
+#include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
@@ -30,15 +31,15 @@ static const string FileName = "fastype.log";
 
 string Logger::formatLocation(const detail::LogLocation &location,
                               const char *fmt) {
-  string shortFileName(location.fileName);
+  string shortFileName(location.fileName());
   size_t slashPos = shortFileName.find_last_of("/");
   slashPos =
       slashPos != string::npos ? slashPos : shortFileName.find_last_of("\\");
   if (slashPos != string::npos) {
     shortFileName = shortFileName.substr(slashPos + 1);
   }
-  return string(string("[") + shortFileName + "] [" + location.functionName +
-                ":" + to_string(location.lineNumber) + "] " + fmt);
+  return fmt::format("[{}] [{}] [{}] {}", shortFileName,
+                     location.functionName(), location.lineNumber(), fmt);
 }
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {

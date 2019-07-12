@@ -9,15 +9,12 @@
 
 namespace fastype {
 
-class WinTerm : public Term {
+class WinTerm : public Term, Logging {
 public:
   WinTerm();
   virtual ~WinTerm();
 
   virtual void show(const std::string &fileName);
-
-private:
-  std::shared_ptr<Logger> log;
 };
 
 } // namespace fastype

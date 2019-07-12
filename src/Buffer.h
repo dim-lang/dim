@@ -12,7 +12,7 @@ namespace fastype {
 class File;
 class Line;
 
-class Buffer : private boost::noncopyable {
+class Buffer : private boost::noncopyable, public Logging {
 public:
   // empty buffer
   Buffer();
@@ -98,7 +98,6 @@ private:
   int32_t capacity_;
   int32_t size_;
   int32_t seek_;
-  std::shared_ptr<Logger> log_;
 
   friend class File;
   friend class Line;

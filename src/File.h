@@ -15,7 +15,7 @@
 
 namespace fastype {
 
-class File : private boost::noncopyable {
+class File : private boost::noncopyable, public Logging {
 public:
   File(File &&) = default;
   File &operator=(File &&) = default;
@@ -54,7 +54,6 @@ private:
   Buffer readBuffer_;
   std::vector<std::shared_ptr<Buffer>> bufferList_;
   std::vector<Line> lineList_;
-  std::shared_ptr<Logger> log_;
 
   friend class Line;
   friend class Buffer;

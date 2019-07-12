@@ -16,9 +16,9 @@
 namespace fastype {
 
 File::File(const std::string &fileName)
-    : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")), eof_(false),
-      readBuffer_(BUF_SIZE), bufferList_(), lineList_(),
-      log_(LogManager::getLogger(fileName)) {
+    : Logging(fileName), fileName_(fileName),
+      fd_(std::fopen(fileName.data(), "rw")), eof_(false),
+      readBuffer_(BUF_SIZE), bufferList_(), lineList_() {
   F_DEBUGF("fileName: {}", fileName);
 }
 

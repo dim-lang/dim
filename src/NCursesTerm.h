@@ -9,16 +9,13 @@
 
 namespace fastype {
 
-class NCursesTerm : public Term {
+class NCursesTerm : public Term, Logging {
 public:
   explicit NCursesTerm();
 
   virtual ~NCursesTerm();
 
   virtual void show(const std::string &fileName);
-
-private:
-  std::shared_ptr<Logger> log_;
 };
 
 } // namespace fastype

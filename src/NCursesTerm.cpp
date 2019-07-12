@@ -16,8 +16,7 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm()
-    : Term(), log_(fastype::LogManager::getLogger("NCursesTerm")) {
+NCursesTerm::NCursesTerm() : Term(), Logging("NCursesTerm") {
   F_DEBUG("Construct");
 }
 

@@ -25,7 +25,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char **argv) {
-  shared_ptr<Logger> log_ = LogManager::getLogger("main");
+  shared_ptr<Logger> logging_ = LogManager::getLogger("main");
 
   boost_po::options_description desc("Allowed options");
   desc.add_options()("help,h", "produce help message")(
