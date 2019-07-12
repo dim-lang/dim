@@ -18,12 +18,12 @@ Fastype is a modern text editor, focused on features below.
 
 #### Dependencies
 
-|  Platform  |  Dependencies                             |
-|------------|-------------------------------------------|
-|  MacOSX    | clang++, cmake, boost, spdlog, fmt, icu4c |
-|  Macjaro   | g++, cmake, boost, fmt, icu4c             |
-|  Ubuntu    | g++, cmake, boost, fmt, icu4c             |
-|  Windows   | msvc, cmake                               |
+|  Platform  |  Manually Installed Dependencies                                  |
+|------------|-------------------------------------------------------------------|
+|  MacOSX    | clang++, cmake, boost, spdlog, fmt, icu4c, googletest, googlemock |
+|  Macjaro   | g++, cmake, boost, fmt, icu4c, googletest, googlemock             |
+|  Ubuntu    | g++, cmake, boost, fmt, icu4c, gtest, gmock                       |
+|  Windows   | msvc, cmake                                                       |
 
 #### Build
 
