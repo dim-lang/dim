@@ -36,6 +36,7 @@ set(F_LIB
     icudata
     )
 set(F_LIB_DIR
+    .
     ${CURSES_LIBRARY_DIRS}
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib

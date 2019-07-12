@@ -21,5 +21,5 @@ RELEASE=release
 cd $ROOT
 if [ ! -d $DEBUG ]; then mkdir $DEBUG; fi
 if [ ! -d $RELEASE ]; then mkdir $RELEASE; fi
-cd $DEBUG && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON ../src && make VERBOSE=1 && cd $ROOT
-cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release ../src && make -j8 && cd $ROOT
+cd $DEBUG && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && make VERBOSE=1 && cd $ROOT
+cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release .. && make -j8 && cd $ROOT
