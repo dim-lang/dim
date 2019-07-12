@@ -7,7 +7,7 @@ set OS=Windows
 echo [fastype] Build for %OS%
 
 @rem third party library
-echo "[fastype] prepare spdlog v1.3.1"
+echo [fastype] prepare spdlog v1.3.1
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b 'v1.3.1' --single-branch --depth 1 https://github.com/gabime/spdlog.git

@@ -38,13 +38,12 @@ set(T_SRC
     )
 
 include_directories(${F_INC})
-include_directories(..)
 include_directories(../src)
 include_directories(../src/spdlog/include)
 include_directories(../src/boost)
 include_directories(../src/icu/icu4c/source)
+include_directories(Catch2/single_include)
 link_directories(${F_LIB_DIR})
-link_directories(..)
 link_directories(../src)
 
 add_executable(fastype-test ${T_SRC})

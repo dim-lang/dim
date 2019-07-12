@@ -12,8 +12,13 @@ case "$OSTYPE" in
   bsd*)     OS="BSD" ;;
   *)        echo "[fastype] Unknown *$OSTYPE* Not Support!" && exit 3 ;;
 esac
-echo "[fastype] Build for $OS"
+echo [fastype] Build for $OS
 
+echo [fastype] prepare catch2 v2.9.1
+if [ ! -d test/catch2 ]; then
+    cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
+fi
+echo [fastype] prepare catch2 v2.9.1 - done
 
 # build
 DEBUG=debug

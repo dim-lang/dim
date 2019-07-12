@@ -24,3 +24,4 @@ Config.h
 spdlog
 boost
 icu
+Catch2
