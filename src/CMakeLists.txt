@@ -43,6 +43,8 @@ if (MSVC)
         Global.cpp
         File.cpp
         Buffer.cpp
+        Line.cpp
+        LineBound.cpp
         )
     set(FD_SRC
         fastyped.cpp
@@ -54,11 +56,12 @@ else()
         Log.cpp
         Term.cpp
         NCursesTerm.cpp
-        #WinTerm.cpp
         Util.cpp
         Global.cpp
         File.cpp
         Buffer.cpp
+        Line.cpp
+        LineBound.cpp
         )
     set(FD_SRC
         fastyped.cpp

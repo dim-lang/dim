@@ -2,7 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Buffer.h"
 #include "Line.h"
+#include "LineBound.h"
 #include "Log.h"
 #include "boost/core/noncopyable.hpp"
 #include "unicode/ustring.h"
@@ -17,29 +19,34 @@ class File : private boost::noncopyable {
 public:
   File(File &&) = default;
   File &operator=(File &&) = default;
+  virtual ~File();
 
-  const std::string &fileName() const;
-  Line begin();
-  Line end();
-  Line line(int32_t lineNumber);
-  std::string toString() const;
+  virtual const std::string &fileName() const;
+  virtual Line begin();
+  virtual Line end();
+  virtual Line line(int32_t lineNumber);
+  virtual std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
   static void close(std::shared_ptr<File> file);
 
 private:
   File(const std::string &fileName);
-  virtual ~File();
 
-  // read n buffers and lines
-  // @return readed bytes
-  int64_t read(int n);
-  // read 1 buffer and lines
-  // @return readed bytes
-  int64_t readOne();
-  // read all buffers and lines
-  // @return readed bytes
-  int64_t readAll();
+  // load n buffers and lines
+  // @return loaded bytes
+  int64_t load(int n);
+  // load 1 buffer and lines
+  // @return loaded bytes
+  int64_t loadOne();
+  // load all buffers and lines
+  // @return loaded bytes
+  int64_t loadAll();
+
+  // if last line exists and is opened, close it
+  void closeLastLine(LineBound right);
+  // open new line at specified left line bound
+  void openNewLine(File *fp, int32_t lineNumber, LineBound left);
 
   std::string fileName_;
   FILE *fd_;

@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Util.h"
 #include "boost/align/align_up.hpp"
+#include "fmt/format.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -156,8 +157,8 @@ int32_t Buffer::increase(int32_t inc) {
 
 int32_t Buffer::decrease(int32_t dec) {
   fdebug_assert_state();
-  assert(seek >= 0);
-  assert(seek < size_);
+  assert(seek_ >= 0);
+  assert(seek_ < size_);
   if (dec < 0) {
     return increase(-dec);
   }
@@ -204,15 +205,17 @@ int32_t Buffer::capacity() const {
   return capacity_;
 }
 
+static const std::string EndOfLine = "\n";
+
 int32_t Buffer::read(const char *src, int32_t offset, int32_t n) {
   assert(src);
   assert(n >= 0);
   assert(offset >= 0);
   fdebug_assert_state();
 
-  int32_t n = F_MAX_I32(n, capacity_ - size_);
-  const char *eb = std::find_first_if(src + offset, src + offset + n,
-                                      [](const char *i) { return *i == '\n'; });
+  n = F_MAX_I32(n, capacity_ - size_);
+  const char *eb = std::find_first_of(src + offset, src + offset + n,
+                                      EndOfLine.begin(), EndOfLine.end());
   n = F_MIN_I32(n, eb - (src + offset));
   if (n > 0) {
     std::memcpy(buffer_, src + offset, n);
@@ -221,20 +224,20 @@ int32_t Buffer::read(const char *src, int32_t offset, int32_t n) {
 }
 
 int32_t Buffer::read(Buffer &l, int32_t n) {
-  int32_t n = read(l.buffer + l.seek, 0, F_MAX_I32(l.size() - l.seek(), n));
+  n = read(l.buffer_ + l.seek_, 0, F_MAX_I32(l.size_ - l.seek_, n));
   l.increase(n);
   return n;
 }
 
-int32_t Buffer::write(char *dest, int32_t offset, int32_t n) const {
+int32_t Buffer::write(char *dest, int32_t offset, int32_t n) {
   assert(dest);
   assert(n >= 0);
   assert(offset >= 0);
   fdebug_assert_state();
 
-  int32_t n = F_MAX_I32(n, capacity_ - size_);
-  char *eb = std::find_first_if(buffer_ + seek_, buffer_ + size_,
-                                [](char *i) { return *i == '\n' });
+  n = F_MAX_I32(n, capacity_ - size_);
+  char *eb = std::find_first_of(buffer_ + seek_, buffer_ + size_,
+                                EndOfLine.begin(), EndOfLine.end());
   n = F_MIN_I32(n, eb - (buffer_ + seek_));
   if (n > 0) {
     std::memcpy(dest + offset, buffer_ + seek_, n);
@@ -243,18 +246,15 @@ int32_t Buffer::write(char *dest, int32_t offset, int32_t n) const {
   return F_MAX_I32(0, n);
 }
 
-int32_t Buffer::write(Buffer &l, int32_t n) const {
-  int32_t n =
-      write(l.buffer, l.seek,
-            F_MAX_I32(size() - seek(), F_MAX_I32(l.size() - l.seek(), n)));
+int32_t Buffer::write(Buffer &l, int32_t n) {
+  n = write(l.buffer_, l.seek_,
+            F_MAX_I32(size_ - seek_, F_MAX_I32(l.size_ - l.seek_, n)));
   return F_MAX_I32(0, n);
 }
 
 std::string Buffer::toString() const {
-  return "[ @Buffer buffer: 0x" + std::to_string(buffer_) +
-         ", capacity: " + std::to_string(capacity_) +
-         ", size: " + std::to_string(size_) +
-         " seek: " + std::to_string(seek_) + " ]";
+  return fmt::format("[ @Buffer buffer: {}, capacity: {} size: {} seek: {} ]",
+                     (void *)buffer_, capacity_, size_, seek_);
 }
 
 } // namespace fastype

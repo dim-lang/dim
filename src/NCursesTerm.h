@@ -18,7 +18,7 @@ public:
   virtual void show(const std::string &fileName);
 
 private:
-  std::shared_ptr<Logger> log;
+  std::shared_ptr<Logger> log_;
 };
 
 } // namespace fastype

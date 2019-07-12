@@ -86,10 +86,10 @@ public:
 
   // write at most one buffer or n bytes to dest, start from offset
   // @return write bytes
-  int32_t write(char *dest, int32_t offset, int32_t n) const;
+  int32_t write(char *dest, int32_t offset, int32_t n);
   // write at most one buffer or n bytes to l, start from l.seek
   // @return write bytes
-  int32_t write(Buffer &l, int32_t n) const;
+  int32_t write(Buffer &l, int32_t n);
 
   std::string toString() const;
 

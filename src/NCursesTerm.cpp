@@ -17,11 +17,11 @@
 namespace fastype {
 
 NCursesTerm::NCursesTerm()
-    : Term(), log(fastype::LogManager::getLogger("NCursesTerm")) {
-  F_DEBUG(log, "Construct");
+    : Term(), log_(fastype::LogManager::getLogger("NCursesTerm")) {
+  F_DEBUG("Construct");
 }
 
-NCursesTerm::~NCursesTerm() { F_DEBUG(log, "Destruct"); }
+NCursesTerm::~NCursesTerm() { F_DEBUG("Destruct"); }
 
 static WINDOW *create_newwin(int height, int width, int starty, int startx) {
   WINDOW *local_win;
@@ -41,7 +41,7 @@ static void destroy_win(WINDOW *local_win) {
 void NCursesTerm::show(const std::string &fileName) {
   std::shared_ptr<File> f = File::open(fileName);
 
-  F_DEBUGF(log, "fileName: {}", fileName);
+  F_DEBUGF("fileName: {}", fileName);
 
   WINDOW *my_win;
   int startx, starty, width, height;
@@ -59,8 +59,8 @@ void NCursesTerm::show(const std::string &fileName) {
 
   my_win = create_newwin(height, width, starty, startx);
   while ((ch = getch()) != KEY_F(1)) {
-    F_DEBUGF(log, "loop - ch:{} starty:{} startx:{} height:{} width:{}", ch,
-             starty, startx, height, width);
+    F_DEBUGF("loop - ch:{} starty:{} startx:{} height:{} width:{}", ch, starty,
+             startx, height, width);
     switch (ch) {
     case KEY_LEFT:
       destroy_win(my_win);

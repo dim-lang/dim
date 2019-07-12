@@ -8,30 +8,32 @@
 namespace fastype {
 
 Line &Line::operator++() {
-  Line tmp(fp, lineNumber, startBuffer, startByte, endBuffer, endByte);
+  Line tmp(*this);
   // if has next line, or set endline
-  *this = (lineNumber + 1 < fp->lineList.size()) ? fp->lineList[lineNumber + 1]
-                                                 : getEndLine();
+  *this = (lineNumber_ + 1 < fp_->lineList_.size())
+              ? fp_->lineList_[lineNumber_ + 1]
+              : undefinedLine();
   return tmp;
 }
 
 Line &Line::operator--() {
-  Line tmp(fp, lineNumber, startBuffer, startByte, endBuffer, endByte);
+  Line tmp(*this);
   // if has previous line, or set endline
-  *this = (lineNumber - 1 >= 0) ? fp->lineList[lineNumber - 1] : getEndLine();
+  *this = (lineNumber_ - 1 >= 0) ? fp_->lineList_[lineNumber_ - 1]
+                                 : undefinedLine();
   return tmp;
 }
 
-bool Line::sameFile(const Line &other) const { return fp == other.fp; }
+bool Line::sameFile(const Line &other) const { return fp_ == other.fp_; }
 
 bool Line::operator==(const Line &other) const {
-  return fp == other.fp && lineNumber == other.lineNumber;
+  return fp_ == other.fp_ && lineNumber_ == other.lineNumber_;
 }
 
 bool Line::operator!=(const Line &other) const { return !(*this == other); }
 
 bool Line::operator>(const Line &other) const {
-  return fp == other.fp && lineNumber > other.lineNumber;
+  return fp_ == other.fp_ && lineNumber_ > other.lineNumber_;
 }
 
 bool Line::operator>=(const Line &other) const {
@@ -39,7 +41,7 @@ bool Line::operator>=(const Line &other) const {
 }
 
 bool Line::operator<(const Line &other) const {
-  return fp == other.fp && lineNumber < other.lineNumber;
+  return fp_ == other.fp_ && lineNumber_ < other.lineNumber_;
 }
 
 bool Line::operator<=(const Line &other) const {
@@ -48,17 +50,17 @@ bool Line::operator<=(const Line &other) const {
 
 int32_t Line::lineNumber() const { return lineNumber_; }
 
-int32_t Line::setLineNumber(int32_t lineNumber) {
-  return std::exchange(lineNumber_, lineNumber);
+int32_t Line::setLineNumber(int32_t lineNumber_) {
+  return std::exchange(lineNumber_, lineNumber_);
 }
 
-LineBound &Line::left() const { return left_; }
+const LineBound &Line::left() const { return left_; }
 
 LineBound Line::setLeft(const LineBound &left) {
   return std::exchange(left_, left);
 }
 
-LineBound &Line::right() const { return right_; }
+const LineBound &Line::right() const { return right_; }
 
 LineBound Line::setRight(const LineBound &right) {
   return std::exchange(right_, right);
@@ -66,13 +68,13 @@ LineBound Line::setRight(const LineBound &right) {
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
            const LineBound &right)
-    : fp(fp), lineNumber(lineNumber), left_(left), right_(right) {}
+    : fp_(fp), lineNumber_(lineNumber), left_(left), right_(right) {}
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left)
-    : fp(fp), lineNumber(lineNumber), left_(left), right_() {}
+    : fp_(fp), lineNumber_(lineNumber), left_(left), right_() {}
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber)
-    : fp(fp), lineNumber(lineNumber), left_(), right_() {}
+    : fp_(fp), lineNumber_(lineNumber), left_(), right_() {}
 
 const Line &Line::undefinedLine() {
   static Line undef(std::shared_ptr<File>(nullptr), -1);

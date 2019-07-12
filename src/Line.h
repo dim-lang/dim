@@ -21,6 +21,10 @@ public:
   Line &operator=(const Line &) = default;
   virtual ~Line() = default;
 
+  bool hasNext() const;
+  Line next();
+  bool hasPrevious() const;
+  Line previous();
   Line &operator++();
   Line &operator--();
   bool sameFile(const Line &other) const;
