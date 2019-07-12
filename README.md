@@ -18,18 +18,18 @@ Fastype is a modern text editor, focused on features below.
 
 #### Dependencies
 
-| Platform | Dependencies               |
-|----------|----------------------------|
-|  MacOSX  | clang++ >=3.4, cmake >=3.4 |
-|  Macjaro | g++ >=5, cmake >=3.4       |
-|  Ubuntu  | g++ >=5, cmake >=3.4       |
-|  Windows | msvc >=2015, cmake >=3.4   |
+| Platform | Dependencies                              |
+|----------|-------------------------------------------|
+|  MacOSX  | clang++, cmake, boost, spdlog, fmt, icu4c |
+|  Macjaro | g++, cmake, boost, fmt, icu4c             |
+|  Ubuntu  | g++, cmake, boost, fmt, icu4c             |
+|  Windows | msvc, cmake                               |
 
 #### Build
 
 | Platform | Build                                                                           |
 |----------|---------------------------------------------------------------------------------|
-|  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
-|  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
-|  Ubuntu  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`     |
+|  MacOSX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`  |
+|  Macjaro | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`  |
+|  Ubuntu  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`  |
 |  Windows | `git clone https://github.com/fastype/fastype.git && cd fastype && .\build.bat` |
