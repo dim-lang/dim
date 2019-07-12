@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "LineBound.h"
+#include "fmt/format.h"
 #include <utility>
 
 namespace fastype {
@@ -28,6 +29,10 @@ LineBound LineBound::reset() {
   buffer_ = -1;
   byte_ = -1;
   return old;
+}
+
+std::string LineBound::toString() const {
+  return fmt::format("[ @LineBound buffer: {}, byte: {}]", buffer_, byte_);
 }
 
 } // namespace fastype

@@ -35,6 +35,7 @@ message(F_LIB: ${F_LIB})
 set(T_SRC
     MainTest.cpp
     LogTest.cpp
+    LineBoundTest.cpp
     )
 
 include_directories(${F_INC})

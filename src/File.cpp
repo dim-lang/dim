@@ -71,6 +71,7 @@ std::string File::toString() const {
 
 void File::closeLastLine(LineBound right) {
   if (lineList_.size() > 0 && lineList_.back().right().undefined()) {
+    F_DEBUGF("last line: {}", lineList_.back().toString());
     Line &lastLine = lineList_.back();
     lastLine.setRight(right);
   }

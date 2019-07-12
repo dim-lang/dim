@@ -24,6 +24,8 @@ public:
   bool undefined() const;
   LineBound reset();
 
+  std::string toString() const;
+
 private:
   int32_t buffer_;
   int32_t byte_;

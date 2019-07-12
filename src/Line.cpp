@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Line.h"
+#include "fmt/format.h"
 #include <algorithm>
 #include <utility>
 
@@ -64,6 +65,12 @@ const LineBound &Line::right() const { return right_; }
 
 LineBound Line::setRight(const LineBound &right) {
   return std::exchange(right_, right);
+}
+
+std::string Line::toString() const {
+  return fmt::format("[ @Line fp: {}, lineNumber: {}, left: {}, right: {}]",
+                     (void *)fp_.get(), lineNumber_, left_.toString(),
+                     right_.toString());
 }
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,

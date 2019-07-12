@@ -43,6 +43,8 @@ public:
   const LineBound &right() const;
   LineBound setRight(const LineBound &right);
 
+  std::string toString() const;
+
 private:
   Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
        const LineBound &right);
