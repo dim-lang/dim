@@ -7,6 +7,13 @@ set OS=Windows
 echo [fastype] Build for %OS%
 
 @rem third party library
+echo [fastype] prepare catch2 v2.9.1
+if not exist %ROOT%\test\catch2 (
+    cd %ROOT%\test
+    git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git
+    cd %ROOT%
+)
+echo [fastype] prepare catch2 v2.9.1 - done
 echo [fastype] prepare spdlog v1.3.1
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
