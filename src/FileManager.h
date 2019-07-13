@@ -3,12 +3,15 @@
 
 #pragma once
 #include "File.h"
+#include <memory>
+#include <unordered_map>
 
 namespace fastype {
 
 class FileManager {
 
 private:
+  std::unordered_map<std::string, std::shared_ptr<File>> fileMapping_;
 };
 
 } // namespace fastype

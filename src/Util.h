@@ -56,19 +56,3 @@
 #ifndef F_MIN_U64
 #define F_MIN_U64(x, y) std::min<uint64_t>(x, y)
 #endif
-
-namespace fastype {
-
-/// Date Time
-
-uint64_t nowTimestamp();
-
-std::string nowDatetime();
-
-std::string formatDatetime(uint64_t t, const std::string &fmt);
-
-uint64_t parseDatetime(const std::string &datetime, const std::string &fmt);
-
-/// File IO
-
-} // namespace fastype

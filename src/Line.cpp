@@ -75,15 +75,15 @@ std::string Line::toString() const {
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
            const LineBound &right)
-    : fp_(fp), lineNumber_(lineNumber), left_(left), right_(right),
-      Logging("Line") {}
+    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(left),
+      right_(right) {}
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left)
-    : fp_(fp), lineNumber_(lineNumber), left_(left), right_(), Logging("Line") {
+    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(left), right_() {
 }
 
 Line::Line(std::shared_ptr<File> fp, int32_t lineNumber)
-    : fp_(fp), lineNumber_(lineNumber), left_(), right_(), Logging("Line") {}
+    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(), right_() {}
 
 const Line &Line::undefinedLine() {
   static Line undef(std::shared_ptr<File>(nullptr), -1);
