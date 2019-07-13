@@ -3,28 +3,30 @@
 
 #pragma once
 
+#include "Line.h"
 #include "Log.h"
 
 namespace fastype {
 
-// a logic term view
+// logic term view
 class View : public Logging {
 public:
   View();
+  View(int width, int height);
   View(const View &) = default;
   View &operator=(const View &) = default;
   virtual ~View() = default;
 
-  int leftBottom() const;
-  int rightBottom() const;
-  int leftTop() const;
-  int rightTop() const;
+  int width() const;
+  int height() const;
+  void resize(int width, int height);
+  int setWidth(int width);
+  int setHeight(int height);
 
 private:
-  int leftBottom_;
-  int rightBottom_;
-  int leftTop_;
-  int rightTop_;
+  int width_;
+  int height_;
+  std::vector<Line> lineList_;
 };
 
 } // namespace fastype

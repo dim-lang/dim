@@ -14,6 +14,28 @@ if not exist %ROOT%\test\catch2 (
     cd %ROOT%
 )
 echo [fastype] prepare catch2 v2.9.1 - done
+echo [fastype] prepare PDCurses PDCurses_3_6
+if not exist %ROOT%\src\grpc (
+    cd %ROOT%\src
+    git clone -b 'PDCurses_3_6' --single-branch --depth 1 https://github.com/wmcbrine/PDCurses.git
+    cd %ROOT%
+)
+echo [fastype] prepare PDCurses PDCurses_3_6 - done
+echo [fastype] prepare grpc v1.22.0
+if not exist %ROOT%\src\grpc (
+    cd %ROOT%\src
+    git clone -b 'v1.22.0' --single-branch --depth 1 https://github.com/grpc/grpc.git
+    cd grpc && git submodule update --init
+    cd %ROOT%
+)
+echo [fastype] prepare grpc v1.22.0 - done
+echo [fastype] prepare leveldb v1.20
+if not exist %ROOT%\src\grpc (
+    cd %ROOT%\src
+    git clone -b 'v1.20' --single-branch --depth 1 https://github.com/google/leveldb.git
+    cd %ROOT%
+)
+echo [fastype] prepare leveldb v1.20 - done
 echo [fastype] prepare spdlog v1.3.1
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
