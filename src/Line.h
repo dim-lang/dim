@@ -29,6 +29,9 @@ public:
   bool operator<(const Line &other) const;
   bool operator<=(const Line &other) const;
 
+  bool unsetLeft() const;
+  bool unsetRight() const;
+  bool unset() const;
   static const Line &undefined();
   int32_t lineNumber() const;
   int32_t setLineNumber(int32_t lineNumber);

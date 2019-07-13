@@ -22,6 +22,14 @@ int32_t LineBound::byte() const { return byte_; }
 
 int32_t LineBound::setByte(int32_t byte) { return std::exchange(byte_, byte); }
 
+bool LineBound::operator==(const LineBound &other) const {
+  return buffer_ == other.buffer_ && byte_ == other.byte_;
+}
+
+bool LineBound::operator!=(const LineBound &other) const {
+  return !(*this == other);
+}
+
 bool LineBound::unset() const { return buffer_ < 0 && byte_ < 0; }
 
 const LineBound &LineBound::undefined() {

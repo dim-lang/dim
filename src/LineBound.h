@@ -21,6 +21,9 @@ public:
   int32_t byte() const;
   int32_t setByte(int32_t byte);
 
+  bool operator==(const LineBound &other) const;
+  bool operator!=(const LineBound &other) const;
+
   bool unset() const;
   static const LineBound &undefined();
 

@@ -30,6 +30,14 @@ bool Line::operator<=(const Line &other) const {
   return *this == other || *this < other;
 }
 
+bool Line::unsetLeft() const { return left_ == LineBound::undefined(); }
+
+bool Line::unsetRight() const { return right_ == LineBound::undefined(); }
+
+bool Line::unset() const {
+  return left_ == LineBound::undefined() && right_ == LineBound::undefined();
+}
+
 const Line &Line::undefined() {
   static Line undef(-1);
   return undef;
