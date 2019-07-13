@@ -48,18 +48,50 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
 Line File::begin() {
-  loadOne();
+  load();
   // check if empty file
   return lineList_.size() > 0 ? lineList_[0] : end();
 }
 
-Line File::end() { return Line::undefinedLine(); }
+Line File::end() { return Line::undefined(); }
 
 Line File::line(int32_t lineNumber) {
-  int64_t t;
-  while (lineList_.size() <= lineNumber && (t = loadOne()) > 0L) {
-  }
+  int64_t n = loadUntil(lineNumber);
+  F_DEBUGF("load n: {}", n);
+  (void)n;
   return lineList_.size() >= lineNumber ? lineList_[lineNumber] : end();
+}
+
+Line File::next(const Line &l) {
+  int64_t n = loadUntil(l.lineNumber() + 1);
+  F_DEBUGF("load n: {}", n);
+  (void)n;
+  // if has next line, or set endline
+  return hasNext(l) ? lineList_[l.lineNumber() + 1] : end();
+}
+
+bool File::hasNext(const Line &l) {
+  int64_t n = loadUntil(l.lineNumber() + 1);
+  F_DEBUGF("load n: {}", n);
+  (void)n;
+  // check if has next line
+  return l.lineNumber() + 1 < lineList_.size();
+}
+
+Line File::previous(const Line &l) {
+  int64_t n = loadUntil(l.lineNumber() - 1);
+  F_DEBUGF("load n: {}", n);
+  (void)n;
+  // if has previous line, or set endline
+  return hasPrevious(l) ? lineList_[l.lineNumber() - 1] : end();
+}
+
+bool File::hasPrevious(const Line &l) {
+  int64_t n = loadUntil(l.lineNumber() + 1);
+  F_DEBUGF("load n: {}", n);
+  (void)n;
+  // check if has previous line
+  return l.lineNumber() - 1 >= 0;
 }
 
 std::string File::toString() const {
@@ -70,7 +102,7 @@ std::string File::toString() const {
 }
 
 void File::closeLastLine(LineBound right) {
-  if (lineList_.size() > 0 && lineList_.back().right().undefined()) {
+  if (lineList_.size() > 0 && lineList_.back().right().unset()) {
     F_DEBUGF("last line: {}", lineList_.back().toString());
     Line &lastLine = lineList_.back();
     lastLine.setRight(right);
@@ -78,13 +110,13 @@ void File::closeLastLine(LineBound right) {
 }
 
 void File::openNewLine(File *fp, int32_t lineNumber, LineBound left) {
-  Line line(std::shared_ptr<File>(fp), lineNumber);
+  Line line(lineNumber);
   line.setRight(LineBound());
   line.setLeft(left);
   lineList_.push_back(line);
 }
 
-int64_t File::loadOne() {
+int64_t File::load() {
   if (eof_) {
     // for safety, if last line is opened, close the last line
     closeLastLine(
@@ -118,7 +150,7 @@ int64_t File::loadOne() {
     }
 
     // at line break
-    if (lineList_.size() > 0 && lineList_.back().right().undefined()) {
+    if (lineList_.size() > 0 && lineList_.back().right().unset()) {
       // if has previous lines, and last line is opened
 
       // close last line
@@ -126,7 +158,7 @@ int64_t File::loadOne() {
       // open new line
       openNewLine(this, lineList_.size(),
                   LineBound(bufferList_.size() - 1, i + 1));
-    } else if (lineList_.size() == 0 || !lineList_.back().right().undefined()) {
+    } else if (lineList_.size() == 0 || !lineList_.back().right().unset()) {
       // case 2: has no previous lines
       // case 3: has previous lines, but last line is closed
 
@@ -140,13 +172,11 @@ int64_t File::loadOne() {
   return n;
 }
 
-int64_t File::load(int32_t n) {
+int64_t File::loadUntil(int32_t n) {
   std::vector<int64_t> r;
-  int i = 0;
   int64_t t;
-  while (i < n && (t = loadOne()) > 0L) {
+  while (lineList_.size() <= n && (t = load()) > 0L) {
     r.push_back(t);
-    i++;
   }
   return std::accumulate(r.begin(), r.end(), 0L);
 }
@@ -154,7 +184,7 @@ int64_t File::load(int32_t n) {
 int64_t File::loadAll() {
   std::vector<int64_t> r;
   int64_t t;
-  while ((t = loadOne()) > 0L) {
+  while ((t = load()) > 0L) {
     r.push_back(t);
   }
   return std::accumulate(r.begin(), r.end(), 0L);

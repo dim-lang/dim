@@ -22,13 +22,11 @@ int32_t LineBound::byte() const { return byte_; }
 
 int32_t LineBound::setByte(int32_t byte) { return std::exchange(byte_, byte); }
 
-bool LineBound::undefined() const { return buffer_ < 0 && byte_ < 0; }
+bool LineBound::unset() const { return buffer_ < 0 && byte_ < 0; }
 
-LineBound LineBound::reset() {
-  LineBound old(*this);
-  buffer_ = -1;
-  byte_ = -1;
-  return old;
+const LineBound &LineBound::undefined() {
+  static LineBound undef;
+  return undef;
 }
 
 std::string LineBound::toString() const {

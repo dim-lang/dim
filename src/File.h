@@ -25,6 +25,10 @@ public:
   virtual Line begin();
   virtual Line end();
   virtual Line line(int32_t lineNumber);
+  virtual Line next(const Line &l);
+  virtual Line previous(const Line &l);
+  virtual bool hasNext(const Line &l);
+  virtual bool hasPrevious(const Line &l);
   virtual std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
@@ -33,12 +37,14 @@ public:
 private:
   File(const std::string &fileName);
 
-  // load n buffers and lines
-  // @return loaded bytes
-  int64_t load(int n);
   // load 1 buffer and lines
   // @return loaded bytes
-  int64_t loadOne();
+  int64_t load();
+
+  // load at least n lines (e.g lineList_.size() >= n), or no more to read
+  // @return loaded bytes
+  int64_t loadUntil(int n);
+
   // load all buffers and lines
   // @return loaded bytes
   int64_t loadAll();

@@ -21,8 +21,8 @@ public:
   int32_t byte() const;
   int32_t setByte(int32_t byte);
 
-  bool undefined() const;
-  LineBound reset();
+  bool unset() const;
+  static const LineBound &undefined();
 
   std::string toString() const;
 

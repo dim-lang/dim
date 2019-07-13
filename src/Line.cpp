@@ -8,33 +8,14 @@
 
 namespace fastype {
 
-Line &Line::operator++() {
-  Line tmp(*this);
-  // if has next line, or set endline
-  *this = (lineNumber_ + 1 < fp_->lineList_.size())
-              ? fp_->lineList_[lineNumber_ + 1]
-              : undefinedLine();
-  return tmp;
-}
-
-Line &Line::operator--() {
-  Line tmp(*this);
-  // if has previous line, or set endline
-  *this = (lineNumber_ - 1 >= 0) ? fp_->lineList_[lineNumber_ - 1]
-                                 : undefinedLine();
-  return tmp;
-}
-
-bool Line::sameFile(const Line &other) const { return fp_ == other.fp_; }
-
 bool Line::operator==(const Line &other) const {
-  return fp_ == other.fp_ && lineNumber_ == other.lineNumber_;
+  return lineNumber_ == other.lineNumber_;
 }
 
 bool Line::operator!=(const Line &other) const { return !(*this == other); }
 
 bool Line::operator>(const Line &other) const {
-  return fp_ == other.fp_ && lineNumber_ > other.lineNumber_;
+  return lineNumber_ > other.lineNumber_;
 }
 
 bool Line::operator>=(const Line &other) const {
@@ -42,11 +23,16 @@ bool Line::operator>=(const Line &other) const {
 }
 
 bool Line::operator<(const Line &other) const {
-  return fp_ == other.fp_ && lineNumber_ < other.lineNumber_;
+  return lineNumber_ < other.lineNumber_;
 }
 
 bool Line::operator<=(const Line &other) const {
   return *this == other || *this < other;
+}
+
+const Line &Line::undefined() {
+  static Line undef(-1);
+  return undef;
 }
 
 int32_t Line::lineNumber() const { return lineNumber_; }
@@ -68,26 +54,17 @@ LineBound Line::setRight(const LineBound &right) {
 }
 
 std::string Line::toString() const {
-  return fmt::format("[ @Line fp: {}, lineNumber: {}, left: {}, right: {}]",
-                     (void *)fp_.get(), lineNumber_, left_.toString(),
-                     right_.toString());
+  return fmt::format("[ @Line lineNumber: {}, left: {}, right: {}]",
+                     lineNumber_, left_.toString(), right_.toString());
 }
 
-Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left,
-           const LineBound &right)
-    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(left),
-      right_(right) {}
+Line::Line(int32_t lineNumber, const LineBound &left, const LineBound &right)
+    : Logging("Line"), lineNumber_(lineNumber), left_(left), right_(right) {}
 
-Line::Line(std::shared_ptr<File> fp, int32_t lineNumber, const LineBound &left)
-    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(left), right_() {
-}
+Line::Line(int32_t lineNumber, const LineBound &left)
+    : Logging("Line"), lineNumber_(lineNumber), left_(left), right_() {}
 
-Line::Line(std::shared_ptr<File> fp, int32_t lineNumber)
-    : Logging("Line"), fp_(fp), lineNumber_(lineNumber), left_(), right_() {}
-
-const Line &Line::undefinedLine() {
-  static Line undef(std::shared_ptr<File>(nullptr), -1);
-  return undef;
-}
+Line::Line(int32_t lineNumber)
+    : Logging("Line"), lineNumber_(lineNumber), left_(), right_() {}
 
 } // namespace fastype
