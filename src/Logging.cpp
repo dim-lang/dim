@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Log.h"
+#include "Logging.h"
 #include "Util.h"
 #include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
@@ -29,7 +29,7 @@ static const string FileName = "fastype.log";
 // static const int MaxFileSize = 1048576 * 10;
 // static const int MaxFiles = 100;
 
-string Logger::formatLocation(const detail::LogLocation &location,
+string Logger::formatLocation(const detail::Location &location,
                               const char *fmt) {
   string shortFileName(location.fileName());
   size_t slashPos = shortFileName.find_last_of("/");

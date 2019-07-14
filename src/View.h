@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Line.h"
-#include "Log.h"
+#include "Logging.h"
 
 namespace fastype {
 

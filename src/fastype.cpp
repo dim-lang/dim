@@ -3,7 +3,7 @@
 
 #include "File.h"
 #include "Global.h"
-#include "Log.h"
+#include "Logging.h"
 #include "Term.h"
 #include "boost/program_options.hpp"
 #include "unicode/unistr.h"

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Log.h"
+#include "Logging.h"
 #include "Term.h"
 #include <memory>
 #include <string>

@@ -35,14 +35,13 @@ message(F_LIB: ${F_LIB})
 
 
 set(F_CORE
-    Log.cpp
+    Logging.cpp
     Term.cpp
     Util.cpp
     Global.cpp
     File.cpp
-    Buffer.cpp
     Line.cpp
-    LineBound.cpp
+    Position.cpp
     View.cpp
     )
 set(F_SRC

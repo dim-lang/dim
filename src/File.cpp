@@ -3,7 +3,7 @@
 
 #include "File.h"
 #include "Line.h"
-#include "Log.h"
+#include "Logging.h"
 #include "fmt/format.h"
 #include <algorithm>
 #include <cstdio>
@@ -17,26 +17,20 @@ namespace fastype {
 
 File::File(const std::string &fileName)
     : Logging(fileName), fileName_(fileName),
-      fd_(std::fopen(fileName.data(), "rw")), eof_(false),
-      readBuffer_(BUF_SIZE), bufferList_(), lineList_() {
-  F_DEBUGF("fileName: {}", fileName);
+      fd_(std::fopen(fileName.data(), "rw")), loaded_(false),
+      readBuffer_(-1, BUF_SIZE) {
+  F_DEBUGF("fileName:{}", fileName);
 }
 
 File::~File() {
+  F_DEBUGF("fileName:{}", fileName_);
   if (fd_) {
+    F_DEBUGF("close fd_:{} fileName_:{}", (void *)fd_, fileName_);
     std::fclose(fd_);
     fd_ = nullptr;
   }
   readBuffer_.release();
-  for (int i = 0; i < bufferList_.size(); i++) {
-    bufferList_[i].reset();
-  }
-  // std::for_each(
-  // bufferList_.begin(), bufferList_.end(),
-  //[](std::vector<std::shared_ptr<Buffer>>::iterator i) { (*i).reset(); });
-  bufferList_.clear();
   lineList_.clear();
-  F_DEBUGF("fileName: {}", fileName_);
 }
 
 const std::string &File::fileName() const { return fileName_; }
@@ -47,61 +41,66 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-Line File::begin() {
-  load();
+std::shared_ptr<Line> File::begin() {
+  int64_t n = load();
+  F_DEBUGF("n:{}", n);
+  (void)n;
   // check if empty file
   return lineList_.size() > 0 ? lineList_[0] : end();
 }
 
-Line File::end() { return Line::undefined(); }
+std::shared_ptr<Line> File::end() {
+  std::shared_ptr<Line> el(&Line::undefined());
+  return el;
+}
 
-Line File::line(int32_t lineNumber) {
+std::shared_ptr<Line> File::line(int32_t lineNumber) {
   int64_t n = loadUntil(lineNumber);
-  F_DEBUGF("load n: {}", n);
+  F_DEBUGF("n:{}", n);
   (void)n;
   return lineList_.size() >= lineNumber ? lineList_[lineNumber] : end();
 }
 
 Line File::next(const Line &l) {
   int64_t n = loadUntil(l.lineNumber() + 1);
-  F_DEBUGF("load n: {}", n);
+  F_DEBUGF("n:{}", n);
   (void)n;
   // if has next line, or set endline
   return hasNext(l) ? lineList_[l.lineNumber() + 1] : end();
 }
 
-bool File::hasNext(const Line &l) {
+bool File::hasNext(std::shared_ptr<Line> l) {
   int64_t n = loadUntil(l.lineNumber() + 1);
-  F_DEBUGF("load n: {}", n);
+  F_DEBUGF("n:{}", n);
   (void)n;
   // check if has next line
-  return l.lineNumber() + 1 < lineList_.size();
+  return l->lineNumber() + 1 < lineList_.size();
 }
 
-Line File::previous(const Line &l) {
+Line File::previous(std::shared_ptr<Line> l) {
   int64_t n = loadUntil(l.lineNumber() - 1);
-  F_DEBUGF("load n: {}", n);
+  F_DEBUGF("n:{}", n);
   (void)n;
   // if has previous line, or set endline
   return hasPrevious(l) ? lineList_[l.lineNumber() - 1] : end();
 }
 
-bool File::hasPrevious(const Line &l) {
+bool File::hasPrevious(std::shared_ptr<Line> l) {
   int64_t n = loadUntil(l.lineNumber() + 1);
-  F_DEBUGF("load n: {}", n);
+  F_DEBUGF("n:{}", n);
   (void)n;
   // check if has previous line
   return l.lineNumber() - 1 >= 0;
 }
 
 std::string File::toString() const {
-  return fmt::format("[ @File fileName: {}, fd: {}, eof: {}, readBuffer: {}, "
-                     "bufferList#size: {}, lineList#size: {} ]",
-                     fileName_, (void *)fd_, eof_, readBuffer_.size(),
-                     bufferList_.size(), lineList_.size());
+  return fmt::format(
+      "[ @File fileName_: {}, fd_: {}, loaded_: {}, readBuffer_: {}, "
+      "lineList_#size: {} ]",
+      fileName_, (void *)fd_, loaded_, readBuffer_.size(), lineList_.size());
 }
 
-void File::closeLastLine(LineBound right) {
+void File::closeLastLine(Position right) {
   if (lineList_.size() > 0 && lineList_.back().right().unset()) {
     F_DEBUGF("last line: {}", lineList_.back().toString());
     Line &lastLine = lineList_.back();
@@ -117,7 +116,7 @@ void File::openNewLine(File *fp, int32_t lineNumber, LineBound left) {
 }
 
 int64_t File::load() {
-  if (eof_) {
+  if (loaded_) {
     // for safety, if last line is opened, close the last line
     closeLastLine(
         LineBound(bufferList_.size() - 1, bufferList_.back()->size()));
@@ -133,7 +132,7 @@ int64_t File::load() {
   // case 1: if no more bytes
   if (n <= 0L) {
     // for safety, if last line is opened, close the last line
-    eof_ = true;
+    loaded_ = true;
     closeLastLine(
         LineBound(bufferList_.size() - 1, bufferList_.back()->size()));
     return n;

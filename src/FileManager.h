@@ -3,7 +3,7 @@
 
 #pragma once
 #include "File.h"
-#include "Log.h"
+#include "Logging.h"
 #include <memory>
 #include <mutex>
 #include <unordered_map>

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Term.h"
-#include "Log.h"
+#include "Logging.h"
 #include <boost/config.hpp>
 #include <cmath>
 #include <cstdio>
