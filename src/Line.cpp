@@ -20,9 +20,7 @@
 
 namespace fastype {
 
-Line::Line()
-    : Logging("Line"), lineNumber_(-1), buffer_(nullptr), capacity_(0),
-      size_(0), seek_(0) {}
+Line::Line() : Logging("Line"), lineNumber_(-1), buffer_() {}
 
 Line::Line(int32_t lineNumber) : Line() {
   if (lineNumber < 0) {

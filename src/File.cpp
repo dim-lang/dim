@@ -50,7 +50,7 @@ std::shared_ptr<Line> File::begin() {
 }
 
 std::shared_ptr<Line> File::end() {
-  std::shared_ptr<Line> el(&Line::undefined());
+  std::shared_ptr<Line> el((Line *)&Line::undefined());
   return el;
 }
 
@@ -61,36 +61,36 @@ std::shared_ptr<Line> File::line(int32_t lineNumber) {
   return lineList_.size() >= lineNumber ? lineList_[lineNumber] : end();
 }
 
-Line File::next(const Line &l) {
-  int64_t n = loadUntil(l.lineNumber() + 1);
+std::shared_ptr<Line> File::next(std::shared_ptr<Line> l) {
+  int64_t n = loadUntil(l->lineNumber() + 1);
   F_DEBUGF("n:{}", n);
   (void)n;
   // if has next line, or set endline
-  return hasNext(l) ? lineList_[l.lineNumber() + 1] : end();
+  return hasNext(l) ? lineList_[l->lineNumber() + 1] : end();
 }
 
 bool File::hasNext(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l.lineNumber() + 1);
+  int64_t n = loadUntil(l->lineNumber() + 1);
   F_DEBUGF("n:{}", n);
   (void)n;
   // check if has next line
   return l->lineNumber() + 1 < lineList_.size();
 }
 
-Line File::previous(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l.lineNumber() - 1);
+std::shared_ptr<Line> File::previous(std::shared_ptr<Line> l) {
+  int64_t n = loadUntil(l->lineNumber() - 1);
   F_DEBUGF("n:{}", n);
   (void)n;
   // if has previous line, or set endline
-  return hasPrevious(l) ? lineList_[l.lineNumber() - 1] : end();
+  return hasPrevious(l) ? lineList_[l->lineNumber() - 1] : end();
 }
 
 bool File::hasPrevious(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l.lineNumber() + 1);
+  int64_t n = loadUntil(l->lineNumber() + 1);
   F_DEBUGF("n:{}", n);
   (void)n;
   // check if has previous line
-  return l.lineNumber() - 1 >= 0;
+  return l->lineNumber() - 1 >= 0;
 }
 
 std::string File::toString() const {
