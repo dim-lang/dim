@@ -20,201 +20,379 @@
 
 namespace fastype {
 
-Line::Line() : Logging("Line"), lineNumber_(-1), buffer_() {}
+Line::Line() : lineNumber_(-1), buffer_() {}
 
-Line::Line(int32_t lineNumber) : Line() {
-  if (lineNumber < 0) {
-    F_THROW_EXF(ParameterException, "lineNumber: {}", lineNumber);
+Line::Line(int lineNumber) : lineNumber_(lineNumber), buffer_() {}
+
+Line::Line(int lineNumber, char16_t c) : lineNumber_(lineNumber), buffer_(c) {}
+
+Line::Line(int lineNumber, const Line &src)
+    : lineNumber_(lineNumber), buffer_(src.buffer_) {}
+
+Line::Line(int lineNumber, const Line &src, int start2, int length2)
+    : lineNumber_(lineNumber), buffer_(src.buffer_, start2, length2) {}
+
+Line::Line(int lineNumber, char16_t *src, int start2, int length2)
+    : lineNumber_(lineNumber), buffer_(src, start2, length2) {}
+
+Line::Line(const Line &other)
+    : lineNumber_(other.lineNumber_), buffer_(other.buffer_) {}
+
+Line &Line::operator=(const Line &other) {
+  if (this == &other) {
+    return *this;
   }
-  lineNumber_ = lineNumber;
+  lineNumber_ = other.lineNumber_;
+  buffer_ = other.buffer_;
+  return *this;
 }
 
-Line::Line(int32_t lineNumber, int32_t capacity) : Line(lineNumber) {
-  expand(capacity);
-}
-
-Line::Line(int32_t lineNumber, int32_t capacity, char value)
-    : Line(lineNumber, capacity) {
-  if ((int)value != 0) {
-    for (int32_t i = 0; i < capacity_; i++)
-      buffer_[i] = value;
+Line &Line::operator=(char16_t other) {
+  if (this == &other) {
+    return *this;
   }
+  buffer_ = other;
+  return *this;
 }
 
-Line::Line(int32_t lineNumber, char *src, int32_t offset, int32_t n)
-    : Line(lineNumber, n) {
-  std::memcpy(buffer_, src + offset, n);
-}
-
-Line::~Line() { release(); }
-
-void Line::clear() {
-  if (buffer_ && size_ > 0) {
-    std::memset(buffer_, 0, capacity_);
-    size_ = 0;
-    seek_ = 0;
+Line &Line::operator=(UChar32 other) {
+  if (this == &other) {
+    return *this;
   }
+  buffer_ = other;
+  return *this;
 }
 
-void Line::release() {
-  F_DEBUG(toString());
-  if (buffer_) {
-    delete[] buffer_;
-    buffer_ = nullptr;
-    size_ = 0;
-    capacity_ = 0;
-    seek_ = 0;
+Line &Line::assignFrom(const Line &src) {
+  if (this == &other) {
+    return *this;
   }
+  lineNumber_ = src.lineNumber_;
+  buffer_.setTo(src.buffer_);
+  return *this;
 }
 
-int32_t Line::expand(int32_t capacity) {
-  if (capacity <= size_) {
-    F_DEBUGF("capacity <= size_, capacity:{} this:{}", capacity, toString());
-    return capacity_;
+Line &assignFrom(const Line &src, int start2, int length2) {
+  if (this == &other) {
+    return *this;
   }
-  F_DEBUGF("capacity > size_, capacity:{} this:{}", capacity, toString());
-  int32_t new_capacity =
-      F_MAX_I32(ALLOC_ALIGN, boost::alignment::align_up(ALLOC_ALIGN, capacity));
-  char *new_buffer = new char[new_capacity];
-  int32_t new_size = size_;
-  int32_t new_seek = seek_;
-  std::memset(new_buffer, 0, new_capacity);
-  if (buffer_ && size_ > 0) {
-    std::memcpy(new_buffer, buffer_, capacity_);
+  lineNumber_ = src.lineNumber_;
+  buffer_.setTo(src.buffer_, start2, length2);
+  return *this;
+}
+
+Line &Line::assignFrom(const char16_t *src, int start2, int length2) {
+  if (this == &other) {
+    return *this;
   }
-  release();
-  buffer_ = new_buffer;
-  size_ = new_size;
-  capacity_ = new_capacity;
-  seek_ = new_seek;
-  return capacity_;
+  lineNumber_ = src.lineNumber_;
+  buffer_.setTo(src, start2, length2);
+  return *this;
 }
 
-bool Line::full() const { return size_ == capacity_; }
-
-bool Line::empty() const { return size_ == 0; }
-
-int32_t Line::margin() const {
-  assert(capacity_ >= size_);
-  return capacity_ - size_;
-}
-
-int32_t Line::seek() const { return seek_; }
-
-int32_t Line::increase(int32_t inc) {
-  assert(seek_ >= 0);
-  assert(seek_ < size_);
-  if (inc < 0) {
-    return decrease(-inc);
+Line &Line::assignFrom(char16_t src) {
+  if (this == &other) {
+    return *this;
   }
-  int32_t old = seek_;
-  seek_ += F_MIN_I32(size_ - seek_, inc);
-  return old;
+  lineNumber_ = src.lineNumber_;
+  buffer_.setTo(src);
+  return *this;
 }
-
-int32_t Line::decrease(int32_t dec) {
-  assert(seek_ >= 0);
-  assert(seek_ < size_);
-  if (dec < 0) {
-    return increase(-dec);
+Line &Line::assignFrom(UChar32 src) {
+  if (this == &other) {
+    return *this;
   }
-  int32_t old = seek_;
-  seek_ -= F_MIN_I32(seek_, dec);
-  return old;
+  lineNumber_ = src.lineNumber_;
+  buffer_.setTo(src);
+  return *this;
 }
 
-int32_t Line::reseek() { return std::exchange(seek_, 0); }
+Line::Line(Line &&other)
+    : lineNumber_(std::move(other.lineNumber_)),
+      buffer_(std::move(other.buffer_)) {}
 
-int32_t Line::lineNumber() const { return lineNumber_; }
-
-int32_t Line::setLineNumber(int32_t lineNumber) {
-  return std::exchange(lineNumber_, lineNumber);
-}
-
-char *Line::begin() const {
-  if (!buffer_) {
-    F_THROW_EXF(MemoryPointerException, "this:{}", toString());
+Line &Line::operator=(Line &&other) {
+  if (this == &other) {
+    return *this;
   }
-  return &buffer_[0];
+  std::swap(lineNumber_, other.lineNumber_);
+  std::swap(buffer_, other.buffer_);
+  return *this;
 }
 
-char *Line::end() const {
-  if (!buffer_) {
-    F_THROW_EXF(MemoryPointerException, "this:{}", toString());
-  }
-  return &buffer_[size_];
+bool Line::operator==(const Line &src) const {
+  return this == &src
+             ? true
+             : (lineNumber_ == src.lineNumber_ && buffer_ == src.buffer_);
 }
 
-char *Line::data() const {
-  if (!buffer_) {
-    F_THROW_EXF(MemoryPointerException, "this:{}", toString());
-  }
-  return &buffer_[seek_];
+bool Line::operator!=(const Line &src) const { return !(*this == src); }
+
+bool Line::operator>(const Line &src) const {
+  return this == &src
+             ? false
+             : (lineNumber_ == src.lineNumber_ && buffer_ == src.buffer_);
 }
 
-int32_t Line::size() const { return size_; }
+bool operator>=(const Line &src) const;
+bool operator<(const Line &src) const;
+bool operator<=(const Line &src) const;
 
-int32_t Line::setSize(int32_t size) {
-  if (size < 0) {
-    F_THROW_EXF(ParameterException, "size:{}", size);
-  }
-  return std::exchange(size_, size);
-}
+// @return 0 if equal
+//         -1 if less
+//         +1 if greater
+int compare(const Line &src) const;
+int compare(const Line &src, int start2, int length2) const;
+int compare(const char16_t *src, int start2, int length2) const;
 
-int32_t Line::capacity() const { return capacity_; }
+int compare(int start, const Line &src) const;
+int compare(int start, const Line &src, int start2, int length2) const;
+int compare(int start, const char16_t *src, int start2, int length2) const;
 
-int32_t Line::read(const char *src, int32_t offset, int32_t n) {
-  if (!src || offset < 0 || n < 0) {
-    F_THROW_EXF(MemoryPointerException, "src:{} offset:{} n:{}", (void *)src,
-                offset, n);
-  }
-  assert(src);
-  assert(n >= 0);
-  assert(offset >= 0);
+int compare(int start, int length, const Line &src) const;
+int compare(int start, int length, const Line &src, int start2,
+            int length2) const;
+int compare(int start, int length, const char16_t *src, int start2,
+            int length2) const;
 
-  n = F_MAX_I32(n, capacity_ - size_);
-  if (n > 0) {
-    std::memcpy(buffer_ + size_, src + offset, n);
-  }
-  return F_MAX_I32(0, n);
-}
+// code point compare, e.g unicode unit compare
+// @return 0 if equal
+//         negative if less
+//         positive if greater
+int compareCodePointOrder(const Line &src) const;
+int compareCodePointOrder(const Line &src, int start2, int length2) const;
+int compareCodePointOrder(const char16_t *src, int start2, int length2) const;
 
-int32_t Line::read(Line &l, int32_t n) {
-  n = read(l.buffer_ + l.seek_, 0, F_MAX_I32(l.size_ - l.seek_, n));
-  l.increase(n);
-  return n;
-}
+int compareCodePointOrder(int start, const Line &src) const;
+int compareCodePointOrder(int start, const Line &src, int start2,
+                          int length2) const;
+int compareCodePointOrder(int start, const char16_t *src, int start2,
+                          int length2) const;
 
-int32_t Line::write(char *dest, int32_t offset, int32_t n) {
-  assert(dest);
-  assert(n >= 0);
-  assert(offset >= 0);
+int compareCodePointOrder(int start, int length, const Line &src) const;
+int compareCodePointOrder(int start, int length, const Line &src, int start2,
+                          int length2) const;
+  int compareCodePointOrder(int start, int length,
+  int compareCodePointOrder(int start, int length, const char16_t *src,
+                            int start2, int length2) const;
 
-  n = F_MAX_I32(n, capacity_ - size_);
-  if (n > 0) {
-    std::memcpy(dest + offset, buffer_ + seek_, n);
-    increase(n);
-  }
-  return F_MAX_I32(0, n);
-}
+  /**
+   * string match
+   */
 
-int32_t Line::write(Line &l, int32_t n) {
-  n = write(l.buffer_, l.seek_,
-            F_MAX_I32(size_ - seek_, F_MAX_I32(l.size_ - l.seek_, n)));
-  return F_MAX_I32(0, n);
-}
+  bool startsWith(const Line &src) const;
+  bool startsWith(const Line &src, int start2, int length2) const;
+  bool startsWith(const char16_t *src, int start2, int length2) const;
 
-std::string Line::toString() const {
-  return fmt::format(
-      "[ @Line lineNumber_: {} buffer_: {} capacity_: {} size_: {} seek_: {} ]",
-      lineNumber_, (void *)buffer_, capacity_, size_, seek_);
-}
+  bool endsWith(const Line &src) const;
+  bool endsWith(const Line &src, int start2, int length2) const;
+  bool endsWith(const char16_t *src, int start2, int length2) const;
 
-const Line &Line::undefined() {
-  static Line undef(-1);
-  return undef;
-}
+  // @return index of src if found
+  //         -1 if not found
+  int indexOf(const Line &src) const;
+  int indexOf(const Line &src, int start2, int length2) const;
+  int indexOf(const char16_t *src, int start, int length) const;
 
-} // namespace fastype
+  int indexOf(int start, const Line &src) const;
+  int indexOf(int start, const Line &src, int start2, int length2) const;
+  int indexOf(int start, const char16_t *src, int start2, int length2) const;
+
+  int indexOf(int start, int length, const Line &src) const;
+  int indexOf(int start, int length, const Line &src, int start2,
+              int length2) const;
+  int indexOf(int start, int length, const char16_t *src, int start2,
+              int length2) const;
+
+  // @return index of char c if found
+  //         -1 if not found
+  int indexOf(char16_t c) const;
+  int indexOf(UChar32 c) const;
+
+  int indexOf(int start, char16_t c) const;
+  int indexOf(int start, UChar32 c) const;
+
+  int indexOf(int start, int length, char16_t c) const;
+  int indexOf(int start, int length, UChar32 c) const;
+
+  // @return last index of src if found
+  //         -1 if not found
+  int lastIndexOf(const Line &src) const;
+  int lastIndexOf(const Line &src, int start2, int length2) const;
+  int lastIndexOf(const char16_t *src, int start2, int length2) const;
+
+  int lastIndexOf(int start, const Line &src) const;
+  int lastIndexOf(int start, const Line &src, int start2, int length2) const;
+  int lastIndexOf(int start, const char16_t *src, int start2,
+                  int length2) const;
+
+  int lastIndexOf(int start, int length, const Line &src) const;
+  int lastIndexOf(int start, int length, const Line &src, int start2,
+                  int length2) const;
+  int lastIndexOf(int start, int length, const char16_t *src, int start2,
+                  int length2) const;
+
+  // @return last index of char c if found
+  //         -1 if not found
+  int lastIndexOf(char16_t c) const;
+  int lastIndexOf(UChar32 c) const;
+
+  int lastIndexOf(int start, char16_t c) const;
+  int lastIndexOf(int start, UChar32 c) const;
+
+  int lastIndexOf(int start, int length, char16_t c) const;
+  int lastIndexOf(int start, int length, UChar32 c) const;
+
+  /**
+   * indexing
+   */
+
+  char16_t getCharAt(int offset) const;
+  Line &setCharAt(int offset, char16_t c);
+  char16_t &operator[](int offset);
+  char16_t operator[](int offset) const;
+
+  UChar32 getChar32At(int offset) const;
+  Line &setChar32At(int offset, UChar32 c);
+  // @return begin of a unicode char at offset
+  int getChar32Start(int offset) const;
+  // @return end of a unicode char at offset
+  int getChar32Limit(int offset) const;
+  // @return new index moved delta by unicode unit, start from index
+  int moveIndex32(int index, int delta) const;
+
+  /**
+   * transform
+   */
+
+  // copy [start, start+length) to dest[start2, start2+length2)
+  // @return copyied chars
+  int extract(int start, char16_t *dest, int start2, int length2) const;
+  int extract(int start, Line &dest) const;
+  int extract(int start, Line &dest, int start2, int length2) const;
+
+  int extract(int start, int length, Line &dest) const;
+  int extract(int start, int length, Line &dest, int start2, int length2) const;
+  int extract(int start, int length, char16_t *dest, int start2,
+              int length2) const;
+
+  // @return range [start, start+length)
+  Line subString(int start) const;
+  Line subString(int start, int length) const;
+
+  std::string &toUTF8(std::string &dest) const;
+  char *toUTF8(char *dest, int capacity, UErrorCode &errCode) const;
+
+  std::u32string &toUTF32(std::u32string &dest, UErrorCode &errCode) const;
+  UChar32 *toUTF32(UChar32 *dest, int capacity, UErrorCode &errCode) const;
+
+  virtual std::string toString() const;
+
+  static Line fromUTF8(const std::string &src);
+  static Line fromUTF8(const std::string &src, int start2, int length2);
+  static Line fromUTF8(const char *src, int start2, int length2);
+
+  static Line fromUTF32(const std::u32string &src);
+  static Line fromUTF32(const std::u32string &src, int start2, int length2);
+  static Line fromUTF32(const UChar32 *src, int start2, int length2);
+
+  /**
+   * attribute
+   */
+
+  // @return string length, not unicode unit count
+  int length() const;
+  int capacity() const;
+  bool empty() const;
+  // @return true if line contains invalid string
+  //         false if all valid
+  // bool bogus() const;
+
+  // @return char32 count, e.g unicode unit count
+  int countChar32() const;
+  int countChar32(int start) const;
+  int countChar32(int start, int length) const;
+
+  // check if has more than number unicode unit
+  bool moreChar32Than(int number) const;
+  bool moreChar32Than(int start, int number) const;
+  bool moreChar32Than(int start, int length, int number) const;
+
+  // @return readonly raw memory pointer inside with no extra work
+  const char16_t *getBuffer() const;
+
+  // @return writable raw memory pointer based on copy-on-write policy if success
+  //         nullptr if allocation fail
+  // it will allocate new memory with `capacity`, copy original data, and returns to user
+  // it is *opened* after `getBuffer(int capacity)`
+  // must *close* via `releaseBuffer(int length)` before next *open*
+  char16_t *getBuffer(int capacity);
+  // save modifies data after user modifies this new memory, and release original memory
+  // parameter `length` is new line length
+  void releaseBuffer(int length);
+
+  // @return readonly null-terminated buffer if success
+  //         nullptr if allocation fail
+  // normally Line define a unicode string via buffer/length pair, without null at the end
+  // this method will append null at the end of buffer, e.g `buffer_[length()]`
+  // extra memory is allocated if needed, and fail if allocation failure
+  const char16_t *getTerminatedBuffer();
+
+  /**
+   * modify
+   */
+
+  Line &operator+=(char16_t c);
+  Line &operator+=(UChar32 c);
+  Line &operator+=(const Line &src);
+
+  Line &append(char16_t c);
+  Line &append(UChar32 c);
+  Line &append(const Line &src);
+  Line &append(const Line &src, int start2, int length2);
+  Line &append(const char16_t *src, int start2, int length2);
+
+  Line &insert(int start, char16_t c);
+  Line &insert(int start, UChar32 c);
+  Line &insert(int start, const Line &src);
+  Line &insert(int start, const Line &src, int start2, int length2);
+  Line &insert(int start, const char16_t *src, int start2, int length2);
+
+  // replace [start, start+length) with char c
+  Line &replace(int start, int length, char16_t c);
+  Line &replace(int start, int length, UChar32 c);
+  Line &replace(int start, int length, const Line &src);
+  Line &replace(int start, int length, const Line &src, int start2,
+                int length2);
+  Line &replace(int start, int length, const char16_t *src, int start2,
+                int length2);
+
+  // find all oldText and replace them with newText
+  Line &findAndReplace(const Line &oldText, const Line &newText);
+  Line &findAndReplace(int start, const Line &oldText, const Line &newText);
+  Line &findAndReplace(int start, int length, const Line &oldText,
+                       const Line &newText);
+
+  // remove all string
+  Line &remove();
+  Line &remove(int start);
+  Line &remove(int start, int length);
+
+  // overwrite length of beginning with space (U+0020)
+  bool padLeading(int length);
+  bool padLeading(int length, char16_t c);
+  // overwrite length of end with space (U+0020)
+  bool padTailing(int length);
+  bool padTailing(int length, char16_t c);
+
+  bool truncate(int length);
+  Line &trim();
+  Line &reverse();
+  Line &reverse(int start);
+  Line &reverse(int start, int length);
+  Line &toUpper();
+  Line &toLower();
+
+  } // namespace fastype
 
 #undef ALLOC_ALIGN
