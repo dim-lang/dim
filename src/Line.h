@@ -109,7 +109,6 @@ public:
   int compareCodePointOrder(int start, int length, const Line &src) const;
   int compareCodePointOrder(int start, int length, const Line &src, int start2,
                             int length2) const;
-  int compareCodePointOrder(int start, int length,
   int compareCodePointOrder(int start, int length, const char16_t *src,
                             int start2, int length2) const;
 
@@ -129,7 +128,7 @@ public:
   //         -1 if not found
   int indexOf(const Line &src) const;
   int indexOf(const Line &src, int start2, int length2) const;
-  int indexOf(const char16_t *src, int start, int length) const;
+  int indexOf(const char16_t *src, int start2, int length2) const;
 
   int indexOf(int start, const Line &src) const;
   int indexOf(int start, const Line &src, int start2, int length2) const;
@@ -202,26 +201,23 @@ public:
    * transform
    */
 
-  // copy [start, start+length) to dest[start2, start2+length2)
-  // @return copyied chars
-  int extract(int start, char16_t *dest, int start2, int length2) const;
-  int extract(int start, Line &dest) const;
-  int extract(int start, Line &dest, int start2, int length2) const;
-
-  int extract(int start, int length, Line &dest) const;
-  int extract(int start, int length, Line &dest, int start2, int length2) const;
-  int extract(int start, int length, char16_t *dest, int start2,
-              int length2) const;
-
   // @return range [start, start+length)
   Line subString(int start) const;
   Line subString(int start, int length) const;
 
   std::string &toUTF8(std::string &dest) const;
-  char *toUTF8(char *dest, int capacity, UErrorCode &errCode) const;
+  // @return char length
+  // if capacity > utf8 string, null will append at the end of utf8 string
+  //                            err = U_ZERO_ERROR
+  // if capacity == utf8 string, null will not append at the end of utf8 string
+  //                             err = U_STRING_NOT_TERMINATED
+  // if capacity > utf8 string, nothing will copy to dest
+  //                            err = U_BUFFER_OVERFLOW_ERROR
+  int toUTF8(char *dest, int capacity, UErrorCode &err) const;
 
-  std::u32string &toUTF32(std::u32string &dest, UErrorCode &errCode) const;
-  UChar32 *toUTF32(UChar32 *dest, int capacity, UErrorCode &errCode) const;
+  std::u32string &toUTF32(std::u32string &dest, UErrorCode &err) const;
+  // @return copied chars, including null at the end
+  int toUTF32(UChar32 *dest, int capacity, UErrorCode &err) const;
 
   virtual std::string toString() const;
 
@@ -261,21 +257,23 @@ public:
   // @return readonly raw memory pointer inside with no extra work
   const char16_t *getBuffer() const;
 
-  // @return writable raw memory pointer based on copy-on-write policy if success
+  // @return writable raw memory pointer based on copy-on-write policy if
+  // success
   //         nullptr if allocation fail
-  // it will allocate new memory with `capacity`, copy original data, and returns to user
-  // it is *opened* after `getBuffer(int capacity)`
-  // must *close* via `releaseBuffer(int length)` before next *open*
+  // it will allocate new memory with `capacity`, copy original data, and
+  // returns to user it is *opened* after `getBuffer(int capacity)` must *close*
+  // via `releaseBuffer(int length)` before next *open*
   char16_t *getBuffer(int capacity);
-  // save modifies data after user modifies this new memory, and release original memory
-  // parameter `length` is new line length
+  // save modifies data after user modifies this new memory, and release
+  // original memory parameter `length` is new line length
   void releaseBuffer(int length);
 
   // @return readonly null-terminated buffer if success
   //         nullptr if allocation fail
-  // normally Line define a unicode string via buffer/length pair, without null at the end
-  // this method will append null at the end of buffer, e.g `buffer_[length()]`
-  // extra memory is allocated if needed, and fail if allocation failure
+  // normally Line define a unicode string via buffer/length pair, without null
+  // at the end this method will append null at the end of buffer, e.g
+  // `buffer_[length()]` extra memory is allocated if needed, and fail if
+  // allocation failure
   const char16_t *getTerminatedBuffer();
 
   /**
