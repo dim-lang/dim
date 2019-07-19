@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Line.h"
 #include "Logging.h"
 #include "Position.h"
 #include "Stringify.h"
@@ -22,11 +21,9 @@ public:
   virtual ~File();
 
   const std::string &fileName() const;
-  std::shared_ptr<Line> begin();
-  std::shared_ptr<Line> end();
-  std::shared_ptr<Line> line(int32_t lineNumber);
-  std::shared_ptr<Line> next(std::shared_ptr<Line> l);
-  std::shared_ptr<Line> previous(std::shared_ptr<Line> l);
+  icu::UnicodeString &getLine(int32_t lineNumber);
+  int lineCount();
+  bool empty();
   virtual std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
@@ -52,14 +49,19 @@ private:
   // open new line at specified left line bound
   void openNewLine(File *fp, int32_t lineNumber, Position left);
 
-  bool hasNext(std::shared_ptr<Line> l);
-  bool hasPrevious(std::shared_ptr<Line> l);
+  // expand readBuffer_
+  // @return readBufferCapacity_ after expand
+  int expandReadBuffer(int n);
 
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-  Line readBuffer_;
-  std::vector<std::shared_ptr<Line>> lineList_;
+
+  char *readBuffer_;
+  int readBufferSize_;
+  int readBufferCapacity_;
+
+  std::vector<icu::UnicodeString> lineList_;
 
   friend class Line;
 };

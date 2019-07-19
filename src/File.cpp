@@ -11,14 +11,21 @@
 #include <numeric>
 #include <string>
 
-#define BUF_SIZE 4096
+#define BUF_SIZE 8192
 
 namespace fastype {
 
 File::File(const std::string &fileName)
     : Logging(fileName), fileName_(fileName),
       fd_(std::fopen(fileName.data(), "rw")), loaded_(false),
-      readBuffer_(-1, BUF_SIZE) {
+      readBuffer_(nullptr), readBufferSize_(0), readBufferCapacity_(0) {
+  readBuffer_ = new char[BUF_SIZE];
+  if (readBuffer_) {
+    readBufferCapacity_ = BUF_SIZE;
+  } else {
+    F_ERRORF("fileName:{} readBuffer_:{} readBufferCapacity_:{}", fileName,
+             (void *)readBuffer_, readBufferCapacity_);
+  }
   F_DEBUGF("fileName:{}", fileName);
 }
 
@@ -29,7 +36,13 @@ File::~File() {
     std::fclose(fd_);
     fd_ = nullptr;
   }
-  readBuffer_.release();
+  loaded_ = false;
+  if (readBuffer_) {
+    delete[] readBuffer_;
+    readBuffer_ = nullptr;
+    readBufferSize_ = 0;
+    readBufferCapacity_ = 0;
+  }
   lineList_.clear();
 }
 
@@ -41,57 +54,11 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-std::shared_ptr<Line> File::begin() {
-  int64_t n = load();
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  // check if empty file
-  return lineList_.size() > 0 ? lineList_[0] : end();
-}
+icu::UnicodeString &File::getLine(int32_t lineNumber) {}
 
-std::shared_ptr<Line> File::end() {
-  std::shared_ptr<Line> el((Line *)&Line::undefined());
-  return el;
-}
+int File::lineCount() {}
 
-std::shared_ptr<Line> File::line(int32_t lineNumber) {
-  int64_t n = loadUntil(lineNumber);
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  return lineList_.size() >= lineNumber ? lineList_[lineNumber] : end();
-}
-
-std::shared_ptr<Line> File::next(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l->lineNumber() + 1);
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  // if has next line, or set endline
-  return hasNext(l) ? lineList_[l->lineNumber() + 1] : end();
-}
-
-bool File::hasNext(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l->lineNumber() + 1);
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  // check if has next line
-  return l->lineNumber() + 1 < lineList_.size();
-}
-
-std::shared_ptr<Line> File::previous(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l->lineNumber() - 1);
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  // if has previous line, or set endline
-  return hasPrevious(l) ? lineList_[l->lineNumber() - 1] : end();
-}
-
-bool File::hasPrevious(std::shared_ptr<Line> l) {
-  int64_t n = loadUntil(l->lineNumber() + 1);
-  F_DEBUGF("n:{}", n);
-  (void)n;
-  // check if has previous line
-  return l->lineNumber() - 1 >= 0;
-}
+bool File::empty() {}
 
 std::string File::toString() const {
   return fmt::format(
@@ -115,13 +82,23 @@ void File::openNewLine(File *fp, int32_t lineNumber, LineBound left) {
   lineList_.push_back(line);
 }
 
+int File::expandReadBuffer() {
+  int n = readBufferCapacity_ * 2;
+  char *buf = std::realloc(readBuffer_, n);
+  if (buf) {
+    readBuffer_ = buf;
+    readBufferCapacity_ = n;
+  }
+  return readBufferCapacity_;
+}
+
 int64_t File::load() {
   if (loaded_) {
-    // for safety, if last line is opened, close the last line
-    closeLastLine(
-        LineBound(bufferList_.size() - 1, bufferList_.back()->size()));
+    // already read all, EOF
     return 0;
   }
+
+  // try read previous bytes
 
   // read 1 buffer
   readBuffer_.clear();

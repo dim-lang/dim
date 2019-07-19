@@ -40,7 +40,6 @@ set(F_CORE
     Util.cpp
     Global.cpp
     File.cpp
-    Line.cpp
     Position.cpp
     View.cpp
     )
