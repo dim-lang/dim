@@ -110,3 +110,16 @@ public:
     F_THROW_EX(e, metaMessage);                                                \
   } while (0)
 #endif
+
+#ifndef F_PRE_CHECK
+#define F_PRE_CHECK(cond, msg)                                                 \
+  do {                                                                         \
+    std::string formatMessage =                                                \
+        fmt::format("{}:{} {} {}", __FILE__, __LINE__, __FUNCTION__, msg);     \
+    throw new e(formatMessage);                                                \
+  } while (0)
+#endif
+
+#ifndef F_PRE_CHECKF
+#define F_PRE_CHECKF(cond, fmt, ...)
+#endif

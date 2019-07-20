@@ -11,17 +11,15 @@ namespace fastype {
 
 Position::Position() : row_(-1), col_(-1) {}
 
-Position::Position(int32_t row, int32_t column) : row_(row), col_(column) {}
+Position::Position(int row, int column) : row_(row), col_(column) {}
 
-int32_t Position::row() const { return row_; }
+int &Position::row() { return row_; }
 
-int32_t Position::setRow(int32_t row) { return std::exchange(row_, row); }
+int Position::setRow(int row) { return std::exchange(row_, row); }
 
-int32_t Position::column() const { return col_; }
+int &Position::column() { return col_; }
 
-int32_t Position::setColumn(int32_t column) {
-  return std::exchange(col_, column);
-}
+int Position::setColumn(int column) { return std::exchange(col_, column); }
 
 bool Position::operator==(const Position &other) const {
   return row_ == other.row_ && col_ == other.col_;

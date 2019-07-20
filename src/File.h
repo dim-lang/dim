@@ -2,11 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Line.h"
 #include "Logging.h"
-#include "Position.h"
 #include "Stringify.h"
 #include "boost/core/noncopyable.hpp"
-#include "unicode/ustring.h"
+#include "unicode/unistr.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -21,7 +21,7 @@ public:
   virtual ~File();
 
   const std::string &fileName() const;
-  icu::UnicodeString &getLine(int32_t lineNumber);
+  icu::UnicodeString &getLine(int lineNumber);
   int lineCount();
   bool empty();
   virtual std::string toString() const;
@@ -47,7 +47,7 @@ private:
   // if last line exists and is opened, close it
   void closeLastLine(Position right);
   // open new line at specified left line bound
-  void openNewLine(File *fp, int32_t lineNumber, Position left);
+  void openNewLine(File *fp, int lineNumber, Position left);
 
   // expand readBuffer_
   // @return readBufferCapacity_ after expand
@@ -57,11 +57,11 @@ private:
   FILE *fd_;
   bool loaded_;
 
-  char *readBuffer_;
+  std::vector<char *> readBuffer_;
   int readBufferSize_;
   int readBufferCapacity_;
 
-  std::vector<icu::UnicodeString> lineList_;
+  std::vector<Line> lineList_;
 
   friend class Line;
 };

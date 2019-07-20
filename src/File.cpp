@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "File.h"
-#include "Line.h"
 #include "Logging.h"
 #include "fmt/format.h"
 #include <algorithm>
@@ -54,7 +53,7 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-icu::UnicodeString &File::getLine(int32_t lineNumber) {}
+icu::UnicodeString &File::getLine(int lineNumber) {}
 
 int File::lineCount() {}
 
@@ -75,7 +74,7 @@ void File::closeLastLine(Position right) {
   }
 }
 
-void File::openNewLine(File *fp, int32_t lineNumber, LineBound left) {
+void File::openNewLine(File *fp, int lineNumber, LineBound left) {
   Line line(lineNumber);
   line.setRight(LineBound());
   line.setLeft(left);
@@ -98,7 +97,9 @@ int64_t File::load() {
     return 0;
   }
 
-  // try read previous bytes
+  // if has previous bytes, drain to new line
+  if (readBufferSize_ > 0) {
+  }
 
   // read 1 buffer
   readBuffer_.clear();
@@ -148,7 +149,7 @@ int64_t File::load() {
   return n;
 }
 
-int64_t File::loadUntil(int32_t n) {
+int64_t File::loadUntil(int n) {
   std::vector<int64_t> r;
   int64_t t;
   while (lineList_.size() <= n && (t = load()) > 0L) {
