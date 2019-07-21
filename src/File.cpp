@@ -17,32 +17,27 @@ namespace fastype {
 File::File(const std::string &fileName)
     : Logging(fileName), fileName_(fileName),
       fd_(std::fopen(fileName.data(), "rw")), loaded_(false),
-      readBuffer_(nullptr), readBufferSize_(0), readBufferCapacity_(0) {
-  readBuffer_ = new char[BUF_SIZE];
-  if (readBuffer_) {
-    readBufferCapacity_ = BUF_SIZE;
-  } else {
-    F_ERRORF("fileName:{} readBuffer_:{} readBufferCapacity_:{}", fileName,
-             (void *)readBuffer_, readBufferCapacity_);
-  }
-  F_DEBUGF("fileName:{}", fileName);
+      converter_(nullptr) {
+  UErrorCode err;
+  readBuffer_.resize(BUF_SIZE);
+  converter_ = ucnv_open(nullptr, &err);
+  F_CHECKF(U_SUCCESS(err), "err:{}", (int)err);
+  F_DEBUGF("File:{} err:{}", toString(), (int)err);
 }
 
 File::~File() {
-  F_DEBUGF("fileName:{}", fileName_);
+  F_DEBUGF("File:{}", toString());
   if (fd_) {
-    F_DEBUGF("close fd_:{} fileName_:{}", (void *)fd_, fileName_);
     std::fclose(fd_);
     fd_ = nullptr;
   }
   loaded_ = false;
-  if (readBuffer_) {
-    delete[] readBuffer_;
-    readBuffer_ = nullptr;
-    readBufferSize_ = 0;
-    readBufferCapacity_ = 0;
-  }
+  readBuffer_.clear();
   lineList_.clear();
+  if (converter_) {
+    ucnv_close(converter_);
+    converter_ = nullptr;
+  }
 }
 
 const std::string &File::fileName() const { return fileName_; }
@@ -59,91 +54,69 @@ int File::lineCount() {}
 
 bool File::empty() {}
 
+int File::loaded() const { return loaded_; }
+
 std::string File::toString() const {
-  return fmt::format(
-      "[ @File fileName_: {}, fd_: {}, loaded_: {}, readBuffer_: {}, "
-      "lineList_#size: {} ]",
-      fileName_, (void *)fd_, loaded_, readBuffer_.size(), lineList_.size());
-}
-
-void File::closeLastLine(Position right) {
-  if (lineList_.size() > 0 && lineList_.back().right().unset()) {
-    F_DEBUGF("last line: {}", lineList_.back().toString());
-    Line &lastLine = lineList_.back();
-    lastLine.setRight(right);
-  }
-}
-
-void File::openNewLine(File *fp, int lineNumber, LineBound left) {
-  Line line(lineNumber);
-  line.setRight(LineBound());
-  line.setLeft(left);
-  lineList_.push_back(line);
-}
-
-int File::expandReadBuffer() {
-  int n = readBufferCapacity_ * 2;
-  char *buf = std::realloc(readBuffer_, n);
-  if (buf) {
-    readBuffer_ = buf;
-    readBufferCapacity_ = n;
-  }
-  return readBufferCapacity_;
+  return fmt::format("[ @File fileName_:{} fd_:{} loaded_:{} "
+                     "readBuffer_#data:{} readBuffer_#size:{} "
+                     "lineList_#size:{} converter_:{} ]",
+                     fileName_, (void *)fd_, loaded_, readBuffer_.data(),
+                     readBuffer_.size(), lineList_.size(), (void *)converter_);
 }
 
 int64_t File::load() {
   if (loaded_) {
-    // already read all, EOF
-    return 0;
+    // already EOF
+    return 0L;
   }
 
-  // if has previous bytes, drain to new line
-  if (readBufferSize_ > 0) {
-  }
+  int64_t readed = 0L;
+  char *lineBreak = nullptr;
 
-  // read 1 buffer
-  readBuffer_.clear();
-  int64_t n = (int64_t)std::fread(readBuffer_.data(), readBuffer_.capacity(),
-                                  sizeof(char), fd_);
-  readBuffer_.setSize(n);
+  // read buffer until line break or EOF
+  while (true) {
+    if (readBuffer_.capacity() <= readBuffer_.size()) {
+      readBuffer_.reserve(std::max<size_t>(128, readBuffer_.capacity() * 2));
+    }
+    char *start = readBuffer_.data() + readBuffer_.size();
+    int length = readBuffer_.capacity() - readBuffer_.size();
 
-  // case 1: if no more bytes
-  if (n <= 0L) {
-    // for safety, if last line is opened, close the last line
-    loaded_ = true;
-    closeLastLine(
-        LineBound(bufferList_.size() - 1, bufferList_.back()->size()));
-    return n;
-  }
-
-  // case 2: read n bytes, append to bufferList, find all lines to lineList
-  std::shared_ptr<Buffer> b(new Buffer(BUF_SIZE));
-  b->read(readBuffer_, readBuffer_.size());
-  bufferList_.push_back(b);
-
-  for (int i = 0; i < b->size(); i++) {
-    if (b->data()[i] != '\n') {
-      continue;
+    int64_t n = (int64_t)std::fread(start, length, sizeof(char), fd_);
+    if (n > 0) {
+      readed += n;
+      readBuffer_.resize(readBuffer_.size() + n);
     }
 
-    // at line break
-    if (lineList_.size() > 0 && lineList_.back().right().unset()) {
-      // if has previous lines, and last line is opened
+    // case 1: find EOF
+    if (n <= 0L) {
+      loaded_ = true;
+      break;
+    }
 
-      // close last line
-      closeLastLine(LineBound(bufferList_.size() - 1, i + 1));
-      // open new line
-      openNewLine(this, lineList_.size(),
-                  LineBound(bufferList_.size() - 1, i + 1));
-    } else if (lineList_.size() == 0 || !lineList_.back().right().unset()) {
-      // case 2: has no previous lines
-      // case 3: has previous lines, but last line is closed
+    char *end = readBuffer_.data() + readBuffer_.size();
+    F_DEBUGF("read margin, start:{} length:{} n:{} loaded_:{}", (void *)start,
+             length, n, loaded_);
+    lineBreak = std::find(start, end, '\n');
 
-      // open new line
-      openNewLine(this, lineList_.size(),
-                  LineBound(bufferList_.size() - 1, i + 1));
+    // case 2: find line break
+    if (lineBreak != end) {
+      F_CHECKF(lineBreak > start, "lineBreak:{} > start:{}", (void *)lineBreak,
+               (void *)start);
+      F_CHECKF(lineBreak < end, "lineBreak:{} < end:{}", (void *)lineBreak,
+               (void *)end);
+      break;
     }
   }
+
+  // if buffer has nothing or no line break
+  // do nothing
+  if (readBuffer_.size() <= 0 || lineBreak == nullptr) {
+    return readed;
+  }
+
+  // drain readBuffer_ to new line
+  Line l;
+  int len = ucnv_toUChars(converter_, );
 
   // return readed bytes
   return n;

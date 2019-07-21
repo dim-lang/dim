@@ -5,30 +5,36 @@
 #include "Logging.h"
 #include "Stringify.h"
 #include "unicode/unistr.h"
+#include <vector>
 
 namespace fastype {
 
 class Line : public Logging, Stringify {
 public:
   Line();
-  Line(const icu::UnicodeString &data, int lineNumber, int dirty);
-  Line(const Line &) = default;
-  Line &operator=(const Line &) = default;
-  Line(Line &&) = default;
-  Line &operator=(Line &&) = default;
-  virtual ~Line();
+  Line(const UChar *src, int start, int length, int lineNumber, int dirty);
+  Line(const Line &other) = default;
+  Line &operator=(const Line &other) = default;
+  Line(Line &&other) = default;
+  Line &operator=(Line &&other) = default;
+  virtual ~Line() = default;
 
   virtual std::string toString() const;
 
-  icu::UnicodeString &data();
-  void setData(const icu::UnicodeString &data);
+  UChar *data();
+  int size() const;
+  void setSize(int size);
+  int capacity() const;
+  void setCapacity(int size);
   int &lineNumber();
   void setLineNumber(int lineNumber);
   bool &dirty();
   void setDirty(int dirty);
 
+  int expand(int n);
+
 private:
-  icu::UnicodeString data_;
+  std::vector<UChar> data_;
   int lineNumber_;
   bool dirty_;
 };

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Logging.h"
-#include "Util.h"
+#include "StaticBlock.h"
 #include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -21,6 +21,24 @@ using std::to_string;
 using std::unordered_map;
 
 namespace fastype {
+
+namespace detail {
+Location::Location(const char *fileName, int lineNumber,
+                   const char *functionName)
+    : fileName_(fileName), lineNumber_(lineNumber),
+      functionName_(functionName) {}
+
+const std::string &Location::fileName() const { return fileName_; }
+
+int Location::lineNumber() const { return lineNumber_; }
+
+const std::string &Location::functionName() const { return functionName_; }
+
+std::string Location::toString() const {
+  return fmt::format("{}:{} {}", fileName_, lineNumber_, functionName_);
+};
+
+}; // namespace detail
 
 static mutex LoggerLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
@@ -53,7 +71,7 @@ shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   return LoggerMap[loggerName];
 }
 
-F_STATIC_BLOCK_BEGIN(Log)
+F_STATIC_BLOCK_BEG(Log)
 
 #ifdef NDEBUG
 spdlog::set_level(spdlog::level::err);

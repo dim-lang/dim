@@ -25,7 +25,6 @@ public:
   bool operator!=(const Position &other) const;
 
   // > >= < <= compares one row or one column
-  // otherwise throw NoSuchOrderException
   bool operator>(const Position &other) const;
   bool operator>=(const Position &other) const;
   bool operator<(const Position &other) const;

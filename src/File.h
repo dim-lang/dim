@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Buffer.h"
 #include "Line.h"
 #include "Logging.h"
 #include "Stringify.h"
@@ -24,6 +25,7 @@ public:
   icu::UnicodeString &getLine(int lineNumber);
   int lineCount();
   bool empty();
+  int loaded() const;
   virtual std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
@@ -44,24 +46,13 @@ private:
   // @return loaded bytes
   int64_t loadAll();
 
-  // if last line exists and is opened, close it
-  void closeLastLine(Position right);
-  // open new line at specified left line bound
-  void openNewLine(File *fp, int lineNumber, Position left);
-
-  // expand readBuffer_
-  // @return readBufferCapacity_ after expand
-  int expandReadBuffer(int n);
-
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-
-  std::vector<char *> readBuffer_;
-  int readBufferSize_;
-  int readBufferCapacity_;
-
+  std::vector<char> readBuffer_;
   std::vector<Line> lineList_;
+
+  UConverter *converter_;
 
   friend class Line;
 };

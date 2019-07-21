@@ -37,7 +37,6 @@ message(F_LIB: ${F_LIB})
 set(F_CORE
     Logging.cpp
     Term.cpp
-    Util.cpp
     Global.cpp
     File.cpp
     Position.cpp
