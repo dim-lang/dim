@@ -115,8 +115,28 @@ int64_t File::load() {
   }
 
   // drain readBuffer_ to new line
-  Line l;
-  int len = ucnv_toUChars(converter_, );
+
+  char *rstart = readBuffer_.data();
+  char *rend = readBuffer_.data() + readBuffer_.size();
+  lineBreak = rstart;
+  while (true) {
+    lineBreak = std::find(lineBreak + 1, rend, '\n');
+    if (lineBreak == rend) {
+      break;
+    }
+
+    Line nl;
+    UErrorCode err;
+    int n;
+
+    do {
+      nl.expand(std::max(readBuffer_.size(), nl.capacity() * 2));
+      n = ucnv_toUChars(converter_, nl.data(), nl.capacity(),
+                        readBuffer_.data(), readBuffer_.size(), &err);
+      F_DEBUGF("UErrorCode:{}", err);
+    } while (!U_SUCCESS(err));
+    lineList_.push_back(nl);
+  }
 
   // return readed bytes
   return n;

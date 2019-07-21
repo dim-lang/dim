@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Buffer.h"
 #include "Line.h"
 #include "Logging.h"
 #include "Stringify.h"
