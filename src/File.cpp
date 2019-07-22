@@ -19,7 +19,7 @@ File::File(const std::string &fileName)
       fd_(std::fopen(fileName.data(), "rw")), loaded_(false),
       converter_(nullptr) {
   UErrorCode err;
-  readBuffer_.resize(BUF_SIZE);
+  readBuffer_.reserve(BUF_SIZE);
   converter_ = ucnv_open(nullptr, &err);
   F_CHECKF(U_SUCCESS(err), "err:{}", (int)err);
   F_DEBUGF("File:{} err:{}", toString(), (int)err);
@@ -48,11 +48,17 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-icu::UnicodeString &File::getLine(int lineNumber) {}
+Line &File::getLine(int lineNumber) { return lineList_[lineNumber]; }
 
-int File::lineCount() {}
+int File::lineCount() {
+  load();
+  return lineList_.size();
+}
 
-bool File::empty() {}
+bool File::empty() {
+  load();
+  return lineList_.empty();
+}
 
 int File::loaded() const { return loaded_; }
 
@@ -71,93 +77,57 @@ int64_t File::load() {
   }
 
   int64_t readed = 0L;
-  char *lineBreak = nullptr;
 
-  // read buffer until line break or EOF
-  while (true) {
+  // load file
+  while (!loaded_) {
     if (readBuffer_.capacity() <= readBuffer_.size()) {
-      readBuffer_.reserve(std::max<size_t>(128, readBuffer_.capacity() * 2));
+      readBuffer_.reserve(readBuffer_.capacity() * 2);
     }
     char *start = readBuffer_.data() + readBuffer_.size();
     int length = readBuffer_.capacity() - readBuffer_.size();
 
     int64_t n = (int64_t)std::fread(start, length, sizeof(char), fd_);
-    if (n > 0) {
+
+    if (n > 0L) {
       readed += n;
       readBuffer_.resize(readBuffer_.size() + n);
     }
 
-    // case 1: find EOF
+    // EOF
     if (n <= 0L) {
       loaded_ = true;
-      break;
-    }
-
-    char *end = readBuffer_.data() + readBuffer_.size();
-    F_DEBUGF("read margin, start:{} length:{} n:{} loaded_:{}", (void *)start,
-             length, n, loaded_);
-    lineBreak = std::find(start, end, '\n');
-
-    // case 2: find line break
-    if (lineBreak != end) {
-      F_CHECKF(lineBreak > start, "lineBreak:{} > start:{}", (void *)lineBreak,
-               (void *)start);
-      F_CHECKF(lineBreak < end, "lineBreak:{} < end:{}", (void *)lineBreak,
-               (void *)end);
-      break;
     }
   }
 
-  // if buffer has nothing or no line break
-  // do nothing
-  if (readBuffer_.size() <= 0 || lineBreak == nullptr) {
+  // if buffer has nothing
+  if (readBuffer_.size() <= 0) {
     return readed;
   }
 
-  // drain readBuffer_ to new line
-
-  char *rstart = readBuffer_.data();
-  char *rend = readBuffer_.data() + readBuffer_.size();
-  lineBreak = rstart;
+  // split readBuffer_ to lines
+  char *start = readBuffer_.data();
+  char *end = readBuffer_.data() + readBuffer_.size();
   while (true) {
-    lineBreak = std::find(lineBreak + 1, rend, '\n');
-    if (lineBreak == rend) {
+    char *lineBreak = std::find(start, end, '\n');
+    if (lineBreak == end) {
       break;
     }
 
-    Line nl;
+    Line l;
     UErrorCode err;
     int n;
 
     do {
-      nl.expand(std::max(readBuffer_.size(), nl.capacity() * 2));
-      n = ucnv_toUChars(converter_, nl.data(), nl.capacity(),
-                        readBuffer_.data(), readBuffer_.size(), &err);
-      F_DEBUGF("UErrorCode:{}", err);
+      l.expand(std::max<int64_t>(lineBreak - start, l.capacity() * 2));
+      n = ucnv_toUChars(converter_, l.data(), l.capacity(), start,
+                        lineBreak - start, &err);
+      F_DEBUGF("UErrorCode:{}", (int)err);
     } while (!U_SUCCESS(err));
-    lineList_.push_back(nl);
+    lineList_.push_back(l);
+    start = lineBreak + 1;
   }
 
-  // return readed bytes
-  return n;
-}
-
-int64_t File::loadUntil(int n) {
-  std::vector<int64_t> r;
-  int64_t t;
-  while (lineList_.size() <= n && (t = load()) > 0L) {
-    r.push_back(t);
-  }
-  return std::accumulate(r.begin(), r.end(), 0L);
-}
-
-int64_t File::loadAll() {
-  std::vector<int64_t> r;
-  int64_t t;
-  while ((t = load()) > 0L) {
-    r.push_back(t);
-  }
-  return std::accumulate(r.begin(), r.end(), 0L);
+  return readed;
 }
 
 } // namespace fastype

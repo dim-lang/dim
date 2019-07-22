@@ -21,7 +21,7 @@ public:
   virtual ~File();
 
   const std::string &fileName() const;
-  icu::UnicodeString &getLine(int lineNumber);
+  Line &getLine(int lineNumber);
   int lineCount();
   bool empty();
   int loaded() const;
@@ -33,24 +33,15 @@ public:
 private:
   File(const std::string &fileName);
 
-  // load 1 buffer and lines
-  // @return loaded bytes
+  // load buffer and lines
+  // @return readed bytes
   int64_t load();
-
-  // load at least n lines (e.g lineList_.size() >= n), or no more to read
-  // @return loaded bytes
-  int64_t loadUntil(int n);
-
-  // load all buffers and lines
-  // @return loaded bytes
-  int64_t loadAll();
 
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
   std::vector<char> readBuffer_;
   std::vector<Line> lineList_;
-
   UConverter *converter_;
 
   friend class Line;
