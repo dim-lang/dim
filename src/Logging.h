@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
+#include "exceptions/PreCheckException.h"
 #include "spdlog/spdlog.h"
 #include <cstdio>
 #include <memory>
@@ -37,9 +38,10 @@ inline void CheckCondition(bool cond, const char *fmt, const Args &... args) {
   if (cond) {
     return;
   }
-  std::string message = fmt::format(fmt, args...);
-  throw std::runtime_error(message);
+  throw fastype::PreCheckException(fmt::format(fmt, args...));
 }
+
+std::string FormatLocation(const Location &location, const char *fmt);
 
 } // namespace detail
 
@@ -52,28 +54,28 @@ public:
   template <typename... Args>
   inline void debug(const detail::Location &location, const char *fmt,
                     const Args &... args) {
-    std::string rfmt = formatLocation(location, fmt);
+    std::string rfmt = detail::FormatLocation(location, fmt);
     logger->debug(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void info(const detail::Location &location, const char *fmt,
                    const Args &... args) {
-    std::string rfmt = formatLocation(location, fmt);
+    std::string rfmt = detail::FormatLocation(location, fmt);
     logger->info(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void warn(const detail::Location &location, const char *fmt,
                    const Args &... args) {
-    std::string rfmt = formatLocation(location, fmt);
+    std::string rfmt = detail::FormatLocation(location, fmt);
     logger->warn(rfmt.data(), args...);
   }
 
   template <typename... Args>
   inline void error(const detail::Location &location, const char *fmt,
                     const Args &... args) {
-    std::string rfmt = formatLocation(location, fmt);
+    std::string rfmt = detail::FormatLocation(location, fmt);
     logger->error(rfmt.data(), args...);
   }
 
@@ -81,8 +83,6 @@ private:
   friend class LogManager;
 
   explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
-
-  std::string formatLocation(const detail::Location &location, const char *fmt);
 
   std::shared_ptr<spdlog::logger> logger;
 };
@@ -162,7 +162,7 @@ protected:
 #ifndef F_CHECK
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
-    std::string metaMsg = fmt::format("{} {}", LOG_LOCATION.toString(), msg);  \
+    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, fmt);  \
     fastype::detail::CheckCondition(cond, metaMsg.data());                     \
   } while (0)
 #endif
@@ -170,7 +170,7 @@ protected:
 #ifndef F_CHECKF
 #define F_CHECKF(cond, fmt, ...)                                               \
   do {                                                                         \
-    std::string metaMsg = fmt::format("{} {}", LOG_LOCATION.toString(), fmt);  \
+    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, fmt);  \
     fastype::detail::CheckCondition(cond, metaMsg.data(), __VA_ARGS__);        \
   } while (0)
 #endif

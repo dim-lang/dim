@@ -39,17 +39,7 @@ std::string Location::toString() const {
   return fmt::format("{}:{} {}", fileName_, lineNumber_, functionName_);
 };
 
-}; // namespace detail
-
-static mutex LoggerLock;
-static unordered_map<string, shared_ptr<Logger>> LoggerMap =
-    unordered_map<string, shared_ptr<Logger>>();
-static const string FileName = "fastype.log";
-// static const int MaxFileSize = 1048576 * 10;
-// static const int MaxFiles = 100;
-
-string Logger::formatLocation(const detail::Location &location,
-                              const char *fmt) {
+string FormatLocation(const detail::Location &location, const char *fmt) {
   string shortFileName(location.fileName());
   size_t slashPos = shortFileName.find_last_of("/");
   slashPos =
@@ -60,6 +50,15 @@ string Logger::formatLocation(const detail::Location &location,
   return fmt::format("[{}] [{}] [{}] {}", shortFileName,
                      location.functionName(), location.lineNumber(), fmt);
 }
+
+}; // namespace detail
+
+static mutex LoggerLock;
+static unordered_map<string, shared_ptr<Logger>> LoggerMap =
+    unordered_map<string, shared_ptr<Logger>>();
+static const string FileName = "fastype.log";
+// static const int MaxFileSize = 1048576 * 10;
+// static const int MaxFiles = 100;
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
