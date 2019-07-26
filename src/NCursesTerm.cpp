@@ -38,7 +38,8 @@ void NCursesTerm::show(const std::string &fileName) {
   initscr();
   getmaxyx(stdscr, row, col);
 
-  for (Line i = f->begin(); i != f->end(); i = f->next(i)) {
+  for (int i = 0; i < f->count(); i++) {
+    Line &l = f->get(i);
     getyx(stdscr, y, x);
     printw("%c", ch);
   }

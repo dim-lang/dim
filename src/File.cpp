@@ -16,13 +16,9 @@ namespace fastype {
 
 File::File(const std::string &fileName)
     : Logging(fileName), fileName_(fileName),
-      fd_(std::fopen(fileName.data(), "rw")), loaded_(false),
-      converter_(nullptr) {
-  UErrorCode err;
+      fd_(std::fopen(fileName.data(), "rw")), loaded_(false) {
   readBuffer_.reserve(BUF_SIZE);
-  converter_ = ucnv_open(nullptr, &err);
-  F_CHECKF(U_SUCCESS(err), "err:{}", (int)err);
-  F_DEBUGF("File:{} err:{}", toString(), (int)err);
+  F_DEBUGF("File:{}", toString());
 }
 
 File::~File() {
@@ -34,10 +30,6 @@ File::~File() {
   loaded_ = false;
   readBuffer_.clear();
   lineList_.clear();
-  if (converter_) {
-    ucnv_close(converter_);
-    converter_ = nullptr;
-  }
 }
 
 const std::string &File::fileName() const { return fileName_; }
@@ -48,9 +40,9 @@ std::shared_ptr<File> File::open(const std::string &fileName) {
 
 void File::close(std::shared_ptr<File> file) { file.reset(); }
 
-Line &File::getLine(int lineNumber) { return lineList_[lineNumber]; }
+Line &File::get(int lineNumber) { return lineList_[lineNumber]; }
 
-int File::lineCount() {
+int File::count() {
   load();
   return lineList_.size();
 }
@@ -60,14 +52,24 @@ bool File::empty() {
   return lineList_.empty();
 }
 
+int File::truncate(int start, int length) {
+  // lineList_.truncate(start, length);
+  return length;
+}
+
+int File::clear() {
+  lineList_.clear();
+  return 0;
+}
+
 int File::loaded() const { return loaded_; }
 
 std::string File::toString() const {
   return fmt::format("[ @File fileName_:{} fd_:{} loaded_:{} "
                      "readBuffer_#data:{} readBuffer_#size:{} "
-                     "lineList_#size:{} converter_:{} ]",
+                     "lineList_#size:{} ]",
                      fileName_, (void *)fd_, loaded_, readBuffer_.data(),
-                     readBuffer_.size(), lineList_.size(), (void *)converter_);
+                     readBuffer_.size(), lineList_.size());
 }
 
 int64_t File::load() {
@@ -114,15 +116,10 @@ int64_t File::load() {
     }
 
     Line l;
-    UErrorCode err;
-    int n;
-
-    do {
-      l.expand(std::max<int64_t>(lineBreak - start, l.capacity() * 2));
-      n = ucnv_toUChars(converter_, l.data(), l.capacity(), start,
-                        lineBreak - start, &err);
-      F_DEBUGF("UErrorCode:{}", (int)err);
-    } while (!U_SUCCESS(err));
+    int sz = lineBreak - start;
+    l.expand(std::max<int64_t>(sz, l.capacity() * 2));
+    std::memcpy(l.data(), start, sz + 1);
+    l.setSize(sz);
     lineList_.push_back(l);
     start = lineBreak + 1;
   }

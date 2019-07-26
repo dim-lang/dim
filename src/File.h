@@ -6,7 +6,6 @@
 #include "Logging.h"
 #include "Stringify.h"
 #include "boost/core/noncopyable.hpp"
-#include "unicode/unistr.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -21,10 +20,12 @@ public:
   virtual ~File();
 
   const std::string &fileName() const;
-  Line &getLine(int lineNumber);
-  int lineCount();
+  Line &get(int lineNumber);
+  int count();
   bool empty();
   int loaded() const;
+  int truncate(int start, int length);
+  int clear();
   virtual std::string toString() const;
 
   static std::shared_ptr<File> open(const std::string &fileName);
@@ -33,7 +34,7 @@ public:
 private:
   File(const std::string &fileName);
 
-  // load buffer and lines
+  // load all lines
   // @return readed bytes
   int64_t load();
 
@@ -42,7 +43,6 @@ private:
   bool loaded_;
   std::vector<char> readBuffer_;
   std::vector<Line> lineList_;
-  UConverter *converter_;
 
   friend class Line;
 };

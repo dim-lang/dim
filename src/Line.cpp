@@ -12,13 +12,13 @@ Line::Line() : Logging("Line"), lineNumber_(-1), dirty_(false) {
   F_DEBUGF("constructor:{}", toString());
 }
 
-Line::Line(const UChar *src, int start, int length, int lineNumber, int dirty)
+Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
     : Logging("Line"), lineNumber_(lineNumber), dirty_(dirty) {
   data_.resize((int64_t)length);
-  std::memcpy(data_.data(), src + start, length * sizeof(UChar));
+  std::memcpy(data_.data(), src + start, length * sizeof(char));
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{}", lineNumber_);
   F_CHECKF(length > 0, "length:{}", length);
-  F_CHECKF(data.size() >= length, "data#size:{} >= length:{}", data.size(),
+  F_CHECKF(data_.size() >= length, "data_#size:{} >= length:{}", data_.size(),
            length);
   F_DEBUGF("constructor:{} data_#size:{} data_#capacity:{}", toString(),
            data_.size(), data_.capacity());
@@ -30,7 +30,7 @@ std::string Line::toString() const {
       data_.size(), (void *)data_.data(), lineNumber_, dirty_);
 }
 
-UChar *Line::data() { return data_.data(); }
+char *Line::data() { return data_.data(); }
 
 int Line::size() const { return data_.size(); }
 

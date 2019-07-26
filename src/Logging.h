@@ -32,6 +32,15 @@ private:
   std::string functionName_;
 };
 
+template <typename... Args>
+inline void CheckCondition(bool cond, const char *fmt, const Args &... args) {
+  if (cond) {
+    return;
+  }
+  std::string message = fmt::format(fmt, args...);
+  throw std::runtime_error(message);
+}
+
 } // namespace detail
 
 class LogManager;
@@ -95,7 +104,9 @@ protected:
 
 } // namespace fastype
 
+#ifndef LOG_LOCATION
 #define LOG_LOCATION fastype::detail::Location(__FILE__, __LINE__, __FUNCTION__)
+#endif
 
 #ifdef NDEBUG
 
@@ -151,18 +162,16 @@ protected:
 #ifndef F_CHECK
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
-    std::string formatMessage =                                                \
-        fmt::format("{}:{} {} {}", __FILE__, __LINE__, __FUNCTION__, msg);     \
-    if (!(cond)) {                                                             \
-      throw new std::runtime_error(formatMessage);                             \
-    }                                                                          \
+    std::string metaMsg = fmt::format("{} {}", LOG_LOCATION.toString(), msg);  \
+    fastype::detail::CheckCondition(cond, metaMsg.data());                     \
   } while (0)
 #endif
+
 #ifndef F_CHECKF
 #define F_CHECKF(cond, fmt, ...)                                               \
   do {                                                                         \
-    std::string metaMessage = fmt::format(fmt, __VA_ARGS__);                   \
-    F_CHECK(cond, metaMessage);                                                \
+    std::string metaMsg = fmt::format("{} {}", LOG_LOCATION.toString(), fmt);  \
+    fastype::detail::CheckCondition(cond, metaMsg.data(), __VA_ARGS__);        \
   } while (0)
 #endif
 
@@ -181,5 +190,3 @@ protected:
     (logging_)->error(LOG_LOCATION, msg);                                      \
   } while (0)
 #endif
-
-#undef LOG_LOCATION

@@ -23,6 +23,7 @@ using std::unordered_map;
 namespace fastype {
 
 namespace detail {
+
 Location::Location(const char *fileName, int lineNumber,
                    const char *functionName)
     : fileName_(fileName), lineNumber_(lineNumber),

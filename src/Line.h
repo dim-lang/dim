@@ -4,7 +4,6 @@
 #pragma once
 #include "Logging.h"
 #include "Stringify.h"
-#include "unicode/unistr.h"
 #include <vector>
 
 namespace fastype {
@@ -12,7 +11,7 @@ namespace fastype {
 class Line : public Logging, Stringify {
 public:
   Line();
-  Line(const UChar *src, int start, int length, int lineNumber, int dirty);
+  Line(const char *src, int start, int length, int lineNumber, int dirty);
   Line(const Line &other) = default;
   Line &operator=(const Line &other) = default;
   Line(Line &&other) = default;
@@ -21,7 +20,7 @@ public:
 
   virtual std::string toString() const;
 
-  UChar *data();
+  char *data();
   int size() const;
   void setSize(int size);
   int capacity() const;
@@ -34,7 +33,7 @@ public:
   int expand(int n);
 
 private:
-  std::vector<UChar> data_;
+  std::vector<char> data_;
   int lineNumber_;
   bool dirty_;
 };

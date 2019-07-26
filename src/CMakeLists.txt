@@ -41,6 +41,7 @@ set(F_CORE
     File.cpp
     Position.cpp
     View.cpp
+    Line.cpp
     )
 set(F_SRC
     fastype.cpp
