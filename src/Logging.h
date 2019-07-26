@@ -34,14 +34,15 @@ private:
 };
 
 template <typename... Args>
-inline void CheckCondition(bool cond, const char *fmt, const Args &... args) {
+inline void CheckCondition(bool cond, const char *formatString,
+                           const Args &... args) {
   if (cond) {
     return;
   }
-  throw fastype::PreCheckException(fmt::format(fmt, args...));
+  throw fastype::PreCheckException(fmt::format(formatString, args...));
 }
 
-std::string FormatLocation(const Location &location, const char *fmt);
+std::string FormatLocation(const Location &location, const char *formatString);
 
 } // namespace detail
 
@@ -162,15 +163,16 @@ protected:
 #ifndef F_CHECK
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
-    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, fmt);  \
+    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, msg);  \
     fastype::detail::CheckCondition(cond, metaMsg.data());                     \
   } while (0)
 #endif
 
 #ifndef F_CHECKF
-#define F_CHECKF(cond, fmt, ...)                                               \
+#define F_CHECKF(cond, formatString, ...)                                      \
   do {                                                                         \
-    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, fmt);  \
+    std::string metaMsg =                                                      \
+        fastype::detail::FormatLocation(LOG_LOCATION, formatString);           \
     fastype::detail::CheckCondition(cond, metaMsg.data(), __VA_ARGS__);        \
   } while (0)
 #endif

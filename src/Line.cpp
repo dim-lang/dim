@@ -3,7 +3,6 @@
 
 #include "Line.h"
 #include "Util.h"
-#include "exceptions/ParameterException.h"
 #include "fmt/format.h"
 
 namespace fastype {

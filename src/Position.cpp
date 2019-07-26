@@ -30,8 +30,8 @@ bool Position::operator!=(const Position &other) const {
 }
 
 bool Position::operator>(const Position &other) const {
-  F_CHECK(row_ == other.row_ || col_ == other.col_,
-          fmt::format("this: {} other: {}", toString(), other.toString()));
+  F_CHECKF(row_ == other.row_ || col_ == other.col_, "this: {} other: {}",
+           toString(), other.toString());
   if (row_ == other.row_) {
     return col_ > other.col_;
   } else {
@@ -44,8 +44,8 @@ bool Position::operator>=(const Position &other) const {
 }
 
 bool Position::operator<(const Position &other) const {
-  F_CHECK(row_ == other.row_ || col_ == other.col_,
-          fmt::format("this: {} other: {}", toString(), other.toString()));
+  F_CHECKF(row_ == other.row_ || col_ == other.col_, "this: {} other: {}",
+           toString(), other.toString());
   if (row_ == other.row_) {
     return col_ < other.col_;
   } else {
