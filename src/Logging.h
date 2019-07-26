@@ -164,7 +164,9 @@ protected:
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
     std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, msg);  \
-    fastype::detail::CheckCondition(cond, metaMsg.data());                     \
+    if (!(cond))                                                               \
+      throw fastype::PreCheckException(                                        \
+          fmt::format(formatString, __VA_ARGS__));                             \
   } while (0)
 #endif
 
@@ -173,7 +175,9 @@ protected:
   do {                                                                         \
     std::string metaMsg =                                                      \
         fastype::detail::FormatLocation(LOG_LOCATION, formatString);           \
-    fastype::detail::CheckCondition(cond, metaMsg.data(), __VA_ARGS__);        \
+    if (!(cond))                                                               \
+      throw fastype::PreCheckException(                                        \
+          fmt::format(formatString, __VA_ARGS__));                             \
   } while (0)
 #endif
 
