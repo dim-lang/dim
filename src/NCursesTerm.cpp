@@ -41,7 +41,7 @@ void NCursesTerm::show(const std::string &fileName) {
   for (int i = 0; i < f->count(); i++) {
     Line &l = f->get(i);
     getyx(stdscr, y, x);
-    printw("%c", ch);
+    printw("%s", l.data());
   }
 }
 

@@ -64,9 +64,9 @@ int main(int argc, char **argv) {
     F_DEBUGF("file-name[{}]: {}", i, fileNameList[i]);
   }
 
-  // shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
-  // term->show(fileNameList[0]);
+  shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
+  term->show(fileNameList[0]);
 
-  shared_ptr<File> f = File::open(fileNameList[0]);
+  // shared_ptr<File> f = File::open(fileNameList[0]);
   return 0;
 }
