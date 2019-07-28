@@ -42,6 +42,7 @@ set(F_CORE
     Position.cpp
     View.cpp
     Line.cpp
+    Buffer.cpp
     )
 set(F_SRC
     fastype.cpp

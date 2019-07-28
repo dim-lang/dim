@@ -16,8 +16,9 @@ namespace fastype {
 
 File::File(const std::string &fileName)
     : Logging("File"), fileName_(fileName),
-      fd_(std::fopen(fileName.data(), "rw")), loaded_(false) {
-  readBuffer_.reserve(BUF_SIZE);
+      fd_(std::fopen(fileName.data(), "rw")), loaded_(false), readBuffer_() {
+  readBuffer_.expand(BUF_SIZE);
+  std::memset(readBuffer_.data(), 0, BUF_SIZE * sizeof(char));
   F_DEBUGF("File:{}", toString());
 }
 
@@ -69,8 +70,9 @@ std::string File::toString() const {
   return fmt::format("[ @File fileName_:{} fd_:{} loaded_:{} "
                      "readBuffer_#data:{} readBuffer_#size:{} "
                      "lineList_#size:{} ]",
-                     fileName_, (void *)fd_, loaded_, readBuffer_.data(),
-                     readBuffer_.size(), lineList_.size());
+                     fileName_, (void *)fd_, loaded_,
+                     (void *)readBuffer_.data(), readBuffer_.size(),
+                     lineList_.size());
 }
 
 int64_t File::load() {
@@ -93,7 +95,14 @@ int64_t File::load() {
 
     if (n > 0L) {
       readed += n;
+      size_t sizeBefore = readBuffer_.size();
       readBuffer_.resize(readBuffer_.size() + n);
+      size_t sizeAfter = readBuffer_.size();
+      (void)sizeBefore;
+      (void)sizeAfter;
+      F_DEBUGF("before resize readBuffer_#size: {}, after resize "
+               "readBuffer_#size:{}",
+               sizeBefore, sizeAfter);
     }
 
     // EOF
@@ -120,10 +129,12 @@ int64_t File::load() {
         return;
       }
     });
+    F_DEBUGF("lineBreak: {} start:{} end:{}", (void *)lineBreak, start, end);
     for (char *i = start; i != end; i++) {
-      F_DEBUGF("i:{} i(int):{}", (void *)i, (int)(*i));
+      F_DEBUGF("i:{} i(int):{} \\n:{}", (void *)i, (int)(*i), (int)'\n');
       if ((int)*i == (int)'\n') {
-        F_DEBUGF("line break i:{} i(int):{}", (void *)i, (int)(*i));
+        F_DEBUGF("line break i:{} i(int):{} \\n:{}", (void *)i, (int)(*i),
+                 (int)'\n');
       }
     }
     F_DEBUGF("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "

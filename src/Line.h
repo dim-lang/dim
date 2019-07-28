@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Buffer.h"
 #include "Logging.h"
 #include "Stringify.h"
 #include <vector>
@@ -33,7 +34,7 @@ public:
   int expand(int n);
 
 private:
-  std::vector<char> data_;
+  Buffer data_;
   int lineNumber_;
   bool dirty_;
 };

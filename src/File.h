@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Buffer.h"
 #include "Line.h"
 #include "Logging.h"
 #include "Stringify.h"
@@ -41,7 +42,7 @@ private:
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-  std::vector<char> readBuffer_;
+  Buffer readBuffer_;
   std::vector<Line> lineList_;
 
   friend class Line;
