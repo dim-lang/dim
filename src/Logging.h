@@ -33,15 +33,6 @@ private:
   std::string functionName_;
 };
 
-template <typename... Args>
-inline void CheckCondition(bool cond, const char *formatString,
-                           const Args &... args) {
-  if (cond) {
-    return;
-  }
-  throw fastype::PreCheckException(fmt::format(formatString, args...));
-}
-
 std::string FormatLocation(const Location &location, const char *formatString);
 
 } // namespace detail

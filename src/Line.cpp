@@ -24,9 +24,10 @@ Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
 }
 
 std::string Line::toString() const {
-  return fmt::format(
-      "[ @Line data_#size:{} data_#data:{} lineNumber_:{} dirty_:{} ]",
-      data_.size(), (void *)data_.data(), lineNumber_, dirty_);
+  return fmt::format("[ @Line data_#data:{} data_#pointer:{} data_#size:{} "
+                     "lineNumber_:{} dirty_:{} ]",
+                     data_.data(), (void *)data_.data(), data_.size(),
+                     lineNumber_, dirty_);
 }
 
 char *Line::data() { return data_.data(); }

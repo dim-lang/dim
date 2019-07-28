@@ -48,9 +48,8 @@ string FormatLocation(const detail::Location &location,
   if (slashPos != string::npos) {
     shortFileName = shortFileName.substr(slashPos + 1);
   }
-  return fmt::format("[{}] [{}] [{}] {}", shortFileName,
-                     location.functionName(), location.lineNumber(),
-                     formatString);
+  return fmt::format("{}:{} {} {}", shortFileName, location.lineNumber(),
+                     location.functionName(), formatString);
 }
 
 }; // namespace detail
@@ -59,8 +58,6 @@ static mutex LoggerLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
 static const string FileName = "fastype.log";
-// static const int MaxFileSize = 1048576 * 10;
-// static const int MaxFiles = 100;
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
@@ -80,8 +77,7 @@ spdlog::set_level(spdlog::level::err);
 #else
 spdlog::set_level(spdlog::level::debug);
 #endif
-spdlog::set_pattern(
-    "[%Y-%m-%d %H:%M:%S.%e] [process %P] [thread %t] [%n] [%l] %v");
+spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e process-%P thread-%t [%n] [%l] %v");
 
 F_STATIC_BLOCK_END(Log)
 

@@ -38,10 +38,16 @@ void NCursesTerm::show(const std::string &fileName) {
   initscr();
   getmaxyx(stdscr, row, col);
 
+  F_DEBUGF("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
     Line &l = f->get(i);
     getyx(stdscr, y, x);
-    printw("%s", l.data());
+    F_DEBUGF("line#size:{} l:{}", l.size(), l.toString());
+    for (int j = 0; j < l.size(); j++) {
+      ch = (int)l.data()[j];
+      F_DEBUGF("line[j](int): {}", ch);
+      printw("%c", (char)ch);
+    }
   }
 }
 
