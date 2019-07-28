@@ -48,7 +48,7 @@ string FormatLocation(const detail::Location &location,
   if (slashPos != string::npos) {
     shortFileName = shortFileName.substr(slashPos + 1);
   }
-  return fmt::format("{}:{} {} {}", shortFileName, location.lineNumber(),
+  return fmt::format("[{}:{} {}] {}", shortFileName, location.lineNumber(),
                      location.functionName(), formatString);
 }
 
@@ -77,7 +77,7 @@ spdlog::set_level(spdlog::level::err);
 #else
 spdlog::set_level(spdlog::level::debug);
 #endif
-spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e process-%P thread-%t [%n] [%l] %v");
+spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] [%n] process-%P thread-%t %v");
 
 F_STATIC_BLOCK_END(Log)
 

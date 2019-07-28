@@ -83,34 +83,27 @@ int64_t File::load() {
 
   // load file
   while (!loaded_) {
-    F_DEBUGF("before expand, readBuffer_#capacity:{} readBuffer_#size:{}",
-             readBuffer_.capacity(), readBuffer_.size());
     if (readBuffer_.capacity() <= readBuffer_.size()) {
       readBuffer_.reserve(readBuffer_.capacity() * 2);
     }
-    F_DEBUGF("after expand, readBuffer_#capacity:{} readBuffer_#size:{}",
-             readBuffer_.capacity(), readBuffer_.size());
     char *start = readBuffer_.data() + readBuffer_.size();
     int length = readBuffer_.capacity() - readBuffer_.size();
 
     int64_t n = (int64_t)std::fread(start, sizeof(char), length, fd_);
-    F_DEBUGF("read n:{}", n);
 
     if (n > 0L) {
       readed += n;
-      F_DEBUGF("readed:{}", readed);
       readBuffer_.resize(readBuffer_.size() + n);
     }
 
     // EOF
     if (n <= 0L) {
       loaded_ = true;
-      F_DEBUGF("loaded_:{}", loaded_);
     }
   }
 
-  F_DEBUGF("readBuffer_#data: {} readBuffer_#size:{}",
-           (void *)readBuffer_.data(), readBuffer_.size());
+  F_DEBUGF("readBuffer_#data: {} readBuffer_#size:{} lineList_#size:{}",
+           (void *)readBuffer_.data(), readBuffer_.size(), lineList_.size());
   // if buffer has nothing
   if (readBuffer_.size() <= 0) {
     return readed;
@@ -120,8 +113,26 @@ int64_t File::load() {
   char *start = readBuffer_.data();
   char *end = readBuffer_.data() + readBuffer_.size();
   while (true) {
-    char *lineBreak = std::find(start, end, '\n');
+    char *lineBreak = end;
+    std::for_each(start, end, [&lineBreak](char i) {
+      if (i == '\n') {
+        lineBreak = &i;
+        return;
+      }
+    });
+    for (char *i = start; i != end; i++) {
+      F_DEBUGF("i:{} i(int):{}", (void *)i, (int)(*i));
+      if ((int)*i == (int)'\n') {
+        F_DEBUGF("line break i:{} i(int):{}", (void *)i, (int)(*i));
+      }
+    }
+    F_DEBUGF("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
+             "end-lineBreak:{}",
+             (void *)start, (void *)lineBreak, (void *)end,
+             (int)(lineBreak - start), (int)(end - start),
+             (int)(end - lineBreak));
     if (lineBreak == end) {
+      F_DEBUGF("lineBreak:{} == end:{}", (void *)lineBreak, (void *)end);
       break;
     }
 

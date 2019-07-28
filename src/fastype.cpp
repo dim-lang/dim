@@ -26,9 +26,6 @@ using std::vector;
 
 int main(int argc, char **argv) {
   shared_ptr<Logger> logging_ = LogManager::getLogger("fastype");
-  F_INFO("start");
-  F_INFO("start");
-  F_INFO("start");
 
   boost_po::options_description desc("Allowed options");
   desc.add_options()("help,h", "produce help message")(
@@ -45,12 +42,10 @@ int main(int argc, char **argv) {
                   vm);
   boost_po::notify(vm);
   if (vm.count("help")) {
-    F_DEBUG("option: help");
     cout << desc << endl;
     return 0;
   }
   if (vm.count("version")) {
-    F_DEBUGF("option: version {}", fastype::Global::FastypeVersion);
     cout << fastype::Global::FastypeVersion << endl;
     return 0;
   }
@@ -61,12 +56,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  F_DEBUG("file-name");
   fileNameList = vm["file-name"].as<vector<string>>();
-  for (int i = 0; i < fileNameList.size(); i++) {
-    F_DEBUGF("file-name[{}]: {}", i, fileNameList[i]);
-  }
-
   shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
   term->show(fileNameList[0]);
 
