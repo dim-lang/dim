@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Logging.h"
 #include "Stringify.h"
 #include <cstddef>
 #include <cstdint>
@@ -10,7 +11,7 @@
 
 namespace fastype {
 
-class Position : public Stringify {
+class Position : public Stringify, Logging {
 public:
   Position();
   Position(int row, int col);

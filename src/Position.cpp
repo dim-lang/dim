@@ -9,9 +9,10 @@
 
 namespace fastype {
 
-Position::Position() : row_(-1), col_(-1) {}
+Position::Position() : Logging("Position"), row_(-1), col_(-1) {}
 
-Position::Position(int row, int column) : row_(row), col_(column) {}
+Position::Position(int row, int column)
+    : Logging("Position"), row_(row), col_(column) {}
 
 int &Position::row() { return row_; }
 

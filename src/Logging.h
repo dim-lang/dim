@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
-#include <stdio.h>
 #include <string>
 #include <thread>
 
@@ -33,7 +32,7 @@ private:
   std::string functionName_;
 };
 
-std::string FormatLocation(const Location &location, const char *formatString);
+std::string FormatLocation(const Location &location, const char *fmtMsg);
 
 } // namespace detail
 
@@ -44,31 +43,31 @@ public:
   virtual ~Logger() = default;
 
   template <typename... Args>
-  inline void debug(const detail::Location &location, const char *fmt,
+  inline void debug(const detail::Location &location, const char *fmtMsg,
                     const Args &... args) {
-    std::string rfmt = detail::FormatLocation(location, fmt);
-    logger->debug(rfmt.data(), args...);
+    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
+    logger->debug(locationFormat.data(), args...);
   }
 
   template <typename... Args>
-  inline void info(const detail::Location &location, const char *fmt,
+  inline void info(const detail::Location &location, const char *fmtMsg,
                    const Args &... args) {
-    std::string rfmt = detail::FormatLocation(location, fmt);
-    logger->info(rfmt.data(), args...);
+    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
+    logger->info(locationFormat.data(), args...);
   }
 
   template <typename... Args>
-  inline void warn(const detail::Location &location, const char *fmt,
+  inline void warn(const detail::Location &location, const char *fmtMsg,
                    const Args &... args) {
-    std::string rfmt = detail::FormatLocation(location, fmt);
-    logger->warn(rfmt.data(), args...);
+    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
+    logger->warn(locationFormat.data(), args...);
   }
 
   template <typename... Args>
-  inline void error(const detail::Location &location, const char *fmt,
+  inline void error(const detail::Location &location, const char *fmtMsg,
                     const Args &... args) {
-    std::string rfmt = detail::FormatLocation(location, fmt);
-    logger->error(rfmt.data(), args...);
+    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
+    logger->error(locationFormat.data(), args...);
   }
 
 private:
@@ -103,13 +102,13 @@ protected:
 #ifdef NDEBUG
 
 #ifndef F_DEBUGF
-#define F_DEBUGF(fmt, ...)
+#define F_DEBUGF(fmtMsg, ...)
 #endif
 #ifndef F_DEBUG
 #define F_DEBUG(msg)
 #endif
 #ifndef F_INFOF
-#define F_INFOF(fmt, ...)
+#define F_INFOF(fmtMsg, ...)
 #endif
 #ifndef F_INFO
 #define F_INFO(msg)
@@ -118,7 +117,7 @@ protected:
 #define F_CHECK(cond, msg)
 #endif
 #ifndef F_CHECKF
-#define F_CHECKF(cond, fmt, ...)
+#define F_CHECKF(cond, fmtMsg, ...)
 #endif
 
 #else
@@ -131,16 +130,16 @@ protected:
 #endif
 
 #ifndef F_DEBUGF
-#define F_DEBUGF(fmt, ...)                                                     \
+#define F_DEBUGF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->debug(LOG_LOCATION, fmt, __VA_ARGS__);                         \
+    (logging_)->debug(LOG_LOCATION, fmtMsg, __VA_ARGS__);                      \
   } while (0)
 #endif
 
 #ifndef F_INFOF
-#define F_INFOF(fmt, ...)                                                      \
+#define F_INFOF(fmtMsg, ...)                                                   \
   do {                                                                         \
-    (logging_)->info(LOG_LOCATION, fmt, __VA_ARGS__);                          \
+    (logging_)->info(LOG_LOCATION, fmtMsg, __VA_ARGS__);                       \
   } while (0)
 #endif
 
@@ -154,30 +153,32 @@ protected:
 #ifndef F_CHECK
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
-    std::string metaMsg = fastype::detail::FormatLocation(LOG_LOCATION, msg);  \
-    if (!(cond))                                                               \
-      throw fastype::PreCheckException(                                        \
-          fmt::format(formatString, __VA_ARGS__));                             \
+    if (!(cond)) {                                                             \
+      std::string metaMsg =                                                    \
+          fastype::detail::FormatLocation(LOG_LOCATION, msg);                  \
+      throw fastype::PreCheckException(metaMsg);                               \
+    }                                                                          \
   } while (0)
 #endif
 
 #ifndef F_CHECKF
-#define F_CHECKF(cond, formatString, ...)                                      \
+#define F_CHECKF(cond, fmtMsg, ...)                                            \
   do {                                                                         \
     std::string metaMsg =                                                      \
-        fastype::detail::FormatLocation(LOG_LOCATION, formatString);           \
-    if (!(cond))                                                               \
-      throw fastype::PreCheckException(                                        \
-          fmt::format(formatString, __VA_ARGS__));                             \
+        fastype::detail::FormatLocation(LOG_LOCATION, fmtMsg);                 \
+    if (!(cond)) {                                                             \
+      std::string formatMsg = fmt::format(metaMsg, __VA_ARGS__);               \
+      throw fastype::PreCheckException(formatMsg);                             \
+    }                                                                          \
   } while (0)
 #endif
 
 #endif // #ifdef NDEBUG
 
 #ifndef F_ERRORF
-#define F_ERRORF(fmt, ...)                                                     \
+#define F_ERRORF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->error(LOG_LOCATION, fmt, __VA_ARGS__);                         \
+    (logging_)->error(LOG_LOCATION, fmtMsg, __VA_ARGS__);                      \
   } while (0)
 #endif
 

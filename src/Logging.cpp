@@ -39,8 +39,7 @@ std::string Location::toString() const {
   return fmt::format("{}:{} {}", fileName_, lineNumber_, functionName_);
 };
 
-string FormatLocation(const detail::Location &location,
-                      const char *formatString) {
+string FormatLocation(const detail::Location &location, const char *fmtMsg) {
   string shortFileName(location.fileName());
   size_t slashPos = shortFileName.find_last_of("/");
   slashPos =
@@ -49,7 +48,7 @@ string FormatLocation(const detail::Location &location,
     shortFileName = shortFileName.substr(slashPos + 1);
   }
   return fmt::format("[{}:{} {}] {}", shortFileName, location.lineNumber(),
-                     location.functionName(), formatString);
+                     location.functionName(), fmtMsg);
 }
 
 }; // namespace detail
