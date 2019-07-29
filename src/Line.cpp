@@ -7,13 +7,15 @@
 
 namespace fastype {
 
-Line::Line() : Logging("Line"), lineNumber_(-1), dirty_(false) {
-  F_DEBUGF("constructor:{}", toString());
+Line::Line() : Logging("Line"), data_(), lineNumber_(-1), dirty_(false) {
+  F_DEBUGF("Constructor:{}", toString());
 }
 
 Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
-    : Logging("Line"), lineNumber_(lineNumber), dirty_(dirty) {
-  data_.setSize(length);
+    : Line() {
+  data_.expand(length);
+  lineNumber_ = lineNumber;
+  dirty_ = dirty;
   std::memcpy(data_.data(), src + start, length * sizeof(char));
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{}", lineNumber_);
   F_CHECKF(length > 0, "length:{}", length);
