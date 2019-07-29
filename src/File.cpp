@@ -122,21 +122,7 @@ int64_t File::load() {
   char *start = readBuffer_.data();
   char *end = readBuffer_.data() + readBuffer_.size();
   while (true) {
-    char *lineBreak = end;
-    std::for_each(start, end, [&lineBreak](char i) {
-      if (i == '\n') {
-        lineBreak = &i;
-        return;
-      }
-    });
-    F_DEBUGF("lineBreak: {} start:{} end:{}", (void *)lineBreak, start, end);
-    for (char *i = start; i != end; i++) {
-      F_DEBUGF("i:{} i(int):{} \\n:{}", (void *)i, (int)(*i), (int)'\n');
-      if ((int)*i == (int)'\n') {
-        F_DEBUGF("line break i:{} i(int):{} \\n:{}", (void *)i, (int)(*i),
-                 (int)'\n');
-      }
-    }
+    char *lineBreak = std::find(start, end, '\n');
     F_DEBUGF("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
              "end-lineBreak:{}",
              (void *)start, (void *)lineBreak, (void *)end,
@@ -158,7 +144,7 @@ int64_t File::load() {
   }
 
   return readed;
-}
+} // namespace fastype
 
 } // namespace fastype
 
