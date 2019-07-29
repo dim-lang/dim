@@ -142,7 +142,7 @@ void Buffer::rightTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-char *Buffer::data() { return data_; }
+char *Buffer::data() const { return data_; }
 
 char &Buffer::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);

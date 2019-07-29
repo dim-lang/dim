@@ -13,7 +13,7 @@ Line::Line() : Logging("Line"), lineNumber_(-1), dirty_(false) {
 
 Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
     : Logging("Line"), lineNumber_(lineNumber), dirty_(dirty) {
-  data_.resize((int64_t)length);
+  data_.setSize(length);
   std::memcpy(data_.data(), src + start, length * sizeof(char));
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{}", lineNumber_);
   F_CHECKF(length > 0, "length:{}", length);
@@ -34,11 +34,11 @@ char *Line::data() { return data_.data(); }
 
 int Line::size() const { return data_.size(); }
 
-void Line::setSize(int size) { data_.resize(size); }
+void Line::setSize(int size) { data_.setSize(size); }
 
 int Line::capacity() const { return data_.capacity(); }
 
-void Line::setCapacity(int capacity) { data_.reserve(capacity); }
+void Line::setCapacity(int capacity) { data_.expand(capacity); }
 
 int &Line::lineNumber() { return lineNumber_; }
 
@@ -49,7 +49,7 @@ bool &Line::dirty() { return dirty_; }
 void Line::setDirty(int dirty) { dirty_ = dirty; }
 
 int Line::expand(int n) {
-  data_.reserve(n);
+  data_.expand(n);
   return data_.capacity();
 }
 

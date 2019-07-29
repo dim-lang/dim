@@ -71,7 +71,7 @@ std::string File::toString() const {
                      "readBuffer_#data:{} readBuffer_#size:{} "
                      "lineList_#size:{} ]",
                      fileName_, (void *)fd_, loaded_,
-                     (void *)readBuffer_.data(), readBuffer_.size(),
+                     (const void *)readBuffer_.data(), readBuffer_.size(),
                      lineList_.size());
 }
 
@@ -86,7 +86,7 @@ int64_t File::load() {
   // load file
   while (!loaded_) {
     if (readBuffer_.capacity() <= readBuffer_.size()) {
-      readBuffer_.reserve(readBuffer_.capacity() * 2);
+      readBuffer_.expand(readBuffer_.capacity() * 2);
     }
     char *start = readBuffer_.data() + readBuffer_.size();
     int length = readBuffer_.capacity() - readBuffer_.size();
@@ -96,7 +96,7 @@ int64_t File::load() {
     if (n > 0L) {
       readed += n;
       size_t sizeBefore = readBuffer_.size();
-      readBuffer_.resize(readBuffer_.size() + n);
+      readBuffer_.setSize(readBuffer_.size() + n);
       size_t sizeAfter = readBuffer_.size();
       (void)sizeBefore;
       (void)sizeAfter;

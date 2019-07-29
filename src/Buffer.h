@@ -29,7 +29,7 @@ public:
   void leftTrim(int length);
   void rightTrim(int length);
 
-  char *data();
+  char *data() const;
   char &operator[](int index);
   int size() const;
   void setSize(int size);
