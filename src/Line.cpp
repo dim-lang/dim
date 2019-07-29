@@ -2,17 +2,20 @@
 // Apache License Version 2.0
 
 #include "Line.h"
+#include "Buffer.h"
 #include "Util.h"
 #include "fmt/format.h"
 
 namespace fastype {
 
-Line::Line() : Logging("Line"), data_(), lineNumber_(-1), dirty_(false) {
+Line::Line()
+    : Logging("Line"), data_(new Buffer()), lineNumber_(-1), dirty_(false) {
   F_DEBUGF("No Args Constructor:{}", toString());
 }
 
 Line::Line(int lineNumber, int dirty)
-    : Logging("Line"), data_(), lineNumber_(lineNumber), dirty_(dirty) {
+    : Logging("Line"), data_(new Buffer()), lineNumber_(lineNumber),
+      dirty_(dirty) {
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{} >= 0", lineNumber_);
   F_DEBUGF("lineNumber/dirty Args Constructor:{}", toString());
 }
@@ -25,7 +28,15 @@ std::string Line::toString() const {
 
 char *Line::data() { return data_->data(); }
 
+const char *Line::data() const { return data_->data(); }
+
 char &Line::operator[](int index) {
+  F_CHECKF(index >= 0, "index {} >= 0", index);
+  F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
+           data_->size());
+  return data_->data()[index];
+}
+const char &Line::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
            data_->size());

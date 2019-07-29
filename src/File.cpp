@@ -3,6 +3,7 @@
 
 #include "File.h"
 #include "Logging.h"
+#include "boost/timer/timer.hpp"
 #include "fmt/format.h"
 #include <algorithm>
 #include <cstdio>
@@ -71,7 +72,7 @@ std::string File::toString() const {
                      "readBuffer_#data:{} readBuffer_#size:{} "
                      "lineList_#size:{} ]",
                      fileName_, (void *)fd_, loaded_,
-                     (const void *)readBuffer_.data(), readBuffer_.size(),
+                     (void *)readBuffer_.data(), readBuffer_.size(),
                      lineList_.size());
 }
 
@@ -83,6 +84,7 @@ int64_t File::load() {
 
   int64_t readed = 0L;
 
+  boost::timer::cpu_timer btimer;
   // load file
   while (!loaded_) {
     if (readBuffer_.capacity() <= readBuffer_.size()) {
@@ -115,6 +117,11 @@ int64_t File::load() {
            (void *)readBuffer_.data(), readBuffer_.size(), lineList_.size());
   // if buffer has nothing
   if (readBuffer_.size() <= 0) {
+    btimer.stop();
+    const boost::timer::cpu_times elapse = btimer.elapsed();
+    (void)elapse;
+    F_DEBUGF("buffer has nothing, elapse.system:{} elapse.user:{} ",
+             elapse.system, elapse.user);
     return readed;
   }
 
@@ -135,7 +142,7 @@ int64_t File::load() {
 
     Line l(lineList_.size(), false);
     int sz = lineBreak - start;
-    l.expand(std::max<int64_t>(sz + 1, l.capacity() * 2));
+    l.expand(std::max<int>(sz + 1, l.capacity() * 2));
     std::memcpy(l.data(), start, sz + 1);
     l.setSize(sz + 1);
     F_DEBUGF("new line:{}", l.toString());
@@ -143,6 +150,11 @@ int64_t File::load() {
     start = lineBreak + 1;
   }
 
+  btimer.stop();
+  const boost::timer::cpu_times elapse = btimer.elapsed();
+  (void)elapse;
+  F_DEBUGF("read buffer, elapse.system:{} elapse.user:{} ", elapse.system,
+           elapse.user);
   return readed;
 } // namespace fastype
 

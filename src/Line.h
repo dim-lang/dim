@@ -23,7 +23,9 @@ public:
   virtual std::string toString() const;
 
   char *data();
+  const char *data() const;
   char &operator[](int index);
+  const char &operator[](int index) const;
   int size() const;
   void setSize(int size);
   int capacity() const;

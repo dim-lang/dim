@@ -32,9 +32,11 @@ set(F_LIB
     Threads::Threads
     fmt
     boost_program_options-mt
+    boost_timer-mt
     icuuc
     icuio
     icudata
+    tcmalloc
     )
 set(F_LIB_DIR
     .
@@ -43,4 +45,5 @@ set(F_LIB_DIR
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
+    /usr/local/opt/gperftools/lib
     )

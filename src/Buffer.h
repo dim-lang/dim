@@ -30,8 +30,10 @@ public:
   void leftTrim(int length);
   void rightTrim(int length);
 
-  char *data() const;
+  char *data();
+  const char *data() const;
   char &operator[](int index);
+  const char &operator[](int index) const;
   int size() const;
   void setSize(int size);
   int capacity() const;

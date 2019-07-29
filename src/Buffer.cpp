@@ -144,11 +144,18 @@ void Buffer::rightTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-char *Buffer::data() const { return data_; }
+char *Buffer::data() { return data_; }
+
+const char *Buffer::data() const { return data_; }
 
 char &Buffer::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
-  F_CHECKF(data_ != nullptr, "data_ {} != nullptr", (void *)data_);
+  F_CHECKF(index < size_, "index {} < size_ {}", index, size_);
+  return data_[index];
+}
+
+const char &Buffer::operator[](int index) const {
+  F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < size_, "index {} < size_ {}", index, size_);
   return data_[index];
 }
