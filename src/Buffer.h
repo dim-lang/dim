@@ -4,18 +4,19 @@
 #pragma once
 #include "Logging.h"
 #include "Stringify.h"
+#include "boost/noncopyable.hpp"
 #include <string>
 
 namespace fastype {
 
-class Buffer : public Stringify, Logging {
+class Buffer : public Stringify, Logging, boost::noncopyable {
 public:
   Buffer();
   Buffer(int capacity);
   virtual ~Buffer();
 
-  Buffer(const Buffer &other);
-  Buffer &operator=(const Buffer &other);
+  // Buffer(const Buffer &other);
+  // Buffer &operator=(const Buffer &other);
   Buffer(Buffer &&other);
   Buffer &operator=(Buffer &&other);
 

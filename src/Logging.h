@@ -3,7 +3,6 @@
 
 #pragma once
 #include "Stringify.h"
-#include "exceptions/PreCheckException.h"
 #include "spdlog/spdlog.h"
 #include <cstdio>
 #include <memory>
@@ -154,10 +153,10 @@ protected:
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      std::string metaMsg =                                                    \
+      std::string formattedMsg =                                               \
           fastype::detail::FormatLocation(LOG_LOCATION, msg);                  \
-      (logging_)->error(LOG_LOCATION, msg);                                    \
-      throw fastype::PreCheckException(metaMsg);                               \
+      std::fprintf(stderr, "%s", formattedMsg);                                \
+      throw formattedMsg;                                                      \
     }                                                                          \
   } while (0)
 #endif
@@ -169,8 +168,8 @@ protected:
       std::string metaMsg =                                                    \
           fastype::detail::FormatLocation(LOG_LOCATION, fmtMsg);               \
       std::string formattedMsg = fmt::format(metaMsg, __VA_ARGS__);            \
-      (logging_)->error(LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
-      throw fastype::PreCheckException(formattedMsg);                          \
+      std::fprintf(stderr, "%s", formattedMsg.data());                         \
+      throw formattedMsg;                                                      \
     }                                                                          \
   } while (0)
 #endif

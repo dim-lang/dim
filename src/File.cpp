@@ -133,7 +133,7 @@ int64_t File::load() {
       break;
     }
 
-    Line l;
+    Line l(lineList_.size(), false);
     int sz = lineBreak - start;
     l.expand(std::max<int64_t>(sz + 1, l.capacity() * 2));
     std::memcpy(l.data(), start, sz + 1);

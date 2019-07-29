@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "Logging.h"
 #include "Stringify.h"
+#include "boost/noncopyable.hpp"
 #include <vector>
 
 namespace fastype {
@@ -12,7 +13,7 @@ namespace fastype {
 class Line : public Logging, Stringify {
 public:
   Line();
-  Line(const char *src, int start, int length, int lineNumber, int dirty);
+  Line(int lineNumber, int dirty);
   Line(const Line &other) = default;
   Line &operator=(const Line &other) = default;
   Line(Line &&other) = default;
@@ -35,7 +36,7 @@ public:
   void expand(int n);
 
 private:
-  Buffer data_;
+  std::shared_ptr<Buffer> data_;
   int lineNumber_;
   bool dirty_;
 };

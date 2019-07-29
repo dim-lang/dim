@@ -23,25 +23,25 @@ Buffer::Buffer(int capacity) : Buffer() {
 
 Buffer::~Buffer() { release(); }
 
-Buffer::Buffer(const Buffer &other) : Buffer() {
-  if (other.data_) {
-    expand(other.capacity_);
-    std::memset(data_, 0, capacity_ * sizeof(char));
-    std::memcpy(data_, other.data_, size_ * sizeof(char));
-  }
-  F_DEBUGF("Copy Constructor: {}", toString());
-}
+// Buffer::Buffer(const Buffer &other) : Buffer() {
+// if (other.data_) {
+// expand(other.capacity_);
+// std::memset(data_, 0, capacity_ * sizeof(char));
+// std::memcpy(data_, other.data_, size_ * sizeof(char));
+//}
+// F_DEBUGF("Copy Constructor: {}", toString());
+//}
 
-Buffer &Buffer::operator=(const Buffer &other) {
-  if (this == &other) {
-    return *this;
-  }
-  expand(other.capacity_);
-  std::memset(data_, 0, capacity_ * sizeof(char));
-  std::memcpy(data_, other.data_, size_ * sizeof(char));
-  F_DEBUGF("Copy Assign: {}", toString());
-  return *this;
-}
+// Buffer &Buffer::operator=(const Buffer &other) {
+// if (this == &other) {
+// return *this;
+//}
+// expand(other.capacity_);
+// std::memset(data_, 0, capacity_ * sizeof(char));
+// std::memcpy(data_, other.data_, size_ * sizeof(char));
+// F_DEBUGF("Copy Assign: {}", toString());
+// return *this;
+//}
 
 Buffer::Buffer(Buffer &&other) : Buffer() {
   std::swap(data_, other.data_);
@@ -61,8 +61,10 @@ Buffer &Buffer::operator=(Buffer &&other) {
 
 void Buffer::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
+  F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
       ALIGN_UP, (int)boost::alignment::align_up(capacity, ALIGN_UP));
+  F_DEBUGF("capacity:{} newCapacity:{}", capacity, newCapacity);
   F_CHECKF(newCapacity >= 2 * capacity_, "newCapacity {} >= 2 * capacity_ {}",
            newCapacity, capacity_);
   char *newData = new char[newCapacity];
@@ -168,8 +170,8 @@ int Buffer::capacity() const {
 }
 
 std::string Buffer::toString() const {
-  return fmt::format("[ @Buffer data_:{} size_:{} capacity_:{}", (void *)data_,
-                     size_, capacity_);
+  return fmt::format("[ @Buffer data_:{} size_:{} capacity_:{} ]",
+                     (void *)data_, size_, capacity_);
 }
 
 } // namespace fastype
