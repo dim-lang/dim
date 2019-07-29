@@ -22,6 +22,7 @@ public:
   virtual std::string toString() const;
 
   char *data();
+  char &operator[](int index);
   int size() const;
   void setSize(int size);
   int capacity() const;
@@ -31,7 +32,7 @@ public:
   bool &dirty();
   void setDirty(int dirty);
 
-  int expand(int n);
+  void expand(int n);
 
 private:
   Buffer data_;

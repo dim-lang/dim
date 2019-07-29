@@ -8,7 +8,7 @@
 namespace fastype {
 
 Line::Line() : Logging("Line"), data_(), lineNumber_(-1), dirty_(false) {
-  F_DEBUGF("Constructor:{}", toString());
+  F_DEBUGF("No Args Constructor:{}", toString());
 }
 
 Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
@@ -21,7 +21,7 @@ Line::Line(const char *src, int start, int length, int lineNumber, int dirty)
   F_CHECKF(length > 0, "length:{}", length);
   F_CHECKF(data_.size() >= length, "data_#size:{} >= length:{}", data_.size(),
            length);
-  F_DEBUGF("constructor:{} data_#size:{} data_#capacity:{}", toString(),
+  F_DEBUGF("Args Constructor:{} data_#size:{} data_#capacity:{}", toString(),
            data_.size(), data_.capacity());
 }
 
@@ -33,6 +33,13 @@ std::string Line::toString() const {
 }
 
 char *Line::data() { return data_.data(); }
+
+char &Line::operator[](int index) {
+  F_CHECKF(index >= 0, "index {} >= 0", index);
+  F_CHECKF(index < data_.size(), "index {} < data_#size {}", index,
+           data_.size());
+  return data_[index];
+}
 
 int Line::size() const { return data_.size(); }
 
@@ -50,9 +57,6 @@ bool &Line::dirty() { return dirty_; }
 
 void Line::setDirty(int dirty) { dirty_ = dirty; }
 
-int Line::expand(int n) {
-  data_.expand(n);
-  return data_.capacity();
-}
+void Line::expand(int n) { return data_.expand(n); }
 
 } // namespace fastype
