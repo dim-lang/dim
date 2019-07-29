@@ -45,29 +45,29 @@ public:
   template <typename... Args>
   inline void debug(const detail::Location &location, const char *fmtMsg,
                     const Args &... args) {
-    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
-    logger->debug(locationFormat.data(), args...);
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    logger->debug(formattedMsg.data(), args...);
   }
 
   template <typename... Args>
   inline void info(const detail::Location &location, const char *fmtMsg,
                    const Args &... args) {
-    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
-    logger->info(locationFormat.data(), args...);
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    logger->info(formattedMsg.data(), args...);
   }
 
   template <typename... Args>
   inline void warn(const detail::Location &location, const char *fmtMsg,
                    const Args &... args) {
-    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
-    logger->warn(locationFormat.data(), args...);
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    logger->warn(formattedMsg.data(), args...);
   }
 
   template <typename... Args>
   inline void error(const detail::Location &location, const char *fmtMsg,
                     const Args &... args) {
-    std::string locationFormat = detail::FormatLocation(location, fmtMsg);
-    logger->error(locationFormat.data(), args...);
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    logger->error(formattedMsg.data(), args...);
   }
 
 private:
@@ -156,6 +156,7 @@ protected:
     if (!(cond)) {                                                             \
       std::string metaMsg =                                                    \
           fastype::detail::FormatLocation(LOG_LOCATION, msg);                  \
+      (logging_)->error(LOG_LOCATION, msg);                                    \
       throw fastype::PreCheckException(metaMsg);                               \
     }                                                                          \
   } while (0)
@@ -164,11 +165,12 @@ protected:
 #ifndef F_CHECKF
 #define F_CHECKF(cond, fmtMsg, ...)                                            \
   do {                                                                         \
-    std::string metaMsg =                                                      \
-        fastype::detail::FormatLocation(LOG_LOCATION, fmtMsg);                 \
     if (!(cond)) {                                                             \
-      std::string formatMsg = fmt::format(metaMsg, __VA_ARGS__);               \
-      throw fastype::PreCheckException(formatMsg);                             \
+      std::string metaMsg =                                                    \
+          fastype::detail::FormatLocation(LOG_LOCATION, fmtMsg);               \
+      std::string formattedMsg = fmt::format(metaMsg, __VA_ARGS__);            \
+      (logging_)->error(LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
+      throw fastype::PreCheckException(formattedMsg);                          \
     }                                                                          \
   } while (0)
 #endif
