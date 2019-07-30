@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "Logging.h"
+#include "Profile.h"
 #include "boost/align/align_up.hpp"
 #include "fmt/format.h"
 #include <algorithm>
@@ -13,12 +14,12 @@
 namespace fastype {
 
 Buffer::Buffer() : Logging("Buffer"), data_(nullptr), size_(0), capacity_(0) {
-  F_DEBUGF("No Args Constructor:{}", toString());
+  // F_DEBUGF("No Args Constructor:{}", toString());
 }
 
 Buffer::Buffer(int capacity) : Buffer() {
   expand(capacity);
-  F_DEBUGF("Capacity Constructor:{}", toString());
+  // F_DEBUGF("Capacity Constructor:{}", toString());
 }
 
 Buffer::~Buffer() { release(); }
@@ -61,7 +62,7 @@ Buffer &Buffer::operator=(Buffer &&other) {
 
 void Buffer::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
-  F_DEBUGF("capacity:{}", capacity);
+  // F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
       ALIGN_UP, (int)boost::alignment::align_up(capacity, ALIGN_UP));
   F_DEBUGF("capacity:{} newCapacity:{}", capacity, newCapacity);
@@ -78,6 +79,7 @@ void Buffer::expand(int capacity) {
     delete[] newData;
     newData = nullptr;
   }
+  F_DEBUGF("after expand:{}", toString());
 }
 
 bool Buffer::empty() const { return size_ <= 0; }
@@ -169,6 +171,19 @@ void Buffer::setSize(int size) {
   F_CHECKF(size >= 0, "size {} >= 0", size);
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   size_ = size;
+}
+
+void Buffer::incSize(int update) {
+  F_CHECKF(update > 0, "update {} > 0", update);
+  F_CHECKF(size_ + update <= capacity_, "size_ {} + update {} <= capacity_ {}",
+           size_, update, capacity_);
+  size_ += update;
+}
+
+void Buffer::decSize(int update) {
+  F_CHECKF(update > 0, "update {} > 0", update);
+  F_CHECKF(size_ - update >= 0, "size_ {} - update {} >= 0", size_, update);
+  size_ -= update;
 }
 
 int Buffer::capacity() const {

@@ -3,6 +3,7 @@
 
 #include "Line.h"
 #include "Buffer.h"
+#include "Profile.h"
 #include "Util.h"
 #include "fmt/format.h"
 
@@ -34,13 +35,13 @@ char &Line::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
            data_->size());
-  return data_->data()[index];
+  return (*data_)[index];
 }
 const char &Line::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
            data_->size());
-  return data_->data()[index];
+  return (*data_)[index];
 }
 
 int Line::size() const { return data_->size(); }

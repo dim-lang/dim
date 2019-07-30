@@ -36,6 +36,8 @@ public:
   const char &operator[](int index) const;
   int size() const;
   void setSize(int size);
+  void incSize(int update);
+  void decSize(int update);
   int capacity() const;
 
   virtual std::string toString() const;

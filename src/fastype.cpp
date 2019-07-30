@@ -25,7 +25,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char **argv) {
-  shared_ptr<Logger> logging_ = LogManager::getLogger("fastype");
+  F_LOGGER("fastype");
 
   boost_po::options_description desc("Allowed options");
   desc.add_options()("help,h", "produce help message")(
@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
   term->show(fileNameList[0]);
 
   int x;
+  std::cout << "Press any key to quit..." << std::endl;
   std::cin >> x;
 
   // shared_ptr<File> f = File::open(fileNameList[0]);

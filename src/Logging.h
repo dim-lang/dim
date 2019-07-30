@@ -94,8 +94,13 @@ protected:
 
 } // namespace fastype
 
-#ifndef LOG_LOCATION
-#define LOG_LOCATION fastype::detail::Location(__FILE__, __LINE__, __FUNCTION__)
+#ifndef F_LOG_LOCATION
+#define F_LOG_LOCATION                                                         \
+  fastype::detail::Location(__FILE__, __LINE__, __FUNCTION__)
+#endif
+
+#ifndef F_LOGGER
+#define F_LOGGER(x) auto logging_ = LogManager::getLogger(x)
 #endif
 
 #ifdef NDEBUG
@@ -112,65 +117,34 @@ protected:
 #ifndef F_INFO
 #define F_INFO(msg)
 #endif
-#ifndef F_CHECK
-#define F_CHECK(cond, msg)
-#endif
-#ifndef F_CHECKF
-#define F_CHECKF(cond, fmtMsg, ...)
-#endif
 
 #else
 
 #ifndef F_DEBUG
 #define F_DEBUG(msg)                                                           \
   do {                                                                         \
-    (logging_)->debug(LOG_LOCATION, msg);                                      \
+    (logging_)->debug(F_LOG_LOCATION, msg);                                    \
   } while (0)
 #endif
 
 #ifndef F_DEBUGF
 #define F_DEBUGF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->debug(LOG_LOCATION, fmtMsg, __VA_ARGS__);                      \
+    (logging_)->debug(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
   } while (0)
 #endif
 
 #ifndef F_INFOF
 #define F_INFOF(fmtMsg, ...)                                                   \
   do {                                                                         \
-    (logging_)->info(LOG_LOCATION, fmtMsg, __VA_ARGS__);                       \
+    (logging_)->info(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                     \
   } while (0)
 #endif
 
 #ifndef F_INFO
 #define F_INFO(msg)                                                            \
   do {                                                                         \
-    (logging_)->info(LOG_LOCATION, msg);                                       \
-  } while (0)
-#endif
-
-#ifndef F_CHECK
-#define F_CHECK(cond, msg)                                                     \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::string formattedMsg =                                               \
-          fastype::detail::FormatLocation(LOG_LOCATION, msg);                  \
-      std::fprintf(stderr, "%s", formattedMsg);                                \
-      throw formattedMsg;                                                      \
-    }                                                                          \
-  } while (0)
-#endif
-
-#ifndef F_CHECKF
-#define F_CHECKF(cond, fmtMsg, ...)                                            \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::string metaMsg =                                                    \
-          fastype::detail::FormatLocation(LOG_LOCATION, fmtMsg);               \
-      std::string formattedMsg = fmt::format(metaMsg, __VA_ARGS__);            \
-      std::fprintf(stderr, "%s", formattedMsg.data());                         \
-      throw formattedMsg;                                                      \
-    }                                                                          \
+    (logging_)->info(F_LOG_LOCATION, msg);                                     \
   } while (0)
 #endif
 
@@ -179,13 +153,13 @@ protected:
 #ifndef F_ERRORF
 #define F_ERRORF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->error(LOG_LOCATION, fmtMsg, __VA_ARGS__);                      \
+    (logging_)->error(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
   } while (0)
 #endif
 
 #ifndef F_ERROR
 #define F_ERROR(msg)                                                           \
   do {                                                                         \
-    (logging_)->error(LOG_LOCATION, msg);                                      \
+    (logging_)->error(F_LOG_LOCATION, msg);                                    \
   } while (0)
 #endif

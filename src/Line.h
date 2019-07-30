@@ -29,7 +29,7 @@ public:
   int size() const;
   void setSize(int size);
   int capacity() const;
-  void setCapacity(int size);
+  void setCapacity(int capacity);
   int &lineNumber();
   void setLineNumber(int lineNumber);
   bool &dirty();

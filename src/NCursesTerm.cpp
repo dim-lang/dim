@@ -29,11 +29,6 @@ void NCursesTerm::show(const std::string &fileName) {
 
   F_DEBUGF("fileName: {}", fileName);
   int ch, row, col, y, x;
-  FILE *fp = std::fopen(fileName.data(), "r");
-  if (fp == nullptr) {
-    F_ERRORF("open fail, fileName: {} errno: {}", fileName, errno);
-    return;
-  }
 
   initscr();
   getmaxyx(stdscr, row, col);
@@ -45,10 +40,12 @@ void NCursesTerm::show(const std::string &fileName) {
     F_DEBUGF("line#size:{} l:{}", l.size(), l.toString());
     for (int j = 0; j < l.size(); j++) {
       ch = (int)l[j];
-      F_DEBUGF("line[j](int): {}", ch);
-      printw("%c", (char)ch);
+      // F_DEBUGF("line[j](int): {}", ch);
+      printw("%c", ch);
+      refresh();
     }
   }
+  endwin();
 }
 
 } // namespace fastype

@@ -3,6 +3,7 @@
 
 #include "Position.h"
 #include "Logging.h"
+#include "Profile.h"
 #include "Util.h"
 #include "fmt/format.h"
 #include <utility>

@@ -3,7 +3,7 @@
 
 #include "File.h"
 #include "Logging.h"
-#include "boost/timer/timer.hpp"
+#include "Profile.h"
 #include "fmt/format.h"
 #include <algorithm>
 #include <cstdio>
@@ -84,7 +84,7 @@ int64_t File::load() {
 
   int64_t readed = 0L;
 
-  boost::timer::cpu_timer btimer;
+  // F_TIMER_START(load);
   // load file
   while (!loaded_) {
     if (readBuffer_.capacity() <= readBuffer_.size()) {
@@ -98,17 +98,15 @@ int64_t File::load() {
     if (n > 0L) {
       readed += n;
       size_t sizeBefore = readBuffer_.size();
-      readBuffer_.setSize(readBuffer_.size() + n);
+      readBuffer_.incSize(n);
       size_t sizeAfter = readBuffer_.size();
       (void)sizeBefore;
       (void)sizeAfter;
       F_DEBUGF("before resize readBuffer_#size: {}, after resize "
                "readBuffer_#size:{}",
                sizeBefore, sizeAfter);
-    }
-
-    // EOF
-    if (n <= 0L) {
+    } else {
+      // n <= 0L, EOF
       loaded_ = true;
     }
   }
@@ -117,11 +115,8 @@ int64_t File::load() {
            (void *)readBuffer_.data(), readBuffer_.size(), lineList_.size());
   // if buffer has nothing
   if (readBuffer_.size() <= 0) {
-    btimer.stop();
-    const boost::timer::cpu_times elapse = btimer.elapsed();
-    (void)elapse;
-    F_DEBUGF("buffer has nothing, elapse.system:{} elapse.user:{} ",
-             elapse.system, elapse.user);
+    // F_TIMER_STOP(load);
+    // F_DEBUGF("buffer has nothing, elapse:{}", F_TIMER_ELAPSE(load));
     return readed;
   }
 
@@ -129,32 +124,34 @@ int64_t File::load() {
   char *start = readBuffer_.data();
   char *end = readBuffer_.data() + readBuffer_.size();
   while (true) {
+    if (start >= end) {
+      F_DEBUGF("start:{} >= end:{}", (void *)start, (void *)end);
+      break;
+    }
     char *lineBreak = std::find(start, end, '\n');
     F_DEBUGF("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
              "end-lineBreak:{}",
              (void *)start, (void *)lineBreak, (void *)end,
              (int)(lineBreak - start), (int)(end - start),
              (int)(end - lineBreak));
-    if (lineBreak == end) {
-      F_DEBUGF("lineBreak:{} == end:{}", (void *)lineBreak, (void *)end);
+    if (lineBreak >= end) {
+      F_DEBUGF("lineBreak:{} >= end:{}", (void *)lineBreak, (void *)end);
       break;
     }
 
     Line l(lineList_.size(), false);
-    int sz = lineBreak - start;
-    l.expand(std::max<int>(sz + 1, l.capacity() * 2));
-    std::memcpy(l.data(), start, sz + 1);
-    l.setSize(sz + 1);
+    int sz = lineBreak - start + 1;                    // 1 is for '\n'
+    l.expand(std::max<int>(sz + 1, l.capacity() * 2)); // 1 is for '\0'
+    std::memcpy(l.data(), start, sz);
+    l.setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
+    l[sz] = '\0';
     F_DEBUGF("new line:{}", l.toString());
     lineList_.push_back(l);
     start = lineBreak + 1;
   }
 
-  btimer.stop();
-  const boost::timer::cpu_times elapse = btimer.elapsed();
-  (void)elapse;
-  F_DEBUGF("read buffer, elapse.system:{} elapse.user:{} ", elapse.system,
-           elapse.user);
+  // F_TIMER_STOP(load);
+  // F_DEBUGF("buffer read:{} elapse:{}", readed, F_TIMER_ELAPSE(load));
   return readed;
 } // namespace fastype
 
