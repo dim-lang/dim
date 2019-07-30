@@ -3,6 +3,7 @@
 
 #include "Logging.h"
 #include "StaticBlock.h"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -56,13 +57,14 @@ string FormatLocation(const detail::Location &location, const char *fmtMsg) {
 static mutex LoggerLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
-static const string FileName = "fastype.log";
+static string FileName;
+static const string LoggerName = "fastype";
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
     shared_ptr<spdlog::logger> spdlogger =
-        spdlog::basic_logger_mt(loggerName, FileName);
+        spdlog::basic_logger_mt(LoggerName, FileName);
     LoggerMap.insert(
         make_pair(loggerName, shared_ptr<Logger>(new Logger(spdlogger))));
   }
@@ -77,6 +79,12 @@ spdlog::set_level(spdlog::level::err);
 spdlog::set_level(spdlog::level::debug);
 #endif
 spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] [%n] process-%P thread-%t %v");
+
+boost::posix_time::ptime pNow = boost::posix_time::second_clock::local_time();
+FileName = fmt::format("fastype-{}-{}-{}-{}-{}-{}.log", pNow.date().year(),
+                       pNow.date().month(), pNow.date().day(),
+                       pNow.time_of_day().hours(), pNow.time_of_day().minutes(),
+                       pNow.time_of_day().seconds());
 
 F_STATIC_BLOCK_END(Log)
 

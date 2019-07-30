@@ -24,25 +24,25 @@ Buffer::Buffer(int capacity) : Buffer() {
 
 Buffer::~Buffer() { release(); }
 
-// Buffer::Buffer(const Buffer &other) : Buffer() {
-// if (other.data_) {
-// expand(other.capacity_);
-// std::memset(data_, 0, capacity_ * sizeof(char));
-// std::memcpy(data_, other.data_, size_ * sizeof(char));
-//}
-// F_DEBUGF("Copy Constructor: {}", toString());
-//}
+Buffer::Buffer(const Buffer &other) : Buffer() {
+  if (other.data_) {
+    expand(other.capacity_);
+    std::memset(data_, 0, capacity_ * sizeof(char));
+    std::memcpy(data_, other.data_, size_ * sizeof(char));
+  }
+  F_DEBUGF("Copy Constructor: {}", toString());
+}
 
-// Buffer &Buffer::operator=(const Buffer &other) {
-// if (this == &other) {
-// return *this;
-//}
-// expand(other.capacity_);
-// std::memset(data_, 0, capacity_ * sizeof(char));
-// std::memcpy(data_, other.data_, size_ * sizeof(char));
-// F_DEBUGF("Copy Assign: {}", toString());
-// return *this;
-//}
+Buffer &Buffer::operator=(const Buffer &other) {
+  if (this == &other) {
+    return *this;
+  }
+  expand(other.capacity_);
+  std::memset(data_, 0, capacity_ * sizeof(char));
+  std::memcpy(data_, other.data_, size_ * sizeof(char));
+  F_DEBUGF("Copy Assign: {}", toString());
+  return *this;
+}
 
 Buffer::Buffer(Buffer &&other) : Buffer() {
   std::swap(data_, other.data_);
