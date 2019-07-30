@@ -4,7 +4,6 @@
 #include "Line.h"
 #include "Buffer.h"
 #include "Profile.h"
-#include "Util.h"
 #include "fmt/format.h"
 
 namespace fastype {

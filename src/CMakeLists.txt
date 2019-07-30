@@ -3,7 +3,9 @@
 
 cmake_minimum_required(VERSION 3.8)
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
-configure_file(Config.h.in ../src/Config.h)
+message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
+message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
+configure_file(Config.h.in ../../src/Config.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})

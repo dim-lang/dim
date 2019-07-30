@@ -34,6 +34,7 @@ set(F_LIB
     boost_program_options-mt
     boost_timer-mt
     boost_chrono-mt
+    boost_system
     icuuc
     icuio
     icudata
