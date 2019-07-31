@@ -43,6 +43,7 @@ void NCursesTerm::show(const std::string &fileName) {
       refresh();
     }
   }
+  getch();
   endwin();
 }
 

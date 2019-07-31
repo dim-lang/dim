@@ -60,10 +60,5 @@ int main(int argc, char **argv) {
   shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
   term->show(fileNameList[0]);
 
-  int x;
-  std::cout << "Press any key to quit..." << std::endl;
-  std::cin >> x;
-
-  // shared_ptr<File> f = File::open(fileNameList[0]);
   return 0;
 }
