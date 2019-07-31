@@ -13,7 +13,7 @@ namespace fastype {
 class Line : public Logging, Stringify {
 public:
   Line();
-  Line(int lineNumber, int dirty);
+  Line(int capacity, int lineNumber, int dirty);
   Line(const Line &other) = default;
   Line &operator=(const Line &other) = default;
   Line(Line &&other) = default;

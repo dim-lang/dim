@@ -13,8 +13,8 @@ Line::Line()
   F_DEBUGF("No Args Constructor:{}", toString());
 }
 
-Line::Line(int lineNumber, int dirty)
-    : Logging("Line"), data_(new Buffer()), lineNumber_(lineNumber),
+Line::Line(int capacity, int lineNumber, int dirty)
+    : Logging("Line"), data_(new Buffer(capacity)), lineNumber_(lineNumber),
       dirty_(dirty) {
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{} >= 0", lineNumber_);
   F_DEBUGF("lineNumber/dirty Args Constructor:{}", toString());

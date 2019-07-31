@@ -139,9 +139,8 @@ int64_t File::load() {
       break;
     }
 
-    Line l(lineList_.size(), false);
-    int sz = lineBreak - start + 1;                    // 1 is for '\n'
-    l.expand(std::max<int>(sz + 1, l.capacity() * 2)); // 1 is for '\0'
+    int sz = lineBreak - start + 1;          // 1 is for '\n'
+    Line l(sz + 1, lineList_.size(), false); // 1 is for '\0'
     std::memcpy(l.data(), start, sz);
     l.setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
     l[sz] = '\0';
