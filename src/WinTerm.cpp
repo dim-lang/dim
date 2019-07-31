@@ -5,12 +5,12 @@
 
 namespace fastype {
 
-WinTerm::WinTerm() : Term(), Logging("WinTerm") { F_DEBUG(log, "Construct"); }
+WinTerm::WinTerm() : Term(), Logging() { F_DEBUG("Construct"); }
 
-WinTerm::~WinTerm() { F_DEBUG(log, "Destruct"); }
+WinTerm::~WinTerm() { F_DEBUG("Destruct"); }
 
 void WinTerm::show(const std::string &fileName) {
-  F_DEBUGF(log, "show fileName:{}", fileName);
+  F_DEBUGF("show fileName:{}", fileName);
 }
 
 } // namespace fastype

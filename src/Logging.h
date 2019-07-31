@@ -85,8 +85,9 @@ public:
 
 class Logging {
 public:
-  Logging(const std::string &loggingName)
-      : logging_(LogManager::getLogger(loggingName)) {}
+  Logging() : logging_(LogManager::getLogger("fastype")) {}
+  Logging(const std::string &loggerName)
+      : logging_(LogManager::getLogger(loggerName)) {}
 
 protected:
   std::shared_ptr<Logger> logging_;

@@ -18,9 +18,7 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() : Term(), Logging("NCursesTerm") {
-  F_DEBUG("Construct");
-}
+NCursesTerm::NCursesTerm() : Term(), Logging() { F_DEBUG("Construct"); }
 
 NCursesTerm::~NCursesTerm() { F_DEBUG("Destruct"); }
 
@@ -38,7 +36,7 @@ void NCursesTerm::show(const std::string &fileName) {
     Line l = f->get(i);
     getyx(stdscr, y, x);
     F_DEBUGF("line#size:{} l:{}", l.size(), l.toString());
-    for (int j = 0; j < l.size(); j++) {
+    for (int j = 0; j < l.size() - 1; j++) {
       ch = (int)l[j];
       // F_DEBUGF("line[j](int): {}", ch);
       printw("%c", ch);

@@ -58,13 +58,12 @@ static mutex LoggerLock;
 static unordered_map<string, shared_ptr<Logger>> LoggerMap =
     unordered_map<string, shared_ptr<Logger>>();
 static string FileName;
-static const string LoggerName = "fastype";
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
   lock_guard<mutex> guard(LoggerLock);
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
     shared_ptr<spdlog::logger> spdlogger =
-        spdlog::basic_logger_mt(LoggerName, FileName);
+        spdlog::basic_logger_mt(loggerName, FileName);
     LoggerMap.insert(
         make_pair(loggerName, shared_ptr<Logger>(new Logger(spdlogger))));
   }
@@ -81,10 +80,10 @@ spdlog::set_level(spdlog::level::debug);
 spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] [%n] process-%P thread-%t %v");
 
 boost::posix_time::ptime pNow = boost::posix_time::second_clock::local_time();
-FileName = fmt::format("fastype-{}-{}-{}-{}-{}-{}.log", pNow.date().year(),
-                       pNow.date().month(), pNow.date().day(),
-                       pNow.time_of_day().hours(), pNow.time_of_day().minutes(),
-                       pNow.time_of_day().seconds());
+FileName = fmt::format(
+    "fastype-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log", pNow.date().year(),
+    pNow.date().month(), pNow.date().day(), pNow.time_of_day().hours(),
+    pNow.time_of_day().minutes(), pNow.time_of_day().seconds());
 
 F_STATIC_BLOCK_END(Log)
 
