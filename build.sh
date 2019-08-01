@@ -27,7 +27,7 @@ cd $ROOT
 if [ ! -d $DEBUG ]; then mkdir $DEBUG; fi
 if [ ! -d $RELEASE ]; then mkdir $RELEASE; fi
 
-if [ $1 == "clean" ]; then
+if [ "$1" = "clean" ]; then
     cd $DEBUG && make clean && cd $ROOT
     cd $RELEASE && make clean && cd $ROOT
     exit 0
