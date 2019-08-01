@@ -26,5 +26,12 @@ RELEASE=release
 cd $ROOT
 if [ ! -d $DEBUG ]; then mkdir $DEBUG; fi
 if [ ! -d $RELEASE ]; then mkdir $RELEASE; fi
+
+if [ $1 == "clean" ]; then
+    cd $DEBUG && make clean && cd $ROOT
+    cd $RELEASE && make clean && cd $ROOT
+    exit 0
+fi
+
 cd $DEBUG && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && make VERBOSE=1 && cd $ROOT
 cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release .. && make -j8 && cd $ROOT

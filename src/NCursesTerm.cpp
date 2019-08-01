@@ -18,16 +18,13 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() : Term(), Logging() { F_DEBUG("Construct"); }
+NCursesTerm::NCursesTerm() : Term(), Logging() {}
 
-NCursesTerm::~NCursesTerm() { F_DEBUG("Destruct"); }
+NCursesTerm::~NCursesTerm() {}
 
 void NCursesTerm::show(const std::string &fileName) {
   std::shared_ptr<File> f = File::open(fileName);
-
-  F_DEBUGF("fileName: {}", fileName);
   int ch, row, col, y, x;
-
   initscr();
   getmaxyx(stdscr, row, col);
 
