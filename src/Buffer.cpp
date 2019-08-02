@@ -152,11 +152,13 @@ const char *Buffer::data() const { return data_; }
 
 char &Buffer::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
+  F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
 const char &Buffer::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
+  F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
