@@ -31,14 +31,10 @@ const char *Line::data() const { return data_->data(); }
 
 char &Line::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
-  F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
-           data_->size());
   return (*data_)[index];
 }
 const char &Line::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
-  F_CHECKF(index < data_->size(), "index {} < data_#size {}", index,
-           data_->size());
   return (*data_)[index];
 }
 
