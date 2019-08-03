@@ -29,9 +29,9 @@ set(F_LIB
     ${CURSES_LIBRARIES}
     Threads::Threads
     boost_program_options
-    boost_timer
-    boost_chrono
     boost_system
+    boost_thread
+    boost_chrono
     icuuc
     icuio
     icudata

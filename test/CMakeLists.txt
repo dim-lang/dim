@@ -37,6 +37,7 @@ set(T_SRC
     LoggingTest.cpp
     LineTest.cpp
     ConfigTest.cpp
+    ProfileTest.cpp
     )
 
 include_directories(${F_INC})

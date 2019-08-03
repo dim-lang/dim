@@ -32,9 +32,9 @@ set(F_LIB
     Threads::Threads
     fmt
     boost_program_options-mt
-    boost_timer-mt
+    boost_system-mt
+    boost_thread-mt
     boost_chrono-mt
-    boost_system
     icuuc
     icuio
     icudata
