@@ -6,7 +6,7 @@
 #include "boost/assert.hpp"
 #include "boost/preprocessor/cat.hpp"
 #include "fmt/format.h"
-#include <ctime>
+#include <chrono>
 #include <string>
 
 #ifdef NDEBUG
@@ -55,8 +55,8 @@ public:
   void resume();
 
 private:
-  clock_t timestamp_;
-  int count_;
+  std::chrono::system_clock::time_point timestamp_;
+  std::chrono::milliseconds count_;
   bool stop_;
 };
 } // namespace fastype

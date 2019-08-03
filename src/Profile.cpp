@@ -2,15 +2,14 @@
 // Apache License Version 2.0
 
 #include "Profile.h"
-#include <ctime>
 
 namespace fastype {
 
 #ifdef NDEBUG
 
-Timer::Timer() : timestamp_(0), count_(0), stop_(false) {}
+Timer::Timer() {}
 
-int Timer::elapse() { return count_; }
+int Timer::elapse() { return 0; }
 
 void Timer::stop() {}
 
@@ -18,14 +17,22 @@ void Timer::resume() {}
 
 #else
 
-Timer::Timer() : timestamp_(clock()), count_(0), stop_(false) {}
+Timer::Timer()
+    : timestamp_(std::chrono::system_clock::now()),
+      count_(std::chrono::milliseconds::zero()), stop_(false) {}
 
-int Timer::elapse() { return count_; }
+int Timer::elapse() {
+  std::chrono::system_clock::time_point tmp = std::chrono::system_clock::now();
+  count_ +=
+      std::chrono::duration_cast<std::chrono::milliseconds>(tmp - timestamp_);
+  return count_.count();
+}
 
 void Timer::stop() {
   F_CHECKF(!stop_, "stop_ {} is false", stop_);
-  clock_t tmp = clock();
-  count_ += tmp - timestamp_;
+  std::chrono::system_clock::time_point tmp = std::chrono::system_clock::now();
+  count_ +=
+      std::chrono::duration_cast<std::chrono::milliseconds>(tmp - timestamp_);
   timestamp_ = tmp;
   stop_ = true;
 }
@@ -33,6 +40,7 @@ void Timer::stop() {
 void Timer::resume() {
   F_CHECKF(stop_, "stop_ {} is true", stop_);
   stop_ = false;
+  timestamp_ = std::chrono::system_clock::now();
 }
 
 #endif
