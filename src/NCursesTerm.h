@@ -16,6 +16,10 @@ public:
   virtual ~NCursesTerm();
 
   virtual void show(const std::string &fileName);
+
+private:
+  int row_;
+  int col_;
 };
 
 } // namespace fastype
