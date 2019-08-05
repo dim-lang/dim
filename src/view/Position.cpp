@@ -29,34 +29,6 @@ bool Position::operator!=(const Position &other) const {
   return !(*this == other);
 }
 
-bool Position::operator>(const Position &other) const {
-  F_CHECKF(row_ == other.row_ || col_ == other.col_, "this: {} other: {}",
-           toString(), other.toString());
-  if (row_ == other.row_) {
-    return col_ > other.col_;
-  } else {
-    return row_ > other.row_;
-  }
-}
-
-bool Position::operator>=(const Position &other) const {
-  return *this > other || *this == other;
-}
-
-bool Position::operator<(const Position &other) const {
-  F_CHECKF(row_ == other.row_ || col_ == other.col_, "this: {} other: {}",
-           toString(), other.toString());
-  if (row_ == other.row_) {
-    return col_ < other.col_;
-  } else {
-    return row_ < other.row_;
-  }
-}
-
-bool Position::operator<=(const Position &other) const {
-  return *this < other || *this == other;
-}
-
 std::string Position::toString() const {
   return fmt::format("[ @Position row_:{} col_:{} ]", row_, col_);
 }

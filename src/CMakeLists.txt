@@ -42,9 +42,9 @@ set(F_CORE
     Term.cpp
     Global.cpp
     File.cpp
-    Position.cpp
     Line.cpp
     Buffer.cpp
+    view/Position.cpp
     )
 set(F_SRC
     fastype.cpp

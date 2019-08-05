@@ -76,10 +76,18 @@ public:
   virtual void setRow(int row) = 0;
   virtual void setColumn(int column) = 0;
 
-  virtual int leftUp() const = 0;
-  virtual int rightUp() const = 0;
-  virtual int leftDown() const = 0;
-  virtual int rightDown() const = 0;
+  //
+  // leftUpX = x1 + row
+  // leftUpY = y1 + column
+
+  virtual Position leftUp() const = 0;
+  virtual int leftUpY() const = 0;
+  virtual int rightUpX() const = 0;
+  virtual int rightUpY() const = 0;
+  virtual int leftDownX() const = 0;
+  virtual int leftDownY() const = 0;
+  virtual int rightDownX() const = 0;
+  virtual int rightDownY() const = 0;
 
   virtual void update() = 0;
 };

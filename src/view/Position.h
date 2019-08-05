@@ -15,6 +15,10 @@ class Position : public Stringify, Logging {
 public:
   Position();
   Position(int row, int col);
+  Position(const Position &) = default;
+  Position &operator=(const Position &) = default;
+  Position(Position &&) = default;
+  Position &operator=(Position &&) = default;
   virtual ~Position() = default;
 
   int &row();
@@ -24,12 +28,6 @@ public:
 
   bool operator==(const Position &other) const;
   bool operator!=(const Position &other) const;
-
-  // > >= < <= compares one row or one column
-  bool operator>(const Position &other) const;
-  bool operator>=(const Position &other) const;
-  bool operator<(const Position &other) const;
-  bool operator<=(const Position &other) const;
 
   virtual std::string toString() const;
 
