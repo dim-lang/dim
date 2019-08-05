@@ -43,7 +43,6 @@ set(F_CORE
     Global.cpp
     File.cpp
     Position.cpp
-    View.cpp
     Line.cpp
     Buffer.cpp
     )
@@ -71,9 +70,4 @@ set_target_properties(ftcore PROPERTIES VERSION ${PROJECT_VERSION})
 add_executable(fastype ${F_SRC})
 target_include_directories(fastype PRIVATE ${F_INC})
 target_link_libraries(fastype ${F_LIB} ftcore)
-set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
-
-add_executable(fastyped ${FD_SRC})
-target_include_directories(fastyped PRIVATE ${F_INC})
-target_link_libraries(fastyped ${F_LIB} ftcore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
