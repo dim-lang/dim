@@ -2,94 +2,106 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "ViewType.h"
+#include "boost/noncopyable.hpp"
+#include "view/Area.h"
+#include "view/Position.h"
+#include "view/ViewType.h"
 #include <memory>
 
 namespace fastype {
 
-class View {
+class View : boost::noncopyable {
 public:
-  virtual std::string name() const = 0;
-  virtual void setName(const std::string &name) = 0;
-  virtual std::shared_ptr<View> parent() const = 0;
-  virtual void setParent(std::shared_ptr<View> parent) = 0;
-  virtual enum ViewType type() const = 0;
+  virtual ~View();
 
-  //
-  //  row
-  //  |
-  //  |
-  //  x------------(x,y)
-  //  |             |
-  //  |             |
-  //  |             |
-  //  o-------------y------col
-  //
+  // root view's parent is null
+  std::shared_ptr<View> open(std::shared_ptr<View> parent,
+                             const std::string &name);
 
-  // relatively
-  // this *View* coordinates are:
-  //
-  // (0, 0)------------------(0, width-1)
-  //  |                                |
-  //  |                                |
-  // (height-1, 0)----(height-1, width-1)
+  // all children view will be closed recursively
+  void close(std::shared_ptr<View> view);
 
-  virtual int height() const = 0;
-  virtual int width() const = 0;
-  virtual void setHeight(int height) = 0;
-  virtual void setWidth(int width) = 0;
+  virtual std::string name() const;
+  virtual void setName(const std::string &name);
 
-  // absolutely
-  // assume parent coordinates are:
+  virtual std::shared_ptr<View> parent() const;
+  virtual void setParent(std::shared_ptr<View> parent);
+
+  virtual enum ViewType type() const;
+
+  // area
+  virtual const Area &area() const;
+  virtual void setArea(const Area &a);
+
+  // this View's relative coordinates are:
   //
-  // (x1, y1)------(x2, y2)
-  //  |                  |
-  //  |                  |
-  // (x3, y3)------(x4, y4)
+  // p1-----p2
+  //  |     |
+  //  |     |
+  // p4-----p3
+
+  virtual const Position &r1() const;
+  virtual void setR1(const Position &r);
+
+  virtual const Position &r2() const;
+  virtual void setR2(const Position &r);
+
+  virtual const Position &r3() const;
+  virtual void setR3(const Position &r);
+
+  virtual const Position &r4() const;
+  virtual void setR4(const Position &r);
+
+  // assume View's parent coordinates are:
   //
-  // then this *View* coordinates are:
+  // p5=(x5, y5)------p6=(x6, y6)
+  // |                 |
+  // |                 |
+  // p8=(x8, y8)------p7=(x7, y7)
   //
-  // (x1+row, y1+column)------------------------(x1+row, y1+column+width-1)
-  //  |                                                                  |
-  //  |                                                                  |
-  // (x1+row+height-1, y1+column-1)----(x1+row+height-1, y1+column+width-1)
+  // p1 coordinate of this View relative to its parent p5 coordinate is:
+  // (r = p1.x - p5.x, c = p1.y - p5.y)
+  //
+  // then this View's absolute coordinates are:
+  //
+  // p1=(x5+r, y5+c)-------------p2=(x5+r, y5+c+width-1)
+  // |                           |
+  // |                           |
+  // p4=(x5+r+height-1, y5+c)----p3=(x5+r+height-1, y5+c+width-1)
   //
   // as picture shows:
   //
-  // (x1,y1)                     (x2,y2)
+  // (x5,y5)                     (x6,y6)
   //  o---------------------------o
   //  |                           |
-  //  | (x1+row,y1+column)        |
+  //  | (x5+r,y5+c)   (x5+r, y5+c+width-1)
   //  |      o--------------o     |
   //  |      |              |     |
   //  |      |              |     |
   //  |      |              |     |
   //  |      |              |     |
   //  |      o--------------o     |
-  //  |                           |
+  //  |     ...            ...    |
   //  |                           |
   //  o---------------------------o
-  // (x3,y3)                     (x4,y4)
+  // (x8,y8)                     (x7,y7)
 
-  virtual int row() const = 0;
-  virtual int column() const = 0;
-  virtual void setRow(int row) = 0;
-  virtual void setColumn(int column) = 0;
+  virtual const Position &a1() const;
+  virtual void setA1(const Position &a);
 
-  //
-  // leftUpX = x1 + row
-  // leftUpY = y1 + column
+  virtual const Position &a2() const;
+  virtual void setA2(const Position &a);
 
-  virtual Position leftUp() const = 0;
-  virtual int leftUpY() const = 0;
-  virtual int rightUpX() const = 0;
-  virtual int rightUpY() const = 0;
-  virtual int leftDownX() const = 0;
-  virtual int leftDownY() const = 0;
-  virtual int rightDownX() const = 0;
-  virtual int rightDownY() const = 0;
+  virtual const Position &a3() const;
+  virtual void setA3(const Position &a);
 
-  virtual void update() = 0;
+  virtual const Position &a4() const;
+  virtual void setA4(const Position &a);
+
+  // render
+  virtual void update();
+
+private:
 };
 
 } // namespace fastype

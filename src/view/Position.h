@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "Stringify.h"
+#include "view/G2.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -11,29 +11,30 @@
 
 namespace fastype {
 
-class Position : public Stringify, Logging {
+class Position : public Stringify {
 public:
   Position();
   Position(int row, int col);
+
   Position(const Position &) = default;
   Position &operator=(const Position &) = default;
   Position(Position &&) = default;
   Position &operator=(Position &&) = default;
   virtual ~Position() = default;
 
-  int &row();
+  const int &row() const;
   int setRow(int row);
-  int &column();
-  int setColumn(int col);
+  const int &column() const;
+  int setColumn(int column);
 
+  // compare two position
   bool operator==(const Position &other) const;
   bool operator!=(const Position &other) const;
 
   virtual std::string toString() const;
 
 private:
-  int row_;
-  int col_;
+  G2 g2_;
 };
 
 } // namespace fastype

@@ -8,12 +8,13 @@
 
 namespace fastype {
 
-Line::Line() : Logging(), data_(new Buffer()), lineNumber_(-1), dirty_(false) {
+Line::Line()
+    : Logging("Line"), data_(new Buffer()), lineNumber_(-1), dirty_(false) {
   F_DEBUGF("No Args Constructor:{}", toString());
 }
 
 Line::Line(int capacity, int lineNumber, int dirty)
-    : Logging(), data_(new Buffer(capacity)), lineNumber_(lineNumber),
+    : Logging("Line"), data_(new Buffer(capacity)), lineNumber_(lineNumber),
       dirty_(dirty) {
   F_CHECKF(lineNumber_ >= 0, "lineNumber_:{} >= 0", lineNumber_);
   F_DEBUGF("lineNumber/dirty Args Constructor:{}", toString());

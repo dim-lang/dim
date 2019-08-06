@@ -44,7 +44,10 @@ set(F_CORE
     File.cpp
     Line.cpp
     Buffer.cpp
+    view/G2.cpp
     view/Position.cpp
+    view/Area.cpp
+    view/View.cpp
     )
 set(F_SRC
     fastype.cpp

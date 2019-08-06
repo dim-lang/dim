@@ -16,8 +16,8 @@
 namespace fastype {
 
 File::File(const std::string &fileName)
-    : Logging(), fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
-      loaded_(false), readBuffer_() {
+    : Logging("File"), fileName_(fileName),
+      fd_(std::fopen(fileName.data(), "rw")), loaded_(false), readBuffer_() {
   readBuffer_.expand(BUF_SIZE);
   std::memset(readBuffer_.data(), 0, BUF_SIZE * sizeof(char));
   F_DEBUGF("File:{}", toString());

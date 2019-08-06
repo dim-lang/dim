@@ -1,36 +1,40 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Position.h"
+#include "view/Position.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
+#include "view/G2.h"
 #include <utility>
 
 namespace fastype {
 
-Position::Position() : Logging(), row_(-1), col_(-1) {}
+Position::Position() : g2_() {}
 
-Position::Position(int row, int column) : Logging(), row_(row), col_(column) {}
+Position::Position(int row, int column) : g2_(row, col) {
+  F_CHECKF(row >= 0, "row {} >= 0", row);
+  F_CHECKF(column >= 0, "col {} >= 0", column);
+}
 
-int &Position::row() { return row_; }
+const int &Position::row() const { return g2_.x(); }
 
-int Position::setRow(int row) { return std::exchange(row_, row); }
+int Position::setRow(int row) { return g2_.setX(row); }
 
-int &Position::column() { return col_; }
+const int &Position::column() const { return g2_.y(); }
 
-int Position::setColumn(int column) { return std::exchange(col_, column); }
+int Position::setColumn(int column) { return g2_.setY(column); }
 
 bool Position::operator==(const Position &other) const {
-  return row_ == other.row_ && col_ == other.col_;
+  return g2_ == other.g2_;
 }
 
 bool Position::operator!=(const Position &other) const {
-  return !(*this == other);
+  return g2_ != other.g2_;
 }
 
 std::string Position::toString() const {
-  return fmt::format("[ @Position row_:{} col_:{} ]", row_, col_);
+  return fmt::format("[ @Position row_:{} col_:{} ]", g2_.x(), g2_.y());
 }
 
 } // namespace fastype

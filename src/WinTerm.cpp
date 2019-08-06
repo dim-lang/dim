@@ -5,7 +5,7 @@
 
 namespace fastype {
 
-WinTerm::WinTerm() : Term(), Logging() { F_DEBUG("Construct"); }
+WinTerm::WinTerm() : Term(), Logging("WinTerm") { F_DEBUG("Construct"); }
 
 WinTerm::~WinTerm() { F_DEBUG("Destruct"); }
 

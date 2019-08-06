@@ -18,7 +18,7 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() : Term(), Logging() {}
+NCursesTerm::NCursesTerm() : Term(), Logging("NCursesTerm") {}
 
 NCursesTerm::~NCursesTerm() {}
 
