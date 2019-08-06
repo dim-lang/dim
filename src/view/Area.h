@@ -36,7 +36,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  G2 g2_;
+  detail::G2 g2_;
 };
 
 } // namespace fastype

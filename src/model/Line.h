@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Buffer.h"
 #include "Logging.h"
 #include "Stringify.h"
 #include "boost/noncopyable.hpp"
+#include "model/Buffer.h"
 #include <vector>
 
 namespace fastype {

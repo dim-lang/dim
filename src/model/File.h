@@ -2,11 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Buffer.h"
-#include "Line.h"
 #include "Logging.h"
 #include "Stringify.h"
 #include "boost/core/noncopyable.hpp"
+#include "model/Buffer.h"
+#include "model/Line.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>

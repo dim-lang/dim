@@ -9,6 +9,8 @@
 
 namespace fastype {
 
+namespace detail {
+
 G2::G2() : Logging("G2"), x_(-1), y_(-1) {}
 
 G2::G2(int x, int y) : Logging("G2"), x_(x), y_(y) {}
@@ -30,5 +32,7 @@ bool G2::operator!=(const G2 &other) const { return !(*this == other); }
 std::string G2::toString() const {
   return fmt::format("[ @G2 x_:{} y_:{} ]", x_, y_);
 }
+
+} // namespace detail
 
 } // namespace fastype

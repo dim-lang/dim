@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Buffer.h"
+#include "model/Buffer.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "boost/align/align_up.hpp"

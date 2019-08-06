@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Line.h"
 #include "boost/noncopyable.hpp"
 #include "view/Area.h"
 #include "view/Position.h"
@@ -12,14 +13,11 @@ namespace fastype {
 
 class View : boost::noncopyable {
 public:
-  virtual ~View();
-
   // root view's parent is null
-  std::shared_ptr<View> open(std::shared_ptr<View> parent,
-                             const std::string &name);
+  static std::shared_ptr<View> root();
 
-  // all children view will be closed recursively
-  void close(std::shared_ptr<View> view);
+  View(std::shared_ptr<View> parent, const std::string &name);
+  virtual ~View();
 
   virtual std::string name() const;
   virtual void setName(const std::string &name);
@@ -102,6 +100,7 @@ public:
   virtual void update();
 
 private:
+  std::vector<Line> lineList_;
 };
 
 } // namespace fastype
