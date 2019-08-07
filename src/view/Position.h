@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "G2.h"
 #include "Stringify.h"
-#include "view/G2.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -34,7 +34,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  detail::G2 g2_;
+  G2 g2_;
 };
 
 } // namespace fastype

@@ -1,15 +1,13 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "view/G2.h"
+#include "G2.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
 #include <utility>
 
 namespace fastype {
-
-namespace detail {
 
 G2::G2() : Logging("G2"), x_(-1), y_(-1) {}
 
@@ -32,7 +30,5 @@ bool G2::operator!=(const G2 &other) const { return !(*this == other); }
 std::string G2::toString() const {
   return fmt::format("[ @G2 x_:{} y_:{} ]", x_, y_);
 }
-
-} // namespace detail
 
 } // namespace fastype

@@ -11,8 +11,6 @@
 
 namespace fastype {
 
-namespace detail {
-
 // G2 can be present for multiple concept
 // On 2D plane, G2 can be :
 //
@@ -50,7 +48,5 @@ private:
   int x_;
   int y_;
 };
-
-} // namespace detail
 
 } // namespace fastype

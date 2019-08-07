@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #include "view/Position.h"
+#include "G2.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
-#include "view/G2.h"
 #include <utility>
 
 namespace fastype {
