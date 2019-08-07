@@ -37,18 +37,27 @@ public:
   //  |     |
   //  |     |
   // p4-----p3
+  //
+  // 4 relative coordinates must meet these conditions:
+  // p1.row == p2.row, p1.column == p4.column
+  // p2.column == p3.column, p3.row == p4.row
+  // p2.column > p1.column, p3.row > p2.row
+  // p4.column < p3.column, p1.row < p4.row
+  //
+  // in setting methods, these conditions can be temporary broke
+  // but checked in getting methods, the same applies to absolute coordinates
 
-  virtual const Position &r1() const;
-  virtual void setR1(const Position &r);
+  virtual const Position &p1() const;
+  virtual void setP1(const Position &r);
 
-  virtual const Position &r2() const;
-  virtual void setR2(const Position &r);
+  virtual const Position &p2() const;
+  virtual void setP2(const Position &r);
 
-  virtual const Position &r3() const;
-  virtual void setR3(const Position &r);
+  virtual const Position &p3() const;
+  virtual void setP3(const Position &r);
 
-  virtual const Position &r4() const;
-  virtual void setR4(const Position &r);
+  virtual const Position &p4() const;
+  virtual void setP4(const Position &r);
 
   // assume View's parent coordinates are:
   //
@@ -84,23 +93,34 @@ public:
   //  o---------------------------o
   // (x8,y8)                     (x7,y7)
 
-  virtual const Position &a1() const;
-  virtual void setA1(const Position &a);
+  virtual const Position &absP1() const;
+  virtual void setAbsP1(const Position &a);
 
-  virtual const Position &a2() const;
-  virtual void setA2(const Position &a);
+  virtual const Position &absP2() const;
+  virtual void setAbsP2(const Position &a);
 
-  virtual const Position &a3() const;
-  virtual void setA3(const Position &a);
+  virtual const Position &absP3() const;
+  virtual void setAbsP3(const Position &a);
 
-  virtual const Position &a4() const;
-  virtual void setA4(const Position &a);
+  virtual const Position &absP4() const;
+  virtual void setAbsP4(const Position &a);
 
   // render
   virtual void update();
 
+  // view line conditions:
+  // line#size <= width
+  // 0 <= lineNumber < height
+  virtual const Line &get(int lineNumber);
+  virtual void set(int lineNumber, const Line &l);
+
 private:
+  // root constructor
+  Window();
+
   std::vector<Line> lineList_;
+  Area area_;
+  Position p1_; // relative p1
 };
 
 } // namespace fastype
