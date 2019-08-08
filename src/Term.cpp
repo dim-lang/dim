@@ -2,16 +2,14 @@
 // Apache License Version 2.0
 
 #include "Term.h"
+#include "ConcurrentHashMap.h"
 #include "Logging.h"
 #include <boost/config.hpp>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
-#include <unordered_map>
 
 #if BOOST_WINDOWS
 #include "WinTerm.h"
@@ -21,12 +19,10 @@
 
 namespace fastype {
 
-static std::mutex TermLock;
-static std::unordered_map<std::string, std::shared_ptr<Term>> TermMap =
-    std::unordered_map<std::string, std::shared_ptr<Term>>();
+static ConcurrentHashMap<std::string, std::shared_ptr<Term>> TermMap;
 
 std::shared_ptr<Term> Term::open(const std::string &termName) {
-  std::lock_guard<std::mutex> guard(TermLock);
+  TermMap.lock();
   if (TermMap.find(termName) == TermMap.end()) {
 
 #if BOOST_WINDOWS
@@ -37,6 +33,7 @@ std::shared_ptr<Term> Term::open(const std::string &termName) {
 
     TermMap.insert(std::make_pair(termName, term));
   }
+  TermMap.unlock();
   return TermMap[termName];
 }
 

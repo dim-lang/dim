@@ -6,9 +6,7 @@
 #include "spdlog/spdlog.h"
 #include <cstdio>
 #include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
 
 namespace fastype {
 

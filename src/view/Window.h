@@ -3,35 +3,39 @@
 
 #pragma once
 #include "Line.h"
+#include "Logging.h"
 #include "boost/noncopyable.hpp"
 #include "view/Area.h"
+#include "view/Cursor.h"
 #include "view/Position.h"
-#include "view/ViewType.h"
 #include <memory>
 
 namespace fastype {
 
-class View : boost::noncopyable {
+class Window : boost::noncopyable, public Logging {
 public:
-  // root view's parent is null
-  static std::shared_ptr<View> root();
+  // root window's parent is null
+  static std::shared_ptr<Window> root();
 
-  View(std::shared_ptr<View> parent, const std::string &name);
-  virtual ~View();
+  static std::shared_ptr<Window> open(std::shared_ptr<Window> parent,
+                                      const std::string &name,
+                                      const Position &p1, int height,
+                                      int width);
+
+  static void close(std::shared_ptr<Window> window);
+  static void close(const std::string &name);
 
   virtual std::string name() const;
   virtual void setName(const std::string &name);
 
-  virtual std::shared_ptr<View> parent() const;
-  virtual void setParent(std::shared_ptr<View> parent);
-
-  virtual enum ViewType type() const;
+  virtual std::shared_ptr<Window> parent() const;
+  virtual void setParent(std::shared_ptr<Window> parent);
 
   // area
   virtual const Area &area() const;
-  virtual void setArea(const Area &a);
+  virtual void setArea(const Area &area);
 
-  // this View's relative coordinates are:
+  // this Window's relative coordinates are:
   //
   // p1-----p2
   //  |     |
@@ -48,28 +52,28 @@ public:
   // but checked in getting methods, the same applies to absolute coordinates
 
   virtual const Position &p1() const;
-  virtual void setP1(const Position &r);
+  virtual void setP1(const Position &p);
 
   virtual const Position &p2() const;
-  virtual void setP2(const Position &r);
+  virtual void setP2(const Position &p);
 
   virtual const Position &p3() const;
-  virtual void setP3(const Position &r);
+  virtual void setP3(const Position &p);
 
   virtual const Position &p4() const;
-  virtual void setP4(const Position &r);
+  virtual void setP4(const Position &p);
 
-  // assume View's parent coordinates are:
+  // assume Window's parent coordinates are:
   //
   // p5=(x5, y5)------p6=(x6, y6)
   // |                 |
   // |                 |
   // p8=(x8, y8)------p7=(x7, y7)
   //
-  // p1 coordinate of this View relative to its parent p5 coordinate is:
+  // p1 coordinate of this Window relative to its parent p5 coordinate is:
   // (r = p1.x - p5.x, c = p1.y - p5.y)
   //
-  // then this View's absolute coordinates are:
+  // then this Window's absolute coordinates are:
   //
   // p1=(x5+r, y5+c)-------------p2=(x5+r, y5+c+width-1)
   // |                           |
@@ -94,33 +98,42 @@ public:
   // (x8,y8)                     (x7,y7)
 
   virtual const Position &absP1() const;
-  virtual void setAbsP1(const Position &a);
+  virtual void setAbsP1(const Position &p);
 
   virtual const Position &absP2() const;
-  virtual void setAbsP2(const Position &a);
+  virtual void setAbsP2(const Position &p);
 
   virtual const Position &absP3() const;
-  virtual void setAbsP3(const Position &a);
+  virtual void setAbsP3(const Position &p);
 
   virtual const Position &absP4() const;
-  virtual void setAbsP4(const Position &a);
+  virtual void setAbsP4(const Position &p);
 
   // render
   virtual void update();
 
-  // view line conditions:
+  // window line conditions:
   // line#size <= width
   // 0 <= lineNumber < height
   virtual const Line &get(int lineNumber);
   virtual void set(int lineNumber, const Line &l);
 
+  virtual Cursor &cursor();
+
 private:
   // root constructor
   Window();
+  // non-root constructor
+  Window(std::shared_ptr<Window> parent, const std::string &name,
+         const Position &p1, int height, int width);
+  virtual ~Window();
 
+  std::string name_;
+  std::shared_ptr<Window> parent_;
   std::vector<Line> lineList_;
   Area area_;
   Position p1_; // relative p1
+  Cursor cursor_;
 };
 
 } // namespace fastype

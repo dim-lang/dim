@@ -23,9 +23,9 @@ public:
   virtual ~Area() = default;
 
   const int &height() const;
-  int setHeight(int height);
+  Area &setHeight(int height);
   const int &width() const;
-  int setWidth(int width);
+  Area &setWidth(int width);
 
   bool operator==(const Area &other) const;
   bool operator!=(const Area &other) const;

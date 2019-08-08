@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Logging.h"
+#include "ConcurrentHashMap.h"
 #include "StaticBlock.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "fmt/format.h"
@@ -9,17 +10,11 @@
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
 #include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
-#include <unordered_map>
-using std::lock_guard;
 using std::make_pair;
-using std::mutex;
 using std::shared_ptr;
 using std::string;
 using std::to_string;
-using std::unordered_map;
 
 namespace fastype {
 
@@ -54,19 +49,18 @@ string FormatLocation(const detail::Location &location, const char *fmtMsg) {
 
 }; // namespace detail
 
-static mutex LoggerLock;
-static unordered_map<string, shared_ptr<Logger>> LoggerMap =
-    unordered_map<string, shared_ptr<Logger>>();
+static ConcurrentHashMap<string, shared_ptr<Logger>> LoggerMap;
 static string FileName;
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
-  lock_guard<mutex> guard(LoggerLock);
+  LoggerMap.lock();
   if (LoggerMap.find(loggerName) == LoggerMap.end()) {
     shared_ptr<spdlog::logger> spdlogger =
         spdlog::basic_logger_mt(loggerName, FileName);
     LoggerMap.insert(
         make_pair(loggerName, shared_ptr<Logger>(new Logger(spdlogger))));
   }
+  LoggerMap.unlock();
   return LoggerMap[loggerName];
 }
 

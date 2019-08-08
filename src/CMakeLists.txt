@@ -41,19 +41,19 @@ set(F_CORE
     Profile.cpp
     Term.cpp
     Global.cpp
-    File.cpp
     Line.cpp
     Buffer.cpp
-    view/G2.cpp
+
+    graph2/G2.cpp
+
+    model/ModelFile.cpp
+
     view/Position.cpp
     view/Area.cpp
-    view/View.cpp
+    view/Window.cpp
     )
 set(F_SRC
     fastype.cpp
-    )
-set(FD_SRC
-    fastyped.cpp
     )
 
 if (MSVC)

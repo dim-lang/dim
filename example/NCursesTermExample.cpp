@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
-#include <mutex>
 #include <ncurses.h>
 #include <string>
 #include <thread>

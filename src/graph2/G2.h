@@ -35,9 +35,9 @@ public:
   virtual ~G2() = default;
 
   const int &x() const;
-  int setX(int x);
+  G2 &setX(int x);
   const int &y() const;
-  int setY(int y);
+  G2 &setY(int y);
 
   bool operator==(const G2 &other) const;
   bool operator!=(const G2 &other) const;

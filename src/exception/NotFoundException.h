@@ -2,12 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
-#include "model/File.h"
-#include <memory>
+#include "exception/DeclExcept.h"
 
 namespace fastype {
 
-class FileManager : public Logging {};
+F_DECL_EXCEPT(NotFoundException);
 
 } // namespace fastype

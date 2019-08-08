@@ -23,9 +23,9 @@ public:
   virtual ~Position() = default;
 
   const int &row() const;
-  int setRow(int row);
+  Position &setRow(int row);
   const int &column() const;
-  int setColumn(int column);
+  Position &setColumn(int column);
 
   // compare two position
   bool operator==(const Position &other) const;

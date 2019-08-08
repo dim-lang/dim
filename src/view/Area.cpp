@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "view/Area.h"
+#include "Profile.h"
 #include "fmt/format.h"
 
 namespace fastype {
@@ -15,11 +16,17 @@ Area::Area(int height, int width) : g2_(height, width) {
 
 const int &Area::height() const { return g2_.x(); }
 
-int Area::setHeight(int height) { return g2_.setX(height); }
+Area &Area::setHeight(int height) {
+  g2_.setX(height);
+  return *this;
+}
 
 const int &Area::width() const { return g2_.y(); }
 
-int Area::setWidth(int width) { return g2_.setY(width); }
+Area &Area::setWidth(int width) {
+  g2_.setY(width);
+  return *this;
+}
 
 bool Area::operator==(const Area &other) const { return g2_ == other.g2_; }
 
