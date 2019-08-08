@@ -4,16 +4,21 @@
 #include "view/Window.h"
 #include "ConcurrentHashMap.h"
 #include "Profile.h"
+#include <atomic>
 #include <ncurses.h>
+#include <panel.h>
 
 namespace fastype {
 
 Window::Window()
     : Logging("Window"), name_("root"),
       parent_(std::shared_ptr<Window>(nullptr)), p1_(0, 0),
-      cursor_(std::shared_ptr<Window>(this)) {
+      cursor_(std::shared_ptr<Window>(this)), window_(nullptr),
+      panel_(nullptr) {
   int row, col;
-  getyxmax(stderr, row, col);
+  window_ = initscr();
+  panel_ = new_panel(window_);
+  getyxmax(window_, row, col);
   area_.setHeight(row);
   area_.setWidth(col);
 }
@@ -23,7 +28,8 @@ Window(std::shared_ptr<Window> parent, const std::string &name,
     : Logging("Window"), name_(name), parent_(parent),
       area_(std::min(height, parent->area().height()),
             std::min(width, parent->area().width())),
-      p1_(p1), cursor_(std::shared_ptr<Window>(this)) {
+      p1_(p1), cursor_(std::shared_ptr<Window>(this)), window_(nullptr),
+      panel_(nullptr) {
   F_CHECKF(p1_.row() != "root", "name_ {} != 'root'", name_);
   F_CHECKF(name_ != "root", "name_ {} != 'root'", name_);
   F_CHECKF(area_.height() >= 0, "area_#height {} >= 0", area_.height());
@@ -34,16 +40,29 @@ Window(std::shared_ptr<Window> parent, const std::string &name,
   F_CHECKF(area_.width() <= parent_->area().width(),
            "area_#width {} <= parent_#area#width {}", area_.width(),
            parent_->area().width());
+
+  window_ = newwin(area_.height(), area_.width(), p1_.row(), p1_.column());
+  panel_ = new_panel(window_);
 }
 
-Window::~Window() {}
+Window::~Window() {
+  if (window_) {
+    delwin(window_);
+    window_ = nullptr;
+  }
+  if (panel_) {
+    del_panel(panel_);
+    panel_ = nullptr;
+  }
+}
 
 std::shared_ptr<Window> Window::root() {
   static std::shared_ptr<Window> w(new Window());
   return w;
 }
 
-ConcurrentHashMap<std::string, std::shared_ptr<Window>> WindowMap;
+static ConcurrentHashMap<std::string, std::shared_ptr<Window>> WindowMap;
+static std::atomic_bool WindowMapDirty = false;
 
 std::shared_ptr<Window> Window::open(std::shared_ptr<Window> parent,
                                      const std::string &name) {
@@ -51,6 +70,7 @@ std::shared_ptr<Window> Window::open(std::shared_ptr<Window> parent,
   if (WindowMap.find(name) == WindowMap.end()) {
     std::shared_ptr<Window> w = std::shared_ptr<Window>(new Window());
     WindowMap.insert(std::make_pair(name, w));
+    WindowMapDirty = true;
   }
   WindowMap.unlock();
   return WindowMap[name];
@@ -62,6 +82,7 @@ void Window::close(const std::string &name) {
   if (pos != WindowMap.end()) {
     WindowMap.erase(pos);
     delete pos->second;
+    WindowMapDirty = true;
   }
   WindowMap.unlock();
 }
@@ -80,11 +101,16 @@ const Area &Window::area() const { return area_; }
 
 void Window::setArea(const Area &area) { area_ = a; }
 
-const Position &p1() const;
-void setP1(const Position &p);
+const Position &Window::p1() const { return p1_; }
 
-const Position &p2() const;
-void setP2(const Position &p);
+void Window::setP1(const Position &p) { p1_ = p; }
+
+const Position &Window::p2() const {
+  // p2 = p1 + width
+  return Position(p1_.row(), p1_.column() + area_.width());
+}
+
+void Window::setP2(const Position &p) {}
 
 const Position &p3() const;
 void setP3(const Position &p);
@@ -104,7 +130,12 @@ void setAbsP3(const Position &p);
 const Position &absP4() const;
 void setAbsP4(const Position &p);
 
-void update();
+void Window::update() {
+  if (WindowMapDirty) {
+    reorganize();
+    WindowMapDirty = false;
+  }
+}
 
 const Line &get(int lineNumber);
 void set(int lineNumber, const Line &l);

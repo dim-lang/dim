@@ -9,6 +9,7 @@
 #include "view/Cursor.h"
 #include "view/Position.h"
 #include <memory>
+#include <ncurses.h>
 
 namespace fastype {
 
@@ -128,12 +129,17 @@ private:
          const Position &p1, int height, int width);
   virtual ~Window();
 
+  // sort all windows in parent order
+  static void reorganize();
+
   std::string name_;
   std::shared_ptr<Window> parent_;
   std::vector<Line> lineList_;
   Area area_;
   Position p1_; // relative p1
   Cursor cursor_;
+  WINDOW *window_;
+  PANEL *panel_;
 };
 
 } // namespace fastype
