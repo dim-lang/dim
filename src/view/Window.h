@@ -12,6 +12,7 @@
 #include <atomic>
 #include <memory>
 #include <ncurses.h>
+#include <panel.h>
 
 namespace fastype {
 

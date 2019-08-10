@@ -19,7 +19,7 @@ Window::Window()
   int x, y;
   window_ = initscr();
   panel_ = new_panel(window_);
-  getyxmax(window_, x, y);
+  getmaxyx(window_, x, y);
   area_.setHeight(x);
   area_.setWidth(y);
 }
@@ -102,7 +102,7 @@ void Window::setParent(std::shared_ptr<Window> parent) { parent_ = parent; }
 
 const Area &Window::area() const { return area_; }
 
-void Window::setArea(const Area &area) { area_ = a; }
+void Window::setArea(const Area &area) { area_ = area; }
 
 const Position &Window::p1() const { return p1_; }
 

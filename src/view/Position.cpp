@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "view/Position.h"
-#include "G2.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
@@ -19,17 +18,11 @@ Position::Position(int x, int y) : g2_(x, y) {
 
 const int &Position::x() const { return g2_.x(); }
 
-Position &Position::setRow(int x) {
-  g2_.setX(x);
-  return *this;
-}
+void Position::setX(int x) { g2_.setX(x); }
 
 const int &Position::y() const { return g2_.y(); }
 
-Position &Position::setY(int y) {
-  g2_.setY(y);
-  return *this;
-}
+void Position::setY(int y) { g2_.setY(y); }
 
 bool Position::operator==(const Position &other) const {
   return g2_ == other.g2_;
@@ -43,7 +36,7 @@ Position Position::operator-(const Vec &v) const {
   return Position(g2_.x() - v.x(), g2_.y() - v.y());
 }
 
-Position &Position::operator-=(const Vec &v) const {
+Position &Position::operator-=(const Vec &v) {
   g2_.setX(g2_.x() - v.x());
   g2_.setY(g2_.y() - v.y());
   return *this;
@@ -53,7 +46,7 @@ Position Position::operator+(const Vec &v) const {
   return Position(g2_.x() + v.x(), g2_.y() + v.y());
 }
 
-Position &Position::operator+(const Vec &v) const {
+Position &Position::operator+=(const Vec &v) {
   g2_.setX(g2_.x() + v.x());
   g2_.setY(g2_.y() + v.y());
   return *this;

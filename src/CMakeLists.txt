@@ -47,11 +47,15 @@ set(F_CORE
     graph2/G2.cpp
 
     model/ModelFile.cpp
+    model/ModelFileManager.cpp
 
     view/Position.cpp
     view/Area.cpp
     view/Window.cpp
     view/Vec.cpp
+    #view/Cursor.cpp
+
+    controller/Key.cpp
     )
 set(F_SRC
     fastype.cpp

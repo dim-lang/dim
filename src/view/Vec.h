@@ -2,8 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "G2.h"
 #include "Stringify.h"
+#include "graph2/G2.h"
+#include "view/Position.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -15,9 +16,6 @@ class Vec : public Stringify {
 public:
   Vec();
   Vec(int x, int y);
-
-  // from a to b
-  Vec(const Position &a, const Position &b);
 
   Vec(const Vec &) = default;
   Vec &operator=(const Vec &) = default;

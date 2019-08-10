@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "G2.h"
 #include "Stringify.h"
+#include "graph2/G2.h"
 #include "view/Vec.h"
 #include <cstddef>
 #include <cstdint>
@@ -25,9 +25,9 @@ public:
   virtual ~Position() = default;
 
   const int &x() const;
-  Position &setX(int x);
+  void setX(int x);
   const int &y() const;
-  Position &setY(int y);
+  void setY(int y);
 
   // compare two position
   bool operator==(const Position &other) const;
@@ -35,9 +35,9 @@ public:
 
   // vector operator
   Position operator-(const Vec &v) const;
-  Position &operator-=(const Vec &v) const;
+  Position &operator-=(const Vec &v);
   Position operator+(const Vec &v) const;
-  Position &operator+(const Vec &v) const;
+  Position &operator+=(const Vec &v);
 
   virtual std::string toString() const;
 

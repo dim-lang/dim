@@ -2,11 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "G2.h"
+#include "graph2/G2.h"
 #include "view/Window.h"
 #include <memory>
 
 namespace fastype {
+
+class Window;
 
 class Cursor {
 public:
@@ -18,9 +20,9 @@ public:
   Cursor &operator=(Cursor &&) = default;
   virtual ~Cursor() = default;
 
-  const int &row() const = 0;
+  const int &row() const;
   Cursor &setRow(int row);
-  const int &column() const = 0;
+  const int &column() const;
   Cursor &setColumn(int column);
 
   Cursor &moveUp(int length);

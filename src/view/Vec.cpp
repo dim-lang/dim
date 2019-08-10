@@ -14,9 +14,6 @@ Vec::Vec() : g2_() {}
 
 Vec::Vec(int x, int y) : g2_(x, y) {}
 
-Vec::Vec(const Position &a, const Position &b)
-    : g2_(b.x() - a.x(), b.y() - a.y()) {}
-
 const int &Vec::x() const { return g2_.x(); }
 
 void Vec::setX(int x) { g2_.setX(x); }
