@@ -8,6 +8,8 @@
 #include "view/Area.h"
 #include "view/Cursor.h"
 #include "view/Position.h"
+#include "view/Vec.h"
+#include <atomic>
 #include <memory>
 #include <ncurses.h>
 
@@ -36,6 +38,8 @@ public:
   virtual const Area &area() const;
   virtual void setArea(const Area &area);
 
+  // p1 vector relative to parent p1
+
   // this Window's relative coordinates are:
   //
   // p1-----p2
@@ -44,10 +48,10 @@ public:
   // p4-----p3
   //
   // 4 relative coordinates must meet these conditions:
-  // p1.row == p2.row, p1.column == p4.column
-  // p2.column == p3.column, p3.row == p4.row
-  // p2.column > p1.column, p3.row > p2.row
-  // p4.column < p3.column, p1.row < p4.row
+  // p1.x == p2.x, p1.y == p4.y
+  // p2.y == p3.y, p3.x == p4.x
+  // p2.y > p1.y, p3.x > p2.x
+  // p4.y < p3.y, p1.x < p4.x
   //
   // in setting methods, these conditions can be temporary broke
   // but checked in getting methods, the same applies to absolute coordinates
@@ -124,19 +128,28 @@ public:
 private:
   // root constructor
   Window();
+
   // non-root constructor
   Window(std::shared_ptr<Window> parent, const std::string &name,
          const Position &p1, int height, int width);
+
   virtual ~Window();
+
+  Vec parentAbsP1() const;
 
   // sort all windows in parent order
   static void reorganize();
 
+  // graph
   std::string name_;
   std::shared_ptr<Window> parent_;
-  std::vector<Line> lineList_;
   Area area_;
   Position p1_; // relative p1
+  Vec parentRelativeCache_;
+  std::atomic_bool parentRelativeCacheDirty_;
+
+  // render
+  std::vector<Line> lineList_;
   Cursor cursor_;
   WINDOW *window_;
   PANEL *panel_;

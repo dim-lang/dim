@@ -4,6 +4,7 @@
 #pragma once
 #include "G2.h"
 #include "Stringify.h"
+#include "view/Vec.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -14,7 +15,8 @@ namespace fastype {
 class Position : public Stringify {
 public:
   Position();
-  Position(int row, int col);
+  // x is row, y is column
+  Position(int x, int y);
 
   Position(const Position &) = default;
   Position &operator=(const Position &) = default;
@@ -22,14 +24,20 @@ public:
   Position &operator=(Position &&) = default;
   virtual ~Position() = default;
 
-  const int &row() const;
-  Position &setRow(int row);
-  const int &column() const;
-  Position &setColumn(int column);
+  const int &x() const;
+  Position &setX(int x);
+  const int &y() const;
+  Position &setY(int y);
 
   // compare two position
   bool operator==(const Position &other) const;
   bool operator!=(const Position &other) const;
+
+  // vector operator
+  Position operator-(const Vec &v) const;
+  Position &operator-=(const Vec &v) const;
+  Position operator+(const Vec &v) const;
+  Position &operator+(const Vec &v) const;
 
   virtual std::string toString() const;
 

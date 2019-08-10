@@ -51,6 +51,7 @@ set(F_CORE
     view/Position.cpp
     view/Area.cpp
     view/Window.cpp
+    view/Vec.cpp
     )
 set(F_SRC
     fastype.cpp
