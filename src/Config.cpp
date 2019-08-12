@@ -3,37 +3,59 @@
 
 #include "Config.h"
 #include "Define.h"
+#include "Logging.h"
+#include "boost/program_options/parsers.hpp"
 
 namespace fastype {
 
-Config::Config(int argCount, char **argList)
-    : optDesc_("Fastype Options"),
-      version_(std::string("Fastype-") + PROJECT_VERSION), needHelp_(false),
-      needVersion_(false) {
-  optDesc_.add_options()("help,h", "Help messages")("version,v", version_)(
+Config::Config() : Logging("Config"), optDesc_("Fastype Options") {
+  optDesc_.add_options()("help,h", "Help messages")("version,v",
+                                                    "Version information")(
       "filename,f", boost_po::value<std::vector<std::string>>(), "File name");
   posOptDesc_.add("filename", -1);
+}
 
+Config::Config(int argCount, char **argList) : Config() {
   boost_po::store(boost_po::command_line_parser(argCount, argList)
                       .options(optDesc_)
                       .positional(posOptDesc_)
                       .run(),
                   varMap_);
   boost_po::notify(varMap_);
+}
 
-  if (varMap_.count("help")) {
-    needHelp_ = true;
+Config::Config(const std::vector<std::string> &fileNames) : Config() {
+  for (int i = 0; i < fileNames.size(); i++) {
+    boost_po::store(boost_po::parse_config_file(fileNames[i], optDesc_),
+                    varMap_);
   }
+  boost_po::notify(varMap_);
+}
 
-  if (varMap_.count("version")) {
-    needVersion_ = true;
-  }
+bool Config::needHelp() { return varMap_.count("help"); }
 
-  if (!varMap_.count("filename")) {
-    fileNameList_ = {"."};
+std::string Config::help() {
+  ss_.clear();
+  ss_ << optDesc_;
+  return ss_.str();
+}
+
+bool Config::needVersion() { return varMap_.count("version"); }
+
+std::string Config::version() {
+  ss_.clear();
+  ss_ << optDesc_;
+  return ss_.str();
+}
+
+std::vector<std::string> inputFileNameList() {
+  std::vector<std::string> fnList;
+  if (varMap_.count("filename")) {
+    fnList = varMap_["filename"].as<std::vector<std::string>>();
   } else {
-    fileNameList_ = varMap_["file-name"].as<std::vector<std::string>>();
+    fnList = {"."};
   }
+  return fnList;
 }
 
 } // namespace fastype

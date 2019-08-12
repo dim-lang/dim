@@ -14,8 +14,8 @@
 *.log
 *.tlog
 
-# config.h
-Config.h
+# Define.h
+Define.h
 
 # .DS_Store
 .DS_Store
