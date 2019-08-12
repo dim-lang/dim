@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "NCursesTerm.h"
-#include "File.h"
 #include "Line.h"
 #include "Logging.h"
+#include "model/File.h"
 #include <cerrno>
 #include <cmath>
 #include <cstdio>

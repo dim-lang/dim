@@ -45,3 +45,7 @@ target_include_directories(fastype-NCursesTermExample PRIVATE ${F_INC})
 target_link_libraries(fastype-NCursesTermExample ${F_LIB} ftcore)
 set_target_properties(fastype-NCursesTermExample PROPERTIES VERSION ${PROJECT_VERSION})
 
+add_executable(fastype-NCursesPanelExample NCursesPanelExample.cpp)
+target_include_directories(fastype-NCursesPanelExample PRIVATE ${F_INC})
+target_link_libraries(fastype-NCursesPanelExample ${F_LIB} ftcore)
+set_target_properties(fastype-NCursesPanelExample PROPERTIES VERSION ${PROJECT_VERSION})

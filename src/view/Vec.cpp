@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "view/Vec.h"
-#include "G2.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
@@ -10,24 +9,24 @@
 
 namespace fastype {
 
-Vec::Vec() : g2_() {}
+Vec::Vec() : dot2_() {}
 
-Vec::Vec(int x, int y) : g2_(x, y) {}
+Vec::Vec(int x, int y) : dot2_(x, y) {}
 
-const int &Vec::x() const { return g2_.x(); }
+const int &Vec::x() const { return dot2_.x(); }
 
-void Vec::setX(int x) { g2_.setX(x); }
+void Vec::setX(int x) { dot2_.setX(x); }
 
-const int &Vec::y() const { return g2_.y(); }
+const int &Vec::y() const { return dot2_.y(); }
 
-void Vec::setY(int y) { g2_.setY(y); }
+void Vec::setY(int y) { dot2_.setY(y); }
 
-bool Vec::operator==(const Vec &other) const { return g2_ == other.g2_; }
+bool Vec::operator==(const Vec &other) const { return dot2_ == other.dot2_; }
 
-bool Vec::operator!=(const Vec &other) const { return g2_ != other.g2_; }
+bool Vec::operator!=(const Vec &other) const { return dot2_ != other.dot2_; }
 
 std::string Vec::toString() const {
-  return fmt::format("[ @Vec x_:{} y_:{} ]", g2_.x(), g2_.y());
+  return fmt::format("[ @Vec x_:{} y_:{} ]", dot2_.x(), dot2_.y());
 }
 
 } // namespace fastype

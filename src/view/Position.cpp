@@ -9,51 +9,51 @@
 
 namespace fastype {
 
-Position::Position() : g2_() {}
+Position::Position() : dot2_() {}
 
-Position::Position(int x, int y) : g2_(x, y) {
+Position::Position(int x, int y) : dot2_(x, y) {
   F_CHECKF(x >= 0, "x {} >= 0", x);
   F_CHECKF(y >= 0, "y {} >= 0", y);
 }
 
-const int &Position::x() const { return g2_.x(); }
+const int &Position::x() const { return dot2_.x(); }
 
-void Position::setX(int x) { g2_.setX(x); }
+void Position::setX(int x) { dot2_.setX(x); }
 
-const int &Position::y() const { return g2_.y(); }
+const int &Position::y() const { return dot2_.y(); }
 
-void Position::setY(int y) { g2_.setY(y); }
+void Position::setY(int y) { dot2_.setY(y); }
 
 bool Position::operator==(const Position &other) const {
-  return g2_ == other.g2_;
+  return dot2_ == other.dot2_;
 }
 
 bool Position::operator!=(const Position &other) const {
-  return g2_ != other.g2_;
+  return dot2_ != other.dot2_;
 }
 
 Position Position::operator-(const Vec &v) const {
-  return Position(g2_.x() - v.x(), g2_.y() - v.y());
+  return Position(dot2_.x() - v.x(), dot2_.y() - v.y());
 }
 
 Position &Position::operator-=(const Vec &v) {
-  g2_.setX(g2_.x() - v.x());
-  g2_.setY(g2_.y() - v.y());
+  dot2_.setX(dot2_.x() - v.x());
+  dot2_.setY(dot2_.y() - v.y());
   return *this;
 }
 
 Position Position::operator+(const Vec &v) const {
-  return Position(g2_.x() + v.x(), g2_.y() + v.y());
+  return Position(dot2_.x() + v.x(), dot2_.y() + v.y());
 }
 
 Position &Position::operator+=(const Vec &v) {
-  g2_.setX(g2_.x() + v.x());
-  g2_.setY(g2_.y() + v.y());
+  dot2_.setX(dot2_.x() + v.x());
+  dot2_.setY(dot2_.y() + v.y());
   return *this;
 }
 
 std::string Position::toString() const {
-  return fmt::format("[ @Position x_:{} y_:{} ]", g2_.x(), g2_.y());
+  return fmt::format("[ @Position x_:{} y_:{} ]", dot2_.x(), dot2_.y());
 }
 
 } // namespace fastype

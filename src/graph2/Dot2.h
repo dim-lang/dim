@@ -11,8 +11,8 @@
 
 namespace fastype {
 
-// G2 can be present for multiple concept
-// On 2D plane, G2 can be :
+// Dot2 can be present for multiple concept
+// On 2D plane, Dot2 can be :
 //
 // position - (row, column)
 // usually we use x instead of row, y instead of column
@@ -23,24 +23,24 @@ namespace fastype {
 // vector/vec -
 // (vertical, horizontal), which vertical = x1 - x2, horizontal = y1 - y2
 
-class G2 : public Stringify, Logging {
+class Dot2 : public Stringify, Logging {
 public:
-  G2();
-  G2(int x, int y);
+  Dot2();
+  Dot2(int x, int y);
 
-  G2(const G2 &) = default;
-  G2 &operator=(const G2 &) = default;
-  G2(G2 &&) = default;
-  G2 &operator=(G2 &&) = default;
-  virtual ~G2() = default;
+  Dot2(const Dot2 &) = default;
+  Dot2 &operator=(const Dot2 &) = default;
+  Dot2(Dot2 &&) = default;
+  Dot2 &operator=(Dot2 &&) = default;
+  virtual ~Dot2() = default;
 
   const int &x() const;
-  G2 &setX(int x);
+  Dot2 &setX(int x);
   const int &y() const;
-  G2 &setY(int y);
+  Dot2 &setY(int y);
 
-  bool operator==(const G2 &other) const;
-  bool operator!=(const G2 &other) const;
+  bool operator==(const Dot2 &other) const;
+  bool operator!=(const Dot2 &other) const;
 
   virtual std::string toString() const;
 

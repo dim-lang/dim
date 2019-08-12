@@ -44,16 +44,17 @@ set(F_CORE
     Line.cpp
     Buffer.cpp
 
-    graph2/G2.cpp
+    graph2/Dot2.cpp
+    graph2/Util.cpp
 
-    model/ModelFile.cpp
-    model/ModelFileManager.cpp
+    model/File.cpp
+    model/FileManager.cpp
 
     view/Position.cpp
     view/Area.cpp
     view/Window.cpp
     view/Vec.cpp
-    #view/Cursor.cpp
+    view/Cursor.cpp
 
     controller/Key.cpp
     )

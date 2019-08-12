@@ -1,12 +1,11 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "File.h"
 #include "Global.h"
 #include "Logging.h"
 #include "Term.h"
 #include "boost/program_options.hpp"
-#include "unicode/unistr.h"
+#include "model/File.h"
 #include <exception>
 #include <iostream>
 #include <memory>

@@ -7,13 +7,30 @@ namespace fastype {
 
 #ifdef NDEBUG
 
-Timer::Timer() {}
+Timer::Timer() {
+  (void)count_;
+  (void)timestamp_;
+  (void)stop_;
+}
 
-int Timer::elapse() { return 0; }
+int Timer::elapse() {
+  (void)count_;
+  (void)timestamp_;
+  (void)stop_;
+  return 0;
+}
 
-void Timer::stop() {}
+void Timer::stop() {
+  (void)count_;
+  (void)timestamp_;
+  (void)stop_;
+}
 
-void Timer::resume() {}
+void Timer::resume() {
+  (void)count_;
+  (void)timestamp_;
+  (void)stop_;
+}
 
 #else
 

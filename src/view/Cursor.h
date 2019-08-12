@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "graph2/G2.h"
-#include "view/Window.h"
+#include "graph2/Dot2.h"
 #include <memory>
 
 namespace fastype {
@@ -12,27 +11,33 @@ class Window;
 
 class Cursor {
 public:
-  Cursor(std::shared_ptr<Window> window, int row = 0, int col = 0);
+  virtual ~Cursor() = default;
 
   Cursor(const Cursor &) = default;
   Cursor &operator=(const Cursor &) = default;
   Cursor(Cursor &&) = default;
   Cursor &operator=(Cursor &&) = default;
-  virtual ~Cursor() = default;
 
-  const int &row() const;
-  Cursor &setRow(int row);
-  const int &column() const;
-  Cursor &setColumn(int column);
+  int row();
+  void setRow(int row);
+  int column();
+  void setColumn(int column);
 
-  Cursor &moveUp(int length);
-  Cursor &moveDown(int length);
-  Cursor &moveLeft(int length);
-  Cursor &moveRight(int length);
+  void up(int length);
+  void down(int length);
+  void left(int length);
+  void right(int length);
+
+  // void show();
+  // void hide();
+  // bool visible();
 
 private:
-  G2 g2_;
-  std::shared_ptr<Window> window_;
+  Cursor(Window *window);
+
+  Window *window_;
+
+  friend class Window;
 };
 
 } // namespace fastype

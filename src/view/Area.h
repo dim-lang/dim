@@ -3,7 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
-#include "graph2/G2.h"
+#include "graph2/Dot2.h"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -36,7 +36,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  G2 g2_;
+  Dot2 dot2_;
 };
 
 } // namespace fastype

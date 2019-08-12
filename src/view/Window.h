@@ -18,6 +18,8 @@ namespace fastype {
 
 class Window : boost::noncopyable, public Logging {
 public:
+  virtual ~Window();
+
   // root window's parent is null
   static std::shared_ptr<Window> root();
 
@@ -27,6 +29,7 @@ public:
                                       int width);
 
   static void close(std::shared_ptr<Window> window);
+
   static void close(const std::string &name);
 
   virtual std::string name() const;
@@ -103,17 +106,17 @@ public:
   //  o---------------------------o
   // (x8,y8)                     (x7,y7)
 
-  virtual const Position &absP1() const;
-  virtual void setAbsP1(const Position &p);
+  // virtual const Position &absP1() const;
+  // virtual void setAbsP1(const Position &p);
 
-  virtual const Position &absP2() const;
-  virtual void setAbsP2(const Position &p);
+  // virtual const Position &absP2() const;
+  // virtual void setAbsP2(const Position &p);
 
-  virtual const Position &absP3() const;
-  virtual void setAbsP3(const Position &p);
+  // virtual const Position &absP3() const;
+  // virtual void setAbsP3(const Position &p);
 
-  virtual const Position &absP4() const;
-  virtual void setAbsP4(const Position &p);
+  // virtual const Position &absP4() const;
+  // virtual void setAbsP4(const Position &p);
 
   // render
   virtual void update();
@@ -122,6 +125,7 @@ public:
   // line#size <= width
   // 0 <= lineNumber < height
   virtual const Line &get(int lineNumber);
+
   virtual void set(int lineNumber, const Line &l);
 
   virtual Cursor &cursor();
@@ -134,26 +138,33 @@ private:
   Window(std::shared_ptr<Window> parent, const std::string &name,
          const Position &p1, int height, int width);
 
-  virtual ~Window();
-
-  Vec parentAbsP1() const;
+  // Vec parentAbsP1() const;
 
   // sort all windows in parent order
   static void reorganize();
+
+  // cursor position
+  Position cursorPosition();
+  void setCursorPosition(int x, int y);
+  // void showCursor();
+  // void hideCursor();
+  // bool cursorVisible();
+  // void cursorEnter();
+  // void cursorLeave();
 
   // graph
   std::string name_;
   std::shared_ptr<Window> parent_;
   Area area_;
   Position p1_; // relative p1
-  Vec parentRelativeCache_;
-  std::atomic_bool parentRelativeCacheDirty_;
 
   // render
   std::vector<Line> lineList_;
   Cursor cursor_;
   WINDOW *window_;
   PANEL *panel_;
+
+  friend class Cursor;
 };
 
 } // namespace fastype
