@@ -16,7 +16,7 @@
 
 namespace fastype {
 
-class Window : boost::noncopyable, public Logging {
+class Window : boost::noncopyable, public Logging, Stringify {
 public:
   virtual ~Window();
 
@@ -129,6 +129,8 @@ public:
   virtual void set(int lineNumber, const Line &l);
 
   virtual Cursor &cursor();
+
+  virtual std::string toString() const;
 
 private:
   // root constructor

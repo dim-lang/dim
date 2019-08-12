@@ -36,7 +36,7 @@ set(T_SRC
     MainTest.cpp
     LoggingTest.cpp
     LineTest.cpp
-    ConfigTest.cpp
+    DefineTest.cpp
     ProfileTest.cpp
     )
 

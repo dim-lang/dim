@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Global.h"
+#include "Config.h"
 #include "Logging.h"
 #include "Term.h"
 #include "boost/program_options.hpp"
@@ -25,39 +25,12 @@ using std::vector;
 
 int main(int argc, char **argv) {
   F_LOGGER("fastype");
+  F_INFO("starting...");
 
-  boost_po::options_description desc("Allowed options");
-  desc.add_options()("help,h", "produce help message")(
-      "version,v", fastype::Global::FastypeVersion)(
-      "file-name,f", boost_po::value<vector<string>>(), "file name");
-  boost_po::positional_options_description posDesc;
-  posDesc.add("file-name", -1);
+  fastype::Config conf(argc, argv);
 
-  boost_po::variables_map vm;
-  boost_po::store(boost_po::command_line_parser(argc, argv)
-                      .options(desc)
-                      .positional(posDesc)
-                      .run(),
-                  vm);
-  boost_po::notify(vm);
-  if (vm.count("help")) {
-    cout << desc << endl;
-    return 0;
-  }
-  if (vm.count("version")) {
-    cout << fastype::Global::FastypeVersion << endl;
-    return 0;
-  }
-
-  vector<string> fileNameList;
-  if (!vm.count("file-name")) {
-    cout << "file name missing!" << endl;
-    return 0;
-  }
-
-  fileNameList = vm["file-name"].as<vector<string>>();
-  shared_ptr<fastype::Term> term = fastype::Term::open(fileNameList[0]);
-  term->show(fileNameList[0]);
-
+  string fileName = "";
+  shared_ptr<fastype::Term> term = fastype::Term::open(fileName);
+  term->show(fileName);
   return 0;
 }

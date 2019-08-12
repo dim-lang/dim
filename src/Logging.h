@@ -99,7 +99,7 @@ protected:
 #endif
 
 #ifndef F_LOGGER
-#define F_LOGGER(x) auto logging_ = LogManager::getLogger(x)
+#define F_LOGGER(x) auto logging_ = fastype::LogManager::getLogger(x)
 #endif
 
 #ifdef NDEBUG

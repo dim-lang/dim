@@ -3,21 +3,18 @@
 
 #pragma once
 
-namespace fastype {
+#ifndef F_IN_RANGE_INC
+#define F_IN_RANGE_INC(x, a, b) ((a) <= (x) && (x) <= (b))
+#endif
 
-class Util {
-public:
-  // in range include: a <= x <= b
-  static bool inRangeInc(int x, int a, int b);
+#ifndef F_IN_RANGE_EXC
+#define F_IN_RANGE_EXC(x, a, b) ((a) < (x) && (x) < (b))
+#endif
 
-  // in range exclude: a < x < b
-  static bool inRangeExc(int x, int a, int b);
+#ifndef F_OUT_RANGE_INC
+#define F_OUT_RANGE_INC(x, a, b) ((x) <= (a) || (x) >= (b))
+#endif
 
-  // out range include: x <= a, x >= b
-  static bool outRangeInc(int x, int a, int b);
-
-  // out range exclude: x < a, x > b
-  static bool outRangeExc(int x, int a, int b);
-};
-
-} // namespace fastype
+#ifndef F_OUT_RANGE_EXC
+#define F_OUT_RANGE_EXC(x, a, b) ((x) < (a) || (x) > (b))
+#endif
