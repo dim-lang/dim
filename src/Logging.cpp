@@ -3,12 +3,12 @@
 
 #include "Logging.h"
 #include "ConcurrentHashMap.h"
-#include "StaticBlock.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/spdlog.h"
+#include <atomic>
 #include <memory>
 #include <string>
 using std::make_pair;
@@ -50,6 +50,7 @@ string FormatLocation(const detail::Location &location, const char *fmtMsg) {
 }; // namespace detail
 
 static ConcurrentHashMap<string, shared_ptr<Logger>> LoggerMap;
+static std::atomic_bool Initialized(false);
 static string FileName;
 
 shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
@@ -79,6 +80,7 @@ void LogManager::initialize(const std::string &fileName) {
                   pNow.date().year(), pNow.date().month(), pNow.date().day(),
                   pNow.time_of_day().hours(), pNow.time_of_day().minutes(),
                   pNow.time_of_day().seconds());
+  Initialized = true;
 }
 
 } // namespace fastype

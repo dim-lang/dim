@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #include "Profile.h"
-#include "boost/chrono.hpp"
-#include "boost/thread/thread.hpp"
 #include "catch2/catch.hpp"
+#include <chrono>
 #include <cstdio>
+#include <thread>
 
 TEST_CASE("Profile", "[Profile]") {
   int x = 300;
@@ -13,7 +13,7 @@ TEST_CASE("Profile", "[Profile]") {
   SECTION("Timer Start/Stop") {
     INFO("Timer Start/Stop");
     fastype::Timer t;
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.stop();
     REQUIRE(t.elapse() >= x);
     REQUIRE(t.elapse() <= x + 100);
@@ -22,34 +22,34 @@ TEST_CASE("Profile", "[Profile]") {
   SECTION("Timer Resume") {
     INFO("Timer Resume");
     fastype::Timer t;
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.stop();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.resume();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.stop();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.resume();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.stop();
     REQUIRE(t.elapse() >= 3 * x);
-    REQUIRE(t.elapse() <= 3 * x + 10);
+    REQUIRE(t.elapse() <= 3 * x + 100);
   }
 
   SECTION("Timer Always Stopped") {
     INFO("Timer Always Stopped");
     fastype::Timer t;
     t.stop();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.resume();
     t.stop();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.resume();
     t.stop();
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
     t.resume();
     t.stop();
     REQUIRE(t.elapse() >= 0);
-    REQUIRE(t.elapse() <= 10);
+    REQUIRE(t.elapse() <= 100);
   }
 }

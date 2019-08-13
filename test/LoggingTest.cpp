@@ -15,6 +15,7 @@ TEST_CASE("Logging", "[Logging]") {
 
   SECTION("logging operations") {
     INFO("Logging Operations");
+    fastype::LogManager::initialize("fastype-test");
     auto a = fastype::LogManager::getLogger("Logging");
     auto b = fastype::LogManager::getLogger("Logging");
     auto c = fastype::LogManager::getLogger("Logging");
