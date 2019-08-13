@@ -17,6 +17,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char **argv) {
+  fastype::LogManager::initialize("fastype");
   F_LOGGER("fastype");
   F_INFO("starting...");
 

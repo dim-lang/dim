@@ -2,13 +2,13 @@
 // Apache License Version 2.0
 
 #include "Daemonize.h"
-#include "Logging.h"
 #include "boost/config.hpp"
 #if BOOST_WINDOWS
 #else
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -52,22 +52,19 @@ int Daemonize::daemon() {
     exit(EXIT_SUCCESS);
   }
 
-  umask(0);
-  chdir("/");
+  // umask(0);
+  // chdir("/");
   for (int i = sysconf(_SC_OPEN_MAX); i >= 0; i--) {
     close(i);
   }
-
-  F_LOGGER("Daemonize");
-  F_DEBUG("starting...");
+  stdin = fopen("/dev/null", "r");
+  stdout = fopen("/dev/null", "w+");
+  stderr = fopen("/dev/null", "w+");
 
   return 0;
 #endif
 }
 
-void Daemonize::signalHandler(int signalNumber) {
-  F_LOGGER("Daemonize");
-  F_DEBUGF("signalNumber: {}", signalNumber);
-}
+void Daemonize::signalHandler(int signalNumber) {}
 
 } // namespace fastype

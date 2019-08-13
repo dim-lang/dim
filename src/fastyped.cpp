@@ -5,10 +5,11 @@
 #include "Logging.h"
 
 int main(int argc, char **argv) {
+  fastype::Daemonize::daemon();
+
+  fastype::LogManager::initialize("fastyped");
   F_LOGGER("fastyped");
   F_INFO("starting...");
-
-  fastype::Daemonize::daemon();
 
   return 0;
 }

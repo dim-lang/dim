@@ -79,6 +79,7 @@ class LogManager {
 public:
   virtual ~LogManager() = default;
   static std::shared_ptr<Logger> getLogger(const std::string &loggerName);
+  static void initialize(const std::string &fileName);
 };
 
 class Logging {
