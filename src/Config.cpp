@@ -6,13 +6,34 @@
 #include "Logging.h"
 #include "boost/program_options/parsers.hpp"
 
+#define F_OPT "Fastype Options"
+#define F_OPT_HELP "help"
+#define F_OPT_H "h"
+#define F_OPT_VERSION "version"
+#define F_OPT_V "v"
+#define F_OPT_INPUT_FILE "input-file"
+#define F_OPT_I "i"
+#define F_OPT_PORT "port"
+#define F_OPT_P "p"
+#define F_OPT_PORT_DEFAULT 10001
+#define F_OPT_THREAD_SIZE "thread-size"
+#define F_OPT_T "t"
+#define F_OPT_THREAD_SIZE_DEFAULT 4
+#define F_OPT_DAEMONIZE "daemonize"
+#define F_OPT_D "d"
+#define F_OPT_DAEMONIZE_DEFAULT false
+
 namespace fastype {
 
-Config::Config() : Logging("Config"), optDesc_("Fastype Options") {
-  optDesc_.add_options()("help,h", "Help messages")("version,v",
-                                                    "Version information")(
-      "filename,f", boost_po::value<std::vector<std::string>>(), "File name");
-  posOptDesc_.add("filename", -1);
+Config::Config() : Logging("Config"), optDesc_(F_OPT) {
+  optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help messages")(
+      F_OPT_VERSION "," F_OPT_V, "version information")(
+      F_OPT_INPUT_FILE "," F_OPT_I, boost_po::value<std::vector<std::string>>(),
+      "input file name")(F_OPT_PORT "," F_OPT_P, boost_po::value<int>(),
+                         "port")(F_OPT_DAEMONIZE "," F_OPT_DAEMONIZE,
+                                 boost_po::value<bool>(),
+                                 "run as daemonize service");
+  posOptDesc_.add(F_OPT_INPUT_FILE, -1);
 }
 
 Config::Config(int argCount, char **argList) : Config() {
@@ -26,36 +47,67 @@ Config::Config(int argCount, char **argList) : Config() {
 
 Config::Config(const std::vector<std::string> &fileNames) : Config() {
   for (int i = 0; i < fileNames.size(); i++) {
-    boost_po::store(boost_po::parse_config_file(fileNames[i], optDesc_),
+    boost_po::store(boost_po::parse_config_file(fileNames[i].data(), optDesc_),
                     varMap_);
   }
   boost_po::notify(varMap_);
 }
 
-bool Config::needHelp() { return varMap_.count("help"); }
+bool Config::hasHelp() const { return varMap_.count(F_OPT_HELP); }
 
-std::string Config::help() {
-  ss_.clear();
-  ss_ << optDesc_;
-  return ss_.str();
+std::string Config::help() const {
+  std::stringstream ss;
+  ss.clear();
+  ss << optDesc_;
+  return ss.str();
 }
 
-bool Config::needVersion() { return varMap_.count("version"); }
+bool Config::hasVersion() const { return varMap_.count(F_OPT_VERSION); }
 
-std::string Config::version() {
-  ss_.clear();
-  ss_ << optDesc_;
-  return ss_.str();
+std::string Config::version() const { return "Fastype-" PROJECT_VERSION; }
+
+bool Config::hasInputFile() const { return varMap_.count(F_OPT_INPUT_FILE); }
+
+std::vector<std::string> Config::inputFileList() const {
+  return varMap_[F_OPT_INPUT_FILE].as<std::vector<std::string>>();
 }
 
-std::vector<std::string> inputFileNameList() {
-  std::vector<std::string> fnList;
-  if (varMap_.count("filename")) {
-    fnList = varMap_["filename"].as<std::vector<std::string>>();
-  } else {
-    fnList = {"."};
+int Config::port() const {
+  if (varMap_.count(F_OPT_PORT)) {
+    return varMap_[F_OPT_PORT].as<int>();
   }
-  return fnList;
+  return F_OPT_PORT_DEFAULT;
+}
+
+int Config::threadSize() const {
+  if (varMap_.count(F_OPT_THREAD_SIZE)) {
+    return varMap_[F_OPT_THREAD_SIZE].as<int>();
+  }
+  return F_OPT_THREAD_SIZE_DEFAULT;
+}
+
+bool Config::daemonize() const {
+  if (varMap_.count(F_OPT_DAEMONIZE)) {
+    return varMap_[F_OPT_DAEMONIZE].as<bool>();
+  }
+  return F_OPT_DAEMONIZE_DEFAULT;
 }
 
 } // namespace fastype
+
+#undef F_OPT
+#undef F_OPT_HELP
+#undef F_OPT_H
+#undef F_OPT_VERSION
+#undef F_OPT_V
+#undef F_OPT_INPUT_FILE
+#undef F_OPT_I
+#undef F_OPT_PORT
+#undef F_OPT_P
+#undef F_OPT_PORT_DEFAULT
+#undef F_OPT_THREAD_SIZE
+#undef F_OPT_T
+#undef F_OPT_THREAD_SIZE_DEFAULT
+#undef F_OPT_DAEMONIZE
+#undef F_OPT_D
+#undef F_OPT_DAEMONIZE_DEFAULT

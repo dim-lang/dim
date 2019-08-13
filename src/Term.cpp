@@ -4,7 +4,7 @@
 #include "Term.h"
 #include "ConcurrentHashMap.h"
 #include "Logging.h"
-#include <boost/config.hpp>
+#include "boost/config.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

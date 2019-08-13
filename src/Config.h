@@ -17,11 +17,29 @@ public:
   Config(const std::vector<std::string> &fileNames);
   virtual ~Config() = default;
 
-  bool needHelp();
-  std::string help();
-  bool needVersion();
-  std::string version();
-  std::vector<std::string> inputFileNameList();
+  // --help, -h
+  bool hasHelp() const;
+  std::string help() const;
+
+  // --version, -v
+  bool hasVersion() const;
+  std::string version() const;
+
+  // --input-file, -i
+  bool hasInputFile() const;
+  std::vector<std::string> inputFileList() const;
+
+  // --port, -p
+  // by default: 10001
+  int port() const;
+
+  // --thread-size, -t
+  // by default: 4
+  int threadSize() const;
+
+  // --daemonize, -d
+  // by default: false
+  bool daemonize() const;
 
 private:
   Config();
@@ -29,7 +47,6 @@ private:
   boost_po::options_description optDesc_;
   boost_po::positional_options_description posOptDesc_;
   boost_po::variables_map varMap_;
-  std::stringstream ss_;
 };
 
 } // namespace fastype

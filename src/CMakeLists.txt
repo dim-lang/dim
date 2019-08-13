@@ -43,6 +43,7 @@ set(F_CORE
     Config.cpp
     Line.cpp
     Buffer.cpp
+    Daemonize.cpp
 
     graph2/Dot2.cpp
     graph2/Util.cpp
@@ -60,6 +61,9 @@ set(F_CORE
     )
 set(F_SRC
     fastype.cpp
+    )
+set(FD_SRC
+    fastyped.cpp
     )
 
 if (MSVC)
@@ -80,3 +84,8 @@ add_executable(fastype ${F_SRC})
 target_include_directories(fastype PRIVATE ${F_INC})
 target_link_libraries(fastype ${F_LIB} ftcore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
+
+add_executable(fastyped ${FD_SRC})
+target_include_directories(fastyped PRIVATE ${F_INC})
+target_link_libraries(fastyped ${F_LIB} ftcore)
+set_target_properties(fastyped PROPERTIES VERSION ${PROJECT_VERSION})

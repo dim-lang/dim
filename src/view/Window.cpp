@@ -4,6 +4,7 @@
 #include "view/Window.h"
 #include "ConcurrentHashMap.h"
 #include "Profile.h"
+#include "fmt/format.h"
 #include <atomic>
 #include <ncurses.h>
 #include <panel.h>
@@ -237,5 +238,10 @@ void Window::setCursorPosition(int x, int y) {
 // bool Window::cursorVisible() {}
 
 void Window::reorganize() {}
+
+std::string Window::toString() const {
+  return fmt::format("[ @Window p1_:{} area_:{} ]", p1_.toString(),
+                     area_.toString());
+}
 
 } // namespace fastype
