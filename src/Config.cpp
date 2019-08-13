@@ -25,7 +25,7 @@
 
 namespace fastype {
 
-Config::Config() : Logging("Config"), optDesc_(F_OPT) {
+Config::Config() : optDesc_(F_OPT) {
   optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help messages")(
       F_OPT_VERSION "," F_OPT_V, "version information")(
       F_OPT_INPUT_FILE "," F_OPT_I, boost_po::value<std::vector<std::string>>(),

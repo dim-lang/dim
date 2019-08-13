@@ -49,23 +49,7 @@ string FormatLocation(const detail::Location &location, const char *fmtMsg) {
 
 }; // namespace detail
 
-static ConcurrentHashMap<string, shared_ptr<Logger>> LoggerMap;
-static std::atomic_bool Initialized(false);
-static string FileName;
-
-shared_ptr<Logger> LogManager::getLogger(const string &loggerName) {
-  LoggerMap.lock();
-  if (LoggerMap.find(loggerName) == LoggerMap.end()) {
-    shared_ptr<spdlog::logger> spdlogger =
-        spdlog::basic_logger_mt(loggerName, FileName);
-    LoggerMap.insert(
-        make_pair(loggerName, shared_ptr<Logger>(new Logger(spdlogger))));
-  }
-  LoggerMap.unlock();
-  return LoggerMap[loggerName];
-}
-
-void LogManager::initialize(const std::string &fileName) {
+void Logging::initialize(const std::string &fileName) {
 
 #ifdef NDEBUG
   spdlog::set_level(spdlog::level::err);
@@ -75,12 +59,14 @@ void LogManager::initialize(const std::string &fileName) {
   spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] [%n] process-%P thread-%t %v");
 
   boost::posix_time::ptime pNow = boost::posix_time::second_clock::local_time();
-  FileName =
+  string fullFileName =
       fmt::format("{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log", fileName,
                   pNow.date().year(), pNow.date().month(), pNow.date().day(),
                   pNow.time_of_day().hours(), pNow.time_of_day().minutes(),
                   pNow.time_of_day().seconds());
-  Initialized = true;
+  shared_ptr<spdlog::logger> defaultLogger =
+      spdlog::basic_logger_mt(fileName, fullFileName);
+  spdlog::set_default_logger(defaultLogger);
 }
 
 } // namespace fastype

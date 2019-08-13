@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "boost/program_options.hpp"
 #include <sstream>
 #include <string>
@@ -11,7 +10,7 @@ namespace boost_po = boost::program_options;
 
 namespace fastype {
 
-class Config : public Logging {
+class Config {
 public:
   Config(int argCount, char **argString);
   Config(const std::vector<std::string> &fileNames);

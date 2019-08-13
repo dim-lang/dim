@@ -33,63 +33,37 @@ std::string FormatLocation(const Location &location, const char *fmtMsg);
 
 } // namespace detail
 
-class LogManager;
-
-class Logger {
-public:
-  virtual ~Logger() = default;
-
-  template <typename... Args>
-  inline void debug(const detail::Location &location, const char *fmtMsg,
-                    const Args &... args) {
-    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
-    logger->debug(formattedMsg.data(), args...);
-  }
-
-  template <typename... Args>
-  inline void info(const detail::Location &location, const char *fmtMsg,
-                   const Args &... args) {
-    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
-    logger->info(formattedMsg.data(), args...);
-  }
-
-  template <typename... Args>
-  inline void warn(const detail::Location &location, const char *fmtMsg,
-                   const Args &... args) {
-    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
-    logger->warn(formattedMsg.data(), args...);
-  }
-
-  template <typename... Args>
-  inline void error(const detail::Location &location, const char *fmtMsg,
-                    const Args &... args) {
-    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
-    logger->error(formattedMsg.data(), args...);
-  }
-
-private:
-  friend class LogManager;
-
-  explicit Logger(std::shared_ptr<spdlog::logger> logger) : logger(logger) {}
-
-  std::shared_ptr<spdlog::logger> logger;
-};
-
-class LogManager {
-public:
-  virtual ~LogManager() = default;
-  static std::shared_ptr<Logger> getLogger(const std::string &loggerName);
-  static void initialize(const std::string &fileName);
-};
-
 class Logging {
 public:
-  Logging() : logging_(LogManager::getLogger("fastype")) {}
-  Logging(const std::string &loggerName)
-      : logging_(LogManager::getLogger(loggerName)) {}
+  static void initialize(const std::string &fileName);
 
-protected:
-  std::shared_ptr<Logger> logging_;
+  template <typename... Args>
+  static void debug(const detail::Location &location, const char *fmtMsg,
+                    const Args &... args) {
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    spdlog::debug(formattedMsg.data(), args...);
+  }
+
+  template <typename... Args>
+  static void info(const detail::Location &location, const char *fmtMsg,
+                   const Args &... args) {
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    spdlog::info(formattedMsg.data(), args...);
+  }
+
+  template <typename... Args>
+  static void warn(const detail::Location &location, const char *fmtMsg,
+                   const Args &... args) {
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    spdlog::warn(formattedMsg.data(), args...);
+  }
+
+  template <typename... Args>
+  static void error(const detail::Location &location, const char *fmtMsg,
+                    const Args &... args) {
+    std::string formattedMsg = detail::FormatLocation(location, fmtMsg);
+    spdlog::error(formattedMsg.data(), args...);
+  }
 };
 
 } // namespace fastype
@@ -97,10 +71,6 @@ protected:
 #ifndef F_LOG_LOCATION
 #define F_LOG_LOCATION                                                         \
   fastype::detail::Location(__FILE__, __LINE__, __FUNCTION__)
-#endif
-
-#ifndef F_LOGGER
-#define F_LOGGER(x) auto logging_ = fastype::LogManager::getLogger(x)
 #endif
 
 #ifdef NDEBUG
@@ -123,28 +93,28 @@ protected:
 #ifndef F_DEBUG
 #define F_DEBUG(msg)                                                           \
   do {                                                                         \
-    (logging_)->debug(F_LOG_LOCATION, msg);                                    \
+    fastype::Logging::debug(F_LOG_LOCATION, msg);                              \
   } while (0)
 #endif
 
 #ifndef F_DEBUGF
 #define F_DEBUGF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->debug(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
+    fastype::Logging::debug(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);              \
   } while (0)
 #endif
 
 #ifndef F_INFOF
 #define F_INFOF(fmtMsg, ...)                                                   \
   do {                                                                         \
-    (logging_)->info(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                     \
+    fastype::Logging::info(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);               \
   } while (0)
 #endif
 
 #ifndef F_INFO
 #define F_INFO(msg)                                                            \
   do {                                                                         \
-    (logging_)->info(F_LOG_LOCATION, msg);                                     \
+    fastype::Logging::info(F_LOG_LOCATION, msg);                               \
   } while (0)
 #endif
 
@@ -153,13 +123,13 @@ protected:
 #ifndef F_ERRORF
 #define F_ERRORF(fmtMsg, ...)                                                  \
   do {                                                                         \
-    (logging_)->error(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);                    \
+    fastype::Logging::error(F_LOG_LOCATION, fmtMsg, __VA_ARGS__);              \
   } while (0)
 #endif
 
 #ifndef F_ERROR
 #define F_ERROR(msg)                                                           \
   do {                                                                         \
-    (logging_)->error(F_LOG_LOCATION, msg);                                    \
+    fastype::Logging::error(F_LOG_LOCATION, msg);                              \
   } while (0)
 #endif
