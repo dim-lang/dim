@@ -3,14 +3,13 @@
 
 #pragma once
 #include "Buffer.h"
-#include "Logging.h"
 #include "Stringify.h"
 #include "boost/noncopyable.hpp"
 #include <vector>
 
 namespace fastype {
 
-class Line : public Logging, Stringify {
+class Line : public Stringify {
 public:
   Line();
   Line(int capacity, int lineNumber, int dirty);

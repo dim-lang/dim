@@ -2,14 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "Term.h"
 #include <memory>
 #include <string>
 
 namespace fastype {
 
-class WinTerm : public Term, Logging {
+class WinTerm : public Term {
 public:
   WinTerm();
   virtual ~WinTerm();

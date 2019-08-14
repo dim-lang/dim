@@ -9,8 +9,7 @@
 int main(int argc, char **argv) {
   fastype::Daemonize::daemon();
 
-  fastype::LogManager::initialize("fastyped");
-  F_LOGGER("fastyped");
+  F_LOG_INIT("fastyped");
   F_INFO("starting...");
   while (1) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

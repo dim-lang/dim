@@ -2,13 +2,12 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "Stringify.h"
 #include <string>
 
 namespace fastype {
 
-class Buffer : public Stringify, Logging {
+class Buffer : public Stringify {
 public:
   Buffer();
   Buffer(int capacity);

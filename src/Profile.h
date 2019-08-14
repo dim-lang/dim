@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "boost/assert.hpp"
 #include "boost/preprocessor/cat.hpp"
 #include "fmt/format.h"
@@ -21,21 +20,12 @@
 #else
 
 #ifndef F_CHECK
-#define F_CHECK(cond, msg)                                                     \
-  do {                                                                         \
-    BOOST_ASSERT_MSG(                                                          \
-        cond, fastype::detail::FormatLocation(F_LOG_LOCATION, msg).data());    \
-  } while (0)
+#define F_CHECK(cond, msg) BOOST_ASSERT_MSG(cond, msg)
 #endif
 
 #ifndef F_CHECKF
 #define F_CHECKF(cond, fmtMsg, ...)                                            \
-  do {                                                                         \
-    BOOST_ASSERT_MSG(cond, fmt::format(fastype::detail::FormatLocation(        \
-                                           F_LOG_LOCATION, fmtMsg),            \
-                                       __VA_ARGS__)                            \
-                               .data());                                       \
-  } while (0)
+  BOOST_ASSERT_MSG(cond, fmt::format(fmtMsg, __VA_ARGS__).data())
 #endif
 
 #endif

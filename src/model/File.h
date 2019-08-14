@@ -4,7 +4,6 @@
 #pragma once
 #include "Buffer.h"
 #include "Line.h"
-#include "Logging.h"
 #include "Stringify.h"
 #include "boost/core/noncopyable.hpp"
 #include <cstdio>
@@ -14,7 +13,7 @@
 
 namespace fastype {
 
-class File : private boost::noncopyable, public Logging, Stringify {
+class File : private boost::noncopyable, public Stringify {
 public:
   File(File &&) = default;
   File &operator=(File &&) = default;

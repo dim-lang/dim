@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
 #include "Stringify.h"
 #include <cstddef>
 #include <cstdint>
@@ -23,7 +22,7 @@ namespace fastype {
 // vector/vec -
 // (vertical, horizontal), which vertical = x1 - x2, horizontal = y1 - y2
 
-class Dot2 : public Stringify, Logging {
+class Dot2 : public Stringify {
 public:
   Dot2();
   Dot2(int x, int y);

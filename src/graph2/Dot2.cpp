@@ -9,9 +9,9 @@
 
 namespace fastype {
 
-Dot2::Dot2() : Logging("Dot2"), x_(-1), y_(-1) {}
+Dot2::Dot2() : x_(-1), y_(-1) {}
 
-Dot2::Dot2(int x, int y) : Logging("Dot2"), x_(x), y_(y) {}
+Dot2::Dot2(int x, int y) : x_(x), y_(y) {}
 
 const int &Dot2::x() const { return x_; }
 

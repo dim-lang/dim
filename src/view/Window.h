@@ -3,7 +3,6 @@
 
 #pragma once
 #include "Line.h"
-#include "Logging.h"
 #include "boost/noncopyable.hpp"
 #include "view/Area.h"
 #include "view/Cursor.h"
@@ -16,7 +15,7 @@
 
 namespace fastype {
 
-class Window : boost::noncopyable, public Logging, Stringify {
+class Window : boost::noncopyable, public Stringify {
 public:
   virtual ~Window();
 

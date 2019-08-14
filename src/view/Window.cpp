@@ -3,6 +3,7 @@
 
 #include "view/Window.h"
 #include "ConcurrentHashMap.h"
+#include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
 #include <atomic>
@@ -12,9 +13,8 @@
 namespace fastype {
 
 Window::Window()
-    : Logging("Window"), name_("root"),
-      parent_(std::shared_ptr<Window>(nullptr)), p1_(0, 0), cursor_(this),
-      window_(nullptr), panel_(nullptr) {
+    : name_("root"), parent_(std::shared_ptr<Window>(nullptr)), p1_(0, 0),
+      cursor_(this), window_(nullptr), panel_(nullptr) {
   int x, y;
   window_ = initscr();
   start_color();
@@ -30,7 +30,7 @@ Window::Window()
 
 Window::Window(std::shared_ptr<Window> parent, const std::string &name,
                const Position &p1, int height, int width)
-    : Logging("Window"), name_(name), parent_(parent),
+    : name_(name), parent_(parent),
       area_(std::min(height, parent->area().height()),
             std::min(width, parent->area().width())),
       p1_(p1), cursor_(this), window_(nullptr), panel_(nullptr) {

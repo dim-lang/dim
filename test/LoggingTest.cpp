@@ -5,23 +5,14 @@
 #include "catch2/catch.hpp"
 
 TEST_CASE("Logging", "[Logging]") {
-  SECTION("logging location") {
-    INFO("Logging Location");
-    fastype::detail::Location ll("fileName", 1, "main");
-    REQUIRE(ll.fileName() == "fileName");
-    REQUIRE(ll.lineNumber() == 1);
-    REQUIRE(ll.functionName() == "main");
-  }
-
   SECTION("logging operations") {
     INFO("Logging Operations");
-    fastype::LogManager::initialize("fastype-test");
-    auto a = fastype::LogManager::getLogger("Logging");
-    auto b = fastype::LogManager::getLogger("Logging");
-    auto c = fastype::LogManager::getLogger("Logging");
-    auto d = fastype::LogManager::getLogger("Log");
-    REQUIRE(a.get() == b.get());
-    REQUIRE(a.get() == c.get());
-    REQUIRE(a.get() != d.get());
+    F_LOG_INIT("fastype-test");
+    F_DEBUG("debug test");
+    F_DEBUGF("debug test with args:{} {} {}", "hello", 1, 4.281);
+    F_INFO("info test");
+    F_INFOF("info test with args:{} {} {}", "hello", 1, 4.281);
+    F_ERROR("error test");
+    F_ERRORF("error test with args:{} {} {}", "hello", 1, 4.281);
   }
 }

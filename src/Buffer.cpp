@@ -13,7 +13,7 @@
 
 namespace fastype {
 
-Buffer::Buffer() : Logging("Buffer"), data_(nullptr), size_(0), capacity_(0) {
+Buffer::Buffer() : data_(nullptr), size_(0), capacity_(0) {
   // F_DEBUGF("No Args Constructor:{}", toString());
 }
 
