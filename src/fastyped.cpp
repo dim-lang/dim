@@ -12,12 +12,12 @@ int main(int argc, char **argv) {
   fastype::Config conf(argc, argv);
 
   if (conf.hasHelp()) {
-    std::printf("%s\n", conf.help().data());
+    std::cout << conf.help() << std::endl;
     return 0;
   }
 
   if (conf.hasVersion()) {
-    std::printf("%s\n", conf.version().data());
+    std::cout << conf.version() << std::endl;
     return 0;
   }
 

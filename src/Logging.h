@@ -12,7 +12,8 @@ namespace fastype {
 
 class Logging {
 public:
-  static void initialize(const std::string &fileName);
+  static void initialize(const std::string &logPath,
+                         const std::string &logName);
 };
 
 } // namespace fastype
