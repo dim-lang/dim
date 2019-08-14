@@ -52,8 +52,24 @@ int Daemonize::daemon() {
     exit(EXIT_SUCCESS);
   }
 
-  // umask(0);
-  // chdir("/");
+  // linux file permission has: read/write/execute for user/group/other
+  // for example `ls -l` will give:
+  //
+  //  -1--2--3- : 1st is user, 2nd is group, 3rd is other
+  // drwxr-xr-x : directory
+  // drwx------ : directory
+  // -rw-r--r-- : file
+  // -rw------- : file
+  //
+  // permission can be present by number and bit operation:
+  // read: 4, write: 2, execute: 1
+  // so above 4 examples can be present as: 755, 700, 644, 600
+  //
+  // fastyped daemon handles read/write/execute directories/files
+  // so set umask 002: directory permission - 0775, file permission - 664
+
+  umask(002);
+  chdir("/");
   for (int i = sysconf(_SC_OPEN_MAX); i >= 0; i--) {
     close(i);
   }

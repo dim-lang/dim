@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "model/File.h"
+#include "model/Cache.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "fmt/format.h"
@@ -15,16 +15,16 @@
 
 namespace fastype {
 
-File::File(const std::string &fileName)
+Cache::Cache(const std::string &fileName)
     : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
       loaded_(false), readBuffer_() {
   readBuffer_.expand(BUF_SIZE);
   std::memset(readBuffer_.data(), 0, BUF_SIZE * sizeof(char));
-  F_DEBUGF("File:{}", toString());
+  F_DEBUGF("Cache:{}", toString());
 }
 
-File::~File() {
-  F_DEBUGF("File:{}", toString());
+Cache::~Cache() {
+  F_DEBUGF("Cache:{}", toString());
   if (fd_) {
     std::fclose(fd_);
     fd_ = nullptr;
@@ -34,41 +34,41 @@ File::~File() {
   lineList_.clear();
 }
 
-const std::string &File::fileName() const { return fileName_; }
+const std::string &Cache::fileName() const { return fileName_; }
 
-std::shared_ptr<File> File::open(const std::string &fileName) {
-  return std::shared_ptr<File>(new File(fileName));
+std::shared_ptr<Cache> Cache::open(const std::string &fileName) {
+  return std::shared_ptr<Cache>(new Cache(fileName));
 }
 
-void File::close(std::shared_ptr<File> file) { file.reset(); }
+void Cache::close(std::shared_ptr<Cache> file) { file.reset(); }
 
-Line &File::get(int lineNumber) { return lineList_[lineNumber]; }
+Line &Cache::get(int lineNumber) { return lineList_[lineNumber]; }
 
-int File::count() {
+int Cache::count() {
   load();
   return lineList_.size();
 }
 
-bool File::empty() {
+bool Cache::empty() {
   load();
   return lineList_.empty();
 }
 
-int File::truncate(int start, int length) {
+int Cache::truncate(int start, int length) {
   load();
   // lineList_.truncate(start, length);
   return length;
 }
 
-int File::clear() {
+int Cache::clear() {
   lineList_.clear();
   return 0;
 }
 
-int File::loaded() const { return loaded_; }
+int Cache::loaded() const { return loaded_; }
 
-std::string File::toString() const {
-  return fmt::format("[ @File fileName_:{} fd_:{} loaded_:{} "
+std::string Cache::toString() const {
+  return fmt::format("[ @Cache fileName_:{} fd_:{} loaded_:{} "
                      "readBuffer_#data:{} readBuffer_#size:{} "
                      "lineList_#size:{} ]",
                      fileName_, (void *)fd_, loaded_,
@@ -76,7 +76,7 @@ std::string File::toString() const {
                      lineList_.size());
 }
 
-int64_t File::load() {
+int64_t Cache::load() {
   if (loaded_) {
     // already EOF
     return 0L;

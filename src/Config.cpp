@@ -21,18 +21,16 @@
 #define F_OPT_THREAD_SIZE_DEFAULT 4
 #define F_OPT_DAEMONIZE "daemonize"
 #define F_OPT_D "d"
-#define F_OPT_DAEMONIZE_DEFAULT false
 
 namespace fastype {
 
 Config::Config() : optDesc_(F_OPT) {
-  optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help messages")(
+  optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help message")(
       F_OPT_VERSION "," F_OPT_V, "version information")(
       F_OPT_INPUT_FILE "," F_OPT_I, boost_po::value<std::vector<std::string>>(),
       "input file name")(F_OPT_PORT "," F_OPT_P, boost_po::value<int>(),
-                         "port")(F_OPT_DAEMONIZE "," F_OPT_DAEMONIZE,
-                                 boost_po::value<bool>(),
-                                 "run as daemonize service");
+                         "service port number")(F_OPT_DAEMONIZE "," F_OPT_D,
+                                                "run as a daemonize");
   posOptDesc_.add(F_OPT_INPUT_FILE, -1);
 }
 
@@ -86,12 +84,7 @@ int Config::threadSize() const {
   return F_OPT_THREAD_SIZE_DEFAULT;
 }
 
-bool Config::daemonize() const {
-  if (varMap_.count(F_OPT_DAEMONIZE)) {
-    return varMap_[F_OPT_DAEMONIZE].as<bool>();
-  }
-  return F_OPT_DAEMONIZE_DEFAULT;
-}
+bool Config::daemonize() const { return varMap_.count(F_OPT_DAEMONIZE); }
 
 } // namespace fastype
 
@@ -110,4 +103,3 @@ bool Config::daemonize() const {
 #undef F_OPT_THREAD_SIZE_DEFAULT
 #undef F_OPT_DAEMONIZE
 #undef F_OPT_D
-#undef F_OPT_DAEMONIZE_DEFAULT

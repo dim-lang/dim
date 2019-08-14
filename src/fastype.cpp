@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "Logging.h"
 #include "Term.h"
-#include "model/File.h"
+#include "model/Cache.h"
 #include <cstdio>
 #include <exception>
 #include <memory>
@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
   fastype::Config conf(argc, argv);
 
   if (conf.hasHelp()) {
-    std::printf("%s", conf.help().data());
+    std::printf("%s\n", conf.help().data());
     return 0;
   }
 
   if (conf.hasVersion()) {
-    std::printf("%s", conf.version().data());
+    std::printf("%s\n", conf.version().data());
     return 0;
   }
 

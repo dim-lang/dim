@@ -4,7 +4,7 @@
 #include "NCursesTerm.h"
 #include "Line.h"
 #include "Logging.h"
-#include "model/File.h"
+#include "model/Cache.h"
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -21,7 +21,7 @@ NCursesTerm::NCursesTerm() : Term() {}
 NCursesTerm::~NCursesTerm() {}
 
 void NCursesTerm::show(const std::string &fileName) {
-  std::shared_ptr<File> f = File::open(fileName);
+  std::shared_ptr<Cache> f = Cache::open(fileName);
   int ch, row, col, y, x;
   initscr();
   getmaxyx(stdscr, row, col);

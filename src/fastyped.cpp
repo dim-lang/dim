@@ -1,18 +1,35 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
+#include "Config.h"
 #include "Daemonize.h"
 #include "Logging.h"
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 int main(int argc, char **argv) {
-  fastype::Daemonize::daemon();
+  fastype::Config conf(argc, argv);
 
-  F_LOG_INIT("fastyped");
+  if (conf.hasHelp()) {
+    std::printf("%s\n", conf.help().data());
+    return 0;
+  }
+
+  if (conf.hasVersion()) {
+    std::printf("%s\n", conf.version().data());
+    return 0;
+  }
+
+  if (conf.daemonize()) {
+    fastype::Daemonize::daemon();
+  }
+
+  F_LOG_INIT("~/.fastype/log/fastyped");
   F_INFO("starting...");
-  while (1) {
+  while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout << "looping..." << std::endl;
     F_INFO("looping...");
   }
 

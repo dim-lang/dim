@@ -13,11 +13,11 @@
 
 namespace fastype {
 
-class File : private boost::noncopyable, public Stringify {
+class Cache : private boost::noncopyable, public Stringify {
 public:
-  File(File &&) = default;
-  File &operator=(File &&) = default;
-  virtual ~File();
+  Cache(Cache &&) = default;
+  Cache &operator=(Cache &&) = default;
+  virtual ~Cache();
 
   const std::string &fileName() const;
   Line &get(int lineNumber);
@@ -28,11 +28,11 @@ public:
   int clear();
   virtual std::string toString() const;
 
-  static std::shared_ptr<File> open(const std::string &fileName);
-  static void close(std::shared_ptr<File> file);
+  static std::shared_ptr<Cache> open(const std::string &fileName);
+  static void close(std::shared_ptr<Cache> file);
 
 private:
-  File(const std::string &fileName);
+  Cache(const std::string &fileName);
 
   // load all lines
   // @return readed bytes

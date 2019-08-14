@@ -48,8 +48,8 @@ set(F_CORE
     graph2/Dot2.cpp
     graph2/Util.cpp
 
-    model/File.cpp
-    model/FileManager.cpp
+    model/Cache.cpp
+    model/CacheManager.cpp
 
     view/Position.cpp
     view/Area.cpp

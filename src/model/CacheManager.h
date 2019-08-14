@@ -3,11 +3,11 @@
 
 #pragma once
 #include "Logging.h"
-#include "model/File.h"
+#include "model/Cache.h"
 #include <memory>
 
 namespace fastype {
 
-class FileManager : public Logging {};
+class CacheManager : public Logging {};
 
 } // namespace fastype
