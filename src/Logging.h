@@ -24,7 +24,7 @@ public:
 #endif
 
 #ifndef F_LOG_INIT
-#define F_LOG_INIT(x) fastype::Logging::initialize(x)
+#define F_LOG_INIT(p, n) fastype::Logging::initialize(p, n)
 #endif
 
 #ifdef NDEBUG

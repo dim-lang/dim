@@ -13,13 +13,6 @@ using std::string;
 
 namespace fastype {
 
-#ifdef BOOST_WINDOWS
-static const std::string LogDirectory = "/.fastype/log";
-#else
-static const std::string LogRootDirectory = "/var/log";
-static const std::string LogDirectory = "~/.fastype/log";
-#endif
-
 void Logging::initialize(const std::string &logPath,
                          const std::string &logName) {
 
@@ -33,10 +26,10 @@ void Logging::initialize(const std::string &logPath,
 
   boost::posix_time::ptime pNow = boost::posix_time::second_clock::local_time();
   string fullFileName =
-      fmt::format("{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log", logName,
-                  pNow.date().year(), pNow.date().month(), pNow.date().day(),
-                  pNow.time_of_day().hours(), pNow.time_of_day().minutes(),
-                  pNow.time_of_day().seconds());
+      fmt::format("{}/{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log",
+                  logPath, logName, pNow.date().year(), pNow.date().month(),
+                  pNow.date().day(), pNow.time_of_day().hours(),
+                  pNow.time_of_day().minutes(), pNow.time_of_day().seconds());
   shared_ptr<spdlog::logger> defaultLogger =
       spdlog::basic_logger_mt(logName, fullFileName);
   spdlog::set_default_logger(defaultLogger);
