@@ -7,7 +7,7 @@
 TEST_CASE("Logging", "[Logging]") {
   SECTION("logging operations") {
     INFO("Logging Operations");
-    F_LOG_INIT("fastype-test");
+    F_LOG_INIT(".", "fastype-test");
     F_DEBUG("debug test");
     F_DEBUGF("debug test with args:{} {} {}", "hello", 1, 4.281);
     F_INFO("info test");

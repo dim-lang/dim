@@ -21,11 +21,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  if (conf.daemonize()) {
-    fastype::Daemonize::daemon();
-  }
-
-  F_LOG_INIT("~/.fastype/log", "fastyped");
+  F_LOG_INIT("/tmp/fastype/log", "fastyped");
   F_INFO("starting...");
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
