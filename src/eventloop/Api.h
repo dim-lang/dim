@@ -20,9 +20,8 @@ class EventLoop;
 
 class Api {
 public:
-  // @return Api* if success, nullptr if fail
   static Api *open(EventLoop *evloop);
-  static void close(Api *api);
+  void close(Api *api);
 
   // @return 0 if success, -1 if fail
   virtual int expand(int size) = 0;
@@ -30,8 +29,13 @@ public:
   // @return fd size
   virtual int capacity() const = 0;
 
+  // add event
   virtual int add(uint64_t fd, int event) = 0;
+
+  // remove event
   virtual int remove(uint64_t fd, int event) = 0;
+
+  // poll event
   virtual int poll(int millisec) = 0;
 };
 

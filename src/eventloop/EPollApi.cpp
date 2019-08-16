@@ -18,7 +18,7 @@ namespace fastype {
 EPollApi::EPollApi(EventLoop *evloop)
     : fdset_(nullptr), fdset2_(nullptr), size_(0), capacity_(0),
       evloop_(evloop) {
-  epollfd_ = epoll_create(32000);
+  epollfd_ = epoll_create(0);
 }
 
 EPollApi::~EPollApi() {

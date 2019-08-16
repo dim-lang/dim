@@ -29,7 +29,6 @@ public:
 private:
   int epollfd_;
   struct epoll_event *fdset_;
-  struct epoll_event *fdset2_;
   int size_;
   int capacity_;
 
