@@ -32,28 +32,12 @@ public:
 
 #else
 
-#ifndef F_DEBUG
 #define F_DEBUG(msg) SPDLOG_DEBUG(msg)
-#endif
-
-#ifndef F_DEBUGF
 #define F_DEBUGF(fmtMsg, ...) SPDLOG_DEBUG(fmtMsg, __VA_ARGS__)
-#endif
-
-#ifndef F_INFO
 #define F_INFO(msg) SPDLOG_INFO(msg)
-#endif
-
-#ifndef F_INFOF
 #define F_INFOF(fmtMsg, ...) SPDLOG_INFO(fmtMsg, __VA_ARGS__)
-#endif
 
 #endif // #ifdef NDEBUG
 
-#ifndef F_ERROR
 #define F_ERROR(msg) SPDLOG_ERROR(msg)
-#endif
-
-#ifndef F_ERRORF
 #define F_ERRORF(fmtMsg, ...) SPDLOG_ERROR(fmtMsg, __VA_ARGS__)
-#endif

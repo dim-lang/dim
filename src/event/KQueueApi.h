@@ -2,32 +2,36 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Platform.h"
+#include "event/ApiConfig.h"
 
-#ifdef F_PLATFORM_LINUX || F_PLATFORM_UNIX || F_PLATFORM_MACOS
+#ifdef F_EVENT_HAVE_KQUEUE
 
 #include "event/Api.h"
 #include <cstdint>
 #include <poll.h>
+#include <sys/event.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 namespace fastype {
 
 class EventLoop;
 
-class PollApi : public Api {
+class KQueueApi : public Api {
 public:
-  PollApi(EventLoop *evloop);
-  virtual ~PollApi();
+  KQueueApi(EventLoop *evloop);
+  virtual ~KQueueApi();
 
   virtual int expand(int size);
   virtual int capacity() const;
   virtual int add(uint64_t fd, int event);
   virtual int remove(uint64_t fd, int event);
   virtual int poll(int64_t millisec);
+  virtual std::string name() const;
 
 private:
+  int kqfd_;
   struct pollfd *fdset_;
-  struct pollfd *fdset2_;
   int size_;
   int capacity_;
 

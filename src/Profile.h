@@ -10,23 +10,14 @@
 
 #ifdef NDEBUG
 
-#ifndef F_CHECK
 #define F_CHECK(cond, msg)
-#endif
-#ifndef F_CHECKF
 #define F_CHECKF(cond, fmtMsg, ...)
-#endif
 
 #else
 
-#ifndef F_CHECK
 #define F_CHECK(cond, msg) BOOST_ASSERT_MSG(cond, msg)
-#endif
-
-#ifndef F_CHECKF
 #define F_CHECKF(cond, fmtMsg, ...)                                            \
   BOOST_ASSERT_MSG(cond, fmt::format(fmtMsg, __VA_ARGS__).data())
-#endif
 
 #endif
 

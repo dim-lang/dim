@@ -1,9 +1,9 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Platform.h"
+#include "event/ApiConfig.h"
 
-#ifdef F_PLATFORM_LINUX
+#ifdef F_EVENT_HAVE_EPOLL
 
 #include "event/EPollApi.h"
 #include "event/EventLoop.h"
@@ -17,22 +17,20 @@ namespace fastype {
 
 EPollApi::EPollApi(EventLoop *evloop)
     : fdset_(nullptr), size_(0), capacity_(0), evloop_(evloop) {
-  epollfd_ = epoll_create1(EPOLL_CLOEXEC);
+  epfd_ = epoll_create1(EPOLL_CLOEXEC);
+  std::memset(&ev_, 0, sizeof(struct epoll_event));
 }
 
 EPollApi::~EPollApi() {
-  close(epollfd_);
-  epollfd_ = -1;
+  close(epfd_);
+  epfd_ = -1;
   if (fdset_) {
     free(fdset_);
     fdset_ = nullptr;
   }
-  if (fdset2_) {
-    free(fdset2_);
-    fdset2_ = nullptr;
-  }
   size_ = 0;
   capacity_ = 0;
+  std::memset(&ev_, 0, sizeof(struct epoll_event));
   evloop_ = nullptr;
 }
 
@@ -45,15 +43,10 @@ int EPollApi::expand(int size) {
       ALIGN_UP, (int)boost::alignment::align_up(capacity_, ALIGN_UP));
   struct epoll_event *newFdSet =
       (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
-  struct epoll_event *newFdSet2 =
-      (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
 
-  if (!newFdSet || !newFdSet2) {
+  if (!newFdSet) {
     if (newFdSet) {
       free(newFdSet);
-    }
-    if (newFdSet2) {
-      free(newFdSet2);
     }
     return -1;
   }
@@ -64,13 +57,8 @@ int EPollApi::expand(int size) {
     free(fdset_);
     fdset_ = nullptr;
   }
-  if (fdset2_) {
-    free(fdset2_);
-    fdset2_ = nullptr;
-  }
 
   fdset_ = newFdSet;
-  fdset2_ = newFdSet2;
   capacity_ = newCapacity;
   return 0;
 }
@@ -79,6 +67,7 @@ int EPollApi::capacity() const { return 32000; }
 
 int EPollApi::add(uint64_t fd, int event) {
   int myfd = (int)fd;
+  struct epoll_event ee = {0};
   if (event & F_EVENT_READ) {
     FD_SET(myfd, &readset_);
   }
@@ -135,6 +124,8 @@ int EPollApi::poll(int millisec) {
 
   return eventNumber;
 }
+
+std::string EPollApi::name() const { return "epoll"; }
 
 } // namespace fastype
 

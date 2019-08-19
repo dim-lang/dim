@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Platform.h"
+#include "event/ApiConfig.h"
 
-#ifdef F_PLATFORM_LINUX
+#ifdef F_EVENT_HAVE_EPOLL
 
 #include "event/Api.h"
 #include <cstdint>
@@ -25,9 +25,11 @@ public:
   virtual int add(uint64_t fd, int event);
   virtual int remove(uint64_t fd, int event);
   virtual int poll(int millisec);
+  virtual std::string name() const;
 
 private:
-  int epollfd_;
+  int epfd_;
+  struct epoll_event ev_;
   struct epoll_event *fdset_;
   int size_;
   int capacity_;

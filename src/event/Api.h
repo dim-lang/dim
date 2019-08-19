@@ -3,16 +3,11 @@
 
 #pragma once
 #include <cstdint>
+#include <string>
 
-#ifndef F_EVENT_NONE
 #define F_EVENT_NONE 0
-#endif
-#ifndef F_EVENT_READ
 #define F_EVENT_READ 1
-#endif
-#ifndef F_EVENT_WRITE
 #define F_EVENT_WRITE 2
-#endif
 
 namespace fastype {
 
@@ -37,6 +32,9 @@ public:
 
   // poll event
   virtual int poll(int millisec) = 0;
+
+  // api name
+  virtual std::string name() const = 0;
 };
 
 } // namespace fastype

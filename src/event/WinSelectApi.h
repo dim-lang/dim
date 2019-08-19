@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Platform.h"
+#include "event/ApiConfig.h"
 
-#ifdef F_PLATFORM_LINUX || F_PLATFORM_UNIX || F_PLATFORM_MACOS
+#ifdef F_EVENT_HAVE_WINSELECT
 
 #include "event/Api.h"
 #include <cstdint>
@@ -25,6 +25,7 @@ public:
   virtual int add(uint64_t fd, int event);
   virtual int remove(uint64_t fd, int event);
   virtual int poll(int millisec);
+  virtual std::string name() const;
 
 private:
   fd_set readset_;

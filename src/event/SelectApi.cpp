@@ -1,9 +1,9 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Platform.h"
+#include "event/ApiConfig.h"
 
-#ifdef F_PLATFORM_LINUX || F_PLATFORM_UNIX || F_PLATFORM_MACOS
+#ifdef F_EVENT_HAVE_SELECT
 
 #include "event/EventLoop.h"
 #include "event/SelectApi.h"
@@ -87,6 +87,8 @@ int SelectApi::poll(int millisec) {
 
   return eventNumber;
 }
+
+std::string SelectApi::name() const { return "select"; }
 
 } // namespace fastype
 
