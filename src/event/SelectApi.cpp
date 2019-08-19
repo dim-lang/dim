@@ -5,8 +5,8 @@
 
 #ifdef F_PLATFORM_LINUX || F_PLATFORM_UNIX || F_PLATFORM_MACOS
 
-#include "eventloop/EventLoop.h"
-#include "eventloop/SelectApi.h"
+#include "event/EventLoop.h"
+#include "event/SelectApi.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/select.h>

@@ -5,20 +5,19 @@
 
 #ifdef F_PLATFORM_LINUX
 
-#include "eventloop/EPollApi.h"
-#include "eventloop/EventLoop.h"
+#include "event/EPollApi.h"
+#include "event/EventLoop.h"
 #include <cstdlib>
 #include <cstring>
-#include <sys/select.h>
+#include <sys/epoll.h>
 #include <sys/time.h>
 #include <unistd.h>
 
 namespace fastype {
 
 EPollApi::EPollApi(EventLoop *evloop)
-    : fdset_(nullptr), fdset2_(nullptr), size_(0), capacity_(0),
-      evloop_(evloop) {
-  epollfd_ = epoll_create(0);
+    : fdset_(nullptr), size_(0), capacity_(0), evloop_(evloop) {
+  epollfd_ = epoll_create1(EPOLL_CLOEXEC);
 }
 
 EPollApi::~EPollApi() {
@@ -76,7 +75,7 @@ int EPollApi::expand(int size) {
   return 0;
 }
 
-int EPollApi::capacity() const { return capacity_; }
+int EPollApi::capacity() const { return 32000; }
 
 int EPollApi::add(uint64_t fd, int event) {
   int myfd = (int)fd;

@@ -6,8 +6,8 @@
 #ifdef F_PLATFORM_LINUX || F_PLATFORM_UNIX || F_PLATFORM_MACOS
 
 #include "boost/align.hpp"
-#include "eventloop/EventLoop.h"
-#include "eventloop/PollApi.h"
+#include "event/EventLoop.h"
+#include "event/PollApi.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/select.h>

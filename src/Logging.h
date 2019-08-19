@@ -18,29 +18,17 @@ public:
 
 } // namespace fastype
 
-#ifndef F_DETAIL_LOG_LOCATION
 #define F_DETAIL_LOG_LOCATION                                                  \
   fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__)
-#endif
 
-#ifndef F_LOG_INIT
 #define F_LOG_INIT(p, n) fastype::Logging::initialize(p, n)
-#endif
 
 #ifdef NDEBUG
 
-#ifndef F_DEBUG
 #define F_DEBUG(msg)
-#endif
-#ifndef F_DEBUGF
 #define F_DEBUGF(fmtMsg, ...)
-#endif
-#ifndef F_INFO
 #define F_INFO(msg)
-#endif
-#ifndef F_INFOF
 #define F_INFOF(fmtMsg, ...)
-#endif
 
 #else
 
