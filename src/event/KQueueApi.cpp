@@ -78,7 +78,6 @@ int KQueueApi::expand(int size) {
 int KQueueApi::capacity() const { return 32000; }
 
 int KQueueApi::add(uint64_t fd, int event) {
-  int myfd = (int)fd;
   if (event & F_EVENT_READ) {
     FD_SET(myfd, &readset_);
   }
@@ -89,7 +88,6 @@ int KQueueApi::add(uint64_t fd, int event) {
 }
 
 int KQueueApi::remove(uint64_t fd, int event) {
-  int myfd = (int)fd;
   if (event & F_EVENT_READ) {
     FD_CLR(myfd, &readset_);
   }

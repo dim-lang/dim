@@ -43,6 +43,7 @@ int EPollApi::expand(int size) {
       ALIGN_UP, (int)boost::alignment::align_up(capacity_, ALIGN_UP));
   struct epoll_event *newFdSet =
       (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
+  std::memset(newFdSet, 0, newCapacity * sizeof(struct epoll_event));
 
   if (!newFdSet) {
     if (newFdSet) {
@@ -63,29 +64,42 @@ int EPollApi::expand(int size) {
   return 0;
 }
 
-int EPollApi::capacity() const { return 32000; }
+int EPollApi::capacity() const { return capacity_; }
 
 int EPollApi::add(uint64_t fd, int event) {
-  int myfd = (int)fd;
   struct epoll_event ee = {0};
+
+  ee.events = 0;
+  event |= fdset_[fd].mask;
   if (event & F_EVENT_READ) {
-    FD_SET(myfd, &readset_);
+    ee.events |= EPOLLIN;
   }
   if (event & F_EVENT_WRITE) {
-    FD_SET(myfd, &writeset_);
+    ee.events |= EPOLLOUT;
   }
-  return 0;
+  ee.data.fd = (int)fd;
+
+  int op = fdset_[fd].mask == F_EVENT_NONE ? EPOLL_CTL_ADD : EPOLL_CTL_MOD;
+
+  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 : -1 : 0;
 }
 
 int EPollApi::remove(uint64_t fd, int event) {
-  int myfd = (int)fd;
+  struct epoll_event ee = {0};
+
+  ee.events = 0;
   if (event & F_EVENT_READ) {
-    FD_CLR(myfd, &readset_);
+    ee.events |= EPOLLIN;
   }
   if (event & F_EVENT_WRITE) {
-    FD_CLR(myfd, &writeset_);
+    ee.events |= EPOLLOUT;
   }
-  return 0;
+  ee.data.fd = (int)fd;
+
+  int op = (fdset_[fd].mask & (~event)) == F_EVENT_NONE ? EPOLL_CTL_DEL
+                                                        : EPOLL_CTL_MOD;
+
+  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int EPollApi::poll(int millisec) {

@@ -30,23 +30,21 @@ int SelectApi::expand(int size) { return size >= FD_SETSIZE ? -1 : 0; }
 int SelectApi::capacity() const { return FD_SETSIZE; }
 
 int SelectApi::add(uint64_t fd, int event) {
-  int myfd = (int)fd;
   if (event & F_EVENT_READ) {
-    FD_SET(myfd, &readset_);
+    FD_SET((int)fd, &readset_);
   }
   if (event & F_EVENT_WRITE) {
-    FD_SET(myfd, &writeset_);
+    FD_SET((int)fd, &writeset_);
   }
   return 0;
 }
 
 int SelectApi::remove(uint64_t fd, int event) {
-  int myfd = (int)fd;
   if (event & F_EVENT_READ) {
-    FD_CLR(myfd, &readset_);
+    FD_CLR((int)fd, &readset_);
   }
   if (event & F_EVENT_WRITE) {
-    FD_CLR(myfd, &writeset_);
+    FD_CLR((int)fd, &writeset_);
   }
   return 0;
 }
