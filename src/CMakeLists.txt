@@ -43,7 +43,6 @@ set(F_CORE
     Config.cpp
     Line.cpp
     Buffer.cpp
-    Daemonize.cpp
 
     graph2/Dot2.cpp
     graph2/Util.cpp

@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Config.h"
-#include "Daemonize.h"
 #include "Logging.h"
 #include <chrono>
 #include <iostream>
