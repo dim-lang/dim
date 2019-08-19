@@ -67,7 +67,7 @@ int SelectApi::poll(int millisec) {
   if (n > 0) {
     for (int i = 0; i <= evloop_->maxfd_; i++) {
       int mask = 0;
-      FileEvent *fe = evloop_->getFileEvent((uint64_t)i);
+      FileEvent *fe = evloop_->fileEvent((uint64_t)i);
       if (fe->event == F_EVENT_NONE) {
         continue;
       }

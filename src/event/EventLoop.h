@@ -60,8 +60,8 @@ public:
   std::string pollApi() const;
 
 private:
-  detail::FileEvent *getFileEvent(uint64_t fd);
-  detail::TimeoutEvent *getTimeoutEvent(uint64_t fd);
+  detail::FileEvent *fileEvent(uint64_t fd);
+  detail::TimeoutEvent *timeoutEvent(uint64_t fd);
   void trigger(int index, uint64_t fd, int event);
 
   int maxfd_;
