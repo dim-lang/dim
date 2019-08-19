@@ -103,24 +103,17 @@ int EPollApi::remove(uint64_t fd, int event) {
 }
 
 int EPollApi::poll(int millisec) {
-  std::memcpy(&readset2_, &readset_, sizeof(fd_set));
-  std::memcpy(&writeset2_, &writeset_, sizeof(fd_set));
-
-  struct timeval tv;
-  struct timeval *tvp = nullptr;
-  if (millisec >= 0) {
-    tv.tv_sec = millisec / 1000000L;
-    tv.tv_usec = millisec % 1000000L;
-    tvp = &tv;
+  if (millisec < 0) {
+    millisec = -1;
   }
 
   int eventNumber = 0;
-  int n = select(evloop_->maxfd_ + 1, &readset2_, &writeset2_, nullptr, tvp);
+  int n = epoll_wait(epfd_, fdset_, capacity_, millisec);
 
   if (n > 0) {
-    for (int i = 0; i <= evloop_->maxfd_; i++) {
+    for (int i = 0; i < n; i++) {
       int mask = 0;
-      FileEvent *fe = evloop_->getFileEvent((uint64_t)i);
+      FileEvent *fe = evloop_->getFileEvent((uint64_t)fdset_[i].fd);
       if (fe->event == F_EVENT_NONE) {
         continue;
       }
