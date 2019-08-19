@@ -16,9 +16,8 @@
 namespace fastype {
 
 EPollApi::EPollApi(EventLoop *evloop)
-    : fdset_(nullptr), size_(0), capacity_(0), evloop_(evloop) {
-  epfd_ = epoll_create1(EPOLL_CLOEXEC);
-  std::memset(&ev_, 0, sizeof(struct epoll_event));
+    : fdset_(nullptr), capacity_(0), evloop_(evloop) {
+  epfd_ = epoll_create(1024);
 }
 
 EPollApi::~EPollApi() {
@@ -28,14 +27,12 @@ EPollApi::~EPollApi() {
     free(fdset_);
     fdset_ = nullptr;
   }
-  size_ = 0;
   capacity_ = 0;
-  std::memset(&ev_, 0, sizeof(struct epoll_event));
   evloop_ = nullptr;
 }
 
 int EPollApi::expand(int size) {
-  if (size <= size_) {
+  if (size <= capacity_) {
     return 0;
   }
 
@@ -70,7 +67,7 @@ int EPollApi::add(uint64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;
-  event |= fdset_[fd].mask;
+  event |= evloop_->fileEvent(fd).event;
   if (event & F_EVENT_READ) {
     ee.events |= EPOLLIN;
   }
@@ -79,7 +76,8 @@ int EPollApi::add(uint64_t fd, int event) {
   }
   ee.data.fd = (int)fd;
 
-  int op = fdset_[fd].mask == F_EVENT_NONE ? EPOLL_CTL_ADD : EPOLL_CTL_MOD;
+  int op = evloop_->fileEvent(fd).event == F_EVENT_NONE ? EPOLL_CTL_ADD
+                                                        : EPOLL_CTL_MOD;
 
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 : -1 : 0;
 }
@@ -96,8 +94,9 @@ int EPollApi::remove(uint64_t fd, int event) {
   }
   ee.data.fd = (int)fd;
 
-  int op = (fdset_[fd].mask & (~event)) == F_EVENT_NONE ? EPOLL_CTL_DEL
-                                                        : EPOLL_CTL_MOD;
+  int op = (evloop_->fileEvent(fd).event & (~event)) == F_EVENT_NONE
+               ? EPOLL_CTL_DEL
+               : EPOLL_CTL_MOD;
 
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
@@ -107,29 +106,32 @@ int EPollApi::poll(int millisec) {
     millisec = -1;
   }
 
-  int eventNumber = 0;
+  int index = 0;
   int n = epoll_wait(epfd_, fdset_, capacity_, millisec);
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
       int mask = 0;
-      FileEvent *fe = evloop_->getFileEvent((uint64_t)fdset_[i].fd);
-      if (fe->event == F_EVENT_NONE) {
-        continue;
-      }
-      if (fe->event & F_EVENT_READ && FD_ISSET(i, &readset2_)) {
+      struct epoll_event *ee = &fdset_[i];
+
+      if (ee->events & EPOLLIN) {
         mask |= F_EVENT_READ;
       }
-      if (fe->event & F_EVENT_WRITE && FD_ISSET(i, &writeset2_)) {
+      if (ee->events & EPOLLOUT) {
         mask |= F_EVENT_WRITE;
       }
-
-      evloop_->trigger(eventNumber, i, mask);
-      eventNumber++;
+      if (ee->events & EPOLLERR) {
+        mask |= F_EVENT_WRITE;
+      }
+      if (ee->events & EPOLLHUP) {
+        mask |= F_EVENT_WRITE;
+      }
+      evloop_->trigger(index, i, mask);
+      index++;
     }
   }
 
-  return eventNumber;
+  return index;
 }
 
 std::string EPollApi::name() const { return "epoll"; }

@@ -61,7 +61,7 @@ int SelectApi::poll(int millisec) {
     tvp = &tv;
   }
 
-  int eventNumber = 0;
+  int index = 0;
   int n = select(evloop_->maxfd_ + 1, &readset2_, &writeset2_, nullptr, tvp);
 
   if (n > 0) {
@@ -78,12 +78,12 @@ int SelectApi::poll(int millisec) {
         mask |= F_EVENT_WRITE;
       }
 
-      evloop_->trigger(eventNumber, i, mask);
-      eventNumber++;
+      evloop_->trigger(index, i, mask);
+      index++;
     }
   }
 
-  return eventNumber;
+  return index;
 }
 
 std::string SelectApi::name() const { return "select"; }

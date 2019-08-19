@@ -9,27 +9,23 @@
 #include "event/KQueueApi.h"
 #include <cstdlib>
 #include <cstring>
-#include <sys/epoll.h>
+#include <sys/event.h>
 #include <sys/time.h>
-#include <unistd.h>
+#include <sys/types.h>
 
 namespace fastype {
 
 KQueueApi::KQueueApi(EventLoop *evloop)
     : fdset_(nullptr), size_(0), capacity_(0), evloop_(evloop) {
-  epfd_ = epoll_create1(EPOLL_CLOEXEC);
+  kqfd_ = kqueue();
 }
 
 KQueueApi::~KQueueApi() {
-  close(epfd_);
-  epfd_ = -1;
+  close(kqfd_);
+  kqfd_ = -1;
   if (fdset_) {
     free(fdset_);
     fdset_ = nullptr;
-  }
-  if (fdset2_) {
-    free(fdset2_);
-    fdset2_ = nullptr;
   }
   size_ = 0;
   capacity_ = 0;
@@ -98,40 +94,34 @@ int KQueueApi::remove(uint64_t fd, int event) {
 }
 
 int KQueueApi::poll(int millisec) {
-  std::memcpy(&readset2_, &readset_, sizeof(fd_set));
-  std::memcpy(&writeset2_, &writeset_, sizeof(fd_set));
-
-  struct timeval tv;
   struct timeval *tvp = nullptr;
+  struct timeval tv;
   if (millisec >= 0) {
     tv.tv_sec = millisec / 1000000L;
     tv.tv_usec = millisec % 1000000L;
     tvp = &tv;
   }
 
-  int eventNumber = 0;
-  int n = select(evloop_->maxfd_ + 1, &readset2_, &writeset2_, nullptr, tvp);
+  int index = 0;
+  int n = kevent(kqfd_, nullptr, 0, fdset_, capacity_, tvp);
 
   if (n > 0) {
     for (int i = 0; i <= evloop_->maxfd_; i++) {
       int mask = 0;
-      FileEvent *fe = evloop_->getFileEvent((uint64_t)i);
-      if (fe->event == F_EVENT_NONE) {
-        continue;
-      }
-      if (fe->event & F_EVENT_READ && FD_ISSET(i, &readset2_)) {
+      struct kevent *ke = &fdset_[i];
+
+      if (ke->filter & EVFILT_READ) {
         mask |= F_EVENT_READ;
       }
-      if (fe->event & F_EVENT_WRITE && FD_ISSET(i, &writeset2_)) {
+      if (ke->events & EVFILT_WRITE) {
         mask |= F_EVENT_WRITE;
       }
-
-      evloop_->trigger(eventNumber, i, mask);
-      eventNumber++;
+      evloop_->trigger(index, i, mask);
+      index++;
     }
   }
 
-  return eventNumber;
+  return index;
 }
 
 std::string KQueueApi::name() const { return "kqueue"; }

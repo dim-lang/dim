@@ -14,8 +14,6 @@ class EventLoop;
 typedef void fileCallback(EventLoop *evloop, uint64_t fd, void *data,
                           int event);
 typedef void timeoutCallback(EventLoop *evloop, uint64_t eventId, void *data);
-typedef void timeoutFinalizeCallback(EventLoop *evloop, uint64_t eventId,
-                                     void *data);
 
 namespace detail {
 
@@ -33,7 +31,10 @@ struct TimeoutEvent {
   void *data;
 };
 
-struct TriggeredEvent {};
+struct TriggerEvent {
+  uint64_t fd;
+  int event;
+};
 
 } // namespace detail
 
@@ -70,7 +71,7 @@ private:
   int64_t lastTime_;
   std::unordered_map<uint64_t, detail::FileEvent *> fileEventMap_;
   std::unordered_map<uint64_t, detail::TimeoutEvent *> timeoutEventMap_;
-  std::vector<detail::TriggeredEvent *> triggeredEventList_;
+  std::vector<detail::TriggerEvent> triggerEventList_;
   bool stop_;
 
   Poll *poll_;
