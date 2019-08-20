@@ -26,7 +26,7 @@ public:
   virtual int capacity() const;
   virtual int add(uint64_t fd, int event);
   virtual int remove(uint64_t fd, int event);
-  virtual int poll(int64_t millisec);
+  virtual int poll(int millisec);
   virtual std::string name() const;
 
 private:

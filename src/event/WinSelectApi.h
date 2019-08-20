@@ -7,9 +7,8 @@
 #ifdef F_EVENT_HAVE_WINSELECT
 
 #include "event/Api.h"
+#include <WinSock2.h>
 #include <cstdint>
-#include <sys/select.h>
-#include <sys/time.h>
 
 namespace fastype {
 

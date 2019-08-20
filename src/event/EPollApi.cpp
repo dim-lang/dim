@@ -123,7 +123,8 @@ int EPollApi::poll(int millisec) {
       if (ee->events & EPOLLHUP) {
         mask |= F_EVENT_WRITE;
       }
-      evloop_->trigger(count, i, mask);
+      evloop_->triggerEventList_[count].fd = ee->data.fd;
+      evloop_->triggerEventList_[count].event = mask;
       count++;
     }
   }

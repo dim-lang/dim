@@ -12,6 +12,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 namespace fastype {
 
@@ -111,7 +112,8 @@ int KQueueApi::poll(int millisec) {
       if (ke->events & EVFILT_WRITE) {
         mask |= F_EVENT_WRITE;
       }
-      evloop_->trigger(count, i, mask);
+      evloop_->triggerEventList_[count].fd = ke->ident;
+      evloop_->triggerEventList_[count].event = mask;
       count++;
     }
   }

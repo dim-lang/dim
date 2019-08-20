@@ -48,8 +48,7 @@ public:
   int removeFileEvent(int fd, int event);
 
   // @return timeoutEventId
-  int addTimeoutEvent(int64_t millisec, timeoutCallback timeoutcb, void *data,
-                      timeoutFinalizeCallback timeoutFinalizeCb);
+  int addTimeoutEvent(int64_t millisec, timeoutCallback timeoutcb, void *data);
 
   int removeTimeoutEvent(int timeoutEventId);
 
@@ -63,7 +62,6 @@ public:
 private:
   detail::FileEvent *fileEvent(uint64_t fd);
   detail::TimeoutEvent *timeoutEvent(uint64_t fd);
-  void trigger(int index, uint64_t fd, int event);
 
   int maxfd_;
   int fdsize_;
@@ -74,9 +72,9 @@ private:
   std::vector<detail::TriggerEvent> triggerEventList_;
   bool stop_;
 
-  Poll *poll_;
+  Api *api_;
 
-  friend class Poll;
+  friend class Api;
 };
 
 } // namespace fastype

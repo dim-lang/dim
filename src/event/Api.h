@@ -15,8 +15,10 @@ class EventLoop;
 
 class Api {
 public:
-  static Api *open(EventLoop *evloop);
-  void close(Api *api);
+  virtual ~Api() = default;
+
+  static Api *create(EventLoop *evloop);
+  void destroy(Api *api);
 
   // @return 0 if success, -1 if fail
   virtual int expand(int size) = 0;

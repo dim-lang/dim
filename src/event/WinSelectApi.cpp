@@ -5,4 +5,8 @@
 
 #ifdef F_EVENT_HAVE_WINSELECT
 
+#include "event/WinSelect.h"
+
+namespace fastype {}
+
 #endif

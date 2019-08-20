@@ -57,6 +57,13 @@ set(F_CORE
     view/Cursor.cpp
 
     controller/Key.cpp
+
+    event/Api.cpp
+    event/EPollApi.cpp
+    event/KQueueApi.cpp
+    event/EventLoop.cpp
+    event/SelectApi.cpp
+    event/WinSelectApi.cpp
     )
 set(F_SRC
     fastype.cpp
