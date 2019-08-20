@@ -43,9 +43,6 @@ int EPollApi::expand(int size) {
   std::memset(newFdSet, 0, newCapacity * sizeof(struct epoll_event));
 
   if (!newFdSet) {
-    if (newFdSet) {
-      free(newFdSet);
-    }
     return -1;
   }
 
@@ -106,7 +103,7 @@ int EPollApi::poll(int millisec) {
     millisec = -1;
   }
 
-  int index = 0;
+  int count = 0;
   int n = epoll_wait(epfd_, fdset_, capacity_, millisec);
 
   if (n > 0) {
@@ -126,12 +123,12 @@ int EPollApi::poll(int millisec) {
       if (ee->events & EPOLLHUP) {
         mask |= F_EVENT_WRITE;
       }
-      evloop_->trigger(index, i, mask);
-      index++;
+      evloop_->trigger(count, i, mask);
+      count++;
     }
   }
 
-  return index;
+  return count;
 }
 
 std::string EPollApi::name() const { return "epoll"; }

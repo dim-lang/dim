@@ -16,7 +16,7 @@
 namespace fastype {
 
 KQueueApi::KQueueApi(EventLoop *evloop)
-    : fdset_(nullptr), size_(0), capacity_(0), evloop_(evloop) {
+    : fdset_(nullptr), capacity_(0), evloop_(evloop) {
   kqfd_ = kqueue();
 }
 
@@ -27,46 +27,32 @@ KQueueApi::~KQueueApi() {
     free(fdset_);
     fdset_ = nullptr;
   }
-  size_ = 0;
   capacity_ = 0;
   evloop_ = nullptr;
 }
 
 int KQueueApi::expand(int size) {
-  if (size <= size_) {
+  if (size <= capacity_) {
     return 0;
   }
 
   int newCapacity = std::max<int>(
       ALIGN_UP, (int)boost::alignment::align_up(capacity_, ALIGN_UP));
-  struct epoll_event *newFdSet =
-      (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
-  struct epoll_event *newFdSet2 =
-      (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
+  struct kevent *newFdSet =
+      (struct kevent *)malloc(newCapacity * sizeof(struct kevent));
 
-  if (!newFdSet || !newFdSet2) {
-    if (newFdSet) {
-      free(newFdSet);
-    }
-    if (newFdSet2) {
-      free(newFdSet2);
-    }
+  if (!newFdSet) {
     return -1;
   }
 
-  std::memcpy(newFdSet, fdset_, capacity_ * sizeof(struct epoll_event));
+  std::memcpy(newFdSet, fdset_, capacity_ * sizeof(struct kevent));
 
   if (fdset_) {
     free(fdset_);
     fdset_ = nullptr;
   }
-  if (fdset2_) {
-    free(fdset2_);
-    fdset2_ = nullptr;
-  }
 
   fdset_ = newFdSet;
-  fdset2_ = newFdSet2;
   capacity_ = newCapacity;
   return 0;
 }
@@ -74,21 +60,30 @@ int KQueueApi::expand(int size) {
 int KQueueApi::capacity() const { return 32000; }
 
 int KQueueApi::add(uint64_t fd, int event) {
+  struct kevent ke = {0};
   if (event & F_EVENT_READ) {
-    FD_SET(myfd, &readset_);
+    EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
+    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
+      return -1;
   }
   if (event & F_EVENT_WRITE) {
-    FD_SET(myfd, &writeset_);
+    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
+    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
+      return -1;
   }
   return 0;
 }
 
 int KQueueApi::remove(uint64_t fd, int event) {
+  struct kevent ke = {0};
+
   if (event & F_EVENT_READ) {
-    FD_CLR(myfd, &readset_);
+    EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
   }
   if (event & F_EVENT_WRITE) {
-    FD_CLR(myfd, &writeset_);
+    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
   }
   return 0;
 }
@@ -102,11 +97,11 @@ int KQueueApi::poll(int millisec) {
     tvp = &tv;
   }
 
-  int index = 0;
+  int count = 0;
   int n = kevent(kqfd_, nullptr, 0, fdset_, capacity_, tvp);
 
   if (n > 0) {
-    for (int i = 0; i <= evloop_->maxfd_; i++) {
+    for (int i = 0; i < n; i++) {
       int mask = 0;
       struct kevent *ke = &fdset_[i];
 
@@ -116,12 +111,12 @@ int KQueueApi::poll(int millisec) {
       if (ke->events & EVFILT_WRITE) {
         mask |= F_EVENT_WRITE;
       }
-      evloop_->trigger(index, i, mask);
-      index++;
+      evloop_->trigger(count, i, mask);
+      count++;
     }
   }
 
-  return index;
+  return count;
 }
 
 std::string KQueueApi::name() const { return "kqueue"; }

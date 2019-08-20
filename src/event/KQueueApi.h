@@ -31,7 +31,7 @@ public:
 
 private:
   int kqfd_;
-  struct pollfd *fdset_;
+  struct kevent *fdset_;
   int size_;
   int capacity_;
 
