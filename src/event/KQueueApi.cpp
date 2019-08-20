@@ -96,13 +96,14 @@ int KQueueApi::poll(int millisec) {
   struct timespec *tsp = nullptr;
   struct timespec ts;
   if (millisec >= 0) {
-    ts.tv = millisec / 1000000L;
-    ts.tv_usec = millisec % 1000000L;
-    tvp = &tv;
+    uint64_t ns = ((uint64_t)millisec) * 1000LL;
+    ts.tv_sec = ns / 1000000000LL;
+    ts.tv_nsec = ns % 1000000000LL;
+    tsp = &ts;
   }
 
   int count = 0;
-  int n = kevent(kqfd_, nullptr, 0, fdset_, capacity_, tvp);
+  int n = kevent(kqfd_, nullptr, 0, fdset_, capacity_, tsp);
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {

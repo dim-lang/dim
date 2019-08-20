@@ -43,25 +43,27 @@ public:
   EventLoop();
   virtual ~EventLoop() = default;
 
-  int addFileEvent(int fd, int event, fileCallback readCb, fileCallback writeCb,
-                   void *data);
-  int removeFileEvent(int fd, int event);
+  int addFileEvent(uint64_t fd, int event, fileCallback readCb,
+                   fileCallback writeCb, void *data);
+
+  int removeFileEvent(uint64_t fd, int event);
 
   // @return timeoutEventId
   int addTimeoutEvent(int64_t millisec, timeoutCallback timeoutcb, void *data);
 
-  int removeTimeoutEvent(int timeoutEventId);
+  int removeTimeoutEvent(uint64_t timeoutEventId);
 
   void start();
   void stop();
   void process();
   void wait(int64_t millisec);
 
-  std::string pollApi() const;
+  std::string api() const;
 
 private:
   detail::FileEvent *fileEvent(uint64_t fd);
   detail::TimeoutEvent *timeoutEvent(uint64_t fd);
+  void trigger(int index, uint64_t fd, int event);
 
   int maxfd_;
   int fdsize_;
