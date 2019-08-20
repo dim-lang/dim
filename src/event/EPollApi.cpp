@@ -5,6 +5,7 @@
 
 #ifdef F_EVENT_HAVE_EPOLL
 
+#include "boost/align/align_up.hpp"
 #include "event/EPollApi.h"
 #include "event/EventLoop.h"
 #include <cstdlib>
@@ -12,6 +13,8 @@
 #include <sys/epoll.h>
 #include <sys/time.h>
 #include <unistd.h>
+
+#define ALIGN_UP 16
 
 namespace fastype {
 

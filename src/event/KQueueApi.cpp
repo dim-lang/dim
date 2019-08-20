@@ -5,6 +5,7 @@
 
 #ifdef F_EVENT_HAVE_KQUEUE
 
+#include "boost/align/align_up.hpp"
 #include "event/EventLoop.h"
 #include "event/KQueueApi.h"
 #include <cstdlib>
@@ -13,6 +14,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#define ALIGN_UP 16
 
 namespace fastype {
 
@@ -90,11 +93,11 @@ int KQueueApi::remove(uint64_t fd, int event) {
 }
 
 int KQueueApi::poll(int millisec) {
-  struct timeval *tvp = nullptr;
-  struct timeval tv;
+  struct timespec *tsp = nullptr;
+  struct timespec ts;
   if (millisec >= 0) {
-    tv.tv_sec = millisec / 1000000L;
-    tv.tv_usec = millisec % 1000000L;
+    ts.tv = millisec / 1000000L;
+    ts.tv_usec = millisec % 1000000L;
     tvp = &tv;
   }
 
@@ -109,7 +112,7 @@ int KQueueApi::poll(int millisec) {
       if (ke->filter & EVFILT_READ) {
         mask |= F_EVENT_READ;
       }
-      if (ke->events & EVFILT_WRITE) {
+      if (ke->filter & EVFILT_WRITE) {
         mask |= F_EVENT_WRITE;
       }
       evloop_->triggerEventList_[count].fd = ke->ident;

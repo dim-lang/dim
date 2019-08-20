@@ -95,7 +95,9 @@ void Window::destroy(const std::string &name) {
   WindowMap.unlock();
 }
 
-void Window::destroy(std::shared_ptr<Window> window) { close(window->name()); }
+void Window::destroy(std::shared_ptr<Window> window) {
+  destroy(window->name());
+}
 
 std::string Window::name() const { return name_; }
 
