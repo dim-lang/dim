@@ -39,6 +39,9 @@ public:
 
   virtual void wait(int64_t millisec) = 0;
 
+  virtual int fileSize() const = 0;
+  virtual int timeoutSize() const = 0;
+
   // @return system api call name
   virtual std::string api() const = 0;
 };

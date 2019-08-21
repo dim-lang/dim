@@ -10,22 +10,9 @@
 
 namespace fastype {
 
-FileEvent::FileEvent(uint64_t id, int event, FileHandler *readHandler,
-                     FileHandler *writeHandler_, void *data)
-    : id_(id), event_(event), readHandler_(readHandler),
-      writeHandler_(writeHandler), data_(data) {}
-
-TimeoutEvent::TimeoutEvent(uint64_t id, int64_t millisec,
-                           TimeoutHandler *TimeoutHandler,
-                           FileHandler *writeHandler_, void *data)
-    : id_(id), event_(event), readHandler_(readHandler),
-      writeHandler_(writeHandler), data_(data) {}
-
-TriggerEvent::TriggerEvent(uint64_t id, int event) : id_(id), event_(event) {}
-
 EventLoopImpl::EventLoopImpl()
-    : maxfd_(-1), size_(0), timeoutEventNextId_(-1), lastTime_(std::time()),
-      stop_(true), poll_(Poll::open()) {}
+    : maxfd_(0), size_(0), timeoutEventNextId_(-1),
+      lastTime_(std::time(nullptr)), stop_(true), poll_(Poll::open()) {}
 
 EventLoopImpl::~EventLoopImpl() {
   if (poll_) {
@@ -37,11 +24,18 @@ EventLoopImpl::~EventLoopImpl() {
 
 int EventLoopImpl::addFileEvent(uint64_t fd, int event, FileHandler readHandler,
                                 FileHandler writeHandler, void *data) {
+  FileEvent *fe = nullptr;
 
-  FileEvent *fe = new FileEvent(fd, event, readHandler, writeHandler, data);
   auto it = fileEventMap_.find(fd);
   if (it != fileEventMap_.end()) {
-    delete it->second;
+    fe = it->second;
+  } else {
+    fe = new FileEvent();
+    fe->fd_ = fd;
+    fe->event_ = F_EVENT_NONE;
+    fe->readHandler_ = nullptr;
+    fe->writeHandler_ = nullptr;
+    fe->data_ = data;
   }
   fileEventMap_.insert_or_assign(std::make_pair(fd, fe));
   poll_->add(fd, event);
@@ -59,7 +53,7 @@ int EventLoopImpl::removeTimeoutEvent(uint64_t id) { return 0; }
 
 void EventLoopImpl::start() {}
 
-void EventLoopImpl::stop() {}
+void EventLoopImpl::stop() { stop_ = true; }
 
 int EventLoopImpl::process() { return 0; }
 

@@ -11,9 +11,6 @@ namespace fastype {
 
 class FileEvent {
 public:
-  FileEvent(uint64_t id, int event, FileHandler *readHandler,
-            FileHandler *writeHandler_, void *data);
-
   uint64_t id_; // fd
   int event_;
   FileHandler *readHandler_;
@@ -23,9 +20,6 @@ public:
 
 class TimeoutEvent {
 public:
-  TimeoutEvent(uint64_t id, int64_t millisec, TimeoutHandler *TimeoutHandler,
-               FileHandler *writeHandler_, void *data);
-
   uint64_t id_; // timeout event id
   int64_t millisec_;
   TimeoutHandler *timeoutHandler_;
@@ -34,8 +28,6 @@ public:
 
 class TriggerEvent {
 public:
-  TriggerEvent(uint64_t id, int event);
-
   uint64_t id_;
   int event_;
 };
@@ -69,6 +61,9 @@ public:
   virtual int process() = 0;
 
   virtual void wait(int64_t millisec) = 0;
+
+  virtual int fileSize() const;
+  virtual int timeoutSize() const;
 
   // @return system api call name
   virtual std::string api() const = 0;
