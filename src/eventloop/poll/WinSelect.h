@@ -2,22 +2,22 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "event/ApiConfig.h"
+#include "eventloop/EventConfig.h"
 
 #ifdef F_EVENT_HAVE_WINSELECT
 
-#include "event/Api.h"
+#include "eventloop/Poll.h"
 #include <WinSock2.h>
 #include <cstdint>
 
 namespace fastype {
 
-class EventLoop;
+class EventLoopImpl;
 
-class WinSelectApi : public Api {
+class WinSelect : public Poll {
 public:
-  WinSelectApi(EventLoop *evloop);
-  virtual ~WinSelectApi();
+  WinSelect(EventLoopImpl *evloop);
+  virtual ~WinSelect();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -32,9 +32,9 @@ private:
   fd_set readset2_;
   fd_set writeset2_;
 
-  EventLoop *evloop_;
+  EventLoopImpl *evloop_;
 
-  friend class EventLoop;
+  friend class EventLoopImpl;
 };
 
 } // namespace fastype

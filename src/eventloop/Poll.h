@@ -11,14 +11,15 @@
 
 namespace fastype {
 
-class EventLoop;
+class EventLoopImpl;
 
-class Api {
+class Poll {
 public:
-  virtual ~Api() = default;
+  virtual ~Poll() = default;
 
-  static Api *open(EventLoop *evloop);
-  void close(Api *api);
+  static Poll *open(EventLoopImpl *evloop);
+
+  static void close(Poll *p);
 
   // @return 0 if success, -1 if fail
   virtual int expand(int size) = 0;

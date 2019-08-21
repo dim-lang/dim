@@ -2,11 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "event/ApiConfig.h"
+#include "eventloop/EventConfig.h"
 
 #ifdef F_EVENT_HAVE_KQUEUE
 
-#include "event/Api.h"
+#include "eventloop/Poll.h"
 #include <cstdint>
 #include <poll.h>
 #include <sys/event.h>
@@ -15,12 +15,12 @@
 
 namespace fastype {
 
-class EventLoop;
+class EventLoopImpl;
 
-class KQueueApi : public Api {
+class Kqueue : public Poll {
 public:
-  KQueueApi(EventLoop *evloop);
-  virtual ~KQueueApi();
+  Kqueue(EventLoopImpl *evloop);
+  virtual ~Kqueue();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -35,9 +35,9 @@ private:
   int size_;
   int capacity_;
 
-  EventLoop *evloop_;
+  EventLoopImpl *evloop_;
 
-  friend class EventLoop;
+  friend class EventLoopImpl;
 };
 
 } // namespace fastype

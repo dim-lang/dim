@@ -58,12 +58,12 @@ set(F_CORE
 
     controller/Key.cpp
 
-    event/Api.cpp
-    event/EPollApi.cpp
-    event/KQueueApi.cpp
-    event/EventLoop.cpp
-    event/SelectApi.cpp
-    event/WinSelectApi.cpp
+    eventloop/Poll.cpp
+    eventloop/poll/Epoll.cpp
+    eventloop/poll/Kqueue.cpp
+    eventloop/poll/Select.cpp
+    eventloop/poll/WinSelect.cpp
+    eventloop/EventLoopImpl.cpp
     )
 set(F_SRC
     fastype.cpp

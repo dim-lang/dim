@@ -2,23 +2,23 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "event/ApiConfig.h"
+#include "eventloop/EventConfig.h"
 
-#ifdef F_EVENT_HAVE_SELECT
+#ifdef F_EVENT_HAVE_EPOLL
 
-#include "event/Api.h"
+#include "eventloop/Poll.h"
 #include <cstdint>
-#include <sys/select.h>
+#include <sys/epoll.h>
 #include <sys/time.h>
 
 namespace fastype {
 
-class EventLoop;
+class EventLoopImpl;
 
-class SelectApi : public Api {
+class Epoll : public Poll {
 public:
-  SelectApi(EventLoop *evloop);
-  virtual ~SelectApi();
+  Epoll(EventLoopImpl *evloop);
+  virtual ~Epoll();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -28,14 +28,13 @@ public:
   virtual std::string name() const;
 
 private:
-  fd_set readset_;
-  fd_set writeset_;
-  fd_set readset2_;
-  fd_set writeset2_;
+  int epfd_;
+  struct epoll_event *fdset_;
+  int capacity_;
 
-  EventLoop *evloop_;
+  EventLoopImpl *evloop_;
 
-  friend class EventLoop;
+  friend class EventLoopImpl;
 };
 
 } // namespace fastype

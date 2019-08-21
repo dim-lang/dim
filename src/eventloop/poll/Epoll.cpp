@@ -1,13 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "event/ApiConfig.h"
+#include "eventloop/poll/Epoll.h"
 
 #ifdef F_EVENT_HAVE_EPOLL
 
 #include "boost/align/align_up.hpp"
-#include "event/EPollApi.h"
-#include "event/EventLoop.h"
+#include "eventloop/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/epoll.h>
@@ -18,12 +17,12 @@
 
 namespace fastype {
 
-EPollApi::EPollApi(EventLoop *evloop)
+Epoll::Epoll(EventLoopImpl *evloop)
     : fdset_(nullptr), capacity_(0), evloop_(evloop) {
   epfd_ = epoll_create(1024);
 }
 
-EPollApi::~EPollApi() {
+Epoll::~Epoll() {
   close(epfd_);
   epfd_ = -1;
   if (fdset_) {
@@ -34,7 +33,7 @@ EPollApi::~EPollApi() {
   evloop_ = nullptr;
 }
 
-int EPollApi::expand(int size) {
+int Epoll::expand(int size) {
   if (size <= capacity_) {
     return 0;
   }
@@ -61,9 +60,9 @@ int EPollApi::expand(int size) {
   return 0;
 }
 
-int EPollApi::capacity() const { return capacity_; }
+int Epoll::capacity() const { return capacity_; }
 
-int EPollApi::add(uint64_t fd, int event) {
+int Epoll::add(uint64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;
@@ -82,7 +81,7 @@ int EPollApi::add(uint64_t fd, int event) {
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 : -1 : 0;
 }
 
-int EPollApi::remove(uint64_t fd, int event) {
+int Epoll::remove(uint64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;
@@ -101,7 +100,7 @@ int EPollApi::remove(uint64_t fd, int event) {
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
-int EPollApi::poll(int millisec) {
+int Epoll::poll(int millisec) {
   if (millisec < 0) {
     millisec = -1;
   }
@@ -111,22 +110,23 @@ int EPollApi::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int mask = 0;
+      int event = 0;
       struct epoll_event *ee = &fdset_[i];
 
       if (ee->events & EPOLLIN) {
-        mask |= F_EVENT_READ;
+        event |= F_EVENT_READ;
       }
       if (ee->events & EPOLLOUT) {
-        mask |= F_EVENT_WRITE;
+        event |= F_EVENT_WRITE;
       }
       if (ee->events & EPOLLERR) {
-        mask |= F_EVENT_WRITE;
+        event |= F_EVENT_WRITE;
       }
       if (ee->events & EPOLLHUP) {
-        mask |= F_EVENT_WRITE;
+        event |= F_EVENT_WRITE;
       }
-      evloop_->trigger(count, ee->data.fd, mask);
+      evloop_->triggerEventList_[count].id = ee->data.fd;
+      evloop_->triggerEventList_[count].event = event;
       count++;
     }
   }
@@ -134,7 +134,7 @@ int EPollApi::poll(int millisec) {
   return count;
 }
 
-std::string EPollApi::name() const { return "epoll"; }
+std::string Epoll::name() const { return "epoll"; }
 
 } // namespace fastype
 

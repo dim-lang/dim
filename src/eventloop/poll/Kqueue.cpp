@@ -1,13 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "event/ApiConfig.h"
+#include "eventloop/poll/Kqueue.h"
 
 #ifdef F_EVENT_HAVE_KQUEUE
 
 #include "boost/align/align_up.hpp"
-#include "event/EventLoop.h"
-#include "event/KQueueApi.h"
+#include "eventloop/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/event.h>
@@ -19,13 +18,13 @@
 
 namespace fastype {
 
-KQueueApi::KQueueApi(EventLoop *evloop)
+Kqueue::Kqueue(EventLoopImpl *evloop)
     : fdset_(nullptr), capacity_(0), evloop_(evloop) {
   kqfd_ = kqueue();
 }
 
-KQueueApi::~KQueueApi() {
-  close(kqfd_);
+Kqueue::~Kqueue() {
+  ::close(kqfd_);
   kqfd_ = -1;
   if (fdset_) {
     free(fdset_);
@@ -35,7 +34,7 @@ KQueueApi::~KQueueApi() {
   evloop_ = nullptr;
 }
 
-int KQueueApi::expand(int size) {
+int Kqueue::expand(int size) {
   if (size <= capacity_) {
     return 0;
   }
@@ -61,9 +60,9 @@ int KQueueApi::expand(int size) {
   return 0;
 }
 
-int KQueueApi::capacity() const { return 32000; }
+int Kqueue::capacity() const { return 32000; }
 
-int KQueueApi::add(uint64_t fd, int event) {
+int Kqueue::add(uint64_t fd, int event) {
   struct kevent ke = {0};
   if (event & F_EVENT_READ) {
     EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
@@ -78,7 +77,7 @@ int KQueueApi::add(uint64_t fd, int event) {
   return 0;
 }
 
-int KQueueApi::remove(uint64_t fd, int event) {
+int Kqueue::remove(uint64_t fd, int event) {
   struct kevent ke = {0};
 
   if (event & F_EVENT_READ) {
@@ -92,7 +91,7 @@ int KQueueApi::remove(uint64_t fd, int event) {
   return 0;
 }
 
-int KQueueApi::poll(int millisec) {
+int Kqueue::poll(int millisec) {
   struct timespec *tsp = nullptr;
   struct timespec ts;
   if (millisec >= 0) {
@@ -107,16 +106,17 @@ int KQueueApi::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int mask = 0;
+      int event = 0;
       struct kevent *ke = &fdset_[i];
 
       if (ke->filter & EVFILT_READ) {
-        mask |= F_EVENT_READ;
+        event |= F_EVENT_READ;
       }
       if (ke->filter & EVFILT_WRITE) {
-        mask |= F_EVENT_WRITE;
+        event |= F_EVENT_WRITE;
       }
-      evloop_->trigger(count, ke->ident, mask);
+      evloop_->triggerEventList_[count].id = ke->ident;
+      evloop_->triggerEventList_[count].event = event;
       count++;
     }
   }
@@ -124,7 +124,7 @@ int KQueueApi::poll(int millisec) {
   return count;
 }
 
-std::string KQueueApi::name() const { return "kqueue"; }
+std::string Kqueue::name() const { return "kqueue"; }
 
 } // namespace fastype
 

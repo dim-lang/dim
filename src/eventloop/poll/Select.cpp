@@ -1,12 +1,11 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "event/ApiConfig.h"
+#include "eventloop/poll/Select.h"
 
 #ifdef F_EVENT_HAVE_SELECT
 
-#include "event/EventLoop.h"
-#include "event/SelectApi.h"
+#include "eventloop/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/select.h>
@@ -14,22 +13,22 @@
 
 namespace fastype {
 
-SelectApi::SelectApi(EventLoop *evloop) : evloop_(evloop) {
+Select::Select(EventLoopImpl *evloop) : evloop_(evloop) {
   FD_ZERO(&readset_);
   FD_ZERO(&writeset_);
 }
 
-SelectApi::~SelectApi() {
+Select::~Select() {
   FD_ZERO(&readset_);
   FD_ZERO(&writeset_);
   evloop_ = nullptr;
 }
 
-int SelectApi::expand(int size) { return size >= FD_SETSIZE ? -1 : 0; }
+int Select::expand(int size) { return size >= FD_SETSIZE ? -1 : 0; }
 
-int SelectApi::capacity() const { return FD_SETSIZE; }
+int Select::capacity() const { return FD_SETSIZE; }
 
-int SelectApi::add(uint64_t fd, int event) {
+int Select::add(uint64_t fd, int event) {
   if (event & F_EVENT_READ) {
     FD_SET((int)fd, &readset_);
   }
@@ -39,7 +38,7 @@ int SelectApi::add(uint64_t fd, int event) {
   return 0;
 }
 
-int SelectApi::remove(uint64_t fd, int event) {
+int Select::remove(uint64_t fd, int event) {
   if (event & F_EVENT_READ) {
     FD_CLR((int)fd, &readset_);
   }
@@ -49,7 +48,7 @@ int SelectApi::remove(uint64_t fd, int event) {
   return 0;
 }
 
-int SelectApi::poll(int millisec) {
+int Select::poll(int millisec) {
   std::memcpy(&readset2_, &readset_, sizeof(fd_set));
   std::memcpy(&writeset2_, &writeset_, sizeof(fd_set));
 
@@ -66,18 +65,19 @@ int SelectApi::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i <= evloop_->maxfd_; i++) {
-      int mask = 0;
-      FileEvent *fe = evloop_->fileEvent((uint64_t)i);
+      int event = 0;
+      FileEvent *fe = evloop_->fileEventMap_[(uint64_t)i];
       if (fe->event == F_EVENT_NONE) {
         continue;
       }
       if (fe->event & F_EVENT_READ && FD_ISSET(i, &readset2_)) {
-        mask |= F_EVENT_READ;
+        event |= F_EVENT_READ;
       }
       if (fe->event & F_EVENT_WRITE && FD_ISSET(i, &writeset2_)) {
-        mask |= F_EVENT_WRITE;
+        event |= F_EVENT_WRITE;
       }
-      evloop_->trigger(count, (uint64_t)i, mask);
+      evloop_->triggerEventList_[count].id = (uint64_t)i;
+      evloop_->triggerEventList_[count].event = event;
       count++;
     }
   }
@@ -85,7 +85,7 @@ int SelectApi::poll(int millisec) {
   return count;
 }
 
-std::string SelectApi::name() const { return "select"; }
+std::string Select::name() const { return "select"; }
 
 } // namespace fastype
 
