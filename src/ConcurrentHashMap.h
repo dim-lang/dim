@@ -30,7 +30,6 @@ public:
       return *this;
     }
     std::swap(map_, other.map_);
-    std::swap(lock_, other.lock_);
     return *this;
   }
 
