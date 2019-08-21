@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "Stringify.h"
 #include "boost/noncopyable.hpp"
+#include <memory>
 #include <vector>
 
 namespace fastype {

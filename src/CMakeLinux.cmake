@@ -35,6 +35,8 @@ set(F_LIB
     icuuc
     icuio
     icudata
+    panel
+    fmt
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}

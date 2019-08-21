@@ -23,7 +23,7 @@ Epoll::Epoll(EventLoopImpl *evloop)
 }
 
 Epoll::~Epoll() {
-  close(epfd_);
+  ::close(epfd_);
   epfd_ = -1;
   if (fdset_) {
     free(fdset_);
@@ -66,7 +66,7 @@ int Epoll::add(uint64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;
-  event |= evloop_->fileEvent(fd).event;
+  event |= evloop_->fileEventMap_[fd]->event;
   if (event & F_EVENT_READ) {
     ee.events |= EPOLLIN;
   }
@@ -75,10 +75,10 @@ int Epoll::add(uint64_t fd, int event) {
   }
   ee.data.fd = (int)fd;
 
-  int op = evloop_->fileEvent(fd).event == F_EVENT_NONE ? EPOLL_CTL_ADD
-                                                        : EPOLL_CTL_MOD;
+  int op = evloop_->fileEventMap_[fd]->event == F_EVENT_NONE ? EPOLL_CTL_ADD
+                                                             : EPOLL_CTL_MOD;
 
-  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 : -1 : 0;
+  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int Epoll::remove(uint64_t fd, int event) {
@@ -93,7 +93,7 @@ int Epoll::remove(uint64_t fd, int event) {
   }
   ee.data.fd = (int)fd;
 
-  int op = (evloop_->fileEvent(fd).event & (~event)) == F_EVENT_NONE
+  int op = (evloop_->fileEventMap_[fd]->event & (~event)) == F_EVENT_NONE
                ? EPOLL_CTL_DEL
                : EPOLL_CTL_MOD;
 
