@@ -62,7 +62,7 @@ int Epoll::expand(int size) {
 
 int Epoll::capacity() const { return capacity_; }
 
-int Epoll::add(uint64_t fd, int event) {
+int Epoll::add(int64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;
@@ -81,7 +81,7 @@ int Epoll::add(uint64_t fd, int event) {
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
-int Epoll::remove(uint64_t fd, int event) {
+int Epoll::remove(int64_t fd, int event) {
   struct epoll_event ee = {0};
 
   ee.events = 0;

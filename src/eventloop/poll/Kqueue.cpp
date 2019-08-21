@@ -62,7 +62,7 @@ int Kqueue::expand(int size) {
 
 int Kqueue::capacity() const { return 32000; }
 
-int Kqueue::add(uint64_t fd, int event) {
+int Kqueue::add(int64_t fd, int event) {
   struct kevent ke = {0};
   if (event & F_EVENT_READ) {
     EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
@@ -77,7 +77,7 @@ int Kqueue::add(uint64_t fd, int event) {
   return 0;
 }
 
-int Kqueue::remove(uint64_t fd, int event) {
+int Kqueue::remove(int64_t fd, int event) {
   struct kevent ke = {0};
 
   if (event & F_EVENT_READ) {
@@ -95,7 +95,7 @@ int Kqueue::poll(int millisec) {
   struct timespec *tsp = nullptr;
   struct timespec ts;
   if (millisec >= 0) {
-    uint64_t ns = ((uint64_t)millisec) * 1000LL;
+    int64_t ns = ((int64_t)millisec) * 1000LL;
     ts.tv_sec = ns / 1000000000LL;
     ts.tv_nsec = ns % 1000000000LL;
     tsp = &ts;

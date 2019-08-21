@@ -2,29 +2,41 @@
 // Apache License Version 2.0
 
 #include "eventloop/EventLoopImpl.h"
+#include "eventloop/Poll.h"
+#include <ctime>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace fastype {
 
-EventLoopImpl::EventLoopImpl() {}
+EventLoopImpl::EventLoopImpl()
+    : maxfd_(-1), size_(0), timeoutEventNextId_(-1), lastTime_(std::time()),
+      stop_(true), poll_(Poll::open()) {}
 
-EventLoopImpl::~EventLoopImpl() {}
+EventLoopImpl::~EventLoopImpl() {
+  if (poll_) {
+    Poll::close(poll_);
+    poll_ = nullptr;
+  }
+  stop_ = true;
+}
 
-int EventLoopImpl::addFileEvent(uint64_t fd, int event, FileHandler readCb,
+int EventLoopImpl::addFileEvent(int64_t fd, int event, FileHandler readCb,
                                 FileHandler writeCb, void *data) {
+
+  FileEvent *fe = new FileEvent();
   return 0;
 }
 
-int EventLoopImpl::removeFileEvent(uint64_t fd, int event) { return 0; }
+int EventLoopImpl::removeFileEvent(int64_t fd, int event) { return 0; }
 
 int EventLoopImpl::addTimeoutEvent(int64_t millisec, TimeoutHandler timeoutcb,
                                    void *data) {
   return 0;
 }
 
-int EventLoopImpl::removeTimeoutEvent(uint64_t id) { return 0; }
+int EventLoopImpl::removeTimeoutEvent(int64_t id) { return 0; }
 
 void EventLoopImpl::start() {}
 

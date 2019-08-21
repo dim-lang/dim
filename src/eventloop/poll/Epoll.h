@@ -22,8 +22,8 @@ public:
 
   virtual int expand(int size);
   virtual int capacity() const;
-  virtual int add(uint64_t fd, int event);
-  virtual int remove(uint64_t fd, int event);
+  virtual int add(int64_t fd, int event);
+  virtual int remove(int64_t fd, int event);
   virtual int poll(int millisec);
   virtual std::string name() const;
 

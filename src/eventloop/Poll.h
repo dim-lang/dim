@@ -28,10 +28,10 @@ public:
   virtual int capacity() const = 0;
 
   // add event
-  virtual int add(uint64_t fd, int event) = 0;
+  virtual int add(int64_t fd, int event) = 0;
 
   // remove event
-  virtual int remove(uint64_t fd, int event) = 0;
+  virtual int remove(int64_t fd, int event) = 0;
 
   // poll event
   virtual int poll(int millisec) = 0;

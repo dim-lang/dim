@@ -28,7 +28,7 @@ int Select::expand(int size) { return size >= FD_SETSIZE ? -1 : 0; }
 
 int Select::capacity() const { return FD_SETSIZE; }
 
-int Select::add(uint64_t fd, int event) {
+int Select::add(int64_t fd, int event) {
   if (event & F_EVENT_READ) {
     FD_SET((int)fd, &readset_);
   }
@@ -38,7 +38,7 @@ int Select::add(uint64_t fd, int event) {
   return 0;
 }
 
-int Select::remove(uint64_t fd, int event) {
+int Select::remove(int64_t fd, int event) {
   if (event & F_EVENT_READ) {
     FD_CLR((int)fd, &readset_);
   }
@@ -66,7 +66,7 @@ int Select::poll(int millisec) {
   if (n > 0) {
     for (int i = 0; i <= evloop_->maxfd_; i++) {
       int event = 0;
-      FileEvent *fe = evloop_->fileEventMap_[(uint64_t)i];
+      FileEvent *fe = evloop_->fileEventMap_[(int64_t)i];
       if (fe->event == F_EVENT_NONE) {
         continue;
       }
@@ -76,7 +76,7 @@ int Select::poll(int millisec) {
       if (fe->event & F_EVENT_WRITE && FD_ISSET(i, &writeset2_)) {
         event |= F_EVENT_WRITE;
       }
-      evloop_->triggerEventList_[count].id = (uint64_t)i;
+      evloop_->triggerEventList_[count].id = (int64_t)i;
       evloop_->triggerEventList_[count].event = event;
       count++;
     }
