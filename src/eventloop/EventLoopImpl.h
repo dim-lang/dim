@@ -11,12 +11,10 @@ namespace fastype {
 
 class FileEvent {
 public:
-  FileEvent(int64_t id, int event, FileHandler *readHandler,
-            FileHandler *writeHandler_, void *data)
-      : id_(id), event_(event), readHandler_(readHandler),
-        writeHandler_(writeHandler), data_(data) {}
+  FileEvent(uint64_t id, int event, FileHandler *readHandler,
+            FileHandler *writeHandler_, void *data);
 
-  int64_t id_; // fd
+  uint64_t id_; // fd
   int event_;
   FileHandler *readHandler_;
   FileHandler *writeHandler_;
@@ -25,12 +23,10 @@ public:
 
 class TimeoutEvent {
 public:
-  TimeoutEvent(int64_t id, int64_t millisec, TimeoutHandler *TimeoutHandler,
-               FileHandler *writeHandler_, void *data)
-      : id_(id), event_(event), readHandler_(readHandler),
-        writeHandler_(writeHandler), data_(data) {}
+  TimeoutEvent(uint64_t id, int64_t millisec, TimeoutHandler *TimeoutHandler,
+               FileHandler *writeHandler_, void *data);
 
-  int64_t id_; // timeout event id
+  uint64_t id_; // timeout event id
   int64_t millisec_;
   TimeoutHandler *timeoutHandler_;
   void *data_;
@@ -38,7 +34,9 @@ public:
 
 class TriggerEvent {
 public:
-  int64_t id_;
+  TriggerEvent(uint64_t id, int event);
+
+  uint64_t id_;
   int event_;
 };
 
@@ -53,16 +51,16 @@ public:
   virtual ~EventLoopImpl();
 
   // @return fd
-  virtual int addFileEvent(int64_t fd, int event, FileHandler readCb,
+  virtual int addFileEvent(uint64_t fd, int event, FileHandler readCb,
                            FileHandler writeCb, void *data) = 0;
-  virtual int removeFileEvent(int64_t fd, int event) = 0;
+  virtual int removeFileEvent(uint64_t fd, int event) = 0;
 
   // @return timeout event id
   virtual int addTimeoutEvent(int64_t millisec, TimeoutHandler timeoutcb,
                               void *data) = 0;
 
   // @id timeout event id
-  virtual int removeTimeoutEvent(int64_t id) = 0;
+  virtual int removeTimeoutEvent(uint64_t id) = 0;
 
   virtual void start() = 0;
   virtual void stop() = 0;
@@ -80,13 +78,13 @@ public:
   ///
 
   // file event attribute
-  int64_t maxfd_; // highest file event fd
-  int fdsize_;    // file event size
-  std::unordered_map<int64_t, FileEvent *> fileEventMap_;
+  uint64_t maxfd_; // highest file event fd
+  int fdsize_;     // file event size
+  std::unordered_map<uint64_t, FileEvent *> fileEventMap_;
   // timeout event attribute
   int64_t timeoutEventNextId_;
   int64_t lastTime_; /* Used to detect system clock skew */
-  std::unordered_map<int64_t, TimeoutEvent *> timeoutEventMap_;
+  std::unordered_map<uint64_t, TimeoutEvent *> timeoutEventMap_;
   // other attribute
   std::vector<TriggerEvent> triggerEventList_;
   bool stop_;
