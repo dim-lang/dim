@@ -13,7 +13,7 @@ public:
 
   virtual void show(const std::string &fileName) = 0;
 
-  static std::shared_ptr<Term> create(const std::string &termName);
+  static std::shared_ptr<Term> open(const std::string &termName);
 };
 
 } // namespace fastype

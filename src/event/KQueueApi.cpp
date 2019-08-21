@@ -116,8 +116,7 @@ int KQueueApi::poll(int millisec) {
       if (ke->filter & EVFILT_WRITE) {
         mask |= F_EVENT_WRITE;
       }
-      evloop_->triggerEventList_[count].fd = ke->ident;
-      evloop_->triggerEventList_[count].event = mask;
+      evloop_->trigger(count, ke->ident, mask);
       count++;
     }
   }

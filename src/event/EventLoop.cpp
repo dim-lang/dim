@@ -9,15 +9,20 @@ namespace fastype {
 
 EventLoop::EventLoop() {}
 
-int EventLoop::addFileEvent(int fd, int event, fileCallback readCb,
-                            fileCallback writeCb, void *data) {}
+int EventLoop::addFileEvent(uint64_t fd, int event, fileCallback readCb,
+                            fileCallback writeCb, void *data) {
+  return 0;
+}
 
 int EventLoop::removeFileEvent(uint64_t fd, int event) {
   fileEventMap_.erase(fd);
+  return 0;
 }
 
 int EventLoop::addTimeoutEvent(int64_t millisec, timeoutCallback timeoutcb,
-                               void *data) {}
+                               void *data) {
+  return 0;
+}
 
 int EventLoop::removeTimeoutEvent(uint64_t timeoutEventId) {
   timeoutEventMap_.erase(timeoutEventId);
@@ -28,9 +33,9 @@ void EventLoop::start() {}
 
 void EventLoop::stop() {}
 
-void EventLoo::process() {}
+void EventLoop::process() {}
 
-void EventLoo::wait(int64_t millisec) {}
+void EventLoop::wait(int64_t millisec) {}
 
 std::string EventLoop::api() const { return api_->name(); }
 

@@ -21,7 +21,7 @@ namespace fastype {
 
 static ConcurrentHashMap<std::string, std::shared_ptr<Term>> TermMap;
 
-std::shared_ptr<Term> Term::create(const std::string &termName) {
+std::shared_ptr<Term> Term::open(const std::string &termName) {
   TermMap.lock();
   if (TermMap.find(termName) == TermMap.end()) {
 

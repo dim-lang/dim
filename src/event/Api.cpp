@@ -10,7 +10,7 @@
 
 namespace fastype {
 
-Api *Api::create(EventLoop *evloop) {
+Api *Api::open(EventLoop *evloop) {
 #if defined(F_EVENT_HAVE_EPOLL)
   return new EPollApi(evloop);
 #elif defined(F_EVENT_HAVE_KQUEUE)
@@ -22,7 +22,7 @@ Api *Api::create(EventLoop *evloop) {
 #endif
 }
 
-void Api::destroy(Api *api) {
+void Api::close(Api *api) {
 #if defined(F_EVENT_HAVE_EPOLL)
   delete (EPollApi *)api;
 #elif defined(F_EVENT_HAVE_KQUEUE)

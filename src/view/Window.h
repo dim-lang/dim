@@ -22,14 +22,14 @@ public:
   // root window's parent is null
   static std::shared_ptr<Window> root();
 
-  static std::shared_ptr<Window> create(std::shared_ptr<Window> parent,
-                                        const std::string &name,
-                                        const Position &p1, int height,
-                                        int width);
+  static std::shared_ptr<Window> open(std::shared_ptr<Window> parent,
+                                      const std::string &name,
+                                      const Position &p1, int height,
+                                      int width);
 
-  static void destroy(std::shared_ptr<Window> window);
+  static void close(std::shared_ptr<Window> window);
 
-  static void destroy(const std::string &name);
+  static void close(const std::string &name);
 
   virtual std::string name() const;
   virtual void setName(const std::string &name);

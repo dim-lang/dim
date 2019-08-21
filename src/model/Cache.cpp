@@ -36,11 +36,11 @@ Cache::~Cache() {
 
 const std::string &Cache::fileName() const { return fileName_; }
 
-std::shared_ptr<Cache> Cache::create(const std::string &fileName) {
+std::shared_ptr<Cache> Cache::open(const std::string &fileName) {
   return std::shared_ptr<Cache>(new Cache(fileName));
 }
 
-void Cache::destroy(std::shared_ptr<Cache> file) { file.reset(); }
+void Cache::close(std::shared_ptr<Cache> file) { file.reset(); }
 
 Line &Cache::get(int lineNumber) { return lineList_[lineNumber]; }
 

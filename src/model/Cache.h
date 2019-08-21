@@ -28,8 +28,8 @@ public:
   int clear();
   virtual std::string toString() const;
 
-  static std::shared_ptr<Cache> create(const std::string &fileName);
-  static void destroy(std::shared_ptr<Cache> file);
+  static std::shared_ptr<Cache> open(const std::string &fileName);
+  static void close(std::shared_ptr<Cache> file);
 
 private:
   Cache(const std::string &fileName);

@@ -69,10 +69,10 @@ std::shared_ptr<Window> Window::root() {
 static ConcurrentHashMap<std::string, std::shared_ptr<Window>> WindowMap;
 static std::atomic_bool WindowMapDirty(false);
 
-std::shared_ptr<Window> Window::create(std::shared_ptr<Window> parent,
-                                       const std::string &name,
-                                       const Position &p1, int height,
-                                       int width) {
+std::shared_ptr<Window> Window::open(std::shared_ptr<Window> parent,
+                                     const std::string &name,
+                                     const Position &p1, int height,
+                                     int width) {
   WindowMap.lock();
   if (WindowMap.find(name) == WindowMap.end()) {
     std::shared_ptr<Window> w =
@@ -84,7 +84,7 @@ std::shared_ptr<Window> Window::create(std::shared_ptr<Window> parent,
   return WindowMap[name];
 }
 
-void Window::destroy(const std::string &name) {
+void Window::close(const std::string &name) {
   WindowMap.lock();
   auto pos = WindowMap.find(name);
   if (pos != WindowMap.end()) {
@@ -95,9 +95,7 @@ void Window::destroy(const std::string &name) {
   WindowMap.unlock();
 }
 
-void Window::destroy(std::shared_ptr<Window> window) {
-  destroy(window->name());
-}
+void Window::close(std::shared_ptr<Window> window) { close(window->name()); }
 
 std::string Window::name() const { return name_; }
 

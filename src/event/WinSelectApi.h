@@ -14,10 +14,10 @@ namespace fastype {
 
 class EventLoop;
 
-class SelectApi : public Api {
+class WinSelectApi : public Api {
 public:
-  SelectApi(EventLoop *evloop);
-  virtual ~SelectApi();
+  WinSelectApi(EventLoop *evloop);
+  virtual ~WinSelectApi();
 
   virtual int expand(int size);
   virtual int capacity() const;

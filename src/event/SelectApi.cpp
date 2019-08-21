@@ -77,9 +77,7 @@ int SelectApi::poll(int millisec) {
       if (fe->event & F_EVENT_WRITE && FD_ISSET(i, &writeset2_)) {
         mask |= F_EVENT_WRITE;
       }
-
-      evloop_->triggerEventList_[count].fd = (uint64_t)i;
-      evloop_->triggerEventList_[count].event = mask;
+      evloop_->trigger(count, (uint64_t)i, mask);
       count++;
     }
   }
