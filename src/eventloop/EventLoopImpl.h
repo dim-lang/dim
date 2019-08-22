@@ -4,6 +4,7 @@
 #pragma once
 #include "eventloop/EventLoop.h"
 #include "eventloop/Poll.h"
+#include <queue>
 #include <unordered_map>
 #include <vector>
 
@@ -11,79 +12,83 @@ namespace fastype {
 
 class FileEvent {
 public:
-  uint64_t id_; // fd
-  int event_;
-  FileHandler *readHandler_;
-  FileHandler *writeHandler_;
+  int64_t id_; // fd
+  FileHandler *handler_;
   void *data_;
 };
 
 class TimeoutEvent {
 public:
-  uint64_t id_; // timeout event id
+  int64_t id_;        // timeout event id
+  int64_t timestamp_; // system timestamp
   int64_t millisec_;
-  TimeoutHandler *timeoutHandler_;
+  TimeoutHandler *handler_;
   void *data_;
+  int repeat_;
 };
 
-class TriggerEvent {
+class TimeoutEventComparator {
 public:
-  uint64_t id_;
-  int event_;
+  // less at top
+  int operator()(const TimeoutEvent &a, const TimeoutEvent &b) {
+    return a.timestamp_ < b.timestamp_;
+  }
 };
 
 class EventLoopImpl : public EventLoop {
 public:
   ///
-  /// method
+  /// api
   ///
 
   EventLoopImpl();
 
   virtual ~EventLoopImpl();
 
-  // @return fd
-  virtual int addFileEvent(uint64_t fd, int event, FileHandler readCb,
-                           FileHandler writeCb, void *data) = 0;
-  virtual int removeFileEvent(uint64_t fd, int event) = 0;
-
-  // @return timeout event id
-  virtual int addTimeoutEvent(int64_t millisec, TimeoutHandler timeoutcb,
-                              void *data) = 0;
-
-  // @id timeout event id
-  virtual int removeTimeoutEvent(uint64_t id) = 0;
-
-  virtual void start() = 0;
-  virtual void stop() = 0;
-
-  // @return processed event count
-  virtual int process() = 0;
-
-  virtual void wait(int64_t millisec) = 0;
-
+  virtual int addFile(int64_t fd, FileHandler handler, void *data);
+  virtual int removeFile(int64_t fd);
+  virtual int addTimeout(int64_t millisec, TimeoutHandler handler, void *data);
+  virtual int addTimeout(int64_t millisec, TimeoutHandler handler, void *data,
+                         int repeat);
+  virtual int removeTimeout(int64_t id);
+  virtual void start();
+  virtual void stop();
+  virtual int process();
   virtual int fileSize() const;
   virtual int timeoutSize() const;
+  virtual std::string api() const;
+  virtual int64_t cachedTime() const;
 
-  // @return system api call name
-  virtual std::string api() const = 0;
+public:
+  ///
+  /// inner poll api
+  ///
 
+  // trigger file event
+  virtual void trigger(int64_t id);
+
+  // update time
+  virtual void updateTime();
+
+public:
   ///
   /// member
   ///
 
   // file event attribute
-  uint64_t maxfd_; // highest file event fd
-  int fdsize_;     // file event size
-  std::unordered_map<uint64_t, FileEvent *> fileEventMap_;
+  std::unordered_map<int64_t, FileEvent *> fileMap_;
+
   // timeout event attribute
-  int64_t timeoutEventNextId_;
-  int64_t lastTime_; /* Used to detect system clock skew */
-  std::unordered_map<uint64_t, TimeoutEvent *> timeoutEventMap_;
+  int64_t timestamp_;
+  std::unordered_map<int64_t, TimeoutEvent *> timeoutMap_;
+  std::priority_queue<TimeoutEvent *, std::vector<TimeoutEvent *>,
+                      TimeoutEventComparator>
+      timeoutQueue_;
+
   // other attribute
-  std::vector<TriggerEvent> triggerEventList_;
+  std::vector<int64_t> triggerList_;
   bool stop_;
-  Poll *poll_; // poll api
+  Poll *poll_;
 };
 
 } // namespace fastype

@@ -5,10 +5,6 @@
 #include <cstdint>
 #include <string>
 
-#define F_EVENT_NONE 0
-#define F_EVENT_READ 1
-#define F_EVENT_WRITE 2
-
 namespace fastype {
 
 class EventLoopImpl;
@@ -27,16 +23,25 @@ public:
   // @return fd size
   virtual int capacity() const = 0;
 
-  // add event
-  virtual int add(int64_t fd, int event) = 0;
+  // add event, it's enabled after been added
+  //
+  // @param fd  file event fd
+  // @return    0 if remove success, -1 if remove fail
+  virtual int add(int64_t fd) = 0;
 
   // remove event
-  virtual int remove(int64_t fd, int event) = 0;
+  //
+  // @param fd  file event fd
+  // @return    0 if remove success, -1 if remove fail
+  virtual int remove(int64_t fd) = 0;
 
   // poll event
+  //
+  // @param millisec  poll timeout, -1 is forever
+  // @return          trigger file event size
   virtual int poll(int millisec) = 0;
 
-  // api name
+  // @return  api name
   virtual std::string name() const = 0;
 };
 

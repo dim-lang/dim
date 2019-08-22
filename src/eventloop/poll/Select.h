@@ -22,16 +22,15 @@ public:
 
   virtual int expand(int size);
   virtual int capacity() const;
-  virtual int add(int64_t fd, int event);
-  virtual int remove(int64_t fd, int event);
+  virtual int add(int64_t fd);
+  virtual int remove(int64_t fd);
   virtual int poll(int millisec);
   virtual std::string name() const;
 
 private:
   fd_set readset_;
-  fd_set writeset_;
   fd_set readset2_;
-  fd_set writeset2_;
+  int64_t maxfd_;
 
   EventLoopImpl *evloop_;
 };

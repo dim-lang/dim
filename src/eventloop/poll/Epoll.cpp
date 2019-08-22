@@ -62,42 +62,18 @@ int Epoll::expand(int size) {
 
 int Epoll::capacity() const { return capacity_; }
 
-int Epoll::add(int64_t fd, int event) {
+int Epoll::add(int64_t fd) {
   struct epoll_event ee = {0};
-
-  ee.events = 0;
-  event |= evloop_->fileEventMap_[fd]->event;
-  if (event & F_EVENT_READ) {
-    ee.events |= EPOLLIN;
-  }
-  if (event & F_EVENT_WRITE) {
-    ee.events |= EPOLLOUT;
-  }
+  ee.events = EPOLLIN;
   ee.data.fd = (int)fd;
-
-  int op = evloop_->fileEventMap_[fd]->event == F_EVENT_NONE ? EPOLL_CTL_ADD
-                                                             : EPOLL_CTL_MOD;
-
-  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
+  return epoll_ctl(epfd_, EPOLL_CTL_ADD, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int Epoll::remove(int64_t fd, int event) {
   struct epoll_event ee = {0};
-
-  ee.events = 0;
-  if (event & F_EVENT_READ) {
-    ee.events |= EPOLLIN;
-  }
-  if (event & F_EVENT_WRITE) {
-    ee.events |= EPOLLOUT;
-  }
+  ee.events = EPOLLIN;
   ee.data.fd = (int)fd;
-
-  int op = (evloop_->fileEventMap_[fd]->event & (~event)) == F_EVENT_NONE
-               ? EPOLL_CTL_DEL
-               : EPOLL_CTL_MOD;
-
-  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
+  return epoll_ctl(epfd_, EPOLL_CTL_DEL, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int Epoll::poll(int millisec) {
@@ -110,24 +86,11 @@ int Epoll::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int event = 0;
       struct epoll_event *ee = &fdset_[i];
-
       if (ee->events & EPOLLIN) {
-        event |= F_EVENT_READ;
+        evloop_->trigger(ee->data.fd);
+        count++;
       }
-      if (ee->events & EPOLLOUT) {
-        event |= F_EVENT_WRITE;
-      }
-      if (ee->events & EPOLLERR) {
-        event |= F_EVENT_WRITE;
-      }
-      if (ee->events & EPOLLHUP) {
-        event |= F_EVENT_WRITE;
-      }
-      evloop_->triggerEventList_[count].id = ee->data.fd;
-      evloop_->triggerEventList_[count].event = event;
-      count++;
     }
   }
 

@@ -60,34 +60,18 @@ int Kqueue::expand(int size) {
   return 0;
 }
 
-int Kqueue::capacity() const { return 32000; }
+int Kqueue::capacity() const { return capacity_; }
 
-int Kqueue::add(int64_t fd, int event) {
-  struct kevent ke = {0};
-  if (event & F_EVENT_READ) {
-    EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
-    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
-      return -1;
-  }
-  if (event & F_EVENT_WRITE) {
-    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
-    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
-      return -1;
-  }
-  return 0;
+int Kqueue::add(int64_t fd) {
+  struct kevent ke;
+  EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
+  return kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1 ? -1 : 0;
 }
 
-int Kqueue::remove(int64_t fd, int event) {
-  struct kevent ke = {0};
-
-  if (event & F_EVENT_READ) {
-    EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
-  }
-  if (event & F_EVENT_WRITE) {
-    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
-  }
+int Kqueue::remove(int64_t fd) {
+  struct kevent ke;
+  EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+  kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
   return 0;
 }
 
@@ -106,18 +90,11 @@ int Kqueue::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int event = 0;
       struct kevent *ke = &fdset_[i];
-
       if (ke->filter & EVFILT_READ) {
-        event |= F_EVENT_READ;
+        evloop_->trigger(ke->ident);
+        count++;
       }
-      if (ke->filter & EVFILT_WRITE) {
-        event |= F_EVENT_WRITE;
-      }
-      evloop_->triggerEventList_[count].id = ke->ident;
-      evloop_->triggerEventList_[count].event = event;
-      count++;
     }
   }
 
