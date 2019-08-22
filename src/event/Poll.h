@@ -5,6 +5,10 @@
 #include <cstdint>
 #include <string>
 
+#define F_EVENT_NONE 0
+#define F_EVENT_READ 1
+#define F_EVENT_WRITE 2
+
 namespace fastype {
 
 class EventLoopImpl;
@@ -27,13 +31,13 @@ public:
   //
   // @param fd  file event fd
   // @return    0 if remove success, -1 if remove fail
-  virtual int add(int64_t fd) = 0;
+  virtual int add(int64_t fd, int event) = 0;
 
   // remove event
   //
   // @param fd  file event fd
   // @return    0 if remove success, -1 if remove fail
-  virtual int remove(int64_t fd) = 0;
+  virtual int remove(int64_t fd, int event) = 0;
 
   // poll event
   //

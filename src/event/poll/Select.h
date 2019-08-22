@@ -2,22 +2,23 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "eventloop/EventConfig.h"
+#include "event/EventConfig.h"
 
-#ifdef F_EVENT_HAVE_WINSELECT
+#ifdef F_EVENT_HAVE_SELECT
 
-#include "eventloop/Poll.h"
-#include <WinSock2.h>
+#include "event/Poll.h"
 #include <cstdint>
+#include <sys/select.h>
+#include <sys/time.h>
 
 namespace fastype {
 
 class EventLoopImpl;
 
-class WinSelect : public Poll {
+class Select : public Poll {
 public:
-  WinSelect(EventLoopImpl *evloop);
-  virtual ~WinSelect();
+  Select(EventLoopImpl *evloop);
+  virtual ~Select();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -29,10 +30,9 @@ public:
 private:
   fd_set readset_;
   fd_set readset2_;
+  int64_t maxfd_;
 
   EventLoopImpl *evloop_;
-
-  friend class EventLoopImpl;
 };
 
 } // namespace fastype

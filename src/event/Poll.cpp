@@ -1,12 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "eventloop/Poll.h"
-#include "eventloop/EventConfig.h"
-#include "eventloop/poll/Epoll.h"
-#include "eventloop/poll/Kqueue.h"
-#include "eventloop/poll/Select.h"
-#include "eventloop/poll/WinSelect.h"
+#include "event/Poll.h"
+#include "event/EventConfig.h"
+#include "event/poll/Epoll.h"
+#include "event/poll/Kqueue.h"
+#include "event/poll/Select.h"
+#include "event/poll/WinSelect.h"
 
 namespace fastype {
 

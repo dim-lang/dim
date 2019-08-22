@@ -1,12 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "eventloop/poll/Epoll.h"
+#include "event/poll/Epoll.h"
 
 #ifdef F_EVENT_HAVE_EPOLL
 
 #include "boost/align/align_up.hpp"
-#include "eventloop/EventLoopImpl.h"
+#include "event/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/epoll.h>
@@ -62,14 +62,35 @@ int Epoll::expand(int size) {
 
 int Epoll::capacity() const { return capacity_; }
 
-int Epoll::add(int64_t fd) {
+int Epoll::add(int64_t fd, int event) {
+  int op = EPOLL_CTL_ADD;
+
+  if (evloop_->containsReader(fd)) {
+    event |= F_EVENT_READ;
+    op = EPOLL_CTL_MOD;
+  }
+  if (evloop_->containsWriter(fd)) {
+    event |= F_EVENT_WRITE;
+    op = EPOLL_CTL_MOD;
+  }
+
   struct epoll_event ee = {0};
-  ee.events = EPOLLIN;
+  ee.events = 0;
   ee.data.fd = (int)fd;
-  return epoll_ctl(epfd_, EPOLL_CTL_ADD, (int)fd, &ee) == -1 ? -1 : 0;
+
+  if (event & F_EVENT_READ) {
+    ee.events |= EPOLLIN;
+  }
+  if (event & F_EVENT_WRITE) {
+    ee.events |= EPOLLOUT;
+  }
+
+  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int Epoll::remove(int64_t fd, int event) {
+  int op = EPOLL_CTL_MOD;
+
   struct epoll_event ee = {0};
   ee.events = EPOLLIN;
   ee.data.fd = (int)fd;

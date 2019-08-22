@@ -2,37 +2,39 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "eventloop/EventConfig.h"
+#include "event/EventConfig.h"
 
-#ifdef F_EVENT_HAVE_SELECT
+#ifdef F_EVENT_HAVE_EPOLL
 
-#include "eventloop/Poll.h"
+#include "event/Poll.h"
 #include <cstdint>
-#include <sys/select.h>
+#include <sys/epoll.h>
 #include <sys/time.h>
 
 namespace fastype {
 
 class EventLoopImpl;
 
-class Select : public Poll {
+class Epoll : public Poll {
 public:
-  Select(EventLoopImpl *evloop);
-  virtual ~Select();
+  Epoll(EventLoopImpl *evloop);
+  virtual ~Epoll();
 
   virtual int expand(int size);
   virtual int capacity() const;
-  virtual int add(int64_t fd);
-  virtual int remove(int64_t fd);
+  virtual int add(int64_t fd, int event);
+  virtual int remove(int64_t fd, int event);
   virtual int poll(int millisec);
   virtual std::string name() const;
 
 private:
-  fd_set readset_;
-  fd_set readset2_;
-  int64_t maxfd_;
+  int epfd_;
+  struct epoll_event *fdset_;
+  int capacity_;
 
   EventLoopImpl *evloop_;
+
+  friend class EventLoopImpl;
 };
 
 } // namespace fastype

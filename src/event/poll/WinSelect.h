@@ -2,25 +2,22 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "eventloop/EventConfig.h"
+#include "event/EventConfig.h"
 
-#ifdef F_EVENT_HAVE_KQUEUE
+#ifdef F_EVENT_HAVE_WINSELECT
 
-#include "eventloop/Poll.h"
+#include "event/Poll.h"
+#include <WinSock2.h>
 #include <cstdint>
-#include <poll.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#include <sys/types.h>
 
 namespace fastype {
 
 class EventLoopImpl;
 
-class Kqueue : public Poll {
+class WinSelect : public Poll {
 public:
-  Kqueue(EventLoopImpl *evloop);
-  virtual ~Kqueue();
+  WinSelect(EventLoopImpl *evloop);
+  virtual ~WinSelect();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -30,10 +27,8 @@ public:
   virtual std::string name() const;
 
 private:
-  int kqfd_;
-  struct kevent *fdset_;
-  int size_;
-  int capacity_;
+  fd_set readset_;
+  fd_set readset2_;
 
   EventLoopImpl *evloop_;
 

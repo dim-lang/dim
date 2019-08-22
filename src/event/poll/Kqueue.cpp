@@ -1,12 +1,12 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "eventloop/poll/Kqueue.h"
+#include "event/poll/Kqueue.h"
 
 #ifdef F_EVENT_HAVE_KQUEUE
 
 #include "boost/align/align_up.hpp"
-#include "eventloop/EventLoopImpl.h"
+#include "event/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/event.h>
