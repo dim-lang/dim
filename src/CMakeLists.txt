@@ -46,7 +46,6 @@ set(F_CORE
     DateTime.cpp
 
     graph/Dot.cpp
-    graph/Util.cpp
 
     model/Cache.cpp
     model/CacheManager.cpp
