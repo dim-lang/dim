@@ -338,12 +338,12 @@ void EventLoopImpl::freeTimer(int64_t id) {
   it->second = nullptr;
 }
 
-// EventLoop *EventLoop::open() { return new EventLoopImpl(); }
+EventLoop *EventLoop::open() { return (EventLoop *)new EventLoopImpl(); }
 
-// void EventLoop::close(EventLoop *eventLoop) {
-// if (eventLoop) {
-// delete (EventLoopImpl *)eventLoop;
-//}
-//}
+void EventLoop::close(EventLoop *eventLoop) {
+  if (eventLoop) {
+    delete (EventLoopImpl *)eventLoop;
+  }
+}
 
 } // namespace fastype

@@ -46,9 +46,10 @@ public:
   enum TriggerEventType type_;
 };
 
-class EventLoopImpl {
+class EventLoopImpl : public EventLoop {
 public:
   /* public api */
+
   EventLoopImpl();
   virtual ~EventLoopImpl();
 

@@ -7,11 +7,11 @@
 
 namespace fastype {
 
-class EventLoopImpl;
+class EventLoop;
 
 typedef void (*DataHandler)(void *data);
-typedef void (*FileHandler)(EventLoopImpl *evloop, int64_t fd, void *data);
-typedef void (*TimeoutHandler)(EventLoopImpl *evloop, int64_t id, void *data);
+typedef void (*FileHandler)(EventLoop *evloop, int64_t fd, void *data);
+typedef void (*TimeoutHandler)(EventLoop *evloop, int64_t id, void *data);
 
 class EventLoop {
 public:
@@ -76,7 +76,7 @@ public:
   virtual std::string api() const = 0;
 
   // @return current cached time in milliseconds
-  virtual int64_t cachedTime() const;
+  virtual int64_t cachedTime() const = 0;
 };
 
 } // namespace fastype

@@ -60,11 +60,11 @@ set(F_CORE
     controller/Key.cpp
 
     event/Poll.cpp
+    event/EventLoopImpl.cpp
     event/poll/Epoll.cpp
     event/poll/Kqueue.cpp
     event/poll/Select.cpp
     event/poll/WinSelect.cpp
-    event/EventLoopImpl.cpp
     )
 set(F_SRC
     fastype.cpp
