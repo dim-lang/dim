@@ -75,7 +75,14 @@ int Epoll::add(int64_t fd, int event) {
 }
 
 int Epoll::remove(int64_t fd, int event) {
-  int op = EPOLL_CTL_MOD;
+  int op = EPOLL_CTL_DEL;
+  int ev = F_EVENT_NONE;
+  if (evloop_->containsReader(fd)) {
+    ev |= F_EVENT_READ;
+  }
+  if (evloop_->containsWriter(fd)) {
+    ev |= F_EVENT_WRITE;
+  }
 
   struct epoll_event ee = {0};
   ee.events = EPOLLIN;
