@@ -1,11 +1,11 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Define.h"
+#include "Configure.h"
 #include "catch2/catch.hpp"
 #include <cstring>
 
-TEST_CASE("Define", "[Define]") {
+TEST_CASE("Configure", "[Configure]") {
   SECTION("Project Version Info") {
     INFO("Project Version Info");
     REQUIRE(std::strlen(PROJECT_NAME) > 0);

@@ -1,8 +1,8 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Config.h"
 #include "Logging.h"
+#include "Option.h"
 #include "Term.h"
 #include "model/Cache.h"
 #include <exception>
@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   F_LOG_INIT(".", "fastype");
   F_INFOF("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
-  fastype::Config conf(argc, argv);
+  fastype::Option conf(argc, argv);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;
