@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define ALIGN_UP 16
+#define F_ALIGN_UP 16
 
 namespace fastype {
 
@@ -35,43 +35,47 @@ Kqueue::~Kqueue() {
 }
 
 int Kqueue::expand(int size) {
-  if (size <= capacity_) {
-    return 0;
-  }
-
   int newCapacity = std::max<int>(
-      ALIGN_UP, (int)boost::alignment::align_up(capacity_, ALIGN_UP));
-  struct kevent *newFdSet =
-      (struct kevent *)malloc(newCapacity * sizeof(struct kevent));
-
-  if (!newFdSet) {
+      F_ALIGN_UP, (int)boost::alignment::align_up(size, F_ALIGN_UP));
+  struct kevent *newSet =
+      (struct kevent *)realloc(fdset_, newCapacity * sizeof(struct kevent));
+  if (!newSet) {
     return -1;
   }
-
-  std::memcpy(newFdSet, fdset_, capacity_ * sizeof(struct kevent));
-
-  if (fdset_) {
-    free(fdset_);
-    fdset_ = nullptr;
-  }
-
-  fdset_ = newFdSet;
+  fdset_ = newSet;
   capacity_ = newCapacity;
   return 0;
 }
 
 int Kqueue::capacity() const { return capacity_; }
 
-int Kqueue::add(int64_t fd) {
+int Kqueue::add(int64_t fd, int event) {
   struct kevent ke;
-  EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
-  return kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1 ? -1 : 0;
+
+  if (event & F_EVENT_READ) {
+    EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
+    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
+      return -1;
+  }
+  if (event & F_EVENT_WRITE) {
+    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
+    if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
+      return -1;
+  }
+  return 0;
 }
 
-int Kqueue::remove(int64_t fd) {
+int Kqueue::remove(int64_t fd, int event) {
   struct kevent ke;
-  EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-  kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
+
+  if (event & F_EVENT_READ) {
+    EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
+  }
+  if (event & F_EVENT_WRITE) {
+    EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+    kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
+  }
   return 0;
 }
 
@@ -92,7 +96,11 @@ int Kqueue::poll(int millisec) {
     for (int i = 0; i < n; i++) {
       struct kevent *ke = &fdset_[i];
       if (ke->filter & EVFILT_READ) {
-        evloop_->trigger(ke->ident);
+        evloop_->trigger(ke->ident, TriggerEventType::TG_READ);
+        count++;
+      }
+      if (ke->filter & EVFILT_WRITE) {
+        evloop_->trigger(ke->ident, TriggerEventType::TG_WRITE);
         count++;
       }
     }

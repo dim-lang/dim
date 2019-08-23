@@ -7,40 +7,40 @@
 
 namespace fastype {
 
-Area::Area() : dot2_() {}
+Area::Area() : dot_() {}
 
-Area::Area(int height, int width) : dot2_(height, width) {
+Area::Area(int height, int width) : dot_(height, width) {
   F_CHECKF(height > 0, "height {} > 0", height);
   F_CHECKF(width > 0, "width {} > 0", width);
 }
 
-const int &Area::height() const { return dot2_.x(); }
+const int &Area::height() const { return dot_.x(); }
 
 Area &Area::setHeight(int height) {
-  dot2_.setX(height);
+  dot_.setX(height);
   return *this;
 }
 
-const int &Area::width() const { return dot2_.y(); }
+const int &Area::width() const { return dot_.y(); }
 
 Area &Area::setWidth(int width) {
-  dot2_.setY(width);
+  dot_.setY(width);
   return *this;
 }
 
-bool Area::operator==(const Area &other) const { return dot2_ == other.dot2_; }
+bool Area::operator==(const Area &other) const { return dot_ == other.dot_; }
 
-bool Area::operator!=(const Area &other) const { return dot2_ != other.dot2_; }
+bool Area::operator!=(const Area &other) const { return dot_ != other.dot_; }
 
 int Area::number() const {
-  F_CHECKF(dot2_.x() > 0, "dot2_#x {} > 0", dot2_.x());
-  F_CHECKF(dot2_.y() > 0, "dot2_#y {} > 0", dot2_.y());
-  return dot2_.x() * dot2_.y();
+  F_CHECKF(dot_.x() > 0, "dot_#x {} > 0", dot_.x());
+  F_CHECKF(dot_.y() > 0, "dot_#y {} > 0", dot_.y());
+  return dot_.x() * dot_.y();
 }
 
 std::string Area::toString() const {
-  return fmt::format("[ @Area height_:{} width_{} number_:{} ]", dot2_.x(),
-                     dot2_.y(), number());
+  return fmt::format("[ @Area height_:{} width_{} number_:{} ]", dot_.x(),
+                     dot_.y(), number());
 }
 
 } // namespace fastype

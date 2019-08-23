@@ -3,7 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
-#include "graph2/Dot2.h"
+#include "graph/Dot.h"
 #include "view/Vec.h"
 #include <cstddef>
 #include <cstdint>
@@ -42,7 +42,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  Dot2 dot2_;
+  Dot dot_;
 };
 
 } // namespace fastype

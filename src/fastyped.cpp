@@ -1,14 +1,14 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Config.h"
 #include "Logging.h"
+#include "Option.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
 
 int main(int argc, char **argv) {
-  fastype::Config conf(argc, argv);
+  fastype::Option conf(argc, argv);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;

@@ -15,10 +15,12 @@ namespace fastype {
 
 Select::Select(EventLoopImpl *evloop) : maxfd_(-1), evloop_(evloop) {
   FD_ZERO(&readset_);
+  FD_ZERO(&writeset_);
 }
 
 Select::~Select() {
   FD_ZERO(&readset_);
+  FD_ZERO(&writeset_);
   evloop_ = nullptr;
 }
 
@@ -26,22 +28,33 @@ int Select::expand(int size) { return size >= FD_SETSIZE ? -1 : 0; }
 
 int Select::capacity() const { return FD_SETSIZE; }
 
-int Select::add(int64_t fd) {
+int Select::add(int64_t fd, int event) {
   maxfd_ = std::max(maxfd_, fd);
-  FD_SET((int)fd, &readset_);
+  if (event & F_EVENT_READ) {
+    FD_SET((int)fd, &readset_);
+  }
+  if (event & F_EVENT_WRITE) {
+    FD_SET((int)fd, &writeset_);
+  }
   return 0;
 }
 
-int Select::remove(int64_t fd) {
+int Select::remove(int64_t fd, int event) {
   if (fd == maxfd_) {
     maxfd_--;
   }
-  FD_CLR((int)fd, &readset_);
+  if (event & F_EVENT_READ) {
+    FD_CLR((int)fd, &readset_);
+  }
+  if (event & F_EVENT_WRITE) {
+    FD_CLR((int)fd, &writeset_);
+  }
   return 0;
 }
 
 int Select::poll(int millisec) {
   std::memcpy(&readset2_, &readset_, sizeof(fd_set));
+  std::memcpy(&writeset2_, &writeset_, sizeof(fd_set));
 
   struct timeval tv;
   struct timeval *tvp = nullptr;
@@ -52,12 +65,16 @@ int Select::poll(int millisec) {
   }
 
   int count = 0;
-  int n = select(maxfd_ + 1, &readset2_, nullptr, nullptr, tvp);
+  int n = select(maxfd_ + 1, &readset2_, &writeset2_, nullptr, tvp);
 
   if (n > 0) {
     for (int i = 0; i <= maxfd_; i++) {
       if (FD_ISSET(i, &readset2_)) {
-        evloop_->trigger((int64_t)i);
+        evloop_->trigger((int64_t)i, TriggerEventType::TG_READ);
+        count++;
+      }
+      if (FD_ISSET(i, &writeset2_)) {
+        evloop_->trigger((int64_t)i, TriggerEventType::TG_WRITE);
         count++;
       }
     }

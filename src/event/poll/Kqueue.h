@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "event/EventConfig.h"
+#include "config/Event.h"
 
 #ifdef F_EVENT_HAVE_KQUEUE
 
@@ -24,8 +24,8 @@ public:
 
   virtual int expand(int size);
   virtual int capacity() const;
-  virtual int add(int64_t fd);
-  virtual int remove(int64_t fd);
+  virtual int add(int64_t fd, int event);
+  virtual int remove(int64_t fd, int event);
   virtual int poll(int millisec);
   virtual std::string name() const;
 

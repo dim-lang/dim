@@ -10,11 +10,11 @@ namespace boost_po = boost::program_options;
 
 namespace fastype {
 
-class Config {
+class Option {
 public:
-  Config(int argCount, char **argString);
-  Config(const std::vector<std::string> &fileNames);
-  virtual ~Config() = default;
+  Option(int argCount, char **argString);
+  Option(const std::vector<std::string> &fileNames);
+  virtual ~Option() = default;
 
   // --help, -h
   bool hasHelp() const;
@@ -41,7 +41,7 @@ public:
   bool daemonize() const;
 
 private:
-  Config();
+  Option();
 
   boost_po::options_description optDesc_;
   boost_po::positional_options_description posOptDesc_;

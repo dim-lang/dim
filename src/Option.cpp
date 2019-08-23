@@ -1,8 +1,8 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Config.h"
-#include "Define.h"
+#include "Option.h"
+#include "Configure.h"
 #include "Logging.h"
 #include "boost/program_options/parsers.hpp"
 
@@ -24,7 +24,7 @@
 
 namespace fastype {
 
-Config::Config() : optDesc_(F_OPT) {
+Option::Option() : optDesc_(F_OPT) {
   optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help message")(
       F_OPT_VERSION "," F_OPT_V, "version information")(
       F_OPT_INPUT_FILE "," F_OPT_I, boost_po::value<std::vector<std::string>>(),
@@ -34,7 +34,7 @@ Config::Config() : optDesc_(F_OPT) {
   posOptDesc_.add(F_OPT_INPUT_FILE, -1);
 }
 
-Config::Config(int argCount, char **argList) : Config() {
+Option::Option(int argCount, char **argList) : Option() {
   boost_po::store(boost_po::command_line_parser(argCount, argList)
                       .options(optDesc_)
                       .positional(posOptDesc_)
@@ -43,7 +43,7 @@ Config::Config(int argCount, char **argList) : Config() {
   boost_po::notify(varMap_);
 }
 
-Config::Config(const std::vector<std::string> &fileNames) : Config() {
+Option::Option(const std::vector<std::string> &fileNames) : Option() {
   for (int i = 0; i < fileNames.size(); i++) {
     boost_po::store(boost_po::parse_config_file(fileNames[i].data(), optDesc_),
                     varMap_);
@@ -51,40 +51,40 @@ Config::Config(const std::vector<std::string> &fileNames) : Config() {
   boost_po::notify(varMap_);
 }
 
-bool Config::hasHelp() const { return varMap_.count(F_OPT_HELP); }
+bool Option::hasHelp() const { return varMap_.count(F_OPT_HELP); }
 
-std::string Config::help() const {
+std::string Option::help() const {
   std::stringstream ss;
   ss.clear();
   ss << optDesc_;
   return ss.str();
 }
 
-bool Config::hasVersion() const { return varMap_.count(F_OPT_VERSION); }
+bool Option::hasVersion() const { return varMap_.count(F_OPT_VERSION); }
 
-std::string Config::version() const { return "Fastype-" PROJECT_VERSION; }
+std::string Option::version() const { return "Fastype-" PROJECT_VERSION; }
 
-bool Config::hasInputFile() const { return varMap_.count(F_OPT_INPUT_FILE); }
+bool Option::hasInputFile() const { return varMap_.count(F_OPT_INPUT_FILE); }
 
-std::vector<std::string> Config::inputFileList() const {
+std::vector<std::string> Option::inputFileList() const {
   return varMap_[F_OPT_INPUT_FILE].as<std::vector<std::string>>();
 }
 
-int Config::port() const {
+int Option::port() const {
   if (varMap_.count(F_OPT_PORT)) {
     return varMap_[F_OPT_PORT].as<int>();
   }
   return F_OPT_PORT_DEFAULT;
 }
 
-int Config::threadSize() const {
+int Option::threadSize() const {
   if (varMap_.count(F_OPT_THREAD_SIZE)) {
     return varMap_[F_OPT_THREAD_SIZE].as<int>();
   }
   return F_OPT_THREAD_SIZE_DEFAULT;
 }
 
-bool Config::daemonize() const { return varMap_.count(F_OPT_DAEMONIZE); }
+bool Option::daemonize() const { return varMap_.count(F_OPT_DAEMONIZE); }
 
 } // namespace fastype
 

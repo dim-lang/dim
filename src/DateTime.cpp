@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "system/DateTime.h"
+#include "DateTime.h"
 #include <chrono>
 #include <cstdint>
 
@@ -20,7 +20,5 @@ int64_t DateTime::millinow() {
   auto dura = now.time_since_epoch();
   return std::chrono::duration_cast<std::chrono::milliseconds>(dura).count();
 }
-
-}; // namespace fastype
 
 } // namespace fastype

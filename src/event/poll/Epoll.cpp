@@ -13,7 +13,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define ALIGN_UP 16
+#define F_ALIGN_UP 16
 
 namespace fastype {
 
@@ -34,28 +34,14 @@ Epoll::~Epoll() {
 }
 
 int Epoll::expand(int size) {
-  if (size <= capacity_) {
-    return 0;
-  }
-
   int newCapacity = std::max<int>(
-      ALIGN_UP, (int)boost::alignment::align_up(capacity_, ALIGN_UP));
-  struct epoll_event *newFdSet =
-      (struct epoll_event *)malloc(newCapacity * sizeof(struct epoll_event));
-  std::memset(newFdSet, 0, newCapacity * sizeof(struct epoll_event));
-
-  if (!newFdSet) {
+      F_ALIGN_UP, (int)boost::alignment::align_up(size, F_ALIGN_UP));
+  struct epoll_event *newSet = (struct epoll_event *)realloc(
+      fdset_, newCapacity * sizeof(struct epoll_event));
+  if (!newSet) {
     return -1;
   }
-
-  std::memcpy(newFdSet, fdset_, capacity_ * sizeof(struct epoll_event));
-
-  if (fdset_) {
-    free(fdset_);
-    fdset_ = nullptr;
-  }
-
-  fdset_ = newFdSet;
+  fdset_ = newSet;
   capacity_ = newCapacity;
   return 0;
 }

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "event/Poll.h"
-#include "event/EventConfig.h"
+#include "config/Event.h"
 #include "event/poll/Epoll.h"
 #include "event/poll/Kqueue.h"
 #include "event/poll/Select.h"

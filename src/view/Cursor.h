@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "graph2/Dot2.h"
+#include "graph/Dot.h"
 #include <memory>
 
 namespace fastype {

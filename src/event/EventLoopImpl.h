@@ -14,8 +14,9 @@ namespace fastype {
 class FileEvent {
 public:
   int64_t id_; // fd
-  FileHandler *handler_;
+  FileHandler handler_;
   void *data_;
+  DataHandler datafree_;
 };
 
 class TimeoutEvent {
@@ -23,16 +24,17 @@ public:
   int64_t id_;        // timeout event id
   int64_t timestamp_; // system timestamp
   int64_t millisec_;
-  TimeoutHandler *handler_;
+  TimeoutHandler handler_;
   void *data_;
+  DataHandler datafree_;
   int repeat_;
 };
 
 class TimeoutEventComparator {
 public:
   // less at top
-  int operator()(const TimeoutEvent &a, const TimeoutEvent &b) {
-    return a.timestamp_ < b.timestamp_;
+  int operator()(TimeoutEvent *&a, TimeoutEvent *&b) {
+    return a->timestamp_ < b->timestamp_;
   }
 };
 
@@ -44,22 +46,23 @@ public:
   enum TriggerEventType type_;
 };
 
-class EventLoopImpl : public EventLoop {
+class EventLoopImpl {
 public:
   /* public api */
-
   EventLoopImpl();
-
   virtual ~EventLoopImpl();
 
-  virtual int addReader(int64_t fd, FileHandler handler, void *data);
+  virtual int addReader(int64_t fd, FileHandler handler, void *data,
+                        DataHandler datafree);
   virtual int removeReader(int64_t fd);
-  virtual int addWriter(int64_t fd, FileHandler handler, void *data);
+  virtual int addWriter(int64_t fd, FileHandler handler, void *data,
+                        DataHandler datafree);
   virtual int removeWriter(int64_t fd);
-  virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data);
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       int repeat);
-  virtual int removeTimeout(int64_t id);
+                       DataHandler datafree);
+  virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
+                       DataHandler datafree, int repeat);
+  virtual int removeTimer(int64_t id);
   virtual void start();
   virtual void stop();
   virtual int process();
@@ -79,8 +82,10 @@ public:
   virtual bool containsReader(int64_t fd) const;
   virtual bool containsWriter(int64_t fd) const;
 
-public:
-  /* member */
+private:
+  virtual void freeReader(int64_t fd);
+  virtual void freeWriter(int64_t fd, bool freeList);
+  virtual void freeTimer(int64_t id);
 
   // file event
   std::unordered_map<int64_t, FileEvent *> readerMap_;

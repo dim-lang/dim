@@ -7,10 +7,11 @@
 
 namespace fastype {
 
-class EventLoop;
+class EventLoopImpl;
 
-typedef void FileHandler(EventLoop *evloop, int64_t fd, void *data);
-typedef void TimeoutHandler(EventLoop *evloop, int64_t id, void *data);
+typedef void (*DataHandler)(void *data);
+typedef void (*FileHandler)(EventLoopImpl *evloop, int64_t fd, void *data);
+typedef void (*TimeoutHandler)(EventLoopImpl *evloop, int64_t id, void *data);
 
 class EventLoop {
 public:
@@ -23,13 +24,15 @@ public:
   static void close(EventLoop *eventLoop);
 
   // @return  read file event fd
-  virtual int addReader(int64_t fd, FileHandler handler, void *data) = 0;
+  virtual int addReader(int64_t fd, FileHandler handler, void *data,
+                        DataHandler datafree) = 0;
 
   // @return  0 if remove success, -1 if remove fail
   virtual int removeReader(int64_t fd) = 0;
 
   // @return  write file event fd
-  virtual int addWriter(int64_t fd, FileHandler handler, void *data) = 0;
+  virtual int addWriter(int64_t fd, FileHandler handler, void *data,
+                        DataHandler datafree) = 0;
 
   // @return  0 if remove success, -1 if remove fail
   virtual int removeWriter(int64_t fd) = 0;
@@ -37,15 +40,15 @@ public:
   // timeout event will be invoked only once
   //
   // @return  timeout event id
-  virtual int addTimer(int64_t millisec, TimeoutHandler handler,
-                       void *data) = 0;
+  virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
+                       DataHandler datafree) = 0;
 
   // timer event will be invoked multiple times
   //
   // @param repeat  repeat times, 0 is ignored, -1 is forever
   // @return        timer event id
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       int repeat) = 0;
+                       DataHandler datafree, int repeat) = 0;
 
   // @param id  timer event id
   // @return    0 if remove success, -1 if remove fail

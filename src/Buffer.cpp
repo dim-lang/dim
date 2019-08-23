@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <utility>
 
-#define ALIGN_UP 16
+#define F_ALIGN_UP 16
 
 namespace fastype {
 
@@ -64,21 +64,16 @@ void Buffer::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
   // F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
-      ALIGN_UP, (int)boost::alignment::align_up(capacity, ALIGN_UP));
+      F_ALIGN_UP, (int)boost::alignment::align_up(capacity, F_ALIGN_UP));
   F_DEBUGF("capacity:{} newCapacity:{}", capacity, newCapacity);
   F_CHECKF(newCapacity >= 2 * capacity_, "newCapacity {} >= 2 * capacity_ {}",
            newCapacity, capacity_);
-  char *newData = new char[newCapacity];
-  std::memset(newData, 0, newCapacity * sizeof(char));
-  if (size_ > 0) {
-    std::memcpy(newData, data_, size_ * sizeof(char));
+  char *newData = (char *)realloc(data_, newCapacity * sizeof(char));
+  if (!newData) {
+    return;
   }
-  std::swap(data_, newData);
-  std::swap(capacity_, newCapacity);
-  if (newData) {
-    delete[] newData;
-    newData = nullptr;
-  }
+  data_ = newData;
+  capacity_ = newCapacity;
   F_DEBUGF("after expand:{}", toString());
 }
 
@@ -198,4 +193,4 @@ std::string Buffer::toString() const {
 
 } // namespace fastype
 
-#undef ALIGN_UP
+#undef F_ALIGN_UP

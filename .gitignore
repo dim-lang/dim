@@ -14,9 +14,6 @@
 *.log
 *.tlog
 
-# Define.h
-Define.h
-
 # .DS_Store
 .DS_Store
 

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "event/EventConfig.h"
+#include "config/Event.h"
 
 #ifdef F_EVENT_HAVE_EPOLL
 
