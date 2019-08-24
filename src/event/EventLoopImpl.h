@@ -16,7 +16,7 @@ public:
   int64_t id_; // fd
   FileHandler handler_;
   void *data_;
-  DataHandler datafree_;
+  DataHandler releaser_;
 };
 
 class TimeoutEvent {
@@ -26,7 +26,7 @@ public:
   int64_t millisec_;
   TimeoutHandler handler_;
   void *data_;
-  DataHandler datafree_;
+  DataHandler releaser_;
   int repeat_;
 };
 
@@ -80,8 +80,9 @@ public:
   virtual void trigger(int64_t id, enum TriggerEventType type);
 
   // contains file event
-  virtual bool containsReader(int64_t fd) const;
-  virtual bool containsWriter(int64_t fd) const;
+  virtual bool hasReader(int64_t fd) const;
+  virtual bool hasWriter(int64_t fd) const;
+  virtual bool hasTimer(int64_t id) const;
 
 private:
   virtual void freeReader(int64_t fd);

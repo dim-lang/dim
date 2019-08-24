@@ -77,6 +77,12 @@ public:
 
   // @return current cached time in milliseconds
   virtual int64_t cachedTime() const = 0;
+
+  virtual bool hasReader(int64_t fd) const = 0;
+
+  virtual bool hasWriter(int64_t fd) const = 0;
+
+  virtual bool hasTimer(int64_t id) const = 0;
 };
 
 } // namespace fastype

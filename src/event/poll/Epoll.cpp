@@ -51,11 +51,11 @@ int Epoll::capacity() const { return capacity_; }
 int Epoll::add(int64_t fd, int event) {
   int op = EPOLL_CTL_ADD;
 
-  if (evloop_->containsReader(fd)) {
+  if (evloop_->hasReader(fd)) {
     event |= F_EVENT_READ;
     op = EPOLL_CTL_MOD;
   }
-  if (evloop_->containsWriter(fd)) {
+  if (evloop_->hasWriter(fd)) {
     event |= F_EVENT_WRITE;
     op = EPOLL_CTL_MOD;
   }
@@ -75,19 +75,25 @@ int Epoll::add(int64_t fd, int event) {
 }
 
 int Epoll::remove(int64_t fd, int event) {
-  int op = EPOLL_CTL_DEL;
   int ev = F_EVENT_NONE;
-  if (evloop_->containsReader(fd)) {
+  if (evloop_->hasReader(fd)) {
     ev |= F_EVENT_READ;
   }
-  if (evloop_->containsWriter(fd)) {
+  if (evloop_->hasWriter(fd)) {
     ev |= F_EVENT_WRITE;
   }
+  event = ev & (~event);
 
   struct epoll_event ee = {0};
-  ee.events = EPOLLIN;
   ee.data.fd = (int)fd;
-  return epoll_ctl(epfd_, EPOLL_CTL_DEL, (int)fd, &ee) == -1 ? -1 : 0;
+  if (event & F_EVENT_READ) {
+    ee.events |= EPOLLIN;
+  }
+  if (event & F_EVENT_WRITE) {
+    ee.events |= EPOLLOUT;
+  }
+  int op = event == F_EVENT_NONE ? EPOLL_CTL_DEL : EPOLL_CTL_MOD;
+  return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
 int Epoll::poll(int millisec) {
