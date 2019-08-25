@@ -296,12 +296,7 @@ void EventLoopImpl::freeReader(int64_t fd) {
   if (it == readerMap_.end()) {
     return;
   }
-
-  FileEvent *fe = it->second;
-  if (fe->releaser_) {
-    fe->releaser_(fe->data_);
-  }
-  delete fe;
+  delete it->second;
   it->second = nullptr;
 }
 
@@ -317,9 +312,6 @@ void EventLoopImpl::freeWriter(int64_t fd, bool freeList) {
   for (std::list<FileEvent *>::iterator i = writeList->begin();
        i != writeList->end(); i++) {
     FileEvent *fe = *i;
-    if (fe->releaser_) {
-      fe->releaser_(fe->data_);
-    }
     delete fe;
   }
   writeList->clear();
@@ -335,11 +327,7 @@ void EventLoopImpl::freeTimer(int64_t id) {
     // id not exist
     return;
   }
-  TimeoutEvent *te = it->second;
-  if (te->releaser_) {
-    te->releaser_(te->data_);
-  }
-  delete te;
+  delete it->second;
   it->second = nullptr;
 }
 

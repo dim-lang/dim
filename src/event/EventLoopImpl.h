@@ -17,7 +17,6 @@ public:
     if (releaser_) {
       releaser_(data_);
     }
-    handler_ = nullptr;
     releaser_ = nullptr;
     data_ = nullptr;
   }
@@ -34,7 +33,6 @@ public:
     if (releaser_) {
       releaser_(data_);
     }
-    handler_ = nullptr;
     releaser_ = nullptr;
     data_ = nullptr;
   }
