@@ -5,6 +5,7 @@
 #include "Configure.h"
 #include "Logging.h"
 #include "boost/program_options/parsers.hpp"
+#include <fstream>
 
 #define F_OPT "Fastype Options"
 #define F_OPT_HELP "help"
@@ -45,8 +46,8 @@ Option::Option(int argCount, char **argList) : Option() {
 
 Option::Option(const std::vector<std::string> &fileNames) : Option() {
   for (int i = 0; i < fileNames.size(); i++) {
-    boost_po::store(boost_po::parse_config_file(fileNames[i].data(), optDesc_),
-                    varMap_);
+    std::ifstream ifile(fileNames[i].data());
+    boost_po::store(boost_po::parse_config_file(ifile, optDesc_), varMap_);
   }
   boost_po::notify(varMap_);
 }
