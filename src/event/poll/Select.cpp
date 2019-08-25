@@ -69,12 +69,15 @@ int Select::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i <= maxfd_; i++) {
+      int event = F_EVENT_NONE;
       if (FD_ISSET(i, &readset2_)) {
-        evloop_->trigger((int64_t)i, TriggerEventType::TG_READ);
-        count++;
+        event |= F_EVENT_READ;
       }
       if (FD_ISSET(i, &writeset2_)) {
-        evloop_->trigger((int64_t)i, TriggerEventType::TG_WRITE);
+        event |= F_EVENT_WRITE;
+      }
+      if (event != F_EVENT_NONE) {
+        evloop_->trigger((int64_t)i, event);
         count++;
       }
     }

@@ -13,6 +13,15 @@ namespace fastype {
 
 class FileEvent {
 public:
+  virtual ~FileEvent() {
+    if (releaser_) {
+      releaser_(data_);
+    }
+    handler_ = nullptr;
+    releaser_ = nullptr;
+    data_ = nullptr;
+  }
+
   int64_t id_; // fd
   FileHandler handler_;
   void *data_;
@@ -21,6 +30,15 @@ public:
 
 class TimeoutEvent {
 public:
+  virtual ~TimeoutEvent() {
+    if (releaser_) {
+      releaser_(data_);
+    }
+    handler_ = nullptr;
+    releaser_ = nullptr;
+    data_ = nullptr;
+  }
+
   int64_t id_;        // timeout event id
   int64_t timestamp_; // system timestamp
   int64_t millisec_;
@@ -38,12 +56,10 @@ public:
   }
 };
 
-enum TriggerEventType { TG_READ = 1, TG_WRITE = 2 };
-
 class TriggerEvent {
 public:
   int64_t id_;
-  enum TriggerEventType type_;
+  int event_;
 };
 
 class EventLoopImpl : public EventLoop {
@@ -72,17 +88,15 @@ public:
   virtual int timerSize() const;
   virtual std::string api() const;
   virtual int64_t cachedTime() const;
+  virtual bool hasReader(int64_t fd) const;
+  virtual bool hasWriter(int64_t fd) const;
+  virtual bool hasTimer(int64_t id) const;
 
 public:
   /* inner api */
 
   // trigger file event
-  virtual void trigger(int64_t id, enum TriggerEventType type);
-
-  // contains file event
-  virtual bool hasReader(int64_t fd) const;
-  virtual bool hasWriter(int64_t fd) const;
-  virtual bool hasTimer(int64_t id) const;
+  virtual void trigger(int64_t id, int event);
 
 private:
   virtual void freeReader(int64_t fd);

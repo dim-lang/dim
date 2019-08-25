@@ -94,13 +94,16 @@ int Kqueue::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
+      int event = F_EVENT_NONE;
       struct kevent *ke = &fdset_[i];
       if (ke->filter & EVFILT_READ) {
-        evloop_->trigger(ke->ident, TriggerEventType::TG_READ);
-        count++;
+        event |= F_EVENT_READ;
       }
       if (ke->filter & EVFILT_WRITE) {
-        evloop_->trigger(ke->ident, TriggerEventType::TG_WRITE);
+        event |= F_EVENT_WRITE;
+      }
+      if (event != F_EVENT_NONE) {
+        evloop_->trigger(ke->ident, event);
         count++;
       }
     }

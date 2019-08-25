@@ -197,7 +197,7 @@ int EventLoopImpl::process() {
   // process file events
   for (int i = 0; i < triggerList_.size(); i++) {
     TriggerEvent te = triggerList_[i];
-    if (te.type_ == TriggerEventType::TG_READ) {
+    if (te.event_ & F_EVENT_READ) {
       auto it = readerMap_.find(te.id_);
       if (it == readerMap_.end()) {
         continue;
@@ -206,7 +206,8 @@ int EventLoopImpl::process() {
       FileHandler handler = fe->handler_;
       handler(this, fe->id_, fe->data_);
       n++;
-    } else if (te.type_ == TriggerEventType::TG_WRITE) {
+    }
+    if (te.event_ & F_EVENT_WRITE) {
       auto it = writerMap_.find(te.id_);
       if (it == writerMap_.end()) {
         continue;
@@ -268,10 +269,10 @@ int EventLoopImpl::timerSize() const { return timerMap_.size(); }
 
 std::string EventLoopImpl::api() const { return poll_->name(); }
 
-void EventLoopImpl::trigger(int64_t id, enum TriggerEventType type) {
+void EventLoopImpl::trigger(int64_t id, int event) {
   TriggerEvent te;
   te.id_ = id;
-  te.type_ = type;
+  te.event_ = event;
   triggerList_.push_back(te);
 }
 

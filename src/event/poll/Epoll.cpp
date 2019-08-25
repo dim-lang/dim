@@ -106,9 +106,22 @@ int Epoll::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
+      int event = F_EVENT_NONE;
       struct epoll_event *ee = &fdset_[i];
       if (ee->events & EPOLLIN) {
-        evloop_->trigger(ee->data.fd);
+        event |= F_EVENT_READ;
+      }
+      if (ee->events & EPOLLOUT) {
+        event |= F_EVENT_WRITE;
+      }
+      if (ee->events & EPOLLERR) {
+        event |= F_EVENT_WRITE;
+      }
+      if (ee->events & EPOLLHUP) {
+        event |= F_EVENT_WRITE;
+      }
+      if (event != F_EVENT_NONE) {
+        evloop_->trigger(ee->data.fd, event);
         count++;
       }
     }
