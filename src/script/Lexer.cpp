@@ -62,9 +62,21 @@ void Lexer::readLine() {
     return;
   }
   int lineNumber = 0;
+  int pos = 0;
+  int endPos = line.length();
+
+  std::smatch m;
+  while (std::regex_match(line, m, RegexPattern_)) {
+    for (auto x : m) {
+      addToken(lineNumber, x);
+      pos = x.end();
+      break;
+    }
+  }
+  queue_.add(IdToken(lineNumber, Token::EOL_));
 }
 
-void Lexer::addToken(int lineNumber) {}
+void Lexer::addToken(int lineNumber, std::sub_match &sm) {}
 
 std::string Lexer::toStringLiteral(const std::string &s) {}
 

@@ -37,7 +37,7 @@ public:
 private:
   virtual bool fillQueue(int i);
   virtual void readLine();
-  virtual void addToken(int lineNumber);
+  virtual void addToken(int lineNumber, std::sub_match &sm);
   virtual std::string toStringLiteral(const std::string &s);
 
   std::regex pattern_;

@@ -9,6 +9,7 @@ namespace fastype {
 
 class NumberToken : public Token {
 public:
+  NumberToken(int line, int64_t value);
   virtual ~Token() = default;
 
   virtual bool isNumber() const;
@@ -17,8 +18,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  NumberToken(int line, int64_t value);
-
   int64_t value_;
 };
 

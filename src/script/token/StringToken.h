@@ -9,6 +9,7 @@ namespace fastype {
 
 class StringToken : public Token {
 public:
+  StringToken(int line, const std::string &value);
   virtual ~Token() = default;
 
   virtual bool isString() const;
@@ -16,8 +17,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  StringToken(int line, const std::string &value);
-
   std::string value_;
 };
 

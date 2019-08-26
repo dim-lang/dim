@@ -9,6 +9,7 @@ namespace fastype {
 
 class IdToken : public Token {
 public:
+  IdToken(int line, const std::string &id);
   virtual ~Token() = default;
 
   virtual bool isIdentifier() const;
@@ -16,8 +17,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  IdToken(int line, const std::string &id);
-
   std::string id_;
 };
 
