@@ -14,26 +14,26 @@ namespace fastype {
 class FileEvent {
 public:
   virtual ~FileEvent() {
-    if (releaser_) {
-      releaser_(data_);
+    if (resourceHandler_) {
+      resourceHandler_(data_);
     }
-    releaser_ = nullptr;
+    resourceHandler_ = nullptr;
     data_ = nullptr;
   }
 
   int64_t id_; // fd
   FileHandler handler_;
+  ResourceHandler resourceHandler_;
   void *data_;
-  DataHandler releaser_;
 };
 
 class TimeoutEvent {
 public:
   virtual ~TimeoutEvent() {
-    if (releaser_) {
-      releaser_(data_);
+    if (resourceHandler_) {
+      resourceHandler_(data_);
     }
-    releaser_ = nullptr;
+    resourceHandler_ = nullptr;
     data_ = nullptr;
   }
 
@@ -41,8 +41,8 @@ public:
   int64_t timestamp_; // system timestamp
   int64_t millisec_;
   TimeoutHandler handler_;
+  ResourceHandler resourceHandler_;
   void *data_;
-  DataHandler releaser_;
   int repeat_;
 };
 
@@ -68,15 +68,15 @@ public:
   virtual ~EventLoopImpl();
 
   virtual int addReader(int64_t fd, FileHandler handler, void *data,
-                        DataHandler datafree);
+                        ResourceHandler resourceHandler);
   virtual int removeReader(int64_t fd);
   virtual int addWriter(int64_t fd, FileHandler handler, void *data,
-                        DataHandler datafree);
+                        ResourceHandler resourceHandler);
   virtual int removeWriter(int64_t fd);
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       DataHandler datafree);
+                       ResourceHandler resourceHandler);
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       DataHandler datafree, int repeat);
+                       ResourceHandler resourceHandler, int repeat);
   virtual int removeTimer(int64_t id);
   virtual void start();
   virtual void stop();

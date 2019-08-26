@@ -64,6 +64,12 @@ set(F_CORE
     event/poll/Kqueue.cpp
     event/poll/Select.cpp
     event/poll/WinSelect.cpp
+
+    script/Token.cpp
+    script/Lexer.cpp
+    script/token/IdToken.cpp
+    script/token/StringToken.cpp
+    script/token/NumberToken.cpp
     )
 set(F_SRC
     fastype.cpp

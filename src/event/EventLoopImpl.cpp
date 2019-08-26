@@ -45,7 +45,7 @@ EventLoopImpl::~EventLoopImpl() {
 }
 
 int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data,
-                             DataHandler releaser) {
+                             ResourceHandler resourceHandler) {
   // fd already exist
   auto it = readerMap_.find(fd);
   if (it != readerMap_.end()) {
@@ -59,7 +59,7 @@ int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data,
   fe->id_ = fd;
   fe->handler_ = handler;
   fe->data_ = data;
-  fe->releaser_ = releaser;
+  fe->resourceHandler_ = resourceHandler;
 
   readerMap_.insert(std::make_pair(fd, fe));
   poll_->add(fd, F_EVENT_READ);
@@ -80,7 +80,7 @@ int EventLoopImpl::removeReader(int64_t fd) {
 }
 
 int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data,
-                             DataHandler releaser) {
+                             ResourceHandler resourceHandler) {
   // fd not exist
   auto it = writerMap_.find(fd);
   if (it == writerMap_.end()) {
@@ -98,7 +98,7 @@ int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data,
   fe->id_ = fd;
   fe->handler_ = handler;
   fe->data_ = data;
-  fe->releaser_ = releaser;
+  fe->resourceHandler_ = resourceHandler;
 
   writerMap_[fd]->push_front(fe);
   poll_->add(fd, F_EVENT_WRITE);
@@ -124,7 +124,8 @@ static uint64_t nextTimeoutId() {
 }
 
 int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
-                            void *data, DataHandler releaser, int repeat) {
+                            void *data, ResourceHandler resourceHandler,
+                            int repeat) {
 
   timestamp_ = DateTime::millinow();
   int64_t now = cachedTime();
@@ -139,7 +140,7 @@ int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
   te->timestamp_ = now + millisec;
   te->handler_ = handler;
   te->data_ = data;
-  te->releaser_ = releaser;
+  te->resourceHandler_ = resourceHandler;
   te->repeat_ = repeat;
 
   timerMap_.insert(std::make_pair(te->id_, te));
@@ -149,8 +150,8 @@ int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
 }
 
 int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
-                            void *data, DataHandler releaser) {
-  return addTimer(millisec, handler, data, releaser, 1);
+                            void *data, ResourceHandler resourceHandler) {
+  return addTimer(millisec, handler, data, resourceHandler, 1);
 }
 
 int EventLoopImpl::removeTimer(int64_t id) {
