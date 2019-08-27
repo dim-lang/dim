@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Buffer.h"
+#include "memory/Buf.h"
 #include "Logging.h"
 #include "Profile.h"
 #include "boost/align/align_up.hpp"
@@ -13,18 +13,18 @@
 
 namespace fastype {
 
-Buffer::Buffer() : data_(nullptr), size_(0), capacity_(0) {
+Buf::Buf() : data_(nullptr), size_(0), capacity_(0) {
   // F_DEBUGF("No Args Constructor:{}", toString());
 }
 
-Buffer::Buffer(int capacity) : Buffer() {
+Buf::Buf(int capacity) : Buf() {
   expand(capacity);
   // F_DEBUGF("Capacity Constructor:{}", toString());
 }
 
-Buffer::~Buffer() { release(); }
+Buf::~Buf() { release(); }
 
-Buffer::Buffer(const Buffer &other) : Buffer() {
+Buf::Buf(const Buf &other) : Buf() {
   if (other.data_) {
     expand(other.capacity_);
     std::memset(data_, 0, capacity_ * sizeof(char));
@@ -33,7 +33,7 @@ Buffer::Buffer(const Buffer &other) : Buffer() {
   F_DEBUGF("Copy Constructor: {}", toString());
 }
 
-Buffer &Buffer::operator=(const Buffer &other) {
+Buf &Buf::operator=(const Buf &other) {
   if (this == &other) {
     return *this;
   }
@@ -44,13 +44,13 @@ Buffer &Buffer::operator=(const Buffer &other) {
   return *this;
 }
 
-Buffer::Buffer(Buffer &&other) : Buffer() {
+Buf::Buf(Buf &&other) : Buf() {
   std::swap(data_, other.data_);
   std::swap(size_, other.size_);
   std::swap(capacity_, other.capacity_);
 }
 
-Buffer &Buffer::operator=(Buffer &&other) {
+Buf &Buf::operator=(Buf &&other) {
   if (this == &other) {
     return *this;
   }
@@ -60,7 +60,7 @@ Buffer &Buffer::operator=(Buffer &&other) {
   return *this;
 }
 
-void Buffer::expand(int capacity) {
+void Buf::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
   // F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
@@ -77,18 +77,18 @@ void Buffer::expand(int capacity) {
   F_DEBUGF("after expand:{}", toString());
 }
 
-bool Buffer::empty() const { return size_ <= 0; }
+bool Buf::empty() const { return size_ <= 0; }
 
-bool Buffer::full() const { return size_ >= capacity_; }
+bool Buf::full() const { return size_ >= capacity_; }
 
-void Buffer::clear() {
+void Buf::clear() {
   if (data_) {
     std::memset(data_, 0, capacity_ * sizeof(char));
     size_ = 0;
   }
 }
 
-void Buffer::release() {
+void Buf::release() {
   if (data_) {
     delete[] data_;
     data_ = nullptr;
@@ -100,7 +100,7 @@ void Buffer::release() {
   F_CHECKF(capacity_ == 0, "capacity_ {} == 0", capacity_);
 }
 
-void Buffer::truncate(int start, int length) {
+void Buf::truncate(int start, int length) {
   F_CHECKF(start >= 0, "start {} >= 0", start);
   F_CHECKF(length > 0, "length {} > 0", length);
   if (!data_) {
@@ -115,12 +115,12 @@ void Buffer::truncate(int start, int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Buffer::trim(int length) {
+void Buf::trim(int length) {
   leftTrim(length);
   rightTrim(length);
 }
 
-void Buffer::leftTrim(int length) {
+void Buf::leftTrim(int length) {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -131,7 +131,7 @@ void Buffer::leftTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Buffer::rightTrim(int length) {
+void Buf::rightTrim(int length) {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -141,54 +141,54 @@ void Buffer::rightTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-char *Buffer::data() { return data_; }
+char *Buf::data() { return data_; }
 
-const char *Buffer::data() const { return data_; }
+const char *Buf::data() const { return data_; }
 
-char &Buffer::operator[](int index) {
+char &Buf::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-const char &Buffer::operator[](int index) const {
+const char &Buf::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-int Buffer::size() const {
+int Buf::size() const {
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   return size_;
 }
 
-void Buffer::setSize(int size) {
+void Buf::setSize(int size) {
   F_CHECKF(size >= 0, "size {} >= 0", size);
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   size_ = size;
 }
 
-void Buffer::incSize(int update) {
+void Buf::incSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ + update <= capacity_, "size_ {} + update {} <= capacity_ {}",
            size_, update, capacity_);
   size_ += update;
 }
 
-void Buffer::decSize(int update) {
+void Buf::decSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ - update >= 0, "size_ {} - update {} >= 0", size_, update);
   size_ -= update;
 }
 
-int Buffer::capacity() const {
+int Buf::capacity() const {
   F_CHECKF(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
   return capacity_;
 }
 
-std::string Buffer::toString() const {
-  return fmt::format("[ @Buffer data_:{} size_:{} capacity_:{} ]",
-                     (void *)data_, size_, capacity_);
+std::string Buf::toString() const {
+  return fmt::format("[ @Buf data_:{} size_:{} capacity_:{} ]", (void *)data_,
+                     size_, capacity_);
 }
 
 } // namespace fastype

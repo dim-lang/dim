@@ -2,23 +2,23 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Buffer.h"
 #include "Stringify.h"
-#include "boost/noncopyable.hpp"
+#include "memory/Buf.h"
+#include <boost/noncopyable.hpp>
 #include <memory>
 #include <vector>
 
 namespace fastype {
 
-class Line : public Stringify {
+class Row : public Stringify {
 public:
-  Line();
-  Line(int capacity, int lineNumber, int dirty);
-  Line(const Line &other) = default;
-  Line &operator=(const Line &other) = default;
-  Line(Line &&other) = default;
-  Line &operator=(Line &&other) = default;
-  virtual ~Line() = default;
+  Row();
+  Row(int capacity, int lineNumber, int dirty);
+  Row(const Row &other) = default;
+  Row &operator=(const Row &other) = default;
+  Row(Row &&other) = default;
+  Row &operator=(Row &&other) = default;
+  virtual ~Row() = default;
 
   virtual std::string toString() const;
 
@@ -31,14 +31,14 @@ public:
   int capacity() const;
   void setCapacity(int capacity);
   int &lineNumber();
-  void setLineNumber(int lineNumber);
+  void setRowNumber(int lineNumber);
   bool &dirty();
   void setDirty(int dirty);
 
   void expand(int n);
 
 private:
-  std::shared_ptr<Buffer> data_;
+  std::shared_ptr<Buf> data_;
   int lineNumber_;
   bool dirty_;
 };

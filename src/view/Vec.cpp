@@ -4,7 +4,7 @@
 #include "view/Vec.h"
 #include "Logging.h"
 #include "Profile.h"
-#include "fmt/format.h"
+#include <fmt/format.h>
 #include <utility>
 
 namespace fastype {

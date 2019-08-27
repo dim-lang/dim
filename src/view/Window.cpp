@@ -5,8 +5,8 @@
 #include "ConcurrentHashMap.h"
 #include "Logging.h"
 #include "Profile.h"
-#include "fmt/format.h"
 #include <atomic>
+#include <fmt/format.h>
 #include <ncurses.h>
 #include <panel.h>
 

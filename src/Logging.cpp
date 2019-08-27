@@ -2,11 +2,10 @@
 // Apache License Version 2.0
 
 #include "Logging.h"
-#include "boost/config.hpp"
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/spdlog.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <memory>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 #include <string>
 using std::shared_ptr;
 using std::string;

@@ -2,13 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Line.h"
-#include "boost/noncopyable.hpp"
+#include "memory/Row.h"
 #include "view/Area.h"
 #include "view/Cursor.h"
 #include "view/Position.h"
 #include "view/Vec.h"
 #include <atomic>
+#include <boost/noncopyable.hpp>
 #include <memory>
 #include <ncurses.h>
 #include <panel.h>

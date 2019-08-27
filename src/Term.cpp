@@ -4,18 +4,18 @@
 #include "Term.h"
 #include "ConcurrentHashMap.h"
 #include "Logging.h"
-#include "boost/config.hpp"
+#include "config/Platform.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
 #include <string>
 
-#if BOOST_WINDOWS
+#ifdef F_PLATFORM_WINDOWS
 #include "WinTerm.h"
 #else
 #include "NCursesTerm.h"
-#endif // #if BOOST_WINDOWS
+#endif // #ifdef F_PLATFORM_WINDOWS
 
 namespace fastype {
 

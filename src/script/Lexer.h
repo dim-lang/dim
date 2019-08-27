@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "ResourceHandler.h"
+#include "memory/ResourceHandler.h"
 #include "script/Token.h"
 #include <deque>
 #include <regex>

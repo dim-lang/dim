@@ -3,9 +3,9 @@
 
 #pragma once
 #include "Stringify.h"
-#include "spdlog/spdlog.h"
 #include <cstdio>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string>
 
 namespace fastype {

@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #include "Daemonize.h"
-#include "boost/config.hpp"
-#if BOOST_WINDOWS
+#include "config/Platform.h"
+#ifdef F_PLATFORM_WINDOWS
 #else
 #include <errno.h>
 #include <fcntl.h>

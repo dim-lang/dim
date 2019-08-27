@@ -3,7 +3,7 @@
 
 #include "view/Area.h"
 #include "Profile.h"
-#include "fmt/format.h"
+#include <fmt/format.h>
 
 namespace fastype {
 

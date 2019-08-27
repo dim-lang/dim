@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #include "NCursesTerm.h"
-#include "Line.h"
 #include "Logging.h"
+#include "memory/Row.h"
 #include "model/Cache.h"
 #include <cerrno>
 #include <cmath>

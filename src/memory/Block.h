@@ -7,16 +7,16 @@
 
 namespace fastype {
 
-class Buffer : public Stringify {
+class Block : public Stringify {
 public:
-  Buffer();
-  Buffer(int capacity);
-  virtual ~Buffer();
+  Block();
+  Block(int capacity);
+  virtual ~Block();
 
-  Buffer(const Buffer &other);
-  Buffer &operator=(const Buffer &other);
-  Buffer(Buffer &&other);
-  Buffer &operator=(Buffer &&other);
+  Block(const Block &other);
+  Block &operator=(const Block &other);
+  Block(Block &&other);
+  Block &operator=(Block &&other);
 
   void expand(int capacity);
   bool empty() const;
