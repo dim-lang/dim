@@ -197,9 +197,9 @@ void Window::update() {
   }
 }
 
-const Line &Window::get(int lineNumber) { return lineList_[lineNumber]; }
+const Row &Window::get(int lineNumber) { return lineList_[lineNumber]; }
 
-void Window::set(int lineNumber, const Line &l) { lineList_[lineNumber] = l; }
+void Window::set(int lineNumber, const Row &l) { lineList_[lineNumber] = l; }
 
 Cursor &Window::cursor() { return cursor_; }
 

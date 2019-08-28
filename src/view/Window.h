@@ -8,7 +8,7 @@
 #include "view/Position.h"
 #include "view/Vec.h"
 #include <atomic>
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <memory>
 #include <ncurses.h>
 #include <panel.h>
@@ -123,9 +123,9 @@ public:
   // window line conditions:
   // line#size <= width
   // 0 <= lineNumber < height
-  virtual const Line &get(int lineNumber);
+  virtual const Row &get(int lineNumber);
 
-  virtual void set(int lineNumber, const Line &l);
+  virtual void set(int lineNumber, const Row &l);
 
   virtual Cursor &cursor();
 
@@ -160,7 +160,7 @@ private:
   Position p1_; // relative p1
 
   // render
-  std::vector<Line> lineList_;
+  std::vector<Row> lineList_;
   Cursor cursor_;
   WINDOW *window_;
   PANEL *panel_;

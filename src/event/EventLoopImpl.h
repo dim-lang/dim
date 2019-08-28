@@ -4,6 +4,7 @@
 #pragma once
 #include "event/EventLoop.h"
 #include "event/Poll.h"
+#include <boost/core/noncopyable.hpp>
 #include <list>
 #include <queue>
 #include <unordered_map>
@@ -11,51 +12,72 @@
 
 namespace fastype {
 
-class FileEvent {
+class FileEvent : public boost::noncopyable {
 public:
-  virtual ~FileEvent() {
-    if (resourceHandler_) {
-      resourceHandler_(data_);
-    }
-    resourceHandler_ = nullptr;
-    data_ = nullptr;
-  }
+  FileEvent() {}
+  virtual ~FileEvent() = default;
 
+  int64_t &id() { return id_; }
+  void setId(int64_t id) { id_ = id; }
+  FileHandler &handler() { return handler_; }
+  void setHandler(FileHandler handler) { handler_ = handler; }
+  void *&data() { return holder_.resource(); }
+  void setData(void *data) { holder_.setResource(data); }
+  ResourceHandler &releaser() { return holder_.handler(); }
+  void setReleaser(ResourceHandler releaser) { holder_.setHandler(releaser); }
+
+private:
   int64_t id_; // fd
   FileHandler handler_;
-  ResourceHandler resourceHandler_;
-  void *data_;
+  ResourceHolder holder_;
 };
 
-class TimeoutEvent {
+class TimeoutEvent : public boost::noncopyable {
 public:
-  virtual ~TimeoutEvent() {
-    if (resourceHandler_) {
-      resourceHandler_(data_);
-    }
-    resourceHandler_ = nullptr;
-    data_ = nullptr;
-  }
+  TimeoutEvent() {}
+  virtual ~TimeoutEvent() = default;
 
+  int64_t &id() { return id_; }
+  void setId(int64_t id) { id_ = id; }
+  int64_t &timestamp() { return timestamp_; }
+  void setTimestamp(int64_t timestamp) { timestamp_ = timestamp; }
+  int64_t &millisec() { return millisec_; }
+  void setMillisec(int64_t millisec) { millisec_ = millisec; }
+  TimeoutHandler &handler() { return handler_; }
+  void setHandler(TimeoutHandler handler) { handler_ = handler; }
+  int &repeat() { return repeat_; }
+  void setRepeat(int repeat) { repeat_ = repeat; }
+  void *&data() { return holder_.resource(); }
+  void setData(void *data) { holder_.setResource(data); }
+  ResourceHandler &releaser() { return holder_.handler(); }
+  void setReleaser(ResourceHandler releaser) { holder_.setHandler(releaser); }
+
+private:
   int64_t id_;        // timeout event id
   int64_t timestamp_; // system timestamp
   int64_t millisec_;
   TimeoutHandler handler_;
-  ResourceHandler resourceHandler_;
-  void *data_;
   int repeat_;
+  ResourceHolder holder_;
 };
 
 class TimeoutEventComparator {
 public:
   // less at top
   int operator()(TimeoutEvent *&a, TimeoutEvent *&b) {
-    return a->timestamp_ < b->timestamp_;
+    return a->timestamp() < b->timestamp();
   }
 };
 
 class TriggerEvent {
 public:
+  virtual ~TriggerEvent() = default;
+  int64_t &id() { return id_; }
+  void setId(int64_t id) { id_ = id; }
+  int &event() { return event_; }
+  void setEvent(int event) { event_ = event; }
+
+private:
   int64_t id_;
   int event_;
 };
@@ -68,15 +90,13 @@ public:
   virtual ~EventLoopImpl();
 
   virtual int addReader(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler resourceHandler);
+                        ResourceHandler releaser);
   virtual int removeReader(int64_t fd);
   virtual int addWriter(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler resourceHandler);
+                        ResourceHandler releaser);
   virtual int removeWriter(int64_t fd);
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler resourceHandler);
-  virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler resourceHandler, int repeat);
+                       ResourceHandler releaser, int repeat = 1);
   virtual int removeTimer(int64_t id);
   virtual void start();
   virtual void stop();

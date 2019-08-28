@@ -2,7 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "ResourceHandler.h"
+#include "memory/ResourceHandler.h"
+#include <boost/core/noncopyable.hpp>
 #include <cstdint>
 #include <string>
 
@@ -13,7 +14,7 @@ class EventLoop;
 typedef void (*FileHandler)(EventLoop *evloop, int64_t fd, void *data);
 typedef void (*TimeoutHandler)(EventLoop *evloop, int64_t id, void *data);
 
-class EventLoop {
+class EventLoop : public boost::noncopyable {
 public:
   virtual ~EventLoop() = default;
 
@@ -37,18 +38,12 @@ public:
   // @return  0 if remove success, -1 if remove fail
   virtual int removeWriter(int64_t fd) = 0;
 
-  // timeout event will be invoked only once
-  //
-  // @return  timeout event id
-  virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler resourceHandler) = 0;
-
   // timer event will be invoked multiple times
   //
-  // @param repeat  repeat times, 0 is ignored, -1 is forever
+  // @param repeat  repeat times, 1 is default, 0 is ignored, -1 is forever
   // @return        timer event id
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler resourceHandler, int repeat) = 0;
+                       ResourceHandler resourceHandler, int repeat = 1) = 0;
 
   // @param id  timer event id
   // @return    0 if remove success, -1 if remove fail

@@ -4,7 +4,7 @@
 #pragma once
 #include "Stringify.h"
 #include "memory/Buf.h"
-#include <boost/noncopyable.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <memory>
 #include <vector>
 

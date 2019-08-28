@@ -41,14 +41,11 @@ set(F_CORE
     Profile.cpp
     Term.cpp
     Option.cpp
-    Line.cpp
-    Buffer.cpp
     DateTime.cpp
 
     graph/Dot.cpp
 
-    model/Cache.cpp
-    model/CacheManager.cpp
+    model/Buffer.cpp
 
     view/Position.cpp
     view/Area.cpp
@@ -70,6 +67,9 @@ set(F_CORE
     script/token/IdToken.cpp
     script/token/StringToken.cpp
     script/token/NumberToken.cpp
+
+    memory/Buf.cpp
+    memory/Row.cpp
     )
 set(F_SRC
     fastype.cpp
