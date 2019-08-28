@@ -7,16 +7,16 @@
 
 namespace fastype {
 
-class Buf : public Stringify {
+class Unit : public Stringify {
 public:
-  Buf();
-  Buf(int capacity);
-  virtual ~Buf();
+  Unit();
+  Unit(int capacity);
+  virtual ~Unit();
 
-  Buf(const Buf &other);
-  Buf &operator=(const Buf &other);
-  Buf(Buf &&other);
-  Buf &operator=(Buf &&other);
+  Unit(const Unit &other);
+  Unit &operator=(const Unit &other);
+  Unit(Unit &&other);
+  Unit &operator=(Unit &&other);
 
   void expand(int capacity);
   bool empty() const;

@@ -3,7 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
-#include "memory/Buf.h"
+#include "memory/Unit.h"
 #include <boost/core/noncopyable.hpp>
 #include <memory>
 #include <vector>
@@ -14,8 +14,8 @@ class Row : public Stringify {
 public:
   Row();
   Row(int capacity, int lineNumber, int dirty);
-  Row(const Row &other) = default;
-  Row &operator=(const Row &other) = default;
+  Row(const Row &other) = delete;
+  Row &operator=(const Row &other) = delete;
   Row(Row &&other) = default;
   Row &operator=(Row &&other) = default;
   virtual ~Row() = default;
@@ -38,7 +38,7 @@ public:
   void expand(int n);
 
 private:
-  std::shared_ptr<Buf> data_;
+  std::shared_ptr<Unit> data_;
   int lineNumber_;
   bool dirty_;
 };

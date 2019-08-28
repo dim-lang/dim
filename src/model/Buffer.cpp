@@ -31,7 +31,18 @@ Buffer::~Buffer() {
   }
   loaded_ = false;
   readBuffer_.clear();
+  for (int i = 0; i < lineList_.size(); i++) {
+    lineList_[i].reset();
+  }
   lineList_.clear();
+}
+
+Buffer::Buffer(Buffer &&other) {}
+
+Buffer &Buffer::operator=(Buffer &&other) {
+  if (this == &other) {
+    return *this;
+  }
 }
 
 const std::string &Buffer::fileName() const { return fileName_; }
@@ -42,7 +53,9 @@ std::shared_ptr<Buffer> Buffer::open(const std::string &fileName) {
 
 void Buffer::close(std::shared_ptr<Buffer> file) { file.reset(); }
 
-Row &Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
+std::shared_ptr<Row> Buffer::get(int lineNumber) {
+  return lineList_[lineNumber];
+}
 
 int Buffer::count() {
   load();
@@ -139,11 +152,12 @@ int64_t Buffer::load() {
       break;
     }
 
-    int sz = lineBreak - start + 1;         // 1 is for '\n'
-    Row l(sz + 1, lineList_.size(), false); // 1 is for '\0'
-    std::memcpy(l.data(), start, sz);
-    l.setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
-    l[sz] = '\0';
+    int sz = lineBreak - start + 1; // 1 is for '\n'
+    std::shared_ptr<Row> l(
+        new Row(sz + 1, lineList_.size(), false)); // 1 is for '\0'
+    std::memcpy(l->data(), start, sz);
+    l->setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
+    (*l)[sz] = '\0';
     F_DEBUGF("new line:{}", l.toString());
     lineList_.push_back(l);
     start = lineBreak + 1;

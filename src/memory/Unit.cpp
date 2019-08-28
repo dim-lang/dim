@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "memory/Buf.h"
+#include "memory/Unit.h"
 #include "Logging.h"
 #include "Profile.h"
 #include <algorithm>
@@ -13,18 +13,18 @@
 
 namespace fastype {
 
-Buf::Buf() : data_(nullptr), size_(0), capacity_(0) {
+Unit::Unit() : data_(nullptr), size_(0), capacity_(0) {
   // F_DEBUGF("No Args Constructor:{}", toString());
 }
 
-Buf::Buf(int capacity) : Buf() {
+Unit::Unit(int capacity) : Unit() {
   expand(capacity);
   // F_DEBUGF("Capacity Constructor:{}", toString());
 }
 
-Buf::~Buf() { release(); }
+Unit::~Unit() { release(); }
 
-Buf::Buf(const Buf &other) : Buf() {
+Unit::Unit(const Unit &other) : Unit() {
   if (other.data_) {
     expand(other.capacity_);
     std::memset(data_, 0, capacity_ * sizeof(char));
@@ -33,7 +33,7 @@ Buf::Buf(const Buf &other) : Buf() {
   F_DEBUGF("Copy Constructor: {}", toString());
 }
 
-Buf &Buf::operator=(const Buf &other) {
+Unit &Unit::operator=(const Unit &other) {
   if (this == &other) {
     return *this;
   }
@@ -44,13 +44,13 @@ Buf &Buf::operator=(const Buf &other) {
   return *this;
 }
 
-Buf::Buf(Buf &&other) : Buf() {
+Unit::Unit(Unit &&other) : Unit() {
   std::swap(data_, other.data_);
   std::swap(size_, other.size_);
   std::swap(capacity_, other.capacity_);
 }
 
-Buf &Buf::operator=(Buf &&other) {
+Unit &Unit::operator=(Unit &&other) {
   if (this == &other) {
     return *this;
   }
@@ -60,7 +60,7 @@ Buf &Buf::operator=(Buf &&other) {
   return *this;
 }
 
-void Buf::expand(int capacity) {
+void Unit::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
   // F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
@@ -77,18 +77,18 @@ void Buf::expand(int capacity) {
   F_DEBUGF("after expand:{}", toString());
 }
 
-bool Buf::empty() const { return size_ <= 0; }
+bool Unit::empty() const { return size_ <= 0; }
 
-bool Buf::full() const { return size_ >= capacity_; }
+bool Unit::full() const { return size_ >= capacity_; }
 
-void Buf::clear() {
+void Unit::clear() {
   if (data_) {
     std::memset(data_, 0, capacity_ * sizeof(char));
     size_ = 0;
   }
 }
 
-void Buf::release() {
+void Unit::release() {
   if (data_) {
     delete[] data_;
     data_ = nullptr;
@@ -100,7 +100,7 @@ void Buf::release() {
   F_CHECKF(capacity_ == 0, "capacity_ {} == 0", capacity_);
 }
 
-void Buf::truncate(int start, int length) {
+void Unit::truncate(int start, int length) {
   F_CHECKF(start >= 0, "start {} >= 0", start);
   F_CHECKF(length > 0, "length {} > 0", length);
   if (!data_) {
@@ -115,12 +115,12 @@ void Buf::truncate(int start, int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Buf::trim(int length) {
+void Unit::trim(int length) {
   leftTrim(length);
   rightTrim(length);
 }
 
-void Buf::leftTrim(int length) {
+void Unit::leftTrim(int length) {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -131,7 +131,7 @@ void Buf::leftTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Buf::rightTrim(int length) {
+void Unit::rightTrim(int length) {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -141,53 +141,53 @@ void Buf::rightTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-char *Buf::data() { return data_; }
+char *Unit::data() { return data_; }
 
-const char *Buf::data() const { return data_; }
+const char *Unit::data() const { return data_; }
 
-char &Buf::operator[](int index) {
+char &Unit::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-const char &Buf::operator[](int index) const {
+const char &Unit::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-int Buf::size() const {
+int Unit::size() const {
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   return size_;
 }
 
-void Buf::setSize(int size) {
+void Unit::setSize(int size) {
   F_CHECKF(size >= 0, "size {} >= 0", size);
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   size_ = size;
 }
 
-void Buf::incSize(int update) {
+void Unit::incSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ + update <= capacity_, "size_ {} + update {} <= capacity_ {}",
            size_, update, capacity_);
   size_ += update;
 }
 
-void Buf::decSize(int update) {
+void Unit::decSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ - update >= 0, "size_ {} - update {} >= 0", size_, update);
   size_ -= update;
 }
 
-int Buf::capacity() const {
+int Unit::capacity() const {
   F_CHECKF(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
   return capacity_;
 }
 
-std::string Buf::toString() const {
-  return fmt::format("[ @Buf data_:{} size_:{} capacity_:{} ]", (void *)data_,
+std::string Unit::toString() const {
+  return fmt::format("[ @Unit data_:{} size_:{} capacity_:{} ]", (void *)data_,
                      size_, capacity_);
 }
 

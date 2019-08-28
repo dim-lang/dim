@@ -123,9 +123,9 @@ public:
   // window line conditions:
   // line#size <= width
   // 0 <= lineNumber < height
-  virtual const Row &get(int lineNumber);
+  virtual std::shared_ptr<Row> get(int lineNumber);
 
-  virtual void set(int lineNumber, const Row &l);
+  virtual void set(int lineNumber, std::shared_ptr<Row> l);
 
   virtual Cursor &cursor();
 
@@ -160,7 +160,7 @@ private:
   Position p1_; // relative p1
 
   // render
-  std::vector<Row> lineList_;
+  std::vector<std::shared_ptr<Row>> lineList_;
   Cursor cursor_;
   WINDOW *window_;
   PANEL *panel_;

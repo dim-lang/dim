@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Stringify.h"
-#include "memory/Buf.h"
 #include "memory/Row.h"
+#include "memory/Unit.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -14,12 +14,14 @@ namespace fastype {
 
 class Buffer : public Stringify {
 public:
-  Buffer(Buffer &&) = default;
-  Buffer &operator=(Buffer &&) = default;
+  Buffer(const Buffer &) = delete;
+  Buffer &operator=(const Buffer &) = delete;
+  Buffer(Buffer &&);
+  Buffer &operator=(Buffer &&);
   virtual ~Buffer();
 
   const std::string &fileName() const;
-  Row &get(int lineNumber);
+  std::shared_ptr<Row> get(int lineNumber);
   int count();
   bool empty();
   int loaded() const;
@@ -40,8 +42,8 @@ private:
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-  Buf readBuffer_;
-  std::vector<Row> lineList_;
+  Unit readBuffer_;
+  std::vector<std::shared_ptr<Row>> lineList_;
 
   friend class Row;
 };

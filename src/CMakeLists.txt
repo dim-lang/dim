@@ -68,7 +68,7 @@ set(F_CORE
     script/token/StringToken.cpp
     script/token/NumberToken.cpp
 
-    memory/Buf.cpp
+    memory/Unit.cpp
     memory/Row.cpp
     )
 set(F_SRC
