@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "memory/Row.h"
+#include "Row.h"
 #include "view/Area.h"
 #include "view/Cursor.h"
 #include "view/Position.h"

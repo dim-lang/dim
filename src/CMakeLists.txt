@@ -45,8 +45,6 @@ set(F_CORE
 
     graph/Dot.cpp
 
-    model/Buffer.cpp
-
     view/Position.cpp
     view/Area.cpp
     view/Window.cpp
@@ -68,8 +66,10 @@ set(F_CORE
     script/token/StringToken.cpp
     script/token/NumberToken.cpp
 
-    memory/Unit.cpp
-    memory/Row.cpp
+    Unit.cpp
+    Row.cpp
+    Buffer.cpp
+    Cache.cpp
     )
 set(F_SRC
     fastype.cpp

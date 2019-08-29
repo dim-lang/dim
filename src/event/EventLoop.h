@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "memory/ResourceHandler.h"
+#include "ResourceHandler.h"
 #include <boost/core/noncopyable.hpp>
 #include <cstdint>
 #include <string>

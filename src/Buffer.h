@@ -12,6 +12,10 @@
 
 namespace fastype {
 
+/**
+ * Buffer is a file's memory storage
+ */
+
 class Buffer : public Stringify {
 public:
   Buffer(const Buffer &) = delete;
