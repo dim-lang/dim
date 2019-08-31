@@ -6,7 +6,7 @@
 
 namespace fastype {
 
-Lexer::Lexer(void *resource, ResourceHandler *resourceHandler)
+Lexer::Lexer(void *resource, ResourceHandler resourceHandler)
     : more_(true), index_(0), length_(strlen(resource)), resource_(resource),
       resourceHandler_(resourceHandler) {}
 
@@ -49,15 +49,14 @@ bool Lexer::fillQueue(int i) {
 
 void Lexer::readLine() {
   std::string line;
-  int i;
-  for (i = index_; i < length_; i++) {
-    if (resource[i] == '\n') {
-      line = std::string(resource_ + index_, resource_ + i);
+  for (int i = index_; i < length_; i++) {
+    if (resource_[i] == '\n') {
+      line = std::string(resource_ + index_, i - index_);
       index_ = i + 1;
       break;
     }
   }
-  if (line.length() == 0) {
+  if (line.empty()) {
     more_ = false;
     return;
   }
@@ -65,19 +64,33 @@ void Lexer::readLine() {
   int pos = 0;
   int endPos = line.length();
 
-  std::smatch m;
-  while (std::regex_match(line, m, RegexPattern_)) {
-    for (auto x : m) {
-      addToken(lineNumber, x);
-      pos = x.end();
-      break;
-    }
+  std::sregex_iterator next(line.begin(), line.end(), RegexPattern_);
+  std::sregex_iterator end;
+  while (next != end) {
+    std::smatch match = *next;
+    std::string m = match.str(0);
   }
   queue_.add(IdToken(lineNumber, Token::EOL_));
 }
 
-void Lexer::addToken(int lineNumber, std::sub_match &sm) {}
-
-std::string Lexer::toStringLiteral(const std::string &s) {}
+std::string Lexer::toStringLiteral(const std::string &s) {
+  std::string buf;
+  buf.reserve(s.length() * 2);
+  int len = s.length() - 1;
+  for (int i = 1; i < len; i++) {
+    char c = s.charAt(i);
+    if (c == '\\' && i + 1 < len) {
+      int c2 = s.charAt(i + 1);
+      if (c2 == '"' || c2 == '\\') {
+        c = s.charAt(++i);
+      } else if (c2 == '\n') {
+        ++i;
+        c = '\n';
+      }
+    }
+    buf.append(c);
+  }
+  return buf;
+}
 
 } // namespace fastype
