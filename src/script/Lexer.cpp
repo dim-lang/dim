@@ -64,11 +64,18 @@ void Lexer::readLine() {
   int pos = 0;
   int endPos = line.length();
 
-  std::sregex_iterator next(line.begin(), line.end(), RegexPattern_);
+  std::sregex_iterator next(line.begin(), line.end(), regexPattern_);
   std::sregex_iterator end;
+  std::vector<std::string> elementList;
   while (next != end) {
     std::smatch match = *next;
-    std::string m = match.str(0);
+    elementList.push_back(match.str());
+  }
+  if (!elementList.empty()) {
+    std::string m1 = elementList[0];
+    if (!m1.empty()) {
+      if (elementList.size() >= 2 &&)
+    }
   }
   queue_.add(IdToken(lineNumber, Token::EOL_));
 }

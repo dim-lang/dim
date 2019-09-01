@@ -11,7 +11,7 @@ namespace fastype {
 
 class Lexer {
 public:
-  static const std::string RegexPattern_ =
+  static const std::string regexPattern_ =
       "\\s*((//.*)|([0-9]+)|(\"(\\\\\"|\\\\\\\\|\\\\n|[^\"])*\")"
       "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?";
 
