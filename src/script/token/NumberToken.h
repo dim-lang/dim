@@ -10,7 +10,7 @@ namespace fastype {
 class NumberToken : public Token {
 public:
   NumberToken(int line, int64_t value);
-  virtual ~Token() = default;
+  virtual ~NumberToken() = default;
 
   virtual bool isNumber() const;
   virtual int number() const;

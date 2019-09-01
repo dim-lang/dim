@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Row.h"
 #include "Stringify.h"
-#include "memory/Row.h"
-#include "memory/Unit.h"
+#include "Unit.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>

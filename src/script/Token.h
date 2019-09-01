@@ -11,7 +11,7 @@ namespace fastype {
 
 class Token : public Stringify {
 public:
-  static const Token EOF_;
+  static const std::shared_ptr<Token> EOF_;
   static const std::string EOL_;
 
   virtual ~Token() = default;
@@ -24,7 +24,7 @@ public:
   virtual bool isBoolean() const;
   virtual int number() const;
   virtual std::string text() const;
-  virtual std::string boolean() const;
+  virtual bool boolean() const;
 
   virtual std::string toString() const = 0;
 

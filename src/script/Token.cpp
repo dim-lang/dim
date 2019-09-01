@@ -2,12 +2,14 @@
 // Apache License Version 2.0
 
 #include "script/Token.h"
+#include "script/token/EofToken.h"
 
 namespace fastype {
 
-Token Token::EOF_ = Token(-1);
+const std::shared_ptr<Token> Token::EOF_ =
+    std::shared_ptr<Token>(new EofToken(-1));
 
-std::string Token::EOL_ = "\\n";
+const std::string Token::EOL_ = "\\n";
 
 const int &Token::lineNumber() const { return lineNumber_; }
 

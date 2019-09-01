@@ -10,7 +10,7 @@ namespace fastype {
 class StringToken : public Token {
 public:
   StringToken(int line, const std::string &value);
-  virtual ~Token() = default;
+  virtual ~StringToken() = default;
 
   virtual bool isString() const;
   virtual std::string text() const;

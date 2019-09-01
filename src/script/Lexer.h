@@ -5,34 +5,31 @@
 #include "ResourceHandler.h"
 #include "script/Token.h"
 #include <deque>
+#include <memory>
 #include <regex>
 
 namespace fastype {
 
 class Lexer {
 public:
-  static const std::string regexPattern_ =
-      "\\s*((//.*)|([0-9]+)|(\"(\\\\\"|\\\\\\\\|\\\\n|[^\"])*\")"
-      "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?";
-
   Lexer(void *resource, ResourceHandler resourceHandler);
   virtual ~Lexer();
 
-  virtual Token read();
-  virtual Token peek(int i);
+  virtual std::shared_ptr<Token> read();
+  virtual std::shared_ptr<Token> peek(int i);
 
 private:
   virtual bool fillQueue(int i);
   virtual void readLine();
   virtual std::string toStringLiteral(const std::string &s);
 
+  static const std::string regexPattern_;
   std::regex pattern_;
-  std::deque<Token> queue_;
+  std::deque<std::shared_ptr<Token>> queue_;
   bool more_;
   int index_;
   int length_;
-  void *data_;
-  ResourceHandler resourceHandler_;
+  ResourceHolder resourceHolder_;
 };
 
 } // namespace fastype

@@ -2,25 +2,36 @@
 // Apache License Version 2.0
 
 #include "script/Lexer.h"
+#include "exception/ScriptException.h"
+#include "script/token/IdToken.h"
+#include "script/token/NumberToken.h"
+#include "script/token/StringToken.h"
+#include <cstdlib>
 #include <cstring>
+#include <fmt/format.h>
 
 namespace fastype {
 
+const std::regex RegexPattern(
+    "\\s*((//.*)|([0-9]+)|(\"(\\\\\"|\\\\\\\\|\\\\n|[^\"])*\")"
+    "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?");
+
 Lexer::Lexer(void *resource, ResourceHandler resourceHandler)
-    : more_(true), index_(0), length_(strlen(resource)), resource_(resource),
-      resourceHandler_(resourceHandler) {}
+    : more_(true), index_(0), length_(std::strlen((char *)resource)),
+      resourceHolder_(resourceHandler, resource) {}
 
 Lexer::~Lexer() {
-  if (resourceHandler_) {
-    resourceHandler_(resource_);
+  while (!queue_.empty()) {
+    std::shared_ptr<Token> t = queue_.front();
+    t.reset();
+    queue_.pop_front();
   }
-  resourceHandler_ = nullptr;
-  resource_ = nullptr;
+  queue_.clear();
 }
 
-Token Lexer::read() {
+std::shared_ptr<Token> Lexer::read() {
   if (fillQueue(0)) {
-    Token t = queue_.front();
+    std::shared_ptr<Token> t = queue_.front();
     queue_.pop_front();
     return t;
   } else {
@@ -28,7 +39,7 @@ Token Lexer::read() {
   }
 }
 
-Token Lexer::peek(int i) {
+std::shared_ptr<Token> Lexer::peek(int i) {
   if (fillQueue(i)) {
     return queue_[i];
   } else {
@@ -49,9 +60,11 @@ bool Lexer::fillQueue(int i) {
 
 void Lexer::readLine() {
   std::string line;
+  char *r = (char *)resourceHolder_.resource();
+
   for (int i = index_; i < length_; i++) {
-    if (resource_[i] == '\n') {
-      line = std::string(resource_ + index_, i - index_);
+    if (r[i] == '\n') {
+      line = std::string(r + index_, i - index_);
       index_ = i + 1;
       break;
     }
@@ -61,10 +74,8 @@ void Lexer::readLine() {
     return;
   }
   int lineNumber = 0;
-  int pos = 0;
-  int endPos = line.length();
 
-  std::sregex_iterator next(line.begin(), line.end(), regexPattern_);
+  std::sregex_iterator next(line.begin(), line.end(), RegexPattern);
   std::sregex_iterator end;
   std::vector<std::string> elementList;
   while (next != end) {
@@ -74,10 +85,23 @@ void Lexer::readLine() {
   if (!elementList.empty()) {
     std::string m1 = elementList[0];
     if (!m1.empty()) {
-      if (elementList.size() >= 2 &&)
+      if (elementList.size() >= 2 && elementList[1].empty()) {
+        Token *token = nullptr;
+        if (elementList.size() >= 3 && !elementList[2].empty()) {
+          token = new NumberToken(lineNumber, std::atoi(m1.data()));
+        } else if (elementList.size() >= 4 && !elementList[3].empty()) {
+          token = new StringToken(lineNumber, m1);
+        } else {
+          token = new IdToken(lineNumber, m1);
+        }
+        queue_.push_back(std::shared_ptr<Token>(token));
+      }
     }
+  } else {
+    throw new ScriptException(fmt::format("bad token at {}", lineNumber));
   }
-  queue_.add(IdToken(lineNumber, Token::EOL_));
+  queue_.push_back(
+      std::shared_ptr<Token>(new IdToken(lineNumber, Token::EOL_)));
 }
 
 std::string Lexer::toStringLiteral(const std::string &s) {
@@ -85,17 +109,17 @@ std::string Lexer::toStringLiteral(const std::string &s) {
   buf.reserve(s.length() * 2);
   int len = s.length() - 1;
   for (int i = 1; i < len; i++) {
-    char c = s.charAt(i);
+    char c = s[i];
     if (c == '\\' && i + 1 < len) {
-      int c2 = s.charAt(i + 1);
+      int c2 = s[i + 1];
       if (c2 == '"' || c2 == '\\') {
-        c = s.charAt(++i);
+        c = s[++i];
       } else if (c2 == '\n') {
         ++i;
         c = '\n';
       }
     }
-    buf.append(c);
+    buf += c;
   }
   return buf;
 }

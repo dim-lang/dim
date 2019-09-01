@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "NCursesTerm.h"
+#include "Buffer.h"
 #include "Logging.h"
-#include "memory/Row.h"
-#include "model/Cache.h"
+#include "Row.h"
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -21,18 +21,18 @@ NCursesTerm::NCursesTerm() : Term() {}
 NCursesTerm::~NCursesTerm() {}
 
 void NCursesTerm::show(const std::string &fileName) {
-  std::shared_ptr<Cache> f = Cache::open(fileName);
+  std::shared_ptr<Buffer> f = Buffer::open(fileName);
   int ch, row, col, y, x;
   initscr();
   getmaxyx(stdscr, row, col);
 
   F_DEBUGF("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
-    Line l = f->get(i);
+    std::shared_ptr<Row> l = f->get(i);
     getyx(stdscr, y, x);
     F_DEBUGF("line#size:{} l:{}", l.size(), l.toString());
-    for (int j = 0; j < l.size() - 1; j++) {
-      ch = (int)l[j];
+    for (int j = 0; j < l->size() - 1; j++) {
+      ch = (int)(*l)[j];
       // F_DEBUGF("line[j](int): {}", ch);
       printw("%c", ch);
       refresh();
