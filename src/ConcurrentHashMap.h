@@ -55,12 +55,12 @@ public:
 
   MapIterator remove(MapIterator pos) {
     std::lock_guard<std::recursive_mutex> guard(lock_);
-    map_.erase(pos);
+    return map_.erase(pos);
   }
 
   MapIterator remove(MapConstIterator pos) {
     std::lock_guard<std::recursive_mutex> guard(lock_);
-    map_.erase(pos);
+    return map_.erase(pos);
   }
 
   MapIterator find(const K &key) {
