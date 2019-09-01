@@ -35,7 +35,7 @@ message(F_LIB: ${F_LIB})
 set(T_SRC
     MainTest.cpp
     LoggingTest.cpp
-    LineTest.cpp
+    RowTest.cpp
     ConfigureTest.cpp
     ProfileTest.cpp
     )

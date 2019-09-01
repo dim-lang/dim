@@ -1,10 +1,10 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
+#include "Buffer.h"
 #include "Logging.h"
 #include "Option.h"
 #include "Term.h"
-#include "model/Cache.h"
 #include <exception>
 #include <iostream>
 #include <memory>

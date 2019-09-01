@@ -62,6 +62,7 @@ set(F_CORE
 
     script/Token.cpp
     script/Lexer.cpp
+    script/token/EofToken.cpp
     script/token/IdToken.cpp
     script/token/StringToken.cpp
     script/token/NumberToken.cpp
@@ -70,6 +71,7 @@ set(F_CORE
     Row.cpp
     Buffer.cpp
     Cache.cpp
+    ResourceHandler.cpp
     )
 set(F_SRC
     fastype.cpp
