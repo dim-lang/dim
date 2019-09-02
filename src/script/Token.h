@@ -14,6 +14,7 @@ public:
   static const std::shared_ptr<Token> EOF_;
   static const std::string EOL_;
 
+  Token(int line);
   virtual ~Token() = default;
 
   virtual const int &lineNumber() const;
@@ -29,8 +30,6 @@ public:
   virtual std::string toString() const = 0;
 
 protected:
-  Token(int line);
-
   int lineNumber_;
 };
 

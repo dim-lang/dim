@@ -66,6 +66,7 @@ set(F_CORE
     script/token/IdToken.cpp
     script/token/StringToken.cpp
     script/token/NumberToken.cpp
+    script/token/BooleanToken.cpp
 
     Unit.cpp
     Row.cpp

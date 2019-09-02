@@ -8,12 +8,14 @@ namespace fastype {
 
 bool IdToken::isIdentifier() const { return true; }
 
-std::string IdToken::text() const { return id_; }
+std::string IdToken::text() const { return value_; }
 
 std::string IdToken::toString() const {
-  return fmt::format("[ @IdToken lineNumber_:{} id_:{} ]", lineNumber_, id_);
+  return fmt::format("[ @IdToken lineNumber_:{} value_:{} ]", lineNumber_,
+                     value_);
 }
 
-IdToken::IdToken(int line, const std::string &id) : Token(line), id_(id) {}
+IdToken::IdToken(int line, const std::string &value)
+    : Token(line), value_(value) {}
 
 } // namespace fastype
