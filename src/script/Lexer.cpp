@@ -12,9 +12,11 @@
 
 namespace fastype {
 
-const std::regex RegexPattern(
+static const std::string Pattern =
     "\\s*((//.*)|([0-9]+)|(\"(\\\\\"|\\\\\\\\|\\\\n|[^\"])*\")"
-    "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?");
+    "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?";
+
+static const std::regex RegexPattern(Pattern);
 
 Lexer::Lexer(void *resource, ResourceHandler resourceHandler)
     : more_(true), index_(0), length_(std::strlen((char *)resource)),

@@ -38,6 +38,8 @@ set(T_SRC
     RowTest.cpp
     ConfigureTest.cpp
     ProfileTest.cpp
+
+    script/TokenTest.cpp
     )
 
 include_directories(${F_INC})
