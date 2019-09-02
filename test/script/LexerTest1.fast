@@ -1,0 +1,23 @@
+// this is a fastype comment
+// normal line comment
+
+/**
+ * block comment 1
+ * this is a big block comment
+ * it contains many content
+ */
+
+/*
+block comment 2
+this is another type of block comment
+ */
+
+/* block comment 3, this is actually one line comment */
+
+x = 1
+a = "hello world"
+c = x
+d = 2
+e = c + d
+y = true
+z = false

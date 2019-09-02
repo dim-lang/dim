@@ -3,8 +3,43 @@
 
 #include "script/Lexer.h"
 #include "catch2/catch.hpp"
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <string>
+
+static char *readFile(const std::string &fileName, int &length) {
+  FILE *fp = std::fopen(fileName.data(), "rb");
+  if (fp == nullptr) {
+    std::cerr << "file: " << fileName << " not found" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  char *data = nullptr;
+  length = 1024;
+  int64_t t = 0, n = 0;
+
+  do {
+    if (data == nullptr || n >= length) {
+      length = length * 2;
+      data = realloc(data, length);
+    }
+
+    t = (int64_t)fread(data + n, 1, length - n, fp);
+    n += t;
+  } while (t > 0);
+  std::fclose(fp);
+  fp = nullptr;
+
+  length = n;
+  return data;
+}
 
 TEST_CASE("Lexer", "[Lexer]") {
-  SECTION("Project Version Info") {}
+  SECTION("Simple Lexer") {
+    int len = 0;
+    char *data = readFile("test/script/LexerTest1.fast", len);
+    REQUIRE(data != nullptr);
+    REQUIRE(len > 0);
+  }
 }

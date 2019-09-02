@@ -4,36 +4,29 @@
 #pragma once
 #include "Stringify.h"
 #include <string>
+#include <vector>
 
 namespace fastype {
 
-class Unit : public Stringify {
+class Block : public Stringify {
 public:
-  Unit();
-  Unit(int capacity);
-  virtual ~Unit();
+  Block();
+  Block(int unitSize);
+  virtual ~Block();
 
-  Unit(const Unit &other);
-  Unit &operator=(const Unit &other);
-  Unit(Unit &&other);
-  Unit &operator=(Unit &&other);
+  Block(const Block &other);
+  Block &operator=(const Block &other);
+  Block(Block &&other);
+  Block &operator=(Block &&other);
 
   void expand(int capacity);
-  // no data
   bool empty() const;
-  // data used all allocated memory
   bool full() const;
-  // clear data, but remain allocated memory
   void clear();
-  // clear data and allocated memory
   void release();
-  // remain [start, start+length) data
   void truncate(int start, int length);
-  // delete left side and right side whitespaces, remain valid data
   void trim(int length);
-  // delete left side whitespaces
   void leftTrim(int length);
-  // delete right side whitespaces
   void rightTrim(int length);
 
   char *data();
@@ -49,7 +42,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  char *data_;
+  std::vector<char *> data_;
   int size_;
   int capacity_;
 };
