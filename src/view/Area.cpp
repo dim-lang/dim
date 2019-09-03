@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "view/Area.h"
-#include "Profile.h"
+#include "Logging.h"
 #include <fmt/format.h>
 
 namespace fastype {

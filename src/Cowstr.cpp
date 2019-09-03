@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Unit.h"
+#include "Cowstr.h"
 #include "Logging.h"
 #include "Profile.h"
 #include <algorithm>
@@ -13,94 +13,89 @@
 
 namespace fastype {
 
-Unit::Unit() : data_(nullptr), size_(0), capacity_(0) {
-  // F_DEBUGF("No Args Constructor:{}", toString());
+Cowstr::Cowstr() : impl_(new CowStrImpl()), ref_(new int()) {
+  std::memset(impl_, 0, sizeof(CowStrImpl));
+  F_DEBUGF("Constructor:{}", toString());
 }
 
-Unit::Unit(int capacity) : Unit() {
+Cowstr::Cowstr(int capacity) : Cowstr() {
   expand(capacity);
-  // F_DEBUGF("Capacity Constructor:{}", toString());
+  F_DEBUGF("Capacity Constructor:{}", toString());
 }
 
-Unit::~Unit() { release(); }
+Cowstr::~Cowstr() { release(); }
 
-Unit::Unit(const Unit &other) : Unit() {
-  if (other.data_) {
-    expand(other.capacity_);
-    std::memset(data_, 0, capacity_ * sizeof(char));
-    std::memcpy(data_, other.data_, size_ * sizeof(char));
-  }
+Cowstr::Cowstr(const Cowstr &other) : impl_(other.impl_), ref_(other.ref_) {
+  incref();
   F_DEBUGF("Copy Constructor: {}", toString());
 }
 
-Unit &Unit::operator=(const Unit &other) {
+Cowstr &Cowstr::operator=(const Cowstr &other) {
   if (this == &other) {
     return *this;
   }
-  expand(other.capacity_);
-  std::memset(data_, 0, capacity_ * sizeof(char));
-  std::memcpy(data_, other.data_, size_ * sizeof(char));
+  impl_ = other.impl_;
+  ref_ = other.ref_;
+  incref();
   F_DEBUGF("Copy Assign: {}", toString());
   return *this;
 }
 
-Unit::Unit(Unit &&other) : Unit() {
-  std::swap(data_, other.data_);
-  std::swap(size_, other.size_);
-  std::swap(capacity_, other.capacity_);
+Cowstr::Cowstr(Cowstr &&other) : impl_(other.impl_), ref_(other.ref_) {
+  incref();
+  F_DEBUGF("Move Constructor: {}", toString());
 }
 
-Unit &Unit::operator=(Unit &&other) {
+Cowstr &Cowstr::operator=(Cowstr &&other) {
   if (this == &other) {
     return *this;
   }
-  std::swap(data_, other.data_);
-  std::swap(size_, other.size_);
-  std::swap(capacity_, other.capacity_);
+  impl_ = other.impl_;
+  ref_ = other.ref_;
+  incref();
+  F_DEBUGF("Copy Move : {}", toString());
   return *this;
 }
 
-void Unit::expand(int capacity) {
+CowStrImpl *Cowstr::create(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
-  // F_DEBUGF("capacity:{}", capacity);
+
   int newCapacity = std::max<int>(
       F_ALIGN_UP, (int)boost::alignment::align_up(capacity, F_ALIGN_UP));
   F_DEBUGF("capacity:{} newCapacity:{}", capacity, newCapacity);
-  F_CHECKF(newCapacity >= 2 * capacity_, "newCapacity {} >= 2 * capacity_ {}",
-           newCapacity, capacity_);
-  char *newData = (char *)realloc(data_, newCapacity * sizeof(char));
+  F_CHECKF(newCapacity >= 2 * capacityImpl(),
+           "newCapacity {} >= 2 * capacityImpl {}", newCapacity,
+           capacityImpl());
+  char *newData = (char *)realloc(dataImpl(), newCapacity * sizeof(char));
   if (!newData) {
-    return;
+    return *this;
   }
-  data_ = newData;
-  capacity_ = newCapacity;
+  dataImpl() = newData;
+  capacityImpl() = newCapacity;
   F_DEBUGF("after expand:{}", toString());
+  return *this;
 }
 
-bool Unit::empty() const { return size_ <= 0; }
+bool Cowstr::empty() const { return size_ <= 0; }
 
-bool Unit::full() const { return size_ >= capacity_; }
-
-void Unit::clear() {
+Cowstr &Cowstr::clear() {
   if (data_) {
     std::memset(data_, 0, capacity_ * sizeof(char));
     size_ = 0;
   }
+  return *this;
 }
 
-void Unit::release() {
-  if (data_) {
-    delete[] data_;
-    data_ = nullptr;
-    size_ = 0;
-    capacity_ = 0;
+void Cowstr::release() {
+  decref();
+  if (refImpl() <= 0) {
+    delete impl_;
   }
-  F_CHECKF(data_ == nullptr, "data_ {} == nullptr", (void *)data_);
-  F_CHECKF(size_ == 0, "size_ {} == 0", size_);
-  F_CHECKF(capacity_ == 0, "capacity_ {} == 0", capacity_);
+  impl_ = nullptr;
+  return *this;
 }
 
-void Unit::truncate(int start, int length) {
+Cowstr Cowstr::subString(int start, int length) const {
   F_CHECKF(start >= 0, "start {} >= 0", start);
   F_CHECKF(length > 0, "length {} > 0", length);
   if (!data_) {
@@ -115,12 +110,12 @@ void Unit::truncate(int start, int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Unit::trim(int length) {
-  leftTrim(length);
-  rightTrim(length);
+Cowstr Cowstr::trim() const {
+  trimLeft();
+  trimRight();
 }
 
-void Unit::leftTrim(int length) {
+void Cowstr::trimLeft() {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -131,7 +126,7 @@ void Unit::leftTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-void Unit::rightTrim(int length) {
+void Cowstr::trimRight() {
   F_CHECKF(length >= 0, "length {} >= 0", length);
   if (!data_) {
     return;
@@ -141,55 +136,69 @@ void Unit::rightTrim(int length) {
   std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
 }
 
-char *Unit::data() { return data_; }
+char *Cowstr::data() { return data_; }
 
-const char *Unit::data() const { return data_; }
+const char *Cowstr::data() const { return data_; }
 
-char &Unit::operator[](int index) {
+char &Cowstr::operator[](int index) {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-const char &Unit::operator[](int index) const {
+const char &Cowstr::operator[](int index) const {
   F_CHECKF(index >= 0, "index {} >= 0", index);
   F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
   return data_[index];
 }
 
-int Unit::size() const {
+int Cowstr::size() const {
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   return size_;
 }
 
-void Unit::setSize(int size) {
+void Cowstr::setSize(int size) {
   F_CHECKF(size >= 0, "size {} >= 0", size);
   F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
   size_ = size;
 }
 
-void Unit::incSize(int update) {
+void Cowstr::incSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ + update <= capacity_, "size_ {} + update {} <= capacity_ {}",
            size_, update, capacity_);
   size_ += update;
 }
 
-void Unit::decSize(int update) {
+void Cowstr::decSize(int update) {
   F_CHECKF(update > 0, "update {} > 0", update);
   F_CHECKF(size_ - update >= 0, "size_ {} - update {} >= 0", size_, update);
   size_ -= update;
 }
 
-int Unit::capacity() const {
+int Cowstr::capacity() const {
   F_CHECKF(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
   return capacity_;
 }
 
-std::string Unit::toString() const {
-  return fmt::format("[ @Unit data_:{} size_:{} capacity_:{} ]", (void *)data_,
-                     size_, capacity_);
+std::string Cowstr::toString() const {
+  return fmt::format("[ @Cowstr data_:{} size_:{} capacity_:{} ref_:{} ]",
+                     (void *)impl_->data, impl_->size, impl_->capacity_, ref_);
 }
+
+const int &Cowstr::refcount() const { return *ref_; }
+
+void Cowstr::incref() const { *ref_ += 1; }
+
+void Cowstr::decref() const { *ref_ -= 1; }
+
+char *&Cowstr::dataImpl() { return impl_->data; }
+
+int &Cowstr::sizeImpl() { return impl_->size; }
+
+int &Cowstr::capacityImpl() { return impl_->capacity; }
+
+int &Cowstr::refImpl() { return *ref_; }
 
 } // namespace fastype
 

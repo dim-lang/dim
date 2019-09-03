@@ -1,38 +1,10 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Profile.h"
+#include "Timer.h"
+#include "Logging.h"
 
 namespace fastype {
-
-#ifdef NDEBUG
-
-Timer::Timer() {
-  (void)count_;
-  (void)timestamp_;
-  (void)stop_;
-}
-
-int Timer::elapse() {
-  (void)count_;
-  (void)timestamp_;
-  (void)stop_;
-  return 0;
-}
-
-void Timer::stop() {
-  (void)count_;
-  (void)timestamp_;
-  (void)stop_;
-}
-
-void Timer::resume() {
-  (void)count_;
-  (void)timestamp_;
-  (void)stop_;
-}
-
-#else
 
 Timer::Timer()
     : timestamp_(std::chrono::system_clock::now()),
@@ -59,7 +31,5 @@ void Timer::resume() {
   stop_ = false;
   timestamp_ = std::chrono::system_clock::now();
 }
-
-#endif
 
 } // namespace fastype

@@ -1,0 +1,210 @@
+// Copyright 2019- <fastype.org>
+// Apache License Version 2.0
+
+#pragma once
+#include "Stringify.h"
+#include <fmt/format.h>
+#include <limits>
+#include <string>
+#include <vector>
+
+namespace fastype {
+
+/**
+ * copy-on-write string
+ */
+class Cowstr : public Stringify {
+public:
+  Cowstr();
+  Cowstr(int capacity);
+  virtual ~Cowstr();
+
+  /* copy */
+  Cowstr(const Cowstr &s);
+  Cowstr(const char *s, int n);
+  Cowstr(const std::string &s);
+  Cowstr &operator=(const Cowstr &s);
+  Cowstr &operator=(const std::string &s);
+
+  /* move */
+  Cowstr(Cowstr &&s);
+  Cowstr &operator=(Cowstr &&s);
+
+  /* append/concatenate */
+
+  // concatenate s at tail
+  Cowstr concat(const Cowstr &s) const;
+  Cowstr concat(const char *s, int n) const;
+  Cowstr concat(const std::string &s) const;
+  Cowstr operator+(const Cowstr &s) const;
+  Cowstr operator+(const std::string &s) const;
+  // same with concat, but modify and return itself
+  Cowstr &operator+=(const Cowstr &s);
+  Cowstr &operator+=(const std::string &s);
+
+  // concatenate s at head
+  Cowstr concatHead(const Cowstr &s) const;
+  Cowstr concatHead(const char *s, int n) const;
+  Cowstr concatHead(const std::string &s) const;
+
+  /* modify */
+
+  // replace c/target with s in arbitrary position
+  Cowstr replace(char c, const Cowstr &s) const;
+  Cowstr replace(char c, const std::string &s) const;
+  Cowstr replace(char c, const char *s, int n) const;
+  Cowstr replace(const Cowstr &target, const Cowstr &s) const;
+  Cowstr replace(const Cowstr &target, const std::string &s) const;
+  Cowstr replace(const Cowstr &target, const char *s, int n) const;
+
+  // replace first c/target with s in arbitrary position
+  Cowstr replaceFirst(char c, const Cowstr &s) const;
+  Cowstr replaceFirst(char c, const std::string &s) const;
+  Cowstr replaceFirst(char c, const char *s, int n) const;
+  Cowstr replaceFirst(const Cowstr &target, const Cowstr &s) const;
+  Cowstr replaceFirst(const Cowstr &target, const std::string &s) const;
+  Cowstr replaceFirst(const Cowstr &target, const char *s, int n) const;
+
+  // split into multiple parts via s
+  std::vector<Cowstr> split(const Cowstr &s) const;
+  std::vector<Cowstr> split(const std::string &s) const;
+  std::vector<Cowstr> split(const char *s, int n) const;
+
+  // sub string of [start, ...) or [start, start+startn)
+  Cowstr subString(int start) const;
+  Cowstr subString(int start, int startn) const;
+
+  // to upper/lower case
+  Cowstr upperCase() const;
+  Cowstr lowerCase() const;
+
+  // remove all whitespaces on both left/right side
+  Cowstr trim() const;
+  // remove all whitespaces on left side
+  Cowstr trimLeft() const;
+  // remove all whitespaces on right side
+  Cowstr trimRight() const;
+
+  /* read api */
+
+  // get stringify snapshot
+  virtual std::string toString() const;
+
+  // raw data pointer at head
+  char *head();
+  const char *head() const;
+
+  // raw data pointer at tail
+  char *tail();
+  const char *tail() const;
+
+  // raw string pointer at position
+  char *rawstr(int pos = 0);
+  const char *rawstr(int pos = 0) const;
+  std::string stdstr() const;
+
+  // indexing
+  char &operator[](int pos);
+  const char &operator[](int pos) const;
+  char &at(int pos);
+  const char &at(int pos) const;
+
+  // test if cowstr has no data
+  bool empty() const;
+
+  // cowstr string length
+  int size() const;
+
+  // allocated memory size
+  int capacity() const;
+
+  /* comparation */
+  bool operator==(const Cowstr &s) const;
+  bool operator!=(const Cowstr &s) const;
+  int compare(const Cowstr &s) const;
+  int compare(const std::string &s) const;
+  int compare(const char *s, int n) const;
+
+  /* search */
+
+  // test if contains s
+  bool contains(const Cowstr &s) const;
+  bool contains(const char *s, int n) const;
+  bool contains(const std::string &s) const;
+
+  // test if starts with s
+  bool startsWith(const Cowstr &s) const;
+  bool startsWith(const std::string &s) const;
+  bool startsWith(const char *s, int n) const;
+
+  // test if ends with s
+  bool endsWith(const Cowstr &s) const;
+  bool endsWith(const std::string &s) const;
+  bool endsWith(const char *s, int n) const;
+
+  // search position of s
+  // @param fromIndex   search start from `fromIndex`
+  int indexOf(const Cowstr &s) const;
+  int indexOf(const std::string &s) const;
+  int indexOf(const char *s, int n) const;
+  int indexOf(const Cowstr &s, int fromIndex) const;
+  int indexOf(const std::string &s, int fromIndex) const;
+  int indexOf(const char *s, int n, int fromIndex) const;
+
+  // reverse search position of s
+  // @param fromIndex   search start from `fromIndex`
+  // NOTICE:            fromIndex can be negative, then the real from position
+  //                    will add `size()`. for example, when fromIndex = -1, the
+  //                    real from position is `size() - 1`.
+  int lastIndexOf(const Cowstr &s) const;
+  int lastIndexOf(const std::string &s) const;
+  int lastIndexOf(const char *s, int n) const;
+  int lastIndexOf(const Cowstr &s, int fromIndex) const;
+  int lastIndexOf(const std::string &s, int fromIndex) const;
+  int lastIndexOf(const char *s, int n, int fromIndex) const;
+
+  /* format */
+
+  template <typename... Args>
+  static Cowstr format(const Cowstr &s, const Args &... args) {
+    std::string ff = fmt::format(s.stdstr(), args...);
+    return Cowstr(ff);
+  }
+
+  template <typename... Args>
+  static Cowstr format(const std::string &s, const Args &... args) {
+    std::string ff = fmt::format(s, args...);
+    return Cowstr(ff);
+  }
+
+  template <typename... Args>
+  static Cowstr format(const char *s, const Args &... args) {
+    std::string ff = fmt::format(s, args...);
+    return Cowstr(ff);
+  }
+
+private:
+  struct CowStrImpl {
+    char *data;
+    int size;
+    int capacity;
+  };
+
+  // expand more memory
+  static CowStrImpl *create(int capacity);
+  // clear data and allocated memory
+  static void release();
+
+  void incref() const;
+  void decref() const;
+
+  char *&dataImpl();
+  int &sizeImpl();
+  int &capacityImpl();
+  int &refImpl();
+
+  CowStrImpl *impl_;
+  int *ref_;
+};
+
+} // namespace fastype

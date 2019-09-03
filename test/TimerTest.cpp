@@ -1,13 +1,13 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Profile.h"
+#include "Timer.h"
 #include "catch2/catch.hpp"
 #include <chrono>
 #include <cstdio>
 #include <thread>
 
-TEST_CASE("Profile", "[Profile]") {
+TEST_CASE("Timer", "[Timer]") {
   int x = 300;
 
   SECTION("Timer Start/Stop") {

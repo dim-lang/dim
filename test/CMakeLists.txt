@@ -37,9 +37,10 @@ set(T_SRC
     LoggingTest.cpp
     RowTest.cpp
     ConfigureTest.cpp
-    ProfileTest.cpp
+    TimerTest.cpp
 
     script/TokenTest.cpp
+    script/LexerTest.cpp
     )
 
 include_directories(${F_INC})

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/Lexer.h"
+#include "Logging.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 #include <cstdlib>
@@ -11,7 +12,7 @@
 static char *readFile(const std::string &fileName, int &length) {
   FILE *fp = std::fopen(fileName.data(), "rb");
   if (fp == nullptr) {
-    std::cerr << "file: " << fileName << " not found" << std::endl;
+    F_ERRORF("file:{} not found", fileName);
     exit(EXIT_FAILURE);
   }
 
@@ -22,7 +23,7 @@ static char *readFile(const std::string &fileName, int &length) {
   do {
     if (data == nullptr || n >= length) {
       length = length * 2;
-      data = realloc(data, length);
+      data = (char *)realloc(data, length);
     }
 
     t = (int64_t)fread(data + n, 1, length - n, fp);
@@ -41,5 +42,14 @@ TEST_CASE("Lexer", "[Lexer]") {
     char *data = readFile("test/script/LexerTest1.fast", len);
     REQUIRE(data != nullptr);
     REQUIRE(len > 0);
+
+    fastype::Lexer lex(data, &std::free);
+    while (true) {
+      std::shared_ptr<fastype::Token> t = lex.read();
+      F_INFOF("Lexer Token t:{}", t->toString());
+      if (t == fastype::Token::EOF_) {
+        break;
+      }
+    }
   }
 }

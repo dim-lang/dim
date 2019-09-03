@@ -3,7 +3,9 @@
 
 #pragma once
 #include "Stringify.h"
+#include <boost/assert.hpp>
 #include <cstdio>
+#include <fmt/format.h>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <string>
@@ -29,6 +31,8 @@ public:
 #define F_DEBUGF(fmtMsg, ...)
 #define F_INFO(msg)
 #define F_INFOF(fmtMsg, ...)
+#define F_CHECK(cond, msg)
+#define F_CHECKF(cond, fmtMsg, ...)
 
 #else
 
@@ -36,6 +40,9 @@ public:
 #define F_DEBUGF(fmtMsg, ...) SPDLOG_DEBUG(fmtMsg, __VA_ARGS__)
 #define F_INFO(msg) SPDLOG_INFO(msg)
 #define F_INFOF(fmtMsg, ...) SPDLOG_INFO(fmtMsg, __VA_ARGS__)
+#define F_CHECK(cond, msg) BOOST_ASSERT_MSG(cond, msg)
+#define F_CHECKF(cond, fmtMsg, ...)                                            \
+  BOOST_ASSERT_MSG(cond, fmt::format(fmtMsg, __VA_ARGS__).data())
 
 #endif // #ifdef NDEBUG
 

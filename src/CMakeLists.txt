@@ -38,9 +38,9 @@ message(F_LIB: ${F_LIB})
 
 set(F_CORE
     Logging.cpp
-    Profile.cpp
     Term.cpp
     Option.cpp
+    Timer.cpp
     DateTime.cpp
 
     graph/Dot.cpp
