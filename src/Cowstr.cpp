@@ -12,10 +12,12 @@
 #include <utility>
 #include <vector>
 
-#define F_ALIGN_UP 16
+#define F_ALIGN_UP 8
 #define F_ANY_CHAR '\0'
 
 namespace fastype {
+
+Cowstr::CowStrImpl::CowStrImpl() : data(nullptr), size(0), capacity(0) {}
 
 Cowstr::CowStrImpl::~CowStrImpl() {
   if (data) {
@@ -322,10 +324,11 @@ int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {}
 std::shared_ptr<Cowstr::CowStrImpl> Cowstr::create(int capacity) {
   Cowstr::CowStrImpl *impl = new Cowstr::CowStrImpl();
   if (!impl) {
-    return nullptr;
+    F_CHECK(impl != nullptr, "impl is null");
+    F_ERRORF("CowStrImpl new failure, capacity:{}", capacity);
+    return std::shared_ptr<Cowstr::CowStrImpl>(nullptr);
   }
 
-  std::memset(impl, 0, sizeof(CowStrImpl));
   if (capacity <= 0) {
     return std::shared_ptr<Cowstr::CowStrImpl>(impl);
   }
@@ -345,13 +348,6 @@ std::shared_ptr<Cowstr::CowStrImpl> Cowstr::create(int capacity) {
 }
 
 void Cowstr::release(std::shared_ptr<Cowstr::CowStrImpl> p) { p.reset(); }
-
-std::shared_ptr<Cowstr::CowStrImpl>
-Cowstr::copy(std::shared_ptr<Cowstr::CowStrImpl> p) {
-  std::shared_ptr<Cowstr::CowStrImpl> r = create(p->size);
-  std::memcpy(r->data, p->data, p->size);
-  return r;
-}
 
 void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {
   int count = 0;
@@ -390,8 +386,9 @@ void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
   // else modify this value directly
   if (impl_.use_count() > 1) {
-    std::shared_ptr<Cowstr::CowStrImpl> p = copy(impl_);
-    impl_ = p;
+    std::shared_ptr<Cowstr::CowStrImpl> r = create(sizeImpl());
+    std::memcpy(r->data, dataImpl(), sizeImpl());
+    impl_ = r;
   }
 }
 
@@ -425,7 +422,7 @@ char *Cowstr::kmp(const char *haystack, int h, const char *needle, int n,
     char nc = caseSensitive ? needle[j] : std::tolower(needle[j]);
     if (hc == nc) {
       if (j == n - 1)
-        return haystack + (i - n + 1);
+        return (char *)haystack + (i - n + 1);
       j++;
       i++;
     } else if (j == 0)
@@ -451,8 +448,11 @@ char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
         break;
       }
     }
-    if ()
+    if (match) {
+      return (char *)haystack + i;
+    }
   }
+  return nullptr;
 }
 
 } // namespace fastype

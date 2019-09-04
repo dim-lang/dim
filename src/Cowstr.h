@@ -194,6 +194,7 @@ private:
     int size;
     int capacity;
 
+    CowStrImpl();
     virtual ~CowStrImpl();
   };
 
@@ -201,8 +202,6 @@ private:
   static std::shared_ptr<CowStrImpl> create(int capacity);
   // clear data and allocated memory
   static void release(std::shared_ptr<CowStrImpl> p);
-  // deep copy data
-  static std::shared_ptr<CowStrImpl> copy(std::shared_ptr<CowStrImpl> p);
 
   // trim t
   static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
