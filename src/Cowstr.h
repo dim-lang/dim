@@ -71,6 +71,7 @@ public:
   std::vector<Cowstr> split(const char *s, int n) const;
 
   // sub string of [start, ...) or [start, start+startn)
+  // if cowstr has not enough length, use most it can.
   Cowstr subString(int start) const;
   Cowstr subString(int start, int startn) const;
 
@@ -78,12 +79,15 @@ public:
   Cowstr upperCase() const;
   Cowstr lowerCase() const;
 
-  // remove all whitespaces on both left/right side
+  // remove all whitespaces/c on both left/right side
   Cowstr trim() const;
-  // remove all whitespaces on left side
+  Cowstr trim(char c) const;
+  // remove all whitespaces/c on left side
   Cowstr trimLeft() const;
-  // remove all whitespaces on right side
+  Cowstr trimLeft(char c) const;
+  // remove all whitespaces/c on right side
   Cowstr trimRight() const;
+  Cowstr trimRight(char c) const;
 
   /* read api */
 
@@ -101,7 +105,7 @@ public:
   // raw string pointer at position
   char *rawstr(int pos = 0);
   const char *rawstr(int pos = 0) const;
-  std::string stdstr() const;
+  std::string stdstr(int pos = 0) const;
 
   // indexing
   char &operator[](int pos);
@@ -188,23 +192,31 @@ private:
     char *data;
     int size;
     int capacity;
+
+    virtual ~CowStrImpl();
   };
 
   // expand more memory
-  static CowStrImpl *create(int capacity);
+  static std::shared_ptr<CowStrImpl> create(int capacity);
   // clear data and allocated memory
-  static void release();
+  static void release(std::shared_ptr<CowStrImpl> p);
+  // deep copy data
+  static std::shared_ptr<CowStrImpl> copy(std::shared_ptr<CowStrImpl> p);
 
-  void incref() const;
-  void decref() const;
+  // trim t
+  static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
+  static void trimRightImpl(Cowstr &s, bool (*match)(char, char), char t);
+
+  void copyOnWrite();
 
   char *&dataImpl();
+  const char *&dataImpl() const;
   int &sizeImpl();
+  const int &sizeImpl() const;
   int &capacityImpl();
-  int &refImpl();
+  const int &capacityImpl() const;
 
-  CowStrImpl *impl_;
-  int *ref_;
+  std::shared_ptr<CowStrImpl> impl_;
 };
 
 } // namespace fastype

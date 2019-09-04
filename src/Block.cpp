@@ -62,6 +62,7 @@ Block &Block::operator=(Block &&other) {
 
 void Block::expand(int capacity) {
   F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
+  capacity += 1;
   // F_DEBUGF("capacity:{}", capacity);
   int newCapacity = std::max<int>(
       F_ALIGN_UP, (int)boost::alignment::align_up(capacity, F_ALIGN_UP));
