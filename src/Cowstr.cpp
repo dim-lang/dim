@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <boost/align/align_up.hpp>
 #include <cctype>
+#include <cstring>
 #include <fmt/format.h>
 #include <utility>
+#include <vector>
 
 #define F_ALIGN_UP 16
 #define F_ANY_CHAR '\0'
@@ -226,28 +228,96 @@ std::string Cowstr::toString() const {
                      impl_.use_count());
 }
 
-bool Cowstr::contains(const Cowstr &s) const {}
+bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
+             caseSensitive) != nullptr;
+}
 
-bool Cowstr::contains(const char *s, int n) const {}
+bool Cowstr::contains(const char *s, int n, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) != nullptr;
+}
 
-bool Cowstr::contains(const std::string &s) const {}
+bool Cowstr::contains(const std::string &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) !=
+         nullptr;
+}
 
-bool Cowstr::startsWith(const Cowstr &s) const {}
+bool Cowstr::startsWith(const Cowstr &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
+             caseSensitive) == dataImpl();
+}
 
-bool Cowstr::startsWith(const std::string &s) const {}
+bool Cowstr::startsWith(const char *s, int n) const {
+  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) == dataImpl();
+}
 
-bool Cowstr::startsWith(const char *s, int n) const {}
+bool Cowstr::startsWith(const std::string &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) ==
+         dataImpl();
+}
 
-bool endsWith(const Cowstr &s) const;
-bool endsWith(const std::string &s) const;
-bool endsWith(const char *s, int n) const;
+bool Cowstr::endsWith(const Cowstr &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
+             caseSensitive) == tail() - s.sizeImpl();
+}
 
-int indexOf(const Cowstr &s) const;
-int indexOf(const std::string &s) const;
-int indexOf(const char *s, int n) const;
-int indexOf(const Cowstr &s, int fromIndex) const;
-int indexOf(const std::string &s, int fromIndex) const;
-int indexOf(const char *s, int n, int fromIndex) const;
+bool Cowstr::endsWith(const std::string &s, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) ==
+         tail() - s.length();
+}
+
+bool Cowstr::endsWith(const char *s, int n, bool caseSensitive) const {
+  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) == tail() - n;
+}
+
+int Cowstr::indexOf(const Cowstr &s) const {
+  char *p = kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(), true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::indexOf(const std::string &s) const {
+  char *p = kmp(dataImpl(), sizeImpl(), s.data(), s.length(), true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::indexOf(const char *s, int n) const { return indexOf(s, n, 0); }
+
+int Cowstr::indexOf(const Cowstr &s, int fromIndex) const {
+  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s.dataImpl(),
+                s.sizeImpl(), true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::indexOf(const std::string &s, int fromIndex) const {
+  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s.data(),
+                s.length(), true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::indexOf(const char *s, int n, int fromIndex) const {
+  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::lastIndexOf(const Cowstr &s) const {
+  return lastIndexOf(s, sizeImpl());
+}
+
+int Cowstr::lastIndexOf(const std::string &s) const {
+  return lastIndexOf(s, sizeImpl());
+}
+
+int Cowstr::lastIndexOf(const char *s, int n) const {
+  return lastIndexOf(s, n, sizeImpl());
+}
+
+int Cowstr::lastIndexOf(const Cowstr &s, int fromIndex) const {
+  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  return p ? p - dataImpl() : -1;
+}
+
+int Cowstr::lastIndexOf(const std::string &s, int fromIndex) const {}
+int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {}
 
 std::shared_ptr<Cowstr::CowStrImpl> Cowstr::create(int capacity) {
   Cowstr::CowStrImpl *impl = new Cowstr::CowStrImpl();
@@ -330,6 +400,60 @@ char *&Cowstr::dataImpl() { return impl_->data; }
 int &Cowstr::sizeImpl() { return impl_->size; }
 
 int &Cowstr::capacityImpl() { return impl_->capacity; }
+
+std::vector<int> Cowstr::kmpPrefix(const char *needle, int n) {
+  std::vector<int> pi(n);
+  int k = 0;
+  for (int i = 1; i < n; i++) {
+    while (k > 0 && needle[k] != needle[i])
+      k = pi[k - 1];
+    if (needle[k] == needle[i])
+      k = k + 1;
+    pi[i] = k;
+  }
+  return pi;
+}
+
+char *Cowstr::kmp(const char *haystack, int h, const char *needle, int n,
+                  bool caseSensitive) {
+  if (n <= 0 || h <= 0)
+    return nullptr;
+  std::vector<int> prefix = kmpPrefix(needle, n);
+  int i = 0, j = 0;
+  while (i < h) {
+    char hc = caseSensitive ? haystack[i] : std::tolower(haystack[i]);
+    char nc = caseSensitive ? needle[j] : std::tolower(needle[j]);
+    if (hc == nc) {
+      if (j == n - 1)
+        return haystack + (i - n + 1);
+      j++;
+      i++;
+    } else if (j == 0)
+      i++;
+    else
+      j = prefix[j - 1];
+  }
+  return nullptr;
+}
+
+char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
+                            int n, bool caseSensitive) {
+  if (h <= 0 || n <= 0)
+    return nullptr;
+
+  for (int i = h - n; i >= 0; i--) {
+    bool match = true;
+    for (int j = 0; j < n; j++) {
+      char hc = caseSensitive ? haystack[i] : std::tolower(haystack[i]);
+      char nc = caseSensitive ? needle[j] : std::tolower(needle[j]);
+      if (hc != nc) {
+        match = false;
+        break;
+      }
+    }
+    if ()
+  }
+}
 
 } // namespace fastype
 

@@ -132,19 +132,20 @@ public:
   /* search */
 
   // test if contains s
-  bool contains(const Cowstr &s) const;
-  bool contains(const char *s, int n) const;
-  bool contains(const std::string &s) const;
+  // caseXXX api means compare string ignore case
+  bool contains(const Cowstr &s, bool caseSensitive = true) const;
+  bool contains(const std::string &s, bool caseSensitive = true) const;
+  bool contains(const char *s, int n, bool caseSensitive = true) const;
 
   // test if starts with s
-  bool startsWith(const Cowstr &s) const;
-  bool startsWith(const std::string &s) const;
-  bool startsWith(const char *s, int n) const;
+  bool startsWith(const Cowstr &s, bool caseSensitive = true) const;
+  bool startsWith(const std::string &s, bool caseSensitive = true) const;
+  bool startsWith(const char *s, int n, bool caseSensitive = true) const;
 
   // test if ends with s
-  bool endsWith(const Cowstr &s) const;
-  bool endsWith(const std::string &s) const;
-  bool endsWith(const char *s, int n) const;
+  bool endsWith(const Cowstr &s, bool caseSensitive = true) const;
+  bool endsWith(const std::string &s, bool caseSensitive = true) const;
+  bool endsWith(const char *s, int n, bool caseSensitive = true) const;
 
   // search position of s
   // @param fromIndex   search start from `fromIndex`
@@ -206,6 +207,15 @@ private:
   // trim t
   static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
   static void trimRightImpl(Cowstr &s, bool (*match)(char, char), char t);
+
+  // kmp string match algorithm
+  static std::vector<int> kmpPrefix(const char *needle, int n);
+
+  static char *kmp(const char *haystack, int h, const char *needle, int n,
+                   bool caseSensitive);
+
+  static char *reverseSearch(const char *haystack, int h, const char *needle,
+                             int n, bool caseSensitive);
 
   void copyOnWrite();
 
