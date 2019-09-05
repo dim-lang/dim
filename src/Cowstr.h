@@ -50,18 +50,18 @@ public:
 
   /* modify */
 
-  // replace c/target with s in arbitrary position
-  Cowstr replace(char c, const Cowstr &s) const;
-  Cowstr replace(char c, const std::string &s) const;
-  Cowstr replace(char c, const char *s, int n) const;
+  // replace target with s in arbitrary position
+  Cowstr replace(char target, const Cowstr &s) const;
+  Cowstr replace(char target, const std::string &s) const;
+  Cowstr replace(char target, const char *s, int n) const;
   Cowstr replace(const Cowstr &target, const Cowstr &s) const;
   Cowstr replace(const Cowstr &target, const std::string &s) const;
   Cowstr replace(const Cowstr &target, const char *s, int n) const;
 
-  // replace first c/target with s in arbitrary position
-  Cowstr replaceFirst(char c, const Cowstr &s) const;
-  Cowstr replaceFirst(char c, const std::string &s) const;
-  Cowstr replaceFirst(char c, const char *s, int n) const;
+  // replace first target with s in arbitrary position
+  Cowstr replaceFirst(char target, const Cowstr &s) const;
+  Cowstr replaceFirst(char target, const std::string &s) const;
+  Cowstr replaceFirst(char target, const char *s, int n) const;
   Cowstr replaceFirst(const Cowstr &target, const Cowstr &s) const;
   Cowstr replaceFirst(const Cowstr &target, const std::string &s) const;
   Cowstr replaceFirst(const Cowstr &target, const char *s, int n) const;
@@ -80,15 +80,15 @@ public:
   Cowstr upperCase() const;
   Cowstr lowerCase() const;
 
-  // remove all whitespaces/c on both left/right side
+  // remove all whitespaces/target on both left/right side
   Cowstr trim() const;
-  Cowstr trim(char c) const;
-  // remove all whitespaces/c on left side
+  Cowstr trim(char target) const;
+  // remove all whitespaces/target on left side
   Cowstr trimLeft() const;
-  Cowstr trimLeft(char c) const;
-  // remove all whitespaces/c on right side
+  Cowstr trimLeft(char target) const;
+  // remove all whitespaces/target on right side
   Cowstr trimRight() const;
-  Cowstr trimRight(char c) const;
+  Cowstr trimRight(char target) const;
 
   /* read api */
 
@@ -200,9 +200,11 @@ private:
   };
 
   // expand more memory
-  static std::shared_ptr<CowStrImpl> create(int capacity);
+  static CowStrImpl *alloc(CowStrImpl *p, int capacity);
   // clear data and allocated memory
-  static void release(std::shared_ptr<CowStrImpl> p);
+  static void release(CowStrImpl *p);
+  // helper constructor
+  Cowstr(CowStrImpl *p);
 
   // trim t
   static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);

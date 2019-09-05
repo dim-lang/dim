@@ -31,6 +31,8 @@ public:
 #define F_DEBUGF(fmtMsg, ...)
 #define F_INFO(msg)
 #define F_INFOF(fmtMsg, ...)
+#define F_INFO(msg)
+#define F_INFOF(fmtMsg, ...)
 #define F_CHECK(cond, msg)
 #define F_CHECKF(cond, fmtMsg, ...)
 
