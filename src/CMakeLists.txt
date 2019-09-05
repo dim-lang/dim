@@ -68,7 +68,7 @@ set(F_CORE
     script/token/NumberToken.cpp
     script/token/BooleanToken.cpp
 
-    Unit.cpp
+    Cowstr.cpp
     Row.cpp
     Buffer.cpp
     Cache.cpp

@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "Row.h"
 #include "Stringify.h"
-#include "Unit.h"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -46,8 +46,8 @@ private:
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-  Unit readBuffer_;
-  std::vector<std::shared_ptr<Row>> lineList_;
+  Cowstr readBuffer_;
+  std::vector<Row> lineList_;
 
   friend class Row;
 };

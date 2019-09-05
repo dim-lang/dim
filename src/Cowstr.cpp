@@ -40,6 +40,12 @@ Cowstr::Cowstr(const char *s, int n) : impl_(create(n)) {
   F_DEBUGF("raw char pointer Constructor:{}", toString());
 }
 
+Cowstr::Cowstr(char c) : impl_(create(1)) {
+  *dataImpl() = c;
+  sizeImpl() = 1;
+  F_DEBUGF("single char Constructor:{}", toString());
+}
+
 Cowstr::Cowstr(const std::string &s) : impl_(create(s.length())) {
   std::memcpy(dataImpl(), s.data(), s.length());
   sizeImpl() = s.length();
@@ -73,8 +79,6 @@ Cowstr &Cowstr::operator=(Cowstr &&other) {
   F_DEBUGF("Copy Move : {}", toString());
   return *this;
 }
-
-bool Cowstr::empty() const { return sizeImpl() <= 0; }
 
 Cowstr Cowstr::subString(int start) const {
   return subString(start, size() - start);
@@ -195,13 +199,13 @@ const char &Cowstr::at(int pos) const { return *(dataImpl() + pos); }
 
 bool Cowstr::empty() const { return sizeImpl() <= 0; }
 
-int Cowstr::size() const { retur sizeImpl(); }
+int Cowstr::size() const { return sizeImpl(); }
 
 int Cowstr::capacity() const { return capacityImpl(); }
 
-bool Cowstr::operator==(const Cowstr &s) const { return compare() == 0; }
+bool Cowstr::operator==(const Cowstr &s) const { return compare(s) == 0; }
 
-bool Cowstr::operator!=(const Cowstr &s) const { return compare() != 0; }
+bool Cowstr::operator!=(const Cowstr &s) const { return compare(s) != 0; }
 
 int Cowstr::compare(const Cowstr &s) const {
   if (sizeImpl() != s.sizeImpl()) {
@@ -249,7 +253,7 @@ bool Cowstr::startsWith(const Cowstr &s, bool caseSensitive) const {
              caseSensitive) == dataImpl();
 }
 
-bool Cowstr::startsWith(const char *s, int n) const {
+bool Cowstr::startsWith(const char *s, int n, bool caseSensitive) const {
   return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) == dataImpl();
 }
 
@@ -314,12 +318,24 @@ int Cowstr::lastIndexOf(const char *s, int n) const {
 }
 
 int Cowstr::lastIndexOf(const Cowstr &s, int fromIndex) const {
-  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
+  char *p = reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex,
+                          s.dataImpl(), s.sizeImpl(), true);
   return p ? p - dataImpl() : -1;
 }
 
-int Cowstr::lastIndexOf(const std::string &s, int fromIndex) const {}
-int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {}
+int Cowstr::lastIndexOf(const std::string &s, int fromIndex) const {
+  fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
+  char *p = reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex,
+                          s.data(), s.length(), true);
+  return p ? p - dataImpl() : -1;
+}
+int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {
+  fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
+  char *p =
+      reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  return p ? p - dataImpl() : -1;
+}
 
 std::shared_ptr<Cowstr::CowStrImpl> Cowstr::create(int capacity) {
   Cowstr::CowStrImpl *impl = new Cowstr::CowStrImpl();

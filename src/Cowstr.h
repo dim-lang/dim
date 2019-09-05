@@ -21,6 +21,7 @@ public:
 
   /* copy */
   Cowstr(const Cowstr &s);
+  Cowstr(char c);
   Cowstr(const char *s, int n);
   Cowstr(const std::string &s);
   Cowstr &operator=(const Cowstr &s);

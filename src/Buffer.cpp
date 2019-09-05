@@ -17,9 +17,7 @@ namespace fastype {
 
 Buffer::Buffer(const std::string &fileName)
     : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
-      loaded_(false), readBuffer_() {
-  readBuffer_.expand(BUF_SIZE);
-  std::memset(readBuffer_.data(), 0, BUF_SIZE * sizeof(char));
+      loaded_(false), readBuffer_(BUF_SIZE) {
   F_DEBUGF("Buffer:{}", toString());
 }
 
@@ -30,9 +28,8 @@ Buffer::~Buffer() {
     fd_ = nullptr;
   }
   loaded_ = false;
-  readBuffer_.clear();
   for (int i = 0; i < lineList_.size(); i++) {
-    lineList_[i].reset();
+    lineList_[i] = Row();
   }
   lineList_.clear();
 }
@@ -81,11 +78,9 @@ int Buffer::clear() {
 int Buffer::loaded() const { return loaded_; }
 
 std::string Buffer::toString() const {
-  return fmt::format("[ @Buffer fileName_:{} fd_:{} loaded_:{} "
-                     "readBuffer_#data:{} readBuffer_#size:{} "
+  return fmt::format("[ @Buffer fileName_:{} fd_:{} loaded_:{} readBuffer_:{} "
                      "lineList_#size:{} ]",
-                     fileName_, (void *)fd_, loaded_,
-                     (void *)readBuffer_.data(), readBuffer_.size(),
+                     fileName_, (void *)fd_, loaded_, readBuffer_.toString(),
                      lineList_.size());
 }
 
