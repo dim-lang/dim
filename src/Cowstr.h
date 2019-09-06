@@ -219,6 +219,9 @@ private:
   static char *reverseSearch(const char *haystack, int h, const char *needle,
                              int n, bool caseSensitive);
 
+  static std::vector<int> searchAll(const char *haystack, int h,
+                                    const char *needle, int n);
+
   void copyOnWrite();
 
   char *&dataImpl();

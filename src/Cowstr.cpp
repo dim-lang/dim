@@ -160,30 +160,97 @@ Cowstr Cowstr::concatHead(const std::string &s) const {
 }
 
 Cowstr Cowstr::replace(char target, const Cowstr &s) const {
-  Cowstr p = alloc(nullptr, sizeImpl());
-  int last = 0;
-  for (int i = 0; i < sizeImpl(); i++) {
-    char c = dataImpl()[i];
-    if (c != target) {
-      continue;
-    }
-    if (i == 0) {
-    }
+  return replace(target, s.dataImpl(), s.sizeImpl());
+}
+
+Cowstr Cowstr::replace(char target, const std::string &s) const {
+  return replace(target, s.data(), s.length());
+}
+
+Cowstr Cowstr::replace(char target, const char *s, int n) const {
+  if (n <= 0 || !s) {
+    return Cowstr(*this);
   }
-  std::memcpy(p->data, s.data(), s.length());
-  std::memcpy(p->data + s.length(), dataImpl(), sizeImpl());
+  std::vector<int> pos = searchAll(dataImpl(), sizeImpl(), &target, 1);
+  if (pos.empty()) {
+    return Cowstr(*this);
+  }
+  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + pos.size() * n);
+  for (int i = 0; i < pos.size(); i++) {
+    if (i != 0) {
+      int diff = pos[i] - pos[i - 1];
+      std::memcpy(p->data + p->size, dataImpl() + pos[i - 1], diff);
+      p->size += diff;
+    }
+    std::memcpy(p->data + p->size, s, n);
+    p->size += n;
+  }
   return Cowstr(p);
 }
 
-Cowstr Cowstr::replace(char target, const std::string &s) const {}
-Cowstr Cowstr::replace(char target, const char *s, int n) const {}
-Cowstr Cowstr::replace(const Cowstr &target, const Cowstr &s) const {}
-Cowstr Cowstr::replace(const Cowstr &target, const std::string &s) const {}
-Cowstr Cowstr::replace(const Cowstr &target, const char *s, int n) const {}
+Cowstr Cowstr::replace(const Cowstr &target, const Cowstr &s) const {
+  return replace(target, s.dataImpl(), s.sizeImpl());
+}
 
-Cowstr Cowstr::replaceFirst(char target, const Cowstr &s) const {}
-Cowstr Cowstr::replaceFirst(char target, const std::string &s) const {}
-Cowstr Cowstr::replaceFirst(char target, const char *s, int n) const {}
+Cowstr Cowstr::replace(const Cowstr &target, const std::string &s) const {
+  return replace(target, s.data(), s.length());
+}
+
+Cowstr Cowstr::replace(const Cowstr &target, const char *s, int n) const {
+  if (n <= 0 || !s) {
+    return Cowstr(*this);
+  }
+  if (target.sizeImpl() > sizeImpl()) {
+    return Cowstr(*this);
+  }
+  std::vector<int> pos =
+      searchAll(dataImpl(), sizeImpl(), target.dataImpl(), target.sizeImpl());
+  if (pos.empty()) {
+    return Cowstr(*this);
+  }
+  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + pos.size() * n);
+  for (int i = 0; i < pos.size(); i++) {
+    if (i != 0) {
+      int diff = pos[i] - pos[i - 1];
+      std::memcpy(p->data + p->size, dataImpl() + pos[i - 1], diff);
+      p->size += diff;
+    }
+    std::memcpy(p->data + p->size, s, n);
+    p->size += n;
+  }
+  return Cowstr(p);
+}
+
+Cowstr Cowstr::replaceFirst(char target, const Cowstr &s) const {
+  return replaceFirst(target, s.dataImpl(), s.sizeImpl());
+}
+
+Cowstr Cowstr::replaceFirst(char target, const std::string &s) const {
+  return replaceFirst(target, s.data(), s.length());
+}
+
+Cowstr Cowstr::replaceFirst(char target, const char *s, int n) const {
+  const char *t = std::find(dataImpl(), dataImpl() + sizeImpl(), target);
+  if (!t) {
+    return Cowstr(*this)
+  }
+
+  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + n - 1);
+  int diff1 = t - dataImpl();
+  if (diff1 > 0) {
+    std::memcpy(p->data, dataImpl(), diff1);
+    p->size += diff1;
+  }
+  std::memcpy(p->data, s, n);
+  p->size += n;
+  int diff2 = dataImpl() + sizeImpl() - t - 1;
+  if (diff2 > 0) {
+    std::memcpy(p->data, dataImpl(), diff2);
+    p->size += diff2;
+  }
+  return Cowstr(p);
+}
+
 Cowstr Cowstr::replaceFirst(const Cowstr &target, const Cowstr &s) const {}
 Cowstr Cowstr::replaceFirst(const Cowstr &target, const std::string &s) const {}
 Cowstr Cowstr::replaceFirst(const Cowstr &target, const char *s, int n) const {}
@@ -557,8 +624,13 @@ std::vector<int> Cowstr::kmpPrefix(const char *needle, int n) {
 
 char *Cowstr::kmp(const char *haystack, int h, const char *needle, int n,
                   bool caseSensitive) {
-  if (n <= 0 || h <= 0)
+  if (!haystack || h <= 0 || !needle || n <= 0) {
     return nullptr;
+  }
+  if (n > h) {
+    return nullptr;
+  }
+
   std::vector<int> prefix = kmpPrefix(needle, n);
   int i = 0, j = 0;
   while (i < h) {
@@ -579,8 +651,12 @@ char *Cowstr::kmp(const char *haystack, int h, const char *needle, int n,
 
 char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
                             int n, bool caseSensitive) {
-  if (h <= 0 || n <= 0)
+  if (!haystack || h <= 0 || !needle || n <= 0) {
     return nullptr;
+  }
+  if (n > h) {
+    return nullptr;
+  }
 
   for (int i = h - n; i >= 0; i--) {
     bool match = true;
@@ -597,6 +673,25 @@ char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
     }
   }
   return nullptr;
+}
+
+std::vector<int> Cowstr::searchAll(const char *haystack, int h,
+                                   const char *needle, int n) {
+  std::vector<int> ret;
+  if (!haystack || h <= 0 || !needle || n <= 0) {
+    return ret;
+  }
+  if (n > h) {
+    return ret;
+  }
+
+  for (int i = 0; i < h - n; i++) {
+    if (std::strncmp(haystack + i, needle, n) == 0) {
+      ret.push_back(i);
+    }
+  }
+
+  return ret;
 }
 
 } // namespace fastype
