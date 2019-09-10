@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Block.h"
-#include "exception/AllocException.h"
 #include <cstdlib>
 #include <cstring>
 #include <memory>
