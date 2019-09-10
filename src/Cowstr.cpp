@@ -63,8 +63,8 @@ void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
   // else modify this value directly
   if (impl_.use_count() > 1) {
-    Cowstr::CowStrImpl *r = alloc(nullptr, sizeImpl());
-    std::memcpy(r->data, dataImpl(), sizeImpl());
+    Cowstr::CowStrImpl *r = alloc(nullptr, size());
+    std::memcpy(r->data, dataImpl(), size());
     impl_ = std::shared_ptr<Cowstr::CowStrImpl>(r);
   }
 }
@@ -96,168 +96,188 @@ Cowstr &Cowstr::operator=(Cowstr &&other) {
 }
 
 Cowstr Cowstr::concat(const Cowstr &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + s.sizeImpl());
-  std::memcpy(p->data, dataImpl(), sizeImpl());
-  std::memcpy(p->data + sizeImpl(), s.dataImpl(), s.sizeImpl());
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.size());
+  std::memcpy(p->data, head(), size());
+  std::memcpy(p->data + size(), s.head(), s.size());
   return Cowstr(p);
 }
 
 Cowstr Cowstr::concat(const char *s, int n) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + n);
-  std::memcpy(p->data, dataImpl(), sizeImpl());
-  std::memcpy(p->data + sizeImpl(), s, n);
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
+  std::memcpy(p->data, head(), size());
+  std::memcpy(p->data + size(), s, n);
   return Cowstr(p);
 }
 
 Cowstr Cowstr::concat(const std::string &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + s.length());
-  std::memcpy(p->data, dataImpl(), sizeImpl());
-  std::memcpy(p->data + sizeImpl(), s.data(), s.length());
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.length());
+  std::memcpy(p->data, head(), size());
+  std::memcpy(p->data + size(), s.data(), s.length());
   return Cowstr(p);
 }
 
-Cowstr Cowstr::operator+(const Cowstr &s) const {
-  return concat(s.dataImpl(), s.sizeImpl());
-}
+Cowstr Cowstr::operator+(const Cowstr &s) const { return concat(s); }
 
 Cowstr Cowstr::operator+(const std::string &s) const { return concat(s); }
 
 Cowstr &Cowstr::operator+=(const Cowstr &s) {
   copyOnWrite();
-  Cowstr::CowStrImpl *np = alloc(impl_.get(), sizeImpl() + s.sizeImpl());
+  Cowstr::CowStrImpl *np = alloc(impl_.get(), size() + s.size());
   impl_.reset(np);
-  std::memcpy(dataImpl() + sizeImpl(), s.dataImpl(), s.sizeImpl());
+  std::memcpy(head() + size(), s.head(), s.size());
   return *this;
 }
 
 Cowstr &Cowstr::operator+=(const std::string &s) {
   copyOnWrite();
-  Cowstr::CowStrImpl *np = alloc(impl_.get(), sizeImpl() + s.length());
+  Cowstr::CowStrImpl *np = alloc(impl_.get(), size() + s.length());
   impl_.reset(np);
-  std::memcpy(dataImpl() + sizeImpl(), s.data(), s.length());
+  std::memcpy(head() + size(), s.data(), s.length());
   return *this;
 }
 
 Cowstr Cowstr::concatHead(const Cowstr &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + s.sizeImpl());
-  std::memcpy(p->data, s.dataImpl(), s.sizeImpl());
-  std::memcpy(p->data + s.sizeImpl(), dataImpl(), sizeImpl());
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.size());
+  std::memcpy(p->data, s.head(), s.size());
+  std::memcpy(p->data + s.size(), head(), size());
   return Cowstr(p);
 }
 
 Cowstr Cowstr::concatHead(const char *s, int n) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + n);
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
   std::memcpy(p->data, s, n);
-  std::memcpy(p->data + n, dataImpl(), sizeImpl());
+  std::memcpy(p->data + n, head(), size());
   return Cowstr(p);
 }
 
 Cowstr Cowstr::concatHead(const std::string &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + s.length());
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.length());
   std::memcpy(p->data, s.data(), s.length());
-  std::memcpy(p->data + s.length(), dataImpl(), sizeImpl());
+  std::memcpy(p->data + s.length(), head(), size());
   return Cowstr(p);
 }
 
 Cowstr Cowstr::replace(char target, const Cowstr &s) const {
-  return replace(target, s.dataImpl(), s.sizeImpl());
+  return replaceImpl(*this, &target, 1, s.head(), s.size());
 }
 
 Cowstr Cowstr::replace(char target, const std::string &s) const {
-  return replace(target, s.data(), s.length());
+  return replaceImpl(*this, &target, 1, s.data(), s.length());
 }
 
 Cowstr Cowstr::replace(char target, const char *s, int n) const {
-  if (n <= 0 || !s) {
-    return Cowstr(*this);
-  }
-  std::vector<int> pos = searchAll(dataImpl(), sizeImpl(), &target, 1);
-  if (pos.empty()) {
-    return Cowstr(*this);
-  }
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + pos.size() * n);
-  for (int i = 0; i < pos.size(); i++) {
-    if (i != 0) {
-      int diff = pos[i] - pos[i - 1];
-      std::memcpy(p->data + p->size, dataImpl() + pos[i - 1], diff);
-      p->size += diff;
-    }
-    std::memcpy(p->data + p->size, s, n);
-    p->size += n;
-  }
-  return Cowstr(p);
+  return replaceImpl(*this, &target, 1, s, n);
 }
 
 Cowstr Cowstr::replace(const Cowstr &target, const Cowstr &s) const {
-  return replace(target, s.dataImpl(), s.sizeImpl());
+  return replaceImpl(*this, target.head(), target.size(), s.head(), s.size());
 }
 
 Cowstr Cowstr::replace(const Cowstr &target, const std::string &s) const {
-  return replace(target, s.data(), s.length());
+  return replaceImpl(*this, target.head(), target.size(), s.data(), s.length());
 }
 
 Cowstr Cowstr::replace(const Cowstr &target, const char *s, int n) const {
-  if (n <= 0 || !s) {
-    return Cowstr(*this);
+  return replaceImpl(*this, target.head(), target.size(), s, n);
+}
+
+Cowstr Cowstr::replaceFirst(char target, const Cowstr &s) const {
+  return replaceFirstImpl(*this, &target, 1, s.head(), s.size());
+}
+
+Cowstr Cowstr::replaceFirst(char target, const std::string &s) const {
+  return replaceFirstImpl(*this, &target, 1, s.data(), s.length());
+}
+
+Cowstr Cowstr::replaceFirst(char target, const char *s, int n) const {
+  return replaceFirstImpl(*this, &target, 1, s, n);
+}
+
+Cowstr Cowstr::replaceFirst(const Cowstr &target, const Cowstr &s) const {
+  return replaceFirstImpl(*this, target.head(), target.size(), s.head(),
+                          s.size());
+}
+
+Cowstr Cowstr::replaceFirst(const Cowstr &target, const std::string &s) const {
+  return replaceFirstImpl(*this, target.head(), target.size(), s.data(),
+                          s.length());
+}
+
+Cowstr Cowstr::replaceFirst(const Cowstr &target, const char *s, int n) const {
+  return replaceFirstImpl(*this, target.head(), target.size(), s, n);
+}
+
+Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,
+                           const char *repl, int r) {
+  if (target == nullptr || t <= 0) {
+    return Cowstr(src);
   }
-  if (target.sizeImpl() > sizeImpl()) {
-    return Cowstr(*this);
+  if (t > src.size()) {
+    return Cowstr(src);
   }
-  std::vector<int> pos =
-      searchAll(dataImpl(), sizeImpl(), target.dataImpl(), target.sizeImpl());
+  std::vector<int> pos = searchAll(src.head(), src.size(), target, t);
   if (pos.empty()) {
-    return Cowstr(*this);
+    return Cowstr(src);
   }
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + pos.size() * n);
+  Cowstr::CowStrImpl *p = alloc(nullptr, src.size() + pos.size() * r);
   for (int i = 0; i < pos.size(); i++) {
     if (i != 0) {
       int diff = pos[i] - pos[i - 1];
-      std::memcpy(p->data + p->size, dataImpl() + pos[i - 1], diff);
+      std::memcpy(p->data + p->size, src.head() + pos[i - 1], diff);
       p->size += diff;
     }
-    std::memcpy(p->data + p->size, s, n);
-    p->size += n;
+    std::memcpy(p->data + p->size, repl, r);
+    p->size += r;
   }
   return Cowstr(p);
 }
 
-Cowstr Cowstr::replaceFirst(char target, const Cowstr &s) const {
-  return replaceFirst(target, s.dataImpl(), s.sizeImpl());
-}
-
-Cowstr Cowstr::replaceFirst(char target, const std::string &s) const {
-  return replaceFirst(target, s.data(), s.length());
-}
-
-Cowstr Cowstr::replaceFirst(char target, const char *s, int n) const {
-  const char *t = std::find(dataImpl(), dataImpl() + sizeImpl(), target);
-  if (!t) {
-    return Cowstr(*this)
+Cowstr Cowstr::replaceFirstImpl(const Cowstr &src, const char *target, int t,
+                                const char *repl, int r) {
+  if (target == nullptr || t <= 0) {
+    return Cowstr(src);
+  }
+  const char *k = kmp(src.head(), src.size(), target, t, true);
+  if (!k) {
+    return Cowstr(src);
   }
 
-  Cowstr::CowStrImpl *p = alloc(nullptr, sizeImpl() + n - 1);
-  int diff1 = t - dataImpl();
+  Cowstr::CowStrImpl *p = alloc(nullptr, src.size() + r - 1);
+  int diff1 = k - src.head();
   if (diff1 > 0) {
-    std::memcpy(p->data, dataImpl(), diff1);
+    std::memcpy(p->data, src.head(), diff1);
     p->size += diff1;
   }
-  std::memcpy(p->data, s, n);
-  p->size += n;
-  int diff2 = dataImpl() + sizeImpl() - t - 1;
+  std::memcpy(p->data, repl, r);
+  p->size += r;
+  int diff2 = src.head() + src.size() - k - 1;
   if (diff2 > 0) {
-    std::memcpy(p->data, dataImpl(), diff2);
+    std::memcpy(p->data, src.head(), diff2);
     p->size += diff2;
   }
   return Cowstr(p);
 }
 
-Cowstr Cowstr::replaceFirst(const Cowstr &target, const Cowstr &s) const {}
-Cowstr Cowstr::replaceFirst(const Cowstr &target, const std::string &s) const {}
-Cowstr Cowstr::replaceFirst(const Cowstr &target, const char *s, int n) const {}
+std::vector<Cowstr> Cowstr::split(const Cowstr &s) const {
+  return split(s.head(), s.size());
+}
 
-std::vector<Cowstr> Cowstr::split(const Cowstr &s) const {}
-std::vector<Cowstr> Cowstr::split(const std::string &s) const {}
-std::vector<Cowstr> Cowstr::split(const char *s, int n) const {}
+std::vector<Cowstr> Cowstr::split(const std::string &s) const {
+  return split(s.data(), s.length());
+}
+
+std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
+  std::vector<Cowstr> ret;
+  std::vector<int> pos = searchAll(head(), size(), s, n);
+  for (int i = 0; i < pos.size(); i++) {
+    if (i == 0 && pos[i] > 0) {
+      ret.push_back(subString(0, pos[i]));
+    } else {
+      ret.push_back(subString(pos[i - 1] + n, pos[i]));
+    }
+  }
+  return ret;
+}
 
 Cowstr Cowstr::subString(int start) const {
   return subString(start, size() - start);
@@ -270,12 +290,12 @@ Cowstr Cowstr::subString(int start, int startn) const {
     return Cowstr();
   }
   startn = std::min<int>(startn, sizeImpl() - start);
-  return Cowstr(dataImpl() + start, startn);
+  return Cowstr(head() + start, startn);
 }
 
 Cowstr Cowstr::upperCase() const {
-  Cowstr s(dataImpl(), sizeImpl());
-  std::for_each(s.dataImpl(), s.dataImpl() + s.sizeImpl(), [](char &c) {
+  Cowstr s(head(), sizeImpl());
+  std::for_each(s.head(), s.head() + s.sizeImpl(), [](char &c) {
     if (std::isupper(c)) {
       c = std::toupper(c);
     }
@@ -284,8 +304,8 @@ Cowstr Cowstr::upperCase() const {
 }
 
 Cowstr Cowstr::lowerCase() const {
-  Cowstr s(dataImpl(), sizeImpl());
-  std::for_each(s.dataImpl(), s.dataImpl() + s.sizeImpl(), [](char &c) {
+  Cowstr s(head(), sizeImpl());
+  std::for_each(s.head(), s.head() + s.size(), [](char &c) {
     if (std::islower(c)) {
       c = std::tolower(c);
     }
@@ -297,21 +317,21 @@ static bool matchWhitespace(char a, char _) { return std::isspace(a); }
 static bool matchChar(char a, char b) { return a == b; }
 
 Cowstr Cowstr::trim() const {
-  Cowstr s(dataImpl(), sizeImpl());
+  Cowstr s(head(), sizeImpl());
   trimLeftImpl(s, matchWhitespace, F_ANY_CHAR);
   trimRightImpl(s, matchWhitespace, F_ANY_CHAR);
   return s;
 }
 
 Cowstr Cowstr::trim(char c) const {
-  Cowstr s(dataImpl(), sizeImpl());
+  Cowstr s(head(), sizeImpl());
   trimLeftImpl(s, matchChar, c);
   trimRightImpl(s, matchChar, c);
   return s;
 }
 
 Cowstr Cowstr::trimLeft() const {
-  Cowstr s(dataImpl(), sizeImpl());
+  Cowstr s(head(), sizeImpl());
   trimLeftImpl(s, matchWhitespace, F_ANY_CHAR);
   return s;
 }
@@ -390,98 +410,97 @@ int Cowstr::compare(const Cowstr &s) const {
   if (sizeImpl() != s.sizeImpl()) {
     return sizeImpl() - s.sizeImpl();
   }
-  return std::memcmp(dataImpl(), s.dataImpl(), sizeImpl());
+  return std::memcmp(head(), s.head(), sizeImpl());
 }
 
 int Cowstr::compare(const std::string &s) const {
   if (sizeImpl() != s.length()) {
     return sizeImpl() - s.length();
   }
-  return std::memcmp(dataImpl(), s.data(), sizeImpl());
+  return std::memcmp(head(), s.data(), sizeImpl());
 }
 
 int Cowstr::compare(const char *s, int n) const {
   if (sizeImpl() != n) {
     return sizeImpl() - n;
   }
-  return std::memcmp(dataImpl(), s, sizeImpl());
+  return std::memcmp(head(), s, sizeImpl());
 }
 
 std::string Cowstr::toString() const {
-  return fmt::format("[ @Cowstr data_:{} size_:{} capacity_:{} refcount:{} ]",
-                     (void *)dataImpl(), sizeImpl(), capacityImpl(),
+  return fmt::format("[ @Cowstr head_:{} size_:{} capacity_:{} refcount:{} ]",
+                     (void *)head(), sizeImpl(), capacityImpl(),
                      impl_.use_count());
 }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
-             caseSensitive) != nullptr;
+  return kmp(head(), sizeImpl(), s.head(), s.sizeImpl(), caseSensitive) !=
+         nullptr;
 }
 
 bool Cowstr::contains(const char *s, int n, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) != nullptr;
+  return kmp(head(), sizeImpl(), s, n, caseSensitive) != nullptr;
 }
 
 bool Cowstr::contains(const std::string &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) !=
+  return kmp(head(), sizeImpl(), s.data(), s.length(), caseSensitive) !=
          nullptr;
 }
 
 bool Cowstr::startsWith(const Cowstr &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
-             caseSensitive) == dataImpl();
+  return kmp(head(), sizeImpl(), s.head(), s.sizeImpl(), caseSensitive) ==
+         head();
 }
 
 bool Cowstr::startsWith(const char *s, int n, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) == dataImpl();
+  return kmp(head(), sizeImpl(), s, n, caseSensitive) == head();
 }
 
 bool Cowstr::startsWith(const std::string &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) ==
-         dataImpl();
+  return kmp(head(), sizeImpl(), s.data(), s.length(), caseSensitive) == head();
 }
 
 bool Cowstr::endsWith(const Cowstr &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(),
-             caseSensitive) == tail() - s.sizeImpl();
+  return kmp(head(), sizeImpl(), s.head(), s.sizeImpl(), caseSensitive) ==
+         tail() - s.sizeImpl();
 }
 
 bool Cowstr::endsWith(const std::string &s, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s.data(), s.length(), caseSensitive) ==
+  return kmp(head(), sizeImpl(), s.data(), s.length(), caseSensitive) ==
          tail() - s.length();
 }
 
 bool Cowstr::endsWith(const char *s, int n, bool caseSensitive) const {
-  return kmp(dataImpl(), sizeImpl(), s, n, caseSensitive) == tail() - n;
+  return kmp(head(), sizeImpl(), s, n, caseSensitive) == tail() - n;
 }
 
 int Cowstr::indexOf(const Cowstr &s) const {
-  char *p = kmp(dataImpl(), sizeImpl(), s.dataImpl(), s.sizeImpl(), true);
-  return p ? p - dataImpl() : -1;
+  char *p = kmp(head(), sizeImpl(), s.head(), s.sizeImpl(), true);
+  return p ? p - head() : -1;
 }
 
 int Cowstr::indexOf(const std::string &s) const {
-  char *p = kmp(dataImpl(), sizeImpl(), s.data(), s.length(), true);
-  return p ? p - dataImpl() : -1;
+  char *p = kmp(head(), sizeImpl(), s.data(), s.length(), true);
+  return p ? p - head() : -1;
 }
 
 int Cowstr::indexOf(const char *s, int n) const { return indexOf(s, n, 0); }
 
 int Cowstr::indexOf(const Cowstr &s, int fromIndex) const {
-  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s.dataImpl(),
+  char *p = kmp(head() + fromIndex, sizeImpl() - fromIndex, s.head(),
                 s.sizeImpl(), true);
-  return p ? p - dataImpl() : -1;
+  return p ? p - head() : -1;
 }
 
 int Cowstr::indexOf(const std::string &s, int fromIndex) const {
-  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s.data(),
+  char *p = kmp(head() + fromIndex, sizeImpl() - fromIndex, s.data(),
                 s.length(), true);
-  return p ? p - dataImpl() : -1;
+  return p ? p - head() : -1;
 }
 
 int Cowstr::indexOf(const char *s, int n, int fromIndex) const {
-  char *p = kmp(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
-  return p ? p - dataImpl() : -1;
+  char *p = kmp(head() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  return p ? p - head() : -1;
 }
 
 int Cowstr::lastIndexOf(const Cowstr &s) const {
@@ -498,22 +517,22 @@ int Cowstr::lastIndexOf(const char *s, int n) const {
 
 int Cowstr::lastIndexOf(const Cowstr &s, int fromIndex) const {
   fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
-  char *p = reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex,
-                          s.dataImpl(), s.sizeImpl(), true);
-  return p ? p - dataImpl() : -1;
+  char *p = reverseSearch(head() + fromIndex, sizeImpl() - fromIndex, s.head(),
+                          s.size(), true);
+  return p ? p - head() : -1;
 }
 
 int Cowstr::lastIndexOf(const std::string &s, int fromIndex) const {
   fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
-  char *p = reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex,
-                          s.data(), s.length(), true);
-  return p ? p - dataImpl() : -1;
+  char *p = reverseSearch(head() + fromIndex, sizeImpl() - fromIndex, s.data(),
+                          s.length(), true);
+  return p ? p - head() : -1;
 }
 int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {
   fromIndex = fromIndex < 0 ? (fromIndex + sizeImpl()) : fromIndex;
   char *p =
-      reverseSearch(dataImpl() + fromIndex, sizeImpl() - fromIndex, s, n, true);
-  return p ? p - dataImpl() : -1;
+      reverseSearch(head() + fromIndex, sizeImpl() - fromIndex, s, n, true);
+  return p ? p - head() : -1;
 }
 
 Cowstr::CowStrImpl::CowStrImpl() : data(nullptr), size(0), capacity(0) {}
@@ -571,43 +590,47 @@ Cowstr::Cowstr(Cowstr::CowStrImpl *p) : impl_(p) {
 }
 
 void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {
-  int count = 0;
+  int cnt = 0;
   for (int i = 0; i < s.sizeImpl(); i++) {
-    char c = s.dataImpl()[i];
+    char c = s.head()[i];
     if (!match(c, t)) {
       break;
     }
-    count++;
+    cnt++;
   }
-  if (count > 0) {
-    std::memmove(s.dataImpl(), s.dataImpl() + count, s.sizeImpl() - count);
-    std::memset(s.dataImpl() + s.sizeImpl() - count, 0,
-                s.capacityImpl() - s.sizeImpl() + count);
-    s.sizeImpl() -= count;
+  if (cnt > 0) {
+    std::memmove(s.head(), s.head() + cnt, s.size() - cnt);
+    std::memset(s.head() + s.size() - cnt, 0, s.capacity() - s.size() + cnt);
+    s.sizeImpl() -= cnt;
   }
 }
 
 void Cowstr::trimRightImpl(Cowstr &s, bool (*match)(char, char), char t) {
-  int count = 0;
-  for (int i = s.sizeImpl() - 1; i >= 0; i--) {
-    char c = s.dataImpl()[i];
+  int cnt = 0;
+  for (int i = s.size() - 1; i >= 0; i--) {
+    char c = s.head()[i];
     if (!match(c, t)) {
       break;
     }
-    count++;
+    cnt++;
   }
-  if (count > 0) {
-    std::memset(s.dataImpl() + s.sizeImpl() - count, 0,
-                s.capacityImpl() - s.sizeImpl() + count);
-    s.sizeImpl() -= count;
+  if (cnt > 0) {
+    std::memset(s.head() + s.size() - cnt, 0, s.capacity() - s.size() + cnt);
+    s.sizeImpl() -= cnt;
   }
 }
 
 char *&Cowstr::dataImpl() { return impl_->data; }
 
+const char *Cowstr::dataImpl() const { return impl_->data; }
+
 int &Cowstr::sizeImpl() { return impl_->size; }
 
+const int &Cowstr::sizeImpl() const { return impl_->size; }
+
 int &Cowstr::capacityImpl() { return impl_->capacity; }
+
+const int &Cowstr::capacityImpl() const { return impl_->capacity; }
 
 std::vector<int> Cowstr::kmpPrefix(const char *needle, int n) {
   std::vector<int> pi(n);
@@ -654,10 +677,6 @@ char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
   if (!haystack || h <= 0 || !needle || n <= 0) {
     return nullptr;
   }
-  if (n > h) {
-    return nullptr;
-  }
-
   for (int i = h - n; i >= 0; i--) {
     bool match = true;
     for (int j = 0; j < n; j++) {
@@ -681,16 +700,11 @@ std::vector<int> Cowstr::searchAll(const char *haystack, int h,
   if (!haystack || h <= 0 || !needle || n <= 0) {
     return ret;
   }
-  if (n > h) {
-    return ret;
-  }
-
   for (int i = 0; i < h - n; i++) {
     if (std::strncmp(haystack + i, needle, n) == 0) {
       ret.push_back(i);
     }
   }
-
   return ret;
 }
 

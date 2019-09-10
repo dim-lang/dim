@@ -2,196 +2,277 @@
 // Apache License Version 2.0
 
 #include "Block.h"
-#include "Logging.h"
-#include "Profile.h"
-#include <algorithm>
-#include <boost/align/align_up.hpp>
-#include <fmt/format.h>
-#include <utility>
+#include "exception/AllocException.h"
+#include <cstdlib>
+#include <cstring>
+#include <memory>
 
-#define F_ALIGN_UP 16
+#define F_ALLOC_UNIT 8
 
 namespace fastype {
 
-Block::Block() : data_(nullptr), size_(0), capacity_(0) {
-  // F_DEBUGF("No Args Constructor:{}", toString());
-}
+Block::Block() : buf_(nullptr), start_(0), end_(0), capacity_(0) {}
 
-Block::Block(int capacity) : Block() {
-  expand(capacity);
-  // F_DEBUGF("Capacity Constructor:{}", toString());
-}
+Block::Block(int capacity) : Block() { reserve(capacity); }
 
 Block::~Block() { release(); }
 
-Block::Block(const Block &other) : Block() {
-  if (other.data_) {
-    expand(other.capacity_);
-    std::memset(data_, 0, capacity_ * sizeof(char));
-    std::memcpy(data_, other.data_, size_ * sizeof(char));
-  }
-  F_DEBUGF("Copy Constructor: {}", toString());
+Block::Block(const Block &s) : Block(s.head(), s.size()) {}
+
+Block::Block(char c) : Block(&c, 1) {}
+
+Block::Block(const char *s, int n) {
+  reserve(n);
+  std::memcpy(buf_, s, n);
+  end_ += n;
 }
 
-Block &Block::operator=(const Block &other) {
-  if (this == &other) {
+Block::Block(const std::string &s) : Block(s.data(), (int)s.length()) {}
+
+Block &Block::operator=(const Block &s) {
+  if (this == &s) {
     return *this;
   }
-  expand(other.capacity_);
-  std::memset(data_, 0, capacity_ * sizeof(char));
-  std::memcpy(data_, other.data_, size_ * sizeof(char));
-  F_DEBUGF("Copy Assign: {}", toString());
+  reserve(s.size());
+  std::memcpy(buf_, s.head(), s.size());
+  end_ += s.size();
   return *this;
 }
 
-Block::Block(Block &&other) : Block() {
-  std::swap(data_, other.data_);
-  std::swap(size_, other.size_);
-  std::swap(capacity_, other.capacity_);
+Block::Block(Block &&s) : Block() {
+  std::swap(buf_, s.buf_);
+  std::swap(start_, s.start_);
+  std::swap(end_, s.end_);
+  std::swap(capacity_, s.capacity_);
 }
 
-Block &Block::operator=(Block &&other) {
-  if (this == &other) {
+Block &Block::operator=(Block &&s) {
+  if (this == &s) {
     return *this;
   }
-  std::swap(data_, other.data_);
-  std::swap(size_, other.size_);
-  std::swap(capacity_, other.capacity_);
+  std::swap(buf_, s.buf_);
+  std::swap(start_, s.start_);
+  std::swap(end_, s.end_);
+  std::swap(capacity_, s.capacity_);
   return *this;
 }
 
-void Block::expand(int capacity) {
-  F_CHECKF(capacity > 0, "capacity {} > 0", capacity);
-  capacity += 1;
-  // F_DEBUGF("capacity:{}", capacity);
-  int newCapacity = std::max<int>(
-      F_ALIGN_UP, (int)boost::alignment::align_up(capacity, F_ALIGN_UP));
-  F_DEBUGF("capacity:{} newCapacity:{}", capacity, newCapacity);
-  F_CHECKF(newCapacity >= 2 * capacity_, "newCapacity {} >= 2 * capacity_ {}",
-           newCapacity, capacity_);
-  char *newData = (char *)realloc(data_, newCapacity * sizeof(char));
-  if (!newData) {
-    return;
+Block &Block::reserve(int capacity) {
+  // do nothing
+  if (capacity <= 0) {
+    return *this;
   }
-  data_ = newData;
-  capacity_ = newCapacity;
-  F_DEBUGF("after expand:{}", toString());
-}
-
-bool Block::empty() const { return size_ <= 0; }
-
-bool Block::full() const { return size_ >= capacity_; }
-
-void Block::clear() {
-  if (data_) {
-    std::memset(data_, 0, capacity_ * sizeof(char));
-    size_ = 0;
+  if (capacity <= capacity_) {
+    return *this;
   }
-}
 
-void Block::release() {
-  if (data_) {
-    delete[] data_;
-    data_ = nullptr;
-    size_ = 0;
-    capacity_ = 0;
+  char *nb = new char[capacity];
+  int sz = size();
+  char *ob = buf_;
+
+  // case 1: memory in disorder
+  if (start_ > end_) {
+    int c1 = capacity_ - start_;
+    std::memcpy(nb, buf_ + start_, c1);
+    std::memcpy(nb + c1, buf_, end_);
+  } else {
+    // case 2: memory in order
+    std::memcpy(nb, buf_ + start_, sz);
   }
-  F_CHECKF(data_ == nullptr, "data_ {} == nullptr", (void *)data_);
-  F_CHECKF(size_ == 0, "size_ {} == 0", size_);
-  F_CHECKF(capacity_ == 0, "capacity_ {} == 0", capacity_);
-}
 
-void Block::truncate(int start, int length) {
-  F_CHECKF(start >= 0, "start {} >= 0", start);
-  F_CHECKF(length > 0, "length {} > 0", length);
-  if (!data_) {
-    return;
+  // after expantion, data is aligned with the beginning of buffer
+  buf_ = nb;
+  start_ = 0;
+  end_ = sz;
+  capacity_ = capacity;
+
+  if (ob) {
+    delete[] ob;
   }
-  if (start > size_) {
-    return;
+  return *this;
+}
+
+Block &Block::clear() {
+  if (buf_) {
+    std::memset(buf_, 0, capacity_);
   }
-  length = std::min<int>(length, size_ - start);
-  std::memmove(data_ + start, data_ + start + length, length);
-  size_ -= length;
-  std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
+  start_ = 0;
+  end_ = 0;
 }
 
-void Block::trim(int length) {
-  leftTrim(length);
-  rightTrim(length);
-}
-
-void Block::leftTrim(int length) {
-  F_CHECKF(length >= 0, "length {} >= 0", length);
-  if (!data_) {
-    return;
+Block &Block::release() {
+  if (buf_) {
+    delete[] buf_;
+    buf_ = nullptr;
   }
-  length = std::min<int>(length, size_);
-  std::memmove(data_, data_ + length, size_ - length);
-  size_ -= length;
-  std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
+  start_ = 0;
+  end_ = 0;
+  capacity_ = 0;
 }
 
-void Block::rightTrim(int length) {
-  F_CHECKF(length >= 0, "length {} >= 0", length);
-  if (!data_) {
-    return;
+Block &Block::concat(const Block &s) { return concat(s.head(), s.size()); }
+
+Block &Block::concat(const char *s, int n) {
+  // if tail capacity has no more capacity, expand new memory
+  if (tailCapacity() < n) {
+    reserve(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
   }
-  length = std::min<int>(length, size_);
-  size_ -= length;
-  std::memset(data_ + size_, 0, (capacity_ - size_) * sizeof(char));
+
+  std::memcpy(buf_ + end_, s, n);
+  end_ += n;
+  return *this;
 }
 
-char *Block::data() { return data_; }
-
-const char *Block::data() const { return data_; }
-
-char &Block::operator[](int index) {
-  F_CHECKF(index >= 0, "index {} >= 0", index);
-  F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
-  return data_[index];
+Block &concat(const std::string &s) {
+  return concat(s.data(), (int)s.length());
 }
 
-const char &Block::operator[](int index) const {
-  F_CHECKF(index >= 0, "index {} >= 0", index);
-  F_CHECKF(index < capacity_, "index {} < capacity_ {}", index, capacity_);
-  return data_[index];
+Block &Block::operator+=(const Block &s) { return concat(s); }
+
+Block &Block::operator+=(const std::string &s) { return concat(s); }
+
+Block &Block::concatHead(const Block &s) {
+  return concatHead(s.head(), s.size());
 }
 
-int Block::size() const {
-  F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
-  return size_;
+Block &Block::concatHead(const char *s, int n) {
+  // if head capacity has no more capacity, expand new memory
+  if (headCapacity() < n) {
+    reserve(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
+  }
+
+  std::memcpy(buf_ + start_ - n, s, n);
+  start_ -= n;
+  return *this;
 }
 
-void Block::setSize(int size) {
-  F_CHECKF(size >= 0, "size {} >= 0", size);
-  F_CHECKF(size_ >= 0, "size_ {} >= 0", size_);
-  size_ = size;
+Block &Block::concatHead(const std::string &s) {
+  return concatHead(s.data(), (int)s.length());
 }
 
-void Block::incSize(int update) {
-  F_CHECKF(update > 0, "update {} > 0", update);
-  F_CHECKF(size_ + update <= capacity_, "size_ {} + update {} <= capacity_ {}",
-           size_, update, capacity_);
-  size_ += update;
+Block &Block::truncate(int start) {
+  int n = size() - start;
+  return truncate(start, n);
 }
 
-void Block::decSize(int update) {
-  F_CHECKF(update > 0, "update {} > 0", update);
-  F_CHECKF(size_ - update >= 0, "size_ {} - update {} >= 0", size_, update);
-  size_ -= update;
+Block &Block::truncate(int start, int n) {
+  int sz = size();
+  removeHead(start);
+  removeTail(sz - (start + n));
+  return *this;
 }
 
-int Block::capacity() const {
-  F_CHECKF(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  return capacity_;
+Block &Block::removeHead(int n) {
+  n = std::min(n, size());
+
+  if (memoryInOrder()) {
+    start_ += n;
+  } else {
+    if (headDistance() >= n) {
+      start_ += n;
+    } else {
+      start_ = n - headDistance();
+    }
+  }
+
+  return *this;
+}
+
+Block &Block::removeTail(int n) {
+  n = std::min(n, size());
+
+  if (memoryInOrder()) {
+    end_ -= n;
+  } else {
+    if (tailDistance() >= n) {
+      end_ -= n;
+    } else {
+      end_ = capacity_ - (n - tailDistance());
+    }
+  }
+
+  return *this;
 }
 
 std::string Block::toString() const {
-  return fmt::format("[ @Block data_:{} size_:{} capacity_:{} ]", (void *)data_,
-                     size_, capacity_);
+  return fmt::format("[ @Block buf_:{} start_:{} end_:{} capacity_:{} ]",
+                     (void *)buf_, start_, end_, capacity_);
+}
+
+char *Block::head() { return buf_ + start_; }
+
+const char *Block::head() const { return buf_ + start_; }
+
+char *Block::tail() { return buf_ + end_; }
+
+const char *Block::tail() const { return buf_ + end_; }
+
+char &Block::operator[](int pos) { return buf_[start_ + pos]; }
+
+const char &Block::operator[](int pos) const { return buf_[start_ + pos]; }
+
+char &Block::at(int pos) { return buf_[start_ + pos]; }
+
+const char &Block::at(int pos) const { return buf_[start_ + pos]; }
+
+bool Block::empty() const { return end_ == start_; }
+
+int Block::size() const {
+  return memoryInOrder() ? (end_ - start_) : (end_ + capacity_ - start_);
+}
+
+int Block::capacity() const { return capacity_; }
+
+int Block::leftCapacity() const {
+  return memoryInOrder() ? (start_ + capacity_ - end_)
+                         : (end_ + capacity_ - start_);
+}
+
+namespace detail {
+
+class BlockComparator {
+public:
+};
+
+} // namespace detail
+
+bool Block::operator==(const Block &s) const { return compare(s) == 0; }
+
+bool Block::operator!=(const Block &s) const { return compare(s) != 0; }
+
+bool Block::operator>(const Block &s) const { return compare(s) > 0; }
+
+bool Block::operator>=(const Block &s) const { return compare(s) >= 0; }
+
+bool Block::operator<(const Block &s) const { return compare(s) < 0; }
+
+bool Block::operator<=(const Block &s) const { return compare(s) <= 0; }
+
+int Block::compare(const Block &s) const {
+  if (size() != s.size()) {
+    return size() - s.size();
+  }
+  return std::memcmp(head(), s.head(), size());
+}
+
+bool Block::memoryInOrder() const { return end_ >= start_; }
+
+int Block::tailCapacity() const {
+  return memoryInOrder() ? capacity_ - end_ : start_ - end_;
+}
+
+int Block::headCapacity() const {
+  return memoryInOrder() ? start_ : start_ - end_;
+}
+
+int Block::tailDistance() const {
+  return memoryInOrder() ? capacity_ - end_ : end_;
+}
+
+int Block::headDistance() const {
+  return memoryInOrder() ? start_ : capacity_ - start_;
 }
 
 } // namespace fastype
 
-#undef F_ALIGN_UP
+#undef F_ALLOC_UNIT

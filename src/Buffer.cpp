@@ -50,9 +50,7 @@ std::shared_ptr<Buffer> Buffer::open(const std::string &fileName) {
 
 void Buffer::close(std::shared_ptr<Buffer> file) { file.reset(); }
 
-std::shared_ptr<Row> Buffer::get(int lineNumber) {
-  return lineList_[lineNumber];
-}
+Row Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
 
 int Buffer::count() {
   load();

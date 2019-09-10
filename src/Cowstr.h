@@ -206,11 +206,11 @@ private:
   // helper constructor
   Cowstr(CowStrImpl *p);
 
-  // trim t
+  // trim implementation
   static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
   static void trimRightImpl(Cowstr &s, bool (*match)(char, char), char t);
 
-  // kmp string match algorithm
+  // search implementation
   static std::vector<int> kmpPrefix(const char *needle, int n);
 
   static char *kmp(const char *haystack, int h, const char *needle, int n,
@@ -222,10 +222,24 @@ private:
   static std::vector<int> searchAll(const char *haystack, int h,
                                     const char *needle, int n);
 
+  // replace implementation
+  // search `target` in `src`,
+  // if find any, replace the first `target` with `repl`.
+  //
+  // @param src      source string
+  // @param target   target string
+  // @param t        target string length
+  // @param repl     replace string
+  // @param r        replace string length
+  static Cowstr replaceImpl(const Cowstr &src, const char *target, int t,
+                            const char *repl, int r);
+  static Cowstr replaceFirstImpl(const Cowstr &src, const char *target, int t,
+                                 const char *repl, int r);
+
   void copyOnWrite();
 
   char *&dataImpl();
-  const char *&dataImpl() const;
+  const char *dataImpl() const;
   int &sizeImpl();
   const int &sizeImpl() const;
   int &capacityImpl();

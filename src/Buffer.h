@@ -25,7 +25,7 @@ public:
   virtual ~Buffer();
 
   const std::string &fileName() const;
-  std::shared_ptr<Row> get(int lineNumber);
+  Row get(int lineNumber);
   int count();
   bool empty();
   int loaded() const;
