@@ -28,12 +28,11 @@ void NCursesTerm::show(const std::string &fileName) {
 
   F_DEBUGF("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
-    std::shared_ptr<Row> l = f->get(i);
+    Row r = f->get(i);
     getyx(stdscr, y, x);
-    F_DEBUGF("line#size:{} l:{}", l.size(), l.toString());
-    for (int j = 0; j < l->size() - 1; j++) {
-      ch = (int)(*l)[j];
-      // F_DEBUGF("line[j](int): {}", ch);
+    F_DEBUGF("row:{}", r.toString());
+    for (int j = 0; j < r.str().size() - 1; j++) {
+      ch = (int)r.str()[j];
       printw("%c", ch);
       refresh();
     }

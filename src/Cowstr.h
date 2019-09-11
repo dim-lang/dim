@@ -31,6 +31,8 @@ public:
   Cowstr(Cowstr &&s);
   Cowstr &operator=(Cowstr &&s);
 
+  void swap(Cowstr &s);
+
   /* append/concatenate */
 
   // concatenate s at tail

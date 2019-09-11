@@ -22,14 +22,14 @@ public:
   ConcurrentHashMap() : map_(), lock_() {}
   ~ConcurrentHashMap() {}
 
-  ConcurrentHashMap(ConcurrentHashMap<K, T> &&other)
-      : map_(std::move(other.map_)), lock_(std::move(other.lock_)) {}
+  // move
+  ConcurrentHashMap(ConcurrentHashMap<K, T> &&other) : map_() { swap(other); }
 
   ConcurrentHashMap &operator=(ConcurrentHashMap<K, T> &&other) {
     if (this == &other) {
       return *this;
     }
-    std::swap(map_, other.map_);
+    swap(other);
     return *this;
   }
 
@@ -101,6 +101,11 @@ public:
   int size() const {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     return map_.size();
+  }
+
+  void swap(ConcurrentHashMap<K, T> &other) {
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    std::swap(map_, other.map_);
   }
 
   void lock() { lock_.lock(); }

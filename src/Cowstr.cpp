@@ -82,7 +82,8 @@ Cowstr &Cowstr::operator=(const Cowstr &other) {
   return *this;
 }
 
-Cowstr::Cowstr(Cowstr &&other) : impl_(other.impl_) {
+Cowstr::Cowstr(Cowstr &&other) : Cowstr() {
+  swap(other);
   F_DEBUGF("Move Constructor: {}", toString());
 }
 
@@ -90,10 +91,12 @@ Cowstr &Cowstr::operator=(Cowstr &&other) {
   if (this == &other) {
     return *this;
   }
-  impl_ = other.impl_;
+  swap(other);
   F_DEBUGF("Copy Move : {}", toString());
   return *this;
 }
+
+void Cowstr::swap(Cowstr &s) { std::swap(impl_, s.impl_); }
 
 Cowstr Cowstr::concat(const Cowstr &s) const {
   Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.size());

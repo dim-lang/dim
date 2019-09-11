@@ -30,6 +30,8 @@ public:
   Block(Block &&s);
   Block &operator=(Block &&s);
 
+  Block &swap(Block &s);
+
   // expand memory size
   Block &expand(int capacity);
   Block &clear();

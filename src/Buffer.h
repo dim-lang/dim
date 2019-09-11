@@ -21,8 +21,8 @@ class Buffer : public Stringify {
 public:
   Buffer(const Buffer &) = delete;
   Buffer &operator=(const Buffer &) = delete;
-  Buffer(Buffer &&);
-  Buffer &operator=(Buffer &&);
+  Buffer(Buffer &&) = delete;
+  Buffer &operator=(Buffer &&) = delete;
   virtual ~Buffer();
 
   const std::string &fileName() const;
@@ -49,8 +49,6 @@ private:
   bool loaded_;
   Block readBuffer_;
   std::vector<Row> lineList_;
-
-  friend class Row;
 };
 
 } // namespace fastype

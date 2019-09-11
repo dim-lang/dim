@@ -13,7 +13,7 @@ namespace fastype {
 class Row : public Stringify {
 public:
   Row();
-  Row(int capacity, int lineNumber, int dirty);
+  Row(const Cowstr &str, int lineNumber, int dirty);
   Row(const Row &other) = default;
   Row &operator=(const Row &other) = default;
   Row(Row &&other) = default;
@@ -22,17 +22,15 @@ public:
 
   virtual std::string toString() const;
 
-  char *data();
-  const char *data() const;
-  char &operator[](int index);
-  const char &operator[](int index) const;
-  int size() const;
-  int capacity() const;
+  Cowstr &str();
+  const Cowstr &str() const;
+  const int &lineNumber() const;
   int &lineNumber();
+  const bool &dirty() const;
   bool &dirty();
 
 private:
-  Cowstr data_;
+  Cowstr str_;
   int lineNumber_;
   bool dirty_;
 };

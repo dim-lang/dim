@@ -38,17 +38,11 @@ Block &Block::operator=(const Block &s) {
   return *this;
 }
 
-Block::Block(Block &&s) : Block() {
-  std::swap(buf_, s.buf_);
-  std::swap(start_, s.start_);
-  std::swap(end_, s.end_);
-  std::swap(capacity_, s.capacity_);
-}
+Block::Block(Block &&s) : Block() { swap(s); }
 
-Block &Block::operator=(Block &&s) {
-  if (this == &s) {
-    return *this;
-  }
+Block &Block::operator=(Block &&s) { return this == &s ? *this : swap(s); }
+
+Block &Block::swap(Block &s) {
   std::swap(buf_, s.buf_);
   std::swap(start_, s.start_);
   std::swap(end_, s.end_);
@@ -123,7 +117,7 @@ Block &Block::concat(const char *s, int n) {
   return *this;
 }
 
-Block &concat(const std::string &s) {
+Block &Block::concat(const std::string &s) {
   return concat(s.data(), (int)s.length());
 }
 

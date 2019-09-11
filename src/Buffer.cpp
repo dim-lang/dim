@@ -34,14 +34,6 @@ Buffer::~Buffer() {
   lineList_.clear();
 }
 
-Buffer::Buffer(Buffer &&other) {}
-
-Buffer &Buffer::operator=(Buffer &&other) {
-  if (this == &other) {
-    return *this;
-  }
-}
-
 const std::string &Buffer::fileName() const { return fileName_; }
 
 std::shared_ptr<Buffer> Buffer::open(const std::string &fileName) {
@@ -132,17 +124,17 @@ int64_t Buffer::load() {
       break;
     }
 
-    int sz = lineBreak - start + 1;         // 1 is for '\n'
-    Row l(sz + 1, lineList_.size(), false); // 1 is for '\0'
-    std::memcpy(l.data(), start, sz);
-    l.setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
-    (*l)[sz] = '\0';
-    F_DEBUGF("new line:{}", l.toString());
-    lineList_.push_back(l);
+    int sz = lineBreak - start + 1; // 1 is for '\n'
+    char ef = '\0';
+    Cowstr cs(sz);
+    cs.concat(start, sz);
+    cs.concat(&ef, 1);
+    Row r(cs, lineList_.size(), false); // 1 is for '\0'
+    F_DEBUGF("new line:{}", r.toString());
+    lineList_.push_back(r);
     start = lineBreak + 1;
   }
 
-  // F_TIMER_STOP(load);
   // F_DEBUGF("buffer read:{} elapse:{}", readed, F_TIMER_ELAPSE(load));
   return readed;
 }
