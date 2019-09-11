@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Block.h"
 #include "Cowstr.h"
 #include "Row.h"
 #include "Stringify.h"
@@ -46,7 +47,7 @@ private:
   std::string fileName_;
   FILE *fd_;
   bool loaded_;
-  Cowstr readBuffer_;
+  Block readBuffer_;
   std::vector<Row> lineList_;
 
   friend class Row;

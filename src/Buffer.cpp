@@ -18,11 +18,11 @@ namespace fastype {
 Buffer::Buffer(const std::string &fileName)
     : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
       loaded_(false), readBuffer_(BUF_SIZE) {
-  F_DEBUGF("Buffer:{}", toString());
+  F_DEBUGF("Constructor:{}", toString());
 }
 
 Buffer::~Buffer() {
-  F_DEBUGF("Buffer:{}", toString());
+  F_DEBUGF("Destructor:{}", toString());
   if (fd_) {
     std::fclose(fd_);
     fd_ = nullptr;
@@ -89,25 +89,14 @@ int64_t Buffer::load() {
   }
 
   int64_t readed = 0L;
+  char buf[BUF_SIZE];
 
-  // F_TIMER_START(load);
-  // load file
   while (!loaded_) {
-    if (readBuffer_.capacity() <= readBuffer_.size()) {
-      readBuffer_.expand(readBuffer_.capacity() * 2);
-    }
-    char *start = readBuffer_.data() + readBuffer_.size();
-    int length = readBuffer_.capacity() - readBuffer_.size();
-
-    int64_t n = (int64_t)std::fread(start, sizeof(char), length, fd_);
+    int64_t n = (int64_t)std::fread(buf, sizeof(char), BUF_SIZE, fd_);
 
     if (n > 0L) {
+      readBuffer_.concat(buf, n);
       readed += n;
-      size_t sizeBefore = readBuffer_.size();
-      readBuffer_.incSize(n);
-      size_t sizeAfter = readBuffer_.size();
-      (void)sizeBefore;
-      (void)sizeAfter;
       F_DEBUGF("before resize readBuffer_#size: {}, after resize "
                "readBuffer_#size:{}",
                sizeBefore, sizeAfter);
@@ -121,14 +110,12 @@ int64_t Buffer::load() {
            (void *)readBuffer_.data(), readBuffer_.size(), lineList_.size());
   // if buffer has nothing
   if (readBuffer_.size() <= 0) {
-    // F_TIMER_STOP(load);
-    // F_DEBUGF("buffer has nothing, elapse:{}", F_TIMER_ELAPSE(load));
     return readed;
   }
 
   // split readBuffer_ to lines
-  char *start = readBuffer_.data();
-  char *end = readBuffer_.data() + readBuffer_.size();
+  char *start = readBuffer_.head();
+  char *end = readBuffer_.head() + readBuffer_.size();
   while (true) {
     if (start >= end) {
       F_DEBUGF("start:{} >= end:{}", (void *)start, (void *)end);
@@ -145,11 +132,10 @@ int64_t Buffer::load() {
       break;
     }
 
-    int sz = lineBreak - start + 1; // 1 is for '\n'
-    std::shared_ptr<Row> l(
-        new Row(sz + 1, lineList_.size(), false)); // 1 is for '\0'
-    std::memcpy(l->data(), start, sz);
-    l->setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
+    int sz = lineBreak - start + 1;         // 1 is for '\n'
+    Row l(sz + 1, lineList_.size(), false); // 1 is for '\0'
+    std::memcpy(l.data(), start, sz);
+    l.setSize(sz + 1); // 1 is for '\0', in fastype line '\0' counts
     (*l)[sz] = '\0';
     F_DEBUGF("new line:{}", l.toString());
     lineList_.push_back(l);

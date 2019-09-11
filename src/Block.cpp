@@ -12,7 +12,7 @@ namespace fastype {
 
 Block::Block() : buf_(nullptr), start_(0), end_(0), capacity_(0) {}
 
-Block::Block(int capacity) : Block() { reserve(capacity); }
+Block::Block(int capacity) : Block() { expand(capacity); }
 
 Block::~Block() { release(); }
 
@@ -21,7 +21,7 @@ Block::Block(const Block &s) : Block(s.head(), s.size()) {}
 Block::Block(char c) : Block(&c, 1) {}
 
 Block::Block(const char *s, int n) {
-  reserve(n);
+  expand(n);
   std::memcpy(buf_, s, n);
   end_ += n;
 }
@@ -32,7 +32,7 @@ Block &Block::operator=(const Block &s) {
   if (this == &s) {
     return *this;
   }
-  reserve(s.size());
+  expand(s.size());
   std::memcpy(buf_, s.head(), s.size());
   end_ += s.size();
   return *this;
@@ -56,7 +56,7 @@ Block &Block::operator=(Block &&s) {
   return *this;
 }
 
-Block &Block::reserve(int capacity) {
+Block &Block::expand(int capacity) {
   // do nothing
   if (capacity <= 0) {
     return *this;
@@ -65,6 +65,7 @@ Block &Block::reserve(int capacity) {
     return *this;
   }
 
+  capacity = std::max(F_ALLOC_UNIT, capacity);
   char *nb = new char[capacity];
   int sz = size();
   char *ob = buf_;
@@ -114,7 +115,7 @@ Block &Block::concat(const Block &s) { return concat(s.head(), s.size()); }
 Block &Block::concat(const char *s, int n) {
   // if tail capacity has no more capacity, expand new memory
   if (tailCapacity() < n) {
-    reserve(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
+    expand(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
   }
 
   std::memcpy(buf_ + end_, s, n);
@@ -137,7 +138,7 @@ Block &Block::concatHead(const Block &s) {
 Block &Block::concatHead(const char *s, int n) {
   // if head capacity has no more capacity, expand new memory
   if (headCapacity() < n) {
-    reserve(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
+    expand(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
   }
 
   std::memcpy(buf_ + start_ - n, s, n);

@@ -31,7 +31,7 @@ public:
   Block &operator=(Block &&s);
 
   // expand memory size
-  Block &reserve(int capacity);
+  Block &expand(int capacity);
   Block &clear();
   Block &release();
 
