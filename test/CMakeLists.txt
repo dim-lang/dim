@@ -38,7 +38,7 @@ set(T_SRC
     RowTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
-    SmartPointerTest.cpp
+    SharedPointerTest.cpp
 
     script/TokenTest.cpp
     script/LexerTest.cpp

@@ -55,12 +55,12 @@ public:
     F_DEBUGF("Copy Constructor:{}", toString());
   }
 
-  template <typename U> sptr &operator=(const sptr<U> &sp) {
+  sptr &operator=(const sptr<T> &sp) {
     if (this == &sp) {
       F_DEBUGF("Copy Assign self:{}", toString());
       return *this;
     }
-    ptr_ = (T *)sp.ptr_;
+    ptr_ = sp.ptr_;
     pc_ = sp.pc_;
     (*pc_)++;
     F_DEBUGF("Copy Assign:{}", toString());
@@ -73,7 +73,7 @@ public:
     F_DEBUGF("Move Constructor:{}", toString());
   }
 
-  template <typename U> sptr &operator=(sptr<U> &&sp) {
+  sptr &operator=(sptr<T> &&sp) {
     if (this == &sp) {
       F_DEBUGF("Move Assign self:{}", toString());
       return *this;
@@ -97,14 +97,14 @@ public:
     return pc_->get();
   }
 
-  template <typename U> void reset(U *p) {
+  void reset(T *p) {
     release();
-    ptr_ = (T *)p;
+    ptr_ = p;
     (*pc_)++;
   }
 
-  template <typename U> void swap(sptr<U> &sp) {
-    std::swap(ptr_, (T *)sp.ptr_);
+  void swap(sptr<T> &sp) {
+    std::swap(ptr_, sp.ptr_);
     std::swap(pc_, sp.pc_);
   }
 
@@ -144,7 +144,7 @@ public:
     F_DEBUGF("Move Constructor:{}", toString());
   }
 
-  template <typename U> uptr &operator=(uptr<U> &&up) {
+  uptr &operator=(uptr<T> &&up) {
     if (this == &up) {
       F_DEBUGF("Move Assign self:{}", toString());
       return *this;
@@ -159,14 +159,12 @@ public:
     F_DEBUGF("Destructor:{}", toString());
   }
 
-  template <typename U> void reset(U *p) {
+  void reset(T *p) {
     release();
-    ptr_ = (T *)p;
+    ptr_ = p;
   }
 
-  template <typename U> void swap(uptr<U> &up) {
-    std::swap(ptr_, (T *)up.ptr_);
-  }
+  void swap(uptr<T> &up) { std::swap(ptr_, up.ptr_); }
 
   explicit operator bool() const { return ptr_; }
   T &operator*() const { return *ptr_; }
