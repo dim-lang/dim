@@ -33,5 +33,10 @@ if [ "$1" = "clean" ]; then
     exit 0
 fi
 
+if [ "$1" = "test" ]; then
+    ./debug/test/fastype-test
+    exit 0
+fi
+
 cd $DEBUG && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && make VERBOSE=1 && cd $ROOT
 cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release .. && make -j8 && cd $ROOT
