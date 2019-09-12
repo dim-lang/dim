@@ -68,6 +68,7 @@ set(F_CORE
     script/token/NumberToken.cpp
     script/token/BooleanToken.cpp
 
+    Hasher.cpp
     Block.cpp
     Cowstr.cpp
     Row.cpp

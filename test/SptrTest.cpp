@@ -1,22 +1,54 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
+#include "Logging.h"
 #include "SmartPointer.h"
 #include "catch2/catch.hpp"
 #include <fmt/format.h>
 #include <string>
 
-TEST_CASE("SmartPointer", "[SmartPointer]") {
+#define TEST_N 128
+
+class People {
+public:
+  People(const std::string &name, int age)
+      : name_(new std::string(name)), age_(new int(age)) {}
+
+  virtual ~People() {
+    if (name_) {
+      delete name_;
+      name_ = nullptr;
+    }
+    if (age_) {
+      delete age_;
+      age_ = nullptr;
+    }
+  }
+
+  std::string toString() const {
+    return fmt::format("[ @People name_:{} {}, age_:{} {} ]", (void *)name_,
+                       *name_, (void *)age_, *age_);
+  }
+
+  int age() const { return age_ ? *age_ : -1; }
+  std::string name() const { return name_ ? *name_ : "null"; }
+
+private:
+  std::string *name_;
+  int *age_;
+};
+
+TEST_CASE("Sptr", "[Sptr]") {
 
   SECTION("constructor and copy") {
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < TEST_N; i++) {
       int *t = new int(i);
-      fastype::sptr<int> p1(t);
+      fastype::Sptr<int> p1(t);
       REQUIRE(p1);
       REQUIRE(p1.useCount() == 1);
-      fastype::sptr<int> p2(p1);
-      fastype::sptr<int> p3(p1);
-      fastype::sptr<int> p4(p3);
+      fastype::Sptr<int> p2(p1);
+      fastype::Sptr<int> p3(p1);
+      fastype::Sptr<int> p4(p3);
       REQUIRE(p1.useCount() == 4);
       REQUIRE(p2.useCount() == 4);
       REQUIRE(p3.useCount() == 4);
@@ -32,26 +64,26 @@ TEST_CASE("SmartPointer", "[SmartPointer]") {
   }
 
   SECTION("move") {
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < TEST_N; i++) {
       int *t = new int(i);
-      fastype::sptr<int> p1(t);
+      fastype::Sptr<int> p1(t);
       REQUIRE(p1);
       REQUIRE(p1.useCount() == 1);
-      fastype::sptr<int> p2(std::move(p1));
-      fastype::sptr<int> p3(std::move(p2));
-      fastype::sptr<int> p4(std::move(p3));
-      REQUIRE(p1.useCount() == 0);
-      REQUIRE(p2.useCount() == 0);
-      REQUIRE(p3.useCount() == 0);
+      fastype::Sptr<int> p2(std::move(p1));
+      fastype::Sptr<int> p3(std::move(p2));
+      fastype::Sptr<int> p4(std::move(p3));
+      REQUIRE(p1.useCount() == 1);
+      REQUIRE(p2.useCount() == 1);
+      REQUIRE(p3.useCount() == 1);
       REQUIRE(p4.useCount() == 1);
       REQUIRE(p1.get() == nullptr);
-      REQUIRE(p1.get() == p2.get());
-      REQUIRE(p2.get() == p3.get());
+      REQUIRE(p2.get() == nullptr);
+      REQUIRE(p3.get() == nullptr);
       REQUIRE(p4.get() != nullptr);
       REQUIRE(*p4 == i);
 
-      fastype::sptr<int> p5 = std::move(p4);
-      REQUIRE(p4.useCount() == 0);
+      fastype::Sptr<int> p5 = std::move(p4);
+      REQUIRE(p4.useCount() == 1);
       REQUIRE(p5.useCount() == 1);
       REQUIRE(p4.get() == nullptr);
       REQUIRE(p5.get() != nullptr);
@@ -59,45 +91,16 @@ TEST_CASE("SmartPointer", "[SmartPointer]") {
   }
 
   SECTION("data structure") {
-    class People {
-    public:
-      People(const std::string &name, int age)
-          : name_(new std::string(name)), age_(new int(age)) {}
-
-      virtual ~People() {
-        if (name_) {
-          delete name_;
-          name_ = nullptr;
-        }
-        if (age_) {
-          delete age_;
-          age_ = nullptr;
-        }
-      }
-
-      std::string toString() const {
-        return fmt::format("[ @People name_:{} {}, age_:{} {} ]", (void *)name_,
-                           *name_, (void *)age_, *age_);
-      }
-
-      int age() const { return age_ ? *age_ : -1; }
-      std::string name() const { return name_ ? *name_ : "null"; }
-
-    private:
-      std::string *name_;
-      int *age_;
-    };
-
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < TEST_N; i++) {
       People *p = new People(std::to_string(i), i);
-      fastype::sptr<People> p1(p);
+      fastype::Sptr<People> p1(p);
       REQUIRE(p1);
       REQUIRE(p1.useCount() == 1);
       REQUIRE(p1->age() == i);
       REQUIRE(p1->name() == std::to_string(i));
-      fastype::sptr<People> p2(p1);
-      fastype::sptr<People> p3(p2);
-      fastype::sptr<People> p4(p3);
+      fastype::Sptr<People> p2(p1);
+      fastype::Sptr<People> p3(p2);
+      fastype::Sptr<People> p4(p3);
       REQUIRE(p1.useCount() == 4);
       REQUIRE(p2.useCount() == 4);
       REQUIRE(p3.useCount() == 4);
@@ -116,7 +119,7 @@ TEST_CASE("SmartPointer", "[SmartPointer]") {
       REQUIRE((*p4).name() == std::to_string(i));
 
       {
-        fastype::sptr<People> p5 = p4;
+        fastype::Sptr<People> p5 = p4;
         REQUIRE(p1.useCount() == 5);
         REQUIRE(p2.useCount() == 5);
         REQUIRE(p3.useCount() == 5);
@@ -134,6 +137,12 @@ TEST_CASE("SmartPointer", "[SmartPointer]") {
       REQUIRE(p2.useCount() == 4);
       REQUIRE(p3.useCount() == 4);
       REQUIRE(p4.useCount() == 4);
+    }
+  }
+
+  SECTION("reset") {
+    for (int i = 0; i < TEST_N; i++) {
+      People *p = new People(std::to_string(i), i);
     }
   }
 }

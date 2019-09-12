@@ -19,14 +19,31 @@ public:
   PointerCounter() : counter_(0) {}
   PointerCounter(PointerCounter &&) = default;
   PointerCounter &operator=(PointerCounter &&) = default;
-  virtual ~PointerCounter() {}
-  void reset() { counter_ = 0; }
-  void swap(PointerCounter &pc) { std::swap(counter_, pc.counter_); }
-  int32_t get() { return counter_; }
+  virtual ~PointerCounter() {
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+  }
+  void reset() {
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+    counter_ = 0;
+  }
+  void swap(PointerCounter &pc) {
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+    std::swap(counter_, pc.counter_);
+  }
+  int32_t get() {
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+    return counter_;
+  }
   void operator++() { counter_++; }
   void operator++(int) { counter_++; }
-  void operator--() { counter_--; }
-  void operator--(int) { counter_--; }
+  void operator--() {
+    counter_--;
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+  }
+  void operator--(int) {
+    counter_--;
+    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
+  }
   virtual std::string toString() const {
     return fmt::format("[ @PointerCounter counter_:{} ]", counter_);
   }
@@ -37,134 +54,91 @@ private:
 
 } // namespace detail
 
-template <typename T> class sptr : public Stringify {
+template <typename T> class Sptr : public Stringify {
 public:
-  explicit sptr(T *ptr = nullptr) : ptr_(ptr) {
-    pc_ = new detail::PointerCounter();
-    if (ptr_) {
-      (*pc_)++;
-    }
-    F_DEBUGF("Constructor:{}", toString());
+  explicit Sptr(T *ptr = nullptr)
+      : ptr_(ptr), pc_(new detail::PointerCounter()) {
+    (*pc_)++;
+    F_INFOF("Constructor:{}", toString());
   }
 
   // copy
-  sptr(const sptr<T> &sp) {
+  Sptr(const Sptr<T> &sp) : ptr_(nullptr), pc_(nullptr) {
     ptr_ = sp.ptr_;
     pc_ = sp.pc_;
     (*pc_)++;
-    F_DEBUGF("Copy Constructor:{}", toString());
+    F_INFOF("Copy Constructor:{}", toString());
   }
 
-  sptr &operator=(const sptr<T> &sp) {
+  Sptr &operator=(const Sptr<T> &sp) {
     if (this == &sp) {
-      F_DEBUGF("Copy Assign self:{}", toString());
+      F_INFOF("Copy Assign self:{}", toString());
       return *this;
     }
-    ptr_ = sp.ptr_;
-    pc_ = sp.pc_;
-    (*pc_)++;
-    F_DEBUGF("Copy Assign:{}", toString());
-    return *this;
-  }
-
-  // move
-  sptr(sptr<T> &&sp) : sptr() {
-    swap(sp);
-    F_DEBUGF("Move Constructor:{}", toString());
-  }
-
-  sptr &operator=(sptr<T> &&sp) {
-    if (this == &sp) {
-      F_DEBUGF("Move Assign self:{}", toString());
-      return *this;
-    }
-    swap(sp);
-    F_DEBUGF("Move Assign:{}", toString());
-    return *this;
-  }
-
-  virtual ~sptr() {
-    release();
-    if (pc_) {
+    (*pc_)--;
+    if (pc_->get() <= 0) {
+      F_CHECKF(pc_->get() == 0, "pc_->get {} == 0", pc_->get());
+      releasePtr();
       delete pc_;
       pc_ = nullptr;
     }
-    F_DEBUGF("Destructor:{}", toString());
-  }
-
-  int32_t useCount() {
-    F_DEBUGF("{}", toString());
-    return pc_->get();
-  }
-
-  void reset(T *p) {
-    release();
-    ptr_ = p;
+    ptr_ = sp.ptr_;
+    pc_ = sp.pc_;
+    F_CHECKF(pc_, "pc_ {} != nullptr", (void *)pc_);
     (*pc_)++;
-  }
-
-  void swap(sptr<T> &sp) {
-    std::swap(ptr_, sp.ptr_);
-    std::swap(pc_, sp.pc_);
-  }
-
-  explicit operator bool() const { return ptr_; }
-  T &operator*() const { return *ptr_; }
-  T *operator->() const { return ptr_; }
-  T *get() const { return ptr_; }
-
-  virtual std::string toString() const {
-    return fmt::format("[ @sptr ptr_:{} pc_:{} ]", (void *)ptr_,
-                       pc_->toString());
-  }
-
-private:
-  void release() {
-    (*pc_)--;
-    if (pc_->get() <= 0) {
-      delete ptr_;
-      ptr_ = nullptr;
-    }
-    F_DEBUGF("{}", toString());
-  }
-
-  detail::PointerCounter *pc_;
-  T *ptr_;
-};
-
-template <typename T> class uptr : public boost::noncopyable, Stringify {
-public:
-  explicit uptr(T *ptr = nullptr) : ptr_(ptr) {
-    F_DEBUGF("Constructor:{}", toString());
-  }
-
-  // move
-  uptr(uptr<T> &&up) : uptr() {
-    swap(up);
-    F_DEBUGF("Move Constructor:{}", toString());
-  }
-
-  uptr &operator=(uptr<T> &&up) {
-    if (this == &up) {
-      F_DEBUGF("Move Assign self:{}", toString());
-      return *this;
-    }
-    swap(up);
-    F_DEBUGF("Move Assign:{}", toString());
+    F_CHECKF(pc_->get() >= 1, "pc_->get {} >= 1", pc_->get());
+    F_INFOF("Copy Assign:{}", toString());
     return *this;
   }
 
-  virtual ~uptr() {
-    release();
-    F_DEBUGF("Destructor:{}", toString());
+  // move
+  Sptr(Sptr<T> &&sp) : Sptr() {
+    swap(sp);
+    F_INFOF("Move Constructor:{}", toString());
   }
 
-  void reset(T *p) {
-    release();
+  Sptr &operator=(Sptr<T> &&sp) {
+    if (this == &sp) {
+      F_INFOF("Move Assign self:{}", toString());
+      return *this;
+    }
+    swap(sp);
+    F_INFOF("Move Assign:{}", toString());
+    return *this;
+  }
+
+  virtual ~Sptr() {
+    (*pc_)--;
+    if (pc_->get() <= 0) {
+      F_CHECKF(pc_->get() == 0, "pc_->get {} == 0", pc_->get());
+      releasePtr();
+      delete pc_;
+      pc_ = nullptr;
+    }
+    F_INFOF("Destructor:{}", toString());
+  }
+
+  int32_t useCount() {
+    F_INFOF("{}", toString());
+    return pc_->get();
+  }
+
+  void reset(T *p = nullptr) {
+    (*pc_)--;
+    if (pc_->get() <= 0) {
+      releasePtr();
+    }
     ptr_ = p;
+    pc_->reset();
+    (*pc_)++;
+    F_INFOF("{}", toString());
   }
 
-  void swap(uptr<T> &up) { std::swap(ptr_, up.ptr_); }
+  void swap(Sptr<T> &sp) {
+    std::swap(ptr_, sp.ptr_);
+    std::swap(pc_, sp.pc_);
+    F_INFOF("{}", toString());
+  }
 
   explicit operator bool() const { return ptr_; }
   T &operator*() const { return *ptr_; }
@@ -172,19 +146,91 @@ public:
   T *get() const { return ptr_; }
 
   virtual std::string toString() const {
-    return fmt::format("[ @uptr ptr_:{} ]", (void *)ptr_);
+    return pc_ ? fmt::format("[ @Sptr ptr_:{} pc_:{} ]", (void *)ptr_,
+                             pc_->toString())
+               : fmt::format("[ @Sptr ptr_:{} pc_:{} ]", (void *)ptr_,
+                             (void *)pc_);
   }
 
 private:
-  void release() {
+  inline void releasePtr() {
     if (ptr_) {
       delete ptr_;
       ptr_ = nullptr;
     }
-    F_DEBUGF("{}", toString());
   }
 
   T *ptr_;
-};
+  detail::PointerCounter *pc_;
+}; // Sptr
+
+template <typename T> class Uptr : public boost::noncopyable, Stringify {
+public:
+  explicit Uptr(T *ptr = nullptr) : ptr_(ptr) {
+    F_INFOF("Constructor:{}", toString());
+  }
+
+  // disable copy
+  Uptr(const Uptr<T> &) = delete;
+  Uptr &operator=(const Uptr<T> &) = delete;
+
+  // move
+  Uptr(Uptr<T> &&up) : Uptr() {
+    F_INFOF("Move Constructor enter:{}", toString());
+    swap(up);
+    F_INFOF("Move Constructor:{}", toString());
+  }
+
+  Uptr &operator=(Uptr<T> &&up) {
+    F_INFOF("Move Assign enter:{}", toString());
+    if (this == &up) {
+      F_INFOF("Move Assign self:{}", toString());
+      return *this;
+    }
+    swap(up);
+    F_INFOF("Move Assign:{}", toString());
+    return *this;
+  }
+
+  virtual ~Uptr() {
+    F_INFOF("Destructor enter:{}", toString());
+    release();
+    F_INFOF("Destructor:{}", toString());
+  }
+
+  void reset(T *p = nullptr) {
+    F_INFOF("enter:{}", toString());
+    release();
+    ptr_ = p;
+    F_INFOF("{}", toString());
+  }
+
+  void swap(Uptr<T> &up) {
+    F_INFOF("enter:{}", toString());
+    std::swap(ptr_, up.ptr_);
+    F_INFOF("{}", toString());
+  }
+
+  explicit operator bool() const { return ptr_; }
+  T &operator*() const { return *ptr_; }
+  T *operator->() const { return ptr_; }
+  T *get() const { return ptr_; }
+
+  virtual std::string toString() const {
+    return fmt::format("[ @Uptr ptr_:{} ]", (void *)ptr_);
+  }
+
+private:
+  void release() {
+    F_INFOF("enter:{}", toString());
+    if (ptr_) {
+      delete ptr_;
+      ptr_ = nullptr;
+    }
+    F_INFOF("{}", toString());
+  }
+
+  T *ptr_;
+}; // Uptr
 
 } // namespace fastype

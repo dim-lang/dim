@@ -23,8 +23,6 @@ public:
 #define F_DETAIL_LOG_LOCATION                                                  \
   fastype::detail::LogLocation(__FILE__, __LINE__, __FUNCTION__)
 
-#define F_LOG_INIT(p, n) fastype::Logging::initialize(p, n)
-
 #ifdef NDEBUG
 
 #define F_DEBUG(msg)

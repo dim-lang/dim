@@ -38,10 +38,12 @@ set(T_SRC
     RowTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
-    SharedPointerTest.cpp
+    SptrTest.cpp
+    BlockTest.cpp
+    CowstrTest.cpp
 
     script/TokenTest.cpp
-    script/LexerTest.cpp
+    #script/LexerTest.cpp
     )
 
 include_directories(${F_INC})

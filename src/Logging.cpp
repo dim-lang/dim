@@ -18,8 +18,9 @@ void Logging::initialize(const std::string &logPath,
 #ifdef NDEBUG
   spdlog::set_level(spdlog::level::err);
 #else
-  spdlog::set_level(spdlog::level::debug);
+  spdlog::set_level(spdlog::level::info);
 #endif
+
   spdlog::set_pattern(
       "%Y-%m-%d %H:%M:%S.%e [%n] %l process-%P thread-%t [%@ %!] %v");
 

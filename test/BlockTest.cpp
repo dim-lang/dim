@@ -15,5 +15,7 @@ TEST_CASE("Block", "[Block]") {
     REQUIRE(b.capacity() == 0);
     REQUIRE(b.empty());
     REQUIRE(b.size() == 0);
+    REQUIRE(b.head() == nullptr);
+    REQUIRE(b.tail() == nullptr);
   }
 }
