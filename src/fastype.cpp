@@ -17,7 +17,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char **argv) {
-  Logging::initialize(".", "fastype");
+  fastype::Logging::initialize(".", "fastype");
   F_INFOF("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
   fastype::Option conf(argc, argv);

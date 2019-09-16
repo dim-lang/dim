@@ -193,13 +193,13 @@ std::string Block::toString() const {
                      (void *)buf_, start_, end_, capacity_);
 }
 
-char *Block::head() { return buf_ + start_; }
+char *Block::head() { return buf_ ? (buf_ + start_) : nullptr; }
 
-const char *Block::head() const { return buf_ + start_; }
+const char *Block::head() const { return buf_ ? (buf_ + start_) : nullptr; }
 
-char *Block::tail() { return buf_ + end_; }
+char *Block::tail() { return buf_ ? (buf_ + end_) : nullptr; }
 
-const char *Block::tail() const { return buf_ + end_; }
+const char *Block::tail() const { return buf_ ? (buf_ + end_) : nullptr; }
 
 char &Block::operator[](int pos) { return buf_[start_ + pos]; }
 

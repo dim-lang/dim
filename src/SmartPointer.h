@@ -130,7 +130,9 @@ public:
     }
     ptr_ = p;
     pc_->reset();
-    (*pc_)++;
+    if (p) {
+      (*pc_)++;
+    }
     F_INFOF("{}", toString());
   }
 
