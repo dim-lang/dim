@@ -4,5 +4,5 @@
 
 
 sudo echo [fastype] prepare boost, icu4c, gperftools via apt || { echo [fastype] sudo not found; exit 1; }
-sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev
+sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev valgrind
 echo [fastype] prepare boost, icu4c, gperftools via apt - done

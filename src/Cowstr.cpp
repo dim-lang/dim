@@ -349,32 +349,36 @@ Cowstr Cowstr::trimRight(char c) const {
 
 char *Cowstr::head() {
   copyOnWrite();
-  return dataImpl();
+  return dataImpl() ? dataImpl() : nullptr;
 }
 
-const char *Cowstr::head() const { return dataImpl(); }
+const char *Cowstr::head() const { return dataImpl() ? dataImpl() : nullptr; }
 
 char *Cowstr::tail() {
   copyOnWrite();
-  return dataImpl();
+  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
 }
 
-const char *Cowstr::tail() const { return dataImpl() + sizeImpl(); }
+const char *Cowstr::tail() const {
+  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
+}
 
 char *Cowstr::rawstr(int pos) {
   copyOnWrite();
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return dataImpl() + pos;
+  return dataImpl() ? (dataImpl() + pos) : nullptr;
 }
 
 const char *Cowstr::rawstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return dataImpl() + pos;
+  return dataImpl() ? (dataImpl() + pos) : nullptr;
 }
 
 std::string Cowstr::stdstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return std::string(dataImpl() + pos, dataImpl() + sizeImpl() - pos);
+  return dataImpl()
+             ? std::string(dataImpl() + pos, dataImpl() + sizeImpl() - pos)
+             : "";
 }
 
 // indexing
@@ -543,9 +547,9 @@ Cowstr::CowStrImpl *Cowstr::alloc(Cowstr::CowStrImpl *p, int capacity) {
   if (!p) {
     p = new Cowstr::CowStrImpl();
   }
-  F_CHECK(p != nullptr, "p is null");
+  F_CHECKF(p != nullptr, "p {} != nullptr", (void *)p);
   if (!p) {
-    F_ERRORF("CowStrImpl new failure, capacity:{}", capacity);
+    F_ERRORF("CowStrImpl new p failure, capacity:{}", capacity);
   }
   if (capacity <= 0) {
     return p;
@@ -556,9 +560,22 @@ Cowstr::CowStrImpl *Cowstr::alloc(Cowstr::CowStrImpl *p, int capacity) {
       F_ALIGN_UP, (int)boost::alignment::align_up(capacity, F_ALIGN_UP));
   F_DEBUGF("capacity:{}", capacity);
   F_CHECKF(capacity >= F_ALIGN_UP, "capacity {} >= F_ALIGN_UP", capacity);
-  char *pd = (char *)realloc(p->data, capacity * sizeof(char));
+
+  char *pd = new char[capacity];
+  F_CHECKF(pd != nullptr, "pd {} != nullptr", (void *)pd);
   if (!pd) {
+    F_ERRORF("CowStrImpl new pd failure, capacity:{}", capacity);
     return p;
+  }
+  std::memset(pd, 0, capacity * sizeof(char));
+  if (p->data) {
+    std::memcpy(pd, p->data, p->capacity);
+    delete[] p->data;
+    p->data = nullptr;
+  } else {
+    F_CHECKF(p->data == nullptr, "p->data {} == nullptr", (void *)p->data);
+    F_CHECKF(p->capacity == 0, "p->capacity {} == 0", p->capacity);
+    F_CHECKF(p->size == 0, "p->size {} == 0", p->size);
   }
   p->data = pd;
   p->capacity = capacity;
