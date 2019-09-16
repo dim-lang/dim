@@ -4,7 +4,6 @@
 #include "view/Window.h"
 #include "ConcurrentHashMap.h"
 #include "Logging.h"
-#include "Profile.h"
 #include <atomic>
 #include <fmt/format.h>
 #include <ncurses.h>
