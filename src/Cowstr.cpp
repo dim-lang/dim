@@ -111,17 +111,25 @@ Cowstr Cowstr::operator+(const std::string &s) const { return concat(s); }
 
 Cowstr &Cowstr::operator+=(const Cowstr &s) {
   copyOnWrite();
-  Cowstr::CowStrImpl *np = alloc(impl_.get(), size() + s.size());
-  impl_.reset(np);
-  std::memcpy(head() + size(), s.head(), s.size());
+  Cowstr::CowStrImpl *p = alloc(impl_.get(), size() + s.size());
+  F_CHECKF(p != nullptr, "p {} != nullptr", (void *)p);
+  if (!p) {
+    F_ERRORF("+= alloc failure:{}", toString());
+  }
+  std::memcpy(dataImpl() + sizeImpl(), s.head(), s.size());
+  sizeImpl() += s.size();
   return *this;
 }
 
 Cowstr &Cowstr::operator+=(const std::string &s) {
   copyOnWrite();
-  Cowstr::CowStrImpl *np = alloc(impl_.get(), size() + s.length());
-  impl_.reset(np);
-  std::memcpy(head() + size(), s.data(), s.length());
+  Cowstr::CowStrImpl *p = alloc(impl_.get(), size() + s.length());
+  F_CHECKF(p != nullptr, "p {} != nullptr", (void *)p);
+  if (!p) {
+    F_ERRORF("+= alloc failure:{}", toString());
+  }
+  std::memcpy(dataImpl() + sizeImpl(), s.data(), s.length());
+  sizeImpl() += s.length();
   return *this;
 }
 
@@ -408,9 +416,10 @@ int Cowstr::compare(const char *s, int n) const {
 }
 
 std::string Cowstr::toString() const {
-  return fmt::format("[ @Cowstr head_:{} size_:{} capacity_:{} refcount:{} ]",
-                     (void *)head(), sizeImpl(), capacityImpl(),
-                     impl_.use_count());
+  return fmt::format(
+      "[ @Cowstr impl_:{} head_:{} size_:{} capacity_:{} refcount:{} ]",
+      (void *)impl_.get(), (void *)head(), size(), capacity(),
+      impl_.use_count());
 }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
