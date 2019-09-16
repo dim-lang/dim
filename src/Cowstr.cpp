@@ -48,16 +48,7 @@ Cowstr::Cowstr(const std::string &s)
   F_DEBUGF("std::string Constructor:{}", toString());
 }
 
-Cowstr::~Cowstr() {
-  if (impl_.use_count() <= 1) {
-    F_CHECKF(impl_.use_count() == 1, "impl_#use_count {} == 1",
-             impl_.use_count());
-    F_CHECKF(impl_.get() != nullptr, "impl_#get {} != nullptr",
-             (void *)impl_.get());
-    release(impl_.get());
-    impl_.reset();
-  }
-}
+Cowstr::~Cowstr() {}
 
 void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
@@ -573,19 +564,6 @@ Cowstr::CowStrImpl *Cowstr::alloc(Cowstr::CowStrImpl *p, int capacity) {
   p->data = pd;
   p->capacity = capacity;
   return p;
-}
-
-void Cowstr::release(Cowstr::CowStrImpl *p) {
-  if (!p) {
-    return;
-  }
-  if (p->data) {
-    std::free(p->data);
-    p->data = nullptr;
-  }
-  p->size = 0;
-  p->capacity = 0;
-  std::free(p);
 }
 
 Cowstr::Cowstr(Cowstr::CowStrImpl *p) : impl_(p) {

@@ -203,8 +203,6 @@ private:
 
   // expand more memory
   static CowStrImpl *alloc(CowStrImpl *p, int capacity);
-  // clear data and allocated memory
-  static void release(CowStrImpl *p);
   // helper constructor
   Cowstr(CowStrImpl *p);
 
