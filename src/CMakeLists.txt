@@ -89,6 +89,7 @@ else()
     set(F_CORE ${F_CORE} NCursesTerm.cpp)
 endif(MSVC)
 
+add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
