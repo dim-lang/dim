@@ -14,22 +14,50 @@ if [ ! -d src/fmt ]; then
 fi
 echo [fastype] prepare fmt 5.3.0 - done
 
+
+function build_apt() {
+    sudo echo [fastype] prepare compiler and toolchain for linux || { echo [fastype] sudo not found; exit 3; }
+    sudo apt-get install gcc g++ make cmake automake autoconf
+    echo [fastype] prepare compiler and toolchain for linux - done
+    echo [fastype] prepare boost, icu4c, gperftools
+    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev valgrind
+    echo [fastype] prepare boost, icu4c, gperftools - done
+}
+
+function build_dnf() {
+    sudo echo [fastype] prepare compiler and toolchain for linux || { echo [fastype] sudo not found; exit 3; }
+    sudo dnf install gcc make cmake automake autoconf
+    echo [fastype] prepare compiler and toolchain for linux - done
+    echo [fastype] prepare boost, icu4c, gperftools
+    sudo dnf install boost-devel icu-devel gperftools-devel
+    echo [fastype] prepare boost, icu4c, gperftools - done
+}
+
+function build_pacman() {
+    sudo echo [fastype] prepare compiler and toolchain for linux || { echo [fastype] sudo not found; exit 3; }
+    sudo pacman -S g++ make cmake automake autoconf
+    echo [fastype] prepare compiler and toolchain for linux - done
+    echo [fastype] prepare boost, icu, gperftools
+    yes | sudo pacman -S boost icu gperftools valgrind
+    echo [fastype] prepare boost, icu, gperftools - done
+}
+
 if [ $(uname) == "Linux" ]; then
     if cat /etc/*release | grep ^NAME | grep Ubuntu 1>/dev/null 2>&1; then
-        bash ./build_apt.sh
+        build_apt
     elif cat /etc/*release | grep ^NAME | grep Debian 1>/dev/null 2>&1; then
-        bash ./build_apt.sh
+        build_apt
     elif cat /etc/*release | grep ^NAME | grep Fedora 1>/dev/null 2>&1; then
-        bash ./build_dnf.sh
+        build_dnf
     elif cat /etc/*release | grep ^NAME | grep Manjaro 1>/dev/null 2>&1; then
-        bash ./build_pacman.sh
+        build_pacman
     else
         echo [fastype] Error! Unknown Operating System $(uname) !
         echo [fastype] Please report to https://github.com/fastype/fastype
-        exit 1
+        exit 3
     fi
 else
     echo [fastype] Error! Unknown Operating System $(uname) !
     echo [fastype] Please report to https://github.com/fastype/fastype
-    exit 1
+    exit 3
 fi
