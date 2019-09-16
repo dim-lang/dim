@@ -4,6 +4,6 @@
 
 
 sudo echo [fastype] prepare boost, icu4c, gperftools via dnf || { echo [fastype] sudo not found; exit 1; }
-sudo dnf install libboost-all-dev libicu-dev libgoogle-pertools-dev
+sudo dnf install boost-devel icu-devel gperftools-devel
 echo [fastype] prepare boost, icu4c, gperftools via dnf - done
 
