@@ -89,23 +89,25 @@ Cowstr &Cowstr::operator=(Cowstr &&other) {
 void Cowstr::swap(Cowstr &s) { std::swap(impl_, s.impl_); }
 
 Cowstr Cowstr::concat(const Cowstr &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.size());
-  std::memcpy(p->data, head(), size());
-  std::memcpy(p->data + size(), s.head(), s.size());
-  return Cowstr(p);
-}
-
-Cowstr Cowstr::concat(const char *s, int n) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
-  std::memcpy(p->data, head(), size());
-  std::memcpy(p->data + size(), s, n);
-  return Cowstr(p);
+  return concat(s.head(), s.size());
 }
 
 Cowstr Cowstr::concat(const std::string &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.length());
-  std::memcpy(p->data, head(), size());
-  std::memcpy(p->data + size(), s.data(), s.length());
+  return concat(s.data(), s.length());
+}
+
+Cowstr Cowstr::concat(const char *s, int n) const {
+  F_CHECKF(s != nullptr, "s {} != nullptr", (void *)s);
+  F_CHECKF(n >= 0, "n {} >= 0", n);
+  Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
+  if (head()) {
+    std::memcpy(p->data, head(), size());
+    p->size += size();
+  }
+  if (s) {
+    std::memcpy(p->data + size(), s, n);
+    p->size += n;
+  }
   return Cowstr(p);
 }
 
@@ -130,23 +132,17 @@ Cowstr &Cowstr::operator+=(const std::string &s) {
 }
 
 Cowstr Cowstr::concatHead(const Cowstr &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.size());
-  std::memcpy(p->data, s.head(), s.size());
-  std::memcpy(p->data + s.size(), head(), size());
-  return Cowstr(p);
+  return concatHead(s.head(), s.size());
+}
+
+Cowstr Cowstr::concatHead(const std::string &s) const {
+  return concatHead(s.data(), s.length());
 }
 
 Cowstr Cowstr::concatHead(const char *s, int n) const {
   Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
   std::memcpy(p->data, s, n);
   std::memcpy(p->data + n, head(), size());
-  return Cowstr(p);
-}
-
-Cowstr Cowstr::concatHead(const std::string &s) const {
-  Cowstr::CowStrImpl *p = alloc(nullptr, size() + s.length());
-  std::memcpy(p->data, s.data(), s.length());
-  std::memcpy(p->data + s.length(), head(), size());
   return Cowstr(p);
 }
 
@@ -349,34 +345,36 @@ Cowstr Cowstr::trimRight(char c) const {
 
 char *Cowstr::head() {
   copyOnWrite();
-  return dataImpl() ? dataImpl() : nullptr;
+  return sizeImpl() > 0 ? dataImpl() : nullptr;
 }
 
-const char *Cowstr::head() const { return dataImpl() ? dataImpl() : nullptr; }
+const char *Cowstr::head() const {
+  return sizeImpl() > 0 ? dataImpl() : nullptr;
+}
 
 char *Cowstr::tail() {
   copyOnWrite();
-  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
+  return sizeImpl() > 0 ? (dataImpl() + sizeImpl()) : nullptr;
 }
 
 const char *Cowstr::tail() const {
-  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
+  return sizeImpl() > 0 ? (dataImpl() + sizeImpl()) : nullptr;
 }
 
 char *Cowstr::rawstr(int pos) {
   copyOnWrite();
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return dataImpl() ? (dataImpl() + pos) : nullptr;
+  return sizeImpl() > 0 ? (dataImpl() + pos) : nullptr;
 }
 
 const char *Cowstr::rawstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return dataImpl() ? (dataImpl() + pos) : nullptr;
+  return sizeImpl() > 0 ? (dataImpl() + pos) : nullptr;
 }
 
 std::string Cowstr::stdstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return dataImpl()
+  return sizeImpl() > 0
              ? std::string(dataImpl() + pos, dataImpl() + sizeImpl() - pos)
              : "";
 }
