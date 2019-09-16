@@ -3,7 +3,6 @@
 
 #include "graph/Dot.h"
 #include "Logging.h"
-#include "Profile.h"
 #include "fmt/format.h"
 #include <utility>
 
