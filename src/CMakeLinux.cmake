@@ -37,7 +37,6 @@ set(F_LIB
     icuio
     icudata
     panel
-    fmt
     tcmalloc
     )
 set(F_LIB_DIR

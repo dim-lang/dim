@@ -12,7 +12,7 @@ OS="Unknown-OS"
 ROOT=`pwd`
 case "$OSTYPE" in
   solaris*) OS="Solaris" ;;
-  darwin*)  OS="MacOSX" ;;
+  darwin*)  OS="MacOSX" && bash ./build_macos.sh ;;
   linux*)   OS="Linux" && bash ./build_linux.sh ;;
   bsd*)     OS="BSD" ;;
   *)        echo "[fastype] Unknown *$OSTYPE* Not Support!" && exit 3 ;;
