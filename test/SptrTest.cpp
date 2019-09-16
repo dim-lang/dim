@@ -9,12 +9,12 @@
 
 #define TEST_N 128
 
-class People {
+class SptrPeople {
 public:
-  People(const std::string &name, int age)
+  SptrPeople(const std::string &name, int age)
       : name_(new std::string(name)), age_(new int(age)) {}
 
-  virtual ~People() {
+  virtual ~SptrPeople() {
     if (name_) {
       delete name_;
       name_ = nullptr;
@@ -26,7 +26,7 @@ public:
   }
 
   std::string toString() const {
-    return fmt::format("[ @People name_:{} {}, age_:{} {} ]", (void *)name_,
+    return fmt::format("[ @SptrPeople name_:{} {}, age_:{} {} ]", (void *)name_,
                        *name_, (void *)age_, *age_);
   }
 
@@ -92,15 +92,15 @@ TEST_CASE("Sptr", "[Sptr]") {
 
   SECTION("data structure") {
     for (int i = 0; i < TEST_N; i++) {
-      People *p = new People(std::to_string(i), i);
-      fastype::Sptr<People> p1(p);
+      SptrPeople *p = new SptrPeople(std::to_string(i), i);
+      fastype::Sptr<SptrPeople> p1(p);
       REQUIRE(p1);
       REQUIRE(p1.useCount() == 1);
       REQUIRE(p1->age() == i);
       REQUIRE(p1->name() == std::to_string(i));
-      fastype::Sptr<People> p2(p1);
-      fastype::Sptr<People> p3(p2);
-      fastype::Sptr<People> p4(p3);
+      fastype::Sptr<SptrPeople> p2(p1);
+      fastype::Sptr<SptrPeople> p3(p2);
+      fastype::Sptr<SptrPeople> p4(p3);
       REQUIRE(p1.useCount() == 4);
       REQUIRE(p2.useCount() == 4);
       REQUIRE(p3.useCount() == 4);
@@ -119,7 +119,7 @@ TEST_CASE("Sptr", "[Sptr]") {
       REQUIRE((*p4).name() == std::to_string(i));
 
       {
-        fastype::Sptr<People> p5 = p4;
+        fastype::Sptr<SptrPeople> p5 = p4;
         REQUIRE(p1.useCount() == 5);
         REQUIRE(p2.useCount() == 5);
         REQUIRE(p3.useCount() == 5);
@@ -142,10 +142,10 @@ TEST_CASE("Sptr", "[Sptr]") {
 
   SECTION("reset") {
     for (int i = 0; i < TEST_N; i++) {
-      fastype::Sptr<People> p1(
-          new People(std::string("hello ") + std::to_string(i), i / 2 - i));
-      People *p2 =
-          new People(std::string("goodbye ") + std::to_string(i), i * 2 + i);
+      fastype::Sptr<SptrPeople> p1(
+          new SptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
+      SptrPeople *p2 = new SptrPeople(
+          std::string("goodbye ") + std::to_string(i), i * 2 + i);
       REQUIRE(p1.useCount() == 1);
       REQUIRE(p1->age() == i / 2 - i);
       REQUIRE(p1->name() == std::string("hello ") + std::to_string(i));
@@ -161,10 +161,10 @@ TEST_CASE("Sptr", "[Sptr]") {
 
   SECTION("swap") {
     for (int i = 0; i < TEST_N; i++) {
-      fastype::Sptr<People> p1(
-          new People(std::string("hello ") + std::to_string(i), i / 2 - i));
-      fastype::Sptr<People> p2(
-          new People(std::string("goodbye ") + std::to_string(i), i * 2 + i));
+      fastype::Sptr<SptrPeople> p1(
+          new SptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
+      fastype::Sptr<SptrPeople> p2(new SptrPeople(
+          std::string("goodbye ") + std::to_string(i), i * 2 + i));
       REQUIRE(p1.useCount() == 1);
       REQUIRE(p1->age() == i / 2 - i);
       REQUIRE(p1->name() == std::string("hello ") + std::to_string(i));

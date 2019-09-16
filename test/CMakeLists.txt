@@ -39,6 +39,7 @@ set(T_SRC
     ConfigureTest.cpp
     TimerTest.cpp
     SptrTest.cpp
+    UptrTest.cpp
     BlockTest.cpp
     CowstrTest.cpp
 
