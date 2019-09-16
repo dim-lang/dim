@@ -92,6 +92,7 @@ Block &Block::clear() {
   }
   start_ = 0;
   end_ = 0;
+  return *this;
 }
 
 Block &Block::release() {
@@ -102,6 +103,7 @@ Block &Block::release() {
   start_ = 0;
   end_ = 0;
   capacity_ = 0;
+  return *this;
 }
 
 Block &Block::concat(const Block &s) { return concat(s.head(), s.size()); }
