@@ -4,7 +4,7 @@
 
 set ROOT=%cd%
 set OS=Windows
-echo [fastype] Build for %OS%
+echo [fastype] build for %OS%
 
 @rem third party library
 echo [fastype] prepare catch2 v2.9.1

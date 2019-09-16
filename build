@@ -2,28 +2,49 @@
 # Copyright 2019- <fastype.org>
 # Apache License Version 2.0
 
+ROOT=`pwd`
+
+if [ "$1" = "help" ]; then
+    echo [fastype] help message:
+    echo [fastype]     1. build init    - initialize third party libraries and other dependencies.
+    echo [fastype]     2. build         - build all.
+    echo [fastype]     3. build install - build and install.
+    echo [fastype]     4. build clean   - clean objects.
+fi
+
+OS="Unknown-OS"
+case "$OSTYPE" in
+  solaris*) OS="Solaris" ;;
+  darwin*)  OS="MacOSX" ;;
+  linux*)   OS="Linux" ;;
+  bsd*)     OS="BSD" ;;
+  *)        echo "[fastype] error! unknown *$OSTYPE* !" && exit 3 ;;
+esac
+echo [fastype] prepare for $OS
+
+if [ "$1" = "init" ]; then
+    case "$OSTYPE" in
+      darwin*)  bash ./build_macos.sh ;;
+      linux*)   bash ./build_linux.sh ;;
+      *)        ;;
+    esac
+    echo [fastype] prepare catch2 v2.9.1
+    if [ ! -d test/catch2 ]; then
+        cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
+    fi
+    echo [fastype] prepare catch2 v2.9.1 - done
+fi
+
 if [ "$1" = "clean" ]; then
     cd $DEBUG && make clean && cd $ROOT
     cd $RELEASE && make clean && cd $ROOT
     exit 0
 fi
 
-OS="Unknown-OS"
-ROOT=`pwd`
-case "$OSTYPE" in
-  solaris*) OS="Solaris" ;;
-  darwin*)  OS="MacOSX" && bash ./build_macos.sh ;;
-  linux*)   OS="Linux" && bash ./build_linux.sh ;;
-  bsd*)     OS="BSD" ;;
-  *)        echo "[fastype] Unknown *$OSTYPE* Not Support!" && exit 3 ;;
-esac
-echo [fastype] Build for $OS
-
-echo [fastype] prepare catch2 v2.9.1
-if [ ! -d test/catch2 ]; then
-    cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
+if [ "$1" = "install" ]; then
+    echo [fastype] error! install not implmented !
+    exit 3
 fi
-echo [fastype] prepare catch2 v2.9.1 - done
 
 # build
 DEBUG=debug

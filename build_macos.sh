@@ -4,5 +4,5 @@
 
 
 echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools via homebrew
-sudo brew install spdlog fmt boost icu4c gpertools
+brew install spdlog fmt boost icu4c gpertools
 echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools via homebrew - done
