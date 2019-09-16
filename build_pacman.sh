@@ -4,5 +4,5 @@
 
 
 sudo echo [fastype] prepare boost, icu, gperftools via pacman || { echo [fastype] sudo not found; exit 1; }
-sudo pacman -S boost icu gperftools
+yes | sudo pacman -S boost icu gperftools
 echo [fastype] prepare boost, icu, gperftools via pacman - done
