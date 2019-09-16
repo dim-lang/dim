@@ -10,6 +10,7 @@ if [ "$1" = "help" ]; then
     echo [fastype]     2. build         - build all.
     echo [fastype]     3. build install - build and install.
     echo [fastype]     4. build clean   - clean objects.
+    exit 0
 fi
 
 OS="Unknown-OS"
@@ -33,6 +34,7 @@ if [ "$1" = "init" ]; then
         cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
     fi
     echo [fastype] prepare catch2 v2.9.1 - done
+    exit 0
 fi
 
 if [ "$1" = "clean" ]; then
