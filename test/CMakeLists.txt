@@ -20,6 +20,15 @@ elseif (UNIX AND NOT APPLE)
     elseif (${F_OS} STREQUAL "Linux")
         # Linux
         include(../src/CMakeLinux.cmake)
+        set(F_INC
+            .
+            ${CURSES_INCLUDE_DIRS}
+            Threads::Threads
+            ../src/spdlog/include
+            ../src/fmt/include
+            /usr/include
+            /usr/include/x86_64-linux-gnu
+            )
     else()
         message(FATAL_ERROR "${F_OS} Not Support!")
     endif(${F_OS} STREQUAL "BSD")
