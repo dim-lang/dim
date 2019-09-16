@@ -3,6 +3,6 @@
 # Apache License Version 2.0
 
 
-sudo echo [fastype] prepare boost, icu4c, gperftools via pacman || { echo [fastype] sudo not found; exit 1; }
-sudo pacman -S boost icu4c gperftools
-echo [fastype] prepare boost, icu4c, gperftools via pacman - done
+sudo echo [fastype] prepare boost, icu, gperftools via pacman || { echo [fastype] sudo not found; exit 1; }
+sudo pacman -S boost icu gperftools
+echo [fastype] prepare boost, icu, gperftools via pacman - done
