@@ -99,7 +99,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
 
       {
         std::string t1 = randomString(i);
-        std::string t2 = randomString(2);
+        std::string t2 = randomString(i);
         fastype::Cowstr c1(t1);
         fastype::Cowstr c2(t2);
         fastype::Cowstr c3 = c1.concat(c2);
