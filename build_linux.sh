@@ -8,3 +8,8 @@ if [ ! -d src/spdlog ]; then
     cd src && git clone -b 'v1.3.1' --single-branch --depth 1 https://github.com/gabime/spdlog.git && cd ..
 fi
 echo [fastype] prepare spdlog v1.3.1 - done
+echo [fastype] prepare fmt 5.3.0
+if [ ! -d src/fmt ]; then
+    cd src && git clone -b '5.3.0' --single-branch --depth 1 https://github.com/fmtlib/fmt.git && cd ..
+fi
+echo [fastype] prepare fmt 5.3.0 - done

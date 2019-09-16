@@ -22,6 +22,7 @@ set(F_INC
     ${CURSES_INCLUDE_DIRS}
     Threads::Threads
     spdlog/include
+    fmt/include
     /usr/include
     /usr/include/x86_64-linux-gnu
     )
@@ -44,3 +45,5 @@ set(F_LIB_DIR
     /usr/lib
     /usr/lib/x86_64-linux-gnu
     )
+
+add_definitions(-DFMT_HEADER_ONLY)
