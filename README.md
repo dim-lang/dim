@@ -1,6 +1,6 @@
 # Fastype
 
-Fastype - A Fast Modern Text Editor
+Fastype - Modern Text Editor for fast typing.
 
 ## What's Fastype?
 
@@ -15,7 +15,7 @@ Fastype is a modern text editor, focused on features below.
 
 ## How to install?
 
-### Build from source
+Download Fastype source code from github and build mannually.
 
 #### Dependencies
 
@@ -30,5 +30,5 @@ Fastype is a modern text editor, focused on features below.
 
 |  Platform      |  Build                                                                          |
 |----------------|---------------------------------------------------------------------------------|
-|  Linux & UNIX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build.sh`  |
+|  Linux & UNIX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
 |  Windows       | `git clone https://github.com/fastype/fastype.git && cd fastype && .\build.bat` |
