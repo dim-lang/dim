@@ -19,31 +19,14 @@ public:
   PointerCounter() : counter_(0) {}
   PointerCounter(PointerCounter &&) = default;
   PointerCounter &operator=(PointerCounter &&) = default;
-  virtual ~PointerCounter() {
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-  }
-  void reset() {
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-    counter_ = 0;
-  }
-  void swap(PointerCounter &pc) {
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-    std::swap(counter_, pc.counter_);
-  }
-  int32_t get() {
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-    return counter_;
-  }
+  virtual ~PointerCounter() {}
+  void reset() { counter_ = 0; }
+  void swap(PointerCounter &pc) { std::swap(counter_, pc.counter_); }
+  int32_t get() { return counter_; }
   void operator++() { counter_++; }
   void operator++(int) { counter_++; }
-  void operator--() {
-    counter_--;
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-  }
-  void operator--(int) {
-    counter_--;
-    F_CHECKF(counter_ >= 0, "counter_ {} >= 0", counter_);
-  }
+  void operator--() { counter_--; }
+  void operator--(int) { counter_--; }
   virtual std::string toString() const {
     return fmt::format("[ @PointerCounter counter_:{} ]", counter_);
   }
