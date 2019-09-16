@@ -203,6 +203,7 @@ private:
 
   // expand more memory
   static CowStrImpl *alloc(CowStrImpl *p, int capacity);
+  static void memoryCopy(CowStrImpl *p, const void *src, int n);
   // helper constructor
   Cowstr(CowStrImpl *p);
 

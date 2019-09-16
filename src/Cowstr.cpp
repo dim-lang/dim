@@ -54,7 +54,7 @@ void Cowstr::copyOnWrite() {
   // else modify this value directly
   if (impl_.use_count() > 1) {
     Cowstr::CowStrImpl *r = alloc(nullptr, size());
-    std::memcpy(r->data, dataImpl(), size());
+    memoryCopy(r, head(), size());
     impl_ = std::shared_ptr<Cowstr::CowStrImpl>(r);
   }
 }
@@ -100,14 +100,8 @@ Cowstr Cowstr::concat(const char *s, int n) const {
   F_CHECKF(s != nullptr, "s {} != nullptr", (void *)s);
   F_CHECKF(n >= 0, "n {} >= 0", n);
   Cowstr::CowStrImpl *p = alloc(nullptr, size() + n);
-  if (head()) {
-    std::memcpy(p->data, head(), size());
-    p->size += size();
-  }
-  if (s) {
-    std::memcpy(p->data + size(), s, n);
-    p->size += n;
-  }
+  memoryCopy(p, head(), size());
+  memoryCopy(p, s, n);
   return Cowstr(p);
 }
 
@@ -212,11 +206,9 @@ Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,
   for (int i = 0; i < pos.size(); i++) {
     if (i != 0) {
       int diff = pos[i] - pos[i - 1];
-      std::memcpy(p->data + p->size, src.head() + pos[i - 1], diff);
-      p->size += diff;
+      memoryCopy(p, src.head() + pos[i - 1], diff);
     }
-    std::memcpy(p->data + p->size, repl, r);
-    p->size += r;
+    memoryCopy(p, repl, r);
   }
   return Cowstr(p);
 }
@@ -233,17 +225,10 @@ Cowstr Cowstr::replaceFirstImpl(const Cowstr &src, const char *target, int t,
 
   Cowstr::CowStrImpl *p = alloc(nullptr, src.size() + r - 1);
   int diff1 = k - src.head();
-  if (diff1 > 0) {
-    std::memcpy(p->data, src.head(), diff1);
-    p->size += diff1;
-  }
-  std::memcpy(p->data, repl, r);
-  p->size += r;
+  memoryCopy(p, src.head(), diff1);
+  memoryCopy(p, repl, r);
   int diff2 = src.head() + src.size() - k - 1;
-  if (diff2 > 0) {
-    std::memcpy(p->data, src.head(), diff2);
-    p->size += diff2;
-  }
+  memoryCopy(p, src.head(), diff2);
   return Cowstr(p);
 }
 
@@ -582,6 +567,13 @@ Cowstr::CowStrImpl *Cowstr::alloc(Cowstr::CowStrImpl *p, int capacity) {
 
 Cowstr::Cowstr(Cowstr::CowStrImpl *p) : impl_(p) {
   F_DEBUGF("Internal shared_ptr Constructor:{}", toString());
+}
+
+void Cowstr::memoryCopy(Cowstr::CowStrImpl *p, const void *src, int n) {
+  if (n > 0) {
+    std::memcpy(p->data + p->size, src, n);
+    p->size += n;
+  }
 }
 
 void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {
