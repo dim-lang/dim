@@ -37,6 +37,7 @@ set(F_LIB
     icudata
     panel
     fmt
+    tcmalloc
     )
 set(F_LIB_DIR
     ${CURSES_LIBRARY_DIRS}
