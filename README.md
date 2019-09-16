@@ -1,10 +1,10 @@
-# Fastype
+# fastype
 
-Fastype - Modern Text Editor for fast typing.
+fastype - a modern text editor for fast typing.
 
-## What's Fastype?
+## What's fastype?
 
-Fastype is a modern text editor, focused on features below.
+fastype is a modern text editor, focused on features below.
 
 * Friendly: out of box, minimum to learn in easy mode.
 * Effective: minimum time cost with maximum job done.
@@ -15,7 +15,7 @@ Fastype is a modern text editor, focused on features below.
 
 ## How to install?
 
-Download Fastype source code from github and build mannually.
+Download fastype source code from github and build mannually.
 
 #### Dependencies
 
