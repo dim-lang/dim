@@ -3,7 +3,6 @@
 
 #include "Cowstr.h"
 #include "Logging.h"
-#include "Profile.h"
 #include <algorithm>
 #include <boost/align/align_up.hpp>
 #include <cctype>
