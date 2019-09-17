@@ -51,6 +51,7 @@ set(T_SRC
     UptrTest.cpp
     BlockTest.cpp
     CowstrTest.cpp
+    RandomTest.cpp
 
     script/TokenTest.cpp
     #script/LexerTest.cpp

@@ -5,12 +5,19 @@
 #include "catch2/catch.hpp"
 #include <cstring>
 
-#define HELLO_WORLD "hello world"
-#define GOODBYE_WORLD "goodbye world"
-
 TEST_CASE("Block", "[Block]") {
 
-  SECTION("Constructor") {
+  SECTION("Empty Constructor") {
+    for ()
+      fastype::Block b;
+    REQUIRE(b.capacity() == 0);
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+    REQUIRE(b.head() == nullptr);
+    REQUIRE(b.tail() == nullptr);
+  }
+
+  SECTION("Capacity Constructor") {
     fastype::Block b;
     REQUIRE(b.capacity() == 0);
     REQUIRE(b.empty());

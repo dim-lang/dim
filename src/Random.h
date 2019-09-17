@@ -2,31 +2,40 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <cmath>
+#include <cstdint>
 #include <limits>
+#include <random>
+#include <string>
 
 namespace fastype {
 
 class Random {
 public:
-  static int nextInt(int start = std::numeric_limits<int>::min(),
-                     int limit = std::numeric_limits<int>::max());
+  // @return   [0, limit)
+  template <typename T> static T next(T limit = std::numeric_limits<T>::max()) {
+    return next<T>(0, limit);
+  }
 
-  static unsigned int
-  nextUInt(unsigned int start = std::numeric_limits<unsigned int>::min(),
-           unsigned int limit = std::numeric_limits<unsigned int>::max());
+  // @return   [start, limit)
+  template <typename T> static T next(T start, T limit) {
+    return (llong_(engine_) % (limit - start)) + start;
+  }
 
-  static long nextLong(long start = std::numeric_limits<long>::min(),
-                       long limit = std::numeric_limits<long>::max());
+  static std::string nextAlpha(int limit);
 
-  static unsigned long
-  nextULong(unsigned long start = std::numeric_limits<unsigned long>::min(),
-            unsigned long limit = std::numeric_limits<unsigned long>::max());
+  static std::string nextAlphaNumeric(int limit);
 
-  static float nextFloat(float start = std::numeric_limits<float>::min(),
-                         float limit = std::numeric_limits<float>::max());
+  static std::string nextDigit(int limit);
 
-  static double nextDouble(double start = std::numeric_limits<double>::min(),
-                           double limit = std::numeric_limits<double>::max());
+  static std::string nextString(int limit, const char *candidates, int c);
+
+  static std::string nextString(int limit, const std::string &candidates);
+
+private:
+  static std::random_device device_;
+  static std::mt19937 engine_;
+  static std::uniform_int_distribution<long long> llong_;
 };
 
 } // namespace fastype
