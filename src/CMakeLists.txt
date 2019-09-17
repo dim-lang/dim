@@ -75,6 +75,7 @@ set(F_CORE
     Buffer.cpp
     Cache.cpp
     ResourceHandler.cpp
+    Random.cpp
     )
 set(F_SRC
     fastype.cpp

@@ -338,36 +338,34 @@ Cowstr Cowstr::trimRight(char c) const {
 
 char *Cowstr::head() {
   copyOnWrite();
-  return sizeImpl() > 0 ? dataImpl() : nullptr;
+  return dataImpl() ? dataImpl() : nullptr;
 }
 
-const char *Cowstr::head() const {
-  return sizeImpl() > 0 ? dataImpl() : nullptr;
-}
+const char *Cowstr::head() const { return dataImpl() ? dataImpl() : nullptr; }
 
 char *Cowstr::tail() {
   copyOnWrite();
-  return sizeImpl() > 0 ? (dataImpl() + sizeImpl()) : nullptr;
+  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
 }
 
 const char *Cowstr::tail() const {
-  return sizeImpl() > 0 ? (dataImpl() + sizeImpl()) : nullptr;
+  return dataImpl() ? (dataImpl() + sizeImpl()) : nullptr;
 }
 
 char *Cowstr::rawstr(int pos) {
   copyOnWrite();
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return sizeImpl() > 0 ? (dataImpl() + pos) : nullptr;
+  return dataImpl() ? (dataImpl() + pos) : nullptr;
 }
 
 const char *Cowstr::rawstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return sizeImpl() > 0 ? (dataImpl() + pos) : nullptr;
+  return dataImpl() ? (dataImpl() + pos) : nullptr;
 }
 
 std::string Cowstr::stdstr(int pos) const {
   pos = pos < 0 ? (sizeImpl() + pos) : pos;
-  return sizeImpl() > 0
+  return sizeImpl() - pos > 0
              ? std::string(dataImpl() + pos, dataImpl() + sizeImpl() - pos)
              : "";
 }

@@ -2,13 +2,12 @@
 // Apache License Version 2.0
 
 #include "Random.h"
-#include <random>
 #include <sstream>
 
 namespace fastype {
 
 std::random_device Random::device_;
-std::mt19937 Random::engine_(device_);
+std::mt19937 Random::engine_(device_());
 std::uniform_int_distribution<long long> Random::llong_;
 
 std::string Random::nextAlpha(int limit) {
