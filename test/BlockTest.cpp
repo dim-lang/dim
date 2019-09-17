@@ -16,8 +16,7 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(b.capacity() == 0);
       REQUIRE(b.empty());
       REQUIRE(b.size() == 0);
-      REQUIRE(b.head() == nullptr);
-      REQUIRE(b.tail() == nullptr);
+      REQUIRE(b.tail() == b.head());
     }
   }
 
@@ -25,11 +24,10 @@ TEST_CASE("Block", "[Block]") {
     for (int i = 0; i < TEST_MAX; i++) {
       int r = fastype::Random::next<int>(TEST_MAX);
       fastype::Block b(r);
-      REQUIRE(b.capacity() == r);
+      REQUIRE(b.capacity() >= r);
       REQUIRE(b.empty());
       REQUIRE(b.size() == 0);
-      REQUIRE(b.head() == nullptr);
-      REQUIRE(b.tail() == nullptr);
+      REQUIRE(b.tail() == b.head());
     }
   }
 }

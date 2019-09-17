@@ -4,35 +4,65 @@
 #include "Random.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
-#define TEST_MAX 128
+#define TEST_MAX 16384
+
+#define assertValid(i, IntType)                                                \
+  do {                                                                         \
+    IntType a = fastype::Random::next<IntType>();                              \
+    IntType b = fastype::Random::next<IntType>(i + 1);                         \
+    IntType c =                                                                \
+        fastype::Random::next<IntType>(std::min(a, b), std::max(a, b));        \
+    REQUIRE(a >= 0);                                                           \
+    REQUIRE(a < std::numeric_limits<IntType>::max());                          \
+    REQUIRE(b >= 0);                                                           \
+    REQUIRE(b <= i);                                                           \
+    REQUIRE(c >= std::min(a, b));                                              \
+    REQUIRE(c < std::max(a, b));                                               \
+  } while (0)
 
 TEST_CASE("Random", "[Random]") {
-  SECTION("random int") {
-    INFO("random int");
+  SECTION("int") {
+    INFO("int");
     for (int i = 0; i < TEST_MAX; i++) {
-      int a = fastype::Random::next<int>();
-      int b = fastype::Random::next<int>(i);
-      int c = fastype::Random::next<int>(std::min(a, b), std::max(a, b));
+      assertValid(i, int);
     }
   }
 
-  SECTION("random unsigned int") {
-    INFO("random unsigned int");
+  SECTION("unsigned int") {
+    INFO("unsigned int");
     for (int i = 0; i < TEST_MAX; i++) {
-      unsigned int a = fastype::Random::next<unsigned int>();
-      unsigned int b = fastype::Random::next<unsigned int>(i);
-      unsigned int c =
-          fastype::Random::next<unsigned int>(std::min(a, b), std::max(a, b));
+      assertValid(i, unsigned int);
     }
   }
 
-  SECTION("random long") {
-    INFO("random long");
+  SECTION("long") {
+    INFO("long");
     for (int i = 0; i < TEST_MAX; i++) {
-      long a = fastype::Random::next<long>();
-      long b = fastype::Random::next<long>(i);
-      long c = fastype::Random::next<long>(std::min(a, b), std::max(a, b));
+      assertValid(i, long);
+    }
+  }
+
+  SECTION("unsigned long") {
+    INFO("unsigned long");
+    for (int i = 0; i < TEST_MAX; i++) {
+      assertValid(i, unsigned long);
+    }
+  }
+
+  SECTION("long long") {
+    INFO("long long");
+    for (int i = 0; i < TEST_MAX; i++) {
+      assertValid(i, long long);
+    }
+  }
+
+  SECTION("unsigned long long") {
+    INFO("unsigned long long");
+    for (int i = 0; i < TEST_MAX; i++) {
+      assertValid(i, unsigned long long);
     }
   }
 }

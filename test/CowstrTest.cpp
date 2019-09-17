@@ -41,8 +41,7 @@ static std::string randomString(int n) {
   do {                                                                         \
     REQUIRE((cs).empty());                                                     \
     REQUIRE((cs).size() == 0);                                                 \
-    REQUIRE((void *)(cs).head() == nullptr);                                   \
-    REQUIRE((void *)(cs).tail() == nullptr);                                   \
+    REQUIRE((void *)(cs).head() == (cs).tail());                               \
   } while (0)
 
 TEST_CASE("Cowstr", "[Cowstr]") {
