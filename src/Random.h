@@ -38,6 +38,10 @@ public:
   F_DECL_RAND(int64_t, Int64);
   F_DECL_RAND(uint64_t, UInt64);
 
+  // @return   [0.0F, 1.0F)
+  static float nextFloat();
+  static double nextDouble();
+
 #undef F_DECL_RAND
 
   static std::string nextAlpha(int limit);

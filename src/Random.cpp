@@ -10,10 +10,10 @@ std::random_device Random::device_;
 std::mt19937 Random::engine_(device_());
 std::uniform_int_distribution<long> Random::long_;
 std::uniform_int_distribution<unsigned long> Random::ulong_;
-std::uniform_int_distribution<long long> llong_;
-std::uniform_int_distribution<unsigned long long> ullong_;
-std::uniform_real_distribution<float> float_;
-std::uniform_real_distribution<double> double_;
+std::uniform_int_distribution<long long> Random::llong_;
+std::uniform_int_distribution<unsigned long long> Random::ullong_;
+std::uniform_real_distribution<float> Random::float_;
+std::uniform_real_distribution<double> Random::double_;
 
 std::string Random::nextAlpha(int limit) {
   const static char *alphas = {};
