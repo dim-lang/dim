@@ -251,7 +251,7 @@ std::vector<Cowstr> Cowstr::split(const std::string &s) const {
 std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
   std::vector<Cowstr> ret;
   std::vector<int> pos = searchAll(head(), size(), s, n);
-  for (int i = 0; i < pos.size(); i++) {
+  for (int i = 0; i < (int)pos.size(); i++) {
     if (i == 0 && pos[i] > 0) {
       ret.push_back(subString(0, pos[i]));
     } else {
@@ -400,7 +400,7 @@ int Cowstr::compare(const Cowstr &s) const {
 }
 
 int Cowstr::compare(const std::string &s) const {
-  if (sizeImpl() != s.length()) {
+  if (sizeImpl() != (int)s.length()) {
     return sizeImpl() - s.length();
   }
   return std::memcmp(head(), s.data(), sizeImpl());
