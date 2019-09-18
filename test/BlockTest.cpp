@@ -22,7 +22,7 @@ TEST_CASE("Block", "[Block]") {
 
   SECTION("Capacity Constructor") {
     for (int i = 0; i < TEST_MAX; i++) {
-      int r = fastype::Random::next<int>(TEST_MAX);
+      int r = fastype::Random::nextInt(TEST_MAX);
       fastype::Block b(r);
       REQUIRE(b.capacity() >= r);
       REQUIRE(b.empty());

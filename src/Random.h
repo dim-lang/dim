@@ -21,22 +21,14 @@ public:
 
   // @return   [0, right)
   // @return   [left, right)
-  F_DECL_RAND(short, Shrt);
-  F_DECL_RAND(unsigned short, UShrt);
+  F_DECL_RAND(short, Short);
+  F_DECL_RAND(unsigned short, UShort);
   F_DECL_RAND(int, Int);
   F_DECL_RAND(unsigned int, UInt);
   F_DECL_RAND(long, Long);
   F_DECL_RAND(unsigned long, ULong);
   F_DECL_RAND(long long, LLong);
   F_DECL_RAND(unsigned long long, ULLong);
-  F_DECL_RAND(int8_t, Int8);
-  F_DECL_RAND(uint8_t, UInt8);
-  F_DECL_RAND(int16_t, Int16);
-  F_DECL_RAND(uint16_t, UInt16);
-  F_DECL_RAND(int32_t, Int32);
-  F_DECL_RAND(uint32_t, UInt32);
-  F_DECL_RAND(int64_t, Int64);
-  F_DECL_RAND(uint64_t, UInt64);
 
   // @return   [0.0F, 1.0F)
   static float nextFloat();

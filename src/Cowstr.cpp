@@ -211,7 +211,7 @@ Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,
     return Cowstr(src);
   }
   Cowstr::CowStrImpl *p = alloc(nullptr, src.size() + pos.size() * r);
-  for (int i = 0; i < pos.size(); i++) {
+  for (int i = 0; i < (int)pos.size(); i++) {
     if (i != 0) {
       int diff = pos[i] - pos[i - 1];
       memoryCopy(p, src.head() + pos[i - 1], diff);
