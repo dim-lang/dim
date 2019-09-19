@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Block.h"
+#include "Logging.h"
 #include <cstdlib>
 #include <cstring>
 #include <memory>
@@ -20,10 +21,13 @@ Block::Block(const Block &s) : Block(s.head(), s.size()) {}
 
 Block::Block(char c) : Block(&c, 1) {}
 
-Block::Block(const char *s, int n) {
-  expand(n);
-  std::memcpy(buf_, s, n);
-  end_ += n;
+Block::Block(const char *s, int n) : Block() {
+  F_CHECKF(n >= 0, "n {} >= 0", n);
+  if (n > 0) {
+    expand(n);
+    std::memcpy(buf_, s, n);
+    end_ = n;
+  }
 }
 
 Block::Block(const std::string &s) : Block(s.data(), (int)s.length()) {}
@@ -32,9 +36,11 @@ Block &Block::operator=(const Block &s) {
   if (this == &s) {
     return *this;
   }
-  expand(s.size());
-  std::memcpy(buf_, s.head(), s.size());
-  end_ += s.size();
+  if (s.size() > 0) {
+    expand(s.size());
+    std::memcpy(buf_, s.head(), s.size());
+  }
+  end_ = s.size();
   return *this;
 }
 

@@ -3,6 +3,7 @@
 
 #include "Random.h"
 #include "Logging.h"
+#include <cstring>
 #include <sstream>
 
 namespace fastype {
@@ -83,19 +84,27 @@ float Random::nextFloat() { return float_(engine_); }
 
 double Random::nextDouble() { return double_(engine_); }
 
+static const char *Alphas =
+    "ABCDEFGHIJKLMNOPQRSTUVWXJZabcdefghijklmnopqrstuvwxyz";
+static const int AlphasLength = std::strlen(Alphas);
+
 std::string Random::nextAlpha(int limit) {
-  const static char *alphas = {};
-  return nextString(limit, alphas, sizeof(alphas) / sizeof(char));
+  return nextString(limit, Alphas, AlphasLength);
 }
+
+static const char *Alnums =
+    "ABCDEFGHIJKLMNOPQRSTUVWXJZabcdefghijklmnopqrstuvwxyz0123456789";
+static const int AlnumsLength = std::strlen(Alnums);
 
 std::string Random::nextAlphaNumeric(int limit) {
-  const static char *alnums = {};
-  return nextString(limit, alnums, sizeof(alnums) / sizeof(char));
+  return nextString(limit, Alnums, AlnumsLength);
 }
 
+static const char *Digits = "0123456789";
+static const int DigitsLength = std::strlen(Digits);
+
 std::string Random::nextDigit(int limit) {
-  const static char *digits = {};
-  return nextString(limit, digits, sizeof(digits) / sizeof(char));
+  return nextString(limit, Digits, DigitsLength);
 }
 
 std::string Random::nextString(int limit, const std::string &candidates) {
