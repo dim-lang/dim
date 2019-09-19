@@ -41,7 +41,7 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(b1.tail() == b1.head());
 
       fastype::Block b2(b1);
-      REQUIRE(b2.capacity() >= r);
+      REQUIRE(b2.capacity() >= 0);
       REQUIRE(b2.empty());
       REQUIRE(b2.size() == 0);
       REQUIRE(b2.tail() == b2.head());
@@ -50,12 +50,16 @@ TEST_CASE("Block", "[Block]") {
       fastype::Block b3(rs);
       fastype::Block b4(b3);
 
+      REQUIRE(b3.capacity() >= (int)rs.length());
+      REQUIRE(b4.capacity() >= (int)rs.length());
       REQUIRE(b3.size() == (int)rs.length());
       REQUIRE(b3.size() == b4.size());
       REQUIRE(b3.empty() == rs.empty());
       REQUIRE(b3.empty() == b4.empty());
       REQUIRE(std::memcmp(b3.head(), rs.data(), b3.size()) == 0);
       REQUIRE(std::memcmp(b3.head(), b4.head(), b3.size()) == 0);
+      REQUIRE(b3.tail() == b3.head() + b3.size());
+      REQUIRE(b4.tail() == b4.head() + b4.size());
     }
   }
 }
