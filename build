@@ -40,6 +40,7 @@ if [ "$1" = "init" ]; then
 fi
 
 if [ "$1" = "clean" ]; then
+    rm *.log
     cd $DEBUG && make clean && cd $ROOT
     cd $RELEASE && make clean && cd $ROOT
     exit 0
