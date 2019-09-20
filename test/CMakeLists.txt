@@ -20,15 +20,6 @@ elseif (UNIX AND NOT APPLE)
     elseif (${F_OS} STREQUAL "Linux")
         # Linux
         include(../src/CMakeLinux.cmake)
-        set(F_INC
-            .
-            ${CURSES_INCLUDE_DIRS}
-            Threads::Threads
-            ../src/spdlog/include
-            ../src/fmt/include
-            /usr/include
-            /usr/include/x86_64-linux-gnu
-            )
     else()
         message(FATAL_ERROR "${F_OS} Not Support!")
     endif(${F_OS} STREQUAL "BSD")
@@ -60,6 +51,7 @@ set(T_SRC
 include_directories(${F_INC})
 include_directories(../src)
 include_directories(../src/spdlog/include)
+include_directories(../src/fmt/include)
 include_directories(../src/boost)
 include_directories(../src/icu/icu4c/source)
 include_directories(Catch2/single_include)

@@ -124,7 +124,8 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
       return (char)(pos - n + range[i].first);
     }
   }
-  F_CHECKF(false, "pos {} overflow", pos);
+  F_CHECKF(false, "must not come here, pos:{} rangeLength:{}", pos,
+           rangeLength);
   return 0;
 }
 

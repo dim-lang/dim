@@ -4,6 +4,7 @@
 #pragma once
 #include "Stringify.h"
 #include <boost/assert.hpp>
+#include <boost/preprocessor/stringize.hpp>
 #include <cstdio>
 #include <fmt/format.h>
 #include <memory>
@@ -43,8 +44,9 @@ public:
 #define F_CHECK(cond, msg)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      std::fprintf(stderr, "%s:%d %s - Check Failure: %s\n", __FILE__,         \
-                   __LINE__, __FUNCTION__, msg);                               \
+      std::fprintf(                                                            \
+          stderr, "Check Fail! %s:%d %s - Condition: %s, Result: %s\n",        \
+          __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg);    \
     }                                                                          \
     BOOST_ASSERT(cond);                                                        \
   } while (0)
@@ -52,8 +54,10 @@ public:
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg = fmt::format(fmtMsg, __VA_ARGS__);                      \
-      std::fprintf(stderr, "%s:%d %s - Check Failure: %s\n", __FILE__,         \
-                   __LINE__, __FUNCTION__, msg.data());                        \
+      std::fprintf(stderr,                                                     \
+                   "Check Fail! %s:%d %s - Condition: %s, Result: %s\n",       \
+                   __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), \
+                   msg.data());                                                \
     }                                                                          \
     BOOST_ASSERT(cond);                                                        \
   } while (0)

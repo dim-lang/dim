@@ -16,7 +16,10 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() : Term() {}
+NCursesTerm::NCursesTerm() : Term() {
+  (void)row_;
+  (void)col_;
+}
 
 NCursesTerm::~NCursesTerm() {}
 
