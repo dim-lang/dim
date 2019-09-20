@@ -123,6 +123,7 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
     if (n + p > pos) {
       return (char)(pos - n + range[i].first);
     }
+    n += p;
   }
   F_CHECKF(false, "must not come here, pos:{} rangeLength:{}", pos,
            rangeLength);

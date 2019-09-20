@@ -4,7 +4,6 @@
 
 
 echo [fastype] prepare compiler and toolchain for macOS
-xcode-select --install
 brew install gcc cmake automake autoconf
 echo [fastype] prepare compiler and toolchain for macOS - done
 echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools via homebrew
