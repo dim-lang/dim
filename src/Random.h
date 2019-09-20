@@ -4,7 +4,6 @@
 #pragma once
 #include "Logging.h"
 #include <boost/preprocessor/cat.hpp>
-#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <random>
@@ -30,31 +29,41 @@ public:
   F_DECL_RAND(long long, LLong);
   F_DECL_RAND(unsigned long long, ULLong);
 
-  // @return   [0.0F, 1.0F)
-  static float nextFloat();
-  static double nextDouble();
-
 #undef F_DECL_RAND
 
-  static std::string nextAlpha(int limit);
+  static std::string nextAlpha(int len = 1);
+  static std::string nextAlphaNumeric(int len = 1);
+  static std::string nextDigit(int len = 1);
+  static std::string nextPunctuation(int len = 1);
+  static std::string nextPrintable(int len = 1);
+  static std::string nextControl(int len = 1);
+  static std::string nextAscii(int len = 1);
+  static std::string nextString(const char *candidates, int n, int len = 1);
+  static std::string nextString(const std::string &candidates, int len = 1);
 
-  static std::string nextAlphaNumeric(int limit);
-
-  static std::string nextDigit(int limit);
-
-  static std::string nextString(int limit, const char *candidates, int c);
-
-  static std::string nextString(int limit, const std::string &candidates);
+  static char nextAlphaChar();
+  static char nextAlphaNumericChar();
+  static char nextDigitChar();
+  static char nextPunctuationChar();
+  static char nextPrintableChar();
+  static char nextControlChar();
+  static char nextAsciiChar();
+  static char nextChar(const char *candidates, int n);
+  static char nextChar(const std::string &candidates);
 
 private:
+  static char nextAsciiChar(const std::vector<std::pair<int, int>> &range,
+                            int rangeLength);
+  static std::string
+  nextAsciiString(const std::vector<std::pair<int, int>> &range,
+                  int rangeLength, int len);
+
   static std::random_device device_;
   static std::mt19937 engine_;
   static std::uniform_int_distribution<long> long_;
   static std::uniform_int_distribution<unsigned long> ulong_;
   static std::uniform_int_distribution<long long> llong_;
   static std::uniform_int_distribution<unsigned long long> ullong_;
-  static std::uniform_real_distribution<float> float_;
-  static std::uniform_real_distribution<double> double_;
 };
 
 } // namespace fastype

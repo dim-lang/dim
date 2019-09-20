@@ -3,7 +3,10 @@
 
 #include "Random.h"
 #include "Logging.h"
+#include <algorithm>
 #include <cstring>
+#include <functional>
+#include <numeric>
 #include <sstream>
 
 namespace fastype {
@@ -14,8 +17,6 @@ std::uniform_int_distribution<long> Random::long_;
 std::uniform_int_distribution<unsigned long> Random::ulong_;
 std::uniform_int_distribution<long long> Random::llong_;
 std::uniform_int_distribution<unsigned long long> Random::ullong_;
-std::uniform_real_distribution<float> Random::float_;
-std::uniform_real_distribution<double> Random::double_;
 
 short Random::nextShort(short right) { return nextShort(0, right); }
 
@@ -80,40 +81,109 @@ unsigned long long Random::nextULLong(unsigned long long left,
   return left == right ? left : ((ullong_(engine_) % (right - left)) + left);
 }
 
-float Random::nextFloat() { return float_(engine_); }
+static const std::vector<std::pair<int, int>> Alpha = {{65, 91}, {97, 123}};
+static const int AlphaLength = 91 - 65 + 123 - 97;
 
-double Random::nextDouble() { return double_(engine_); }
+static const std::vector<std::pair<int, int>> Digit = {{48, 58}};
+static const int DigitLength = 58 - 48;
 
-static const char *Alphas =
-    "ABCDEFGHIJKLMNOPQRSTUVWXJZabcdefghijklmnopqrstuvwxyz";
-static const int AlphasLength = std::strlen(Alphas);
+static const std::vector<std::pair<int, int>> AlphaNumeric = {
+    {48, 58}, {65, 91}, {97, 123}};
+static const int AlphaNumericLength = 58 - 48 + 91 - 65 + 123 - 97;
 
-std::string Random::nextAlpha(int limit) {
-  return nextString(limit, Alphas, AlphasLength);
-}
+static const std::vector<std::pair<int, int>> Punctuation = {
+    {33, 48}, {58, 65}, {91, 97}, {123, 127}};
+static const int PunctuationLength = 48 - 33 + 65 - 58 + 97 - 91 + 127 - 123;
 
-static const char *Alnums =
-    "ABCDEFGHIJKLMNOPQRSTUVWXJZabcdefghijklmnopqrstuvwxyz0123456789";
-static const int AlnumsLength = std::strlen(Alnums);
+static const std::vector<std::pair<int, int>> Control = {{0, 32}, {127, 128}};
+static const int ControlLength = 32 - 0 + 128 - 127;
 
-std::string Random::nextAlphaNumeric(int limit) {
-  return nextString(limit, Alnums, AlnumsLength);
-}
+static const std::vector<std::pair<int, int>> Printable = {{32, 127}};
+static const int PrintableLength = 127 - 32;
 
-static const char *Digits = "0123456789";
-static const int DigitsLength = std::strlen(Digits);
+static const std::vector<std::pair<int, int>> Ascii = {{0, 128}};
+static const int AsciiLength = 128 - 0;
 
-std::string Random::nextDigit(int limit) {
-  return nextString(limit, Digits, DigitsLength);
-}
-
-std::string Random::nextString(int limit, const std::string &candidates) {
-  return nextString(limit, candidates.data(), (int)candidates.length());
-}
-
-std::string Random::nextString(int limit, const char *candidates, int c) {
+std::string
+Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
+                        int rangeLength, int len) {
   std::stringstream ss;
-  for (int i = 0; i < limit; i++) {
+  for (int i = 0; i < len; i++) {
+    int pos = nextInt(rangeLength);
+    ss << (char)pos;
+  }
+  return ss.str();
+}
+
+char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
+                           int rangeLength) {
+  return (char)nextInt(rangeLength);
+}
+
+char Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }
+
+char Random::nextAlphaNumericChar() {
+  return nextAsciiChar(AlphaNumeric, AlphaNumericLength);
+}
+
+char Random::nextDigitChar() { return nextAsciiChar(Digit, DigitLength); }
+
+char Random::nextPunctuationChar() {
+  return nextAsciiChar(Punctuation, PunctuationLength);
+}
+
+char Random::nextControlChar() { return nextAsciiChar(Control, ControlLength); }
+
+char Random::nextPrintableChar() {
+  return nextAsciiChar(Printable, PrintableLength);
+}
+
+char Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
+
+char Random::nextChar(const std::string &candidates) {
+  return nextChar(candidates.data(), candidates.length());
+}
+
+char Random::nextChar(const char *candidates, int c) {
+  int pos = nextInt(c);
+  return candidates[pos];
+}
+
+std::string Random::nextAlpha(int len) {
+  return nextAsciiString(Alpha, AlphaLength, len);
+}
+
+std::string Random::nextAlphaNumeric(int len) {
+  return nextAsciiString(AlphaNumeric, AlphaNumericLength, len);
+}
+
+std::string Random::nextDigit(int len) {
+  return nextAsciiString(Digit, DigitLength, len);
+}
+
+std::string Random::nextPunctuation(int len) {
+  return nextAsciiString(Punctuation, PunctuationLength, len);
+}
+
+std::string Random::nextControl(int len) {
+  return nextAsciiString(Control, ControlLength, len);
+}
+
+std::string Random::nextPrintable(int len) {
+  return nextAsciiString(Printable, PrintableLength, len);
+}
+
+std::string Random::nextAscii(int len) {
+  return nextAsciiString(Ascii, AsciiLength, len);
+}
+
+std::string Random::nextString(const std::string &candidates, int len) {
+  return nextString(candidates.data(), candidates.length(), len);
+}
+
+std::string Random::nextString(const char *candidates, int c, int len) {
+  std::stringstream ss;
+  for (int i = 0; i < len; i++) {
     int pos = nextInt(c);
     ss << candidates[pos];
   }
