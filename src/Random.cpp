@@ -109,15 +109,23 @@ Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
                         int rangeLength, int len) {
   std::stringstream ss;
   for (int i = 0; i < len; i++) {
-    int pos = nextInt(rangeLength);
-    ss << (char)pos;
+    ss << nextAsciiChar(range, rangeLength);
   }
   return ss.str();
 }
 
 char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
                            int rangeLength) {
-  return (char)nextInt(rangeLength);
+  int n = 0;
+  int pos = nextInt(rangeLength);
+  for (int i = 0; i < range.size(); i++) {
+    int p = range[i].second - range[i].first;
+    if (n + p > pos) {
+      return (char)(pos - n + range[i].first);
+    }
+  }
+  F_CHECKF(false, "pos {} overflow", pos);
+  return 0;
 }
 
 char Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }

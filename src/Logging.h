@@ -40,9 +40,23 @@ public:
 #define F_DEBUGF(fmtMsg, ...) SPDLOG_DEBUG(fmtMsg, __VA_ARGS__)
 #define F_INFO(msg) SPDLOG_INFO(msg)
 #define F_INFOF(fmtMsg, ...) SPDLOG_INFO(fmtMsg, __VA_ARGS__)
-#define F_CHECK(cond, msg) BOOST_ASSERT_MSG(cond, msg)
+#define F_CHECK(cond, msg)                                                     \
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      std::fprintf(stderr, "%s:%d %s - Check Failure: %s\n", __FILE__,         \
+                   __LINE__, __FUNCTION__, msg);                               \
+    }                                                                          \
+    BOOST_ASSERT(cond);                                                        \
+  } while (0)
 #define F_CHECKF(cond, fmtMsg, ...)                                            \
-  BOOST_ASSERT_MSG(cond, fmt::format(fmtMsg, __VA_ARGS__).data())
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      std::string msg = fmt::format(fmtMsg, __VA_ARGS__);                      \
+      std::fprintf(stderr, "%s:%d %s - Check Failure: %s\n", __FILE__,         \
+                   __LINE__, __FUNCTION__, msg.data());                        \
+    }                                                                          \
+    BOOST_ASSERT(cond);                                                        \
+  } while (0)
 
 #endif // #ifdef NDEBUG
 

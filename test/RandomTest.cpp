@@ -6,6 +6,7 @@
 #include "catch2/catch.hpp"
 #include <algorithm>
 #include <boost/preprocessor/cat.hpp>
+#include <cctype>
 #include <cstddef>
 #include <cstdint>
 
@@ -68,6 +69,28 @@ TEST_CASE("Random", "[Random]") {
     INFO("unsigned long long");
     for (int i = 0; i < TEST_MAX; i++) {
       assertValid(i, unsigned long long, ULLong);
+    }
+  }
+
+  SECTION("alpha") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      char c = fastype::Random::nextAlphaChar();
+      std::string s = fastype::Random::nextAlpha(i + 1);
+      REQUIRE(std::isalpha(c));
+      for (int j = 0; j < s.length(); j++) {
+        REQUIRE(std::isalpha(s[j]));
+      }
+    }
+  }
+
+  SECTION("digit") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      char c = fastype::Random::nextDigitChar();
+      std::string s = fastype::Random::nextDigit(i + 1);
+      REQUIRE(std::isdigit(c));
+      for (int j = 0; j < s.length(); j++) {
+        REQUIRE(std::isdigit(s[j]));
+      }
     }
   }
 }
