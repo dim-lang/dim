@@ -120,4 +120,24 @@ TEST_CASE("Random", "[Random]") {
                     [](const char &t) { REQUIRE(std::ispunct(t)); });
     }
   }
+
+  SECTION("printable") {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
+      char c = fastype::Random::nextPrintableChar();
+      std::string s = fastype::Random::nextPrintable(i + 1);
+      REQUIRE(std::isprint(c));
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::isprint(t)); });
+    }
+  }
+
+  SECTION("control") {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
+      char c = fastype::Random::nextControlChar();
+      std::string s = fastype::Random::nextControl(i + 1);
+      REQUIRE(std::iscntrl(c));
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::iscntrl(t)); });
+    }
+  }
 }
