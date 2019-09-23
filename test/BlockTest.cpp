@@ -291,23 +291,22 @@ TEST_CASE("Block", "[Block]") {
     }
   }
 
-  SECTION("expand clear release") {
+  SECTION("concat") {
     for (int i = 0; i < TEST_MAX; i++) {
-      int n = 0;
       fastype::Block b;
+      std::string s;
       for (int j = 0; j < TEST_MAX; j++) {
-        n += fastype::Random::nextInt(TEST_MAX);
-        b.expand(n);
-        REQUIRE(b.capacity() >= n);
+        std::string t = fastype::Random::nextAlphaNumeric(TEST_MAX);
+        b.concat(t);
+        s += t;
+        REQUIRE(b.size() == s.length());
+        REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
+
+        b += t;
+        s += t;
+        REQUIRE(b.size() == s.length());
+        REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
       }
-      b.clear();
-      REQUIRE(b.capacity() >= n);
-      REQUIRE(b.size() == 0);
-      REQUIRE(b.head() == b.tail());
-      b.release();
-      REQUIRE(b.capacity() == 0);
-      REQUIRE(b.head() == nullptr);
-      REQUIRE(b.tail() == nullptr);
     }
   }
 }
