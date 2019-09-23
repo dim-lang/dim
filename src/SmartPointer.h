@@ -17,8 +17,6 @@ namespace detail {
 class PointerCounter : public boost::noncopyable, Stringify {
 public:
   PointerCounter() : counter_(0) {}
-  PointerCounter(PointerCounter &&) = default;
-  PointerCounter &operator=(PointerCounter &&) = default;
   virtual ~PointerCounter() {}
   void reset() { counter_ = 0; }
   void swap(PointerCounter &pc) { std::swap(counter_, pc.counter_); }
