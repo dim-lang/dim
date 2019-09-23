@@ -7,7 +7,8 @@ if [ "$1" = "help" ]; then
     echo [fastype]     1. build init    - initialize third party libraries and other dependencies.
     echo [fastype]     2. build         - build all.
     echo [fastype]     3. build install - build and install.
-    echo [fastype]     4. build clean   - clean build objects.
+    echo [fastype]     4. build test    - run unit tests.
+    echo [fastype]     5. build clean   - clean build objects.
     exit 0
 fi
 
@@ -23,6 +24,11 @@ fi
 
 if [ "$1" = "install" ]; then
     echo [fastype] error! install not implmented !
+    exit 3
+fi
+
+if [ "$1" = "test" ]; then
+    bash ./build_test.sh
     exit 3
 fi
 

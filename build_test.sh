@@ -2,6 +2,4 @@
 # Copyright 2019- <fastype.org>
 # Apache License Version 2.0
 
-rm *.log
-cd debug && make clean && cd ..
-cd release && make clean && cd ..
+debug/test/fastype-test
