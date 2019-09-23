@@ -34,6 +34,7 @@ public:
   static std::string nextAlpha(int len = 1);
   static std::string nextAlphaNumeric(int len = 1);
   static std::string nextDigit(int len = 1);
+  static std::string nextHex(int len = 1);
   static std::string nextPunctuation(int len = 1);
   static std::string nextPrintable(int len = 1);
   static std::string nextControl(int len = 1);
@@ -44,6 +45,7 @@ public:
   static char nextAlphaChar();
   static char nextAlphaNumericChar();
   static char nextDigitChar();
+  static char nextHexChar();
   static char nextPunctuationChar();
   static char nextPrintableChar();
   static char nextControlChar();

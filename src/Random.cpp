@@ -87,6 +87,10 @@ static const int AlphaLength = 91 - 65 + 123 - 97;
 static const std::vector<std::pair<int, int>> Digit = {{48, 58}};
 static const int DigitLength = 58 - 48;
 
+static const std::vector<std::pair<int, int>> Hex = {
+    {48, 58}, {65, 71}, {97, 103}};
+static const int HexLength = 58 - 48 + 71 - 65 + 103 - 97;
+
 static const std::vector<std::pair<int, int>> AlphaNumeric = {
     {48, 58}, {65, 91}, {97, 123}};
 static const int AlphaNumericLength = 58 - 48 + 91 - 65 + 123 - 97;
@@ -121,7 +125,13 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
   for (int i = 0; i < range.size(); i++) {
     int p = range[i].second - range[i].first;
     if (n + p > pos) {
-      return (char)(pos - n + range[i].first);
+      int r = pos - n + range[i].first;
+      F_CHECKF(r >= range[0].first, "r {} >= range[0].first {}", r,
+               range[0].first);
+      F_CHECKF(r < range[range.size() - 1].second,
+               "r {} < range[range.size()-1].second {}", r,
+               range[range.size() - 1].second);
+      return (char)r;
     }
     n += p;
   }
@@ -133,19 +143,39 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
 char Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }
 
 char Random::nextAlphaNumericChar() {
-  return nextAsciiChar(AlphaNumeric, AlphaNumericLength);
+  char c = nextAsciiChar(AlphaNumeric, AlphaNumericLength);
+  F_CHECKF(std::isalnum(c), "c {} isalnum", (int)c);
+  return c;
 }
 
-char Random::nextDigitChar() { return nextAsciiChar(Digit, DigitLength); }
+char Random::nextDigitChar() {
+  char c = nextAsciiChar(Digit, DigitLength);
+  F_CHECKF(std::isdigit(c), "c {} isdigit", (int)c);
+  return c;
+}
+
+char Random::nextHexChar() {
+  char c = nextAsciiChar(Hex, HexLength);
+  F_CHECKF(std::isxdigit(c), "c {} isxdigit", (int)c);
+  return c;
+}
 
 char Random::nextPunctuationChar() {
-  return nextAsciiChar(Punctuation, PunctuationLength);
+  char c = nextAsciiChar(Punctuation, PunctuationLength);
+  F_CHECKF(std::ispunct(c), "c {} ispunct", (int)c);
+  return c;
 }
 
-char Random::nextControlChar() { return nextAsciiChar(Control, ControlLength); }
+char Random::nextControlChar() {
+  char c = nextAsciiChar(Control, ControlLength);
+  F_CHECKF(std::iscntrl(c), "c {} is cntrl", (int)c);
+  return c;
+}
 
 char Random::nextPrintableChar() {
-  return nextAsciiChar(Printable, PrintableLength);
+  char c = nextAsciiChar(Printable, PrintableLength);
+  F_CHECKF(std::isprint(c), "c {} isprint", (int)c);
+  return c;
 }
 
 char Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
@@ -169,6 +199,10 @@ std::string Random::nextAlphaNumeric(int len) {
 
 std::string Random::nextDigit(int len) {
   return nextAsciiString(Digit, DigitLength, len);
+}
+
+std::string Random::nextHex(int len) {
+  return nextAsciiString(Hex, HexLength, len);
 }
 
 std::string Random::nextPunctuation(int len) {

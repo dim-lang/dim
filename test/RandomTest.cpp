@@ -91,13 +91,23 @@ TEST_CASE("Random", "[Random]") {
     }
   }
 
+  SECTION("hex") {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
+      char c = fastype::Random::nextHexChar();
+      std::string s = fastype::Random::nextHex(i + 1);
+      REQUIRE(std::isxdigit(c));
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::isxdigit(t)); });
+    }
+  }
+
   SECTION("alpha numeric") {
     for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       char c = fastype::Random::nextAlphaNumericChar();
       std::string s = fastype::Random::nextAlphaNumeric(i + 1);
-      REQUIRE(std::isxdigit(c));
+      REQUIRE(std::isalnum(c));
       std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isxdigit(t)); });
+                    [](const char &t) { REQUIRE(std::isalnum(t)); });
     }
   }
 
