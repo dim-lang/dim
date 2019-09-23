@@ -76,7 +76,7 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextAlphaChar();
       std::string s = fastype::Random::nextAlpha(i + 1);
       REQUIRE(std::isalpha(c));
-      for (int j = 0; j < s.length(); j++) {
+      for (int j = 0; j < (int)s.length(); j++) {
         REQUIRE(std::isalpha(s[j]));
       }
     }
@@ -87,7 +87,7 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextDigitChar();
       std::string s = fastype::Random::nextDigit(i + 1);
       REQUIRE(std::isdigit(c));
-      for (int j = 0; j < s.length(); j++) {
+      for (int j = 0; j < (int)s.length(); j++) {
         REQUIRE(std::isdigit(s[j]));
       }
     }
@@ -98,7 +98,7 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextAlphaNumericChar();
       std::string s = fastype::Random::nextAlphaNumeric(i + 1);
       REQUIRE(std::isxdigit(c));
-      for (int j = 0; j < s.length(); j++) {
+      for (int j = 0; j < (int)s.length(); j++) {
         REQUIRE(std::isxdigit(s[j]));
       }
     }
