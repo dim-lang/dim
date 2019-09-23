@@ -92,4 +92,15 @@ TEST_CASE("Random", "[Random]") {
       }
     }
   }
+
+  SECTION("alpha numeric") {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
+      char c = fastype::Random::nextAlphaNumericChar();
+      std::string s = fastype::Random::nextAlphaNumeric(i + 1);
+      REQUIRE(std::isxdigit(c));
+      for (int j = 0; j < s.length(); j++) {
+        REQUIRE(std::isxdigit(s[j]));
+      }
+    }
+  }
 }
