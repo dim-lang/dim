@@ -76,9 +76,8 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextAlphaChar();
       std::string s = fastype::Random::nextAlpha(i + 1);
       REQUIRE(std::isalpha(c));
-      for (int j = 0; j < (int)s.length(); j++) {
-        REQUIRE(std::isalpha(s[j]));
-      }
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::isalpha(t)); });
     }
   }
 
@@ -87,9 +86,8 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextDigitChar();
       std::string s = fastype::Random::nextDigit(i + 1);
       REQUIRE(std::isdigit(c));
-      for (int j = 0; j < (int)s.length(); j++) {
-        REQUIRE(std::isdigit(s[j]));
-      }
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::isdigit(t)); });
     }
   }
 
@@ -98,9 +96,18 @@ TEST_CASE("Random", "[Random]") {
       char c = fastype::Random::nextAlphaNumericChar();
       std::string s = fastype::Random::nextAlphaNumeric(i + 1);
       REQUIRE(std::isxdigit(c));
-      for (int j = 0; j < (int)s.length(); j++) {
-        REQUIRE(std::isxdigit(s[j]));
-      }
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::isxdigit(t)); });
+    }
+  }
+
+  SECTION("punctuation") {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
+      char c = fastype::Random::nextPunctuationChar();
+      std::string s = fastype::Random::nextPunctuation(i + 1);
+      REQUIRE(std::ispunct(c));
+      std::for_each(s.begin(), s.end(),
+                    [](const char &t) { REQUIRE(std::ispunct(t)); });
     }
   }
 }
