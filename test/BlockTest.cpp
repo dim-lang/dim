@@ -290,4 +290,25 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(std::memcmp(b2.head(), s1.data(), b2.size()) == 0);
     }
   }
+
+  SECTION("expand clear release") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      int n = 0;
+      fastype::Block b;
+      for (int j = 0; j < TEST_MAX; j++) {
+        int p = fastype::Random::nextInt(TEST_MAX);
+        b.expand(p);
+        n += p;
+        REQUIRE(b.capacity() >= n);
+      }
+      b.clear();
+      REQUIRE(b.capacity() >= n);
+      REQUIRE(b.size() == 0);
+      REQUIRE(b.head() == b.tail());
+      b.release();
+      REQUIRE(b.capacity() == 0);
+      REQUIRE(b.head() == nullptr);
+      REQUIRE(b.tail() == nullptr);
+    }
+  }
 }
