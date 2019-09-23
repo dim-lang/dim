@@ -122,7 +122,7 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
                            int rangeLength) {
   int n = 0;
   int pos = nextInt(rangeLength);
-  for (int i = 0; i < range.size(); i++) {
+  for (int i = 0; i < (int)range.size(); i++) {
     int p = range[i].second - range[i].first;
     if (n + p > pos) {
       int r = pos - n + range[i].first;
