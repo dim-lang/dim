@@ -137,6 +137,10 @@ Block &Block::concatHead(const Block &s) {
   return concatHead(s.head(), s.size());
 }
 
+Block &Block::concatHead(const std::string &s) {
+  return concatHead(s.data(), (int)s.length());
+}
+
 Block &Block::concatHead(const char *s, int n) {
   // if head capacity has no more capacity, expand new memory
   if (headCapacity() < n) {
@@ -146,10 +150,6 @@ Block &Block::concatHead(const char *s, int n) {
   std::memcpy(buf_ + start_ - n, s, n);
   start_ -= n;
   return *this;
-}
-
-Block &Block::concatHead(const std::string &s) {
-  return concatHead(s.data(), (int)s.length());
 }
 
 Block &Block::truncate(int start) {
