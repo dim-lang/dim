@@ -309,4 +309,18 @@ TEST_CASE("Block", "[Block]") {
       }
     }
   }
+
+  SECTION("concatHead") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      fastype::Block b;
+      std::string s;
+      for (int j = 0; j < TEST_MAX; j++) {
+        std::string t = fastype::Random::nextAlphaNumeric(TEST_MAX);
+        b.concatHead(t);
+        s = t + s;
+        REQUIRE(b.size() == s.length());
+        REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
+      }
+    }
+  }
 }
