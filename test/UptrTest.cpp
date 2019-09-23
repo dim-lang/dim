@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 #include <string>
 
-#define TEST_N 128
+#define TEST_MAX 128
 
 class UptrPeople {
 public:
@@ -41,7 +41,7 @@ private:
 TEST_CASE("Uptr", "[Uptr]") {
 
   SECTION("constructor and move") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       int *t = new int(i);
       fastype::Uptr<int> p1(t);
       REQUIRE(p1);
@@ -67,7 +67,7 @@ TEST_CASE("Uptr", "[Uptr]") {
   }
 
   SECTION("data structure") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       UptrPeople *p =
           new UptrPeople(std::string("people ") + std::to_string(i), i);
       fastype::Uptr<UptrPeople> p1(p);

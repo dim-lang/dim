@@ -14,7 +14,7 @@
 #define GOODBYE_WORLD "goodbye world"
 
 #define TEST_MIN 16
-#define TEST_MAX 1025
+#define TEST_MAX 256
 
 static std::string randomString(int n) {
   std::stringstream ss;

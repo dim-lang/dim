@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#define TEST_MAX 16384
+#define TEST_MAX 16384 * 7
 
 #define assertValid(i, IntType, Name)                                          \
   do {                                                                         \
@@ -18,7 +18,6 @@
     IntType b = BOOST_PP_CAT(fastype::Random::next, Name)(i);                  \
     IntType c = BOOST_PP_CAT(fastype::Random::next, Name)(std::min(a, b),      \
                                                           std::max(a, b));     \
-    F_INFOF("a:{} b:{} c:{}", a, b, c);                                        \
     REQUIRE(a >= 0);                                                           \
     REQUIRE(a < std::numeric_limits<IntType>::max());                          \
     REQUIRE(b >= 0);                                                           \
@@ -32,48 +31,48 @@
 TEST_CASE("Random", "[Random]") {
   SECTION("int") {
     INFO("int");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, int, Int);
     }
   }
 
   SECTION("unsigned int") {
     INFO("unsigned int");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, unsigned int, UInt);
     }
   }
 
   SECTION("long") {
     INFO("long");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, long, Long);
     }
   }
 
   SECTION("unsigned long") {
     INFO("unsigned long");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, unsigned long, ULong);
     }
   }
 
   SECTION("long long") {
     INFO("long long");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, long long, LLong);
     }
   }
 
   SECTION("unsigned long long") {
     INFO("unsigned long long");
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       assertValid(i, unsigned long long, ULLong);
     }
   }
 
   SECTION("alpha") {
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       char c = fastype::Random::nextAlphaChar();
       std::string s = fastype::Random::nextAlpha(i + 1);
       REQUIRE(std::isalpha(c));
@@ -84,7 +83,7 @@ TEST_CASE("Random", "[Random]") {
   }
 
   SECTION("digit") {
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
       char c = fastype::Random::nextDigitChar();
       std::string s = fastype::Random::nextDigit(i + 1);
       REQUIRE(std::isdigit(c));

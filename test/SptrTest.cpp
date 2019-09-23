@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 #include <string>
 
-#define TEST_N 128
+#define TEST_MAX 128
 
 class SptrPeople {
 public:
@@ -41,7 +41,7 @@ private:
 TEST_CASE("Sptr", "[Sptr]") {
 
   SECTION("constructor and copy") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       int *t = new int(i);
       fastype::Sptr<int> p1(t);
       REQUIRE(p1);
@@ -64,7 +64,7 @@ TEST_CASE("Sptr", "[Sptr]") {
   }
 
   SECTION("move") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       int *t = new int(i);
       fastype::Sptr<int> p1(t);
       REQUIRE(p1);
@@ -91,7 +91,7 @@ TEST_CASE("Sptr", "[Sptr]") {
   }
 
   SECTION("data structure") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       SptrPeople *p = new SptrPeople(std::to_string(i), i);
       fastype::Sptr<SptrPeople> p1(p);
       REQUIRE(p1);
@@ -141,7 +141,7 @@ TEST_CASE("Sptr", "[Sptr]") {
   }
 
   SECTION("reset") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       fastype::Sptr<SptrPeople> p1(
           new SptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
       SptrPeople *p2 = new SptrPeople(
@@ -160,7 +160,7 @@ TEST_CASE("Sptr", "[Sptr]") {
   }
 
   SECTION("swap") {
-    for (int i = 0; i < TEST_N; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       fastype::Sptr<SptrPeople> p1(
           new SptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
       fastype::Sptr<SptrPeople> p2(new SptrPeople(

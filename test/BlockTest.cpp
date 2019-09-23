@@ -132,4 +132,162 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(std::memcmp(b4.head(), s.data(), s.length()) == 0);
     }
   }
+
+  SECTION("String Constructor") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      char c = fastype::Random::nextAlphaNumericChar();
+      fastype::Block b1(c);
+      fastype::Block b2(b1);
+      fastype::Block b5 = b2;
+
+      REQUIRE(b1.capacity() >= 1);
+      REQUIRE(!b1.empty());
+      REQUIRE(b1.size() == 1);
+      REQUIRE(b1.tail() == b1.head() + 1);
+
+      REQUIRE(b2.capacity() >= 1);
+      REQUIRE(!b2.empty());
+      REQUIRE(b2.size() == 1);
+      REQUIRE(b2.tail() == b2.head() + 1);
+
+      REQUIRE(b5.capacity() >= 1);
+      REQUIRE(!b5.empty());
+      REQUIRE(b5.size() == 1);
+      REQUIRE(b5.tail() == b5.head() + 1);
+
+      REQUIRE(std::memcmp(b1.head(), &c, 1) == 0);
+      REQUIRE(std::memcmp(b2.head(), &c, 1) == 0);
+      REQUIRE(std::memcmp(b5.head(), &c, 1) == 0);
+
+      std::string s = fastype::Random::nextAlphaNumeric(i + 1);
+      fastype::Block b3(s);
+      fastype::Block b4(b3);
+      fastype::Block b6 = b4;
+
+      REQUIRE(b3.capacity() >= s.length());
+      REQUIRE(!b3.empty());
+      REQUIRE(b3.size() == s.length());
+      REQUIRE(b3.tail() == b3.head() + s.length());
+
+      REQUIRE(b4.capacity() >= s.length());
+      REQUIRE(!b4.empty());
+      REQUIRE(b4.size() == s.length());
+      REQUIRE(b4.tail() == b4.head() + s.length());
+
+      REQUIRE(b6.capacity() >= s.length());
+      REQUIRE(!b6.empty());
+      REQUIRE(b6.size() == s.length());
+      REQUIRE(b6.tail() == b6.head() + s.length());
+
+      REQUIRE(std::memcmp(b3.head(), s.data(), s.length()) == 0);
+      REQUIRE(std::memcmp(b4.head(), s.data(), s.length()) == 0);
+      REQUIRE(std::memcmp(b6.head(), s.data(), s.length()) == 0);
+    }
+  }
+
+  SECTION("move") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      {
+        char s = fastype::Random::nextAlphaNumericChar();
+        fastype::Block b1(s);
+
+        REQUIRE(b1.capacity() >= 1);
+        REQUIRE(!b1.empty());
+        REQUIRE(b1.size() == 1);
+        REQUIRE(b1.tail() == b1.head() + 1);
+        REQUIRE(std::memcmp(b1.head(), &s, 1) == 0);
+
+        fastype::Block b2(std::move(b1));
+        REQUIRE(b1.capacity() == 0);
+        REQUIRE(b1.empty());
+        REQUIRE(b1.size() == 0);
+        REQUIRE(b1.head() == nullptr);
+        REQUIRE(b1.tail() == nullptr);
+
+        REQUIRE(b2.capacity() >= 1);
+        REQUIRE(!b2.empty());
+        REQUIRE(b2.size() == 1);
+        REQUIRE(b2.tail() == b2.head() + 1);
+        REQUIRE(std::memcmp(b2.head(), &s, 1) == 0);
+
+        fastype::Block b3 = std::move(b2);
+        REQUIRE(b1.capacity() == 0);
+        REQUIRE(b1.empty());
+        REQUIRE(b1.size() == 0);
+        REQUIRE(b1.head() == nullptr);
+        REQUIRE(b1.tail() == nullptr);
+
+        REQUIRE(b2.capacity() == 0);
+        REQUIRE(b2.empty());
+        REQUIRE(b2.size() == 0);
+        REQUIRE(b2.head() == nullptr);
+        REQUIRE(b2.tail() == nullptr);
+
+        REQUIRE(b3.capacity() >= 1);
+        REQUIRE(!b3.empty());
+        REQUIRE(b3.size() == 1);
+        REQUIRE(b3.tail() == b3.head() + 1);
+        REQUIRE(std::memcmp(b3.head(), &s, 1) == 0);
+      }
+      {
+        std::string s = fastype::Random::nextAlphaNumeric(i + 1);
+        fastype::Block b1(s);
+
+        REQUIRE(b1.capacity() >= s.length());
+        REQUIRE(!b1.empty());
+        REQUIRE(b1.size() == s.length());
+        REQUIRE(b1.tail() == b1.head() + s.length());
+        REQUIRE(std::memcmp(b1.head(), s.data(), s.length()) == 0);
+
+        fastype::Block b2(std::move(b1));
+        REQUIRE(b1.capacity() == 0);
+        REQUIRE(b1.empty());
+        REQUIRE(b1.size() == 0);
+        REQUIRE(b1.head() == nullptr);
+        REQUIRE(b1.tail() == nullptr);
+
+        REQUIRE(b2.capacity() >= s.length());
+        REQUIRE(!b2.empty());
+        REQUIRE(b2.size() == s.length());
+        REQUIRE(b2.tail() == b2.head() + s.length());
+        REQUIRE(std::memcmp(b2.head(), s.data(), s.length()) == 0);
+
+        fastype::Block b3 = std::move(b2);
+        REQUIRE(b1.capacity() == 0);
+        REQUIRE(b1.empty());
+        REQUIRE(b1.size() == 0);
+        REQUIRE(b1.head() == nullptr);
+        REQUIRE(b1.tail() == nullptr);
+
+        REQUIRE(b2.capacity() == 0);
+        REQUIRE(b2.empty());
+        REQUIRE(b2.size() == 0);
+        REQUIRE(b2.head() == nullptr);
+        REQUIRE(b2.tail() == nullptr);
+
+        REQUIRE(b3.capacity() >= s.length());
+        REQUIRE(!b3.empty());
+        REQUIRE(b3.size() == s.length());
+        REQUIRE(b3.tail() == b3.head() + s.length());
+        REQUIRE(std::memcmp(b3.head(), s.data(), s.length()) == 0);
+      }
+    }
+  }
+
+  SECTION("swap") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      int n = fastype::Random::nextInt(TEST_MAX);
+      std::string s1 = fastype::Random::nextAlphaNumeric(n + 1);
+      n = fastype::Random::nextInt(TEST_MAX);
+      std::string s2 = fastype::Random::nextAlphaNumeric(n + 1);
+      fastype::Block b1(s1);
+      fastype::Block b2(s2);
+      REQUIRE(std::memcmp(b1.head(), s1.data(), b1.size()) == 0);
+      REQUIRE(std::memcmp(b2.head(), s2.data(), b2.size()) == 0);
+
+      b1.swap(b2);
+      REQUIRE(std::memcmp(b1.head(), s2.data(), b1.size()) == 0);
+      REQUIRE(std::memcmp(b2.head(), s1.data(), b2.size()) == 0);
+    }
+  }
 }

@@ -6,11 +6,7 @@
 #include "catch2/catch.hpp"
 #include <cstring>
 
-#define HELLO_WORLD "hello world"
-#define GOODBYE_WORLD "goodbye world"
-
 TEST_CASE("Row", "[Row]") {
-
   SECTION("Args Constructor") {
     // fastype::Cowstr cs(100);
     // cs.concat(HELLO_WORLD, std::strlen(HELLO_WORLD));

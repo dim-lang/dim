@@ -7,46 +7,47 @@
 #include <cstdio>
 #include <thread>
 
+#define TEST_UNIT 300
+
 TEST_CASE("Timer", "[Timer]") {
-  int x = 300;
 
   SECTION("Timer Start/Stop") {
     INFO("Timer Start/Stop");
     fastype::Timer t;
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
-    REQUIRE(t.elapse() >= x);
-    REQUIRE(t.elapse() <= x + 100);
+    REQUIRE(t.elapse() >= TEST_UNIT);
+    REQUIRE(t.elapse() <= TEST_UNIT + 100);
   }
 
   SECTION("Timer Resume") {
     INFO("Timer Resume");
     fastype::Timer t;
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
-    REQUIRE(t.elapse() >= 3 * x);
-    REQUIRE(t.elapse() <= 3 * x + 100);
+    REQUIRE(t.elapse() >= 3 * TEST_UNIT);
+    REQUIRE(t.elapse() <= 3 * TEST_UNIT + 100);
   }
 
   SECTION("Timer Always Stopped") {
     INFO("Timer Always Stopped");
     fastype::Timer t;
     t.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();
     t.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();
     t.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();
     t.stop();
     REQUIRE(t.elapse() >= 0);
