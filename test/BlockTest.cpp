@@ -323,4 +323,20 @@ TEST_CASE("Block", "[Block]") {
       }
     }
   }
+
+  SECTION("truncate") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      fastype::Block b1(s), b2(s);
+      int len = fastype::Random::nextInt(TEST_MAX);
+      int start = fastype::Random::nextInt(TEST_MAX);
+      start = std::min<int>(start, s.length() - len);
+      b1.truncate(start);
+      REQUIRE(b1.size() == s.length() - start);
+      REQUIRE(std::memcmp(b1.head(), s.data() + start, b1.size()) == 0);
+      b2.truncate(start, len);
+      REQUIRE(b2.size() == len);
+      REQUIRE(std::memcmp(b2.head(), s.data() + start, b2.size()) == 0);
+    }
+  }
 }
