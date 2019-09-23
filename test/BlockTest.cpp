@@ -296,9 +296,8 @@ TEST_CASE("Block", "[Block]") {
       int n = 0;
       fastype::Block b;
       for (int j = 0; j < TEST_MAX; j++) {
-        int p = fastype::Random::nextInt(TEST_MAX);
-        b.expand(p);
-        n += p;
+        n += fastype::Random::nextInt(TEST_MAX);
+        b.expand(n);
         REQUIRE(b.capacity() >= n);
       }
       b.clear();
