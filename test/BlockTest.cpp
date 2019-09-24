@@ -355,6 +355,10 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(std::memcmp(b1.head(), s.data() + len, b1.size()) == 0);
       int len2 = std::min<int>(len, s.length());
       b1.removeHead(len2);
+      if (b1.size() != s.length() - len - len2) {
+        F_ERRORF("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
+                 s.length(), len, len2);
+      }
       REQUIRE(b1.size() == s.length() - len - len2);
       REQUIRE(std::memcmp(b1.head(), s.data() + len + len2, b1.size()) == 0);
     }
