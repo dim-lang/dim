@@ -4,46 +4,38 @@
 
 set ROOT=%cd%
 set OS=Windows
-echo [fastype] build for %OS%
+echo [fastype] prepare for %OS%
 
-@rem third party library
-echo [fastype] prepare catch2 v2.9.1
+@rem init third party library
+echo [fastype] prepare catchorg/Catch2 v2.9.1
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git
     cd %ROOT%
 )
-echo [fastype] prepare catch2 v2.9.1 - done
+echo [fastype] prepare catchorg/Catch2 v2.9.1 - done
 echo [fastype] prepare PDCurses PDCurses_3_6
-if not exist %ROOT%\src\grpc (
+if not exist %ROOT%\src\PDCurses (
     cd %ROOT%\src
     git clone -b 'PDCurses_3_6' --single-branch --depth 1 https://github.com/wmcbrine/PDCurses.git
     cd %ROOT%
 )
 echo [fastype] prepare PDCurses PDCurses_3_6 - done
-echo [fastype] prepare grpc v1.22.0
-if not exist %ROOT%\src\grpc (
-    cd %ROOT%\src
-    git clone -b 'v1.22.0' --single-branch --depth 1 https://github.com/grpc/grpc.git
-    cd grpc && git submodule update --init
-    cd %ROOT%
-)
-echo [fastype] prepare grpc v1.22.0 - done
-echo [fastype] prepare leveldb v1.20
-if not exist %ROOT%\src\grpc (
-    cd %ROOT%\src
-    git clone -b 'v1.20' --single-branch --depth 1 https://github.com/google/leveldb.git
-    cd %ROOT%
-)
-echo [fastype] prepare leveldb v1.20 - done
-echo [fastype] prepare spdlog v1.3.1
+echo [fastype] prepare gabime/spdlog v1.3.1
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b 'v1.3.1' --single-branch --depth 1 https://github.com/gabime/spdlog.git
     cd %ROOT%
 )
-echo [fastype] prepare spdlog v1.3.1 - done
-echo [fastype] prepare boost boost-1.70.0
+echo [fastype] prepare gabime/spdlog v1.3.1 - done
+echo [fastype] prepare nlohmann/json v3.7.0
+if not exist %ROOT%\src\json (
+    cd %ROOT%\src
+    git clone -b 'v3.7.0' --single-branch --depth 1 https://github.com/nlohmann/json.git
+    cd %ROOT%
+)
+echo [fastype] prepare nlohmann/json v3.7.0 - done
+echo [fastype] prepare boostorg/boost boost-1.70.0
 if not exist src\boost (
     cd %ROOT%\src
     git clone -b 'boost-1.70.0' --single-branch --depth 1 https://github.com/boostorg/boost.git
@@ -57,8 +49,8 @@ if not exist src\boost\stage\lib (
     cmd /c .\b2 link=shared runtime-debugging=off runtime-link=shared variant=release -j8
     cd %ROOT%
 )
-echo [fastype] prepare boost boost-1.70.0 - done
-echo [fastype] prepare icu4c release-64-2
+echo [fastype] prepare boostorg/boost boost-1.70.0 - done
+echo [fastype] prepare unicode-org/icu release-64-2
 if not exist src\icu (
     cd %ROOT%\src
     git clone -b 'release-64-2' --single-branch --depth 1 https://github.com/unicode-org/icu.git
@@ -68,9 +60,10 @@ if not exist src\icu\icu4c\lib (
     echo [fastype] build icu4c x64 manually via: src\icu\icu4c\\source\allinone\allinone.sln
     echo [fastype] reference: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
 )
-echo [fastype] prepare icu4c release-64-2 - done
+echo [fastype] prepare unicode-org/icu release-64-2 - done
 
-@rem build
+@rem build all
+echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
 cd %ROOT%
@@ -78,4 +71,4 @@ if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
 cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
 cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
-echo [fastype] build manually via msvc project
+echo [fastype] prepare msvc project - done
