@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Block.h"
+#include "Logging.h"
 #include "Random.h"
 #include "catch2/catch.hpp"
 #include <cstring>
@@ -319,6 +320,10 @@ TEST_CASE("Block", "[Block]") {
         b.concatHead(t);
         s = t + s;
         REQUIRE(b.size() == s.length());
+        if (std::memcmp(b.head(), s.data(), b.size()) != 0) {
+          F_ERRORF("b#head {}, s#data {}, b#size {}, s#length {}", b.head(),
+                   s.data(), b.size(), s.length());
+        }
         REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
       }
     }
@@ -337,6 +342,21 @@ TEST_CASE("Block", "[Block]") {
       b2.truncate(start, len);
       REQUIRE(b2.size() == len);
       REQUIRE(std::memcmp(b2.head(), s.data() + start, b2.size()) == 0);
+    }
+  }
+
+  SECTION("removeHead") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      fastype::Block b1(s), b2(s);
+      int len = std::min<int>(fastype::Random::nextInt(TEST_MAX), s.length());
+      b1.removeHead(len);
+      REQUIRE(b1.size() == s.length() - len);
+      REQUIRE(std::memcmp(b1.head(), s.data() + len, b1.size()) == 0);
+      int len2 = std::min<int>(len, s.length());
+      b1.removeHead(len2);
+      REQUIRE(b1.size() == s.length() - len - len2);
+      REQUIRE(std::memcmp(b1.head(), s.data() + len + len2, b1.size()) == 0);
     }
   }
 }

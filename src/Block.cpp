@@ -70,14 +70,16 @@ Block &Block::expand(int capacity) {
   int sz = size();
   char *ob = buf_;
 
-  // case 1: memory in disorder
-  if (start_ > end_) {
-    int c1 = capacity_ - start_;
-    std::memcpy(nb, buf_ + start_, c1);
-    std::memcpy(nb + c1, buf_, end_);
-  } else {
-    // case 2: memory in order
-    std::memcpy(nb, buf_ + start_, sz);
+  if (buf_) {
+    // case 1: memory in disorder
+    if (start_ > end_) {
+      int c1 = capacity_ - start_;
+      std::memcpy(nb, buf_ + start_, c1);
+      std::memcpy(nb + c1, buf_, end_);
+    } else {
+      // case 2: memory in order
+      std::memcpy(nb, buf_ + start_, sz);
+    }
   }
 
   // after expantion, data is aligned with the beginning of buffer
@@ -142,13 +144,19 @@ Block &Block::concatHead(const std::string &s) {
 }
 
 Block &Block::concatHead(const char *s, int n) {
+  if (!s || n <= 0) {
+    return *this;
+  }
+  F_CHECKF(n > 0, "n {} > 0", n);
   // if head capacity has no more capacity, expand new memory
   if (headCapacity() < n) {
     expand(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
+    std::memcpy(buf_ + end_, s, n);
+    end_ += n;
+  } else {
+    std::memcpy(buf_ + start_ - n, s, n);
+    start_ -= n;
   }
-
-  std::memcpy(buf_ + start_ - n, s, n);
-  start_ -= n;
   return *this;
 }
 
