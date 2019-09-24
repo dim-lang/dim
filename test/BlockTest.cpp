@@ -321,8 +321,8 @@ TEST_CASE("Block", "[Block]") {
         s = t + s;
         REQUIRE(b.size() == s.length());
         if (std::memcmp(b.head(), s.data(), b.size()) != 0) {
-          F_ERRORF("b#head {}, s#data {}, b#size {}, s#length {}", b.head(),
-                   s.data(), b.size(), s.length());
+          F_ERRORF("i:{}, j:{}, b#head {}, s#data {}, b#size {}, s#length {}",
+                   i, j, b.head(), s.data(), b.size(), s.length());
         }
         REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
       }
