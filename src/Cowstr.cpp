@@ -16,9 +16,7 @@
 
 namespace fastype {
 
-Cowstr::Cowstr() : buf_(std::shared_ptr<Block>()) {
-  F_INFOF("Constructor:{}", toString());
-}
+Cowstr::Cowstr() : buf_(new Block()) { F_INFOF("Constructor:{}", toString()); }
 
 Cowstr::Cowstr(int capacity) : buf_(new Block(capacity)) {
   F_INFOF("Capacity Constructor:{}", toString());
@@ -394,7 +392,8 @@ int Cowstr::compare(const char *s, int n) const {
 std::string Cowstr::toString() const {
   return fmt::format(
       "[ @Cowstr buf_:{} head_:{} size_:{} capacity_:{} use_count:{} ]",
-      buf_->toString(), (void *)head(), size(), capacity(), buf_.use_count());
+      buf_ ? buf_->toString() : "null", (void *)head(), size(), capacity(),
+      buf_.use_count());
 }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
