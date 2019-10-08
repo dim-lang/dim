@@ -392,7 +392,7 @@ TEST_CASE("Block", "[Block]") {
     REQUIRE(b1.toString().length() > 0);
   }
 
-  SECTION("head/tail/index") {
+  SECTION("attribute") {
     for (int i = 0; i < TEST_MAX; i++) {
       std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
       fastype::Block b1, b2(s);
@@ -404,6 +404,29 @@ TEST_CASE("Block", "[Block]") {
         REQUIRE(b2[j] == s[j]);
         REQUIRE(b2.at(j) == s[j]);
       }
+      REQUIRE(b1.empty());
+      REQUIRE(b1.size() == 0);
+      REQUIRE(b1.capacity() == 0);
+      REQUIRE(b1.leftCapacity() == 0);
+      REQUIRE(!b2.empty());
+      REQUIRE(b2.size() == s.length());
+      REQUIRE(b2.capacity() >= s.length());
+      REQUIRE(b2.leftCapacity() == b2.capacity() - b2.size());
+    }
+  }
+
+  SECTION("compare") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      std::string s2 = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      fastype::Block b1(s1), b2(s2);
+      REQUIRE(s1.compare(s2) == b1.compare(b2));
+      REQUIRE((s1 == s2) == (b1 == b2));
+      REQUIRE((s1 != s2) == (b1 != b2));
+      REQUIRE((s1 > s2) == (b1 > b2));
+      REQUIRE((s1 >= s2) == (b1 >= b2));
+      REQUIRE((s1 < s2) == (b1 < b2));
+      REQUIRE((s1 <= s2) == (b1 <= b2));
     }
   }
 }
