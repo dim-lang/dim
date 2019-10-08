@@ -2,9 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Block.h"
 #include "Stringify.h"
 #include <fmt/format.h>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -192,20 +194,8 @@ public:
   }
 
 private:
-  struct CowStrImpl {
-    char *data;
-    int size;
-    int capacity;
-
-    CowStrImpl();
-    virtual ~CowStrImpl();
-  };
-
-  // expand more memory
-  static CowStrImpl *alloc(CowStrImpl *p, int capacity);
-  static void memoryCopy(CowStrImpl *p, const void *src, int n);
   // helper constructor
-  Cowstr(CowStrImpl *p);
+  Cowstr(Block *b);
 
   // trim implementation
   static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
@@ -239,14 +229,7 @@ private:
 
   void copyOnWrite();
 
-  char *&dataImpl();
-  const char *dataImpl() const;
-  int &sizeImpl();
-  const int &sizeImpl() const;
-  int &capacityImpl();
-  const int &capacityImpl() const;
-
-  std::shared_ptr<CowStrImpl> impl_;
+  std::shared_ptr<Block> buf_;
 };
 
 } // namespace fastype

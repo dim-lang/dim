@@ -91,6 +91,12 @@ function clean_all() {
     cd release && make clean && cd ..
 }
 
+function purge_all() {
+    rm *.log
+    rm -rf debug
+    rm -rf release
+}
+
 function build_all() {
     ROOT=`pwd`
     DEBUG=debug
@@ -138,6 +144,11 @@ fi
 
 if [ "$1" = "clean" ]; then
     clean_all
+    exit 0
+fi
+
+if [ "$1" = "purge" ]; then
+    purge_all
     exit 0
 fi
 
