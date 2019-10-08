@@ -5,17 +5,14 @@
 #include "Random.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
 #include <string>
 #include <utility>
 
-#define HELLO_WORLD "hello world"
-#define GOODBYE_WORLD "goodbye world"
-
-#define TEST_MIN 16
-#define TEST_MAX 256
+#define TEST_MAX 128
 
 #define assertEquals(cs, ss)                                                   \
   do {                                                                         \
@@ -45,7 +42,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
   }
 
   SECTION("Capacity Constructor") {
-    for (int i = TEST_MIN; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       fastype::Cowstr cs(i);
       assertEmpty(cs);
       REQUIRE((cs).capacity() >= i);
@@ -57,13 +54,13 @@ TEST_CASE("Cowstr", "[Cowstr]") {
   }
 
   SECTION("concat/concatHead") {
-    for (int i = TEST_MIN; i < TEST_MAX; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       {
         fastype::Cowstr cs(i);
         assertEmpty(cs);
         REQUIRE((cs).capacity() >= i);
 
-        std::string t1 = fastype::Random::nextAlphaNumeric(i);
+        std::string t1 = fastype::Random::nextAlphaNumeric(i + 1);
         cs = cs.concat(t1);
         assertEquals(cs, t1);
 
@@ -74,14 +71,14 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         ss1 += t1;
         assertEquals(ss1, t1);
 
-        std::string t2 = fastype::Random::nextAlphaNumeric(i * 2);
+        std::string t2 = fastype::Random::nextAlphaNumeric(i * 2 + 1);
         cs = cs.concat(t2);
         assertEquals(cs, t1 + t2);
 
         fastype::Cowstr cs2 = cs + t2;
         assertEquals(cs2, t1 + t2 + t2);
 
-        std::string t3 = fastype::Random::nextAlphaNumeric(i);
+        std::string t3 = fastype::Random::nextAlphaNumeric(i + 1);
         fastype::Cowstr ss2(i);
         ss2 += cs;
         ss2 += t3;
@@ -89,8 +86,8 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       }
 
       {
-        std::string t1 = fastype::Random::nextAlphaNumeric(i);
-        std::string t2 = fastype::Random::nextAlphaNumeric(i);
+        std::string t1 = fastype::Random::nextAlphaNumeric(i + 1);
+        std::string t2 = fastype::Random::nextAlphaNumeric(i + 1);
         fastype::Cowstr c1(t1);
         fastype::Cowstr c2(t2);
         fastype::Cowstr c3 = c1.concat(c2);
@@ -108,13 +105,39 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       }
 
       {
-        std::string t1 = fastype::Random::nextAlphaNumeric(i);
-        std::string t2 = fastype::Random::nextAlphaNumeric(i);
+        std::string t1 = fastype::Random::nextAlphaNumeric(i + 1);
+        std::string t2 = fastype::Random::nextAlphaNumeric(i + 1);
         fastype::Cowstr c1(t1);
         fastype::Cowstr c2(t2);
         fastype::Cowstr c3 = c1.concatHead(c2);
         assertEquals(c3, t2 + t1);
       }
     }
+  }
+
+  SECTION("replace/replaceFirst") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextAlphaNumeric(i + 1);
+      fastype::Cowstr c1(s1);
+
+      fastype::Cowstr ct1 = c1.replace(s1, "");
+      REQUIRE(ct1.empty());
+
+      fastype::Cowstr ct2 = c1.replace(s1.substr(10), "");
+      std::string ss1 = s1;
+      boost::replace_all(ss1, s1.substr(10), std::string(""));
+      REQUIRE(ss1.length() == ct2.size());
+      REQUIRE(std::memcmp(ss1.data(), ct2.head(), ct2.size()) == 0);
+
+      fastype::Cowstr ct3 = c1.replace("", "ok");
+      REQUIRE(ct3 == c1);
+    }
+
+    std::string s1 = "helloworldgoodbyeworld";
+    std::string s2 = "hellookgoodbyeok";
+    fastype::Cowstr c1(s1);
+    fastype::Cowstr c2 = c1.replaceFirst("world", "ok");
+    REQUIRE(c2.size() == s2.size());
+    REQUIRE(std::memcmp(c2.head(), s2.head(), s2.size()) == 0);
   }
 }
