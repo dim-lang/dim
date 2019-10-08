@@ -11,18 +11,51 @@
 
 namespace fastype {
 
-std::random_device Random::device_;
-std::mt19937 Random::engine_(device_());
-std::uniform_int_distribution<long> Random::long_;
-std::uniform_int_distribution<unsigned long> Random::ulong_;
-std::uniform_int_distribution<long long> Random::llong_;
-std::uniform_int_distribution<unsigned long long> Random::ullong_;
+std::random_device *Random::device_ = nullptr;
+std::mt19937 *Random::engine_ = nullptr;
+std::uniform_int_distribution<long> *Random::longDist_ = nullptr;
+std::uniform_int_distribution<unsigned long> *Random::ulongDist_ = nullptr;
+std::uniform_int_distribution<long long> *Random::llongDist_ = nullptr;
+std::uniform_int_distribution<unsigned long long> *Random::ullongDist_ =
+    nullptr;
+
+void Random::initialize() {
+  device_ = new std::random_device();
+  engine_ = new std::mt19937((*device_)());
+  longDist_ = new std::uniform_int_distribution<long>();
+  ulongDist_ = new std::uniform_int_distribution<unsigned long>();
+  llongDist_ = new std::uniform_int_distribution<long long>();
+  ullongDist_ = new std::uniform_int_distribution<unsigned long long>();
+}
+
+std::random_device &Random::device() { return *device_; }
+
+std::mt19937 &Random::engine() { return *engine_; }
+
+std::uniform_int_distribution<long> &Random::longDistribution() {
+  return *longDist_;
+}
+
+std::uniform_int_distribution<unsigned long> &Random::ulongDistribution() {
+  return *ulongDist_;
+}
+
+std::uniform_int_distribution<long long> &Random::llongDistribution() {
+  return *llongDist_;
+}
+
+std::uniform_int_distribution<unsigned long long> &
+Random::ullongDistribution() {
+  return *ullongDist_;
+}
 
 short Random::nextShort(short right) { return nextShort(0, right); }
 
 short Random::nextShort(short left, short right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((long_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((longDistribution()(engine()) % (right - left)) + left);
 }
 
 unsigned short Random::nextUShort(unsigned short right) {
@@ -31,28 +64,36 @@ unsigned short Random::nextUShort(unsigned short right) {
 
 unsigned short Random::nextUShort(unsigned short left, unsigned short right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((long_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((longDistribution()(engine()) % (right - left)) + left);
 }
 
 int Random::nextInt(int right) { return nextInt(0, right); }
 
 int Random::nextInt(int left, int right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((long_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((longDistribution()(engine()) % (right - left)) + left);
 }
 
 unsigned int Random::nextUInt(unsigned int right) { return nextUInt(0, right); }
 
 unsigned int Random::nextUInt(unsigned int left, unsigned int right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((ulong_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((ulongDistribution()(engine()) % (right - left)) + left);
 }
 
 long Random::nextLong(long right) { return nextLong(0, right); }
 
 long Random::nextLong(long left, long right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((long_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((longDistribution()(engine()) % (right - left)) + left);
 }
 
 unsigned long Random::nextULong(unsigned long right) {
@@ -61,14 +102,18 @@ unsigned long Random::nextULong(unsigned long right) {
 
 unsigned long Random::nextULong(unsigned long left, unsigned long right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((ulong_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((ulongDistribution()(engine()) % (right - left)) + left);
 }
 
 long long Random::nextLLong(long long right) { return nextULong(0, right); }
 
 long long Random::nextLLong(long long left, long long right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((llong_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((llongDistribution()(engine()) % (right - left)) + left);
 }
 
 unsigned long long Random::nextULLong(unsigned long long right) {
@@ -78,7 +123,9 @@ unsigned long long Random::nextULLong(unsigned long long right) {
 unsigned long long Random::nextULLong(unsigned long long left,
                                       unsigned long long right) {
   F_CHECKF(right >= left, "right {} >= left {}", right, left);
-  return left == right ? left : ((ullong_(engine_) % (right - left)) + left);
+  return left == right
+             ? left
+             : ((ullongDistribution()(engine()) % (right - left)) + left);
 }
 
 static const std::vector<std::pair<int, int>> Alpha = {{65, 91}, {97, 123}};

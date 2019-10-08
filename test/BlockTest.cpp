@@ -10,6 +10,7 @@
 #define TEST_MAX 128
 
 TEST_CASE("Block", "[Block]") {
+  fastype::Random::initialize();
 
   SECTION("Empty Constructor") {
     for (int i = 0; i < TEST_MAX; i++) {
@@ -353,7 +354,7 @@ TEST_CASE("Block", "[Block]") {
       b1.removeHead(len);
       REQUIRE(b1.size() == s.length() - len);
       REQUIRE(std::memcmp(b1.head(), s.data() + len, b1.size()) == 0);
-      int len2 = std::min<int>(len, s.length());
+      int len2 = std::min<int>(len, s.length() - len);
       b1.removeHead(len2);
       if (b1.size() != s.length() - len - len2) {
         F_ERRORF("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),

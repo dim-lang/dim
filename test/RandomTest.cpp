@@ -29,6 +29,8 @@
   } while (0)
 
 TEST_CASE("Random", "[Random]") {
+  fastype::Random::initialize();
+
   SECTION("int") {
     INFO("int");
     for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {

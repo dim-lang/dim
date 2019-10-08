@@ -13,6 +13,8 @@ namespace fastype {
 
 class Random {
 public:
+  static void initialize();
+
 #define F_DECL_RAND(Type, Name)                                                \
   static Type BOOST_PP_CAT(next, Name)(Type right =                            \
                                            std::numeric_limits<Type>::max());  \
@@ -60,12 +62,20 @@ private:
   nextAsciiString(const std::vector<std::pair<int, int>> &range,
                   int rangeLength, int len);
 
-  static std::random_device device_;
-  static std::mt19937 engine_;
-  static std::uniform_int_distribution<long> long_;
-  static std::uniform_int_distribution<unsigned long> ulong_;
-  static std::uniform_int_distribution<long long> llong_;
-  static std::uniform_int_distribution<unsigned long long> ullong_;
+  static std::random_device &device();
+  static std::mt19937 &engine();
+  static std::uniform_int_distribution<long> &longDistribution();
+  static std::uniform_int_distribution<unsigned long> &ulongDistribution();
+  static std::uniform_int_distribution<long long> &llongDistribution();
+  static std::uniform_int_distribution<unsigned long long> &
+  ullongDistribution();
+
+  static std::random_device *device_;
+  static std::mt19937 *engine_;
+  static std::uniform_int_distribution<long> *longDist_;
+  static std::uniform_int_distribution<unsigned long> *ulongDist_;
+  static std::uniform_int_distribution<long long> *llongDist_;
+  static std::uniform_int_distribution<unsigned long long> *ullongDist_;
 };
 
 } // namespace fastype
