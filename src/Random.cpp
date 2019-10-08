@@ -20,6 +20,18 @@ std::uniform_int_distribution<unsigned long long> *Random::ullongDist_ =
     nullptr;
 
 void Random::initialize() {
+  if (device_)
+    delete device_;
+  if (engine_)
+    delete engine_;
+  if (longDist_)
+    delete longDist_;
+  if (ulongDist_)
+    delete ulongDist_;
+  if (llongDist_)
+    delete llongDist_;
+  if (ullongDist_)
+    delete ullongDist_;
   device_ = new std::random_device();
   engine_ = new std::mt19937((*device_)());
   longDist_ = new std::uniform_int_distribution<long>();
