@@ -364,4 +364,46 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(std::memcmp(b1.head(), s.data() + len + len2, b1.size()) == 0);
     }
   }
+
+  SECTION("removeTail") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      fastype::Block b1(s), b2(s);
+      int len = std::min<int>(fastype::Random::nextInt(TEST_MAX), s.length());
+      b1.removeTail(len);
+      REQUIRE(b1.size() == s.length() - len);
+      REQUIRE(std::memcmp(b1.head(), s.data(), b1.size()) == 0);
+      int len2 = std::min<int>(len, s.length() - len);
+      b1.removeTail(len2);
+      if (b1.size() != (int)s.length() - len - len2) {
+        F_ERRORF("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
+                 s.length(), len, len2);
+      }
+      REQUIRE(b1.size() == (int)s.length() - len - len2);
+      REQUIRE(std::memcmp(b1.head(), s.data(), b1.size()) == 0);
+    }
+  }
+
+  SECTION("toString") {
+    std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
+    fastype::Block b1, b2(s);
+    F_INFOF("b1: {}", b1.toString());
+    F_INFOF("b2: {}", b2.toString());
+    REQUIRE(b1.toString().length() > 0);
+  }
+
+  SECTION("head/tail/index") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
+      fastype::Block b1, b2(s);
+      REQUIRE(b1.head() == nullptr);
+      REQUIRE(b1.tail() == nullptr);
+      REQUIRE(b2.head() != nullptr);
+      REQUIRE(b2.tail() == b2.head() + b2.size());
+      for (int j = 0; j < b2.size(); j++) {
+        REQUIRE(b2[j] == s[j]);
+        REQUIRE(b2.at(j) == s[j]);
+      }
+    }
+  }
 }
