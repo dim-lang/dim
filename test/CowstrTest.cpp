@@ -116,29 +116,40 @@ TEST_CASE("Cowstr", "[Cowstr]") {
   }
 
   SECTION("replace/replaceFirst") {
-    for (int i = 0; i < TEST_MAX; i++) {
-      std::string s1 = fastype::Random::nextAlphaNumeric(i + 1);
+    {
+      std::string s1 = "helloworldgoodbyeworld";
+      std::string s2 = "hellookgoodbyeok";
       fastype::Cowstr c1(s1);
-
-      fastype::Cowstr ct1 = c1.replace(s1, "");
-      REQUIRE(ct1.empty());
-
-      fastype::Cowstr ct2 =
-          c1.replace(s1.substr(0, std::min<size_t>(10, s1.length())), "");
-      std::string ss1 = s1;
-      boost::replace_all(ss1, s1.substr(10), std::string(""));
-      REQUIRE((int)ss1.length() == ct2.size());
-      REQUIRE(std::memcmp(ss1.data(), ct2.head(), ct2.size()) == 0);
-
-      fastype::Cowstr ct3 = c1.replace("", "ok");
-      REQUIRE(ct3 == c1);
+      fastype::Cowstr c2 = c1.replace("world", "ok");
+      REQUIRE(c2.size() == (int)s2.length());
+      REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
     }
 
-    std::string s1 = "helloworldgoodbyeworld";
-    std::string s2 = "hellookgoodbyeok";
-    fastype::Cowstr c1(s1);
-    fastype::Cowstr c2 = c1.replaceFirst(std::string("world"), "ok");
-    REQUIRE(c2.size() == (int)s2.length());
-    REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+    {
+      std::string s1 = "helloworldgoodbyeworld";
+      std::string s2 = "hellogoodbye";
+      fastype::Cowstr c1(s1);
+      fastype::Cowstr c2 = c1.replace("world", "");
+      REQUIRE(c2.size() == (int)s2.length());
+      REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+    }
+
+    {
+      std::string s1 = "helloworldgoodbyeworld";
+      std::string s2 = "hellogoodbyeworld";
+      fastype::Cowstr c1(s1);
+      fastype::Cowstr c2 = c1.replaceFirst("world", "");
+      REQUIRE(c2.size() == (int)s2.length());
+      REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+    }
+
+    {
+      std::string s1 = "helloworldgoodbyeworld";
+      std::string s2 = "hellocoolgoodbyeworld";
+      fastype::Cowstr c1(s1);
+      fastype::Cowstr c2 = c1.replaceFirst("world", "cool");
+      REQUIRE(c2.size() == (int)s2.length());
+      REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+    }
   }
 }
