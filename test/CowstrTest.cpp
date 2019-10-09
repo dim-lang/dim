@@ -123,7 +123,8 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       fastype::Cowstr ct1 = c1.replace(s1, "");
       REQUIRE(ct1.empty());
 
-      fastype::Cowstr ct2 = c1.replace(s1.substr(10), "");
+      fastype::Cowstr ct2 =
+          c1.replace(s1.substr(0, std::min<size_t>(10, s1.length())), "");
       std::string ss1 = s1;
       boost::replace_all(ss1, s1.substr(10), std::string(""));
       REQUIRE((int)ss1.length() == ct2.size());

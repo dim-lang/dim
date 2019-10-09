@@ -8,6 +8,7 @@
 #include <thread>
 
 int main(int argc, char **argv) {
+  fastype::Logging::initialize("/tmp/fastype/log", "fastyped");
   fastype::Option conf(argc, argv);
 
   if (conf.hasHelp()) {
@@ -20,7 +21,6 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  fastype::Logging::initialize("/tmp/fastype/log", "fastyped");
   F_INFO("starting...");
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

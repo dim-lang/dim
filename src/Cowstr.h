@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Block.h"
+#include "SmartPointer.h"
 #include "Stringify.h"
 #include <fmt/format.h>
 #include <limits>
@@ -235,7 +236,7 @@ private:
 
   void copyOnWrite();
 
-  std::shared_ptr<Block> buf_;
+  Sptr<Block> buf_;
 };
 
 } // namespace fastype
