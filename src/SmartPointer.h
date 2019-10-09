@@ -90,7 +90,7 @@ public:
   virtual ~Sptr() {
     (*pc_)--;
     if (pc_->get() <= 0) {
-      F_CHECKF(pc_->get() == 0, "pc_->get {} == 0", pc_->get());
+      F_CHECKF(pc_->get() == 0, "pc_#get {} == 0", pc_->get());
       releasePtr();
       delete pc_;
       pc_ = nullptr;

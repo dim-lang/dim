@@ -34,7 +34,7 @@ Cowstr::Cowstr(const std::string &s) : buf_(new Block(s)) {
   F_INFOF("std::string Constructor:{}", toString());
 }
 
-Cowstr::~Cowstr() {}
+Cowstr::~Cowstr() { F_INFOF("Destructor:{}", toString()); }
 
 void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
