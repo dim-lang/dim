@@ -151,5 +151,35 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c2.size() == (int)s2.length());
       REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
     }
+
+    {
+      for (int i = 0; i < TEST_MAX; i++) {
+        std::string s1 = fastype::Random::nextAlphaNumeric(i + 1);
+        char cc = fastype::Random::nextAlphaNumericChar();
+        fastype::Cowstr c1(s1);
+        fastype::Cowstr c2 = c1.replace(cc, "");
+        fastype::Cowstr c3 = c1.replace(cc, "world");
+        int cn = 0;
+        std::string s2, s3;
+        int before = 0;
+        for (int j = 0; j < s1.length(); j++) {
+          if (s1[j] == cc) {
+            cn++;
+          }
+          if (j > 0) {
+            s2 = s2 + s1.substr(before, j - before);
+            s3 = s3 + s1.substr(before, j - before) + "world";
+          }
+          before = j + 1;
+        }
+
+        REQUIRE(c2.size() == (int)s1.length() - cn);
+        REQUIRE(c2.size() == (int)s2.length());
+        REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+
+        REQUIRE(c3.size() == (int)s3.length());
+        REQUIRE(std::memcmp(c3.head(), s3.data(), c3.size()) == 0);
+      }
+    }
   }
 }
