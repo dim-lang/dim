@@ -10,8 +10,8 @@ namespace fastype {
 Area::Area() : dot_() {}
 
 Area::Area(int height, int width) : dot_(height, width) {
-  F_CHECKF(height > 0, "height {} > 0", height);
-  F_CHECKF(width > 0, "width {} > 0", width);
+  F_CHECK(height > 0, "height {} > 0", height);
+  F_CHECK(width > 0, "width {} > 0", width);
 }
 
 const int &Area::height() const { return dot_.x(); }
@@ -33,8 +33,8 @@ bool Area::operator==(const Area &other) const { return dot_ == other.dot_; }
 bool Area::operator!=(const Area &other) const { return dot_ != other.dot_; }
 
 int Area::number() const {
-  F_CHECKF(dot_.x() > 0, "dot_#x {} > 0", dot_.x());
-  F_CHECKF(dot_.y() > 0, "dot_#y {} > 0", dot_.y());
+  F_CHECK(dot_.x() > 0, "dot_#x {} > 0", dot_.x());
+  F_CHECK(dot_.y() > 0, "dot_#y {} > 0", dot_.y());
   return dot_.x() * dot_.y();
 }
 

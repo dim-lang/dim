@@ -28,11 +28,11 @@ void NCursesTerm::show(const std::string &fileName) {
   initscr();
   getmaxyx(stdscr, row, col);
 
-  F_DEBUGF("f#count: {}", f->count());
+  F_INFO("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
     Row r = f->get(i);
     getyx(stdscr, y, x);
-    F_DEBUGF("row:{}", r.toString());
+    F_INFO("row:{}", r.toString());
     for (int j = 0; j < r.str().size() - 1; j++) {
       ch = (int)r.str()[j];
       printw("%c", ch);

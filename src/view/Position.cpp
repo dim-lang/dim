@@ -11,8 +11,8 @@ namespace fastype {
 Position::Position() : dot_() {}
 
 Position::Position(int x, int y) : dot_(x, y) {
-  F_CHECKF(x >= 0, "x {} >= 0", x);
-  F_CHECKF(y >= 0, "y {} >= 0", y);
+  F_CHECK(x >= 0, "x {} >= 0", x);
+  F_CHECK(y >= 0, "y {} >= 0", y);
 }
 
 const int &Position::x() const { return dot_.x(); }

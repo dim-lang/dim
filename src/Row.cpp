@@ -11,7 +11,7 @@ Row::Row() : str_(), lineNumber_(-1), dirty_(false) {}
 
 Row::Row(const Cowstr &str, int lineNumber, int dirty)
     : str_(str), lineNumber_(lineNumber), dirty_(dirty) {
-  F_CHECKF(lineNumber_ >= 0, "lineNumber_ {} >= 0", lineNumber_);
+  F_CHECK(lineNumber_ >= 0, "lineNumber_ {} >= 0", lineNumber_);
 }
 
 std::string Row::toString() const {

@@ -322,8 +322,8 @@ TEST_CASE("Block", "[Block]") {
         s = t + s;
         REQUIRE(b.size() == s.length());
         if (std::memcmp(b.head(), s.data(), b.size()) != 0) {
-          F_ERRORF("i:{}, j:{}, b#head {}, s#data {}, b#size {}, s#length {}",
-                   i, j, b.head(), s.data(), b.size(), s.length());
+          F_ERROR("i:{}, j:{}, b#head {}, s#data {}, b#size {}, s#length {}", i,
+                  j, b.head(), s.data(), b.size(), s.length());
         }
         REQUIRE(std::memcmp(b.head(), s.data(), b.size()) == 0);
       }
@@ -357,8 +357,8 @@ TEST_CASE("Block", "[Block]") {
       int len2 = std::min<int>(len, s.length() - len);
       b1.removeHead(len2);
       if (b1.size() != (int)s.length() - len - len2) {
-        F_ERRORF("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
-                 s.length(), len, len2);
+        F_ERROR("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
+                s.length(), len, len2);
       }
       REQUIRE(b1.size() == (int)s.length() - len - len2);
       REQUIRE(std::memcmp(b1.head(), s.data() + len + len2, b1.size()) == 0);
@@ -376,8 +376,8 @@ TEST_CASE("Block", "[Block]") {
       int len2 = std::min<int>(len, s.length() - len);
       b1.removeTail(len2);
       if (b1.size() != (int)s.length() - len - len2) {
-        F_ERRORF("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
-                 s.length(), len, len2);
+        F_ERROR("i:{}, b1#size:{}, s#length:{}, len:{}, len2:{}", i, b1.size(),
+                s.length(), len, len2);
       }
       REQUIRE(b1.size() == (int)s.length() - len - len2);
       REQUIRE(std::memcmp(b1.head(), s.data(), b1.size()) == 0);
@@ -387,8 +387,8 @@ TEST_CASE("Block", "[Block]") {
   SECTION("toString") {
     std::string s = fastype::Random::nextAlphaNumeric(TEST_MAX);
     fastype::Block b1, b2(s);
-    F_INFOF("b1: {}", b1.toString());
-    F_INFOF("b2: {}", b2.toString());
+    F_INFO("b1: {}", b1.toString());
+    F_INFO("b2: {}", b2.toString());
     REQUIRE(b1.toString().length() > 0);
   }
 

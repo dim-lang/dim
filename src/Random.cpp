@@ -64,7 +64,7 @@ Random::ullongDistribution() {
 short Random::nextShort(short right) { return nextShort(0, right); }
 
 short Random::nextShort(short left, short right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -75,7 +75,7 @@ unsigned short Random::nextUShort(unsigned short right) {
 }
 
 unsigned short Random::nextUShort(unsigned short left, unsigned short right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -84,7 +84,7 @@ unsigned short Random::nextUShort(unsigned short left, unsigned short right) {
 int Random::nextInt(int right) { return nextInt(0, right); }
 
 int Random::nextInt(int left, int right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -93,7 +93,7 @@ int Random::nextInt(int left, int right) {
 unsigned int Random::nextUInt(unsigned int right) { return nextUInt(0, right); }
 
 unsigned int Random::nextUInt(unsigned int left, unsigned int right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ulongDistribution()(engine()) % (right - left)) + left);
@@ -102,7 +102,7 @@ unsigned int Random::nextUInt(unsigned int left, unsigned int right) {
 long Random::nextLong(long right) { return nextLong(0, right); }
 
 long Random::nextLong(long left, long right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -113,7 +113,7 @@ unsigned long Random::nextULong(unsigned long right) {
 }
 
 unsigned long Random::nextULong(unsigned long left, unsigned long right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ulongDistribution()(engine()) % (right - left)) + left);
@@ -122,7 +122,7 @@ unsigned long Random::nextULong(unsigned long left, unsigned long right) {
 long long Random::nextLLong(long long right) { return nextULong(0, right); }
 
 long long Random::nextLLong(long long left, long long right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((llongDistribution()(engine()) % (right - left)) + left);
@@ -134,7 +134,7 @@ unsigned long long Random::nextULLong(unsigned long long right) {
 
 unsigned long long Random::nextULLong(unsigned long long left,
                                       unsigned long long right) {
-  F_CHECKF(right >= left, "right {} >= left {}", right, left);
+  F_CHECK(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ullongDistribution()(engine()) % (right - left)) + left);
@@ -185,17 +185,16 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
     int p = range[i].second - range[i].first;
     if (n + p > pos) {
       int r = pos - n + range[i].first;
-      F_CHECKF(r >= range[0].first, "r {} >= range[0].first {}", r,
-               range[0].first);
-      F_CHECKF(r < range[range.size() - 1].second,
-               "r {} < range[range.size()-1].second {}", r,
-               range[range.size() - 1].second);
+      F_CHECK(r >= range[0].first, "r {} >= range[0].first {}", r,
+              range[0].first);
+      F_CHECK(r < range[range.size() - 1].second,
+              "r {} < range[range.size()-1].second {}", r,
+              range[range.size() - 1].second);
       return (char)r;
     }
     n += p;
   }
-  F_CHECKF(false, "must not come here, pos:{} rangeLength:{}", pos,
-           rangeLength);
+  F_CHECK(false, "must not come here, pos:{} rangeLength:{}", pos, rangeLength);
   return 0;
 }
 
@@ -203,37 +202,37 @@ char Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }
 
 char Random::nextAlphaNumericChar() {
   char c = nextAsciiChar(AlphaNumeric, AlphaNumericLength);
-  F_CHECKF(std::isalnum(c), "c {} isalnum", (int)c);
+  F_CHECK(std::isalnum(c), "c {} isalnum", (int)c);
   return c;
 }
 
 char Random::nextDigitChar() {
   char c = nextAsciiChar(Digit, DigitLength);
-  F_CHECKF(std::isdigit(c), "c {} isdigit", (int)c);
+  F_CHECK(std::isdigit(c), "c {} isdigit", (int)c);
   return c;
 }
 
 char Random::nextHexChar() {
   char c = nextAsciiChar(Hex, HexLength);
-  F_CHECKF(std::isxdigit(c), "c {} isxdigit", (int)c);
+  F_CHECK(std::isxdigit(c), "c {} isxdigit", (int)c);
   return c;
 }
 
 char Random::nextPunctuationChar() {
   char c = nextAsciiChar(Punctuation, PunctuationLength);
-  F_CHECKF(std::ispunct(c), "c {} ispunct", (int)c);
+  F_CHECK(std::ispunct(c), "c {} ispunct", (int)c);
   return c;
 }
 
 char Random::nextControlChar() {
   char c = nextAsciiChar(Control, ControlLength);
-  F_CHECKF(std::iscntrl(c), "c {} is cntrl", (int)c);
+  F_CHECK(std::iscntrl(c), "c {} is cntrl", (int)c);
   return c;
 }
 
 char Random::nextPrintableChar() {
   char c = nextAsciiChar(Printable, PrintableLength);
-  F_CHECKF(std::isprint(c), "c {} isprint", (int)c);
+  F_CHECK(std::isprint(c), "c {} isprint", (int)c);
   return c;
 }
 

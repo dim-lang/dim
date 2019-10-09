@@ -17,7 +17,7 @@ using std::vector;
 int main(int argc, char **argv) {
   fastype::Logging::initialize(".", "fastype");
   fastype::Option conf(argc, argv);
-  F_INFOF("starting, argc:{} argv[0]:{}", argc, argv[0]);
+  F_INFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;

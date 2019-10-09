@@ -21,7 +21,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!fastype::Token::EOF_->isBoolean());
     REQUIRE(!fastype::Token::EOF_->isString());
     REQUIRE(!fastype::Token::EOF_->toString().empty());
-    F_INFOF("Token::EOF_:{}", fastype::Token::EOF_->toString());
+    F_INFO("Token::EOF_:{}", fastype::Token::EOF_->toString());
   }
 
   SECTION("EofToken") {
@@ -33,7 +33,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!t->isNumber());
     REQUIRE(!t->isBoolean());
     REQUIRE(!t->isString());
-    F_INFOF("EofToken:{}", t->toString());
+    F_INFO("EofToken:{}", t->toString());
     REQUIRE(!t->toString().empty());
   }
 
@@ -47,7 +47,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(t->isNumber());
     REQUIRE(!t->isBoolean());
     REQUIRE(!t->isString());
-    F_INFOF("NumberToken:{}", t->toString());
+    F_INFO("NumberToken:{}", t->toString());
     REQUIRE(!t->toString().empty());
     REQUIRE(t->number() == b);
   }
@@ -62,7 +62,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!t->isNumber());
     REQUIRE(!t->isBoolean());
     REQUIRE(t->isString());
-    F_INFOF("StringToken:{}", t->toString());
+    F_INFO("StringToken:{}", t->toString());
     REQUIRE(!t->toString().empty());
     REQUIRE(t->text() == b);
   }
@@ -78,7 +78,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!t->isBoolean());
     REQUIRE(!t->isString());
     INFO(t->toString());
-    F_INFOF("IdToken:{}", t->toString());
+    F_INFO("IdToken:{}", t->toString());
     REQUIRE(!t->toString().empty());
     REQUIRE(t->text() == b);
   }
@@ -93,7 +93,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!t->isNumber());
     REQUIRE(t->isBoolean());
     REQUIRE(!t->isString());
-    F_INFOF("BooleanToken:{}", t->toString());
+    F_INFO("BooleanToken:{}", t->toString());
     REQUIRE(!t->toString().empty());
     REQUIRE(t->boolean() == b);
   }

@@ -21,11 +21,10 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  F_INFO("starting...");
+  F_INFO_MSG("starting...");
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    std::cout << "looping..." << std::endl;
-    F_INFO("looping...");
+    F_INFO_MSG("looping...");
   }
 
   return 0;

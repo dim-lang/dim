@@ -17,11 +17,11 @@ namespace fastype {
 Buffer::Buffer(const std::string &fileName)
     : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
       loaded_(false), readBuffer_(BUF_SIZE) {
-  F_DEBUGF("Constructor:{}", toString());
+  F_INFO("Constructor:{}", toString());
 }
 
 Buffer::~Buffer() {
-  F_DEBUGF("Destructor:{}", toString());
+  F_INFO("Destructor:{}", toString());
   if (fd_) {
     std::fclose(fd_);
     fd_ = nullptr;
@@ -88,17 +88,14 @@ int64_t Buffer::load() {
     if (n > 0L) {
       readBuffer_.concat(buf, n);
       readed += n;
-      F_DEBUGF("before resize readBuffer_#size: {}, after resize "
-               "readBuffer_#size:{}",
-               sizeBefore, sizeAfter);
     } else {
       // n <= 0L, EOF
       loaded_ = true;
     }
   }
 
-  F_DEBUGF("readBuffer_#data: {} readBuffer_#size:{} lineList_#size:{}",
-           (void *)readBuffer_.data(), readBuffer_.size(), lineList_.size());
+  F_INFO("readBuffer_:{}, lineList_#size:{}", readBuffer_.toString(),
+         lineList_.size());
   // if buffer has nothing
   if (readBuffer_.size() <= 0) {
     return readed;
@@ -109,17 +106,17 @@ int64_t Buffer::load() {
   char *end = readBuffer_.head() + readBuffer_.size();
   while (true) {
     if (start >= end) {
-      F_DEBUGF("start:{} >= end:{}", (void *)start, (void *)end);
+      F_INFO("start:{} >= end:{}", (void *)start, (void *)end);
       break;
     }
     char *lineBreak = std::find(start, end, '\n');
-    F_DEBUGF("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
-             "end-lineBreak:{}",
-             (void *)start, (void *)lineBreak, (void *)end,
-             (int)(lineBreak - start), (int)(end - start),
-             (int)(end - lineBreak));
+    F_INFO("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
+           "end-lineBreak:{}",
+           (void *)start, (void *)lineBreak, (void *)end,
+           (int)(lineBreak - start), (int)(end - start),
+           (int)(end - lineBreak));
     if (lineBreak >= end) {
-      F_DEBUGF("lineBreak:{} >= end:{}", (void *)lineBreak, (void *)end);
+      F_INFO("lineBreak:{} >= end:{}", (void *)lineBreak, (void *)end);
       break;
     }
 
@@ -129,12 +126,12 @@ int64_t Buffer::load() {
     cs.concat(start, sz);
     cs.concat(&ef, 1);
     Row r(cs, lineList_.size(), false); // 1 is for '\0'
-    F_DEBUGF("new line:{}", r.toString());
+    F_INFO("new line:{}", r.toString());
     lineList_.push_back(r);
     start = lineBreak + 1;
   }
 
-  // F_DEBUGF("buffer read:{} elapse:{}", readed, F_TIMER_ELAPSE(load));
+  // F_INFO("buffer read:{} elapse:{}", readed, F_TIMER_ELAPSE(load));
   return readed;
 }
 

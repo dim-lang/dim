@@ -39,7 +39,7 @@ public:
   explicit Sptr(T *ptr = nullptr)
       : ptr_(ptr), pc_(new detail::PointerCounter()) {
     (*pc_)++;
-    F_INFOF("Constructor:{}", toString());
+    F_INFO("Constructor:{}", toString());
   }
 
   // copy
@@ -47,59 +47,59 @@ public:
     ptr_ = sp.ptr_;
     pc_ = sp.pc_;
     (*pc_)++;
-    F_INFOF("Copy Constructor:{}", toString());
+    F_INFO("Copy Constructor:{}", toString());
   }
 
   Sptr &operator=(const Sptr<T> &sp) {
     if (this == &sp) {
-      F_INFOF("Copy Assign self:{}", toString());
+      F_INFO("Copy Assign self:{}", toString());
       return *this;
     }
     (*pc_)--;
     if (pc_->get() <= 0) {
-      F_CHECKF(pc_->get() == 0, "pc_->get {} == 0", pc_->get());
+      F_CHECK(pc_->get() == 0, "pc_->get {} == 0", pc_->get());
       releasePtr();
       delete pc_;
       pc_ = nullptr;
     }
     ptr_ = sp.ptr_;
     pc_ = sp.pc_;
-    F_CHECKF(pc_, "pc_ {} != nullptr", (void *)pc_);
+    F_CHECK(pc_, "pc_ {} != nullptr", (void *)pc_);
     (*pc_)++;
-    F_CHECKF(pc_->get() >= 1, "pc_->get {} >= 1", pc_->get());
-    F_INFOF("Copy Assign:{}", toString());
+    F_CHECK(pc_->get() >= 1, "pc_->get {} >= 1", pc_->get());
+    F_INFO("Copy Assign:{}", toString());
     return *this;
   }
 
   // move
   Sptr(Sptr<T> &&sp) : Sptr() {
     swap(sp);
-    F_INFOF("Move Constructor:{}", toString());
+    F_INFO("Move Constructor:{}", toString());
   }
 
   Sptr &operator=(Sptr<T> &&sp) {
     if (this == &sp) {
-      F_INFOF("Move Assign self:{}", toString());
+      F_INFO("Move Assign self:{}", toString());
       return *this;
     }
     swap(sp);
-    F_INFOF("Move Assign:{}", toString());
+    F_INFO("Move Assign:{}", toString());
     return *this;
   }
 
   virtual ~Sptr() {
     (*pc_)--;
     if (pc_->get() <= 0) {
-      F_CHECKF(pc_->get() == 0, "pc_#get {} == 0", pc_->get());
+      F_CHECK(pc_->get() == 0, "pc_#get {} == 0", pc_->get());
       releasePtr();
       delete pc_;
       pc_ = nullptr;
     }
-    F_INFOF("Destructor:{}", toString());
+    F_INFO("Destructor:{}", toString());
   }
 
   int32_t useCount() const {
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
     return pc_->get();
   }
 
@@ -117,13 +117,13 @@ public:
     if (p) {
       (*pc_)++;
     }
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
   }
 
   void swap(Sptr<T> &sp) {
     std::swap(ptr_, sp.ptr_);
     std::swap(pc_, sp.pc_);
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
   }
 
   explicit operator bool() const { return ptr_; }
@@ -153,7 +153,7 @@ private:
 template <typename T> class Uptr : public boost::noncopyable, Stringify {
 public:
   explicit Uptr(T *ptr = nullptr) : ptr_(ptr) {
-    F_INFOF("Constructor:{}", toString());
+    F_INFO("Constructor:{}", toString());
   }
 
   // disable copy
@@ -162,39 +162,39 @@ public:
 
   // move
   Uptr(Uptr<T> &&up) : Uptr() {
-    F_INFOF("Move Constructor enter:{}", toString());
+    F_INFO("Move Constructor enter:{}", toString());
     swap(up);
-    F_INFOF("Move Constructor:{}", toString());
+    F_INFO("Move Constructor:{}", toString());
   }
 
   Uptr &operator=(Uptr<T> &&up) {
-    F_INFOF("Move Assign enter:{}", toString());
+    F_INFO("Move Assign enter:{}", toString());
     if (this == &up) {
-      F_INFOF("Move Assign self:{}", toString());
+      F_INFO("Move Assign self:{}", toString());
       return *this;
     }
     swap(up);
-    F_INFOF("Move Assign:{}", toString());
+    F_INFO("Move Assign:{}", toString());
     return *this;
   }
 
   virtual ~Uptr() {
-    F_INFOF("Destructor enter:{}", toString());
+    F_INFO("Destructor enter:{}", toString());
     release();
-    F_INFOF("Destructor:{}", toString());
+    F_INFO("Destructor:{}", toString());
   }
 
   void reset(T *p = nullptr) {
-    F_INFOF("enter:{}", toString());
+    F_INFO("enter:{}", toString());
     release();
     ptr_ = p;
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
   }
 
   void swap(Uptr<T> &up) {
-    F_INFOF("enter:{}", toString());
+    F_INFO("enter:{}", toString());
     std::swap(ptr_, up.ptr_);
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
   }
 
   explicit operator bool() const { return ptr_; }
@@ -208,12 +208,12 @@ public:
 
 private:
   void release() {
-    F_INFOF("enter:{}", toString());
+    F_INFO("enter:{}", toString());
     if (ptr_) {
       delete ptr_;
       ptr_ = nullptr;
     }
-    F_INFOF("{}", toString());
+    F_INFO("{}", toString());
   }
 
   T *ptr_;

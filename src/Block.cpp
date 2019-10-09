@@ -21,7 +21,7 @@ Block::Block(const Block &s) : Block(s.head(), s.size()) {}
 Block::Block(char c) : Block(&c, 1) {}
 
 Block::Block(const char *s, int n) : Block() {
-  F_CHECKF(n >= 0, "n {} >= 0", n);
+  F_CHECK(n >= 0, "n {} >= 0", n);
   if (n > 0) {
     expand(n);
     std::memcpy(buf_, s, n);
@@ -146,7 +146,7 @@ Block &Block::concatHead(const char *s, int n) {
   if (!s || n <= 0) {
     return *this;
   }
-  F_CHECKF(n > 0, "n {} > 0", n);
+  F_CHECK(n > 0, "n {} > 0", n);
   // if head capacity has no more capacity, expand new memory
   if (headCapacity() < n) {
     expand(std::max(capacity() + n + 1, capacity() * 2 + F_ALLOC_UNIT));
@@ -205,8 +205,9 @@ Block &Block::removeTail(int n) {
 }
 
 std::string Block::toString() const {
-  return fmt::format("[ @Block buf_:{} start_:{} end_:{} capacity_:{} ]",
-                     (void *)buf_, start_, end_, capacity_);
+  return fmt::format(
+      "[ @Block buf_:{} buf_ ptr:{}, start_:{} end_:{} capacity_:{} ]",
+      buf_ ? buf_ : "null", (void *)buf_, start_, end_, capacity_);
 }
 
 char *Block::head() { return buf_ ? (buf_ + start_) : nullptr; }

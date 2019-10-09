@@ -12,7 +12,7 @@
 static char *readFile(const std::string &fileName, int &length) {
   FILE *fp = std::fopen(fileName.data(), "rb");
   if (fp == nullptr) {
-    F_ERRORF("file:{} not found", fileName);
+    F_ERROR("file:{} not found", fileName);
     exit(EXIT_FAILURE);
   }
 
@@ -46,7 +46,7 @@ TEST_CASE("Lexer", "[Lexer]") {
     fastype::Lexer lex(data, &std::free);
     while (true) {
       fastype::Sptr<fastype::Token> t = lex.read();
-      F_INFOF("Lexer Token t:{}", t->toString());
+      F_INFO("Lexer Token t:{}", t->toString());
       if (t == fastype::Token::EOF_) {
         break;
       }

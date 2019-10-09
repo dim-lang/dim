@@ -16,38 +16,38 @@
 
 namespace fastype {
 
-Cowstr::Cowstr() : buf_(new Block()) { F_INFOF("Constructor:{}", toString()); }
+Cowstr::Cowstr() : buf_(new Block()) { F_INFO("Constructor:{}", toString()); }
 
 Cowstr::Cowstr(int capacity) : buf_(new Block(capacity)) {
-  F_INFOF("Capacity Constructor:{}", toString());
+  F_INFO("Capacity Constructor:{}", toString());
 }
 
 Cowstr::Cowstr(const char *s, int n) : buf_(new Block(s, n)) {
-  F_INFOF("raw char pointer Constructor:{}", toString());
+  F_INFO("raw char pointer Constructor:{}", toString());
 }
 
 Cowstr::Cowstr(char c) : buf_(new Block(c)) {
-  F_INFOF("single char Constructor:{}", toString());
+  F_INFO("single char Constructor:{}", toString());
 }
 
 Cowstr::Cowstr(const std::string &s) : buf_(new Block(s)) {
-  F_INFOF("std::string Constructor:{}", toString());
+  F_INFO("std::string Constructor:{}", toString());
 }
 
-Cowstr::~Cowstr() { F_INFOF("Destructor:{}", toString()); }
+Cowstr::~Cowstr() { F_INFO("Destructor:{}", toString()); }
 
 void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
   // else modify this value directly
   if (buf_.useCount() > 1) {
     Block *b = new Block(*buf_);
-    F_CHECKF(b != nullptr, "b {} != nullptr", (void *)b);
+    F_CHECK(b != nullptr, "b {} != nullptr", (void *)b);
     buf_.reset(b);
   }
 }
 
 Cowstr::Cowstr(const Cowstr &other) : buf_(other.buf_) {
-  F_INFOF("Copy Constructor: {}", toString());
+  F_INFO("Copy Constructor: {}", toString());
 }
 
 Cowstr &Cowstr::operator=(const Cowstr &other) {
@@ -55,13 +55,13 @@ Cowstr &Cowstr::operator=(const Cowstr &other) {
     return *this;
   }
   buf_ = other.buf_;
-  F_INFOF("Copy Assign: {}", toString());
+  F_INFO("Copy Assign: {}", toString());
   return *this;
 }
 
 Cowstr::Cowstr(Cowstr &&other) : Cowstr() {
   swap(other);
-  F_INFOF("Move Constructor: {}", toString());
+  F_INFO("Move Constructor: {}", toString());
 }
 
 Cowstr &Cowstr::operator=(Cowstr &&other) {
@@ -69,7 +69,7 @@ Cowstr &Cowstr::operator=(Cowstr &&other) {
     return *this;
   }
   swap(other);
-  F_INFOF("Copy Move : {}", toString());
+  F_INFO("Copy Move : {}", toString());
   return *this;
 }
 
@@ -84,7 +84,7 @@ Cowstr Cowstr::concat(const std::string &s) const {
 }
 
 Cowstr Cowstr::concat(const char *s, int n) const {
-  F_CHECKF(n >= 0, "n {} >= 0", n);
+  F_CHECK(n >= 0, "n {} >= 0", n);
   if (n == 0 || !s) {
     return *this;
   }
@@ -272,8 +272,8 @@ Cowstr Cowstr::subString(int start) const {
 }
 
 Cowstr Cowstr::subString(int start, int startn) const {
-  F_CHECKF(start >= 0, "start {} >= 0", start);
-  F_CHECKF(startn > 0, "startn {} > 0", startn);
+  F_CHECK(start >= 0, "start {} >= 0", start);
+  F_CHECK(startn > 0, "startn {} > 0", startn);
   if (buf_->size() < start) {
     return Cowstr();
   }
@@ -530,7 +530,7 @@ int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {
 }
 
 Cowstr::Cowstr(Block *b) : buf_(b) {
-  F_INFOF("Internal shared_ptr Constructor:{}", toString());
+  F_INFO("Internal shared_ptr Constructor:{}", toString());
 }
 
 void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {

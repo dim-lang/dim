@@ -33,15 +33,15 @@ Window::Window(Window *parent, const std::string &name, const Position &p1,
       area_(std::min(height, parent->area().height()),
             std::min(width, parent->area().width())),
       p1_(p1), cursor_(this), window_(nullptr), panel_(nullptr) {
-  F_CHECKF(name_ != "root", "name_ {} != 'root'", name_);
-  F_CHECKF(area_.height() >= 0, "area_#height {} >= 0", area_.height());
-  F_CHECKF(area_.height() <= parent_->area().height(),
-           "area_#height {} <= parent_#area#height {}", area_.height(),
-           parent_->area().height());
-  F_CHECKF(area_.width() >= 0, "area_#width{} >= 0", area_.width());
-  F_CHECKF(area_.width() <= parent_->area().width(),
-           "area_#width {} <= parent_#area#width {}", area_.width(),
-           parent_->area().width());
+  F_CHECK(name_ != "root", "name_ {} != 'root'", name_);
+  F_CHECK(area_.height() >= 0, "area_#height {} >= 0", area_.height());
+  F_CHECK(area_.height() <= parent_->area().height(),
+          "area_#height {} <= parent_#area#height {}", area_.height(),
+          parent_->area().height());
+  F_CHECK(area_.width() >= 0, "area_#width{} >= 0", area_.width());
+  F_CHECK(area_.width() <= parent_->area().width(),
+          "area_#width {} <= parent_#area#width {}", area_.width(),
+          parent_->area().width());
 
   window_ = newwin(area_.height(), area_.width(), p1_.x(), p1_.y());
   keypad(window_, TRUE);

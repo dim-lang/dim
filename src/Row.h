@@ -4,7 +4,6 @@
 #pragma once
 #include "Cowstr.h"
 #include "Stringify.h"
-#include <boost/core/noncopyable.hpp>
 #include <vector>
 
 namespace fastype {
