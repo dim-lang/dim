@@ -216,12 +216,13 @@ Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,
     return Cowstr(src);
   }
   Block *b = new Block((int)(src.size() + pos.size() * r));
+
+  int u = 0, v = pos[0];
   for (int i = 0; i < (int)pos.size(); i++) {
-    if (i != 0) {
-      int diff = pos[i] - pos[i - 1];
-      b->concat(src.head() + pos[i - 1], diff);
-    }
+    b->concat(src.head() + u, v - u);
     b->concat(repl, r);
+    u = v + t;
+    v = pos[i + 1];
   }
   return Cowstr(b);
 }
@@ -240,8 +241,8 @@ Cowstr Cowstr::replaceFirstImpl(const Cowstr &src, const char *target, int t,
   int diff1 = k - src.head();
   b->concat(src.head(), diff1);
   b->concat(repl, r);
-  int diff2 = src.head() + src.size() - k - 1;
-  b->concat(src.head(), diff2);
+  int diff2 = src.size() - diff1 - t;
+  b->concat(src.head() + diff1 + t, diff2);
   return Cowstr(b);
 }
 
