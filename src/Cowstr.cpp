@@ -224,6 +224,9 @@ Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,
     u = v + t;
     v = pos[i + 1];
   }
+  if (u < src.size()) {
+    b->concat(src.head() + u, src.size() - u);
+  }
   return Cowstr(b);
 }
 
