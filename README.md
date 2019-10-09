@@ -1,6 +1,6 @@
 # fastype
 
-fastype - a modern text editor for fast typing.
+fastype - a modern text editor for speed.
 
 ## What's fastype?
 
