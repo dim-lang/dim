@@ -61,6 +61,9 @@ public:
   Cowstr replace(const Cowstr &target, const Cowstr &s) const;
   Cowstr replace(const Cowstr &target, const std::string &s) const;
   Cowstr replace(const Cowstr &target, const char *s, int n) const;
+  Cowstr replace(const std::string &target, const Cowstr &s) const;
+  Cowstr replace(const std::string &target, const std::string &s) const;
+  Cowstr replace(const std::string &target, const char *s, int n) const;
 
   // replace first target with s in arbitrary position
   Cowstr replaceFirst(char target, const Cowstr &s) const;
@@ -69,6 +72,9 @@ public:
   Cowstr replaceFirst(const Cowstr &target, const Cowstr &s) const;
   Cowstr replaceFirst(const Cowstr &target, const std::string &s) const;
   Cowstr replaceFirst(const Cowstr &target, const char *s, int n) const;
+  Cowstr replaceFirst(const std::string &target, const Cowstr &s) const;
+  Cowstr replaceFirst(const std::string &target, const std::string &s) const;
+  Cowstr replaceFirst(const std::string &target, const char *s, int n) const;
 
   // split into multiple parts via s
   std::vector<Cowstr> split(const Cowstr &s) const;

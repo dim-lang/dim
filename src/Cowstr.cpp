@@ -148,6 +148,19 @@ Cowstr Cowstr::replace(const Cowstr &target, const char *s, int n) const {
   return replaceImpl(*this, target.head(), target.size(), s, n);
 }
 
+Cowstr Cowstr::replace(const std::string &target, const Cowstr &s) const {
+  return replaceImpl(*this, target.data(), target.length(), s.head(), s.size());
+}
+
+Cowstr Cowstr::replace(const std::string &target, const std::string &s) const {
+  return replaceImpl(*this, target.data(), target.length(), s.data(),
+                     s.length());
+}
+
+Cowstr Cowstr::replace(const std::string &target, const char *s, int n) const {
+  return replaceImpl(*this, target.data(), target.length(), s, n);
+}
+
 Cowstr Cowstr::replaceFirst(char target, const Cowstr &s) const {
   return replaceFirstImpl(*this, &target, 1, s.head(), s.size());
 }
@@ -172,6 +185,22 @@ Cowstr Cowstr::replaceFirst(const Cowstr &target, const std::string &s) const {
 
 Cowstr Cowstr::replaceFirst(const Cowstr &target, const char *s, int n) const {
   return replaceFirstImpl(*this, target.head(), target.size(), s, n);
+}
+
+Cowstr Cowstr::replaceFirst(const std::string &target, const Cowstr &s) const {
+  return replaceFirstImpl(*this, target.data(), target.length(), s.head(),
+                          s.size());
+}
+
+Cowstr Cowstr::replaceFirst(const std::string &target,
+                            const std::string &s) const {
+  return replaceFirstImpl(*this, target.data(), target.length(), s.data(),
+                          s.length());
+}
+
+Cowstr Cowstr::replaceFirst(const std::string &target, const char *s,
+                            int n) const {
+  return replaceFirstImpl(*this, target.data(), target.length(), s, n);
 }
 
 Cowstr Cowstr::replaceImpl(const Cowstr &src, const char *target, int t,

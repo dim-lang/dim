@@ -126,7 +126,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       fastype::Cowstr ct2 = c1.replace(s1.substr(10), "");
       std::string ss1 = s1;
       boost::replace_all(ss1, s1.substr(10), std::string(""));
-      REQUIRE(ss1.length() == ct2.size());
+      REQUIRE((int)ss1.length() == ct2.size());
       REQUIRE(std::memcmp(ss1.data(), ct2.head(), ct2.size()) == 0);
 
       fastype::Cowstr ct3 = c1.replace("", "ok");
@@ -136,8 +136,8 @@ TEST_CASE("Cowstr", "[Cowstr]") {
     std::string s1 = "helloworldgoodbyeworld";
     std::string s2 = "hellookgoodbyeok";
     fastype::Cowstr c1(s1);
-    fastype::Cowstr c2 = c1.replaceFirst("world", "ok");
-    REQUIRE(c2.size() == s2.size());
-    REQUIRE(std::memcmp(c2.head(), s2.head(), s2.size()) == 0);
+    fastype::Cowstr c2 = c1.replaceFirst(std::string("world"), "ok");
+    REQUIRE(c2.size() == (int)s2.length());
+    REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
   }
 }
