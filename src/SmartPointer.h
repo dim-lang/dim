@@ -103,13 +103,17 @@ public:
     return pc_->get();
   }
 
+  // release the old resource if reference count = 0
+  // bind with the new resource and set reference count = 1
   void reset(T *p = nullptr) {
     (*pc_)--;
     if (pc_->get() <= 0) {
       releasePtr();
+      pc_->reset();
+    } else {
+      pc_ = new detail::PointerCounter();
     }
     ptr_ = p;
-    pc_->reset();
     if (p) {
       (*pc_)++;
     }
