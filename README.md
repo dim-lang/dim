@@ -4,8 +4,6 @@ fastype - a modern text editor for speed.
 
 ## What's fastype?
 
-fastype is a modern text editor, focused on features below.
-
 * Friendly: out of box, minimum to learn in easy mode.
 * Effective: minimum time cost with maximum job done.
 * Performance: fast
