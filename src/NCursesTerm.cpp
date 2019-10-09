@@ -9,7 +9,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <memory>
 #include <ncurses.h>
 #include <string>
 #include <unordered_map>
@@ -24,7 +23,7 @@ NCursesTerm::NCursesTerm() : Term() {
 NCursesTerm::~NCursesTerm() {}
 
 void NCursesTerm::show(const std::string &fileName) {
-  std::shared_ptr<Buffer> f = Buffer::open(fileName);
+  Sptr<Buffer> f = Buffer::open(fileName);
   int ch, row, col, y, x;
   initscr();
   getmaxyx(stdscr, row, col);

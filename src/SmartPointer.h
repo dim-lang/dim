@@ -7,7 +7,6 @@
 #include <boost/core/noncopyable.hpp>
 #include <cstdint>
 #include <fmt/format.h>
-#include <memory>
 #include <utility>
 
 namespace fastype {
@@ -20,7 +19,7 @@ public:
   virtual ~PointerCounter() {}
   void reset() { counter_ = 0; }
   void swap(PointerCounter &pc) { std::swap(counter_, pc.counter_); }
-  int32_t get() { return counter_; }
+  int32_t get() const { return counter_; }
   void operator++() { counter_++; }
   void operator++(int) { counter_++; }
   void operator--() { counter_--; }
@@ -99,7 +98,7 @@ public:
     F_INFOF("Destructor:{}", toString());
   }
 
-  int32_t useCount() {
+  int32_t useCount() const {
     F_INFOF("{}", toString());
     return pc_->get();
   }

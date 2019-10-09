@@ -3,7 +3,6 @@
 
 #pragma once
 #include "graph/Dot.h"
-#include <memory>
 
 namespace fastype {
 

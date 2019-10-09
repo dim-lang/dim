@@ -5,7 +5,6 @@
 #include "Cowstr.h"
 #include "Stringify.h"
 #include <boost/core/noncopyable.hpp>
-#include <memory>
 #include <vector>
 
 namespace fastype {

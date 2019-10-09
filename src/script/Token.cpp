@@ -6,8 +6,7 @@
 
 namespace fastype {
 
-const std::shared_ptr<Token> Token::EOF_ =
-    std::shared_ptr<Token>(new EofToken(-1));
+const Sptr<Token> Token::EOF_ = Sptr<Token>(new EofToken(-1));
 
 const std::string Token::EOL_ = "\\n";
 

@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <memory>
 #include <string>
 
 #ifdef F_PLATFORM_WINDOWS
@@ -19,16 +18,16 @@
 
 namespace fastype {
 
-static ConcurrentHashMap<std::string, std::shared_ptr<Term>> TermMap;
+static ConcurrentHashMap<std::string, Sptr<Term>> TermMap;
 
-std::shared_ptr<Term> Term::open(const std::string &termName) {
+Sptr<Term> Term::open(const std::string &termName) {
   TermMap.lock();
   if (TermMap.find(termName) == TermMap.end()) {
 
 #if BOOST_WINDOWS
-    std::shared_ptr<Term> term = std::shared_ptr<Term>(new WinTerm());
+    Sptr<Term> term = Sptr<Term>(new WinTerm());
 #else
-    std::shared_ptr<Term> term = std::shared_ptr<Term>(new NCursesTerm());
+    Sptr<Term> term = Sptr<Term>(new NCursesTerm());
 #endif
 
     TermMap.insert(std::make_pair(termName, term));

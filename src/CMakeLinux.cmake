@@ -32,7 +32,6 @@ set(F_LIB
     boost_program_options
     boost_system
     boost_thread
-    boost_chrono
     icuuc
     icuio
     icudata

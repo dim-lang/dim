@@ -7,12 +7,10 @@
 #include "Term.h"
 #include <exception>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 namespace boost_po = boost::program_options;
-using std::shared_ptr;
 using std::string;
 using std::vector;
 
@@ -33,7 +31,7 @@ int main(int argc, char **argv) {
 
   if (conf.hasInputFile()) {
     vector<string> inputFileList = conf.inputFileList();
-    shared_ptr<fastype::Term> term = fastype::Term::open(inputFileList[0]);
+    fastype::Sptr<fastype::Term> term = fastype::Term::open(inputFileList[0]);
     term->show(inputFileList[0]);
   }
 

@@ -5,7 +5,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <memory>
 #include <ncurses.h>
 #include <string>
 #include <thread>

@@ -3,9 +3,9 @@
 
 #pragma once
 #include "ResourceHandler.h"
+#include "SmartPointer.h"
 #include "script/Token.h"
 #include <deque>
-#include <memory>
 #include <regex>
 
 namespace fastype {
@@ -15,8 +15,8 @@ public:
   Lexer(void *resource, ResourceHandler resourceHandler);
   virtual ~Lexer();
 
-  virtual std::shared_ptr<Token> read();
-  virtual std::shared_ptr<Token> peek(int i);
+  virtual Sptr<Token> read();
+  virtual Sptr<Token> peek(int i);
 
 private:
   virtual bool fillQueue(int i);
@@ -25,7 +25,7 @@ private:
 
   static const std::string regexPattern_;
   std::regex pattern_;
-  std::deque<std::shared_ptr<Token>> queue_;
+  std::deque<Sptr<Token>> queue_;
   bool more_;
   int index_;
   int length_;

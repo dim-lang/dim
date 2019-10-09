@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include <memory>
+#include "SmartPointer.h"
 #include <string>
 
 namespace fastype {
@@ -13,7 +13,7 @@ public:
 
   virtual void show(const std::string &fileName) = 0;
 
-  static std::shared_ptr<Term> open(const std::string &termName);
+  static Sptr<Term> open(const std::string &termName);
 };
 
 } // namespace fastype

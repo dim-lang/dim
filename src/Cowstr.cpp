@@ -39,7 +39,7 @@ Cowstr::~Cowstr() {}
 void Cowstr::copyOnWrite() {
   // if has multiple references, allocate memory and deep copy value
   // else modify this value directly
-  if (buf_.use_count() > 1) {
+  if (buf_.useCount() > 1) {
     Block *b = new Block(*buf_);
     F_CHECKF(b != nullptr, "b {} != nullptr", (void *)b);
     buf_.reset(b);
@@ -420,9 +420,9 @@ int Cowstr::compare(const char *s, int n) const {
 
 std::string Cowstr::toString() const {
   return fmt::format(
-      "[ @Cowstr buf_:{} head_:{} size_:{} capacity_:{} use_count:{} ]",
+      "[ @Cowstr buf_:{} head_:{} size_:{} capacity_:{} useCount:{} ]",
       buf_ ? buf_->toString() : "null", (void *)head(), size(), capacity(),
-      buf_.use_count());
+      buf_.useCount());
 }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {

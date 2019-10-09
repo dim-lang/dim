@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "SmartPointer.h"
 #include "Stringify.h"
 #include "exception/ScriptException.h"
 #include <regex>
@@ -11,7 +12,7 @@ namespace fastype {
 
 class Token : public Stringify {
 public:
-  static const std::shared_ptr<Token> EOF_;
+  static const Sptr<Token> EOF_;
   static const std::string EOL_;
 
   Token(int line);

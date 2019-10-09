@@ -11,7 +11,6 @@
 #include "script/token/StringToken.h"
 #include <cstdlib>
 #include <cstring>
-#include <memory>
 #include <string>
 
 TEST_CASE("Token", "[Token]") {
@@ -27,8 +26,8 @@ TEST_CASE("Token", "[Token]") {
 
   SECTION("EofToken") {
     int r = rand();
-    std::shared_ptr<fastype::Token> t =
-        std::shared_ptr<fastype::Token>(new fastype::EofToken(r));
+    fastype::Sptr<fastype::Token> t =
+        fastype::Sptr<fastype::Token>(new fastype::EofToken(r));
     REQUIRE(t->lineNumber() == r);
     REQUIRE(!t->isIdentifier());
     REQUIRE(!t->isNumber());
@@ -41,8 +40,8 @@ TEST_CASE("Token", "[Token]") {
   SECTION("NumberToken") {
     int a = rand();
     int b = rand();
-    std::shared_ptr<fastype::Token> t =
-        std::shared_ptr<fastype::Token>(new fastype::NumberToken(a, b));
+    fastype::Sptr<fastype::Token> t =
+        fastype::Sptr<fastype::Token>(new fastype::NumberToken(a, b));
     REQUIRE(t->lineNumber() == a);
     REQUIRE(!t->isIdentifier());
     REQUIRE(t->isNumber());
@@ -56,8 +55,8 @@ TEST_CASE("Token", "[Token]") {
   SECTION("StringToken") {
     int a = rand();
     std::string b = "string token";
-    std::shared_ptr<fastype::Token> t =
-        std::shared_ptr<fastype::Token>(new fastype::StringToken(a, b));
+    fastype::Sptr<fastype::Token> t =
+        fastype::Sptr<fastype::Token>(new fastype::StringToken(a, b));
     REQUIRE(t->lineNumber() == a);
     REQUIRE(!t->isIdentifier());
     REQUIRE(!t->isNumber());
@@ -71,8 +70,8 @@ TEST_CASE("Token", "[Token]") {
   SECTION("IdToken") {
     int a = rand();
     std::string b = "id token";
-    std::shared_ptr<fastype::Token> t =
-        std::shared_ptr<fastype::Token>(new fastype::IdToken(a, b));
+    fastype::Sptr<fastype::Token> t =
+        fastype::Sptr<fastype::Token>(new fastype::IdToken(a, b));
     REQUIRE(t->lineNumber() == a);
     REQUIRE(t->isIdentifier());
     REQUIRE(!t->isNumber());
@@ -87,8 +86,8 @@ TEST_CASE("Token", "[Token]") {
   SECTION("BooleanToken") {
     int a = rand();
     bool b = true;
-    std::shared_ptr<fastype::Token> t =
-        std::shared_ptr<fastype::Token>(new fastype::BooleanToken(a, b));
+    fastype::Sptr<fastype::Token> t =
+        fastype::Sptr<fastype::Token>(new fastype::BooleanToken(a, b));
     REQUIRE(t->lineNumber() == a);
     REQUIRE(!t->isIdentifier());
     REQUIRE(!t->isNumber());

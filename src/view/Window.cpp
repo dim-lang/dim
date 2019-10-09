@@ -12,8 +12,8 @@
 namespace fastype {
 
 Window::Window()
-    : name_("root"), parent_(std::shared_ptr<Window>(nullptr)), p1_(0, 0),
-      cursor_(this), window_(nullptr), panel_(nullptr) {
+    : name_("root"), parent_(nullptr), p1_(0, 0), cursor_(this),
+      window_(nullptr), panel_(nullptr) {
   int x, y;
   window_ = initscr();
   start_color();
@@ -27,8 +27,8 @@ Window::Window()
   area_.setWidth(y);
 }
 
-Window::Window(std::shared_ptr<Window> parent, const std::string &name,
-               const Position &p1, int height, int width)
+Window::Window(Window *parent, const std::string &name, const Position &p1,
+               int height, int width)
     : name_(name), parent_(parent),
       area_(std::min(height, parent->area().height()),
             std::min(width, parent->area().width())),
@@ -60,22 +60,19 @@ Window::~Window() {
   }
 }
 
-std::shared_ptr<Window> Window::root() {
-  static std::shared_ptr<Window> w(new Window());
+Window *Window::root() {
+  static Window *w = new Window();
   return w;
 }
 
-static ConcurrentHashMap<std::string, std::shared_ptr<Window>> WindowMap;
+static ConcurrentHashMap<std::string, Window *> WindowMap;
 static std::atomic_bool WindowMapDirty(false);
 
-std::shared_ptr<Window> Window::open(std::shared_ptr<Window> parent,
-                                     const std::string &name,
-                                     const Position &p1, int height,
-                                     int width) {
+Window *Window::open(Window *parent, const std::string &name,
+                     const Position &p1, int height, int width) {
   WindowMap.lock();
   if (WindowMap.find(name) == WindowMap.end()) {
-    std::shared_ptr<Window> w =
-        std::shared_ptr<Window>(new Window(parent, name, p1, height, width));
+    Window *w = new Window(parent, name, p1, height, width);
     WindowMap.insert(std::make_pair(name, w));
     WindowMapDirty = true;
   }
@@ -88,21 +85,22 @@ void Window::close(const std::string &name) {
   auto pos = WindowMap.find(name);
   if (pos != WindowMap.end()) {
     WindowMap.remove(pos);
-    pos->second.reset();
+    delete pos->second;
+    pos->second = nullptr;
     WindowMapDirty = true;
   }
   WindowMap.unlock();
 }
 
-void Window::close(std::shared_ptr<Window> window) { close(window->name()); }
+void Window::close(Window *window) { close(window->name()); }
 
 std::string Window::name() const { return name_; }
 
 void Window::setName(const std::string &name) { name_ = name; }
 
-std::shared_ptr<Window> Window::parent() const { return parent_; }
+Window *Window::parent() const { return parent_; }
 
-void Window::setParent(std::shared_ptr<Window> parent) { parent_ = parent; }
+void Window::setParent(Window *parent) { parent_ = parent; }
 
 const Area &Window::area() const { return area_; }
 
@@ -196,13 +194,9 @@ void Window::update() {
   }
 }
 
-std::shared_ptr<Row> Window::get(int lineNumber) {
-  return lineList_[lineNumber];
-}
+Row Window::get(int lineNumber) { return lineList_[lineNumber]; }
 
-void Window::set(int lineNumber, std::shared_ptr<Row> l) {
-  lineList_[lineNumber] = l;
-}
+void Window::set(int lineNumber, const Row &r) { lineList_[lineNumber] = r; }
 
 Cursor &Window::cursor() { return cursor_; }
 

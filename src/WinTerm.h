@@ -3,7 +3,6 @@
 
 #pragma once
 #include "Term.h"
-#include <memory>
 #include <string>
 
 namespace fastype {

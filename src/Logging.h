@@ -7,7 +7,6 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <cstdio>
 #include <fmt/format.h>
-#include <memory>
 #include <spdlog/spdlog.h>
 #include <string>
 

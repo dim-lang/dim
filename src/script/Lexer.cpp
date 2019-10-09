@@ -25,16 +25,16 @@ Lexer::Lexer(void *resource, ResourceHandler resourceHandler)
 
 Lexer::~Lexer() {
   while (!queue_.empty()) {
-    std::shared_ptr<Token> t = queue_.front();
+    Sptr<Token> t = queue_.front();
     t.reset();
     queue_.pop_front();
   }
   queue_.clear();
 }
 
-std::shared_ptr<Token> Lexer::read() {
+Sptr<Token> Lexer::read() {
   if (fillQueue(0)) {
-    std::shared_ptr<Token> t = queue_.front();
+    Sptr<Token> t = queue_.front();
     queue_.pop_front();
     return t;
   } else {
@@ -42,7 +42,7 @@ std::shared_ptr<Token> Lexer::read() {
   }
 }
 
-std::shared_ptr<Token> Lexer::peek(int i) {
+Sptr<Token> Lexer::peek(int i) {
   if (fillQueue(i)) {
     return queue_[i];
   } else {
@@ -97,14 +97,13 @@ void Lexer::readLine() {
         } else {
           token = new IdToken(lineNumber, m1);
         }
-        queue_.push_back(std::shared_ptr<Token>(token));
+        queue_.push_back(Sptr<Token>(token));
       }
     }
   } else {
     throw new ScriptException(fmt::format("bad token at {}", lineNumber));
   }
-  queue_.push_back(
-      std::shared_ptr<Token>(new IdToken(lineNumber, Token::EOL_)));
+  queue_.push_back(Sptr<Token>(new IdToken(lineNumber, Token::EOL_)));
 }
 
 std::string Lexer::toStringLiteral(const std::string &s) {

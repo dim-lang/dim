@@ -3,7 +3,6 @@
 
 #pragma once
 #include <boost/core/noncopyable.hpp>
-#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <utility>

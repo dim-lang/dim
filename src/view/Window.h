@@ -9,7 +9,6 @@
 #include "view/Vec.h"
 #include <atomic>
 #include <boost/core/noncopyable.hpp>
-#include <memory>
 #include <ncurses.h>
 #include <panel.h>
 
@@ -20,22 +19,20 @@ public:
   virtual ~Window();
 
   // root window's parent is null
-  static std::shared_ptr<Window> root();
+  static Window *root();
 
-  static std::shared_ptr<Window> open(std::shared_ptr<Window> parent,
-                                      const std::string &name,
-                                      const Position &p1, int height,
-                                      int width);
+  static Window *open(Window *parent, const std::string &name,
+                      const Position &p1, int height, int width);
 
-  static void close(std::shared_ptr<Window> window);
+  static void close(Window *window);
 
   static void close(const std::string &name);
 
   virtual std::string name() const;
   virtual void setName(const std::string &name);
 
-  virtual std::shared_ptr<Window> parent() const;
-  virtual void setParent(std::shared_ptr<Window> parent);
+  virtual Window *parent() const;
+  virtual void setParent(Window *parent);
 
   // area
   virtual const Area &area() const;
@@ -123,9 +120,9 @@ public:
   // window line conditions:
   // line#size <= width
   // 0 <= lineNumber < height
-  virtual std::shared_ptr<Row> get(int lineNumber);
+  virtual Row get(int lineNumber);
 
-  virtual void set(int lineNumber, std::shared_ptr<Row> l);
+  virtual void set(int lineNumber, Row r);
 
   virtual Cursor &cursor();
 
@@ -136,8 +133,8 @@ private:
   Window();
 
   // non-root constructor
-  Window(std::shared_ptr<Window> parent, const std::string &name,
-         const Position &p1, int height, int width);
+  Window(Window *parent, const std::string &name, const Position &p1,
+         int height, int width);
 
   // Vec parentAbsP1() const;
 
@@ -155,12 +152,12 @@ private:
 
   // graph
   std::string name_;
-  std::shared_ptr<Window> parent_;
+  Window *parent_;
   Area area_;
   Position p1_; // relative p1
 
   // render
-  std::vector<std::shared_ptr<Row>> lineList_;
+  std::vector<Row> lineList_;
   Cursor cursor_;
   WINDOW *window_;
   PANEL *panel_;

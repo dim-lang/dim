@@ -5,7 +5,6 @@
 #include "Logging.h"
 #include <cstdlib>
 #include <cstring>
-#include <memory>
 
 #define F_ALLOC_UNIT 8
 

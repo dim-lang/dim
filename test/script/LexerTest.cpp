@@ -45,7 +45,7 @@ TEST_CASE("Lexer", "[Lexer]") {
 
     fastype::Lexer lex(data, &std::free);
     while (true) {
-      std::shared_ptr<fastype::Token> t = lex.read();
+      fastype::Sptr<fastype::Token> t = lex.read();
       F_INFOF("Lexer Token t:{}", t->toString());
       if (t == fastype::Token::EOF_) {
         break;

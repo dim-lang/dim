@@ -5,10 +5,10 @@
 #include "Block.h"
 #include "Cowstr.h"
 #include "Row.h"
+#include "SmartPointer.h"
 #include "Stringify.h"
 #include <cstdio>
 #include <cstring>
-#include <memory>
 #include <vector>
 
 namespace fastype {
@@ -34,8 +34,8 @@ public:
   int clear();
   virtual std::string toString() const;
 
-  static std::shared_ptr<Buffer> open(const std::string &fileName);
-  static void close(std::shared_ptr<Buffer> file);
+  static Sptr<Buffer> open(const std::string &fileName);
+  static void close(Sptr<Buffer> file);
 
 private:
   Buffer(const std::string &fileName);

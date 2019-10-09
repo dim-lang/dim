@@ -35,11 +35,11 @@ Buffer::~Buffer() {
 
 const std::string &Buffer::fileName() const { return fileName_; }
 
-std::shared_ptr<Buffer> Buffer::open(const std::string &fileName) {
-  return std::shared_ptr<Buffer>(new Buffer(fileName));
+Sptr<Buffer> Buffer::open(const std::string &fileName) {
+  return Sptr<Buffer>(new Buffer(fileName));
 }
 
-void Buffer::close(std::shared_ptr<Buffer> file) { file.reset(); }
+void Buffer::close(Sptr<Buffer> file) { file.reset(); }
 
 Row Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
 

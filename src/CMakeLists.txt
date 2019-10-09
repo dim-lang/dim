@@ -47,9 +47,9 @@ set(F_CORE
 
     view/Position.cpp
     view/Area.cpp
-    view/Window.cpp
+    #view/Window.cpp
     view/Vec.cpp
-    view/Cursor.cpp
+    #view/Cursor.cpp
 
     controller/Key.cpp
 
