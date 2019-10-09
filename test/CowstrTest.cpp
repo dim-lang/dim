@@ -47,7 +47,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       assertEmpty(cs);
       REQUIRE((cs).capacity() >= i);
 
-      std::string t = fastype::Random::nextAlphaNumeric(i);
+      std::string t = fastype::Random::nextAlphaNumeric(i + 1);
       cs = cs.concat(t);
       assertEquals(cs, t);
     }

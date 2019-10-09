@@ -628,7 +628,7 @@ std::vector<int> Cowstr::searchAll(const char *haystack, int h,
   if (!haystack || h <= 0 || !needle || n <= 0) {
     return ret;
   }
-  for (int i = 0; i < h - n; i++) {
+  for (int i = 0; i < h - n + 1; i++) {
     if (std::strncmp(haystack + i, needle, n) == 0) {
       ret.push_back(i);
     }
