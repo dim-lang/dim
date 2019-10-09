@@ -629,7 +629,7 @@ std::vector<int> Cowstr::searchAll(const char *haystack, int h,
     return ret;
   }
   for (int i = 0; i < h - n + 1; i++) {
-    if (std::strncmp(haystack + i, needle, n) == 0) {
+    if (std::memcmp(haystack + i, needle, n) == 0) {
       ret.push_back(i);
     }
   }
