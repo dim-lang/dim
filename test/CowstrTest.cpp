@@ -161,16 +161,14 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         fastype::Cowstr c3 = c1.replace(cc, "world");
         int cn = 0;
         std::string s2, s3;
-        int before = 0;
         for (int j = 0; j < s1.length(); j++) {
           if (s1[j] == cc) {
+            s3 = s3 + "world";
             cn++;
+          } else {
+            s2 = s2 + s1[j];
+            s3 = s3 + s1[j];
           }
-          if (j > 0) {
-            s2 = s2 + s1.substr(before, j - before);
-            s3 = s3 + s1.substr(before, j - before) + "world";
-          }
-          before = j + 1;
         }
 
         REQUIRE(c2.size() == (int)s1.length() - cn);
