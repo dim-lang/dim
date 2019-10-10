@@ -47,19 +47,23 @@ myReplace(const std::string &src, const std::string &from,
     if (std::memcmp(src.data() + i, from.data(), from.length()) == 0) {
       n1++;
       s1 = s1 + to;
-      i += from.length();
       if (!firstDone) {
         s2 = s2 + to;
         firstDone = true;
         n2++;
       } else {
-        s2 = s2 + src[i];
+        s2 = s2 + src.substr(i, from.length());
       }
+      i += from.length();
     } else {
       s1 = s1 + src[i];
       s2 = s2 + src[i];
       i++;
     }
+  }
+  if (i < src.length()) {
+    s1 = s1 + src.substr(i);
+    s2 = s2 + src.substr(i);
   }
   return std::make_tuple(s1, n1, s2, n2);
 }
@@ -243,6 +247,9 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         fastype::Cowstr c2 = c1.replace(ss2, "world");
         fastype::Cowstr c3 = c1.replaceFirst(ss2, "world");
 
+        if (c2.size() != (int)s2.length()) {
+          F_INFO_MSG("you can stop here");
+        }
         REQUIRE(c2.size() == (int)s2.length());
         REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
         REQUIRE(c3.size() == (int)s3.length());
