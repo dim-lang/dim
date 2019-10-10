@@ -279,7 +279,7 @@ std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
     if (i == 0) {
       ret.push_back(pos[i] > 0 ? subString(0, pos[i]) : Cowstr());
     } else {
-      ret.push_back(subString(pos[i - 1] + n, pos[i]));
+      ret.push_back(subString(pos[i - 1] + n, pos[i] - pos[i - 1] - n + 1));
     }
   }
   if (pos[pos.size() - 1] < size()) {
@@ -445,7 +445,7 @@ int Cowstr::compare(const char *s, int n) const {
 
 std::string Cowstr::toString() const {
   return fmt::format(
-      "[ @Cowstr buf_:{} head_:{} size_:{} capacity_:{} useCount:{} ]",
+      "[ @Cowstr buf_:{} head:{} size:{} capacity:{} useCount:{} ]",
       buf_ ? buf_->toString() : "null", (void *)head(), size(), capacity(),
       buf_.useCount());
 }

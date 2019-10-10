@@ -268,26 +268,25 @@ TEST_CASE("Cowstr", "[Cowstr]") {
           c3.begin(), c3.end(), 0,
           [](int v, const fastype::Cowstr &str) { return v + str.size(); });
       if (!c2.empty()) {
-        REQUIRE(n2 + (c2.size() - 1) * 1 == c1.size());
+        if (n2 > c1.size()) {
+          F_INFO_MSG("stop here");
+        }
+        REQUIRE(n2 <= c1.size());
       }
       if (!c3.empty()) {
-        REQUIRE(n3 + (c3.size() - 1) * splitS.length() == c1.size());
-      }
-      int j = 0, k = 0;
-      for (j = 0; j < c2.size(); j++) {
-        REQUIRE(std::memcmp(c2[j].head(), c1.head() + k, c2[j].size()) == 0);
-        if (j < c2.size() - 1) {
-          REQUIRE(std::memcmp(&splitC, c1.head() + k + 1, 1) == 0);
+        if (n3 > c1.size()) {
+          F_INFO_MSG("stop here");
         }
+        REQUIRE(n3 <= c1.size());
+      }
+      int k = 0;
+      for (int j = 0; j < c2.size(); j++) {
+        REQUIRE(std::memcmp(c2[j].head(), c1.head() + k, c2[j].size()) == 0);
         k += c2[j].size() + 1;
       }
-      j = 0, k = 0;
-      for (j = 0; j < c3.size(); j++) {
+      k = 0;
+      for (int j = 0; j < c3.size(); j++) {
         REQUIRE(std::memcmp(c3[j].head(), c1.head() + k, c3[j].size()) == 0);
-        if (j < c3.size() - 1) {
-          REQUIRE(std::memcmp(splitS.data(), c1.head() + k + splitS.length(),
-                              splitS.length()) == 0);
-        }
         k += c3[j].size() + splitS.length();
       }
     }
@@ -298,8 +297,8 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       std::string r = "o";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 5);
-      REQUIRE(cr[0] == "b");
-      REQUIRE(cr[1] == "");
+      REQUIRE(testStringEq(cr[0], "b"));
+      REQUIRE(testStringEq(cr[1], ""));
       REQUIRE(testStringEq(cr[2], ":and:f"));
       REQUIRE(testStringEq(cr[3], ""));
       REQUIRE(testStringEq(cr[4], "bar"));
