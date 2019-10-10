@@ -38,34 +38,34 @@
 //           third is replaceFirst
 //           fourth is replaceFirst's count
 static std::tuple<std::string, int, std::string, int>
-myReplace(const std::string &src, const std::string &from,
-          const std::string &to) {
-  int n1 = 0, n2 = 0, i;
-  std::string s1, s2;
-  bool firstDone = false;
-  for (i = 0; i < src.length() - from.length() + 1;) {
+testReplace(const std::string &src, const std::string &from,
+            const std::string &to) {
+  std::string all, first;
+  int alln = 0, firstn = 0, i = 0;
+  bool done = false;
+  while (i < src.length() - from.length() + 1) {
     if (std::memcmp(src.data() + i, from.data(), from.length()) == 0) {
-      n1++;
-      s1 = s1 + to;
-      if (!firstDone) {
-        s2 = s2 + to;
-        firstDone = true;
-        n2++;
+      alln++;
+      all = all + to;
+      if (!done) {
+        first = first + to;
+        done = true;
+        firstn++;
       } else {
-        s2 = s2 + src.substr(i, from.length());
+        first = first + src.substr(i, from.length());
       }
       i += from.length();
     } else {
-      s1 = s1 + src[i];
-      s2 = s2 + src[i];
+      all = all + src[i];
+      first = first + src[i];
       i++;
     }
   }
   if (i < src.length()) {
-    s1 = s1 + src.substr(i);
-    s2 = s2 + src.substr(i);
+    all = all + src.substr(i);
+    first = first + src.substr(i);
   }
-  return std::make_tuple(s1, n1, s2, n2);
+  return std::make_tuple(all, alln, first, firstn);
 }
 
 TEST_CASE("Cowstr", "[Cowstr]") {
@@ -195,13 +195,9 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         fastype::Cowstr c1(s1);
 
         std::tuple<std::string, int, std::string, int> replacement1 =
-            myReplace(s1, std::string("") + cc, "");
+            testReplace(s1, std::string("") + cc, "");
         std::string s21 = std::get<0>(replacement1);
-        int n21 = std::get<1>(replacement1);
-        (void)n21;
         std::string s31 = std::get<2>(replacement1);
-        int n31 = std::get<3>(replacement1);
-        (void)n31;
 
         fastype::Cowstr c21 = c1.replace(cc, "");
         fastype::Cowstr c22 = c1.replaceFirst(cc, "");
@@ -211,13 +207,9 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         REQUIRE(std::memcmp(c22.head(), s31.data(), c22.size()) == 0);
 
         std::tuple<std::string, int, std::string, int> replacement2 =
-            myReplace(s1, std::string("") + cc, "world");
+            testReplace(s1, std::string("") + cc, "world");
         std::string s22 = std::get<0>(replacement2);
-        int n22 = std::get<1>(replacement2);
-        (void)n22;
         std::string s32 = std::get<2>(replacement2);
-        int n32 = std::get<3>(replacement2);
-        (void)n32;
 
         fastype::Cowstr c31 = c1.replace(cc, "world");
         fastype::Cowstr c32 = c1.replaceFirst(cc, "world");
@@ -235,13 +227,9 @@ TEST_CASE("Cowstr", "[Cowstr]") {
             std::min<int>(ss1.length(), i + 1));
 
         std::tuple<std::string, int, std::string, int> replacement =
-            myReplace(ss1, ss2, "world");
+            testReplace(ss1, ss2, "world");
         std::string s2 = std::get<0>(replacement);
-        int n2 = std::get<1>(replacement);
-        (void)n2;
         std::string s3 = std::get<2>(replacement);
-        int n3 = std::get<3>(replacement);
-        (void)n3;
 
         fastype::Cowstr c1(ss1);
         fastype::Cowstr c2 = c1.replace(ss2, "world");
