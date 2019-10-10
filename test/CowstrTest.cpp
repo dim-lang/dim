@@ -33,6 +33,11 @@
     REQUIRE((void *)(cs).head() == (cs).tail());                               \
   } while (0)
 
+static bool testStringEq(const fastype::Cowstr &a, const std::string &b) {
+  return std::memcmp(a.head(), b.data(), a.size()) == 0 &&
+         a.size() == (int)b.length();
+}
+
 // @return   first is replace(all)
 //           second is replace(all)'s count
 //           third is replaceFirst
@@ -243,6 +248,100 @@ TEST_CASE("Cowstr", "[Cowstr]") {
         REQUIRE(c3.size() == (int)s3.length());
         REQUIRE(std::memcmp(c3.head(), s3.data(), c3.size()) == 0);
       }
+    }
+  }
+
+  SECTION("split") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(i + 1);
+      char splitC = fastype::Random::nextAlphaNumericChar();
+      std::string splitS =
+          fastype::Random::nextAlphaNumeric(std::min<int>(i + 1, s.length()));
+
+      fastype::Cowstr c1(s);
+      std::vector<fastype::Cowstr> c2 = c1.split(fastype::Cowstr(splitC));
+      std::vector<fastype::Cowstr> c3 = c1.split(fastype::Cowstr(splitS));
+      int n2 = std::accumulate(
+          c2.begin(), c2.end(), 0,
+          [](int v, const fastype::Cowstr &str) { return v + str.size(); });
+      int n3 = std::accumulate(
+          c3.begin(), c3.end(), 0,
+          [](int v, const fastype::Cowstr &str) { return v + str.size(); });
+      if (!c2.empty()) {
+        REQUIRE(n2 + (c2.size() - 1) * 1 == c1.size());
+      }
+      if (!c3.empty()) {
+        REQUIRE(n3 + (c3.size() - 1) * splitS.length() == c1.size());
+      }
+      int j = 0, k = 0;
+      for (j = 0; j < c2.size(); j++) {
+        REQUIRE(std::memcmp(c2[j].head(), c1.head() + k, c2[j].size()) == 0);
+        if (j < c2.size() - 1) {
+          REQUIRE(std::memcmp(&splitC, c1.head() + k + 1, 1) == 0);
+        }
+        k += c2[j].size() + 1;
+      }
+      j = 0, k = 0;
+      for (j = 0; j < c3.size(); j++) {
+        REQUIRE(std::memcmp(c3[j].head(), c1.head() + k, c3[j].size()) == 0);
+        if (j < c3.size() - 1) {
+          REQUIRE(std::memcmp(splitS.data(), c1.head() + k + splitS.length(),
+                              splitS.length()) == 0);
+        }
+        k += c3[j].size() + splitS.length();
+      }
+    }
+
+    fastype::Cowstr cc("boo:and:foobar");
+
+    {
+      std::string r = "o";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 5);
+      REQUIRE(cr[0] == "b");
+      REQUIRE(cr[1] == "");
+      REQUIRE(testStringEq(cr[2], ":and:f"));
+      REQUIRE(testStringEq(cr[3], ""));
+      REQUIRE(testStringEq(cr[4], "bar"));
+    }
+    {
+      std::string r = "";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 14);
+      REQUIRE(testStringEq(cr[0], "b"));
+      REQUIRE(testStringEq(cr[1], "o"));
+      REQUIRE(testStringEq(cr[2], "o"));
+      REQUIRE(testStringEq(cr[3], ":"));
+      REQUIRE(testStringEq(cr[4], "a"));
+      REQUIRE(testStringEq(cr[5], "n"));
+      REQUIRE(testStringEq(cr[6], "d"));
+      REQUIRE(testStringEq(cr[7], ":"));
+      REQUIRE(testStringEq(cr[8], "f"));
+      REQUIRE(testStringEq(cr[9], "o"));
+      REQUIRE(testStringEq(cr[10], "o"));
+      REQUIRE(testStringEq(cr[11], "b"));
+      REQUIRE(testStringEq(cr[12], "a"));
+      REQUIRE(testStringEq(cr[13], "r"));
+    }
+    {
+      std::string r = "b";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 3);
+      REQUIRE(testStringEq(cr[0], ""));
+      REQUIRE(testStringEq(cr[1], "oo:and:foo"));
+      REQUIRE(testStringEq(cr[2], "ar"));
+    }
+    {
+      std::string r = "r";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 1);
+      REQUIRE(testStringEq(cr[0], "boo:and:fooba"));
+    }
+    {
+      std::string r = "c";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 1);
+      REQUIRE(cr[0] == cc.stdstr());
     }
   }
 }

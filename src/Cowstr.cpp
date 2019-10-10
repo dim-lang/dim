@@ -259,13 +259,31 @@ std::vector<Cowstr> Cowstr::split(const std::string &s) const {
 
 std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
   std::vector<Cowstr> ret;
+
+  // if split string is a empty string, split into single char
+  if (!s || n <= 0) {
+    for (int i = 0; i < size(); i++) {
+      ret.push_back(Cowstr(at(i)));
+    }
+    return ret;
+  }
+
   std::vector<int> pos = searchAll(head(), size(), s, n);
-  for (int i = 0; i < (int)pos.size(); i++) {
-    if (i == 0 && pos[i] > 0) {
-      ret.push_back(subString(0, pos[i]));
+  if (pos.empty()) {
+    ret.push_back(*this);
+    return ret;
+  }
+
+  int i;
+  for (i = 0; i < (int)pos.size(); i++) {
+    if (i == 0) {
+      ret.push_back(pos[i] > 0 ? subString(0, pos[i]) : Cowstr());
     } else {
       ret.push_back(subString(pos[i - 1] + n, pos[i]));
     }
+  }
+  if (pos[pos.size() - 1] < size()) {
+    ret.push_back(subString(pos[pos.size() - 1] + n));
   }
   return ret;
 }
@@ -276,8 +294,11 @@ Cowstr Cowstr::subString(int start) const {
 
 Cowstr Cowstr::subString(int start, int startn) const {
   F_CHECK(start >= 0, "start {} >= 0", start);
-  F_CHECK(startn > 0, "startn {} > 0", startn);
+  F_CHECK(startn >= 0, "startn {} >= 0", startn);
   if (buf_->size() < start) {
+    return Cowstr();
+  }
+  if (startn == 0) {
     return Cowstr();
   }
   startn = std::min<int>(startn, buf_->size() - start);
