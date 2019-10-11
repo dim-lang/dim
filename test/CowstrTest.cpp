@@ -268,78 +268,18 @@ TEST_CASE("Cowstr", "[Cowstr]") {
           c3.begin(), c3.end(), 0,
           [](int v, const fastype::Cowstr &str) { return v + str.size(); });
       if (!c2.empty()) {
-        if (n2 > c1.size()) {
-          F_ERROR_MSG("n2 > c1#size fail here");
-          F_ERROR("s:{}, splitC:{}, splitS:{}, c1:{}, "
-                  "c2#size:{}, c3#size:{}, n2:{}, n3:{}",
-                  s, splitC, splitS, c1.toString(), c2.size(), c3.size(), n2,
-                  n3);
-          F_ERROR_MSG("c2 list:");
-          for (int p = 0; p < c2.size(); p++) {
-            F_ERROR("c2[{}]:{}", p, c2[p].toString());
-          }
-          F_ERROR_MSG("c3 list:");
-          for (int p = 0; p < c3.size(); p++) {
-            F_ERROR("c3[{}]:{}", p, c3[p].toString());
-          }
-        }
         REQUIRE(n2 <= c1.size());
       }
       if (!c3.empty()) {
-        if (n3 > c1.size()) {
-          F_ERROR_MSG("n3 > c1#size fail here");
-          F_ERROR("s:{}, splitC:{}, splitS:{}, c1:{}, "
-                  "c2#size:{}, c3#size:{}, n2:{}, n3:{}",
-                  s, splitC, splitS, c1.toString(), c2.size(), c3.size(), n2,
-                  n3);
-          F_ERROR_MSG("c2 list:");
-          for (int p = 0; p < c2.size(); p++) {
-            F_ERROR("c2[{}]:{}", p, c2[p].toString());
-          }
-          F_ERROR_MSG("c3 list:");
-          for (int p = 0; p < c3.size(); p++) {
-            F_ERROR("c3[{}]:{}", p, c3[p].toString());
-          }
-        }
         REQUIRE(n3 <= c1.size());
       }
       int k = 0;
       for (int j = 0; j < c2.size(); j++) {
-        if (std::memcmp(c2[j].head(), c1.head() + k, c2[j].size()) != 0) {
-          F_ERROR("c2[j] == c1 + k fail here, j:{}, k:{}", j, k);
-          F_ERROR("s:{}, splitC:{}, splitS:{}, c1:{}, "
-                  "c2#size:{}, c3#size:{}, n2:{}, n3:{}, c2[{}]:{}, c1+{}:{}",
-                  s, splitC, splitS, c1.toString(), c2.size(), c3.size(), n2,
-                  n3, j, c2[j].toString(), k, c1.head() + k);
-          F_ERROR_MSG("c2 list:");
-          for (int p = 0; p < c2.size(); p++) {
-            F_ERROR("c2[{}]:{}", p, c2[p].toString());
-          }
-          F_ERROR_MSG("c3 list:");
-          for (int p = 0; p < c3.size(); p++) {
-            F_ERROR("c3[{}]:{}", p, c3[p].toString());
-          }
-        }
         REQUIRE(std::memcmp(c2[j].head(), c1.head() + k, c2[j].size()) == 0);
         k += c2[j].size() + 1;
       }
       k = 0;
       for (int j = 0; j < c3.size(); j++) {
-        if (std::memcmp(c3[j].head(), c1.head() + k, c3[j].size()) != 0) {
-          F_ERROR("c3[j] == c1 + k fail here, j:{}, k:{}", j, k);
-          F_ERROR("s:{}, splitC:{}, splitS:{}, c1:{}, "
-                  "c2#size:{}, c3#size:{}, n2:{}, n3:{}, c3[{}]:{}, c1+{}:{}",
-                  s, splitC, splitS, c1.toString(), c2.size(), c3.size(), n2,
-                  n3, j, c3[j].toString(), k, c1.head() + k);
-          F_ERROR_MSG("c2 list:");
-          for (int p = 0; p < c2.size(); p++) {
-            F_ERROR("c2[{}]:{}", p, c2[p].toString());
-          }
-          F_ERROR_MSG("c3 list:");
-          for (int p = 0; p < c3.size(); p++) {
-            F_ERROR("c3[{}]:{}", p, c3[p].toString());
-          }
-        }
         REQUIRE(std::memcmp(c3[j].head(), c1.head() + k, c3[j].size()) == 0);
         k += c3[j].size() + splitS.length();
       }

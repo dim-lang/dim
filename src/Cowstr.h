@@ -213,9 +213,6 @@ public:
     return Cowstr(ff);
   }
 
-  static std::vector<int> searchAll(const char *haystack, int h,
-                                    const char *needle, int n);
-
 private:
   // helper constructor
   Cowstr(Block *b);
@@ -225,13 +222,16 @@ private:
   static void trimRightImpl(Cowstr &s, bool (*match)(char, char), char t);
 
   // search implementation
-  static std::vector<int> kmpPrefix(const char *needle, int n);
+  static std::vector<int> kmpSearchPrefix(const char *needle, int n);
 
-  static char *kmp(const char *haystack, int h, const char *needle, int n,
-                   bool caseSensitive);
+  static char *kmpSearch(const char *haystack, int h, const char *needle, int n,
+                         bool caseSensitive);
 
   static char *reverseSearch(const char *haystack, int h, const char *needle,
                              int n, bool caseSensitive);
+
+  static std::vector<int> searchAll(const char *haystack, int h,
+                                    const char *needle, int n);
 
   // replace implementation
   // search `target` in `src`,
