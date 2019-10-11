@@ -476,4 +476,24 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c3.compare(c5) > 0);
     }
   }
+
+  SECTION("contains/startsWith/endsWith/indexOf/lastIndexOf") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextWhitespace(i + 1);
+      std::string s2 = fastype::Random::nextWhitespace();
+      std::string s3 = fastype::Random::nextWhitespace(i + 1);
+
+      fastype::Cowstr c1(s1), c2(s2), c3(s3);
+      REQUIRE(c1.contains(c2) == (s1.find(s2) != std::string::npos));
+      REQUIRE(c1.contains(c3) == (s1.find(s3) != std::string::npos));
+      REQUIRE(c1.startsWith(c2) == (s1[0] == s2[0]));
+      REQUIRE(c3.startsWith(c2) == (s3[0] == s2[0]));
+      REQUIRE(c1.endsWith(c2) == (s1[s1.length() - 1] == s2[0]));
+      REQUIRE(c3.endsWith(c2) == (s3[s3.length() - 1] == s2[0]));
+      REQUIRE(c1.indexOf(c2) == s1.find(s2));
+      REQUIRE(c3.indexOf(c2) == s3.find(s2));
+      REQUIRE(c1.lastIndexOf(c2) == s1.find_last_of(s2));
+      REQUIRE(c3.lastIndexOf(c2) == s3.find_last_of(s2));
+    }
+  }
 }

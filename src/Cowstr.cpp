@@ -482,17 +482,18 @@ bool Cowstr::startsWith(const std::string &s, bool caseSensitive) const {
 }
 
 bool Cowstr::endsWith(const Cowstr &s, bool caseSensitive) const {
-  return kmpSearch(head(), size(), s.head(), s.size(), caseSensitive) ==
-         tail() - s.size();
+  return kmpSearch(head() + size() - s.size(), s.size(), s.head(), s.size(),
+                   caseSensitive) == head() + size() - s.size();
 }
 
 bool Cowstr::endsWith(const std::string &s, bool caseSensitive) const {
-  return kmpSearch(head(), size(), s.data(), s.length(), caseSensitive) ==
-         tail() - s.length();
+  return kmpSearch(head() + size() - s.length(), s.length(), s.data(),
+                   s.length(), caseSensitive) == head() + size() - s.length();
 }
 
 bool Cowstr::endsWith(const char *s, int n, bool caseSensitive) const {
-  return kmpSearch(head(), size(), s, n, caseSensitive) == tail() - n;
+  return kmpSearch(head() + size() - n, n, s, n, caseSensitive) ==
+         head() + size() - n;
 }
 
 int Cowstr::indexOf(const Cowstr &s) const {
@@ -525,33 +526,49 @@ int Cowstr::indexOf(const char *s, int n, int fromIndex) const {
 }
 
 int Cowstr::lastIndexOf(const Cowstr &s) const {
-  return lastIndexOf(s, size());
+  return lastIndexOf(s, size() - 1);
 }
 
 int Cowstr::lastIndexOf(const std::string &s) const {
-  return lastIndexOf(s, size());
+  return lastIndexOf(s, size() - 1);
 }
 
 int Cowstr::lastIndexOf(const char *s, int n) const {
-  return lastIndexOf(s, n, size());
+  return lastIndexOf(s, n, size() - 1);
 }
 
 int Cowstr::lastIndexOf(const Cowstr &s, int fromIndex) const {
+  if (s.size() <= 0 || size() <= 0) {
+    return -1;
+  }
+  if (size() < s.size()) {
+    return -1;
+  }
   fromIndex = fromIndex < 0 ? (fromIndex + size()) : fromIndex;
-  char *p = reverseSearch(head() + fromIndex, size() - fromIndex, s.head(),
-                          s.size(), true);
+  char *p = reverseSearch(head(), fromIndex, s.head(), s.size(), true);
   return p ? p - head() : -1;
 }
 
 int Cowstr::lastIndexOf(const std::string &s, int fromIndex) const {
+  if (s.empty() || size() <= 0) {
+    return -1;
+  }
+  if (size() < s.length()) {
+    return -1;
+  }
   fromIndex = fromIndex < 0 ? (fromIndex + size()) : fromIndex;
-  char *p = reverseSearch(head() + fromIndex, size() - fromIndex, s.data(),
-                          s.length(), true);
+  char *p = reverseSearch(head(), fromIndex, s.data(), s.length(), true);
   return p ? p - head() : -1;
 }
 int Cowstr::lastIndexOf(const char *s, int n, int fromIndex) const {
+  if (!s || n <= 0 || size() <= 0) {
+    return -1;
+  }
+  if (size() < n) {
+    return -1;
+  }
   fromIndex = fromIndex < 0 ? (fromIndex + size()) : fromIndex;
-  char *p = reverseSearch(head() + fromIndex, size() - fromIndex, s, n, true);
+  char *p = reverseSearch(head(), fromIndex, s, n, true);
   return p ? p - head() : -1;
 }
 
@@ -627,12 +644,12 @@ char *Cowstr::kmpSearch(const char *haystack, int h, const char *needle, int n,
   return nullptr;
 }
 
-char *Cowstr::reverseSearch(const char *haystack, int h, const char *needle,
-                            int n, bool caseSensitive) {
-  if (!haystack || h <= 0 || !needle || n <= 0) {
+char *Cowstr::reverseSearch(const char *haystack, int fromIndex,
+                            const char *needle, int n, bool caseSensitive) {
+  if (!haystack || fromIndex <= 0 || !needle || n <= 0) {
     return nullptr;
   }
-  for (int i = h - n; i >= 0; i--) {
+  for (int i = fromIndex - n + 1; i >= 0; i--) {
     bool match = true;
     for (int j = 0; j < n; j++) {
       char hc = caseSensitive ? haystack[i] : std::tolower(haystack[i]);
