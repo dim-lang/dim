@@ -76,7 +76,21 @@ public:
   Cowstr replaceFirst(const std::string &target, const std::string &s) const;
   Cowstr replaceFirst(const std::string &target, const char *s, int n) const;
 
-  // split into multiple parts via s
+  // split by s
+  //
+  // 1. for example: "boo:and:foobar"
+  // split by "o": ["b", "", ":and:f", "", "bar"]
+  // split by "": ["b", "o", "o", ":", "a", "n", "d", ":", "f", "o", "o", "b",
+  // "a", "r"]
+  // split by "b": ["", "oo:and:foo", "ar"]
+  // split by "r": ["boo:and:fooba", ""]
+  // split by "c": ["boo:and:foobar"]
+  //
+  // 2. for example: "5|6|7||8|9||"
+  // split by "|": ["5", "6", "7", "", "8", "9", "", ""]
+  //
+  // 3. for example: ""
+  // split by "a": [""]
   std::vector<Cowstr> split(const Cowstr &s) const;
   std::vector<Cowstr> split(const std::string &s) const;
   std::vector<Cowstr> split(const char *s, int n) const;

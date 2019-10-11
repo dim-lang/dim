@@ -345,9 +345,8 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       }
     }
 
-    fastype::Cowstr cc("boo:and:foobar");
-
     {
+      fastype::Cowstr cc("boo:and:foobar");
       std::string r = "o";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 5);
@@ -358,6 +357,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(testStringEq(cr[4], "bar"));
     }
     {
+      fastype::Cowstr cc("boo:and:foobar");
       std::string r = "";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 14);
@@ -377,6 +377,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(testStringEq(cr[13], "r"));
     }
     {
+      fastype::Cowstr cc("boo:and:foobar");
       std::string r = "b";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 3);
@@ -385,6 +386,7 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(testStringEq(cr[2], "ar"));
     }
     {
+      fastype::Cowstr cc("boo:and:foobar");
       std::string r = "r";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 2);
@@ -392,10 +394,32 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(testStringEq(cr[1], ""));
     }
     {
+      fastype::Cowstr cc("boo:and:foobar");
       std::string r = "c";
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 1);
       REQUIRE(cr[0] == cc.stdstr());
+    }
+    {
+      fastype::Cowstr cc("5|6|7||8|9||");
+      std::string r = "|";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 8);
+      REQUIRE(testStringEq(cr[0], "5"));
+      REQUIRE(testStringEq(cr[1], "6"));
+      REQUIRE(testStringEq(cr[2], "7"));
+      REQUIRE(testStringEq(cr[3], ""));
+      REQUIRE(testStringEq(cr[4], "8"));
+      REQUIRE(testStringEq(cr[5], "9"));
+      REQUIRE(testStringEq(cr[6], ""));
+      REQUIRE(testStringEq(cr[7], ""));
+    }
+    {
+      fastype::Cowstr cc("");
+      std::string r = "a";
+      std::vector<fastype::Cowstr> cr = cc.split(r);
+      REQUIRE(cr.size() == 1);
+      REQUIRE(testStringEq(cr[0], ""));
     }
   }
 }
