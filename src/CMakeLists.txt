@@ -87,7 +87,7 @@ set(FD_SRC
 if (MSVC)
     set(F_CORE ${F_CORE} WinTerm.cpp)
 else()
-    set(F_CORE ${F_CORE} NcursesTerm.cpp)
+    set(F_CORE ${F_CORE} CursesTerm.cpp)
 endif(MSVC)
 
 include_directories(${F_INC})

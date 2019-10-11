@@ -13,7 +13,7 @@
 #ifdef F_PLATFORM_WINDOWS
 #include "WinTerm.h"
 #else
-#include "NcursesTerm.h"
+#include "CursesTerm.h"
 #endif // #ifdef F_PLATFORM_WINDOWS
 
 namespace fastype {
@@ -27,7 +27,7 @@ Sptr<Term> Term::open(const std::string &termName) {
 #if BOOST_WINDOWS
     Sptr<Term> term = Sptr<Term>(new WinTerm());
 #else
-    Sptr<Term> term = Sptr<Term>(new NcursesTerm());
+    Sptr<Term> term = Sptr<Term>(new CursesTerm());
 #endif
 
     TermMap.insert(std::make_pair(termName, term));
