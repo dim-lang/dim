@@ -431,4 +431,20 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c2.tail() == nullptr);
     }
   }
+
+  SECTION("indexing/empty/size/capacity") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextWhitespace(i + 1);
+      fastype::Cowstr c1(s1), c2;
+      for (int j = 0; j < c1.size(); j++) {
+        REQUIRE(c1[j] == s1[j]);
+        REQUIRE(c1.at(j) == s1[j]);
+      }
+      REQUIRE(!c1.empty());
+      REQUIRE(c1.capacity() >= s1.length());
+      REQUIRE(c2.empty());
+      REQUIRE(c2.capacity() == 0);
+      REQUIRE(c2.size() == 0);
+    }
+  }
 }
