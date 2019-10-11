@@ -13,7 +13,7 @@
 #include <tuple>
 #include <utility>
 
-#define TEST_MAX 256
+#define TEST_MAX 128
 
 #define assertEquals(cs, ss)                                                   \
   do {                                                                         \
@@ -389,16 +389,6 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       fastype::Cowstr c1(s1);
       fastype::Cowstr c2 = c1.upperCase();
       fastype::Cowstr c3 = c1.lowerCase();
-      if (c2.size() != s2.length() ||
-          std::memcmp(c2.head(), s2.data(), c2.size()) != 0) {
-        F_ERROR("c2 == s2 fail! s1:{}, s2:{}, c1:{}, c2:{}", s1, s2,
-                c1.toString(), c2.toString());
-      }
-      if (c3.size() != s3.length() ||
-          std::memcmp(c3.head(), s3.data(), c3.size()) != 0) {
-        F_ERROR("c3 == s3 fail! s1:{}, s3:{}, c1:{}, c3:{}", s1, s3,
-                c1.toString(), c3.toString());
-      }
       REQUIRE(c2.size() == s2.length());
       REQUIRE(c3.size() == s3.length());
       REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
@@ -422,15 +412,23 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       fastype::Cowstr c2 = c1.trim();
       fastype::Cowstr c3 = c1.trimLeft();
       fastype::Cowstr c4 = c1.trimRight();
-      if (c2.stdstr() != s1 || c3.stdstr() != s6 || c4.stdstr() != s5) {
-        F_ERROR("trim fail! s1:{}, s2:-{}-, s3:-{}-, s4:-{}-, s5:-{}-, "
-                "s6:-{}-, c1:{}, c2:{}, c3:{}",
-                s1, s2, s3, s4, s5, s6, c1.toString(), c2.toString(),
-                c3.toString());
-      }
       REQUIRE(c2.stdstr() == s1);
       REQUIRE(c3.stdstr() == s6);
       REQUIRE(c4.stdstr() == s5);
+    }
+  }
+
+  SECTION("head/tail/rawstr/stdstr") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextWhitespace(i + 1);
+      fastype::Cowstr c1(s1), c2;
+      REQUIRE(c1.head() != nullptr);
+      REQUIRE(c1.tail() != nullptr);
+      REQUIRE(c1.tail() - c1.head() == c1.size());
+      REQUIRE(c1.stdstr() == s1);
+      REQUIRE(std::memcmp(c1.rawstr(), s1.data(), c1.size()) == 0);
+      REQUIRE(c2.head() == nullptr);
+      REQUIRE(c2.tail() == nullptr);
     }
   }
 }
