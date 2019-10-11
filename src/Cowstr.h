@@ -147,6 +147,10 @@ public:
   /* comparation */
   bool operator==(const Cowstr &s) const;
   bool operator!=(const Cowstr &s) const;
+  bool operator<(const Cowstr &s) const;
+  bool operator<=(const Cowstr &s) const;
+  bool operator>(const Cowstr &s) const;
+  bool operator>=(const Cowstr &s) const;
   int compare(const Cowstr &s) const;
   int compare(const std::string &s) const;
   int compare(const char *s, int n) const;

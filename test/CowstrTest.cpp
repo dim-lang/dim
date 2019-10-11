@@ -447,4 +447,33 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c2.size() == 0);
     }
   }
+
+  SECTION("comparation") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextWhitespace(i + 3);
+      fastype::Cowstr c1(s), c4(s), c5;
+      fastype::Cowstr c2 = c1.subString(c1.size() / 2);
+      fastype::Cowstr c3 = c1.concat(c2);
+      REQUIRE(c1 == c4);
+      REQUIRE(c1 != c2);
+      REQUIRE(c1 != c3);
+      REQUIRE(c1 != c5);
+      REQUIRE(c1 > c2);
+      REQUIRE(c1 >= c2);
+      REQUIRE(c1 >= c4);
+      REQUIRE(c1 >= c5);
+      REQUIRE(c1 < c3);
+      REQUIRE(c1 <= c3);
+      REQUIRE(c1 <= c4);
+      REQUIRE(c2 > c5);
+      REQUIRE(c3 >= c5);
+
+      REQUIRE(c1.compare(c4) == 0);
+      REQUIRE(c1.compare(c2) > 0);
+      REQUIRE(c1.compare(c3) < 0);
+      REQUIRE(c1.compare(c5) > 0);
+      REQUIRE(c2.compare(c5) > 0);
+      REQUIRE(c3.compare(c5) > 0);
+    }
+  }
 }

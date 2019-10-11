@@ -325,9 +325,6 @@ Cowstr Cowstr::lowerCase() const {
   return s;
 }
 
-static bool matchWhitespace(char a, char _) { return std::isspace(a); }
-static bool matchChar(char a, char b) { return a == b; }
-
 Cowstr Cowstr::trim() const {
   if (empty()) {
     return *this;
@@ -420,6 +417,14 @@ int Cowstr::capacity() const { return buf_->capacity(); }
 bool Cowstr::operator==(const Cowstr &s) const { return compare(s) == 0; }
 
 bool Cowstr::operator!=(const Cowstr &s) const { return compare(s) != 0; }
+
+bool Cowstr::operator<(const Cowstr &s) const { return compare(s) < 0; }
+
+bool Cowstr::operator<=(const Cowstr &s) const { return compare(s) <= 0; }
+
+bool Cowstr::operator>(const Cowstr &s) const { return compare(s) > 0; }
+
+bool Cowstr::operator>=(const Cowstr &s) const { return compare(s) >= 0; }
 
 int Cowstr::compare(const Cowstr &s) const {
   if (size() != s.size()) {
