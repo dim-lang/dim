@@ -13,7 +13,7 @@
 #include <tuple>
 #include <utility>
 
-#define TEST_MAX 1024
+#define TEST_MAX 256
 
 #define assertEquals(cs, ss)                                                   \
   do {                                                                         \
@@ -360,6 +360,21 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       std::vector<fastype::Cowstr> cr = cc.split(r);
       REQUIRE(cr.size() == 1);
       REQUIRE(testStringEq(cr[0], ""));
+    }
+  }
+
+  SECTION("subString") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s = fastype::Random::nextAlphaNumeric(i + 1);
+      int n1 = fastype::Random::nextInt(std::min<int>(i + 1, s.length()));
+      int n2 = fastype::Random::nextInt(s.length() - n1);
+      fastype::Cowstr c1(s);
+      fastype::Cowstr c2 = c1.subString(0, n1);
+      fastype::Cowstr c3 = c1.subString(n1, n2);
+      REQUIRE(c2.size() == n1);
+      REQUIRE(c3.size() == n2);
+      REQUIRE(std::memcmp(c2.head(), c1.head() + 0, c2.size()) == 0);
+      REQUIRE(std::memcmp(c3.head(), c1.head() + n1, c3.size()) == 0);
     }
   }
 }
