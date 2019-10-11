@@ -329,40 +329,39 @@ static bool matchWhitespace(char a, char _) { return std::isspace(a); }
 static bool matchChar(char a, char b) { return a == b; }
 
 Cowstr Cowstr::trim() const {
+  if (empty()) {
+    return *this;
+  }
+  if (!std::isspace(at(0)) && !std::isspace(at(size() - 1))) {
+    return *this;
+  }
   Cowstr s(head(), size());
-  trimLeftImpl(s, matchWhitespace, F_ANY_CHAR);
-  trimRightImpl(s, matchWhitespace, F_ANY_CHAR);
-  return s;
-}
-
-Cowstr Cowstr::trim(char c) const {
-  Cowstr s(head(), size());
-  trimLeftImpl(s, matchChar, c);
-  trimRightImpl(s, matchChar, c);
+  trimLeftImpl(s);
+  trimRightImpl(s);
   return s;
 }
 
 Cowstr Cowstr::trimLeft() const {
+  if (empty()) {
+    return *this;
+  }
+  if (!std::isspace(at(0))) {
+    return *this;
+  }
   Cowstr s(head(), size());
-  trimLeftImpl(s, matchWhitespace, F_ANY_CHAR);
-  return s;
-}
-
-Cowstr Cowstr::trimLeft(char c) const {
-  Cowstr s(head(), size());
-  trimLeftImpl(s, matchChar, c);
+  trimLeftImpl(s);
   return s;
 }
 
 Cowstr Cowstr::trimRight() const {
+  if (empty()) {
+    return *this;
+  }
+  if (!std::isspace(at(size() - 1))) {
+    return *this;
+  }
   Cowstr s(head(), size());
-  trimRightImpl(s, matchWhitespace, F_ANY_CHAR);
-  return s;
-}
-
-Cowstr Cowstr::trimRight(char c) const {
-  Cowstr s(head(), size());
-  trimRightImpl(s, matchChar, c);
+  trimRightImpl(s);
   return s;
 }
 
@@ -555,11 +554,11 @@ Cowstr::Cowstr(Block *b) : buf_(b) {
   F_INFO("Internal shared_ptr Constructor:{}", toString());
 }
 
-void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {
+void Cowstr::trimLeftImpl(Cowstr &s) {
   int cnt = 0;
   for (int i = 0; i < s.size(); i++) {
-    char c = s.head()[i];
-    if (!match(c, t)) {
+    char c = s[i];
+    if (!std::isspace(c)) {
       break;
     }
     cnt++;
@@ -569,11 +568,11 @@ void Cowstr::trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t) {
   }
 }
 
-void Cowstr::trimRightImpl(Cowstr &s, bool (*match)(char, char), char t) {
+void Cowstr::trimRightImpl(Cowstr &s) {
   int cnt = 0;
   for (int i = s.size() - 1; i >= 0; i--) {
-    char c = s.head()[i];
-    if (!match(c, t)) {
+    char c = s[i];
+    if (!std::isspace(c)) {
       break;
     }
     cnt++;

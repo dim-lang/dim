@@ -104,15 +104,12 @@ public:
   Cowstr upperCase() const;
   Cowstr lowerCase() const;
 
-  // remove all whitespaces/target on both left/right side
+  // remove all whitespaces on both sides
   Cowstr trim() const;
-  Cowstr trim(char target) const;
-  // remove all whitespaces/target on left side
+  // remove all whitespaces on left side
   Cowstr trimLeft() const;
-  Cowstr trimLeft(char target) const;
-  // remove all whitespaces/target on right side
+  // remove all whitespaces on right side
   Cowstr trimRight() const;
-  Cowstr trimRight(char target) const;
 
   /* read api */
 
@@ -218,8 +215,8 @@ private:
   Cowstr(Block *b);
 
   // trim implementation
-  static void trimLeftImpl(Cowstr &s, bool (*match)(char, char), char t);
-  static void trimRightImpl(Cowstr &s, bool (*match)(char, char), char t);
+  static void trimLeftImpl(Cowstr &s);
+  static void trimRightImpl(Cowstr &s);
 
   // search implementation
   static std::vector<int> kmpSearchPrefix(const char *needle, int n);

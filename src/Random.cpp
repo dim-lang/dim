@@ -164,6 +164,9 @@ static const int ControlLength = 32 - 0 + 128 - 127;
 static const std::vector<std::pair<int, int>> Printable = {{32, 127}};
 static const int PrintableLength = 127 - 32;
 
+static const std::vector<std::pair<int, int>> Whitespace = {{9, 14}, {32, 33}};
+static const int WhitespaceLength = 14 - 9 + 33 - 32;
+
 static const std::vector<std::pair<int, int>> Ascii = {{0, 128}};
 static const int AsciiLength = 128 - 0;
 
@@ -236,6 +239,12 @@ char Random::nextPrintableChar() {
   return c;
 }
 
+char Random::nextWhitespaceChar() {
+  char c = nextAsciiChar(Whitespace, WhitespaceLength);
+  F_CHECK(std::isspace(c), "c {} isspace", (int)c);
+  return c;
+}
+
 char Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
 
 char Random::nextChar(const std::string &candidates) {
@@ -273,6 +282,10 @@ std::string Random::nextControl(int len) {
 
 std::string Random::nextPrintable(int len) {
   return nextAsciiString(Printable, PrintableLength, len);
+}
+
+std::string Random::nextWhitespace(int len) {
+  return nextAsciiString(Whitespace, WhitespaceLength, len);
 }
 
 std::string Random::nextAscii(int len) {

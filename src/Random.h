@@ -39,6 +39,7 @@ public:
   static std::string nextHex(int len = 1);
   static std::string nextPunctuation(int len = 1);
   static std::string nextPrintable(int len = 1);
+  static std::string nextWhitespace(int len = 1);
   static std::string nextControl(int len = 1);
   static std::string nextAscii(int len = 1);
   static std::string nextString(const char *candidates, int n, int len = 1);
@@ -50,6 +51,7 @@ public:
   static char nextHexChar();
   static char nextPunctuationChar();
   static char nextPrintableChar();
+  static char nextWhitespaceChar();
   static char nextControlChar();
   static char nextAsciiChar();
   static char nextChar(const char *candidates, int n);

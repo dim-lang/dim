@@ -405,4 +405,32 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(std::memcmp(c3.head(), s3.data(), c3.size()) == 0);
     }
   }
+
+  SECTION("trim/trimLeft/trimRight") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextAlphaNumeric(i + 1) +
+                       fastype::Random::nextWhitespace(i) +
+                       fastype::Random::nextAlphaNumeric(i + 1);
+      std::string s2 = fastype::Random::nextWhitespace(i);
+      std::string s3 = fastype::Random::nextWhitespace(i);
+      std::string s4 = s2 + s1 + s3;
+      // left whitespace
+      std::string s5 = s2 + s1;
+      // right whitespace
+      std::string s6 = s1 + s3;
+      fastype::Cowstr c1(s4);
+      fastype::Cowstr c2 = c1.trim();
+      fastype::Cowstr c3 = c1.trimLeft();
+      fastype::Cowstr c4 = c1.trimRight();
+      if (c2.stdstr() != s1 || c3.stdstr() != s6 || c4.stdstr() != s5) {
+        F_ERROR("trim fail! s1:{}, s2:-{}-, s3:-{}-, s4:-{}-, s5:-{}-, "
+                "s6:-{}-, c1:{}, c2:{}, c3:{}",
+                s1, s2, s3, s4, s5, s6, c1.toString(), c2.toString(),
+                c3.toString());
+      }
+      REQUIRE(c2.stdstr() == s1);
+      REQUIRE(c3.stdstr() == s6);
+      REQUIRE(c4.stdstr() == s5);
+    }
+  }
 }
