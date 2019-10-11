@@ -269,6 +269,10 @@ std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
   }
 
   std::vector<int> pos = searchAll(head(), size(), s, n);
+  F_INFO("split searchAll position#size:{}", pos.size());
+  for (int i = 0; i < (int)pos.size(); i++) {
+    F_INFO("split searchAll, pos[{}]:{}", i, pos[i]);
+  }
   if (pos.empty()) {
     ret.push_back(*this);
     return ret;
@@ -279,7 +283,7 @@ std::vector<Cowstr> Cowstr::split(const char *s, int n) const {
     if (i == 0) {
       ret.push_back(pos[i] > 0 ? subString(0, pos[i]) : Cowstr());
     } else {
-      ret.push_back(subString(pos[i - 1] + n, pos[i] - pos[i - 1] - n + 1));
+      ret.push_back(subString(pos[i - 1] + n, pos[i] - pos[i - 1] - n));
     }
   }
   if (pos[pos.size() - 1] < size()) {
