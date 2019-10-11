@@ -8,11 +8,11 @@
 
 namespace fastype {
 
-class NCursesTerm : public Term {
+class NcursesTerm : public Term {
 public:
-  explicit NCursesTerm();
+  explicit NcursesTerm();
 
-  virtual ~NCursesTerm();
+  virtual ~NcursesTerm();
 
   virtual void show(const std::string &fileName);
 

@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "NCursesTerm.h"
+#include "NcursesTerm.h"
 #include "Buffer.h"
 #include "Logging.h"
 #include "Row.h"
@@ -15,14 +15,14 @@
 
 namespace fastype {
 
-NCursesTerm::NCursesTerm() : Term() {
+NcursesTerm::NcursesTerm() : Term() {
   (void)row_;
   (void)col_;
 }
 
-NCursesTerm::~NCursesTerm() {}
+NcursesTerm::~NcursesTerm() {}
 
-void NCursesTerm::show(const std::string &fileName) {
+void NcursesTerm::show(const std::string &fileName) {
   Sptr<Buffer> f = Buffer::open(fileName);
   int ch, row, col, y, x;
   initscr();
