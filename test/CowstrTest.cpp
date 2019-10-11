@@ -492,8 +492,31 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c3.endsWith(c2) == (s3[s3.length() - 1] == s2[0]));
       REQUIRE(c1.indexOf(c2) == s1.find(s2));
       REQUIRE(c3.indexOf(c2) == s3.find(s2));
+      if (c1.lastIndexOf(c2) != s1.find_last_of(s2)) {
+        F_ERROR_MSG("stop here");
+      }
+      if (c3.lastIndexOf(c2) != s3.find_last_of(s2)) {
+        F_ERROR_MSG("stop here");
+      }
       REQUIRE(c1.lastIndexOf(c2) == s1.find_last_of(s2));
       REQUIRE(c3.lastIndexOf(c2) == s3.find_last_of(s2));
+    }
+  }
+
+  SECTION("format") {
+    {
+      fastype::Cowstr c =
+          fastype::Cowstr::format("hello {}, goodbye {}", "world", "john");
+      REQUIRE(c.stdstr() == "hello world, goodbye john");
+    }
+    {
+      fastype::Cowstr c =
+          fastype::Cowstr::format("{}, {}, {}, {}", 1, 2, 0.501, -123);
+      REQUIRE(c.stdstr() == "1, 2, 0.501000, -123");
+    }
+    {
+      fastype::Cowstr c = fastype::Cowstr::format("there's no parameters here");
+      REQUIRE(c.stdstr() == "there's no parameters here");
     }
   }
 }
