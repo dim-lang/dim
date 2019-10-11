@@ -11,7 +11,5 @@ TEST_CASE("Logging", "[Logging]") {
     F_DEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
     F_INFO_MSG("info test");
     F_INFO("info test with args:{} {} {}", "hello", 1, 4.281);
-    F_ERROR_MSG("error test");
-    F_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
   }
 }

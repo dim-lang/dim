@@ -377,4 +377,32 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(std::memcmp(c3.head(), c1.head() + n1, c3.size()) == 0);
     }
   }
+
+  SECTION("upperCase/lowerCase") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      std::string s1 = fastype::Random::nextAlpha(i + 1);
+      std::string s2 = s1, s3 = s1;
+      std::transform(s1.begin(), s1.end(), s2.begin(),
+                     [](const char &c) -> char { return std::toupper(c); });
+      std::transform(s1.begin(), s1.end(), s3.begin(),
+                     [](const char &c) -> char { return std::tolower(c); });
+      fastype::Cowstr c1(s1);
+      fastype::Cowstr c2 = c1.upperCase();
+      fastype::Cowstr c3 = c1.lowerCase();
+      if (c2.size() != s2.length() ||
+          std::memcmp(c2.head(), s2.data(), c2.size()) != 0) {
+        F_ERROR("c2 == s2 fail! s1:{}, s2:{}, c1:{}, c2:{}", s1, s2,
+                c1.toString(), c2.toString());
+      }
+      if (c3.size() != s3.length() ||
+          std::memcmp(c3.head(), s3.data(), c3.size()) != 0) {
+        F_ERROR("c3 == s3 fail! s1:{}, s3:{}, c1:{}, c3:{}", s1, s3,
+                c1.toString(), c3.toString());
+      }
+      REQUIRE(c2.size() == s2.length());
+      REQUIRE(c3.size() == s3.length());
+      REQUIRE(std::memcmp(c2.head(), s2.data(), c2.size()) == 0);
+      REQUIRE(std::memcmp(c3.head(), s3.data(), c3.size()) == 0);
+    }
+  }
 }
