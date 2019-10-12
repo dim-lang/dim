@@ -646,7 +646,7 @@ char *Cowstr::kmpSearch(const char *haystack, int h, const char *needle, int n,
 
 char *Cowstr::reverseSearch(const char *haystack, int fromIndex,
                             const char *needle, int n, bool caseSensitive) {
-  if (!haystack || fromIndex <= 0 || !needle || n <= 0) {
+  if (!haystack || fromIndex < 0 || !needle || n <= 0) {
     return nullptr;
   }
   for (int i = fromIndex - n + 1; i >= 0; i--) {
