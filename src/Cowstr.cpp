@@ -6,13 +6,12 @@
 #include <algorithm>
 #include <boost/align/align_up.hpp>
 #include <cctype>
+#include <cstdlib>
 #include <cstring>
 #include <fmt/format.h>
+#include <string>
 #include <utility>
 #include <vector>
-
-#define F_ALIGN_UP 8
-#define F_ANY_CHAR '\0'
 
 namespace fastype {
 
@@ -415,16 +414,22 @@ int Cowstr::size() const { return buf_->size(); }
 int Cowstr::capacity() const { return buf_->capacity(); }
 
 bool Cowstr::operator==(const Cowstr &s) const { return compare(s) == 0; }
+bool Cowstr::operator==(const std::string &s) const { return compare(s) == 0; }
 
 bool Cowstr::operator!=(const Cowstr &s) const { return compare(s) != 0; }
+bool Cowstr::operator!=(const std::string &s) const { return compare(s) != 0; }
 
 bool Cowstr::operator<(const Cowstr &s) const { return compare(s) < 0; }
+bool Cowstr::operator<(const std::string &s) const { return compare(s) < 0; }
 
 bool Cowstr::operator<=(const Cowstr &s) const { return compare(s) <= 0; }
+bool Cowstr::operator<=(const std::string &s) const { return compare(s) <= 0; }
 
 bool Cowstr::operator>(const Cowstr &s) const { return compare(s) > 0; }
+bool Cowstr::operator>(const std::string &s) const { return compare(s) > 0; }
 
 bool Cowstr::operator>=(const Cowstr &s) const { return compare(s) >= 0; }
+bool Cowstr::operator>=(const std::string &s) const { return compare(s) >= 0; }
 
 int Cowstr::compare(const Cowstr &s) const {
   if (size() != s.size()) {
@@ -453,6 +458,36 @@ std::string Cowstr::toString() const {
       buf_ ? buf_->toString() : "null", (void *)head(), size(), capacity(),
       buf_.useCount());
 }
+
+int Cowstr::toInt(int *pos, int base) const {
+  std::string tmpStr = stdstr();
+  long tmpLong;
+  std::size_t sz;
+  if (pos) {
+    sz = *pos;
+  }
+  return std::stoi(tmpStr, pos ? &sz : nullptr, base);
+}
+
+long Cowstr::toLong(int *pos, int base) const {
+  std::string tmpStr = stdstr();
+  long tmpLong;
+  std::size_t sz;
+  if (pos) {
+    sz = *pos;
+  }
+  return std::stol(tmpStr.c_str(), &tmpLong, base);
+}
+
+long long Cowstr::toLongLong(int base) const {
+  std::string tmpStr = stdstr();
+  long long tmpLLong;
+  return std::strtoll(tmpStr.c_str(), &tmpLLong, base);
+}
+
+float Cowstr::toFloat() const { return 0.0F; }
+
+double Cowstr::toDouble() const { return 0.0F; }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
   return kmpSearch(head(), size(), s.head(), s.size(), caseSensitive) !=
@@ -681,6 +716,3 @@ std::vector<int> Cowstr::searchAll(const char *haystack, int h,
 }
 
 } // namespace fastype
-
-#undef F_ALIGN_UP
-#undef F_ANY_CHAR

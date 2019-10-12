@@ -115,6 +115,11 @@ public:
 
   // get stringify snapshot
   virtual std::string toString() const;
+  int toInt(int *pos = nullptr, int base = 10) const;
+  long toLong(int *pos = nullptr, int base = 10) const;
+  long long toLongLong(int *pos = nullptr, int base = 10) const;
+  float toFloat() const;
+  double toDouble() const;
 
   // raw data pointer at head
   char *head();
@@ -151,6 +156,12 @@ public:
   bool operator<=(const Cowstr &s) const;
   bool operator>(const Cowstr &s) const;
   bool operator>=(const Cowstr &s) const;
+  bool operator==(const std::string &s) const;
+  bool operator!=(const std::string &s) const;
+  bool operator<(const std::string &s) const;
+  bool operator<=(const std::string &s) const;
+  bool operator>(const std::string &s) const;
+  bool operator>=(const std::string &s) const;
   int compare(const Cowstr &s) const;
   int compare(const std::string &s) const;
   int compare(const char *s, int n) const;
