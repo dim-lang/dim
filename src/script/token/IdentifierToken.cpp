@@ -1,21 +1,20 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "script/token/IdToken.h"
+#include "script/token/IdentifierToken.h"
 #include <fmt/format.h>
 
 namespace fastype {
 
-bool IdToken::isIdentifier() const { return true; }
+IdentifierToken::IdentifierToken(int lineNumber, Cowstr literal)
+    : Token(lineNumber, TokenType::TT_IDENTIFIER), literal_(literal) {}
 
-std::string IdToken::text() const { return value_; }
+Cowstr IdentifierToken::literal() const { return literal_; }
 
-std::string IdToken::toString() const {
-  return fmt::format("[ @IdToken lineNumber_:{} value_:{} ]", lineNumber_,
-                     value_);
+std::string IdentifierToken::toString() const {
+  return fmt::format(
+      "[ @IdentifierToken lineNumber_:{}, literal_:{}, type_:{} ]", lineNumber_,
+      literal_.stdstr(), type_.name());
 }
-
-IdToken::IdToken(int line, const std::string &value)
-    : Token(line), value_(value) {}
 
 } // namespace fastype

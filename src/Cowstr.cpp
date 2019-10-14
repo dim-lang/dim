@@ -3,9 +3,11 @@
 
 #include "Cowstr.h"
 #include "Logging.h"
+#include "exception/ParseException.h"
 #include <algorithm>
 #include <boost/align/align_up.hpp>
 #include <cctype>
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <fmt/format.h>
@@ -459,35 +461,45 @@ std::string Cowstr::toString() const {
       buf_.useCount());
 }
 
-int Cowstr::toInt(int *pos, int base) const {
+int Cowstr::toInt(int base) const {
   std::string tmpStr = stdstr();
-  long tmpLong;
-  std::size_t sz;
-  if (pos) {
-    sz = *pos;
-  }
-  return std::stoi(tmpStr, pos ? &sz : nullptr, base);
+  std::size_t pos;
+  return std::stoi(tmpStr, &pos, base);
 }
 
-long Cowstr::toLong(int *pos, int base) const {
+long Cowstr::toLong(int base) const {
   std::string tmpStr = stdstr();
-  long tmpLong;
-  std::size_t sz;
-  if (pos) {
-    sz = *pos;
-  }
-  return std::stol(tmpStr.c_str(), &tmpLong, base);
+  std::size_t pos;
+  return std::stol(tmpStr, &pos, base);
 }
 
-long long Cowstr::toLongLong(int base) const {
+long long Cowstr::toLLong(int base) const {
   std::string tmpStr = stdstr();
-  long long tmpLLong;
-  return std::strtoll(tmpStr.c_str(), &tmpLLong, base);
+  std::size_t pos;
+  return std::stoll(tmpStr, &pos, base);
 }
 
-float Cowstr::toFloat() const { return 0.0F; }
+unsigned int Cowstr::toUInt(int base) const {
+  std::string tmpStr = stdstr();
+  std::size_t pos;
+  return (int)std::stoul(tmpStr, &pos, base);
+}
 
-double Cowstr::toDouble() const { return 0.0F; }
+unsigned long Cowstr::toULong(int base) const {
+  std::string tmpStr = stdstr();
+  std::size_t pos;
+  return std::stoul(tmpStr, &pos, base);
+}
+
+unsigned long long Cowstr::toULLong(int base) const {
+  std::string tmpStr = stdstr();
+  std::size_t pos;
+  return std::stoull(tmpStr, &pos, base);
+}
+
+float Cowstr::toFloat() const { return std::stof(stdstr()); }
+
+double Cowstr::toDouble() const { return std::stod(tmpStr, stdstr()); }
 
 bool Cowstr::contains(const Cowstr &s, bool caseSensitive) const {
   return kmpSearch(head(), size(), s.head(), s.size(), caseSensitive) !=

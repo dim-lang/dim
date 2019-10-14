@@ -7,17 +7,16 @@
 
 namespace fastype {
 
-class IdToken : public Token {
+class IdentifierToken : public Token {
 public:
-  IdToken(int line, const std::string &id);
-  virtual ~IdToken() = default;
-
-  virtual bool isIdentifier() const;
-  virtual std::string text() const;
+  IdentifierToken(int lineNumber, Cowstr literal);
+  virtual ~IdentifierToken() = default;
+  virtual Cowstr literal() const;
   virtual std::string toString() const;
+  bool operator==();
 
 private:
-  std::string value_;
+  Cowstr literal_;
 };
 
 } // namespace fastype

@@ -115,9 +115,12 @@ public:
 
   // get stringify snapshot
   virtual std::string toString() const;
-  int toInt(int *pos = nullptr, int base = 10) const;
-  long toLong(int *pos = nullptr, int base = 10) const;
-  long long toLongLong(int *pos = nullptr, int base = 10) const;
+  int toInt(int base = 10) const;
+  long toLong(int base = 10) const;
+  long long toLLong(int base = 10) const;
+  unsigned int toUInt(int base = 10) const;
+  unsigned long toULong(int base = 10) const;
+  unsigned long long toULLong(int base = 10) const;
   float toFloat() const;
   double toDouble() const;
 

@@ -7,18 +7,15 @@
 
 namespace fastype {
 
-class NumberToken : public Token {
+class IntegerToken : public Token {
 public:
-  NumberToken(int line, int64_t value);
-  virtual ~NumberToken() = default;
-
-  virtual bool isNumber() const;
-  virtual int number() const;
-  virtual std::string text() const;
+  IntegerToken(int lineNumber, long long value);
+  virtual ~IntegerToken() = default;
+  virtual long long integer() const;
   virtual std::string toString() const;
 
 private:
-  int64_t value_;
+  long long value_;
 };
 
 } // namespace fastype

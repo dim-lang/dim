@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "exception/DeclExcept.h"
+#include "exception/Exception.h"
 
 namespace fastype {
 
-F_DECL_EXCEPT(ScriptException);
+F_EXCEPTION(ScriptException);
 
 } // namespace fastype

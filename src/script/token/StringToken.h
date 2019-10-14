@@ -9,15 +9,13 @@ namespace fastype {
 
 class StringToken : public Token {
 public:
-  StringToken(int line, const std::string &value);
+  StringToken(int lineNumber, Cowstr literal);
   virtual ~StringToken() = default;
-
-  virtual bool isString() const;
-  virtual std::string text() const;
+  virtual Cowstr literal() const;
   virtual std::string toString() const;
 
 private:
-  std::string value_;
+  Cowstr literal_;
 };
 
 } // namespace fastype

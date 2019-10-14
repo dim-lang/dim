@@ -71,6 +71,13 @@ public:
     return *this;
   }
 
+  bool operator==(const Sptr<T> &sp) { return ptr_ == sp.ptr_; }
+  bool operator!=(const Sptr<T> &sp) { return ptr_ != sp.ptr_; }
+  bool operator<(const Sptr<T> &sp) { return (char *)ptr_ < (char *)sp.ptr_; }
+  bool operator<=(const Sptr<T> &sp) { return (char *)ptr_ <= (char *)sp.ptr_; }
+  bool operator>(const Sptr<T> &sp) { return (char *)ptr_ > (char *)sp.ptr_; }
+  bool operator>=(const Sptr<T> &sp) { return (char *)ptr_ >= (char *)sp.ptr_; }
+
   // move
   Sptr(Sptr<T> &&sp) : Sptr() {
     swap(sp);
@@ -159,6 +166,13 @@ public:
   // disable copy
   Uptr(const Uptr<T> &) = delete;
   Uptr &operator=(const Uptr<T> &) = delete;
+
+  bool operator==(const Uptr<T> &sp) { return ptr_ == sp.ptr_; }
+  bool operator!=(const Uptr<T> &sp) { return ptr_ != sp.ptr_; }
+  bool operator<(const Uptr<T> &sp) { return (char *)ptr_ < (char *)sp.ptr_; }
+  bool operator<=(const Uptr<T> &sp) { return (char *)ptr_ <= (char *)sp.ptr_; }
+  bool operator>(const Uptr<T> &sp) { return (char *)ptr_ > (char *)sp.ptr_; }
+  bool operator>=(const Uptr<T> &sp) { return (char *)ptr_ >= (char *)sp.ptr_; }
 
   // move
   Uptr(Uptr<T> &&up) : Uptr() {

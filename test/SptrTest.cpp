@@ -180,4 +180,19 @@ TEST_CASE("Sptr", "[Sptr]") {
       REQUIRE(p1->name() == std::string("goodbye ") + std::to_string(i));
     }
   }
+
+  SECTION("comparator") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      fastype::Sptr<SptrPeople> p1(
+          new SptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
+      fastype::Sptr<SptrPeople> p2(new SptrPeople(
+          std::string("goodbye ") + std::to_string(i), i * 2 + i));
+      REQUIRE((p1 == p2) == (p1.get() == p2.get()));
+      REQUIRE((p1 != p2) == (p1.get() != p2.get()));
+      REQUIRE((p1 < p2) == (p1.get() < p2.get()));
+      REQUIRE((p1 <= p2) == (p1.get() <= p2.get()));
+      REQUIRE((p1 > p2) == (p1.get() > p2.get()));
+      REQUIRE((p1 >= p2) == (p1.get() >= p2.get()));
+    }
+  }
 }

@@ -3,66 +3,63 @@
 
 #include "script/Token.h"
 #include "Logging.h"
+#include "exception/NotFoundException.h"
+#include "exception/NotImplmentException.h"
 #include "script/token/EofToken.h"
+#include <fmt/format.h>
 #include <string>
 
 namespace fastype {
 
-const Token Token::T_EOF(-1, "", Token::TokenType::TT_EOF);
+static long long TokenId = 0LL;
 
-Token::Token(int lineNumber, Cowstr literal, TokenType type)
-    : lineNumber_(lineNumber), literal_(literal), type_(type) {
+Token::Token(int lineNumber, TokenType type)
+    : lineNumber_(lineNumber), type_(type), id_(TokenId++) {
   F_INFO("Constructor:{}", toString());
-}
-
-bool Token::operator==(const Token &t) const {
-  return literal_ == t.literal_ && type_ == t.type_;
-}
-
-bool Token::operator!=(const Token &t) const {
-  return literal_ != t.literal_ || type_ != t.type_;
 }
 
 const int &Token::lineNumber() const { return lineNumber_; }
 
 const TokenType &Token::type() const { return type_; }
 
-const Cowstr &TokenType::literal() const { return literal_; }
+long long Token::id() const { return id_; }
 
-bool Token::isEof() const { return type_ == Token::TokenType::TT_EOF; }
+bool Token::isEof() const { return type_ == TokenType::T_EOF; }
 
-bool Token::isEol() const { return type_ == Token::TokenType::TT_EOL; }
+bool Token::isEol() const { return type_ == TokenType::T_EOL; }
 
-bool Token::isKeyword() const { return type_ == Token::TokenType::TT_KEYWORD; }
+bool Token::isKeyword() const { return type_ == TokenType::T_KEYWORD; }
 
-bool Token::isOperator() const {
-  return type_ == Token::TokenType::TT_OPERATOR;
+bool Token::isOperator() const { return type_ == TokenType::T_OPERATOR; }
+
+bool Token::isString() const { return type_ == TokenType::T_STRING; }
+
+bool Token::isBoolean() const { return type_ == TokenType::T_BOOLEAN; }
+
+bool Token::isInteger() const { return type_ == TokenType::T_INTEGER; }
+
+bool Token::isFloating() const { return type_ == TokenType::T_FLOATING; }
+
+bool Token::isPunctuation() const { return type_ == TokenType::T_PUNCTUATION; }
+
+bool Token::isComment() const { return type_ == TokenType::T_COMMENT; }
+
+bool Token::isIdentifier() const { return type_ == TokenType::T_IDENTIFIER; }
+
+Cowstr Token::literal() const {
+  F_THROW("literal not implement! {}", toString());
 }
 
-bool Token::isString() const { return type_ == Token::TokenType::TT_STRING; }
-
-bool Token::isBoolean() const { return type_ == Token::TokenType::TT_BOOLEAN; }
-
-bool Token::isInteger() const { return type_ == Token::TokenType::TT_INTEGER; }
-
-bool Token::isFloating() const {
-  return type_ == Token::TokenType::TT_FLOATING;
+long long Token::integer() const {
+  F_THROW("integer not implement! {}", toString());
 }
 
-bool Token::isPunctuation() const {
-  return type_ == Token::TokenType::TT_PUNCTUATION;
+float Token::floating() const {
+  F_THROW("floating not implement! {}", toString());
 }
 
-bool Token::isComment() const { return type_ == TT_COMMENT; }
-
-bool Token::isIdentifier() const { return type_ == TT_IDENTIFIER; }
-
-const Cowstr &Token::text() const { return literal_; }
-
-int64_t Token::integer() const { return; }
-
-float Token::floating() const { return; }
-
-bool Token::boolean() const { return literal_ == "True"; }
+bool Token::boolean() const {
+  F_THROW("boolean not implement! {}", toString());
+}
 
 } // namespace fastype

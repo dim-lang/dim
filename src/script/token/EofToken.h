@@ -9,10 +9,11 @@ namespace fastype {
 
 class EofToken : public Token {
 public:
-  EofToken(int line);
   virtual ~EofToken() = default;
-
   virtual std::string toString() const;
+
+private:
+  EofToken();
 };
 
 } // namespace fastype

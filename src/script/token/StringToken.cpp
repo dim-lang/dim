@@ -6,16 +6,14 @@
 
 namespace fastype {
 
-bool StringToken::isString() const { return true; }
+StringToken::StringToken(int lineNumber, Cowstr literal)
+    : Token(lineNumber, TokenType::TT_STRING), literal_(literal) {}
 
-std::string StringToken::text() const { return value_; }
+Cowstr StringToken::literal() const { return literal_; }
 
 std::string StringToken::toString() const {
-  return fmt::format("[ @StringToken lineNumber_:{} value_:{} ]", lineNumber_,
-                     value_);
+  return fmt::format("[ @StringToken lineNumber_:{}, literal_:{}, type_:{} ]",
+                     lineNumber_, literal_.stdstr(), type_.name);
 }
-
-StringToken::StringToken(int line, const std::string &value)
-    : Token(line), value_(value) {}
 
 } // namespace fastype

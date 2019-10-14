@@ -63,9 +63,9 @@ set(F_CORE
     script/Token.cpp
     script/Lexer.cpp
     script/token/EofToken.cpp
-    script/token/IdToken.cpp
+    script/token/IdentifierToken.cpp
     script/token/StringToken.cpp
-    script/token/NumberToken.cpp
+    script/token/IntegerToken.cpp
     script/token/BooleanToken.cpp
 
     Hasher.cpp

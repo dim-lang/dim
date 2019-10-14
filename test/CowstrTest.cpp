@@ -513,4 +513,30 @@ TEST_CASE("Cowstr", "[Cowstr]") {
       REQUIRE(c.stdstr() == "there's no parameters here");
     }
   }
+
+  SECTION("parse interger") {
+    fastype::Cowstr c1("92183"), c2("1000"), c3("-123"), c4("30.12"),
+        c5("3941.4F");
+    REQUIRE(c1.toInt() == 92183);
+    REQUIRE(c2.toInt() == 1000);
+    REQUIRE(c3.toInt() == -123);
+    REQUIRE(c1.toLong() == 92183L);
+    REQUIRE(c2.toLong() == 1000L);
+    REQUIRE(c3.toLong() == -123L);
+    REQUIRE(c1.toLLong() == 92183LL);
+    REQUIRE(c2.toLLong() == 1000LL);
+    REQUIRE(c3.toLLong() == -123LL);
+    REQUIRE(c1.toUInt() == 92183U);
+    REQUIRE(c2.toUInt() == 1000U);
+    REQUIRE(c3.toUInt() == -123U);
+    REQUIRE(c1.toULong() == 92183UL);
+    REQUIRE(c2.toULong() == 1000UL);
+    REQUIRE(c3.toULong() == -123UL);
+    REQUIRE(c1.toULLong() == 92183ULL);
+    REQUIRE(c2.toULLong() == 1000ULL);
+    REQUIRE(c3.toULLong() == -123ULL);
+    REQUIRE(c1.toFloat() == 92183F);
+    REQUIRE(c4.toFloat() == 30.12F);
+    REQUIRE(c5.toFloat() == 3941.4F);
+  }
 }

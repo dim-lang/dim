@@ -6,10 +6,11 @@
 
 namespace fastype {
 
-std::string EofToken::toString() const {
-  return fmt::format("[ @EofToken lineNumber_:{} ]", lineNumber_);
-}
+EofToken::EofToken() : Token(-1, TokenType::TT_EOF) {}
 
-EofToken::EofToken(int line) : Token(line) {}
+std::string EofToken::toString() const {
+  return fmt::format("[ @EofToken lineNumber_:{}, type_:{} ]", lineNumber_,
+                     type_);
+}
 
 } // namespace fastype

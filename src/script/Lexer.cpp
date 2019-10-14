@@ -9,15 +9,17 @@
 #include <cstdlib>
 #include <cstring>
 #include <fmt/format.h>
+#include <regex>
 
 namespace fastype {
 
-static const std::string Pattern =
-    "\\s*((//.*)|([0-9]+)|(\"(\\\\\"|\\\\\\\\|\\\\n|[^\"])*\")"
-    "|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\|)?";
-//"|[A-Z_a-z][A-Z_a-z0-9]*|==|!=|<|<=|>|>=|&&|\\|\\||\\p{Punct})?";
-
-static const std::regex RegexPattern(Pattern);
+static const std::regex BooleanPattern("True|False");
+static const std::regex CommentPattern("//*|/\**\*/");
+static const std::regex EolPattern("\r\n|\n");
+static const std::regex IdentifierPattern("[A-Za-z_][A-Za-z0-9]*");
+static const std::regex FloatingPattern("\r\n|\n");
+static const std::regex IntegerPattern("(-)[0-9]+");
+static const std::regex KeywordPattern("let|func|class|null");
 
 Lexer::Lexer(void *resource, ResourceHandler resourceHandler)
     : more_(true), index_(0), length_(std::strlen((char *)resource)),

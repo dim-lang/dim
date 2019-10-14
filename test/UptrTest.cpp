@@ -112,4 +112,19 @@ TEST_CASE("Uptr", "[Uptr]") {
       REQUIRE(p6.get() == nullptr);
     }
   }
+
+  SECTION("comparator") {
+    for (int i = 0; i < TEST_MAX; i++) {
+      fastype::Uptr<SptrPeople> p1(
+          new UptrPeople(std::string("hello ") + std::to_string(i), i / 2 - i));
+      fastype::Uptr<SptrPeople> p2(new UptrPeople(
+          std::string("goodbye ") + std::to_string(i), i * 2 + i));
+      REQUIRE((p1 == p2) == (p1.get() == p2.get()));
+      REQUIRE((p1 != p2) == (p1.get() != p2.get()));
+      REQUIRE((p1 < p2) == (p1.get() < p2.get()));
+      REQUIRE((p1 <= p2) == (p1.get() <= p2.get()));
+      REQUIRE((p1 > p2) == (p1.get() > p2.get()));
+      REQUIRE((p1 >= p2) == (p1.get() >= p2.get()));
+    }
+  }
 }
