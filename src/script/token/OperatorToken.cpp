@@ -7,20 +7,14 @@
 
 namespace fastype {
 
-OperatorToken::OperatorToken(int lineNumber, Cowstr literal,
-                             OperatorTokenType ott)
-    : Token(lineNumber, TokenType::TT_OPERATOR), literal_(literal), ott_(ott) {}
+OperatorToken::OperatorToken(const icu::UnicodeString &value)
+    : Token(TokenType::TT_OPERATOR), value_(value) {}
 
-Cowstr OperatorToken::literal() const { return literal_; }
-
-const OperatorTokenType &OperatorToken::operatorTokenType() const {
-  return ott_;
-}
+icu::UnicodeString OperatorToken::literal() const { return value_; }
 
 std::string OperatorToken::toString() const {
-  return fmt::format(
-      "[ @OperatorToken lineNumber_:{}, literal_:{}, type_:{}, ott_:{} ]",
-      lineNumber_, literal_.stdstr(), type_.name(), ott_.name());
+  return fmt::format("[ @OperatorToken type_:{}, value_:{} ]", type_.name(),
+                     value_.stdstr());
 }
 
 } // namespace fastype

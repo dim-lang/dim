@@ -6,14 +6,14 @@
 
 namespace fastype {
 
-BooleanToken::BooleanToken(int lineNumber, bool value)
-    : Token(lineNumber, TokenType::TT_BOOLEAN), value_(value) {}
+BooleanToken::BooleanToken(bool value)
+    : Token(TokenType::TT_BOOLEAN), value_(value) {}
 
 bool BooleanToken::boolean() const { return value_; }
 
 std::string BooleanToken::toString() const {
-  return fmt::format("[ @BooleanToken lineNumber_:{}, value_:{}, type_:{} ]",
-                     lineNumber_, value_, type_.name());
+  return fmt::format("[ @BooleanToken type_:{}, value_:{} ]", type_.name(),
+                     value_ ? "True" : "False");
 }
 
 } // namespace fastype

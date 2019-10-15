@@ -5,57 +5,100 @@
 #include "Logging.h"
 #include "exception/NotFoundException.h"
 #include "exception/NotImplmentException.h"
+#include "script/token/BooleanToken.h"
 #include "script/token/EofToken.h"
+#include "script/token/IntegerToken.h"
+#include "script/token/OperatorToken.h"
 #include <fmt/format.h>
 #include <string>
 
 namespace fastype {
 
-static long long TokenId = 0LL;
+static Sptr<Token> Token::T_EOF;
 
-Token::Token(int lineNumber, TokenType type)
-    : lineNumber_(lineNumber), type_(type), id_(TokenId++) {
-  F_INFO("Constructor:{}", toString());
+static Sptr<Token> Token::T_ADD(UNICODE_STRING("+"));
+static Sptr<Token> Token::T_SUB(UNICODE_STRING("-"));
+static Sptr<Token> Token::T_MUL(UNICODE_STRING("*"));
+static Sptr<Token> Token::T_DIV(UNICODE_STRING("/"));
+static Sptr<Token> Token::T_MOD(UNICODE_STRING("%"));
+
+static Sptr<Token> Token::T_ASSIGNMENT(UNICODE_STRING("="));
+
+static Sptr<Token> Token::T_EQ(UNICODE_STRING("=="));
+static Sptr<Token> Token::T_NEQ(UNICODE_STRING("!="));
+static Sptr<Token> Token::T_LT(UNICODE_STRING("<"));
+static Sptr<Token> Token::T_LE(UNICODE_STRING("<="));
+static Sptr<Token> Token::T_GT(UNICODE_STRING(">"));
+static Sptr<Token> Token::T_GE(UNICODE_STRING(">="));
+
+static Sptr<Token> Token::T_TRUE(UNICODE_STRING("True"));
+static Sptr<Token> Token::T_FALSE(UNICODE_STRING("False"));
+
+const std::unordered_set<Sptr<Token>> Token::eofs() {
+  const static std::unordered_set<Sptr<Token>> types = {
+      Token::T_EOF,
+  };
+  return types;
 }
 
-const int &Token::lineNumber() const { return lineNumber_; }
+const std::unordered_set<Sptr<Token>> Token::operators() {
+  const static std::unordered_set<Sptr<Token>> types = {
+      Token::T_ADD, Token::T_SUB, Token::T_MUL, Token::T_DIV, Token::T_MOD,
+  };
+  return types;
+}
+
+const std::unordered_set<Sptr<Token>> Token::assignments() {
+  const static std::unordered_set<Sptr<Token>> types = {
+      Token::T_ASSIGNMENT,
+  };
+  return types;
+}
+
+const std::unordered_set<Sptr<Token>> Token::comparators() {
+  const static std::unordered_set<Sptr<Token>> types = {
+      Token::T_EQ, Token::T_NEQ, Token::T_LT,
+      Token::T_LE, Token::T_GT,  Token::T_GE,
+  };
+  return types;
+}
+
+const std::unordered_set<Sptr<Token>> Token::booleans() {
+  const static std::unordered_set<Sptr<Token>> types = {
+      Token::T_TRUE,
+      Token::T_FALSE,
+  };
+  return types;
+}
+
+static long long TokenId = 0LL;
+
+Token::Token(TokenType type) : type_(type), id_(TokenId++) {
+  F_INFO("Constructor:{}", toString());
+}
 
 const TokenType &Token::type() const { return type_; }
 
 long long Token::id() const { return id_; }
 
-bool Token::isEof() const { return type_ == TokenType::T_EOF; }
+bool Token::isEof() const { return type_ == TokenType::TT_EOF; }
 
-bool Token::isEol() const { return type_ == TokenType::T_EOL; }
+bool Token::isOperator() const { return type_ == TokenType::TT_OPERATOR; }
 
-bool Token::isKeyword() const { return type_ == TokenType::T_KEYWORD; }
+bool Token::isAssignment() const { return type_ == TokenType::TT_ASSIGNMENT; }
 
-bool Token::isOperator() const { return type_ == TokenType::T_OPERATOR; }
-
-bool Token::isString() const { return type_ == TokenType::T_STRING; }
+bool Token::isComparator() const { return type_ == TokenType::TT_COMPARATOR; }
 
 bool Token::isBoolean() const { return type_ == TokenType::T_BOOLEAN; }
 
 bool Token::isInteger() const { return type_ == TokenType::T_INTEGER; }
 
-bool Token::isFloating() const { return type_ == TokenType::T_FLOATING; }
-
-bool Token::isPunctuation() const { return type_ == TokenType::T_PUNCTUATION; }
-
-bool Token::isComment() const { return type_ == TokenType::T_COMMENT; }
-
-bool Token::isIdentifier() const { return type_ == TokenType::T_IDENTIFIER; }
-
-Cowstr Token::literal() const {
+icu::UnicodeString Token::literal() const {
   F_THROW("literal not implement! {}", toString());
 }
 
 long long Token::integer() const {
   F_THROW("integer not implement! {}", toString());
-}
-
-float Token::floating() const {
-  F_THROW("floating not implement! {}", toString());
 }
 
 bool Token::boolean() const {

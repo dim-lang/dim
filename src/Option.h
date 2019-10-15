@@ -28,17 +28,20 @@ public:
   bool hasInputFile() const;
   std::vector<std::string> inputFileList() const;
 
+  // --host
+  int port() const;
+
   // --port, -p
   // by default: 10001
   int port() const;
 
-  // --thread-size, -t
+  // --thread, -t
   // by default: 4
   int threadSize() const;
 
-  // --daemonize, -d
+  // --debug, -d
   // by default: false
-  bool daemonize() const;
+  bool debug() const;
 
 private:
   Option();

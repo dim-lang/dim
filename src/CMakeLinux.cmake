@@ -31,7 +31,6 @@ set(F_LIB
     Threads::Threads
     boost_program_options
     boost_system
-    #boost_thread
     icuuc
     icuio
     icudata

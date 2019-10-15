@@ -2,31 +2,31 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "ResourceHandler.h"
 #include "SmartPointer.h"
+#include "Stringify.h"
 #include "script/Token.h"
 #include <deque>
+#include <unistr.h>
+#include <ustring.h>
 
 namespace fastype {
 
-class Lexer {
+class Lexer : public Stringify {
 public:
-  Lexer(void *resource, ResourceHandler resourceHandler);
+  Lexer(const icu::UnicodeString &text);
   virtual ~Lexer();
 
-  virtual Token read();
-  virtual Token peek(int i);
+  virtual Sptr<Token> read();
+  virtual Sptr<Token> peek(int i);
+  virtual std::string toString() const;
 
 private:
   virtual bool fillQueue(int i);
-  virtual void readLine();
-  virtual std::string toStringLiteral(const std::string &s);
 
   std::deque<Sptr<Token>> queue_;
   bool more_;
-  int index_;
-  int length_;
-  ResourceHolder resourceHolder_;
+  int pos_;
+  icu::UnicodeString text_;
 };
 
 } // namespace fastype

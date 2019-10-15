@@ -33,7 +33,6 @@ set(F_LIB
     fmt
     boost_program_options-mt
     boost_system-mt
-    #boost_thread-mt
     icuuc
     icuio
     icudata

@@ -9,15 +9,13 @@ namespace fastype {
 
 class OperatorToken : public Token {
 public:
-  OperatorToken(int lineNumber, Cowstr literal, TokenType ott);
+  OperatorToken(const icu::UnicodeString &value);
   virtual ~OperatorToken() = default;
-  virtual Cowstr literal() const;
-  virtual const TokenType &operatorTokenType() const;
+  virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 
 private:
-  Cowstr literal_;
-  TokenType ott_;
+  icu::UnicodeString value_;
 };
 
 } // namespace fastype

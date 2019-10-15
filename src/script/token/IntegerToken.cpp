@@ -6,14 +6,14 @@
 
 namespace fastype {
 
-IntegerToken::IntegerToken(int lineNumber, long long value)
-    : Token(lineNumber_, TokenType::TT_INTEGER), value_(value) {}
+IntegerToken::IntegerToken(long long value)
+    : Token(TokenType::TT_INTEGER), value_(value) {}
 
 long long IntegerToken::integer() const { return value_; }
 
 std::string IntegerToken::toString() const {
-  return fmt::format("[ @IntegerToken lineNumber_:{}, value_:{}, type_:{} ]",
-                     lineNumber_, value_, type_.name());
+  return fmt::format("[ @IntegerToken type_:{}, value_:{} ]", type_.name(),
+                     value_);
 }
 
 } // namespace fastype

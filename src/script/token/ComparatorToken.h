@@ -7,15 +7,15 @@
 
 namespace fastype {
 
-class FloatingToken : public Token {
+class ComparatorToken : public Token {
 public:
-  FloatingToken(int lineNumber, float value);
-  virtual ~FloatingToken() = default;
-  virtual float floating() const;
+  ComparatorToken(const icu::UnicodeString &value);
+  virtual ~ComparatorToken() = default;
+  virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 
 private:
-  float value_;
+  icu::UnicodeString value_;
 };
 
 } // namespace fastype

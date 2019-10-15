@@ -9,7 +9,7 @@ namespace fastype {
 
 class IntegerToken : public Token {
 public:
-  IntegerToken(int lineNumber, long long value);
+  IntegerToken(long long value);
   virtual ~IntegerToken() = default;
   virtual long long integer() const;
   virtual std::string toString() const;

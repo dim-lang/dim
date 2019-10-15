@@ -9,7 +9,7 @@ namespace fastype {
 
 class BooleanToken : public Token {
 public:
-  BooleanToken(int lineNumber, bool value);
+  BooleanToken(bool value);
   virtual ~BooleanToken() = default;
   virtual bool boolean() const;
   virtual std::string toString() const;

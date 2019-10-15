@@ -7,15 +7,15 @@
 
 namespace fastype {
 
-class EolToken : public Token {
+class AssignmentToken : public Token {
 public:
-  EolToken(int lineNumber, Cowstr literal);
-  virtual ~EolToken() = default;
-  virtual Cowstr literal() const;
+  AssignmentToken(const icu::UnicodeString &value);
+  virtual ~AssignmentToken() = default;
+  virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 
 private:
-  Cowstr literal_;
+  icu::UnicodeString value_;
 };
 
 } // namespace fastype

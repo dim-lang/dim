@@ -2,28 +2,22 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
 #include <string>
+#include <unistr.h>
 #include <unordered_set>
+#include <ustring.h>
 
 namespace fastype {
 
 class TokenType {
 public:
   // token type
-  const static TokenType TT_EOF;      // end of file
-  const static TokenType TT_EOL;      // end of line, '\n' '\r\n'
-  const static TokenType TT_KEYWORD;  // key word: let, func, class, null
-  const static TokenType TT_OPERATOR; // operator: + - * / % = == != < <= > >=
-  const static TokenType TT_STRING;   // string: "A", "Hello World!\\"
-  const static TokenType TT_BOOLEAN;  // boolean: True, False
-  const static TokenType TT_INTEGER;  // integer: 1, 2, 3, -10
-  const static TokenType TT_FLOATING; // floating: 0.1, 2e-5, -1.034e+4
-  const static TokenType TT_PUNCTUATION; // punctuation: , ; ? : ( ) [ ] { }
-  const static TokenType TT_COMMENT; // comment: one line comment, block comment
-  const static TokenType TT_IDENTIFIER; // variable/function/class identifier
-
-  static const std::unordered_set<TokenType> &all();
+  const static TokenType TT_EOF;        // end of file
+  const static TokenType TT_INTEGER;    // integer
+  const static TokenType TT_OPERATOR;   // operator: + - * / %
+  const static TokenType TT_COMPARATOR; // comparator: == != < <= > >=
+  const static TokenType TT_ASSIGNMENT; // assignment: =
+  const static TokenType TT_BOOLEAN;    // boolean: True False
 
   bool operator==(const TokenType &t) const;
   bool operator!=(const TokenType &t) const;
@@ -32,19 +26,18 @@ public:
   bool operator>(const TokenType &t) const;
   bool operator>=(const TokenType &t) const;
 
-  std::string name() const;
+  const icu::UnicodeString &name() const;
   int value() const;
 
-  static TokenType fromName(const std::string &name);
-  static TokenType fromName(Cowstr name);
+  static TokenType fromName(const icu::UnicodeString &name);
   static TokenType fromValue(int value);
+  static const std::unordered_set<TokenType> &types();
 
 private:
-  TokenType(int value, const std::string &name);
+  TokenType(int value, const icu::UnicodeString &name);
 
-  int type_;
-  int subtype_;
-  std::string name_;
+  int value_;
+  icu::UnicodeString name_;
 };
 
 } // namespace fastype

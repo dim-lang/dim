@@ -5,17 +5,12 @@
 
 namespace fastype {
 
-static TokenType TokenType::TT_EOF(100, "EOF");
-static TokenType TokenType::TT_EOL(200, "EOL");
-static TokenType TokenType::TT_KEYWORD(300, "KEYWORD");
-static TokenType TokenType::TT_OPERATOR(400, "OPERATOR");
-static TokenType TokenType::TT_STRING(500, "STRING");
-static TokenType TokenType::TT_BOOLEAN(600, "BOOLEAN");
-static TokenType TokenType::TT_INTEGER(700, "INTEGER");
-static TokenType TokenType::TT_FLOATING(800, "FLOATING");
-static TokenType TokenType::TT_PUNCTUATION(900, "PUNCTUATION");
-static TokenType TokenType::TT_COMMENT(1000, "COMMENT");
-static TokenType TokenType::TT_IDENTIFIER(1100, "IDENTIFIER");
+static TokenType TokenType::TT_EOF(1, UNICODE_STRING("EOF"));
+static TokenType TokenType::TT_OPERATOR(2, UNICODE_STRING("OPERATOR"));
+static TokenType TokenType::TT_BOOLEAN(3, UNICODE_STRING("BOOLEAN"));
+static TokenType TokenType::TT_INTEGER(4, UNICODE_STRING("INTEGER"));
+static TokenType TokenType::TT_COMPARATOR(5, UNICODE_STRING("COMPARATOR"));
+static TokenType TokenType::TT_ASSIGNMENT(6, UNICODE_STRING("ASSIGNMENT"));
 
 bool TokenType::operator==(const TokenType &t) const {
   return value_ == t.value_;
@@ -41,31 +36,23 @@ bool TokenType::operator>=(const TokenType &t) const {
   return value_ >= t.value_;
 }
 
-std::string TokenType::name() const { return name_; }
+const icu::UnicodeString &TokenType::name() const { return name_; }
 
 int TokenType::value() const { return value_; }
 
-TokenType TokenType::fromName(const std::string &name) {
-  for (auto tt : all()) {
+TokenType TokenType::fromName(const icu::UnicodeString &name) {
+  for (const TokenType &tt : types()) {
     if (name == tt.name()) {
       return tt;
     }
   }
-  F_THROW(NotFoundException, "TokenType not found! name:{}", name);
-}
-
-TokenType TokenType::fromName(Cowstr name) {
-  for (auto tt : all()) {
-    if (name == tt.name()) {
-      return tt;
-    }
-  }
-  F_THROW(NotFoundException, "TokenType not found! Cowstr name:{}",
-          name.toString());
+  std::string utf8;
+  F_THROW(NotFoundException, "TokenType not found! name:{}",
+          name.toUTF8String(utf8));
 }
 
 TokenType TokenType::fromValue(int value) {
-  for (auto tt : all()) {
+  for (const TokenType &tt : types()) {
     if (tt.value() == value) {
       return tt;
     }
@@ -73,18 +60,15 @@ TokenType TokenType::fromValue(int value) {
   F_THROW(NotFoundException, "TokenType not found! value:{}", value);
 }
 
-static const std::unordered_set<TokenType> &TokenType::all() {
+static const std::unordered_set<TokenType> &TokenType::types() {
   const static std::unordered_set<TokenType> types = {
-      TokenType::TT_EOF,         TokenType::TT_EOL,
-      TokenType::TT_KEYWORD,     TokenType::TT_OPERATOR,
-      TokenType::TT_STRING,      TokenType::TT_BOOLEAN,
-      TokenType::TT_INTEGER,     TokenType::TT_FLOATING,
-      TokenType::TT_PUNCTUATION, TokenType::TT_COMMENT,
-      TokenType::TT_IDENTIFIER};
+      TokenType::TT_EOF,     TokenType::TT_OPERATOR,   TokenType::TT_BOOLEAN,
+      TokenType::TT_INTEGER, TokenType::TT_COMPARATOR, TokenType::TT_ASSIGNMENT,
+  };
   return types;
 }
 
-TokenType::TokenType(int value, const std::string &name)
+TokenType::TokenType(int value, const icu::UnicodeString &name)
     : value_(value), name_(name) {}
 
 } // namespace fastype
