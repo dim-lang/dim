@@ -12,9 +12,7 @@
 
 namespace fastype {
 
-/**
- * copy-on-write string
- */
+// deprecate
 class Cowstr : public Stringify {
 public:
   Cowstr();
