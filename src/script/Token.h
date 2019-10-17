@@ -7,8 +7,9 @@
 #include "exception/ScriptException.h"
 #include "script/TokenType.h"
 #include <string>
-#include <unistr.h>
-#include <ustring.h>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 

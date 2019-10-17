@@ -18,6 +18,7 @@
 #include <cstring>
 #include <fmt/format.h>
 #include <regex>
+#include <uchar.h>
 
 #define F_TO_STRING_TEXT_MAX 128
 
@@ -94,29 +95,97 @@ void Lexer::readLine() {
   int lineNumber = 0;
   int i = 0;
   while (i < line.size()) {
-    if (line.tempSubString(i, 1) == Token::T_ADD->literal()) {
+    // whitespace
+    if (u_isspace(line.charAt(i))) {
+      i += 1;
+      continue;
+    }
+    // +
+    if (line.charAt(i) == Token::T_ADD->literal().charAt(0)) {
       queue_.push_back(Token::T_ADD);
+      i += 1;
+      continue;
     }
-    if (line.tempSubString(i, 1) == Token::T_SUB->literal()) {
+    // -
+    if (line.charAt(i) == Token::T_SUB->literal().charAt(0)) {
       queue_.push_back(Token::T_SUB);
+      i += 1;
+      continue;
     }
-    if (line.tempSubString(i, 1) == Token::T_MUL->literal()) {
+    // *
+    if (line.charAt(i) == Token::T_MUL->literal().charAt(0)) {
       queue_.push_back(Token::T_MUL);
+      i += 1;
+      continue;
     }
-    if (line.tempSubString(i, 1) == Token::T_DIV->literal()) {
+    // /
+    if (line.charAt(i) == Token::T_DIV->literal().charAt(0)) {
       queue_.push_back(Token::T_DIV);
+      i += 1;
+      continue;
     }
-    if (line.tempSubString(i, 1) == Token::T_MOD->literal()) {
+    // %
+    if (line.charAt(i) == Token::T_MOD->literal().charAt(0)) {
       queue_.push_back(Token::T_MOD);
+      i += 1;
+      continue;
     }
-    if (line.tempSubString(i, 1) == Token::T_ASSIGNMENT->literal()) {
+    // =
+    if (line.charAt(i) == Token::T_ASSIGNMENT->literal().charAt(0)) {
       queue_.push_back(Token::T_ASSIGNMENT);
+      i += 1;
+      continue;
     }
-    if (line.length() >= 2 &&
-        line.tempSubString(i, 2) == Token::T_EQ->literal()) {
+    if (line.charAt(i) == UNICODE_STRING) {
+    }
+    // ==
+    if (line.tempSubString(i, 2) == Token::T_EQ->literal()) {
       queue_.push_back(Token::T_EQ);
+      i += 2;
+      continue;
     }
-    i++;
+    // !=
+    if (line.tempSubString(i, 2) == Token::T_NEQ->literal()) {
+      queue_.push_back(Token::T_NEQ);
+      i += 2;
+      continue;
+    }
+    // <
+    if (line.tempSubString(i, 2) == Token::T_LT->literal()) {
+      queue_.push_back(Token::T_LT);
+      i += 2;
+      continue;
+    }
+    // <=
+    if (line.tempSubString(i, 2) == Token::T_LE->literal()) {
+      queue_.push_back(Token::T_LE);
+      i += 2;
+      continue;
+    }
+    // >
+    if (line.tempSubString(i, 2) == Token::T_GT->literal()) {
+      queue_.push_back(Token::T_GT);
+      i += 2;
+      continue;
+    }
+    // >=
+    if (line.tempSubString(i, 2) == Token::T_GE->literal()) {
+      queue_.push_back(Token::T_GE);
+      i += 2;
+      continue;
+    }
+    // True
+    if (line.tempSubString(i, 4) == Token::T_TRUE->literal()) {
+      queue_.push_back(Token::T_TRUE);
+      i += 4;
+      continue;
+    }
+    // False
+    if (line.tempSubString(i, 5) == Token::T_FALSE->literal()) {
+      queue_.push_back(Token::T_FALSE);
+      i += 5;
+      continue;
+    }
   }
 
   std::string Lexer::toStringLiteral(const std::string &s) {
