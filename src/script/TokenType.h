@@ -2,10 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Stringify.h"
 #include <string>
-#include <unistr.h>
-#include <unordered_set>
-#include <ustring.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
+#include <vector>
 
 namespace fastype {
 
@@ -28,10 +29,11 @@ public:
 
   const icu::UnicodeString &name() const;
   int value() const;
+  virtual std::string toString() const;
 
   static TokenType fromName(const icu::UnicodeString &name);
   static TokenType fromValue(int value);
-  static const std::unordered_set<TokenType> &types();
+  static const std::vector<TokenType> &types();
 
 private:
   TokenType(int value, const icu::UnicodeString &name);

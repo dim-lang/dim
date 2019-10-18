@@ -5,12 +5,14 @@
 
 namespace fastype {
 
-static TokenType TokenType::TT_EOF(1, UNICODE_STRING("EOF"));
-static TokenType TokenType::TT_OPERATOR(2, UNICODE_STRING("OPERATOR"));
-static TokenType TokenType::TT_BOOLEAN(3, UNICODE_STRING("BOOLEAN"));
-static TokenType TokenType::TT_INTEGER(4, UNICODE_STRING("INTEGER"));
-static TokenType TokenType::TT_COMPARATOR(5, UNICODE_STRING("COMPARATOR"));
-static TokenType TokenType::TT_ASSIGNMENT(6, UNICODE_STRING("ASSIGNMENT"));
+static TokenType TokenType::TT_EOF(1, UNICODE_STRING_SIMPLE("EOF"));
+static TokenType TokenType::TT_OPERATOR(2, UNICODE_STRING_SIMPLE("OPERATOR"));
+static TokenType TokenType::TT_BOOLEAN(3, UNICODE_STRING_SIMPLE("BOOLEAN"));
+static TokenType TokenType::TT_INTEGER(4, UNICODE_STRING_SIMPLE("INTEGER"));
+static TokenType TokenType::TT_COMPARATOR(5,
+                                          UNICODE_STRING_SIMPLE("COMPARATOR"));
+static TokenType TokenType::TT_ASSIGNMENT(6,
+                                          UNICODE_STRING_SIMPLE("ASSIGNMENT"));
 
 bool TokenType::operator==(const TokenType &t) const {
   return value_ == t.value_;
@@ -40,6 +42,12 @@ const icu::UnicodeString &TokenType::name() const { return name_; }
 
 int TokenType::value() const { return value_; }
 
+std::string TokenType::toString() const {
+  std::string utf8;
+  return fmt::format("[ @TokenType value_:{}, name_:{} ]", value_,
+                     name_.toUTF8String(utf8));
+}
+
 TokenType TokenType::fromName(const icu::UnicodeString &name) {
   for (const TokenType &tt : types()) {
     if (name == tt.name()) {
@@ -60,8 +68,8 @@ TokenType TokenType::fromValue(int value) {
   F_THROW(NotFoundException, "TokenType not found! value:{}", value);
 }
 
-static const std::unordered_set<TokenType> &TokenType::types() {
-  const static std::unordered_set<TokenType> types = {
+static const std::vector<TokenType> &TokenType::types() {
+  const static std::vector<TokenType> types = {
       TokenType::TT_EOF,     TokenType::TT_OPERATOR,   TokenType::TT_BOOLEAN,
       TokenType::TT_INTEGER, TokenType::TT_COMPARATOR, TokenType::TT_ASSIGNMENT,
   };

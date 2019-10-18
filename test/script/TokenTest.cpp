@@ -3,98 +3,65 @@
 
 #include "script/Token.h"
 #include "Logging.h"
+#include "Random.h"
 #include "catch2/catch.hpp"
+#include "script/token/AssignmentToken.h"
 #include "script/token/BooleanToken.h"
+#include "script/token/ComparatorToken.h"
 #include "script/token/EofToken.h"
-#include "script/token/IdToken.h"
-#include "script/token/NumberToken.h"
+#include "script/token/IntegerToken.h"
+#include "script/token/OperatorToken.h"
 #include "script/token/StringToken.h"
 #include <cstdlib>
 #include <cstring>
 #include <string>
 
 TEST_CASE("Token", "[Token]") {
-  SECTION("Token::EOF_") {
-    REQUIRE(fastype::Token::EOF_->lineNumber() == -1);
-    REQUIRE(!fastype::Token::EOF_->isIdentifier());
-    REQUIRE(!fastype::Token::EOF_->isNumber());
-    REQUIRE(!fastype::Token::EOF_->isBoolean());
-    REQUIRE(!fastype::Token::EOF_->isString());
-    REQUIRE(!fastype::Token::EOF_->toString().empty());
-    F_INFO("Token::EOF_:{}", fastype::Token::EOF_->toString());
+  SECTION("eof") {
+    REQUIRE(fastype::Token::T_EOF->type() == fastype::TokenType::TT_EOF);
+    REQUIRE(!fastype::Token::T_EOF->isEof());
+    REQUIRE(!fastype::Token::T_EOF->isOperator());
+    REQUIRE(!fastype::Token::T_EOF->isAssignment());
+    REQUIRE(!fastype::Token::T_EOF->isComparator());
+    REQUIRE(!fastype::Token::T_EOF->isBoolean());
+    REQUIRE(!fastype::Token::T_EOF->isInteger());
+    REQUIRE(!fastype::Token::T_EOF->toString().empty());
+    F_INFO("Token::T_EOF:{}", fastype::Token::T_EOF->toString());
   }
 
-  SECTION("EofToken") {
-    int r = rand();
-    fastype::Sptr<fastype::Token> t =
-        fastype::Sptr<fastype::Token>(new fastype::EofToken(r));
-    REQUIRE(t->lineNumber() == r);
-    REQUIRE(!t->isIdentifier());
-    REQUIRE(!t->isNumber());
-    REQUIRE(!t->isBoolean());
-    REQUIRE(!t->isString());
-    F_INFO("EofToken:{}", t->toString());
-    REQUIRE(!t->toString().empty());
+  SECTION("operators") {
+    for (auto t : fastype::Token::operators()) {
+      F_INFO("operator: {}", t->toString());
+    }
   }
 
-  SECTION("NumberToken") {
-    int a = rand();
-    int b = rand();
-    fastype::Sptr<fastype::Token> t =
-        fastype::Sptr<fastype::Token>(new fastype::NumberToken(a, b));
-    REQUIRE(t->lineNumber() == a);
-    REQUIRE(!t->isIdentifier());
-    REQUIRE(t->isNumber());
-    REQUIRE(!t->isBoolean());
-    REQUIRE(!t->isString());
-    F_INFO("NumberToken:{}", t->toString());
-    REQUIRE(!t->toString().empty());
-    REQUIRE(t->number() == b);
+  SECTION("assignments") {
+    for (auto t : fastype::Token::assignments()) {
+      F_INFO("assignment: {}", t->toString());
+    }
   }
 
-  SECTION("StringToken") {
-    int a = rand();
-    std::string b = "string token";
-    fastype::Sptr<fastype::Token> t =
-        fastype::Sptr<fastype::Token>(new fastype::StringToken(a, b));
-    REQUIRE(t->lineNumber() == a);
-    REQUIRE(!t->isIdentifier());
-    REQUIRE(!t->isNumber());
-    REQUIRE(!t->isBoolean());
-    REQUIRE(t->isString());
-    F_INFO("StringToken:{}", t->toString());
-    REQUIRE(!t->toString().empty());
-    REQUIRE(t->text() == b);
+  SECTION("comparators") {
+    for (auto t : fastype::Token::comparators()) {
+      F_INFO("comparator: {}", t->toString());
+    }
   }
 
-  SECTION("IdToken") {
-    int a = rand();
-    std::string b = "id token";
-    fastype::Sptr<fastype::Token> t =
-        fastype::Sptr<fastype::Token>(new fastype::IdToken(a, b));
-    REQUIRE(t->lineNumber() == a);
-    REQUIRE(t->isIdentifier());
-    REQUIRE(!t->isNumber());
-    REQUIRE(!t->isBoolean());
-    REQUIRE(!t->isString());
-    INFO(t->toString());
-    F_INFO("IdToken:{}", t->toString());
-    REQUIRE(!t->toString().empty());
-    REQUIRE(t->text() == b);
+  SECTION("booleans") {
+    for (auto t : fastype::Token::booleans()) {
+      F_INFO("boolean: {}", t->toString());
+    }
   }
 
-  SECTION("BooleanToken") {
-    int a = rand();
-    bool b = true;
-    fastype::Sptr<fastype::Token> t =
-        fastype::Sptr<fastype::Token>(new fastype::BooleanToken(a, b));
-    REQUIRE(t->lineNumber() == a);
-    REQUIRE(!t->isIdentifier());
-    REQUIRE(!t->isNumber());
-    REQUIRE(t->isBoolean());
-    REQUIRE(!t->isString());
-    F_INFO("BooleanToken:{}", t->toString());
-    REQUIRE(!t->toString().empty());
-    REQUIRE(t->boolean() == b);
+  SECTION("strings") {
+    icu::UnicodeString s = fastype::Random::nextAlphaNumeric();
+    StringToken st(s);
+    F_INFO("string: {}", st.toString());
+  }
+
+  SECTION("integer") {
+    int i = fastype::Random::nextInt();
+    IntegerToken it(i);
+    F_INFO("integer: {}", it.toString());
   }
 }

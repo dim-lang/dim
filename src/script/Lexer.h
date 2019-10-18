@@ -6,8 +6,8 @@
 #include "Stringify.h"
 #include "script/Token.h"
 #include <deque>
-#include <unistr.h>
-#include <ustring.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 

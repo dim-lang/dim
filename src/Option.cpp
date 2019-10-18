@@ -81,6 +81,13 @@ int Option::port() const {
   return F_OPT_PORT_DEFAULT;
 }
 
+std::string Option::host() const {
+  if (varMap_.count(F_OPT_HOST)) {
+    return varMap_[F_OPT_HOST].as<std::string>();
+  }
+  return "127.0.0.1";
+}
+
 int Option::threadSize() const {
   if (varMap_.count(F_OPT_THREAD)) {
     return varMap_[F_OPT_THREAD].as<int>();

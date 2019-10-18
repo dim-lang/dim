@@ -14,6 +14,8 @@ public:
 
 private:
   EofToken();
+
+  friend class Token;
 };
 
 } // namespace fastype

@@ -4,7 +4,6 @@
 #pragma once
 #include "SmartPointer.h"
 #include "Stringify.h"
-#include "exception/ScriptException.h"
 #include "script/TokenType.h"
 #include <string>
 #include <unicode/uchar.h>
@@ -24,13 +23,14 @@ public:
   const static Sptr<Token> T_MUL; // *
   const static Sptr<Token> T_DIV; // /
   const static Sptr<Token> T_MOD; // %
+  const static Sptr<Token> T_NOT; // !
 
   // assignment
   const static Sptr<Token> T_ASSIGNMENT; // =
 
   // comparator
   const static Sptr<Token> T_EQ;  // ==
-  const static Sptr<Token> T_NEQ; // ==
+  const static Sptr<Token> T_NEQ; // !=
   const static Sptr<Token> T_LT;  // <
   const static Sptr<Token> T_LE;  // <=
   const static Sptr<Token> T_GT;  // >
@@ -40,11 +40,11 @@ public:
   const static Sptr<Token> T_TRUE;  // True
   const static Sptr<Token> T_FALSE; // False
 
-  static const std::unordered_set<Sptr<Token>> eofs();
-  static const std::unordered_set<Sptr<Token>> operators();
-  static const std::unordered_set<Sptr<Token>> assignments();
-  static const std::unordered_set<Sptr<Token>> comparators();
-  static const std::unordered_set<Sptr<Token>> booleans();
+  static const std::vector<Sptr<Token>> eofs();
+  static const std::vector<Sptr<Token>> operators();
+  static const std::vector<Sptr<Token>> assignments();
+  static const std::vector<Sptr<Token>> comparators();
+  static const std::vector<Sptr<Token>> booleans();
 
   Token(TokenType type);
   virtual ~Token() = default;
@@ -64,7 +64,7 @@ public:
   virtual long long integer() const;
   virtual bool boolean() const;
 
-  virtual std::string toString() = 0;
+  virtual std::string toString() const;
 
 protected:
   TokenType type_;

@@ -3,9 +3,12 @@
 
 #include "script/Token.h"
 #include "Logging.h"
+#include "exception/Exception.h"
 #include "exception/NotFoundException.h"
-#include "exception/NotImplmentException.h"
+#include "exception/NotImplementException.h"
+#include "script/token/AssignmentToken.h"
 #include "script/token/BooleanToken.h"
+#include "script/token/ComparatorToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/IntegerToken.h"
 #include "script/token/OperatorToken.h"
@@ -14,57 +17,61 @@
 
 namespace fastype {
 
-static Sptr<Token> Token::T_EOF;
+const Sptr<Token> Token::T_EOF(new EofToken());
 
-static Sptr<Token> Token::T_ADD(UNICODE_STRING("+"));
-static Sptr<Token> Token::T_SUB(UNICODE_STRING("-"));
-static Sptr<Token> Token::T_MUL(UNICODE_STRING("*"));
-static Sptr<Token> Token::T_DIV(UNICODE_STRING("/"));
-static Sptr<Token> Token::T_MOD(UNICODE_STRING("%"));
+const Sptr<Token> Token::T_ADD(new OperatorToken(UNICODE_STRING_SIMPLE("+")));
+const Sptr<Token> Token::T_SUB(new OperatorToken(UNICODE_STRING_SIMPLE("-")));
+const Sptr<Token> Token::T_MUL(new OperatorToken(UNICODE_STRING_SIMPLE("*")));
+const Sptr<Token> Token::T_DIV(new OperatorToken(UNICODE_STRING_SIMPLE("/")));
+const Sptr<Token> Token::T_MOD(new OperatorToken(UNICODE_STRING_SIMPLE("%")));
+const Sptr<Token> Token::T_NOT(new OperatorToken(UNICODE_STRING_SIMPLE("!")));
 
-static Sptr<Token> Token::T_ASSIGNMENT(UNICODE_STRING("="));
+const Sptr<Token>
+    Token::T_ASSIGNMENT(new AssignmentToken(UNICODE_STRING_SIMPLE("=")));
 
-static Sptr<Token> Token::T_EQ(UNICODE_STRING("=="));
-static Sptr<Token> Token::T_NEQ(UNICODE_STRING("!="));
-static Sptr<Token> Token::T_LT(UNICODE_STRING("<"));
-static Sptr<Token> Token::T_LE(UNICODE_STRING("<="));
-static Sptr<Token> Token::T_GT(UNICODE_STRING(">"));
-static Sptr<Token> Token::T_GE(UNICODE_STRING(">="));
+const Sptr<Token> Token::T_EQ(new ComparatorToken(UNICODE_STRING_SIMPLE("==")));
+const Sptr<Token>
+    Token::T_NEQ(new ComparatorToken(UNICODE_STRING_SIMPLE("!=")));
+const Sptr<Token> Token::T_LT(new ComparatorToken(UNICODE_STRING_SIMPLE("<")));
+const Sptr<Token> Token::T_LE(new ComparatorToken(UNICODE_STRING_SIMPLE("<=")));
+const Sptr<Token> Token::T_GT(new ComparatorToken(UNICODE_STRING_SIMPLE(">")));
+const Sptr<Token> Token::T_GE(new ComparatorToken(UNICODE_STRING_SIMPLE(">=")));
 
-static Sptr<Token> Token::T_TRUE(UNICODE_STRING("True"));
-static Sptr<Token> Token::T_FALSE(UNICODE_STRING("False"));
+const Sptr<Token> Token::T_TRUE(new BooleanToken(true));
+const Sptr<Token> Token::T_FALSE(new BooleanToken(false));
 
-const std::unordered_set<Sptr<Token>> Token::eofs() {
-  const static std::unordered_set<Sptr<Token>> types = {
+const std::vector<Sptr<Token>> Token::eofs() {
+  const static std::vector<Sptr<Token>> types = {
       Token::T_EOF,
   };
   return types;
 }
 
-const std::unordered_set<Sptr<Token>> Token::operators() {
-  const static std::unordered_set<Sptr<Token>> types = {
-      Token::T_ADD, Token::T_SUB, Token::T_MUL, Token::T_DIV, Token::T_MOD,
+const std::vector<Sptr<Token>> Token::operators() {
+  const static std::vector<Sptr<Token>> types = {
+      Token::T_ADD, Token::T_SUB, Token::T_MUL,
+      Token::T_DIV, Token::T_MOD, Token::T_NOT,
   };
   return types;
 }
 
-const std::unordered_set<Sptr<Token>> Token::assignments() {
-  const static std::unordered_set<Sptr<Token>> types = {
+const std::vector<Sptr<Token>> Token::assignments() {
+  const static std::vector<Sptr<Token>> types = {
       Token::T_ASSIGNMENT,
   };
   return types;
 }
 
-const std::unordered_set<Sptr<Token>> Token::comparators() {
-  const static std::unordered_set<Sptr<Token>> types = {
+const std::vector<Sptr<Token>> Token::comparators() {
+  const static std::vector<Sptr<Token>> types = {
       Token::T_EQ, Token::T_NEQ, Token::T_LT,
       Token::T_LE, Token::T_GT,  Token::T_GE,
   };
   return types;
 }
 
-const std::unordered_set<Sptr<Token>> Token::booleans() {
-  const static std::unordered_set<Sptr<Token>> types = {
+const std::vector<Sptr<Token>> Token::booleans() {
+  const static std::vector<Sptr<Token>> types = {
       Token::T_TRUE,
       Token::T_FALSE,
   };
@@ -89,20 +96,25 @@ bool Token::isAssignment() const { return type_ == TokenType::TT_ASSIGNMENT; }
 
 bool Token::isComparator() const { return type_ == TokenType::TT_COMPARATOR; }
 
-bool Token::isBoolean() const { return type_ == TokenType::T_BOOLEAN; }
+bool Token::isBoolean() const { return type_ == TokenType::TT_BOOLEAN; }
 
-bool Token::isInteger() const { return type_ == TokenType::T_INTEGER; }
+bool Token::isInteger() const { return type_ == TokenType::TT_INTEGER; }
 
 icu::UnicodeString Token::literal() const {
-  F_THROW("literal not implement! {}", toString());
+  F_THROW(NotImplementException, "literal not implement! {}", toString());
 }
 
 long long Token::integer() const {
-  F_THROW("integer not implement! {}", toString());
+  F_THROW(NotImplementException, "integer not implement! {}", toString());
 }
 
 bool Token::boolean() const {
-  F_THROW("boolean not implement! {}", toString());
+  F_THROW(NotImplementException, "boolean not implement! {}", toString());
+}
+
+std::string Token::toString() const {
+  F_THROW(NotImplementException, "toString not implement! this:{}",
+          (void *)this);
 }
 
 } // namespace fastype

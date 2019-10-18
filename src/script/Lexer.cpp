@@ -4,15 +4,9 @@
 #include "script/Lexer.h"
 #include "exception/ParseException.h"
 #include "script/token/BooleanToken.h"
-#include "script/token/CommentToken.h"
 #include "script/token/EofToken.h"
-#include "script/token/EolToken.h"
-#include "script/token/FloatingToken.h"
-#include "script/token/IdentifierToken.h"
 #include "script/token/IntegerToken.h"
-#include "script/token/KeywordToken.h"
 #include "script/token/OperatorToken.h"
-#include "script/token/PunctuationToken.h"
 #include "script/token/StringToken.h"
 #include <cstdlib>
 #include <cstring>
@@ -31,13 +25,8 @@ Lexer::Lexer(const icu::UnicodeString &text)
 
 std::string Lexer::toString() const {
   std::string utf8;
-  if (text_.length() > F_TO_STRING_TEXT_MAX) {
-    icu::UnicodeString tmp;
-    text_.extract(0, F_TO_STRING_TEXT_MAX, tmp);
-    tmp.toUTF8String(utf8);
-  } else {
-    text_.toUTF8String(utf8);
-  }
+  text_.tempSubString(0, std::min<int>(F_TO_STRING_TEXT_MAX, text_.length()))
+      .toUTF8String(utf8);
   return fmt::format("[ @Lexer pos_:{}, more_:{}, text_:{} ]", pos_, more_,
                      utf8);
 }
@@ -71,26 +60,33 @@ Sptr<Token> Lexer::peek(int i) {
 
 bool Lexer::fillQueue(int i) {
   while (i >= queue_.size()) {
-    if (more_) {
-      readLine();
-    } else {
+    if (!more_) {
       return false;
     }
+    readLine();
   }
   return true;
 }
 
 void Lexer::readLine() {
-  icu::UnicodeString unixLineBreak = UNICODE_STRING("\n");
-  icu::UnicodeString line;
-
-  int nextPos = text_.indexOf(unixLineBreak, i);
-  if (nextPos < 0) {
+  if (pos_ >= text_.length()) {
     more_ = false;
     return;
   }
+
+  icu::UnicodeString unixLineBreak = UNICODE_STRING("\n");
+  icu::UnicodeString line;
+
+  int nextPos = text_.indexOf(unixLineBreak, pos_);
+  if (nextPos < 0) {
+    line = text_.tempSubString(pos_);
+    pos_ = text_.length();
+    nextPos = text_.length();
+  } else {
+    line = text_.tempSubString(pos_, nextPos - pos_ + 1);
+    pos_ = nextPos + 1;
+  }
   line = text_.tempSubString(pos_, nextPos - pos_);
-  pos_ = nextPos + 1;
 
   int lineNumber = 0;
   int i = 0;
@@ -102,18 +98,23 @@ void Lexer::readLine() {
     switch (line.charAt(i)) {
     case (UChar)'+':
       queue_.push_back(Token::T_ADD);
+      i += 1;
       break;
     case (UChar)'-':
       queue_.push_back(Token::T_SUB);
+      i += 1;
       break;
     case (UChar)'*':
       queue_.push_back(Token::T_MUL);
+      i += 1;
       break;
     case (UChar)'/':
       queue_.push_back(Token::T_DIV);
+      i += 1;
       break;
     case (UChar)'%':
       queue_.push_back(Token::T_MOD);
+      i += 1;
       break;
     case (UChar)'"': { // string or char
       int j = i;
@@ -141,22 +142,52 @@ void Lexer::readLine() {
       i = j;
     } break;
     case (UChar)'=': // = or ==
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 2) == UNICODE_STRING("==")) {
+        queue_.push_back(Token::T_EQ);
+        i += 2;
+      } else {
+        queue_.push_back(Token::T_ASSIGNMENT);
+        i += 1;
+      }
       break;
     case (UChar)'!': // ! or !=
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 2) == UNICODE_STRING("!=")) {
+        queue_.push_back(Token::T_NEQ);
+        i += 2;
+      } else {
+        queue_.push_back(Token::T_NOT);
+        i += 1;
+      }
       break;
     case (UChar)'<': // < or <=
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 2) == UNICODE_STRING("<=")) {
+        queue_.push_back(Token::T_LE);
+        i += 2;
+      } else {
+        queue_.push_back(Token::T_LT);
+        i += 1;
+      }
       break;
     case (UChar)'>': // > or >=
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 2) == UNICODE_STRING(">=")) {
+        queue_.push_back(Token::T_GE);
+        i += 2;
+      } else {
+        queue_.push_back(Token::T_GT);
+        i += 1;
+      }
       break;
     case (UChar)'T': // True
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 4) == UNICODE_STRING("True")) {
+        queue_.push_back(Token::T_TRUE);
+        i += 4;
+      }
       break;
     case (UChar)'F': // False
-      queue_.push_back(Token::T_EQ);
+      if (line.tempSubString(i, 5) == UNICODE_STRING("False")) {
+        queue_.push_back(Token::T_FALSE);
+        i += 5;
+      }
       break;
     }
   }

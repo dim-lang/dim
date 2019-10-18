@@ -170,7 +170,7 @@ static const int WhitespaceLength = 14 - 9 + 33 - 32;
 static const std::vector<std::pair<int, int>> Ascii = {{0, 128}};
 static const int AsciiLength = 128 - 0;
 
-std::string
+icu::UnicodeString
 Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
                         int rangeLength, int len) {
   std::stringstream ss;
@@ -180,8 +180,8 @@ Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
   return ss.str();
 }
 
-char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
-                           int rangeLength) {
+UChar Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
+                            int rangeLength) {
   int n = 0;
   int pos = nextInt(rangeLength);
   for (int i = 0; i < (int)range.size(); i++) {
@@ -193,7 +193,7 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
       F_CHECK(r < range[range.size() - 1].second,
               "r {} < range[range.size()-1].second {}", r,
               range[range.size() - 1].second);
-      return (char)r;
+      return (UChar)r;
     }
     n += p;
   }
@@ -201,108 +201,109 @@ char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
   return 0;
 }
 
-char Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }
+UChar Random::nextAlphaChar() { return nextAsciiChar(Alpha, AlphaLength); }
 
-char Random::nextAlphaNumericChar() {
-  char c = nextAsciiChar(AlphaNumeric, AlphaNumericLength);
+UChar Random::nextAlphaNumericChar() {
+  UChar c = nextAsciiChar(AlphaNumeric, AlphaNumericLength);
   F_CHECK(std::isalnum(c), "c {} isalnum", (int)c);
   return c;
 }
 
-char Random::nextDigitChar() {
-  char c = nextAsciiChar(Digit, DigitLength);
+UChar Random::nextDigitChar() {
+  UChar c = nextAsciiChar(Digit, DigitLength);
   F_CHECK(std::isdigit(c), "c {} isdigit", (int)c);
   return c;
 }
 
-char Random::nextHexChar() {
-  char c = nextAsciiChar(Hex, HexLength);
+UChar Random::nextHexChar() {
+  UChar c = nextAsciiChar(Hex, HexLength);
   F_CHECK(std::isxdigit(c), "c {} isxdigit", (int)c);
   return c;
 }
 
-char Random::nextPunctuationChar() {
-  char c = nextAsciiChar(Punctuation, PunctuationLength);
+UChar Random::nextPunctuationChar() {
+  UChar c = nextAsciiChar(Punctuation, PunctuationLength);
   F_CHECK(std::ispunct(c), "c {} ispunct", (int)c);
   return c;
 }
 
-char Random::nextControlChar() {
-  char c = nextAsciiChar(Control, ControlLength);
+UChar Random::nextControlChar() {
+  UChar c = nextAsciiChar(Control, ControlLength);
   F_CHECK(std::iscntrl(c), "c {} is cntrl", (int)c);
   return c;
 }
 
-char Random::nextPrintableChar() {
-  char c = nextAsciiChar(Printable, PrintableLength);
+UChar Random::nextPrintableChar() {
+  UChar c = nextAsciiChar(Printable, PrintableLength);
   F_CHECK(std::isprint(c), "c {} isprint", (int)c);
   return c;
 }
 
-char Random::nextWhitespaceChar() {
-  char c = nextAsciiChar(Whitespace, WhitespaceLength);
+UChar Random::nextWhitespaceChar() {
+  UChar c = nextAsciiChar(Whitespace, WhitespaceLength);
   F_CHECK(std::isspace(c), "c {} isspace", (int)c);
   return c;
 }
 
-char Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
+UChar Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
 
-char Random::nextChar(const std::string &candidates) {
+UChar Random::nextChar(const icu::UnicodeString &candidates) {
   return nextChar(candidates.data(), candidates.length());
 }
 
-char Random::nextChar(const char *candidates, int c) {
+UChar Random::nextChar(const UChar *candidates, int c) {
   int pos = nextInt(c);
   return candidates[pos];
 }
 
-std::string Random::nextAlpha(int len) {
+icu::UnicodeString Random::nextAlpha(int len) {
   return nextAsciiString(Alpha, AlphaLength, len);
 }
 
-std::string Random::nextAlphaNumeric(int len) {
+icu::UnicodeString Random::nextAlphaNumeric(int len) {
   return nextAsciiString(AlphaNumeric, AlphaNumericLength, len);
 }
 
-std::string Random::nextDigit(int len) {
+icu::UnicodeString Random::nextDigit(int len) {
   return nextAsciiString(Digit, DigitLength, len);
 }
 
-std::string Random::nextHex(int len) {
+icu::UnicodeString Random::nextHex(int len) {
   return nextAsciiString(Hex, HexLength, len);
 }
 
-std::string Random::nextPunctuation(int len) {
+icu::UnicodeString Random::nextPunctuation(int len) {
   return nextAsciiString(Punctuation, PunctuationLength, len);
 }
 
-std::string Random::nextControl(int len) {
+icu::UnicodeString Random::nextControl(int len) {
   return nextAsciiString(Control, ControlLength, len);
 }
 
-std::string Random::nextPrintable(int len) {
+icu::UnicodeString Random::nextPrintable(int len) {
   return nextAsciiString(Printable, PrintableLength, len);
 }
 
-std::string Random::nextWhitespace(int len) {
+icu::UnicodeString Random::nextWhitespace(int len) {
   return nextAsciiString(Whitespace, WhitespaceLength, len);
 }
 
-std::string Random::nextAscii(int len) {
+icu::UnicodeString Random::nextAscii(int len) {
   return nextAsciiString(Ascii, AsciiLength, len);
 }
 
-std::string Random::nextString(const std::string &candidates, int len) {
+icu::UnicodeString Random::nextString(const icu::UnicodeString &candidates,
+                                      int len) {
   return nextString(candidates.data(), candidates.length(), len);
 }
 
-std::string Random::nextString(const char *candidates, int c, int len) {
-  std::stringstream ss;
+icu::UnicodeString Random::nextString(const UChar *candidates, int c, int len) {
+  icu::UnicodeString ss(len, (UChar)'\0', len);
   for (int i = 0; i < len; i++) {
     int pos = nextInt(c);
-    ss << candidates[pos];
+    ss.setCharAt(i, candidates[pos]);
   }
-  return ss.str();
+  return ss;
 }
 
 } // namespace fastype

@@ -62,11 +62,13 @@ set(F_CORE
 
     script/Token.cpp
     script/Lexer.cpp
-    script/token/EofToken.cpp
-    script/token/IdentifierToken.cpp
-    script/token/StringToken.cpp
-    script/token/IntegerToken.cpp
+    script/token/AssignmentToken.cpp
     script/token/BooleanToken.cpp
+    script/token/ComparatorToken.cpp
+    script/token/EofToken.cpp
+    script/token/IntegerToken.cpp
+    script/token/OperatorToken.cpp
+    script/token/StringToken.cpp
 
     Hasher.cpp
     Block.cpp

@@ -29,7 +29,7 @@ public:
   std::vector<std::string> inputFileList() const;
 
   // --host
-  int port() const;
+  std::string host() const;
 
   // --port, -p
   // by default: 10001
