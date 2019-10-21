@@ -12,14 +12,14 @@
 #include <cstring>
 #include <fmt/format.h>
 #include <regex>
-#include <uchar.h>
+#include <unicode/uchar.h>
 
 #define F_TO_STRING_TEXT_MAX 128
 
 namespace fastype {
 
 Lexer::Lexer(const icu::UnicodeString &text)
-    : more_(true), pos_(0), text_(text), {
+    : queue_(), more_(true), pos_(0), text_(text) {
   F_INFO("Constructor:{}", toString());
 }
 
@@ -74,7 +74,7 @@ void Lexer::readLine() {
     return;
   }
 
-  icu::UnicodeString unixLineBreak = UNICODE_STRING("\n");
+  icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
   icu::UnicodeString line;
 
   int nextPos = text_.indexOf(unixLineBreak, pos_);
@@ -88,9 +88,8 @@ void Lexer::readLine() {
   }
   line = text_.tempSubString(pos_, nextPos - pos_);
 
-  int lineNumber = 0;
   int i = 0;
-  while (i < line.size()) {
+  while (i < line.length()) {
     if (u_isspace(line.charAt(i))) {
       i += 1;
       continue;
@@ -119,7 +118,7 @@ void Lexer::readLine() {
     case (UChar)'"': { // string or char
       int j = i;
       bool findString = false;
-      while (j < line.size()) {
+      while (j < line.length()) {
         if (line.charAt(j) == (UChar)'\\') {
           j += 2;
           continue;
@@ -142,7 +141,7 @@ void Lexer::readLine() {
       i = j;
     } break;
     case (UChar)'=': // = or ==
-      if (line.tempSubString(i, 2) == UNICODE_STRING("==")) {
+      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
         queue_.push_back(Token::T_EQ);
         i += 2;
       } else {
@@ -151,7 +150,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'!': // ! or !=
-      if (line.tempSubString(i, 2) == UNICODE_STRING("!=")) {
+      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("!=")) {
         queue_.push_back(Token::T_NEQ);
         i += 2;
       } else {
@@ -160,7 +159,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'<': // < or <=
-      if (line.tempSubString(i, 2) == UNICODE_STRING("<=")) {
+      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("<=")) {
         queue_.push_back(Token::T_LE);
         i += 2;
       } else {
@@ -169,7 +168,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'>': // > or >=
-      if (line.tempSubString(i, 2) == UNICODE_STRING(">=")) {
+      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE(">=")) {
         queue_.push_back(Token::T_GE);
         i += 2;
       } else {
@@ -178,19 +177,21 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'T': // True
-      if (line.tempSubString(i, 4) == UNICODE_STRING("True")) {
+      if (line.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
         queue_.push_back(Token::T_TRUE);
         i += 4;
       }
       break;
     case (UChar)'F': // False
-      if (line.tempSubString(i, 5) == UNICODE_STRING("False")) {
+      if (line.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
         queue_.push_back(Token::T_FALSE);
         i += 5;
       }
       break;
     }
   }
+}
+
 } // namespace fastype
 
 #undef F_TO_STRING_TEXT_MAX

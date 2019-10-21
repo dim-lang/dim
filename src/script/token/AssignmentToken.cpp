@@ -12,9 +12,10 @@ AssignmentToken::AssignmentToken(const icu::UnicodeString &value)
 icu::UnicodeString AssignmentToken::literal() const { return value_; }
 
 std::string AssignmentToken::toString() const {
-  std::string utf8;
-  return fmt::format("[ @AssignmentToken type_:{}, value_:{} ]", type_.name(),
-                     value_.toUTF8String(utf8));
+  std::string _1;
+  std::string _2;
+  return fmt::format("[ @AssignmentToken type_:{}, value_:{} ]",
+                     type_.name().toUTF8String(_1), value_.toUTF8String(_2));
 }
 
 } // namespace fastype

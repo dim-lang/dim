@@ -44,6 +44,7 @@ set(T_SRC
     CowstrTest.cpp
     RandomTest.cpp
 
+    exception/NotFoundExceptionTest.cpp
     script/TokenTest.cpp
     #script/LexerTest.cpp
     )

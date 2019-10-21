@@ -12,8 +12,9 @@ IntegerToken::IntegerToken(long long value)
 long long IntegerToken::integer() const { return value_; }
 
 std::string IntegerToken::toString() const {
-  return fmt::format("[ @IntegerToken type_:{}, value_:{} ]", type_.name(),
-                     value_);
+  std::string _1;
+  return fmt::format("[ @IntegerToken type_:{}, value_:{} ]",
+                     type_.name().toUTF8String(_1), value_);
 }
 
 } // namespace fastype
