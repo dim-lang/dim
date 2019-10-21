@@ -13,8 +13,9 @@ OperatorToken::OperatorToken(const icu::UnicodeString &value)
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
 std::string OperatorToken::toString() const {
-  return fmt::format("[ @OperatorToken type_:{}, value_:{} ]", type_.name(),
-                     value_.stdstr());
+  std::string _1, _2;
+  return fmt::format("[ @OperatorToken type_:{}, value_:{} ]",
+                     type_.name().toUTF8String(_1), value_.toUTF8String(_2));
 }
 
 } // namespace fastype

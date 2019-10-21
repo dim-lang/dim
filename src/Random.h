@@ -8,7 +8,7 @@
 #include <limits>
 #include <random>
 #include <string>
-#include <unicode/uUChar.h>
+#include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
 

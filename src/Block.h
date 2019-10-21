@@ -6,6 +6,8 @@
 #include <fmt/format.h>
 #include <limits>
 #include <string>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 #include <vector>
 
 namespace fastype {
@@ -24,6 +26,8 @@ public:
   Block(char c);
   Block(const char *s, int n);
   Block(const std::string &s);
+  Block(const icu::UnicodeString &s);
+  Block(const UChar *s, int n);
   Block &operator=(const Block &s);
 
   /* move */

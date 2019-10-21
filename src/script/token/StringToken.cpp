@@ -13,8 +13,9 @@ StringToken::StringToken(const icu::UnicodeString &value)
 icu::UnicodeString StringToken::literal() const { return value_; }
 
 std::string StringToken::toString() const {
-  return fmt::format("[ @StringToken type_:{}, value_:{} ]", type_.name(),
-                     value_.stdstr());
+  std::string _1, _2;
+  return fmt::format("[ @StringToken type_:{}, value_:{} ]",
+                     type_.name().toUTF8String(_1), value_.toUTF8String(_2));
 }
 
 } // namespace fastype

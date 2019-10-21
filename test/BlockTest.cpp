@@ -48,7 +48,7 @@ TEST_CASE("Block", "[Block]") {
       REQUIRE(b2.size() == 0);
       REQUIRE(b2.tail() == b2.head());
 
-      std::string rs = fastype::Random::nextAlphaNumeric(i);
+      icu::UnicodeString rs = fastype::Random::nextAlphaNumeric(i);
       fastype::Block b3(rs);
       fastype::Block b4(b3);
 

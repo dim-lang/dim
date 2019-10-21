@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Stringify.h"
+#include "SmartPointer.h"
 #include <string>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -26,10 +26,10 @@ public:
   bool operator<=(const TokenType &t) const;
   bool operator>(const TokenType &t) const;
   bool operator>=(const TokenType &t) const;
+  int compare(const TokenType &t) const;
 
   const icu::UnicodeString &name() const;
   int value() const;
-  virtual std::string toString() const;
 
   static TokenType fromName(const icu::UnicodeString &name);
   static TokenType fromValue(int value);

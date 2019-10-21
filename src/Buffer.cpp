@@ -28,7 +28,7 @@ Buffer::~Buffer() {
   }
   loaded_ = false;
   for (int i = 0; i < lineList_.size(); i++) {
-    lineList_[i] = Row();
+    lineList_[i] = Line();
   }
   lineList_.clear();
 }
@@ -41,7 +41,7 @@ Sptr<Buffer> Buffer::open(const std::string &fileName) {
 
 void Buffer::close(Sptr<Buffer> file) { file.reset(); }
 
-Row Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
+Line Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
 
 int Buffer::count() {
   load();
@@ -122,10 +122,11 @@ int64_t Buffer::load() {
 
     int sz = lineBreak - start + 1; // 1 is for '\n'
     char ef = '\0';
-    Cowstr cs(sz);
-    cs.concat(start, sz);
-    cs.concat(&ef, 1);
-    Row r(cs, lineList_.size(), false); // 1 is for '\0'
+    // Cowstr cs(sz);
+    // cs.concat(start, sz);
+    // cs.concat(&ef, 1);
+    // Row r(cs, lineList_.size(), false); // 1 is for '\0'
+    Line r;
     F_INFO("new line:{}", r.toString());
     lineList_.push_back(r);
     start = lineBreak + 1;

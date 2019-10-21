@@ -35,13 +35,12 @@ message(F_LIB: ${F_LIB})
 set(T_SRC
     MainTest.cpp
     LoggingTest.cpp
-    RowTest.cpp
+    LineTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
     SptrTest.cpp
     UptrTest.cpp
     BlockTest.cpp
-    CowstrTest.cpp
     RandomTest.cpp
 
     exception/NotFoundExceptionTest.cpp

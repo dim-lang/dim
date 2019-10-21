@@ -61,6 +61,7 @@ set(F_CORE
     event/poll/WinSelect.cpp
 
     script/Token.cpp
+    script/TokenType.cpp
     script/Lexer.cpp
     script/token/AssignmentToken.cpp
     script/token/BooleanToken.cpp
@@ -72,8 +73,7 @@ set(F_CORE
 
     Hasher.cpp
     Block.cpp
-    Cowstr.cpp
-    Row.cpp
+    Line.cpp
     Buffer.cpp
     Cache.cpp
     ResourceHandler.cpp

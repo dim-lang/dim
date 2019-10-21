@@ -1,10 +1,10 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Buffer.h"
 #include "CursesTerm.h"
+#include "Buffer.h"
+#include "Line.h"
 #include "Logging.h"
-#include "Row.h"
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -30,11 +30,11 @@ void CursesTerm::show(const std::string &fileName) {
 
   F_INFO("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
-    Row r = f->get(i);
+    Line l = f->get(i);
     getyx(stdscr, y, x);
-    F_INFO("row:{}", r.toString());
-    for (int j = 0; j < r.str().size() - 1; j++) {
-      ch = (int)r.str()[j];
+    F_INFO("row:{}", l.toString());
+    for (int j = 0; j < l.value().length() - 1; j++) {
+      ch = (int)l.value()[j];
       printw("%c", ch);
       refresh();
     }

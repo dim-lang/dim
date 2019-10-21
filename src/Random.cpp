@@ -173,11 +173,11 @@ static const int AsciiLength = 128 - 0;
 icu::UnicodeString
 Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
                         int rangeLength, int len) {
-  std::stringstream ss;
+  icu::UnicodeString ss(len, (UChar)'\0', len);
   for (int i = 0; i < len; i++) {
-    ss << nextAsciiChar(range, rangeLength);
+    ss.setCharAt(i, nextAsciiChar(range, rangeLength));
   }
-  return ss.str();
+  return ss;
 }
 
 UChar Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
@@ -248,7 +248,7 @@ UChar Random::nextWhitespaceChar() {
 UChar Random::nextAsciiChar() { return nextAsciiChar(Ascii, AsciiLength); }
 
 UChar Random::nextChar(const icu::UnicodeString &candidates) {
-  return nextChar(candidates.data(), candidates.length());
+  return nextChar(candidates.getBuffer(), candidates.length());
 }
 
 UChar Random::nextChar(const UChar *candidates, int c) {
@@ -294,7 +294,7 @@ icu::UnicodeString Random::nextAscii(int len) {
 
 icu::UnicodeString Random::nextString(const icu::UnicodeString &candidates,
                                       int len) {
-  return nextString(candidates.data(), candidates.length(), len);
+  return nextString(candidates.getBuffer(), candidates.length(), len);
 }
 
 icu::UnicodeString Random::nextString(const UChar *candidates, int c, int len) {

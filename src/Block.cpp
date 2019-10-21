@@ -31,6 +31,9 @@ Block::Block(const char *s, int n) : Block() {
 
 Block::Block(const std::string &s) : Block(s.data(), (int)s.length()) {}
 
+Block::Block(const icu::UnicodeString &s);
+Block::Block(const UChar *s, int n);
+
 Block &Block::operator=(const Block &s) {
   if (this == &s) {
     return *this;

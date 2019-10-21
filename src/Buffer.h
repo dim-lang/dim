@@ -3,8 +3,7 @@
 
 #pragma once
 #include "Block.h"
-#include "Cowstr.h"
-#include "Row.h"
+#include "Line.h"
 #include "SmartPointer.h"
 #include "Stringify.h"
 #include <cstdio>
@@ -26,7 +25,7 @@ public:
   virtual ~Buffer();
 
   const std::string &fileName() const;
-  Row get(int lineNumber);
+  Line get(int lineNumber);
   int count();
   bool empty();
   int loaded() const;
@@ -48,7 +47,7 @@ private:
   FILE *fd_;
   bool loaded_;
   Block readBuffer_;
-  std::vector<Row> lineList_;
+  std::vector<Line> lineList_;
 };
 
 } // namespace fastype
