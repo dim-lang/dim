@@ -72,7 +72,7 @@ set(F_CORE
     script/token/StringToken.cpp
 
     Hasher.cpp
-    Block.cpp
+    #Block.cpp
     Line.cpp
     Buffer.cpp
     Cache.cpp

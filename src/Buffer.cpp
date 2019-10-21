@@ -10,21 +10,20 @@
 #include <numeric>
 #include <string>
 
-#define BUF_SIZE 8192
-
 namespace fastype {
 
-Buffer::Buffer(const std::string &fileName)
-    : fileName_(fileName), fd_(std::fopen(fileName.data(), "rw")),
-      loaded_(false), readBuffer_(BUF_SIZE) {
+Buffer::Buffer(const icu::UnicodeString &fileName)
+    : fileName_(fileName),
+      fp_(u_fopen_u(fileName.getBuffer(), "rw", nullptr, "UTF-8")),
+      loaded_(false), readBuffer_(F_READ_BUF_SIZE) {
   F_INFO("Constructor:{}", toString());
 }
 
 Buffer::~Buffer() {
   F_INFO("Destructor:{}", toString());
-  if (fd_) {
-    std::fclose(fd_);
-    fd_ = nullptr;
+  if (fp_) {
+    std::fclose(fp_);
+    fp_ = nullptr;
   }
   loaded_ = false;
   for (int i = 0; i < lineList_.size(); i++) {
@@ -33,9 +32,9 @@ Buffer::~Buffer() {
   lineList_.clear();
 }
 
-const std::string &Buffer::fileName() const { return fileName_; }
+const icu::UnicodeString &Buffer::fileName() const { return fileName_; }
 
-Sptr<Buffer> Buffer::open(const std::string &fileName) {
+Sptr<Buffer> Buffer::open(const icu::UnicodeString &fileName) {
   return Sptr<Buffer>(new Buffer(fileName));
 }
 
@@ -67,10 +66,11 @@ int Buffer::clear() {
 int Buffer::loaded() const { return loaded_; }
 
 std::string Buffer::toString() const {
-  return fmt::format("[ @Buffer fileName_:{} fd_:{} loaded_:{} readBuffer_:{} "
+  std::string _1;
+  return fmt::format("[ @Buffer fileName_:{} fp_:{} loaded_:{} readBuffer_:{} "
                      "lineList_#size:{} ]",
-                     fileName_, (void *)fd_, loaded_, readBuffer_.toString(),
-                     lineList_.size());
+                     fileName_.toUTF8String(_1), (void *)fp_, loaded_,
+                     readBuffer_.toString(), lineList_.size());
 }
 
 int64_t Buffer::load() {
@@ -80,10 +80,10 @@ int64_t Buffer::load() {
   }
 
   int64_t readed = 0L;
-  char buf[BUF_SIZE];
+  UChar buf[F_READ_BUF_SIZE];
 
   while (!loaded_) {
-    int64_t n = (int64_t)std::fread(buf, sizeof(char), BUF_SIZE, fd_);
+    int64_t n = (int64_t)u_file_read(buf, F_READ_BUF_SIZE, fp_);
 
     if (n > 0L) {
       readBuffer_.concat(buf, n);
@@ -137,5 +137,3 @@ int64_t Buffer::load() {
 }
 
 } // namespace fastype
-
-#undef BUF_SIZE

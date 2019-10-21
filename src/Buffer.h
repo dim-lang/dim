@@ -6,9 +6,12 @@
 #include "Line.h"
 #include "SmartPointer.h"
 #include "Stringify.h"
-#include <cstdio>
-#include <cstring>
+#include <unicode/unistr.h>
+#include <unicode/ustdio.h>
+#include <unicode/ustring.h>
 #include <vector>
+
+#define F_READ_BUF_SIZE 4096
 
 namespace fastype {
 
@@ -24,7 +27,7 @@ public:
   Buffer &operator=(Buffer &&) = delete;
   virtual ~Buffer();
 
-  const std::string &fileName() const;
+  const icu::UnicodeString &fileName() const;
   Line get(int lineNumber);
   int count();
   bool empty();
@@ -33,21 +36,23 @@ public:
   int clear();
   virtual std::string toString() const;
 
-  static Sptr<Buffer> open(const std::string &fileName);
+  static Sptr<Buffer> open(const icu::UnicodeString &fileName);
   static void close(Sptr<Buffer> file);
 
 private:
-  Buffer(const std::string &fileName);
+  Buffer(const icu::UnicodeString &fileName);
 
   // load all lines
   // @return readed bytes
   int64_t load();
 
-  std::string fileName_;
-  FILE *fd_;
+  icu::UnicodeString fileName_;
+  UFILE *fp_;
   bool loaded_;
-  Block readBuffer_;
+  UChar readBuf_[F_READ_BUF_SIZE];
   std::vector<Line> lineList_;
 };
 
 } // namespace fastype
+
+#undef F_READ_BUF_SIZE

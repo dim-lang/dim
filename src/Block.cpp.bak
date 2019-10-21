@@ -5,6 +5,7 @@
 #include "Logging.h"
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #define F_ALLOC_UNIT 8
 
@@ -31,8 +32,17 @@ Block::Block(const char *s, int n) : Block() {
 
 Block::Block(const std::string &s) : Block(s.data(), (int)s.length()) {}
 
-Block::Block(const icu::UnicodeString &s);
-Block::Block(const UChar *s, int n);
+Block::Block(const icu::UnicodeString &s) : Block() {
+  std::string _1;
+  s.toUTF8String(_1);
+  if (_1.length() > 0) {
+    expand(n);
+    std::memcpy(buf_, _1.data(), _1.length());
+    end_ = _1.length();
+  }
+}
+
+Block::Block(const UChar *s, int n) : Block() {}
 
 Block &Block::operator=(const Block &s) {
   if (this == &s) {
