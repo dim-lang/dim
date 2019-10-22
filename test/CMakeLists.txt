@@ -40,7 +40,6 @@ set(T_SRC
     TimerTest.cpp
     SptrTest.cpp
     UptrTest.cpp
-    #BlockTest.cpp
     RandomTest.cpp
 
     exception/NotFoundExceptionTest.cpp
