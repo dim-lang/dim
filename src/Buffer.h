@@ -11,14 +11,9 @@
 #include <unicode/ustring.h>
 #include <vector>
 
-#define F_READ_BUF_SIZE 4096
-
 namespace fastype {
 
-/**
- * Buffer is a file's memory storage
- */
-
+// Buffer is a file's memory storage
 class Buffer : public Stringify {
 public:
   Buffer(const Buffer &) = delete;
@@ -41,6 +36,9 @@ public:
 
 private:
   Buffer(const icu::UnicodeString &fileName);
+  void expand(int n);
+
+  static char *ucharToString(UChar *s, int n);
 
   // load all lines
   // @return readed bytes
@@ -49,10 +47,9 @@ private:
   icu::UnicodeString fileName_;
   UFILE *fp_;
   bool loaded_;
-  UChar readBuf_[F_READ_BUF_SIZE];
+  UChar *buf_;
+  int bufsize_;
   std::vector<Line> lineList_;
 };
 
 } // namespace fastype
-
-#undef F_READ_BUF_SIZE

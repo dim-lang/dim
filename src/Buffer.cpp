@@ -3,33 +3,66 @@
 
 #include "Buffer.h"
 #include "Logging.h"
+#include "exception/BadAllocException.h"
+#include "exception/UnicodeException.h"
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <fmt/format.h>
 #include <numeric>
 #include <string>
+#include <unicode/utypes.h>
+
+#define F_BUF_SIZE 8192
+#define F_BUF_TO_STRING_SIZE 128
+#define F_ALLOC_UNIT 8
 
 namespace fastype {
 
 Buffer::Buffer(const icu::UnicodeString &fileName)
     : fileName_(fileName),
       fp_(u_fopen_u(fileName.getBuffer(), "rw", nullptr, "UTF-8")),
-      loaded_(false), readBuffer_(F_READ_BUF_SIZE) {
+      loaded_(false), buf_(nullptr), bufsize_(0) {
+  expand(F_BUF_SIZE);
+  F_CHECK(buf_ != nullptr, "buf_ {} != nullptr", (void *)buf_);
   F_INFO("Constructor:{}", toString());
 }
 
 Buffer::~Buffer() {
   F_INFO("Destructor:{}", toString());
   if (fp_) {
-    std::fclose(fp_);
+    u_fclose(fp_);
     fp_ = nullptr;
   }
+  if (buf_) {
+    std::free(buf_);
+    buf_ = nullptr;
+  }
+  bufsize_ = 0;
   loaded_ = false;
   for (int i = 0; i < lineList_.size(); i++) {
     lineList_[i] = Line();
   }
   lineList_.clear();
+}
+
+void Buffer::expand(int n) {
+  // do nothing
+  if (n <= 0) {
+    return;
+  }
+  if (n <= bufsize_) {
+    return;
+  }
+
+  UChar *nb = (UChar *)realloc(buf_, n * sizeof(UChar));
+  if (!nb) {
+    F_ERROR("realloc fail! buf_:{}, n:{}", (void *)buf_, n);
+    F_THROW(BadAllocException, "realloc fail! buf_:{}, n:{}", (void *)buf_, n);
+  }
+  std::memset(nb, 0, sizeof(UChar) * n);
+  bufsize_ = n;
+  return *this;
 }
 
 const icu::UnicodeString &Buffer::fileName() const { return fileName_; }
@@ -67,10 +100,25 @@ int Buffer::loaded() const { return loaded_; }
 
 std::string Buffer::toString() const {
   std::string _1;
-  return fmt::format("[ @Buffer fileName_:{} fp_:{} loaded_:{} readBuffer_:{} "
+  int32_t cap;
+  UErrorCode err;
+  char _2[F_BUF_TO_STRING_SIZE];
+  u_strToUTF8(_2, F_BUF_TO_STRING_SIZE, &cap, buf_, F_BUF_TO_STRING_SIZE, &err);
+  if (U_FAILURE(err)) {
+    F_ERROR("buf_ to UTF8 failure, buf_:{}, err:{}, errorName:{}", (void *)buf_,
+            err, u_errorName(err));
+    F_THROW(UnicodeException,
+            "buf_ to UTF8 failure, buf_:{}, err:{}, errorName:{}", (void *)buf_,
+            err, u_errorName(err));
+  }
+  _2[F_BUF_TO_STRING_SIZE - 4] = '.';
+  _2[F_BUF_TO_STRING_SIZE - 3] = '.';
+  _2[F_BUF_TO_STRING_SIZE - 2] = '.';
+  _2[F_BUF_TO_STRING_SIZE - 1] = '\0';
+  return fmt::format("[ @Buffer fileName_:{} fp_:{} loaded_:{} buf_:{} "
                      "lineList_#size:{} ]",
-                     fileName_.toUTF8String(_1), (void *)fp_, loaded_,
-                     readBuffer_.toString(), lineList_.size());
+                     fileName_.toUTF8String(_1), (void *)fp_, loaded_, _2,
+                     lineList_.size());
 }
 
 int64_t Buffer::load() {
@@ -80,30 +128,40 @@ int64_t Buffer::load() {
   }
 
   int64_t readed = 0L;
-  UChar buf[F_READ_BUF_SIZE];
 
+  int pos = 0, n;
   while (!loaded_) {
-    int64_t n = (int64_t)u_file_read(buf, F_READ_BUF_SIZE, fp_);
+    UChar *rr = u_fgets(buf_ + pos, bufsize_ - 1 - pos, fp_);
 
-    if (n > 0L) {
-      readBuffer_.concat(buf, n);
-      readed += n;
-    } else {
-      // n <= 0L, EOF
+    // no more chars
+    if (!rr) {
       loaded_ = true;
+      break;
+    }
+
+    n = u_strlen(buf_ + pos);
+
+    // not enough space for one line
+    if (n == bufsize_ - 1 - pos) {
+      expand(bufsize_ * 2);
+      pos = bufsize_ - 1;
+      bufsize_ = bufsize_ * 2;
+    } else {
+      break;
     }
   }
 
-  F_INFO("readBuffer_:{}, lineList_#size:{}", readBuffer_.toString(),
-         lineList_.size());
+  readed += u_strlen(buf_);
+
+  F_INFO("buf_:{}, lineList_#size:{}", buf_.toString(), lineList_.size());
   // if buffer has nothing
-  if (readBuffer_.size() <= 0) {
+  if (buf_.size() <= 0) {
     return readed;
   }
 
-  // split readBuffer_ to lines
-  char *start = readBuffer_.head();
-  char *end = readBuffer_.head() + readBuffer_.size();
+  // split buf_ to lines
+  char *start = buf_.head();
+  char *end = buf_.head() + buf_.size();
   while (true) {
     if (start >= end) {
       F_INFO("start:{} >= end:{}", (void *)start, (void *)end);
@@ -137,3 +195,6 @@ int64_t Buffer::load() {
 }
 
 } // namespace fastype
+
+#undef F_BUF_SIZE
+#undef F_BUF_TO_STRING_SIZE
