@@ -2,15 +2,30 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <algorithm>
 #include <cstdint>
 #include <cstdlib>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 
 class Hasher {
 public:
-  uint32_t hash32(const void *key, const int len, uint32_t seed = 0UL);
-  uint64_t hash64(const void *key, const int len, uint64_t seed = 0ULL);
+  static uint32_t hash32(const void *key, const int len, uint32_t seed = 0UL);
+  static uint64_t hash64(const void *key, const int len, uint64_t seed = 0ULL);
 };
 
 } // namespace fastype
+
+namespace std {
+
+template <> struct hash<icu::UnicodeString> {
+  std::size_t operator()(const icu::UnicodeString &s) const {
+    return (std::size_t)fastype::Hasher::hash32(s.getBuffer(),
+                                                s.length() * sizeof(UChar));
+  }
+};
+
+} // namespace std

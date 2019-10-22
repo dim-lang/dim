@@ -14,7 +14,7 @@ public:
 
   virtual ~CursesTerm();
 
-  virtual void show(const std::string &fileName);
+  virtual void show(const icu::UnicodeString &fileName);
 
 private:
   int row_;

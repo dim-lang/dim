@@ -5,12 +5,10 @@
 #include "Logging.h"
 #include <boost/preprocessor/cat.hpp>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <random>
 #include <string>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 
 namespace fastype {
 
@@ -36,36 +34,34 @@ public:
 
 #undef F_DECL_RAND
 
-  static icu::UnicodeString nextAlpha(int len = 1);
-  static icu::UnicodeString nextAlphaNumeric(int len = 1);
-  static icu::UnicodeString nextDigit(int len = 1);
-  static icu::UnicodeString nextHex(int len = 1);
-  static icu::UnicodeString nextPunctuation(int len = 1);
-  static icu::UnicodeString nextPrintable(int len = 1);
-  static icu::UnicodeString nextWhitespace(int len = 1);
-  static icu::UnicodeString nextControl(int len = 1);
-  static icu::UnicodeString nextAscii(int len = 1);
-  static icu::UnicodeString nextString(const UChar *candidates, int n,
-                                       int len = 1);
-  static icu::UnicodeString nextString(const icu::UnicodeString &candidates,
-                                       int len = 1);
+  static std::string nextAlpha(int len = 1);
+  static std::string nextAlphaNumeric(int len = 1);
+  static std::string nextDigit(int len = 1);
+  static std::string nextHex(int len = 1);
+  static std::string nextPunctuation(int len = 1);
+  static std::string nextPrintable(int len = 1);
+  static std::string nextWhitespace(int len = 1);
+  static std::string nextControl(int len = 1);
+  static std::string nextAscii(int len = 1);
+  static std::string nextString(const char *candidates, int n, int len = 1);
+  static std::string nextString(const std::string &candidates, int len = 1);
 
-  static UChar nextAlphaChar();
-  static UChar nextAlphaNumericChar();
-  static UChar nextDigitChar();
-  static UChar nextHexChar();
-  static UChar nextPunctuationChar();
-  static UChar nextPrintableChar();
-  static UChar nextWhitespaceChar();
-  static UChar nextControlChar();
-  static UChar nextAsciiChar();
-  static UChar nextChar(const UChar *candidates, int n);
-  static UChar nextChar(const icu::UnicodeString &candidates);
+  static char nextAlphaChar();
+  static char nextAlphaNumericChar();
+  static char nextDigitChar();
+  static char nextHexChar();
+  static char nextPunctuationChar();
+  static char nextPrintableChar();
+  static char nextWhitespaceChar();
+  static char nextControlChar();
+  static char nextAsciiChar();
+  static char nextChar(const char *candidates, int n);
+  static char nextChar(const std::string &candidates);
 
 private:
-  static UChar nextAsciiChar(const std::vector<std::pair<int, int>> &range,
-                             int rangeLength);
-  static icu::UnicodeString
+  static char nextAsciiChar(const std::vector<std::pair<int, int>> &range,
+                            int rangeLength);
+  static std::string
   nextAsciiString(const std::vector<std::pair<int, int>> &range,
                   int rangeLength, int len);
 

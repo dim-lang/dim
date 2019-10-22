@@ -3,12 +3,12 @@
 
 #include "Term.h"
 #include "ConcurrentHashMap.h"
+#include "Hasher.h"
 #include "Logging.h"
 #include "config/Platform.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
 
 #ifdef F_PLATFORM_WINDOWS
 #include "WinTerm.h"
@@ -18,9 +18,9 @@
 
 namespace fastype {
 
-static ConcurrentHashMap<std::string, Sptr<Term>> TermMap;
+static ConcurrentHashMap<icu::UnicodeString, Sptr<Term>> TermMap;
 
-Sptr<Term> Term::open(const std::string &termName) {
+Sptr<Term> Term::open(const icu::UnicodeString &termName) {
   TermMap.lock();
   if (TermMap.find(termName) == TermMap.end()) {
 

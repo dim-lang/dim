@@ -14,7 +14,7 @@
 #include <unicode/utypes.h>
 
 #define F_BUF_SIZE 8192
-#define F_BUF_TO_STRING_SIZE 128
+#define F_BUF_TO_STRING_SIZE 32
 #define F_ALLOC_UNIT 8
 
 namespace fastype {
@@ -62,7 +62,22 @@ void Buffer::expand(int n) {
   }
   std::memset(nb, 0, sizeof(UChar) * n);
   bufsize_ = n;
-  return *this;
+}
+
+char *Buffer::ucharToString(UChar *s, int sn, char *d, int dn) {
+  F_CHECK(s != nullptr, "s {} != nullptr", (void *)s);
+  F_CHECK(d != nullptr, "d {} != nullptr", (void *)d);
+  UErrorCode err;
+  int32_t len;
+  u_strToUTF8(d, dn, &len, s, std::min(dn, sn), &err);
+  if (U_FAILURE(err)) {
+    F_ERROR("s to UTF8 failure, s:{}, err:{}, errorName:{}", (void *)s, err,
+            u_errorName(err));
+    return nullptr;
+  }
+  F_CHECK(len <= dn, "len {} <= dn {}", len, dn);
+  d[dn - 1] = '\0';
+  return d;
 }
 
 const icu::UnicodeString &Buffer::fileName() const { return fileName_; }
@@ -100,25 +115,20 @@ int Buffer::loaded() const { return loaded_; }
 
 std::string Buffer::toString() const {
   std::string _1;
-  int32_t cap;
-  UErrorCode err;
   char _2[F_BUF_TO_STRING_SIZE];
-  u_strToUTF8(_2, F_BUF_TO_STRING_SIZE, &cap, buf_, F_BUF_TO_STRING_SIZE, &err);
-  if (U_FAILURE(err)) {
-    F_ERROR("buf_ to UTF8 failure, buf_:{}, err:{}, errorName:{}", (void *)buf_,
-            err, u_errorName(err));
-    F_THROW(UnicodeException,
-            "buf_ to UTF8 failure, buf_:{}, err:{}, errorName:{}", (void *)buf_,
-            err, u_errorName(err));
+  if (ucharToString(buf_, bufsize_, _2, F_BUF_TO_STRING_SIZE)) {
+    return fmt::format(
+        "[ @Buffer fileName_:{} fp_:{} loaded_:{} buf_:{} bufsize_:{} "
+        "lineList_#size:{} ]",
+        fileName_.toUTF8String(_1), (void *)fp_, loaded_, _2, bufsize_,
+        lineList_.size());
+  } else {
+    return fmt::format(
+        "[ @Buffer fileName_:{} fp_:{} loaded_:{} buf_:{} bufsize_:{} "
+        "lineList_#size:{} ]",
+        fileName_.toUTF8String(_1), (void *)fp_, loaded_, (void *)nullptr,
+        bufsize_, lineList_.size());
   }
-  _2[F_BUF_TO_STRING_SIZE - 4] = '.';
-  _2[F_BUF_TO_STRING_SIZE - 3] = '.';
-  _2[F_BUF_TO_STRING_SIZE - 2] = '.';
-  _2[F_BUF_TO_STRING_SIZE - 1] = '\0';
-  return fmt::format("[ @Buffer fileName_:{} fp_:{} loaded_:{} buf_:{} "
-                     "lineList_#size:{} ]",
-                     fileName_.toUTF8String(_1), (void *)fp_, loaded_, _2,
-                     lineList_.size());
 }
 
 int64_t Buffer::load() {
@@ -130,7 +140,7 @@ int64_t Buffer::load() {
   int64_t readed = 0L;
 
   int pos = 0, n;
-  while (!loaded_) {
+  while (true) {
     UChar *rr = u_fgets(buf_ + pos, bufsize_ - 1 - pos, fp_);
 
     // no more chars
@@ -153,44 +163,22 @@ int64_t Buffer::load() {
 
   readed += u_strlen(buf_);
 
-  F_INFO("buf_:{}, lineList_#size:{}", buf_.toString(), lineList_.size());
-  // if buffer has nothing
-  if (buf_.size() <= 0) {
+  char _1[F_BUF_TO_STRING_SIZE];
+  if (ucharToString(buf_, bufsize_, _1, F_BUF_TO_STRING_SIZE)) {
+    F_INFO("buf_:{}, lineList_#size:{}", _1, lineList_.size());
+  } else {
+    F_INFO("buf_:{}, lineList_#size:{}", (void *)nullptr, lineList_.size());
+  }
+
+  // if read nothing
+  if (readed <= 0L) {
     return readed;
   }
 
-  // split buf_ to lines
-  char *start = buf_.head();
-  char *end = buf_.head() + buf_.size();
-  while (true) {
-    if (start >= end) {
-      F_INFO("start:{} >= end:{}", (void *)start, (void *)end);
-      break;
-    }
-    char *lineBreak = std::find(start, end, '\n');
-    F_INFO("start:{} lineBreak:{} end:{} lineBreak-start:{} end-start:{} "
-           "end-lineBreak:{}",
-           (void *)start, (void *)lineBreak, (void *)end,
-           (int)(lineBreak - start), (int)(end - start),
-           (int)(end - lineBreak));
-    if (lineBreak >= end) {
-      F_INFO("lineBreak:{} >= end:{}", (void *)lineBreak, (void *)end);
-      break;
-    }
+  lineList_.push_back(
+      Line(icu::UnicodeString(buf_, readed), lineList_.size(), false));
 
-    int sz = lineBreak - start + 1; // 1 is for '\n'
-    char ef = '\0';
-    // Cowstr cs(sz);
-    // cs.concat(start, sz);
-    // cs.concat(&ef, 1);
-    // Row r(cs, lineList_.size(), false); // 1 is for '\0'
-    Line r;
-    F_INFO("new line:{}", r.toString());
-    lineList_.push_back(r);
-    start = lineBreak + 1;
-  }
-
-  // F_INFO("buffer read:{} elapse:{}", readed, F_TIMER_ELAPSE(load));
+  F_INFO("load:{}", toString());
   return readed;
 }
 

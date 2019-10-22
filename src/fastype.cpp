@@ -9,10 +9,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 #include <vector>
 namespace boost_po = boost::program_options;
-using std::string;
-using std::vector;
 
 int main(int argc, char **argv) {
   fastype::Logging::initialize(".", "fastype");
@@ -30,9 +31,13 @@ int main(int argc, char **argv) {
   }
 
   if (conf.hasInputFile()) {
-    vector<string> inputFileList = conf.inputFileList();
-    fastype::Sptr<fastype::Term> term = fastype::Term::open(inputFileList[0]);
-    term->show(inputFileList[0]);
+    std::vector<std::string> inputFileList = conf.inputFileList();
+    std::string firstFileName = inputFileList[0];
+    icu::UnicodeString firstFileNameUnicode =
+        icu::UnicodeString::fromUTF8(firstFileName);
+    fastype::Sptr<fastype::Term> term =
+        fastype::Term::open(firstFileNameUnicode);
+    term->show(firstFileNameUnicode);
   }
 
   return 0;

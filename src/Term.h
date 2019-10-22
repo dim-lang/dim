@@ -3,7 +3,9 @@
 
 #pragma once
 #include "SmartPointer.h"
-#include <string>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 
@@ -11,9 +13,9 @@ class Term {
 public:
   virtual ~Term() = default;
 
-  virtual void show(const std::string &fileName) = 0;
+  virtual void show(const icu::UnicodeString &fileName) = 0;
 
-  static Sptr<Term> open(const std::string &termName);
+  static Sptr<Term> open(const icu::UnicodeString &termName);
 };
 
 } // namespace fastype

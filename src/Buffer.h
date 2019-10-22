@@ -37,8 +37,7 @@ public:
 private:
   Buffer(const icu::UnicodeString &fileName);
   void expand(int n);
-
-  static char *ucharToString(UChar *s, int n);
+  static char *ucharToString(UChar *s, int sn, char *d, int dn);
 
   // load all lines
   // @return readed bytes

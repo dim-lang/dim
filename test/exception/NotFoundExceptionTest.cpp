@@ -3,6 +3,7 @@
 
 #include "exception/NotFoundException.h"
 #include "Logging.h"
+#include "Random.h"
 #include "catch2/catch.hpp"
 
 #define TEST_MAX 128

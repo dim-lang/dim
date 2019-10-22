@@ -54,14 +54,14 @@ TEST_CASE("Token", "[Token]") {
   }
 
   SECTION("strings") {
-    icu::UnicodeString s = fastype::Random::nextAlphaNumeric();
-    StringToken st(s);
+    std::string s = fastype::Random::nextAlphaNumeric();
+    fastype::StringToken st(icu::UnicodeString::fromUTF8(s));
     F_INFO("string: {}", st.toString());
   }
 
   SECTION("integer") {
     int i = fastype::Random::nextInt();
-    IntegerToken it(i);
+    fastype::IntegerToken it(i);
     F_INFO("integer: {}", it.toString());
   }
 }
