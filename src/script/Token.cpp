@@ -113,8 +113,9 @@ bool Token::boolean() const {
 }
 
 std::string Token::toString() const {
-  F_THROW(NotImplementException, "toString not implement! this:{}",
-          (void *)this);
+  std::string _1;
+  return fmt::format("[ @Token type_:{}, id_:{} ]",
+                     type_.name().toUTF8String(_1), id_);
 }
 
 } // namespace fastype
