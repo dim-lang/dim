@@ -173,11 +173,11 @@ static const int AsciiLength = 128 - 0;
 std::string
 Random::nextAsciiString(const std::vector<std::pair<int, int>> &range,
                         int rangeLength, int len) {
-  std::string ss(len + 1, (char)'\0');
+  std::stringstream ss;
   for (int i = 0; i < len; i++) {
-    ss[i] = nextAsciiChar(range, rangeLength);
+    ss << nextAsciiChar(range, rangeLength);
   }
-  return ss;
+  return ss.str();
 }
 
 char Random::nextAsciiChar(const std::vector<std::pair<int, int>> &range,
@@ -297,12 +297,12 @@ std::string Random::nextString(const std::string &candidates, int len) {
 }
 
 std::string Random::nextString(const char *candidates, int c, int len) {
-  std::string ss(len + 1, (char)'\0');
+  std::stringstream ss;
   for (int i = 0; i < len; i++) {
     int pos = nextInt(c);
-    ss[i] = candidates[pos];
+    ss << candidates[pos];
   }
-  return ss;
+  return ss.str();
 }
 
 } // namespace fastype
