@@ -48,7 +48,7 @@ Option::Option(int argCount, char **argList) : Option() {
 }
 
 Option::Option(const std::vector<std::string> &fileNames) : Option() {
-  for (int i = 0; i < fileNames.size(); i++) {
+  for (int i = 0; i < (int)fileNames.size(); i++) {
     std::ifstream ifile(fileNames[i].data());
     boost_po::store(boost_po::parse_config_file(ifile, optDesc_), varMap_);
   }
