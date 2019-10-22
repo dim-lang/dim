@@ -59,7 +59,7 @@ Sptr<Token> Lexer::peek(int i) {
 }
 
 bool Lexer::fillQueue(int i) {
-  while (i >= queue_.size()) {
+  while (i >= (int)queue_.size()) {
     if (!more_) {
       return false;
     }
