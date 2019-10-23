@@ -26,7 +26,7 @@ const std::vector<Token::TokenType> &Token::tokenTypes() {
   return types;
 }
 
-int Token::tokenTypeValue(TokenType tt) {
+int Token::tokenTypeValue(Token::TokenType tt) {
   switch (tt) {
   case Token::TokenType::TT_EOF:
   case Token::TokenType::TT_INTEGER:
@@ -39,7 +39,7 @@ int Token::tokenTypeValue(TokenType tt) {
   F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
 
-std::string Token::tokenTypeName(TokenType tt) {
+std::string Token::tokenTypeName(Token::TokenType tt) {
   switch (tt) {
   case Token::TokenType::TT_EOF:
     return "TT_EOF";
