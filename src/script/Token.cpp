@@ -17,7 +17,7 @@
 
 namespace fastype {
 
-const std::vector<Token::TokenType> &Token::types() {
+const std::vector<Token::TokenType> &Token::tokenTypes() {
   const static std::vector<Token::TokenType> types = {
       Token::TokenType::TT_EOF,        Token::TokenType::TT_INTEGER,
       Token::TokenType::TT_OPERATOR,   Token::TokenType::TT_COMPARATOR,
@@ -36,7 +36,7 @@ int Token::tokenTypeValue(TokenType tt) {
   case Token::TokenType::TT_BOOLEAN:
     return tt;
   }
-  F_THROW(NotFoundException, "tokenTypeValue not found! {}", (int)tt);
+  F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
 
 std::string Token::tokenTypeName(TokenType tt) {
@@ -54,7 +54,34 @@ std::string Token::tokenTypeName(TokenType tt) {
   case Token::TokenType::TT_BOOLEAN:
     return "TT_BOOLEAN";
   }
-  F_THROW(NotFoundException, "tokenTypeName not found! {}", (int)tt);
+  F_THROW(NotFoundException, "tokenTypeName not found! tt: {}", (int)tt);
+}
+
+Token::TokenType Token::tokenTypeFromValue(int value) {
+  switch (value) {
+  case (int)Token::TokenType::TT_EOF:
+    return Token::TokenType::TT_EOF;
+  case (int)Token::TokenType::TT_INTEGER:
+    return Token::TokenType::TT_INTEGER;
+  case (int)Token::TokenType::TT_OPERATOR:
+    return Token::TokenType::TT_OPERATOR;
+  case (int)Token::TokenType::TT_COMPARATOR:
+    return Token::TokenType::TT_COMPARATOR;
+  case (int)Token::TokenType::TT_ASSIGNMENT:
+    return Token::TokenType::TT_ASSIGNMENT;
+  case (int)Token::TokenType::TT_BOOLEAN:
+    return Token::TokenType::TT_BOOLEAN;
+  }
+  F_THROW(NotFoundException, "tokenTypeFromValue not found! value: {}", value);
+}
+
+Token::TokenType Token::tokenTypeFromName(const std::string &name) {
+  for (Token::TokenType tt : tokenTypes()) {
+    if (tokenTypeName(tt) == name) {
+      return tt;
+    }
+  }
+  F_THROW(NotFoundException, "tokenTypeFromName not found! name: {}", name);
 }
 
 const Sptr<Token> Token::T_EOF(new EofToken());

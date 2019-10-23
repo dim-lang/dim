@@ -22,9 +22,11 @@ public:
     TT_BOOLEAN = 6,    // boolean: True False
   };
 
-  static const std::vector<TokenType> &types();
+  static const std::vector<TokenType> &tokenTypes();
   static int tokenTypeValue(TokenType tt);
   static std::string tokenTypeName(TokenType tt);
+  static TokenType tokenTypeFromValue(int value);
+  static TokenType tokenTypeFromName(const std::string &name);
 
   // eofs
   const static Sptr<Token> T_EOF;
