@@ -6,6 +6,6 @@
 
 namespace fastype {
 
-F_EXCEPTION(CheckException);
+F_EXCEPTION(CheckFailureException);
 
 } // namespace fastype

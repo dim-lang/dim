@@ -6,6 +6,11 @@
 
 namespace fastype {
 
-F_EXCEPTION(NotFoundException);
+class NotFoundException : public BaseException {
+public:
+  NotFoundException(const char *fileName, int lineNumber,
+                    const char *functionName, const std::string &message)
+      : BaseException(fileName, lineNumber, functionName, message) {}
+};
 
 } // namespace fastype
