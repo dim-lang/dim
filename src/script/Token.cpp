@@ -155,17 +155,23 @@ const Token::TokenType &Token::type() const { return type_; }
 
 long long Token::id() const { return id_; }
 
-bool Token::isEof() const { return type_ == TokenType::TT_EOF; }
+bool Token::isEof() const { return type_ == Token::TokenType::TT_EOF; }
 
-bool Token::isOperator() const { return type_ == TokenType::TT_OPERATOR; }
+bool Token::isOperator() const {
+  return type_ == Token::TokenType::TT_OPERATOR;
+}
 
-bool Token::isAssignment() const { return type_ == TokenType::TT_ASSIGNMENT; }
+bool Token::isAssignment() const {
+  return type_ == Token::TokenType::TT_ASSIGNMENT;
+}
 
-bool Token::isComparator() const { return type_ == TokenType::TT_COMPARATOR; }
+bool Token::isComparator() const {
+  return type_ == Token::TokenType::TT_COMPARATOR;
+}
 
-bool Token::isBoolean() const { return type_ == TokenType::TT_BOOLEAN; }
+bool Token::isBoolean() const { return type_ == Token::TokenType::TT_BOOLEAN; }
 
-bool Token::isInteger() const { return type_ == TokenType::TT_INTEGER; }
+bool Token::isInteger() const { return type_ == Token::TokenType::TT_INTEGER; }
 
 icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());
