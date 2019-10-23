@@ -61,7 +61,6 @@ set(F_CORE
     event/poll/WinSelect.cpp
 
     script/Token.cpp
-    script/TokenType.cpp
     script/Lexer.cpp
     script/token/AssignmentToken.cpp
     script/token/BooleanToken.cpp

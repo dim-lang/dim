@@ -4,7 +4,6 @@
 #pragma once
 #include "SmartPointer.h"
 #include "Stringify.h"
-#include "script/TokenType.h"
 #include <string>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
@@ -14,6 +13,19 @@ namespace fastype {
 
 class Token : public Stringify {
 public:
+  enum TokenType {
+    TT_EOF = 1,        // end of file
+    TT_INTEGER = 2,    // integer
+    TT_OPERATOR = 3,   // operator: + - * / %
+    TT_COMPARATOR = 4, // comparator: == != < <= > >=
+    TT_ASSIGNMENT = 5, // assignment: =
+    TT_BOOLEAN = 6,    // boolean: True False
+  };
+
+  static const std::vector<TokenType> &types();
+  static int tokenTypeValue(TokenType tt);
+  static std::string tokenTypeName(TokenType tt);
+
   // eofs
   const static Sptr<Token> T_EOF;
 

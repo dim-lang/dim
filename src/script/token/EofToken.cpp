@@ -9,8 +9,7 @@ namespace fastype {
 EofToken::EofToken() : Token(TokenType::TT_EOF) {}
 
 std::string EofToken::toString() const {
-  std::string _1;
-  return fmt::format("[ @EofToken type_:{} ]", type_.name().toUTF8String(_1));
+  return fmt::format("[ @EofToken type_:{} ]", Token::tokenTypeName(type_));
 }
 
 } // namespace fastype

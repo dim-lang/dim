@@ -12,9 +12,8 @@ BooleanToken::BooleanToken(bool value)
 bool BooleanToken::boolean() const { return value_; }
 
 std::string BooleanToken::toString() const {
-  std::string _1;
   return fmt::format("[ @BooleanToken type_:{}, value_:{} ]",
-                     type_.name().toUTF8String(_1), value_ ? "True" : "False");
+                     Token::tokenTypeName(type_), value_ ? "True" : "False");
 }
 
 } // namespace fastype

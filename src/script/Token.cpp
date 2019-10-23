@@ -17,6 +17,46 @@
 
 namespace fastype {
 
+const std::vector<Token::TokenType> &Token::types() {
+  const static std::vector<Token::TokenType> types = {
+      Token::TokenType::TT_EOF,        Token::TokenType::TT_INTEGER,
+      Token::TokenType::TT_OPERATOR,   Token::TokenType::TT_COMPARATOR,
+      Token::TokenType::TT_ASSIGNMENT, Token::TokenType::TT_BOOLEAN,
+  };
+  return types;
+}
+
+int Token::tokenTypeValue(TokenType tt) {
+  switch (tt) {
+  case Token::TokenType::TT_EOF:
+  case Token::TokenType::TT_INTEGER:
+  case Token::TokenType::TT_OPERATOR:
+  case Token::TokenType::TT_COMPARATOR:
+  case Token::TokenType::TT_ASSIGNMENT:
+  case Token::TokenType::TT_BOOLEAN:
+    return tt;
+  }
+  F_THROW(NotFoundException, "tokenTypeValue not found! {}", (int)tt);
+}
+
+std::string Token::tokenTypeName(TokenType tt) {
+  switch (tt) {
+  case Token::TokenType::TT_EOF:
+    return "TT_EOF";
+  case Token::TokenType::TT_INTEGER:
+    return "TT_INTEGER";
+  case Token::TokenType::TT_OPERATOR:
+    return "TT_OPERATOR";
+  case Token::TokenType::TT_COMPARATOR:
+    return "TT_COMPARATOR";
+  case Token::TokenType::TT_ASSIGNMENT:
+    return "TT_ASSIGNMENT";
+  case Token::TokenType::TT_BOOLEAN:
+    return "TT_BOOLEAN";
+  }
+  F_THROW(NotFoundException, "tokenTypeName not found! {}", (int)tt);
+}
+
 const Sptr<Token> Token::T_EOF(new EofToken());
 
 const Sptr<Token> Token::T_ADD(new OperatorToken(UNICODE_STRING_SIMPLE("+")));
@@ -80,11 +120,11 @@ const std::vector<Sptr<Token>> Token::booleans() {
 
 static long long TokenId = 0LL;
 
-Token::Token(TokenType type) : type_(type), id_(TokenId++) {
+Token::Token(Token::TokenType type) : type_(type), id_(TokenId++) {
   F_INFO("Constructor:{}", toString());
 }
 
-const TokenType &Token::type() const { return type_; }
+const Token::TokenType &Token::type() const { return type_; }
 
 long long Token::id() const { return id_; }
 
@@ -113,9 +153,7 @@ bool Token::boolean() const {
 }
 
 std::string Token::toString() const {
-  std::string _1;
-  return fmt::format("[ @Token type_:{}, id_:{} ]",
-                     type_.name().toUTF8String(_1), id_);
+  return fmt::format("[ @Token type_:{}, id_:{} ]", tokenTypeName(type_), id_);
 }
 
 } // namespace fastype
