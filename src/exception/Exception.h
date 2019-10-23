@@ -8,32 +8,6 @@
 #include <stdexcept>
 #include <string>
 
-#ifndef F_EXCEPTION
-#define F_EXCEPTION(x)                                                         \
-  class x : public Stringify {                                                 \
-  public:                                                                      \
-    x(const char *fileName, int lineNumber, const char *functionName,          \
-      const std::string &message)                                              \
-        : message_(message), fileName_(fileName), lineNumber_(lineNumber),     \
-          functionName_(functionName) {}                                       \
-    virtual ~x() = default;                                                    \
-    virtual const std::string &message() const { return message_; }            \
-    virtual const std::string &fileName() const { return fileName_; }          \
-    virtual const int &lineNumber() const { return lineNumber_; }              \
-    virtual const std::string &functionName() const { return functionName_; }  \
-    virtual std::string toString() const {                                     \
-      return fmt::format("[{}:{}] {} - {}", fileName_, lineNumber_,            \
-                         functionName_, message_);                             \
-    }                                                                          \
-                                                                               \
-  protected:                                                                   \
-    std::string message_;                                                      \
-    std::string fileName_;                                                     \
-    int lineNumber_;                                                           \
-    std::string functionName_;                                                 \
-  }
-#endif
-
 namespace fastype {
 
 class BaseException : public Stringify {
@@ -60,6 +34,17 @@ protected:
 };
 
 } // namespace fastype
+
+#ifndef F_EXCEPTION
+#define F_EXCEPTION(x)                                                         \
+  class x : public BaseException {                                             \
+  public:                                                                      \
+    x(const char *fileName, int lineNumber, const char *functionName,          \
+      const std::string &message)                                              \
+        : BaseException(fileName, lineNumber, functionName, message) {}        \
+    virtual ~x() = default;                                                    \
+  }
+#endif
 
 #ifndef F_THROW
 #define F_THROW(ex, msg, ...)                                                  \
