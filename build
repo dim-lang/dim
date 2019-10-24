@@ -87,8 +87,8 @@ function init_all() {
 
 function clean_all() {
     rm *.log
-    cd debug && make clean && cd ..
-    cd release && make clean && cd ..
+    rm -rf debug
+    rm -rf release
 }
 
 function purge_all() {
