@@ -86,7 +86,6 @@ void Lexer::readLine() {
     line = text_.tempSubString(pos_, nextPos - pos_ + 1);
     pos_ = nextPos + 1;
   }
-  line = text_.tempSubString(pos_, nextPos - pos_);
 
   int i = 0;
   while (i < line.length()) {

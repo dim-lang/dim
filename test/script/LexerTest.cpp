@@ -42,7 +42,7 @@ static void readToken(const icu::UnicodeString &data) {
   fastype::Lexer lex(data);
   while (true) {
     fastype::Sptr<fastype::Token> t = lex.read();
-    REQUIRE(t->get() != nullptr);
+    REQUIRE(t.get() != nullptr);
     F_INFO("read Token:{}", t->toString());
     if (t == fastype::Token::T_EOF) {
       break;
@@ -51,9 +51,15 @@ static void readToken(const icu::UnicodeString &data) {
 }
 
 TEST_CASE("Lexer", "[Lexer]") {
-  SECTION("Simple Lexer") {
+  SECTION("LexerTest1.fast") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
+    REQUIRE(data.length() > 0);
+    readToken(data);
+  }
+  SECTION("LexerTest2.fast") {
+    icu::UnicodeString data =
+        readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest2.fast"));
     REQUIRE(data.length() > 0);
     readToken(data);
   }
