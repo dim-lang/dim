@@ -141,13 +141,14 @@ function build_release() {
 
 function build_help() {
     echo "[fastype] help message:"
-    echo "  1. build init    - initialize third party dependencies."
-    echo "  2. build debug   - build debug version."
-    echo "  3. build release - build release version."
-    echo "  4. build all     - build both debug and release version."
-    echo "  5. build install - build and install."
-    echo "  6. build test    - run unit tests."
-    echo "  7. build clean   - clean build objects."
+    echo "  1. build help    - show help message."
+    echo "  2. build init    - initialize third party dependencies."
+    echo "  3. build debug   - build debug version."
+    echo "  4. build release - build release version."
+    echo "  5. build all     - build both debug and release version."
+    echo "  6. build install - build and install."
+    echo "  7. build test    - run unit tests."
+    echo "  8. build clean   - clean build objects."
 }
 
 # ---- main ----

@@ -101,20 +101,23 @@ void Lexer::parse() {
       if (i + 1 < text_.length()) {
         switch (text_.charAt(i + 1)) {
         case (UChar)'/': // line comment //
+        {
           // find line break from i+1
           int lineEndPos = text_.indexOf(unixLineBreak, i + 1);
           i = lineEndPos + 1;
-          break;
+        } break;
         case (UChar)'*': // block comment /*
+        {
           // find end of block comment
           int lineEndPos = text_.indexOf(blockCommetEnd, i + 1);
           i = lineEndPos + 1;
-          break;
-        default:
+        } break;
+        default: {
           std::string _1;
-          F_CHECK(false, "Parse Error! i:{}, j:{}, text_: {}", i, j,
+          F_CHECK(false, "Parse Error! i:{}, text_: {}", i,
                   text_.tempSubString(0, std::max<int>(text_.length(), 64))
                       .toUTF8String(_1));
+        }
         }
       } else { // DIV /
         queue_.push_back(Token::T_DIV);
