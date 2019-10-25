@@ -110,7 +110,7 @@ void Lexer::parse() {
         {
           // find end of block comment
           int lineEndPos = text_.indexOf(blockCommetEnd, i + 1);
-          i = lineEndPos + 1;
+          i = lineEndPos + 2;
         } break;
         default: {
           std::string _1;
@@ -157,7 +157,7 @@ void Lexer::parse() {
       Sptr<Token> strToken =
           Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
       queue_.push_back(strToken);
-      i = j;
+      i = j + 1;
     } break;
     case (UChar)'=': // = or ==
       if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
