@@ -8,48 +8,53 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <unicode/unistr.h>
+#include <unicode/ustdio.h>
+#include <unicode/ustring.h>
 
-static char *readFile(const std::string &fileName, int &length) {
-  FILE *fp = std::fopen(fileName.data(), "rb");
-  if (fp == nullptr) {
-    F_ERROR("file:{} not found", fileName);
-    exit(EXIT_FAILURE);
-  }
+static icu::UnicodeString readFile(const icu::UnicodeString &fileName) {
+  UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", nullptr, "UTF-8");
+  REQUIRE(fp);
+  // if (fp == nullptr) {
+  // F_ERROR("file:{} not found", fileName);
+  // exit(EXIT_FAILURE);
+  //}
 
-  char *data = nullptr;
-  length = 1024;
-  int64_t t = 0, n = 0;
+  UChar *data = nullptr;
+  int length = 4096, t = 0, n = 0;
 
   do {
     if (data == nullptr || n >= length) {
       length = length * 2;
-      data = (char *)realloc(data, length);
+      data = (UChar *)realloc(data, length);
     }
 
-    t = (int64_t)fread(data + n, 1, length - n, fp);
+    t = u_file_read(data + n, length - n, fp);
     n += t;
   } while (t > 0);
-  std::fclose(fp);
+  u_fclose(fp);
   fp = nullptr;
 
-  length = n;
-  return data;
+  return icu::UnicodeString(data, n);
+}
+
+static void readToken(const icu::UnicodeString &data) {
+  fastype::Lexer lex(data);
+  while (true) {
+    fastype::Sptr<fastype::Token> t = lex.read();
+    REQUIRE(t->get() != nullptr);
+    F_INFO("read Token:{}", t->toString());
+    if (t == fastype::Token::T_EOF) {
+      break;
+    }
+  }
 }
 
 TEST_CASE("Lexer", "[Lexer]") {
   SECTION("Simple Lexer") {
-    int len = 0;
-    char *data = readFile("test/script/LexerTest1.fast", len);
-    REQUIRE(data != nullptr);
-    REQUIRE(len > 0);
-
-    fastype::Lexer lex(data, &std::free);
-    while (true) {
-      fastype::Sptr<fastype::Token> t = lex.read();
-      F_INFO("Lexer Token t:{}", t->toString());
-      if (t == fastype::Token::EOF_) {
-        break;
-      }
-    }
+    icu::UnicodeString data =
+        readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
+    REQUIRE(data.length() > 0);
+    readToken(data);
   }
 }
