@@ -63,37 +63,27 @@ bool Lexer::fillQueue(int i) {
     if (!more_) {
       return false;
     }
-    readLine();
+    parse();
   }
   return true;
 }
 
-void Lexer::readLine() {
+void Lexer::parse() {
   if (pos_ >= text_.length()) {
     more_ = false;
     return;
   }
 
   icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
-  icu::UnicodeString line;
-
-  int nextPos = text_.indexOf(unixLineBreak, pos_);
-  if (nextPos < 0) {
-    line = text_.tempSubString(pos_);
-    pos_ = text_.length();
-    nextPos = text_.length();
-  } else {
-    line = text_.tempSubString(pos_, nextPos - pos_ + 1);
-    pos_ = nextPos + 1;
-  }
+  icu::UnicodeString blockCommetEnd = UNICODE_STRING_SIMPLE("*/");
 
   int i = 0;
-  while (i < line.length()) {
-    if (u_isspace(line.charAt(i))) {
+  while (i < text_.length()) {
+    if (u_isspace(text_.charAt(i))) {
       i += 1;
       continue;
     }
-    switch (line.charAt(i)) {
+    switch (text_.charAt(i)) {
     case (UChar)'+':
       queue_.push_back(Token::T_ADD);
       i += 1;
@@ -102,45 +92,66 @@ void Lexer::readLine() {
       queue_.push_back(Token::T_SUB);
       i += 1;
       break;
-    case (UChar)'*':
+    case (UChar)'*': // * or */
       queue_.push_back(Token::T_MUL);
       i += 1;
       break;
-    case (UChar)'/':
-      queue_.push_back(Token::T_DIV);
-      i += 1;
-      break;
+    case (UChar)'/': // / or // or /*
+    {
+      if (i + 1 < text_.length()) {
+        switch (text_.charAt(i + 1)) {
+        case (UChar)'/': // line comment //
+          // find line break from i+1
+          int lineEndPos = text_.indexOf(unixLineBreak, i + 1);
+          i = lineEndPos + 1;
+          break;
+        case (UChar)'*': // block comment /*
+          // find end of block comment
+          int lineEndPos = text_.indexOf(blockCommetEnd, i + 1);
+          i = lineEndPos + 1;
+          break;
+        default:
+          std::string _1;
+          F_CHECK(false, "Parse Error! i:{}, j:{}, text_: {}", i, j,
+                  text_.tempSubString(0, std::max<int>(text_.length(), 64))
+                      .toUTF8String(_1));
+        }
+      } else { // DIV /
+        queue_.push_back(Token::T_DIV);
+        i += 1;
+      }
+    } break;
     case (UChar)'%':
       queue_.push_back(Token::T_MOD);
       i += 1;
       break;
-    case (UChar)'"': { // string or char
+    case (UChar)'"': // string or char
+    {
       int j = i;
       bool findString = false;
-      while (j < line.length()) {
-        if (line.charAt(j) == (UChar)'\\') {
+      while (j < text_.length()) {
+        if (text_.charAt(j) == (UChar)'\\') {
           j += 2;
           continue;
         }
-        if (line.charAt(j) == (UChar)'\"') {
+        if (text_.charAt(j) == (UChar)'\"') {
           j += 1;
           findString = true;
           break;
         }
         j += 1;
       }
-      if (!findString) {
-        std::string utf8;
-        F_THROW(ParseException, "Parse Error! i:{}, j:{}, invalid string: {}",
-                i, j, line.toUTF8String(utf8));
-      }
+      std::string _1;
+      F_CHECK(findString, "Parse Error! i:{}, j:{}, text_: {}", i, j,
+              text_.tempSubString(0, std::max<int>(text_.length(), 64))
+                  .toUTF8String(_1));
       Sptr<Token> strToken =
-          Sptr<Token>(new StringToken(line.tempSubString(i, j - i)));
+          Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
       queue_.push_back(strToken);
       i = j;
     } break;
     case (UChar)'=': // = or ==
-      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
+      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
         queue_.push_back(Token::T_EQ);
         i += 2;
       } else {
@@ -149,7 +160,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'!': // ! or !=
-      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("!=")) {
+      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("!=")) {
         queue_.push_back(Token::T_NEQ);
         i += 2;
       } else {
@@ -158,7 +169,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'<': // < or <=
-      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("<=")) {
+      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("<=")) {
         queue_.push_back(Token::T_LE);
         i += 2;
       } else {
@@ -167,7 +178,7 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'>': // > or >=
-      if (line.tempSubString(i, 2) == UNICODE_STRING_SIMPLE(">=")) {
+      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE(">=")) {
         queue_.push_back(Token::T_GE);
         i += 2;
       } else {
@@ -176,19 +187,22 @@ void Lexer::readLine() {
       }
       break;
     case (UChar)'T': // True
-      if (line.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
+      if (text_.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
         queue_.push_back(Token::T_TRUE);
         i += 4;
       }
       break;
     case (UChar)'F': // False
-      if (line.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
+      if (text_.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
         queue_.push_back(Token::T_FALSE);
         i += 5;
       }
       break;
     }
   }
+
+end_of_text:
+  F_INFO("i:{}", i);
 }
 
 } // namespace fastype

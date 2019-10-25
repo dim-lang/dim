@@ -22,7 +22,7 @@ public:
 
 private:
   virtual bool fillQueue(int i);
-  virtual void readLine();
+  virtual void parse();
 
   std::deque<Sptr<Token>> queue_;
   bool more_;
