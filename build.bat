@@ -62,7 +62,6 @@ if not exist src\icu\icu4c\lib (
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
 
-@rem build all
 echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
