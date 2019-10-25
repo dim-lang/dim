@@ -209,9 +209,14 @@ void Lexer::parse() {
       break;
     }
   }
+  return;
 
 end_of_text:
-  F_INFO("i:{}", i);
+  F_CHECK(false, "end_of_text, i:{}, text_:{}", i,
+          text_
+              .tempSubString(i, std::max<int>(text_.tempSubString(i).length(),
+                                              F_TO_STRING_TEXT_MAX))
+              .toUTF8String(_1));
 }
 
 } // namespace fastype
