@@ -14,7 +14,7 @@
 #include <regex>
 #include <unicode/uchar.h>
 
-#define F_TO_STRING_TEXT_MAX 128
+#define F_TO_STRING_TEXT_MAX 64
 
 namespace fastype {
 
@@ -115,7 +115,10 @@ void Lexer::parse() {
         default: {
           std::string _1;
           F_CHECK(false, "Parse Error! i:{}, text_: {}", i,
-                  text_.tempSubString(0, std::max<int>(text_.length(), 64))
+                  text_
+                      .tempSubString(
+                          i, std::max<int>(text_.tempSubString().length(),
+                                           F_TO_STRING_TEXT_MAX))
                       .toUTF8String(_1));
         }
         }
@@ -145,9 +148,12 @@ void Lexer::parse() {
         j += 1;
       }
       std::string _1;
-      F_CHECK(findString, "Parse Error! i:{}, j:{}, text_: {}", i, j,
-              text_.tempSubString(0, std::max<int>(text_.length(), 64))
-                  .toUTF8String(_1));
+      F_CHECK(
+          findString, "Parse Error! i:{}, j:{}, text_: {}", i, j,
+          text_
+              .tempSubString(i, std::max<int>(text_.tempSubString(i).length(),
+                                              F_TO_STRING_TEXT_MAX))
+              .toUTF8String(_1));
       Sptr<Token> strToken =
           Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
       queue_.push_back(strToken);
