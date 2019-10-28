@@ -84,13 +84,36 @@ void Lexer::parse() {
       continue;
     }
     switch (text_.charAt(i)) {
-    case (UChar)'+':
-      queue_.push_back(Token::T_ADD);
-      i += 1;
-      break;
-    case (UChar)'-':
-      queue_.push_back(Token::T_SUB);
-      i += 1;
+    case (UChar)'+': // + or positive integer or positive float
+    {
+      if (i + 1 < text_.length() && text_.charAt(i + 1) >= (UChar)'0' &&
+          text_.charAt(i + 1) <= (UChar)'9') {
+        // integer or float
+      } else {
+        queue_.push_back(Token::T_ADD);
+        i += 1;
+      }
+    } break;
+    case (UChar)'-': // - or negative integer or negative float
+    {
+      if (i + 1 < text_.length() && text_.charAt(i + 1) >= (UChar)'0' &&
+          text_.charAt(i + 1) <= (UChar)'9') {
+        // integer or float
+      } else {
+        queue_.push_back(Token::T_SUB);
+        i += 1;
+      }
+    } break;
+    case (UChar)'0': // positive integer or float
+    case (UChar)'1':
+    case (UChar)'2':
+    case (UChar)'3':
+    case (UChar)'4':
+    case (UChar)'5':
+    case (UChar)'6':
+    case (UChar)'7':
+    case (UChar)'8':
+    case (UChar)'9':
       break;
     case (UChar)'*': // * or */
       queue_.push_back(Token::T_MUL);
@@ -114,7 +137,7 @@ void Lexer::parse() {
         } break;
         default: {
           std::string _1;
-          F_CHECK(false, "Parse Error! i:{}, text_: {}", i,
+          F_CHECK(false, "parse fail at i:{}, text_: {}", i,
                   text_
                       .tempSubString(
                           i, std::max<int>(text_.tempSubString().length(),
@@ -149,7 +172,7 @@ void Lexer::parse() {
       }
       std::string _1;
       F_CHECK(
-          findString, "Parse Error! i:{}, j:{}, text_: {}", i, j,
+          findString, "parse fail at i:{}, j:{}, text_: {}", i, j,
           text_
               .tempSubString(i, std::max<int>(text_.tempSubString(i).length(),
                                               F_TO_STRING_TEXT_MAX))
@@ -207,6 +230,66 @@ void Lexer::parse() {
         i += 5;
       }
       break;
+    case (UChar)'A':
+    case (UChar)'B':
+    case (UChar)'C':
+    case (UChar)'D':
+    case (UChar)'E':
+    case (UChar)'F':
+    case (UChar)'G':
+    case (UChar)'H':
+    case (UChar)'I':
+    case (UChar)'J':
+    case (UChar)'K':
+    case (UChar)'L':
+    case (UChar)'M':
+    case (UChar)'N':
+    case (UChar)'O':
+    case (UChar)'P':
+    case (UChar)'Q':
+    case (UChar)'R':
+    case (UChar)'S':
+    case (UChar)'T':
+    case (UChar)'U':
+    case (UChar)'V':
+    case (UChar)'W':
+    case (UChar)'X':
+    case (UChar)'Y':
+    case (UChar)'Z':
+    case (UChar)'a':
+    case (UChar)'b':
+    case (UChar)'c':
+    case (UChar)'d':
+    case (UChar)'e':
+    case (UChar)'f':
+    case (UChar)'g':
+    case (UChar)'h':
+    case (UChar)'i':
+    case (UChar)'j':
+    case (UChar)'k':
+    case (UChar)'l':
+    case (UChar)'m':
+    case (UChar)'n':
+    case (UChar)'o':
+    case (UChar)'p':
+    case (UChar)'q':
+    case (UChar)'r':
+    case (UChar)'s':
+    case (UChar)'t':
+    case (UChar)'u':
+    case (UChar)'v':
+    case (UChar)'w':
+    case (UChar)'x':
+    case (UChar)'y':
+    case (UChar)'z':
+    default:
+      std::string _1;
+      F_CHECK(
+          false, "unknown token at i:{}, text_: {}", i,
+          text_
+              .tempSubString(i, std::max<int>(text_.tempSubString().length(),
+                                              F_TO_STRING_TEXT_MAX))
+              .toUTF8String(_1));
     }
   }
 }
