@@ -6,6 +6,8 @@
 #include "Stringify.h"
 #include "script/Token.h"
 #include <deque>
+#include <unicode/numfmt.h>
+#include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
 

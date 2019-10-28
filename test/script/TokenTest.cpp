@@ -17,6 +17,50 @@
 #include <string>
 
 TEST_CASE("Token", "[Token]") {
+  SECTION("TokenType") {
+    REQUIRE(Token::tokenTypes().size() == 8);
+    REQUIRE(Token::tokenTypes()[0] == Token::TokenType::TT_EOF);
+    REQUIRE(Token::tokenTypes()[1] == Token::TokenType::TT_INTEGER);
+    REQUIRE(Token::tokenTypes()[2] == Token::TokenType::TT_FLOATING);
+    REQUIRE(Token::tokenTypes()[3] == Token::TokenType::TT_OPERATOR);
+    REQUIRE(Token::tokenTypes()[4] == Token::TokenType::TT_COMPARATOR);
+    REQUIRE(Token::tokenTypes()[5] == Token::TokenType::TT_ASSIGNMENT);
+    REQUIRE(Token::tokenTypes()[6] == Token::TokenType::TT_BOOLEAN);
+    REQUIRE(Token::tokenTypes()[7] == Token::TokenType::TT_IDENTIFIER);
+
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_EOF) == 1);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_INTEGER) == 2);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_FLOATING) == 3);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_OPERATOR) == 4);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_COMPARATOR) == 5);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_ASSIGNMENT) == 6);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_BOOLEAN) == 7);
+    REQUIRE(Token::tokenTypeValue(Token::TokenType::TT_IDENTIFIER) == 8);
+
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_EOF) == "TT_EOF");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_INTEGER) == "TT_INTEGER");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_FLOATING) ==
+            "TT_FLOATING");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_OPERATOR) ==
+            "TT_OPERATOR");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_COMPARATOR) ==
+            "TT_COMPARATOR");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_ASSIGNMENT) ==
+            "TT_ASSIGNMENT");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_BOOLEAN) == "TT_BOOLEAN");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_IDENTIFIER) ==
+            "TT_IDENTIFIER");
+    REQUIRE(Token::tokenTypeName(Token::TokenType::TT_IDENTIFIER) ==
+            "TT_IDENTIFIER");
+
+    for (int i = 0; i < Token::tokenTypes().size(); i++) {
+      REQUIRE(Token::tokenTypeFromValue(Token::tokenTypeValue(
+                  Token::tokenTypes()[i])) == Token::tokenTypes()[i]);
+      REQUIRE(Token::tokenTypeFromName(Token::tokenTypeName(
+                  Token::tokenTypes()[i])) == Token::tokenTypes()[i]);
+    }
+  }
+
   SECTION("eof") {
     REQUIRE(fastype::Token::T_EOF->type() == fastype::Token::TokenType::TT_EOF);
     REQUIRE(fastype::Token::T_EOF->isEof());

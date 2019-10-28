@@ -14,15 +14,15 @@ namespace fastype {
 class Token : public Stringify {
 public:
   // token type
-
   enum TokenType {
     TT_EOF = 1,        // end of file
-    TT_INTEGER = 2,    // integer
-    TT_FLOATING = 3,   // floating
+    TT_INTEGER = 2,    // integer number
+    TT_FLOATING = 3,   // floating number
     TT_OPERATOR = 4,   // operator: + - * / %
     TT_COMPARATOR = 5, // comparator: == != < <= > >=
     TT_ASSIGNMENT = 6, // assignment: =
     TT_BOOLEAN = 7,    // boolean: True False
+    TT_IDENTIFIER = 8, // identifier
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -31,10 +31,11 @@ public:
   static TokenType tokenTypeFromValue(int value);
   static TokenType tokenTypeFromName(const std::string &name);
 
-  // token
+  // token constants
 
   // eofs
   const static Sptr<Token> T_EOF;
+
   // operators
   const static Sptr<Token> T_ADD; // +
   const static Sptr<Token> T_SUB; // -
@@ -42,6 +43,7 @@ public:
   const static Sptr<Token> T_DIV; // /
   const static Sptr<Token> T_MOD; // %
   const static Sptr<Token> T_NOT; // !
+
   // assignment
   const static Sptr<Token> T_ASSIGNMENT; // =
 

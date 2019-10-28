@@ -12,12 +12,11 @@
 #include <cstring>
 #include <fmt/format.h>
 #include <regex>
-#include <unicode/numfmt.h>
-#include <unicode/uchar.h>
 
 #define F_SUB_STRING(x, pos, y)                                                \
-  (x).tempSubString(pos, std::min<int>(64, text_.tempSubString(pos).length())) \
-      .toUTF8String(y)
+  ((x).tempSubString(                                                          \
+          pos, std::min<int>(64, (int)text_.tempSubString(pos).length()))      \
+       .toUTF8String(y))
 
 namespace fastype {
 
@@ -209,19 +208,27 @@ static void parseString(const icu::UnicodeString &text, int &i,
     j += 1;
   }
   F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j,
-          F_SUB_STRING(tex_, i, _1));
+          i F_SUB_STRING(tex_, i, _1));
   Sptr<Token> strToken =
       Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
   queue_.push_back(strToken);
   i = j + 1;
 }
 
+// parse identifier
 static bool parseIdentifier(const icu::UnicodeString &text, int &i,
                             std::deque<Sptr<Token>> &q) {
   int j = i;
   while (j < text.length()) {
-    if ()
+    if (u_isalnum(text.charAt(j)) || text.charAt(j) == (UChar)'_') {
+      j++;
+    } else {
+      break;
+    }
   }
+  Sptr<Token> idToken =
+      Sptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
+  q.push_back(idToken);
 }
 
 void Lexer::parse() {
@@ -380,11 +387,12 @@ void Lexer::parse() {
     case (UChar)'x':
     case (UChar)'y':
     case (UChar)'z':
+    case (UChar)'_':
       parseIdentifier(text_, i, queue_);
       break;
     default:
-      F_CHECK(false, "unknown token at i:{}, text_: {}", i,
-              F_SUB_STRING(text_, _1));
+      F_CHECK(false, "unknown token at text_[{}]: {}", i,
+              F_SUB_STRING(text_, i, _1));
     }
   }
 }

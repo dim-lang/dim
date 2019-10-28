@@ -22,7 +22,7 @@ const std::vector<Token::TokenType> &Token::tokenTypes() {
       Token::TokenType::TT_EOF,        Token::TokenType::TT_INTEGER,
       Token::TokenType::TT_FLOATING,   Token::TokenType::TT_OPERATOR,
       Token::TokenType::TT_COMPARATOR, Token::TokenType::TT_ASSIGNMENT,
-      Token::TokenType::TT_BOOLEAN,
+      Token::TokenType::TT_BOOLEAN,    Token::TokenType::TT_IDENTIFIER,
   };
   return types;
 }
@@ -36,7 +36,8 @@ int Token::tokenTypeValue(Token::TokenType tt) {
   case Token::TokenType::TT_COMPARATOR:
   case Token::TokenType::TT_ASSIGNMENT:
   case Token::TokenType::TT_BOOLEAN:
-    return tt;
+  case Token::TokenType::TT_IDENTIFIER:
+    return (int)tt;
   }
   F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
@@ -57,6 +58,8 @@ std::string Token::tokenTypeName(Token::TokenType tt) {
     return "TT_ASSIGNMENT";
   case Token::TokenType::TT_BOOLEAN:
     return "TT_BOOLEAN";
+  case Token::TokenType::TT_IDENTIFIER:
+    return "TT_IDENTIFIER";
   }
   F_THROW(NotFoundException, "tokenTypeName not found! tt: {}", (int)tt);
 }
@@ -77,6 +80,8 @@ Token::TokenType Token::tokenTypeFromValue(int value) {
     return Token::TokenType::TT_ASSIGNMENT;
   case (int)Token::TokenType::TT_BOOLEAN:
     return Token::TokenType::TT_BOOLEAN;
+  case (int)Token::TokenType::TT_IDENTIFIER:
+    return Token::TokenType::TT_IDENTIFIER;
   }
   F_THROW(NotFoundException, "tokenTypeFromValue not found! value: {}", value);
 }
