@@ -18,10 +18,11 @@ public:
   enum TokenType {
     TT_EOF = 1,        // end of file
     TT_INTEGER = 2,    // integer
-    TT_OPERATOR = 3,   // operator: + - * / %
-    TT_COMPARATOR = 4, // comparator: == != < <= > >=
-    TT_ASSIGNMENT = 5, // assignment: =
-    TT_BOOLEAN = 6,    // boolean: True False
+    TT_FLOATING = 3,   // floating
+    TT_OPERATOR = 4,   // operator: + - * / %
+    TT_COMPARATOR = 5, // comparator: == != < <= > >=
+    TT_ASSIGNMENT = 6, // assignment: =
+    TT_BOOLEAN = 7,    // boolean: True False
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -75,9 +76,11 @@ public:
   virtual bool isComparator() const;
   virtual bool isBoolean() const;
   virtual bool isInteger() const;
+  virtual bool isFloating() const;
 
   virtual icu::UnicodeString literal() const;
   virtual long long integer() const;
+  virtual double floating() const;
   virtual bool boolean() const;
 
   virtual std::string toString() const;

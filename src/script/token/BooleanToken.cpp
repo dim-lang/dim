@@ -12,7 +12,7 @@ BooleanToken::BooleanToken(bool value)
 bool BooleanToken::boolean() const { return value_; }
 
 std::string BooleanToken::toString() const {
-  return fmt::format("[ @BooleanToken type_:{}, value_:{} ]",
+  return fmt::format("[ @BooleanToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_ ? "True" : "False");
 }
 

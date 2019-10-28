@@ -13,7 +13,7 @@ icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
 std::string ComparatorToken::toString() const {
   std::string _1;
-  return fmt::format("[ @ComparatorToken type_:{}, value_:{} ]",
+  return fmt::format("[ @ComparatorToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_.toUTF8String(_1));
 }
 

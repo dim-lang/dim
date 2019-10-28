@@ -20,8 +20,9 @@ namespace fastype {
 const std::vector<Token::TokenType> &Token::tokenTypes() {
   const static std::vector<Token::TokenType> types = {
       Token::TokenType::TT_EOF,        Token::TokenType::TT_INTEGER,
-      Token::TokenType::TT_OPERATOR,   Token::TokenType::TT_COMPARATOR,
-      Token::TokenType::TT_ASSIGNMENT, Token::TokenType::TT_BOOLEAN,
+      Token::TokenType::TT_FLOATING,   Token::TokenType::TT_OPERATOR,
+      Token::TokenType::TT_COMPARATOR, Token::TokenType::TT_ASSIGNMENT,
+      Token::TokenType::TT_BOOLEAN,
   };
   return types;
 }
@@ -30,6 +31,7 @@ int Token::tokenTypeValue(Token::TokenType tt) {
   switch (tt) {
   case Token::TokenType::TT_EOF:
   case Token::TokenType::TT_INTEGER:
+  case Token::TokenType::TT_FLOATING:
   case Token::TokenType::TT_OPERATOR:
   case Token::TokenType::TT_COMPARATOR:
   case Token::TokenType::TT_ASSIGNMENT:
@@ -45,6 +47,8 @@ std::string Token::tokenTypeName(Token::TokenType tt) {
     return "TT_EOF";
   case Token::TokenType::TT_INTEGER:
     return "TT_INTEGER";
+  case Token::TokenType::TT_FLOATING:
+    return "TT_FLOATING";
   case Token::TokenType::TT_OPERATOR:
     return "TT_OPERATOR";
   case Token::TokenType::TT_COMPARATOR:
@@ -63,6 +67,8 @@ Token::TokenType Token::tokenTypeFromValue(int value) {
     return Token::TokenType::TT_EOF;
   case (int)Token::TokenType::TT_INTEGER:
     return Token::TokenType::TT_INTEGER;
+  case (int)Token::TokenType::TT_FLOATING:
+    return Token::TokenType::TT_FLOATING;
   case (int)Token::TokenType::TT_OPERATOR:
     return Token::TokenType::TT_OPERATOR;
   case (int)Token::TokenType::TT_COMPARATOR:
@@ -173,12 +179,20 @@ bool Token::isBoolean() const { return type_ == Token::TokenType::TT_BOOLEAN; }
 
 bool Token::isInteger() const { return type_ == Token::TokenType::TT_INTEGER; }
 
+bool Token::isFloating() const {
+  return type_ == Token::TokenType::TT_FLOATING;
+}
+
 icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());
 }
 
 long long Token::integer() const {
   F_THROW(NotImplementException, "integer not implement! {}", toString());
+}
+
+double Token::floating() const {
+  F_THROW(NotImplementException, "floating not implement! {}", toString());
 }
 
 bool Token::boolean() const {

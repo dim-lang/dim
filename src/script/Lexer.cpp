@@ -12,23 +12,27 @@
 #include <cstring>
 #include <fmt/format.h>
 #include <regex>
+#include <unicode/numfmt.h>
 #include <unicode/uchar.h>
 
-#define F_TO_STRING_TEXT_MAX 64
+#define F_SUB_STRING(x, pos, y)                                                \
+  (x).tempSubString(pos, std::min<int>(64, text_.tempSubString(pos).length())) \
+      .toUTF8String(y)
 
 namespace fastype {
 
 Lexer::Lexer(const icu::UnicodeString &text)
-    : queue_(), more_(true), pos_(0), text_(text) {
+    : queue_(), more_(true), pos_(0), text_(text),
+      numberFormatter_(
+          icu::number::NumberFormatter::withLocale(icu::Locale::getDefault())) {
   F_INFO("Constructor:{}", toString());
 }
 
 std::string Lexer::toString() const {
-  std::string utf8;
-  text_.tempSubString(0, std::min<int>(F_TO_STRING_TEXT_MAX, text_.length()))
-      .toUTF8String(utf8);
-  return fmt::format("[ @Lexer pos_:{}, more_:{}, text_:{} ]", pos_, more_,
-                     utf8);
+  std::string _1;
+  return fmt::format(
+      "[ @Lexer pos_:{}, more_:{}, text_:{}, numberFormatter_:{} ]", pos_,
+      more_, F_SUB_STRING(text_, 0, _1), (void *)&numberFormatter_);
 }
 
 Lexer::~Lexer() {
@@ -68,43 +72,189 @@ bool Lexer::fillQueue(int i) {
   return true;
 }
 
+// parse whitespace
+// @return   true if is whitespace and skipped
+//           false if not
+static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
+  if (u_isspace(text.charAt(i))) {
+    i += 1;
+    return true;
+  }
+  return false;
+}
+
+// parse constant token
+static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
+                            int diff = 1) {
+  queue_.push_back(t);
+  i += diff;
+}
+
+// parse integer or floating
+static void parseNumber(const icu::UnicodeString &text, int &i,
+                        std::deque<Sptr<Token>> &q) {
+  std::string _1;
+  icu::UErrorCode err;
+  icu::NumberFormat *numberFormatter = icu::NumberFormat::createInstance(&err);
+  F_CHECK(U_SUCCESS(err),
+          "createInstance failure! error:{}, errorName:{}, text[{}]:{}",
+          (int)err, u_errorName(err), i, F_SUB_STRING(text, i, _1));
+
+  int dotCount = 0;  // .
+  int expCount = 0;  // e or E
+  int flagCount = 0; // + or -
+  int j = i;
+  while (j < text.length()) {
+    if (u_isdigit(text.charAt(j))) {
+      j++;
+      continue;
+    }
+    if (text.charAt(j) == (UChar)'.') {
+      j++;
+      dotCount++;
+      continue;
+    }
+    if (text.charAt(j) == (UChar)'e' || text.charAt(j) == (UChar)'E') {
+      j++;
+      expCount++;
+      continue;
+    }
+    if (text.charAt(j) == (UChar)'+' || text.charAt(j) == (UChar)'-') {
+      j++;
+      flagCount++;
+      continue;
+    }
+    break;
+  }
+
+  F_CHECK(dotCount <= 1, "dotCount {} <= 1 failure! text[{}]:{}", dotCount, i,
+          F_SUB_STRING(text, i, _1));
+  F_CHECK(expCount <= 1, "expCount {} <= 1 failure! text[{}]:{}", expCount, i,
+          F_SUB_STRING(text, i, _1));
+  F_CHECK(flagCount <= 2, "flagCount {} <= 2 failure! text[{}]:{}", flagCount,
+          i, F_SUB_STRING(text, i, _1));
+
+  icu::Formattable formattable;
+  numberFormatter->parse(text.tempSubString(i, j - i), formattable, err);
+
+  F_CHECK(U_SUCCESS(err), "parse failure! error:{}, errorName:{}, text[{}]:{}",
+          (int)err, u_errorName(err), i, F_SUB_STRING(text, i, _1));
+
+  if (formattable.getType() == icu::Formattable::Type::kLong) {
+    long long value = (long long)formattable.getLong(err);
+    F_CHECK(U_SUCCESS(err),
+            "getLong failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
+            u_errorName(err), i, F_SUB_STRING(text, i, _1));
+    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
+    q.push_back(integerToken);
+  } else if (formattable.getType() == icu::Formattable::Type::kInt64) {
+    long long value = (long long)formattable.getInt64(err);
+    F_CHECK(U_SUCCESS(err),
+            "getInt64 failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
+            u_errorName(err), i, F_SUB_STRING(text, i, _1));
+    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
+    q.push_back(integerToken);
+  } else if (formattable.getType() == icu::Formattable::Type::kDouble) {
+    double value = (double)formattable.getDouble(err);
+    F_CHECK(U_SUCCESS(err),
+            "getDouble failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
+            u_errorName(err), i, F_SUB_STRING(text, i, _1));
+    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
+    q.push_back(integerToken);
+  } else {
+    F_CHECK(false, "formattable type unknown! type:{}, text[{}]:{}",
+            (int)formattable.getType(), i, F_SUB_STRING(text, i, _1));
+  }
+}
+
+// parse comment
+static void parseComment(const icu::UnicodeString &text, int &i) {
+  icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
+  icu::UnicodeString blockCommetEnd = UNICODE_STRING_SIMPLE("*/");
+
+  F_CHECK(text.charAt(i) == (UChar)'/', "text[{}] {} == / {}", i,
+          (int)text.charAt(i), (int)'/');
+  F_CHECKF(i + 1 < text.length(), "i+1 {} < text.length {}", i + 1,
+           text.length());
+  switch (text.charAt(i + 1)) {
+  case (UChar)'/': // line comment
+  {
+    int lineEndPos = text.indexOf(unixLineBreak, i + 1);
+    i = lineEndPos + 1;
+  } break;
+  case (UChar)'*': // block comment
+  {
+    int lineEndPos = text.indexOf(blockCommetEnd, i + 1);
+    i = lineEndPos + 2;
+  } break;
+  }
+}
+
+// parse string
+static void parseString(const icu::UnicodeString &text, int &i,
+                        std::deque<Sptr<Token>> &q) {
+  std::string _1;
+  int j = i;
+  bool findString = false;
+  while (j < text.length()) {
+    if (text.charAt(j) == (UChar)'\\') {
+      j += 2;
+      continue;
+    }
+    if (text.charAt(j) == (UChar)'\"') {
+      j += 1;
+      findString = true;
+      break;
+    }
+    j += 1;
+  }
+  F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j,
+          F_SUB_STRING(tex_, i, _1));
+  Sptr<Token> strToken =
+      Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
+  queue_.push_back(strToken);
+  i = j + 1;
+}
+
+static bool parseIdentifier(const icu::UnicodeString &text, int &i,
+                            std::deque<Sptr<Token>> &q) {
+  int j = i;
+  while (j < text.length()) {
+    if ()
+  }
+}
+
 void Lexer::parse() {
   if (pos_ >= text_.length()) {
     more_ = false;
     return;
   }
 
-  icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
-  icu::UnicodeString blockCommetEnd = UNICODE_STRING_SIMPLE("*/");
+  std::string _1;
 
   int i = 0;
   while (i < text_.length()) {
-    if (u_isspace(text_.charAt(i))) {
-      i += 1;
+    if (parseWhitespace(text_, i)) {
       continue;
     }
     switch (text_.charAt(i)) {
-    case (UChar)'+': // + or positive integer or positive float
+    case (UChar)'+': // + or number
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) >= (UChar)'0' &&
-          text_.charAt(i + 1) <= (UChar)'9') {
-        // integer or float
+      if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+        parseNumber(text_, i, queue_);
       } else {
-        queue_.push_back(Token::T_ADD);
-        i += 1;
+        parseConstToken(i, Token::T_ADD, queue_);
       }
     } break;
-    case (UChar)'-': // - or negative integer or negative float
+    case (UChar)'-': // - or number
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) >= (UChar)'0' &&
-          text_.charAt(i + 1) <= (UChar)'9') {
-        // integer or float
+      if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+        parseNumber(text_, i, queue_);
       } else {
-        queue_.push_back(Token::T_SUB);
-        i += 1;
+        parseConstToken(i, Token::T_SUB, queue_);
       }
     } break;
-    case (UChar)'0': // positive integer or float
+    case (UChar)'0': // number
     case (UChar)'1':
     case (UChar)'2':
     case (UChar)'3':
@@ -114,120 +264,68 @@ void Lexer::parse() {
     case (UChar)'7':
     case (UChar)'8':
     case (UChar)'9':
+      parseNumber(text_, i, queue_);
       break;
-    case (UChar)'*': // * or */
-      queue_.push_back(Token::T_MUL);
-      i += 1;
+    case (UChar)'*': // *
+      parseConstToken(i, Token::T_MUL, queue_);
       break;
     case (UChar)'/': // / or // or /*
     {
-      if (i + 1 < text_.length()) {
-        switch (text_.charAt(i + 1)) {
-        case (UChar)'/': // line comment //
-        {
-          // find line break from i+1
-          int lineEndPos = text_.indexOf(unixLineBreak, i + 1);
-          i = lineEndPos + 1;
-        } break;
-        case (UChar)'*': // block comment /*
-        {
-          // find end of block comment
-          int lineEndPos = text_.indexOf(blockCommetEnd, i + 1);
-          i = lineEndPos + 2;
-        } break;
-        default: {
-          std::string _1;
-          F_CHECK(false, "parse fail at i:{}, text_: {}", i,
-                  text_
-                      .tempSubString(
-                          i, std::max<int>(text_.tempSubString().length(),
-                                           F_TO_STRING_TEXT_MAX))
-                      .toUTF8String(_1));
-        }
-        }
-      } else { // DIV /
-        queue_.push_back(Token::T_DIV);
-        i += 1;
+      if (i + 1 < text_.length() && (text_.charAt(i + 1) == (UChar)'/' ||
+                                     text_.charAt(i + 1) == (UChar)'*')) {
+        parseComment(text_, i);
+      } else {
+        parseConstToken(i, Token::T_DIV, queue_);
       }
     } break;
     case (UChar)'%':
-      queue_.push_back(Token::T_MOD);
-      i += 1;
+      parseConstToken(i, Token::T_MOD, queue_);
       break;
     case (UChar)'"': // string or char
-    {
-      int j = i;
-      bool findString = false;
-      while (j < text_.length()) {
-        if (text_.charAt(j) == (UChar)'\\') {
-          j += 2;
-          continue;
-        }
-        if (text_.charAt(j) == (UChar)'\"') {
-          j += 1;
-          findString = true;
-          break;
-        }
-        j += 1;
-      }
-      std::string _1;
-      F_CHECK(
-          findString, "parse fail at i:{}, j:{}, text_: {}", i, j,
-          text_
-              .tempSubString(i, std::max<int>(text_.tempSubString(i).length(),
-                                              F_TO_STRING_TEXT_MAX))
-              .toUTF8String(_1));
-      Sptr<Token> strToken =
-          Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
-      queue_.push_back(strToken);
-      i = j + 1;
-    } break;
+      parseString(text_, i, queue_);
+      break;
     case (UChar)'=': // = or ==
       if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
-        queue_.push_back(Token::T_EQ);
-        i += 2;
+        parseConstToken(i, Token::T_EQ, queue_, 2);
       } else {
-        queue_.push_back(Token::T_ASSIGNMENT);
-        i += 1;
+        parseConstToken(i, Token::T_ASSIGNMENT, queue_);
       }
       break;
     case (UChar)'!': // ! or !=
       if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("!=")) {
-        queue_.push_back(Token::T_NEQ);
-        i += 2;
+        parseConstToken(i, Token::T_NEQ, queue_, 2);
       } else {
-        queue_.push_back(Token::T_NOT);
-        i += 1;
+        parseConstToken(i, Token::T_NOT, queue_);
       }
       break;
     case (UChar)'<': // < or <=
       if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("<=")) {
-        queue_.push_back(Token::T_LE);
-        i += 2;
+        parseConstToken(i, Token::T_LE, queue_, 2);
       } else {
-        queue_.push_back(Token::T_LT);
-        i += 1;
+        parseConstToken(i, Token::T_LT, queue_);
       }
       break;
     case (UChar)'>': // > or >=
       if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE(">=")) {
-        queue_.push_back(Token::T_GE);
-        i += 2;
+        parseConstToken(i, Token::T_GE, queue_, 2);
       } else {
-        queue_.push_back(Token::T_GT);
-        i += 1;
+        parseConstToken(i, Token::T_GT, queue_);
       }
       break;
     case (UChar)'T': // True
       if (text_.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
-        queue_.push_back(Token::T_TRUE);
-        i += 4;
+        parseConstToken(i, Token::T_TRUE, queue_, 4);
+      } else {
+        F_CHECK(false, "True token fail at text[{}]:{}", i,
+                F_SUB_STRING(text_, i, _1));
       }
       break;
     case (UChar)'F': // False
       if (text_.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
-        queue_.push_back(Token::T_FALSE);
-        i += 5;
+        parseConstToken(i, Token::T_FALSE, queue_, 5);
+      } else {
+        F_CHECK(false, "False token fail at text[{}]:{}", i,
+                F_SUB_STRING(text_, i, _1));
       }
       break;
     case (UChar)'A':
@@ -282,18 +380,15 @@ void Lexer::parse() {
     case (UChar)'x':
     case (UChar)'y':
     case (UChar)'z':
+      parseIdentifier(text_, i, queue_);
+      break;
     default:
-      std::string _1;
-      F_CHECK(
-          false, "unknown token at i:{}, text_: {}", i,
-          text_
-              .tempSubString(i, std::max<int>(text_.tempSubString().length(),
-                                              F_TO_STRING_TEXT_MAX))
-              .toUTF8String(_1));
+      F_CHECK(false, "unknown token at i:{}, text_: {}", i,
+              F_SUB_STRING(text_, _1));
     }
   }
 }
 
 } // namespace fastype
 
-#undef F_TO_STRING_TEXT_MAX
+#undef F_SUB_STRING

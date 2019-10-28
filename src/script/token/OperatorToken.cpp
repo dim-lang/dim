@@ -14,7 +14,7 @@ icu::UnicodeString OperatorToken::literal() const { return value_; }
 
 std::string OperatorToken::toString() const {
   std::string _1;
-  return fmt::format("[ @OperatorToken type_:{}, value_:{} ]",
+  return fmt::format("[ @OperatorToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_.toUTF8String(_1));
 }
 

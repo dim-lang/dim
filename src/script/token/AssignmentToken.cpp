@@ -13,7 +13,7 @@ icu::UnicodeString AssignmentToken::literal() const { return value_; }
 
 std::string AssignmentToken::toString() const {
   std::string _1;
-  return fmt::format("[ @AssignmentToken type_:{}, value_:{} ]",
+  return fmt::format("[ @AssignmentToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_.toUTF8String(_1));
 }
 
