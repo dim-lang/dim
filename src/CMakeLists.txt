@@ -79,7 +79,7 @@ set(F_CORE
     Cache.cpp
     ResourceHandler.cpp
     Random.cpp
-    Mathematic.cpp
+    Approximate.cpp
     )
 set(F_SRC
     fastype.cpp

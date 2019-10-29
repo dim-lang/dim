@@ -14,6 +14,7 @@
 #include <cstring>
 #include <fmt/format.h>
 #include <regex>
+#include <string>
 
 #define F_SUB_STRING(x, pos, y)                                                \
   ((x).tempSubString(pos,                                                      \
@@ -92,12 +93,6 @@ static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
 static void parseNumber(const icu::UnicodeString &text, int &i,
                         std::deque<Sptr<Token>> &q) {
   std::string _1;
-  UErrorCode err;
-  icu::NumberFormat *numberFormatter = icu::NumberFormat::createInstance(err);
-  F_CHECK(U_SUCCESS(err),
-          "createInstance failure! error:{}, errorName:{}, text[{}]:{}",
-          (int)err, u_errorName(err), i, F_SUB_STRING(text, i, _1));
-
   int dotCount = 0;  // .
   int expCount = 0;  // e or E
   int flagCount = 0; // + or -
@@ -132,36 +127,19 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
   F_CHECK(flagCount <= 2, "flagCount {} <= 2 failure! text[{}]:{}", flagCount,
           i, F_SUB_STRING(text, i, _1));
 
-  icu::Formattable formattable(0);
-  numberFormatter->parse(text.tempSubString(i, j - i), formattable, err);
+  std::string utf8;
+  text.tempSubString(i, j - i).toUTF8String(utf8);
 
-  F_CHECK(U_SUCCESS(err), "parse failure! error:{}, errorName:{}, text[{}]:{}",
-          (int)err, u_errorName(err), i, F_SUB_STRING(text, i, _1));
-
-  if (formattable.getType() == icu::Formattable::Type::kLong) {
-    long long value = (long long)formattable.getLong(err);
-    F_CHECK(U_SUCCESS(err),
-            "getLong failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
-            u_errorName(err), i, F_SUB_STRING(text, i, _1));
-    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
-    q.push_back(integerToken);
-  } else if (formattable.getType() == icu::Formattable::Type::kInt64) {
-    long long value = (long long)formattable.getInt64(err);
-    F_CHECK(U_SUCCESS(err),
-            "getInt64 failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
-            u_errorName(err), i, F_SUB_STRING(text, i, _1));
-    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
-    q.push_back(integerToken);
-  } else if (formattable.getType() == icu::Formattable::Type::kDouble) {
-    double value = (double)formattable.getDouble(err);
-    F_CHECK(U_SUCCESS(err),
-            "getDouble failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
-            u_errorName(err), i, F_SUB_STRING(text, i, _1));
+  // floating number
+  if (dotCount > 0) {
+    double value = std::stod(utf8);
     Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
     q.push_back(floatingToken);
   } else {
-    F_CHECK(false, "formattable type unknown! type:{}, text[{}]:{}",
-            (int)formattable.getType(), i, F_SUB_STRING(text, i, _1));
+    // integer number
+    long long value = std::stoll(utf8);
+    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
+    q.push_back(integerToken);
   }
 }
 
@@ -225,9 +203,13 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
       break;
     }
   }
+  std::string _1;
+  F_CHECK(j > i, "j {} > i {}, text[{}]:{}", j, i, i,
+          F_SUB_STRING(text, i, _1));
   Sptr<Token> idToken =
       Sptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
   q.push_back(idToken);
+  i = j;
 }
 
 void Lexer::parse() {
