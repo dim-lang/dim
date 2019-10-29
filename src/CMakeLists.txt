@@ -66,8 +66,11 @@ set(F_CORE
     script/token/BooleanToken.cpp
     script/token/ComparatorToken.cpp
     script/token/EofToken.cpp
+    script/token/FloatingToken.cpp
+    script/token/IdentifierToken.cpp
     script/token/IntegerToken.cpp
     script/token/OperatorToken.cpp
+    script/token/PunctuationToken.cpp
     script/token/StringToken.cpp
 
     Hasher.cpp
@@ -76,6 +79,7 @@ set(F_CORE
     Cache.cpp
     ResourceHandler.cpp
     Random.cpp
+    Mathematic.cpp
     )
 set(F_SRC
     fastype.cpp

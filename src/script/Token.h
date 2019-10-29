@@ -15,14 +15,15 @@ class Token : public Stringify {
 public:
   // token type
   enum TokenType {
-    TT_EOF = 1,        // end of file
-    TT_INTEGER = 2,    // integer number
-    TT_FLOATING = 3,   // floating number
-    TT_OPERATOR = 4,   // operator: + - * / %
-    TT_COMPARATOR = 5, // comparator: == != < <= > >=
-    TT_ASSIGNMENT = 6, // assignment: =
-    TT_BOOLEAN = 7,    // boolean: True False
-    TT_IDENTIFIER = 8, // identifier
+    TT_EOF = 1,         // end of file
+    TT_INTEGER = 2,     // integer number
+    TT_FLOATING = 3,    // floating number
+    TT_OPERATOR = 4,    // operator: + - * / %
+    TT_COMPARATOR = 5,  // comparator: == != < <= > >=
+    TT_ASSIGNMENT = 6,  // assignment: =
+    TT_BOOLEAN = 7,     // boolean: True False
+    TT_IDENTIFIER = 8,  // identifier
+    TT_PUNCTUATION = 9, // punctuation
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -59,11 +60,24 @@ public:
   const static Sptr<Token> T_TRUE;  // True
   const static Sptr<Token> T_FALSE; // False
 
+  // punctuations
+  const static Sptr<Token> T_LP;       // (
+  const static Sptr<Token> T_RP;       // )
+  const static Sptr<Token> T_LBRACKET; // [
+  const static Sptr<Token> T_RBRACKET; // ]
+  const static Sptr<Token> T_LBRACE;   // {
+  const static Sptr<Token> T_RBRACE;   // }
+  const static Sptr<Token> T_COMMA;    // ,
+  const static Sptr<Token> T_SEMI;     // ;
+  const static Sptr<Token> T_QUESTION; // ?
+  const static Sptr<Token> T_COLON;    // :
+
   static const std::vector<Sptr<Token>> eofs();
   static const std::vector<Sptr<Token>> operators();
   static const std::vector<Sptr<Token>> assignments();
   static const std::vector<Sptr<Token>> comparators();
   static const std::vector<Sptr<Token>> booleans();
+  static const std::vector<Sptr<Token>> punctuations();
 
   Token(TokenType type);
   virtual ~Token() = default;

@@ -19,10 +19,11 @@ namespace fastype {
 
 const std::vector<Token::TokenType> &Token::tokenTypes() {
   const static std::vector<Token::TokenType> types = {
-      Token::TokenType::TT_EOF,        Token::TokenType::TT_INTEGER,
-      Token::TokenType::TT_FLOATING,   Token::TokenType::TT_OPERATOR,
-      Token::TokenType::TT_COMPARATOR, Token::TokenType::TT_ASSIGNMENT,
-      Token::TokenType::TT_BOOLEAN,    Token::TokenType::TT_IDENTIFIER,
+      Token::TokenType::TT_EOF,         Token::TokenType::TT_INTEGER,
+      Token::TokenType::TT_FLOATING,    Token::TokenType::TT_OPERATOR,
+      Token::TokenType::TT_COMPARATOR,  Token::TokenType::TT_ASSIGNMENT,
+      Token::TokenType::TT_BOOLEAN,     Token::TokenType::TT_IDENTIFIER,
+      Token::TokenType::TT_PUNCTUATION,
   };
   return types;
 }
@@ -30,14 +31,23 @@ const std::vector<Token::TokenType> &Token::tokenTypes() {
 int Token::tokenTypeValue(Token::TokenType tt) {
   switch (tt) {
   case Token::TokenType::TT_EOF:
+    return 1;
   case Token::TokenType::TT_INTEGER:
+    return 2;
   case Token::TokenType::TT_FLOATING:
+    return 3;
   case Token::TokenType::TT_OPERATOR:
+    return 4;
   case Token::TokenType::TT_COMPARATOR:
+    return 5;
   case Token::TokenType::TT_ASSIGNMENT:
+    return 6;
   case Token::TokenType::TT_BOOLEAN:
+    return 7;
   case Token::TokenType::TT_IDENTIFIER:
-    return (int)tt;
+    return 8;
+  case Token::TokenType::TT_PUNCTUATION:
+    return 9;
   }
   F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
@@ -60,28 +70,32 @@ std::string Token::tokenTypeName(Token::TokenType tt) {
     return "TT_BOOLEAN";
   case Token::TokenType::TT_IDENTIFIER:
     return "TT_IDENTIFIER";
+  case Token::TokenType::TT_PUNCTUATION:
+    return "TT_PUNCTUATION";
   }
   F_THROW(NotFoundException, "tokenTypeName not found! tt: {}", (int)tt);
 }
 
 Token::TokenType Token::tokenTypeFromValue(int value) {
   switch (value) {
-  case (int)Token::TokenType::TT_EOF:
+  case 1:
     return Token::TokenType::TT_EOF;
-  case (int)Token::TokenType::TT_INTEGER:
+  case 2:
     return Token::TokenType::TT_INTEGER;
-  case (int)Token::TokenType::TT_FLOATING:
+  case 3:
     return Token::TokenType::TT_FLOATING;
-  case (int)Token::TokenType::TT_OPERATOR:
+  case 4:
     return Token::TokenType::TT_OPERATOR;
-  case (int)Token::TokenType::TT_COMPARATOR:
+  case 5:
     return Token::TokenType::TT_COMPARATOR;
-  case (int)Token::TokenType::TT_ASSIGNMENT:
+  case 6:
     return Token::TokenType::TT_ASSIGNMENT;
-  case (int)Token::TokenType::TT_BOOLEAN:
+  case 7:
     return Token::TokenType::TT_BOOLEAN;
-  case (int)Token::TokenType::TT_IDENTIFIER:
+  case 8:
     return Token::TokenType::TT_IDENTIFIER;
+  case 9:
+    return Token::TokenType::TT_PUNCTUATION;
   }
   F_THROW(NotFoundException, "tokenTypeFromValue not found! value: {}", value);
 }
@@ -117,6 +131,17 @@ const Sptr<Token> Token::T_GE(new ComparatorToken(UNICODE_STRING_SIMPLE(">=")));
 
 const Sptr<Token> Token::T_TRUE(new BooleanToken(true));
 const Sptr<Token> Token::T_FALSE(new BooleanToken(false));
+
+const Sptr<Token> Token::T_LP;       // (
+const Sptr<Token> Token::T_RP;       // )
+const Sptr<Token> Token::T_LBRACKET; // [
+const Sptr<Token> Token::T_RBRACKET; // ]
+const Sptr<Token> Token::T_LBRACE;   // {
+const Sptr<Token> Token::T_RBRACE;   // }
+const Sptr<Token> Token::T_COMMA;    // ,
+const Sptr<Token> Token::T_SEMI;     // ;
+const Sptr<Token> Token::T_QUESTION; // ?
+const Sptr<Token> Token::T_COLON;    // :
 
 const std::vector<Sptr<Token>> Token::eofs() {
   const static std::vector<Sptr<Token>> types = {

@@ -5,6 +5,8 @@
 #include "exception/ParseException.h"
 #include "script/token/BooleanToken.h"
 #include "script/token/EofToken.h"
+#include "script/token/FloatingToken.h"
+#include "script/token/IdentifierToken.h"
 #include "script/token/IntegerToken.h"
 #include "script/token/OperatorToken.h"
 #include "script/token/StringToken.h"
@@ -14,24 +16,21 @@
 #include <regex>
 
 #define F_SUB_STRING(x, pos, y)                                                \
-  ((x).tempSubString(                                                          \
-          pos, std::min<int>(64, (int)text_.tempSubString(pos).length()))      \
+  ((x).tempSubString(pos,                                                      \
+                     std::min<int>(64, (int)(x).tempSubString(pos).length()))  \
        .toUTF8String(y))
 
 namespace fastype {
 
 Lexer::Lexer(const icu::UnicodeString &text)
-    : queue_(), more_(true), pos_(0), text_(text),
-      numberFormatter_(
-          icu::number::NumberFormatter::withLocale(icu::Locale::getDefault())) {
+    : queue_(), more_(true), pos_(0), text_(text) {
   F_INFO("Constructor:{}", toString());
 }
 
 std::string Lexer::toString() const {
   std::string _1;
-  return fmt::format(
-      "[ @Lexer pos_:{}, more_:{}, text_:{}, numberFormatter_:{} ]", pos_,
-      more_, F_SUB_STRING(text_, 0, _1), (void *)&numberFormatter_);
+  return fmt::format("[ @Lexer pos_:{}, more_:{}, text_:{} ]", pos_, more_,
+                     F_SUB_STRING(text_, 0, _1));
 }
 
 Lexer::~Lexer() {
@@ -85,7 +84,7 @@ static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
 // parse constant token
 static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
                             int diff = 1) {
-  queue_.push_back(t);
+  q.push_back(t);
   i += diff;
 }
 
@@ -93,8 +92,8 @@ static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
 static void parseNumber(const icu::UnicodeString &text, int &i,
                         std::deque<Sptr<Token>> &q) {
   std::string _1;
-  icu::UErrorCode err;
-  icu::NumberFormat *numberFormatter = icu::NumberFormat::createInstance(&err);
+  UErrorCode err;
+  icu::NumberFormat *numberFormatter = icu::NumberFormat::createInstance(err);
   F_CHECK(U_SUCCESS(err),
           "createInstance failure! error:{}, errorName:{}, text[{}]:{}",
           (int)err, u_errorName(err), i, F_SUB_STRING(text, i, _1));
@@ -159,7 +158,7 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
             "getDouble failure! error:{}, errorName:{}, text[{}]:{}", (int)err,
             u_errorName(err), i, F_SUB_STRING(text, i, _1));
     Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
-    q.push_back(integerToken);
+    q.push_back(floatingToken);
   } else {
     F_CHECK(false, "formattable type unknown! type:{}, text[{}]:{}",
             (int)formattable.getType(), i, F_SUB_STRING(text, i, _1));
@@ -173,8 +172,8 @@ static void parseComment(const icu::UnicodeString &text, int &i) {
 
   F_CHECK(text.charAt(i) == (UChar)'/', "text[{}] {} == / {}", i,
           (int)text.charAt(i), (int)'/');
-  F_CHECKF(i + 1 < text.length(), "i+1 {} < text.length {}", i + 1,
-           text.length());
+  F_CHECK(i + 1 < text.length(), "i+1 {} < text.length {}", i + 1,
+          text.length());
   switch (text.charAt(i + 1)) {
   case (UChar)'/': // line comment
   {
@@ -207,11 +206,11 @@ static void parseString(const icu::UnicodeString &text, int &i,
     }
     j += 1;
   }
-  F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j,
-          i F_SUB_STRING(tex_, i, _1));
+  F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j, i,
+          F_SUB_STRING(text, i, _1));
   Sptr<Token> strToken =
-      Sptr<Token>(new StringToken(text_.tempSubString(i, j - i)));
-  queue_.push_back(strToken);
+      Sptr<Token>(new StringToken(text.tempSubString(i, j - i)));
+  q.push_back(strToken);
   i = j + 1;
 }
 
@@ -319,20 +318,18 @@ void Lexer::parse() {
         parseConstToken(i, Token::T_GT, queue_);
       }
       break;
-    case (UChar)'T': // True
+    case (UChar)'T': // True or identifier
       if (text_.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
         parseConstToken(i, Token::T_TRUE, queue_, 4);
       } else {
-        F_CHECK(false, "True token fail at text[{}]:{}", i,
-                F_SUB_STRING(text_, i, _1));
+        parseIdentifier(text_, i, queue_);
       }
       break;
-    case (UChar)'F': // False
+    case (UChar)'F': // False or identifier
       if (text_.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
         parseConstToken(i, Token::T_FALSE, queue_, 5);
       } else {
-        F_CHECK(false, "False token fail at text[{}]:{}", i,
-                F_SUB_STRING(text_, i, _1));
+        parseIdentifier(text_, i, queue_);
       }
       break;
     case (UChar)'A':
@@ -340,7 +337,7 @@ void Lexer::parse() {
     case (UChar)'C':
     case (UChar)'D':
     case (UChar)'E':
-    case (UChar)'F':
+    // case (UChar)'F':
     case (UChar)'G':
     case (UChar)'H':
     case (UChar)'I':
@@ -354,7 +351,7 @@ void Lexer::parse() {
     case (UChar)'Q':
     case (UChar)'R':
     case (UChar)'S':
-    case (UChar)'T':
+    // case (UChar)'T':
     case (UChar)'U':
     case (UChar)'V':
     case (UChar)'W':
@@ -390,6 +387,26 @@ void Lexer::parse() {
     case (UChar)'_':
       parseIdentifier(text_, i, queue_);
       break;
+    case (UChar)',':
+      parseConstToken(i, Token::T_COMMA, queue_);
+    case (UChar)';':
+      parseConstToken(i, Token::T_SEMI, queue_);
+    case (UChar)'?':
+      parseConstToken(i, Token::T_QUESTION, queue_);
+    case (UChar)':':
+      parseConstToken(i, Token::T_COLON, queue_);
+    case (UChar)'(':
+      parseConstToken(i, Token::T_LP, queue_);
+    case (UChar)')':
+      parseConstToken(i, Token::T_RP, queue_);
+    case (UChar)'[':
+      parseConstToken(i, Token::T_LBRACKET, queue_);
+    case (UChar)']':
+      parseConstToken(i, Token::T_RBRACKET, queue_);
+    case (UChar)'{':
+      parseConstToken(i, Token::T_LBRACE, queue_);
+    case (UChar)'}':
+      parseConstToken(i, Token::T_RBRACE, queue_);
     default:
       F_CHECK(false, "unknown token at text_[{}]: {}", i,
               F_SUB_STRING(text_, i, _1));
