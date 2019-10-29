@@ -132,7 +132,7 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
   F_CHECK(flagCount <= 2, "flagCount {} <= 2 failure! text[{}]:{}", flagCount,
           i, F_SUB_STRING(text, i, _1));
 
-  icu::Formattable formattable;
+  icu::Formattable formattable(0);
   numberFormatter->parse(text.tempSubString(i, j - i), formattable, err);
 
   F_CHECK(U_SUCCESS(err), "parse failure! error:{}, errorName:{}, text[{}]:{}",
@@ -215,7 +215,7 @@ static void parseString(const icu::UnicodeString &text, int &i,
 }
 
 // parse identifier
-static bool parseIdentifier(const icu::UnicodeString &text, int &i,
+static void parseIdentifier(const icu::UnicodeString &text, int &i,
                             std::deque<Sptr<Token>> &q) {
   int j = i;
   while (j < text.length()) {

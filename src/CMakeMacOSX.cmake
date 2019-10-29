@@ -36,6 +36,7 @@ set(F_LIB
     icuuc
     icuio
     icudata
+    icui18n
     tcmalloc
     panel
     )

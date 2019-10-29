@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Mathematic.h"
+#include "Approximate.h"
 #include <cmath>
 #include <cstdlib>
 
