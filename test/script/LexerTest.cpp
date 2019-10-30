@@ -14,14 +14,9 @@
 
 static icu::UnicodeString readFile(const icu::UnicodeString &fileName) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", nullptr, "UTF-8");
-  REQUIRE(fp);
-  // if (fp == nullptr) {
-  // F_ERROR("file:{} not found", fileName);
-  // exit(EXIT_FAILURE);
-  //}
-
   UChar *data = nullptr;
   int length = 4096, t = 0, n = 0;
+  REQUIRE(fp);
 
   do {
     if (data == nullptr || n >= length) {
@@ -40,11 +35,13 @@ static icu::UnicodeString readFile(const icu::UnicodeString &fileName) {
 
 static void readToken(const icu::UnicodeString &data) {
   fastype::Lexer lex(data);
+  lex.parse();
   while (true) {
     fastype::Sptr<fastype::Token> t = lex.read();
     REQUIRE(t.get() != nullptr);
     F_INFO("read Token:{}", t->toString());
-    if (t == fastype::Token::T_EOF) {
+    if (t->isEof()) {
+      REQUIRE(t == fastype::Token::T_EOF);
       break;
     }
   }

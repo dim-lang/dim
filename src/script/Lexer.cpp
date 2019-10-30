@@ -24,51 +24,39 @@
 namespace fastype {
 
 Lexer::Lexer(const icu::UnicodeString &text)
-    : queue_(), more_(true), pos_(0), text_(text) {
+    : queue_(), parse_(false), pos_(0), text_(text) {
   F_INFO("Constructor:{}", toString());
 }
 
 std::string Lexer::toString() const {
   std::string _1;
-  return fmt::format("[ @Lexer pos_:{}, more_:{}, text_:{} ]", pos_, more_,
-                     F_SUB_STRING(text_, 0, _1));
+  return fmt::format("[ @Lexer queue_#size:{}, parse_:{}, pos_:{}, text_:{} ]",
+                     queue_.size(), parse_, pos_, F_SUB_STRING(text_, 0, _1));
 }
 
 Lexer::~Lexer() {
   while (!queue_.empty()) {
-    Sptr<Token> t = queue_.front();
-    t.reset();
     queue_.pop_front();
   }
   queue_.clear();
 }
 
 Sptr<Token> Lexer::read() {
-  if (fillQueue(0)) {
-    Sptr<Token> t = queue_.front();
-    queue_.pop_front();
-    return t;
-  } else {
+  if (pos_ >= queue_.size()) {
     return Token::T_EOF;
+  } else {
+    return queue_[pos_++];
   }
 }
 
-Sptr<Token> Lexer::peek(int i) {
-  if (fillQueue(i)) {
-    return queue_[i];
-  } else {
-    return Token::T_EOF;
-  }
-}
+void Lexer::reset() { pos_ = 0; }
 
-bool Lexer::fillQueue(int i) {
-  while (i >= (int)queue_.size()) {
-    if (!more_) {
-      return false;
-    }
-    parse();
+Sptr<Token> Lexer::peek(int pos) {
+  if (pos >= queue_.size()) {
+    return Token::T_EOF;
+  } else {
+    return queue_[pos];
   }
-  return true;
 }
 
 // parse whitespace
@@ -215,12 +203,8 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
 }
 
 void Lexer::parse() {
-  if (pos_ >= text_.length()) {
-    more_ = false;
-    return;
-  }
-
   std::string _1;
+  queue_.clear();
 
   int i = 0;
   while (i < text_.length()) {
