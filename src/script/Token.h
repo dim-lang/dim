@@ -18,12 +18,14 @@ public:
     TT_EOF = 1,         // end of file
     TT_INTEGER = 2,     // integer number
     TT_FLOATING = 3,    // floating number
-    TT_OPERATOR = 4,    // operator: + - * / %
+    TT_OPERATOR = 4,    // operator: + - * / % ++ --
     TT_COMPARATOR = 5,  // comparator: == != < <= > >=
     TT_ASSIGNMENT = 6,  // assignment: =
     TT_BOOLEAN = 7,     // boolean: True False
     TT_IDENTIFIER = 8,  // identifier
     TT_PUNCTUATION = 9, // punctuation
+    TT_KEYWORD = 10,    // keyword: let null for if elseif else
+                        //          while break continue func class
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -44,6 +46,8 @@ public:
   const static Sptr<Token> T_DIV; // /
   const static Sptr<Token> T_MOD; // %
   const static Sptr<Token> T_NOT; // !
+  const static Sptr<Token> T_INC; // ++
+  const static Sptr<Token> T_DEC; // --
 
   // assignment
   const static Sptr<Token> T_ASSIGNMENT; // =
@@ -72,18 +76,37 @@ public:
   const static Sptr<Token> T_QUESTION; // ?
   const static Sptr<Token> T_COLON;    // :
 
+  // keywords
+  const static Sptr<Token> T_LET;        // let
+  const static Sptr<Token> T_NULL;       // null
+  const static Sptr<Token> T_IF;         // if
+  const static Sptr<Token> T_ELSEIF;     // elseif
+  const static Sptr<Token> T_ELSE;       // else
+  const static Sptr<Token> T_FOR;        // for
+  const static Sptr<Token> T_WHILE;      // while
+  const static Sptr<Token> T_BREAK;      // break
+  const static Sptr<Token> T_CONTINUE;   // continue
+  const static Sptr<Token> T_FUNC;       // func
+  const static Sptr<Token> T_CLASS;      // class
+  const static Sptr<Token> T_TYPE;       // type
+  const static Sptr<Token> T_ISINSTANCE; // isinstance
+  const static Sptr<Token> T_IMPORT;     // import
+  const static Sptr<Token> T_RETURN;     // return
+
   static const std::vector<Sptr<Token>> eofs();
   static const std::vector<Sptr<Token>> operators();
   static const std::vector<Sptr<Token>> assignments();
   static const std::vector<Sptr<Token>> comparators();
   static const std::vector<Sptr<Token>> booleans();
   static const std::vector<Sptr<Token>> punctuations();
+  static const std::vector<Sptr<Token>> keywords();
 
   Token(TokenType type);
   virtual ~Token() = default;
 
   virtual const TokenType &type() const;
   virtual long long id() const;
+  virtual int size() const;
 
   // token type
   virtual bool isEof() const;
@@ -93,6 +116,8 @@ public:
   virtual bool isBoolean() const;
   virtual bool isInteger() const;
   virtual bool isFloating() const;
+  virtual bool isPunctuation() const;
+  virtual bool isKeyword() const;
 
   virtual icu::UnicodeString literal() const;
   virtual long long integer() const;

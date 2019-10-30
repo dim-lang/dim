@@ -9,6 +9,8 @@ namespace fastype {
 BooleanToken::BooleanToken(bool value)
     : Token(TokenType::TT_BOOLEAN), value_(value) {}
 
+int BooleanToken::size() const { return value_ ? 4 : 5; }
+
 bool BooleanToken::boolean() const { return value_; }
 
 std::string BooleanToken::toString() const {

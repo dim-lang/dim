@@ -70,6 +70,41 @@ static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
   return false;
 }
 
+// parse keyword
+// @return   true if is keyword
+//           false if not
+static bool parseKeyword(const icu::UnicodeString &text, int &i,
+                         std::deque<Sptr<Token>> &q) {
+  switch (text_.charAt(i)) {
+  case (UChar)'l':
+    if (i + Token::T_LET->size() < text.length() &&
+        text.tempSubString(i, Token::T_LET->size()) ==
+            Token::T_LET->literal()) {
+      q.push_back(Token::T_LET);
+      i += Token::T_LET->size();
+      return true;
+    }
+    break;
+  case (UChar)'n':
+    if (i + 4 < text.length() &&
+        text.tempSubString(i, 4) == Token::T_NULL->literal()) {
+      q.push_back(Token::T_NULL);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'i':
+    if (i + 2 < text.length() &&
+        text.tempSubString(i, 2) == Token::T_IF->literal()) {
+      q.push_back(Token::T_IF);
+      i += 2;
+      return true;
+    }
+    break;
+  }
+  return false;
+}
+
 // parse constant token
 static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
                             int diff = 1) {
@@ -212,17 +247,21 @@ void Lexer::parse() {
       continue;
     }
     switch (text_.charAt(i)) {
-    case (UChar)'+': // + or number
+    case (UChar)'+': // + ++ number
     {
-      if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'+') {
+        parseConstToken(i, Token::T_INC, queue_);
+      } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
         parseNumber(text_, i, queue_);
       } else {
         parseConstToken(i, Token::T_ADD, queue_);
       }
     } break;
-    case (UChar)'-': // - or number
+    case (UChar)'-': // - -- number
     {
-      if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'-') {
+        parseConstToken(i, Token::T_DEC, queue_);
+      } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
         parseNumber(text_, i, queue_);
       } else {
         parseConstToken(i, Token::T_SUB, queue_);

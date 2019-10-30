@@ -10,6 +10,8 @@ namespace fastype {
 PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_PUNCTUATION), value_(value) {}
 
+int PunctuationToken::size() const { return value_.length(); }
+
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
 std::string PunctuationToken::toString() const {

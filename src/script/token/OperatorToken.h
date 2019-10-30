@@ -11,6 +11,7 @@ class OperatorToken : public Token {
 public:
   OperatorToken(const icu::UnicodeString &value);
   virtual ~OperatorToken() = default;
+  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 

@@ -11,6 +11,7 @@ class ComparatorToken : public Token {
 public:
   ComparatorToken(const icu::UnicodeString &value);
   virtual ~ComparatorToken() = default;
+  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 

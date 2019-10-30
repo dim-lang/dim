@@ -7,10 +7,10 @@
 
 namespace fastype {
 
-class IdentifierToken : public Token {
+class KeywordToken : public Token {
 public:
-  IdentifierToken(const icu::UnicodeString &value);
-  virtual ~IdentifierToken() = default;
+  KeywordToken(const icu::UnicodeString &value);
+  virtual ~KeywordToken() = default;
   virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;

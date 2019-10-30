@@ -36,8 +36,19 @@ static icu::UnicodeString readFile(const icu::UnicodeString &fileName) {
 static void readToken(const icu::UnicodeString &data) {
   fastype::Lexer lex(data);
   lex.parse();
+  std::vector<fastype::Sptr<fastype::Token>> tokens;
   while (true) {
     fastype::Sptr<fastype::Token> t = lex.read();
+    tokens.push_back(t);
+    if (t.get() == nullptr) {
+      int sz = tokens.size();
+      F_ERROR("read Token nullptr! t:{}, size:{}", t.toString(), tokens.size());
+      for (int i = 0; i < std::min(4, sz); i++) {
+        F_ERROR("read Token nullptr! last {}: {}", i + 1,
+                (tokens[sz - i - 1].get() ? tokens[sz - i - 1]->toString()
+                                          : std::string("null")));
+      }
+    }
     REQUIRE(t.get() != nullptr);
     F_INFO("read Token:{}", t->toString());
     if (t->isEof()) {

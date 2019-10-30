@@ -11,6 +11,7 @@ class StringToken : public Token {
 public:
   StringToken(const icu::UnicodeString &value);
   virtual ~StringToken() = default;
+  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 
