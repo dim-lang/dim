@@ -150,7 +150,7 @@ TEST_CASE("Sptr", "[Sptr]") {
       REQUIRE(p1->age() == i / 2 - i);
       REQUIRE(p1->name() == std::string("hello ") + std::to_string(i));
       p1.reset();
-      REQUIRE(p1.useCount() == 0);
+      REQUIRE(p1.useCount() == 1);
       REQUIRE(p1.get() == nullptr);
       p1.reset(p2);
       REQUIRE(p1.useCount() == 1);

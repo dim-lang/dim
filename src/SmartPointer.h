@@ -121,9 +121,9 @@ public:
       pc_ = new detail::PointerCounter();
     }
     ptr_ = p;
-    if (p) {
-      (*pc_)++;
-    }
+    // if (p) {
+    (*pc_)++;
+    //}
     F_INFO("{}", toString());
   }
 
