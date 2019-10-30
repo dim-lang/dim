@@ -1,5 +1,4 @@
 // this is a fastype comment
-// normal line comment
 
 /**
  * block comment 1
@@ -12,14 +11,12 @@ block comment 2
 this is another type of block comment
  */
 
-/* block comment 3, this is actually one line comment */
-
 x = 1
-a = "hello world"
+a = "hello world";
 c = x
-d = 2
+d = 2 /* block comment 3, this is actually one line comment */ ;
 e = c + d
-y = True
-z = False
+y = True;
+z = False // normal line comment
 y = x / d
 z = e + d * (c % x)

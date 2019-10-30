@@ -141,6 +141,8 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
     Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
     q.push_back(integerToken);
   }
+
+  i = j;
 }
 
 // parse comment
@@ -170,7 +172,7 @@ static void parseComment(const icu::UnicodeString &text, int &i) {
 static void parseString(const icu::UnicodeString &text, int &i,
                         std::deque<Sptr<Token>> &q) {
   std::string _1;
-  int j = i;
+  int j = i + 1;
   bool findString = false;
   while (j < text.length()) {
     if (text.charAt(j) == (UChar)'\\') {
@@ -189,7 +191,7 @@ static void parseString(const icu::UnicodeString &text, int &i,
   Sptr<Token> strToken =
       Sptr<Token>(new StringToken(text.tempSubString(i, j - i)));
   q.push_back(strToken);
-  i = j + 1;
+  i = j;
 }
 
 // parse identifier
@@ -371,24 +373,34 @@ void Lexer::parse() {
       break;
     case (UChar)',':
       parseConstToken(i, Token::T_COMMA, queue_);
+      break;
     case (UChar)';':
       parseConstToken(i, Token::T_SEMI, queue_);
+      break;
     case (UChar)'?':
       parseConstToken(i, Token::T_QUESTION, queue_);
+      break;
     case (UChar)':':
       parseConstToken(i, Token::T_COLON, queue_);
+      break;
     case (UChar)'(':
       parseConstToken(i, Token::T_LP, queue_);
+      break;
     case (UChar)')':
       parseConstToken(i, Token::T_RP, queue_);
+      break;
     case (UChar)'[':
       parseConstToken(i, Token::T_LBRACKET, queue_);
+      break;
     case (UChar)']':
       parseConstToken(i, Token::T_RBRACKET, queue_);
+      break;
     case (UChar)'{':
       parseConstToken(i, Token::T_LBRACE, queue_);
+      break;
     case (UChar)'}':
       parseConstToken(i, Token::T_RBRACE, queue_);
+      break;
     default:
       F_CHECK(false, "unknown token at text_[{}]: {}", i,
               F_SUB_STRING(text_, i, _1));
