@@ -75,13 +75,12 @@ static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
 //           false if not
 static bool parseKeyword(const icu::UnicodeString &text, int &i,
                          std::deque<Sptr<Token>> &q) {
-  switch (text_.charAt(i)) {
+  switch (text.charAt(i)) {
   case (UChar)'l':
-    if (i + Token::T_LET->size() < text.length() &&
-        text.tempSubString(i, Token::T_LET->size()) ==
-            Token::T_LET->literal()) {
+    if (i + 3 < text.length() &&
+        text.tempSubString(i, 3) == Token::T_LET->literal()) {
       q.push_back(Token::T_LET);
-      i += Token::T_LET->size();
+      i += 3;
       return true;
     }
     break;
@@ -98,6 +97,87 @@ static bool parseKeyword(const icu::UnicodeString &text, int &i,
         text.tempSubString(i, 2) == Token::T_IF->literal()) {
       q.push_back(Token::T_IF);
       i += 2;
+      return true;
+    } else if (i + 10 < text.length() &&
+               text.tempSubString(i, 10) == Token::T_ISINSTANCE->literal()) {
+      q.push_back(Token::T_ISINSTANCE);
+      i += 10;
+      return true;
+    } else if (i + 6 < text.length() &&
+               text.tempSubString(i, 6) == Token::T_IMPORT->literal()) {
+      q.push_back(Token::T_IMPORT);
+      i += 6;
+      return true;
+    }
+    break;
+  case (UChar)'e':
+    if (i + 6 < text.length() &&
+        text.tempSubString(i, 6) == Token::T_ELSEIF->literal()) {
+      q.push_back(Token::T_ELSEIF);
+      i += 6;
+      return true;
+    } else if (i + 4 < text.length() &&
+               text.tempSubString(i, 4) == Token::T_ELSE->literal()) {
+      q.push_back(Token::T_ELSE);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'f':
+    if (i + 3 < text.length() &&
+        text.tempSubString(i, 3) == Token::T_FOR->literal()) {
+      q.push_back(Token::T_FOR);
+      i += 3;
+      return true;
+    } else if (i + 4 < text.length() &&
+               text.tempSubString(i, 4) == Token::T_FUNC->literal()) {
+      q.push_back(Token::T_FUNC);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'w':
+    if (i + 5 < text.length() &&
+        text.tempSubString(i, 5) == Token::T_WHILE->literal()) {
+      q.push_back(Token::T_WHILE);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'b':
+    if (i + 5 < text.length() &&
+        text.tempSubString(i, 5) == Token::T_BREAK->literal()) {
+      q.push_back(Token::T_BREAK);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'c':
+    if (i + 8 < text.length() &&
+        text.tempSubString(i, 8) == Token::T_CONTINUE->literal()) {
+      q.push_back(Token::T_CONTINUE);
+      i += 8;
+      return true;
+    } else if (i + 5 < text.length() &&
+               text.tempSubString(i, 5) == Token::T_CLASS->literal()) {
+      q.push_back(Token::T_CLASS);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'t':
+    if (i + 4 < text.length() &&
+        text.tempSubString(i, 4) == Token::T_TYPE->literal()) {
+      q.push_back(Token::T_TYPE);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'r':
+    if (i + 6 < text.length() &&
+        text.tempSubString(i, 6) == Token::T_RETURN->literal()) {
+      q.push_back(Token::T_RETURN);
+      i += 6;
       return true;
     }
     break;
@@ -156,12 +236,12 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
   // floating number
   if (dotCount > 0) {
     double value = std::stod(utf8);
-    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
+    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value, j - i));
     q.push_back(floatingToken);
   } else {
     // integer number
     long long value = std::stoll(utf8);
-    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
+    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value, j - i));
     q.push_back(integerToken);
   }
 
@@ -244,6 +324,9 @@ void Lexer::parse() {
   int i = 0;
   while (i < text_.length()) {
     if (parseWhitespace(text_, i)) {
+      continue;
+    }
+    if (parseKeyword(text_, i, queue_)) {
       continue;
     }
     switch (text_.charAt(i)) {

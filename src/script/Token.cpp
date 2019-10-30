@@ -11,7 +11,9 @@
 #include "script/token/ComparatorToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/IntegerToken.h"
+#include "script/token/KeywordToken.h"
 #include "script/token/OperatorToken.h"
+#include "script/token/PunctuationToken.h"
 #include <fmt/format.h>
 #include <string>
 

@@ -71,6 +71,7 @@ set(F_CORE
     script/token/IntegerToken.cpp
     script/token/OperatorToken.cpp
     script/token/PunctuationToken.cpp
+    script/token/KeywordToken.cpp
     script/token/StringToken.cpp
 
     Hasher.cpp

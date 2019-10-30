@@ -128,7 +128,7 @@ TEST_CASE("Token", "[Token]") {
 
   SECTION("integer") {
     int i = fastype::Random::nextInt();
-    fastype::IntegerToken it(i);
+    fastype::IntegerToken it(i, 10);
     F_INFO("integer: {}", it.toString());
   }
 }
