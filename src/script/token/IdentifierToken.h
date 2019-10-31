@@ -11,7 +11,6 @@ class IdentifierToken : public Token {
 public:
   IdentifierToken(const icu::UnicodeString &value);
   virtual ~IdentifierToken() = default;
-  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 

@@ -10,8 +10,6 @@ namespace fastype {
 OperatorToken::OperatorToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_OPERATOR), value_(value) {}
 
-int OperatorToken::size() const { return value_.length(); }
-
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
 std::string OperatorToken::toString() const {

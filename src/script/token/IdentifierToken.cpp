@@ -9,8 +9,6 @@ namespace fastype {
 IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_IDENTIFIER), value_(value) {}
 
-int IdentifierToken::size() const { return value_.length(); }
-
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 
 std::string IdentifierToken::toString() const {

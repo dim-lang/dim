@@ -153,13 +153,13 @@ TEST_CASE("Token", "[Token]") {
 
   SECTION("integer") {
     int i = fastype::Random::nextInt();
-    fastype::IntegerToken it(i, 10);
+    fastype::IntegerToken it(i);
     REQUIRE(it.isInteger());
     F_INFO("integer: {}", it.toString());
   }
 
   SECTION("floating") {
-    fastype::FloatingToken ft(10.105, 10);
+    fastype::FloatingToken ft(10.105);
     REQUIRE(ft.isFloating());
     F_INFO("floating: {}", ft.toString());
   }

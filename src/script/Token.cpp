@@ -274,10 +274,6 @@ const Token::TokenType &Token::type() const { return type_; }
 
 long long Token::id() const { return id_; }
 
-int Token::size() const {
-  F_THROW(NotImplementException, "size not implement! {}", toString());
-}
-
 bool Token::isEof() const { return type_ == Token::TokenType::TT_EOF; }
 
 bool Token::isOperator() const {

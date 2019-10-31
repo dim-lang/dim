@@ -10,8 +10,6 @@ namespace fastype {
 StringToken::StringToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_STRING), value_(value) {}
 
-int StringToken::size() const { return value_.length(); }
-
 icu::UnicodeString StringToken::literal() const { return value_; }
 
 std::string StringToken::toString() const {

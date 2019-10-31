@@ -228,12 +228,12 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
   // floating number
   if (dotCount > 0) {
     double value = std::stod(utf8);
-    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value, j - i));
+    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
     q.push_back(floatingToken);
   } else {
     // integer number
     long long value = std::stoll(utf8);
-    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value, j - i));
+    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
     q.push_back(integerToken);
   }
 

@@ -9,15 +9,13 @@ namespace fastype {
 
 class IntegerToken : public Token {
 public:
-  IntegerToken(long long value, int size);
+  IntegerToken(long long value);
   virtual ~IntegerToken() = default;
-  virtual int size() const;
   virtual long long integer() const;
   virtual std::string toString() const;
 
 private:
   long long value_;
-  int size_;
 };
 
 } // namespace fastype

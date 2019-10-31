@@ -9,8 +9,6 @@ namespace fastype {
 AssignmentToken::AssignmentToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_ASSIGNMENT), value_(value) {}
 
-int AssignmentToken::size() const { return 1; }
-
 icu::UnicodeString AssignmentToken::literal() const { return value_; }
 
 std::string AssignmentToken::toString() const {

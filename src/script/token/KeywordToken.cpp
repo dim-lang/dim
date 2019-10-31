@@ -10,8 +10,6 @@ namespace fastype {
 KeywordToken::KeywordToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_KEYWORD), value_(value) {}
 
-int KeywordToken::size() const { return value_.length(); }
-
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 
 std::string KeywordToken::toString() const {

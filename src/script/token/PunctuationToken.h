@@ -11,7 +11,6 @@ class PunctuationToken : public Token {
 public:
   PunctuationToken(const icu::UnicodeString &value);
   virtual ~PunctuationToken() = default;
-  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 

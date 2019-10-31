@@ -9,8 +9,6 @@ namespace fastype {
 ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
     : Token(TokenType::TT_COMPARATOR), value_(value) {}
 
-int ComparatorToken::size() const { return value_.length(); }
-
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
 std::string ComparatorToken::toString() const {

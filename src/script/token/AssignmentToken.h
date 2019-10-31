@@ -11,7 +11,6 @@ class AssignmentToken : public Token {
 public:
   AssignmentToken(const icu::UnicodeString &value);
   virtual ~AssignmentToken() = default;
-  virtual int size() const;
   virtual icu::UnicodeString literal() const;
   virtual std::string toString() const;
 

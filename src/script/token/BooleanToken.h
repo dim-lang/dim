@@ -11,7 +11,6 @@ class BooleanToken : public Token {
 public:
   BooleanToken(bool value);
   virtual ~BooleanToken() = default;
-  virtual int size() const;
   virtual bool boolean() const;
   virtual std::string toString() const;
 

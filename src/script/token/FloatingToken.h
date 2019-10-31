@@ -9,15 +9,13 @@ namespace fastype {
 
 class FloatingToken : public Token {
 public:
-  FloatingToken(double value, int size);
+  FloatingToken(double value);
   virtual ~FloatingToken() = default;
-  virtual int size() const;
   virtual double floating() const;
   virtual std::string toString() const;
 
 private:
   double value_;
-  int size_;
 };
 
 } // namespace fastype

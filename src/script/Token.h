@@ -112,7 +112,6 @@ public:
 
   virtual const TokenType &type() const;
   virtual long long id() const;
-  virtual int size() const;
 
   // token type
   virtual bool isEof() const;
