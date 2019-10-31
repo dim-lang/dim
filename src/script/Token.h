@@ -81,6 +81,7 @@ public:
   const static Sptr<Token> T_SEMI;     // ;
   const static Sptr<Token> T_QUESTION; // ?
   const static Sptr<Token> T_COLON;    // :
+  const static Sptr<Token> T_EOL;      // \n
 
   // keywords
   const static Sptr<Token> T_LET;        // let

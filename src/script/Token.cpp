@@ -177,6 +177,8 @@ const Sptr<Token>
     Token::T_QUESTION(new PunctuationToken(UNICODE_STRING_SIMPLE("?")));
 const Sptr<Token>
     Token::T_COLON(new PunctuationToken(UNICODE_STRING_SIMPLE(":")));
+const Sptr<Token>
+    Token::T_EOL(new PunctuationToken(UNICODE_STRING_SIMPLE("\n")));
 
 const Sptr<Token> Token::T_LET(new KeywordToken(UNICODE_STRING_SIMPLE("let")));
 const Sptr<Token>
@@ -251,7 +253,7 @@ const std::vector<Sptr<Token>> Token::punctuations() {
   const static std::vector<Sptr<Token>> types = {
       Token::T_LP,       Token::T_RP,     Token::T_LBRACKET, Token::T_RBRACKET,
       Token::T_LBRACE,   Token::T_RBRACE, Token::T_COMMA,    Token::T_SEMI,
-      Token::T_QUESTION, Token::T_COLON,
+      Token::T_QUESTION, Token::T_COLON,  Token::T_EOL,
   };
   return types;
 }

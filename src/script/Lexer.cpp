@@ -52,8 +52,13 @@ Sptr<Token> Lexer::peek(int pos) {
 // parse whitespace
 // @return   true if is whitespace and skipped
 //           false if not
-static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
-  if (u_isspace(text.charAt(i))) {
+static bool parseWhitespace(const icu::UnicodeString &text, int &i,
+                            std::deque<Sptr<Token>> &q) {
+  if (text.charAt(i) == Token::T_EOL->literal()) {
+    q.push_back(Token::T_EOL);
+    i += 1;
+    return true;
+  } else if (u_isspace(text.charAt(i))) {
     i += 1;
     return true;
   }
@@ -317,7 +322,7 @@ void Lexer::parse() {
 
   int i = 0;
   while (i < text_.length()) {
-    if (parseWhitespace(text_, i)) {
+    if (parseWhitespace(text_, i, queue_)) {
       continue;
     }
     if (parseKeyword(text_, i, queue_)) {
