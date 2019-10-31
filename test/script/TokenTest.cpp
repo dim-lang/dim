@@ -10,7 +10,9 @@
 #include "script/token/ComparatorToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/IntegerToken.h"
+#include "script/token/KeywordToken.h"
 #include "script/token/OperatorToken.h"
+#include "script/token/PunctuationToken.h"
 #include "script/token/StringToken.h"
 #include <cstdlib>
 #include <cstring>
@@ -18,7 +20,7 @@
 
 TEST_CASE("Token", "[Token]") {
   SECTION("TokenType") {
-    REQUIRE(fastype::Token::tokenTypes().size() == 9);
+    REQUIRE(fastype::Token::tokenTypes().size() == 10);
     REQUIRE(fastype::Token::tokenTypes()[0] ==
             fastype::Token::TokenType::TT_EOF);
     REQUIRE(fastype::Token::tokenTypes()[1] ==
@@ -37,6 +39,8 @@ TEST_CASE("Token", "[Token]") {
             fastype::Token::TokenType::TT_IDENTIFIER);
     REQUIRE(fastype::Token::tokenTypes()[8] ==
             fastype::Token::TokenType::TT_PUNCTUATION);
+    REQUIRE(fastype::Token::tokenTypes()[9] ==
+            fastype::Token::TokenType::TT_KEYWORD);
 
     REQUIRE(fastype::Token::tokenTypeValue(fastype::Token::TokenType::TT_EOF) ==
             1);
@@ -54,6 +58,10 @@ TEST_CASE("Token", "[Token]") {
                 fastype::Token::TokenType::TT_BOOLEAN) == 7);
     REQUIRE(fastype::Token::tokenTypeValue(
                 fastype::Token::TokenType::TT_IDENTIFIER) == 8);
+    REQUIRE(fastype::Token::tokenTypeValue(
+                fastype::Token::TokenType::TT_PUNCTUATION) == 9);
+    REQUIRE(fastype::Token::tokenTypeValue(
+                fastype::Token::TokenType::TT_KEYWORD) == 10);
 
     REQUIRE(fastype::Token::tokenTypeName(fastype::Token::TokenType::TT_EOF) ==
             "TT_EOF");
@@ -72,7 +80,9 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(fastype::Token::tokenTypeName(
                 fastype::Token::TokenType::TT_IDENTIFIER) == "TT_IDENTIFIER");
     REQUIRE(fastype::Token::tokenTypeName(
-                fastype::Token::TokenType::TT_IDENTIFIER) == "TT_IDENTIFIER");
+                fastype::Token::TokenType::TT_PUNCTUATION) == "TT_PUNCTUATION");
+    REQUIRE(fastype::Token::tokenTypeName(
+                fastype::Token::TokenType::TT_KEYWORD) == "TT_KEYWORD");
 
     for (int i = 0; i < fastype::Token::tokenTypes().size(); i++) {
       REQUIRE(fastype::Token::tokenTypeFromValue(fastype::Token::tokenTypeValue(
@@ -92,6 +102,8 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!fastype::Token::T_EOF->isComparator());
     REQUIRE(!fastype::Token::T_EOF->isBoolean());
     REQUIRE(!fastype::Token::T_EOF->isInteger());
+    REQUIRE(!fastype::Token::T_EOF->isPunctuation());
+    REQUIRE(!fastype::Token::T_EOF->isKeyword());
     REQUIRE(!fastype::Token::T_EOF->toString().empty());
     F_INFO("Token::T_EOF:{}", fastype::Token::T_EOF->toString());
   }
@@ -130,5 +142,15 @@ TEST_CASE("Token", "[Token]") {
     int i = fastype::Random::nextInt();
     fastype::IntegerToken it(i, 10);
     F_INFO("integer: {}", it.toString());
+  }
+
+  SECTION("punctuation") {
+    fastype::PunctuationToken pt(UNICODE_STRING_SIMPLE(","));
+    F_INFO("punctuation: {}", pt.toString());
+  }
+
+  SECTION("keyword") {
+    fastype::KeywordToken kt(UNICODE_STRING_SIMPLE("let"));
+    F_INFO("keyword: {}", kt.toString());
   }
 }
