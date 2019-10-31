@@ -42,21 +42,13 @@ Lexer::~Lexer() {
 }
 
 Sptr<Token> Lexer::read() {
-  if (pos_ >= queue_.size()) {
-    return Token::T_EOF;
-  } else {
-    return queue_[pos_++];
-  }
+  return pos_ >= (int)queue_.size() ? Token::T_EOF : queue_[pos_++];
 }
 
 void Lexer::reset() { pos_ = 0; }
 
 Sptr<Token> Lexer::peek(int pos) {
-  if (pos >= queue_.size()) {
-    return Token::T_EOF;
-  } else {
-    return queue_[pos];
-  }
+  return pos >= (int)queue_.size() ? Token::T_EOF : queue_[pos];
 }
 
 // parse whitespace
@@ -277,6 +269,7 @@ static void parseString(const icu::UnicodeString &text, int &i,
   std::string _1;
   int j = i + 1;
   bool findString = false;
+  (void)findString;
   while (j < text.length()) {
     if (text.charAt(j) == (UChar)'\\') {
       j += 2;

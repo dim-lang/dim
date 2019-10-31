@@ -84,7 +84,7 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(fastype::Token::tokenTypeName(
                 fastype::Token::TokenType::TT_KEYWORD) == "TT_KEYWORD");
 
-    for (int i = 0; i < fastype::Token::tokenTypes().size(); i++) {
+    for (int i = 0; i < (int)fastype::Token::tokenTypes().size(); i++) {
       REQUIRE(fastype::Token::tokenTypeFromValue(fastype::Token::tokenTypeValue(
                   fastype::Token::tokenTypes()[i])) ==
               fastype::Token::tokenTypes()[i]);
