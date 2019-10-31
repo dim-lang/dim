@@ -26,6 +26,7 @@ public:
     TT_PUNCTUATION = 9, // punctuation
     TT_KEYWORD = 10,    // keyword: let null for if elseif else
                         //          while break continue func class
+    TT_STRING = 11,     // string
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -110,14 +111,16 @@ public:
 
   // token type
   virtual bool isEof() const;
-  virtual bool isOperator() const;
-  virtual bool isAssignment() const;
-  virtual bool isComparator() const;
-  virtual bool isBoolean() const;
   virtual bool isInteger() const;
   virtual bool isFloating() const;
+  virtual bool isOperator() const;
+  virtual bool isComparator() const;
+  virtual bool isAssignment() const;
+  virtual bool isBoolean() const;
+  virtual bool isIdentifier() const;
   virtual bool isPunctuation() const;
   virtual bool isKeyword() const;
+  virtual bool isString() const;
 
   virtual icu::UnicodeString literal() const;
   virtual long long integer() const;

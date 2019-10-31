@@ -26,6 +26,7 @@ const std::vector<Token::TokenType> &Token::tokenTypes() {
       Token::TokenType::TT_COMPARATOR,  Token::TokenType::TT_ASSIGNMENT,
       Token::TokenType::TT_BOOLEAN,     Token::TokenType::TT_IDENTIFIER,
       Token::TokenType::TT_PUNCTUATION, Token::TokenType::TT_KEYWORD,
+      Token::TokenType::TT_STRING,
   };
   return types;
 }
@@ -52,6 +53,8 @@ int Token::tokenTypeValue(Token::TokenType tt) {
     return 9;
   case Token::TokenType::TT_KEYWORD:
     return 10;
+  case Token::TokenType::TT_STRING:
+    return 11;
   }
   F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
@@ -78,6 +81,8 @@ std::string Token::tokenTypeName(Token::TokenType tt) {
     return "TT_PUNCTUATION";
   case Token::TokenType::TT_KEYWORD:
     return "TT_KEYWORD";
+  case Token::TokenType::TT_STRING:
+    return "TT_STRING";
   }
   F_THROW(NotFoundException, "tokenTypeName not found! tt: {}", (int)tt);
 }
@@ -104,6 +109,8 @@ Token::TokenType Token::tokenTypeFromValue(int value) {
     return Token::TokenType::TT_PUNCTUATION;
   case 10:
     return Token::TokenType::TT_KEYWORD;
+  case 11:
+    return Token::TokenType::TT_STRING;
   }
   F_THROW(NotFoundException, "tokenTypeFromValue not found! value: {}", value);
 }
@@ -282,11 +289,17 @@ bool Token::isFloating() const {
   return type_ == Token::TokenType::TT_FLOATING;
 }
 
+bool Token::isIdentifier() const {
+  return type_ == Token::TokenType::TT_IDENTIFIER;
+}
+
 bool Token::isPunctuation() const {
   return type_ == Token::TokenType::TT_PUNCTUATION;
 }
 
 bool Token::isKeyword() const { return type_ == Token::TokenType::TT_KEYWORD; }
+
+bool Token::isString() const { return type_ == Token::TokenType::TT_STRING; }
 
 icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());

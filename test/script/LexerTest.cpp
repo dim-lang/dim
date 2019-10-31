@@ -62,8 +62,20 @@ TEST_CASE("Lexer", "[Lexer]") {
   SECTION("LexerTest1.fast") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
-    REQUIRE(data.length() > 0);
-    readToken(data);
+    fastype::Lexer lex(data);
+    lex.parse();
+    REQUIRE(lex.peek(0)->isIdentifier());
+    REQUIRE(lex.peek(0)->literal() == UNICODE_STRING_SIMPLE("x"));
+    REQUIRE(lex.peek(1) == fastype::Token::T_ASSIGNMENT);
+    REQUIRE(lex.peek(2)->isInteger());
+    REQUIRE(lex.peek(2)->integer() == 1);
+    REQUIRE(lex.peek(3)->isIdentifier());
+    REQUIRE(lex.peek(3)->literal() == UNICODE_STRING_SIMPLE("a"));
+    REQUIRE(lex.peek(4) == fastype::Token::T_ASSIGNMENT);
+    REQUIRE(lex.peek(5)->isString());
+    REQUIRE(lex.peek(5)->literal() == UNICODE_STRING_SIMPLE("\"hello world\""));
+    REQUIRE(lex.peek(6)->isPunctuation());
+    REQUIRE(lex.peek(6) == fastype::Token::T_SEMI);
   }
   SECTION("LexerTest2.fast") {
     icu::UnicodeString data =
