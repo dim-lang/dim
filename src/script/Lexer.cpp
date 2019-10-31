@@ -24,9 +24,7 @@
 namespace fastype {
 
 Lexer::Lexer(const icu::UnicodeString &text)
-    : queue_(), parse_(false), pos_(0), text_(text) {
-  F_INFO("Constructor:{}", toString());
-}
+    : queue_(), parse_(false), pos_(0), text_(text) {}
 
 std::string Lexer::toString() const {
   std::string _1;
@@ -42,12 +40,12 @@ Lexer::~Lexer() {
 }
 
 Sptr<Token> Lexer::read() {
+  parse();
   return pos_ >= (int)queue_.size() ? Token::T_EOF : queue_[pos_++];
 }
 
-void Lexer::reset() { pos_ = 0; }
-
 Sptr<Token> Lexer::peek(int pos) {
+  parse();
   return pos >= (int)queue_.size() ? Token::T_EOF : queue_[pos];
 }
 
@@ -311,8 +309,11 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
 }
 
 void Lexer::parse() {
+  if (parse_) {
+    return;
+  }
+
   std::string _1;
-  queue_.clear();
 
   int i = 0;
   while (i < text_.length()) {
@@ -520,6 +521,7 @@ void Lexer::parse() {
               F_SUB_STRING(text_, i, _1));
     }
   }
+  parse_ = true;
 }
 
 } // namespace fastype

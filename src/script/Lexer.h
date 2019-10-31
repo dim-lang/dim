@@ -18,13 +18,13 @@ public:
   Lexer(const icu::UnicodeString &text);
   virtual ~Lexer();
 
-  virtual void parse();
   virtual Sptr<Token> read();
-  virtual void reset(); // reset read position
   virtual Sptr<Token> peek(int pos);
   virtual std::string toString() const;
 
 private:
+  virtual void parse();
+
   std::deque<Sptr<Token>> queue_;
   bool parse_;
   int pos_;

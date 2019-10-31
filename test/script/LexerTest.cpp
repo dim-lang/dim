@@ -38,7 +38,6 @@ TEST_CASE("Lexer", "[Lexer]") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
     fastype::Lexer lex(data);
-    lex.parse();
     REQUIRE(lex.peek(0)->isIdentifier());
     REQUIRE(lex.peek(0)->literal() == UNICODE_STRING_SIMPLE("x"));
     REQUIRE(lex.peek(1) == fastype::Token::T_ASSIGNMENT);
@@ -56,7 +55,6 @@ TEST_CASE("Lexer", "[Lexer]") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest2.fast"));
     fastype::Lexer lex(data);
-    lex.parse();
     REQUIRE(lex.peek(0)->isKeyword());
     REQUIRE(lex.peek(0) == fastype::Token::T_FOR);
     REQUIRE(lex.peek(1)->isPunctuation());
