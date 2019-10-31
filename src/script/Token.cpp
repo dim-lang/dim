@@ -205,6 +205,8 @@ const Sptr<Token>
     Token::T_IMPORT(new KeywordToken(UNICODE_STRING_SIMPLE("import")));
 const Sptr<Token>
     Token::T_RETURN(new KeywordToken(UNICODE_STRING_SIMPLE("return")));
+const Sptr<Token>
+    Token::T_VOID(new KeywordToken(UNICODE_STRING_SIMPLE("void")));
 
 const std::vector<Sptr<Token>> Token::eofs() {
   const static std::vector<Sptr<Token>> types = {
@@ -261,7 +263,7 @@ const std::vector<Sptr<Token>> Token::keywords() {
       Token::T_LET,        Token::T_NULL,   Token::T_IF,     Token::T_ELSEIF,
       Token::T_ELSE,       Token::T_FOR,    Token::T_WHILE,  Token::T_BREAK,
       Token::T_CONTINUE,   Token::T_FUNC,   Token::T_CLASS,  Token::T_TYPE,
-      Token::T_ISINSTANCE, Token::T_IMPORT, Token::T_RETURN,
+      Token::T_ISINSTANCE, Token::T_IMPORT, Token::T_RETURN, Token::T_VOID,
   };
   return types;
 }

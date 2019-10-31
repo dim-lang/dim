@@ -98,6 +98,7 @@ public:
   const static Sptr<Token> T_ISINSTANCE; // isinstance
   const static Sptr<Token> T_IMPORT;     // import
   const static Sptr<Token> T_RETURN;     // return
+  const static Sptr<Token> T_VOID;       // void
 
   static const std::vector<Sptr<Token>> eofs();
   static const std::vector<Sptr<Token>> operators();
