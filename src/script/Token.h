@@ -41,14 +41,19 @@ public:
   const static Sptr<Token> T_EOF;
 
   // operators
-  const static Sptr<Token> T_ADD; // +
-  const static Sptr<Token> T_SUB; // -
-  const static Sptr<Token> T_MUL; // *
-  const static Sptr<Token> T_DIV; // /
-  const static Sptr<Token> T_MOD; // %
-  const static Sptr<Token> T_NOT; // !
-  const static Sptr<Token> T_INC; // ++
-  const static Sptr<Token> T_DEC; // --
+  const static Sptr<Token> T_ADD;       // +
+  const static Sptr<Token> T_SUB;       // -
+  const static Sptr<Token> T_MUL;       // *
+  const static Sptr<Token> T_DIV;       // /
+  const static Sptr<Token> T_MOD;       // %
+  const static Sptr<Token> T_NOT;       // !
+  const static Sptr<Token> T_INC;       // ++
+  const static Sptr<Token> T_DEC;       // --
+  const static Sptr<Token> T_ADDASSIGN; // +=
+  const static Sptr<Token> T_SUBASSIGN; // -=
+  const static Sptr<Token> T_MULASSIGN; // *=
+  const static Sptr<Token> T_DIVASSIGN; // /=
+  const static Sptr<Token> T_MODASSIGN; // %=
 
   // assignment
   const static Sptr<Token> T_ASSIGNMENT; // =

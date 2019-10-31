@@ -33,31 +33,6 @@ static icu::UnicodeString readFile(const icu::UnicodeString &fileName) {
   return icu::UnicodeString(data, n);
 }
 
-static void readToken(const icu::UnicodeString &data) {
-  fastype::Lexer lex(data);
-  lex.parse();
-  std::vector<fastype::Sptr<fastype::Token>> tokens;
-  while (true) {
-    fastype::Sptr<fastype::Token> t = lex.read();
-    tokens.push_back(t);
-    if (t.get() == nullptr) {
-      int sz = tokens.size();
-      F_ERROR("read Token nullptr! t:{}, size:{}", t.toString(), tokens.size());
-      for (int i = 0; i < std::min(4, sz); i++) {
-        F_ERROR("read Token nullptr! last {}: {}", i + 1,
-                (tokens[sz - i - 1].get() ? tokens[sz - i - 1]->toString()
-                                          : std::string("null")));
-      }
-    }
-    REQUIRE(t.get() != nullptr);
-    F_INFO("read Token:{}", t->toString());
-    if (t->isEof()) {
-      REQUIRE(t == fastype::Token::T_EOF);
-      break;
-    }
-  }
-}
-
 TEST_CASE("Lexer", "[Lexer]") {
   SECTION("LexerTest1.fast") {
     icu::UnicodeString data =
@@ -80,7 +55,19 @@ TEST_CASE("Lexer", "[Lexer]") {
   SECTION("LexerTest2.fast") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest2.fast"));
-    REQUIRE(data.length() > 0);
-    readToken(data);
+    fastype::Lexer lex(data);
+    lex.parse();
+    REQUIRE(lex.peek(0)->isKeyword());
+    REQUIRE(lex.peek(0) == fastype::Token::T_FOR);
+    REQUIRE(lex.peek(1)->isPunctuation());
+    REQUIRE(lex.peek(1) == fastype::Token::T_LP);
+    REQUIRE(lex.peek(2)->isIdentifier());
+    REQUIRE(lex.peek(2)->literal() == UNICODE_STRING_SIMPLE("i"));
+    REQUIRE(lex.peek(3) == fastype::Token::T_ASSIGNMENT);
+    REQUIRE(lex.peek(4)->isInteger());
+    REQUIRE(lex.peek(4)->integer() == 0);
+    REQUIRE(lex.peek(5) == fastype::Token::T_SEMI);
+    REQUIRE(lex.peek(11) == fastype::Token::T_INC);
+    REQUIRE(lex.peek(15) == fastype::Token::T_ADDASSIGN);
   }
 }

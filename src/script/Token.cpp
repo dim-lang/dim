@@ -134,6 +134,16 @@ const Sptr<Token> Token::T_MOD(new OperatorToken(UNICODE_STRING_SIMPLE("%")));
 const Sptr<Token> Token::T_NOT(new OperatorToken(UNICODE_STRING_SIMPLE("!")));
 const Sptr<Token> Token::T_INC(new OperatorToken(UNICODE_STRING_SIMPLE("++")));
 const Sptr<Token> Token::T_DEC(new OperatorToken(UNICODE_STRING_SIMPLE("--")));
+const Sptr<Token>
+    Token::T_ADDASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("+=")));
+const Sptr<Token>
+    Token::T_SUBASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("-=")));
+const Sptr<Token>
+    Token::T_MULASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("*=")));
+const Sptr<Token>
+    Token::T_DIVASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("/=")));
+const Sptr<Token>
+    Token::T_MODASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("%=")));
 
 const Sptr<Token>
     Token::T_ASSIGNMENT(new AssignmentToken(UNICODE_STRING_SIMPLE("=")));
@@ -205,8 +215,11 @@ const std::vector<Sptr<Token>> Token::eofs() {
 
 const std::vector<Sptr<Token>> Token::operators() {
   const static std::vector<Sptr<Token>> types = {
-      Token::T_ADD, Token::T_SUB, Token::T_MUL, Token::T_DIV,
-      Token::T_MOD, Token::T_NOT, Token::T_INC, Token::T_DEC,
+      Token::T_ADD,       Token::T_SUB,       Token::T_MUL,
+      Token::T_DIV,       Token::T_MOD,       Token::T_NOT,
+      Token::T_INC,       Token::T_DEC,       Token::T_ADDASSIGN,
+      Token::T_SUBASSIGN, Token::T_MULASSIGN, Token::T_DIVASSIGN,
+      Token::T_MODASSIGN,
   };
   return types;
 }
@@ -255,9 +268,7 @@ const std::vector<Sptr<Token>> Token::keywords() {
 
 static long long TokenId = 0LL;
 
-Token::Token(Token::TokenType type) : type_(type), id_(TokenId++) {
-  F_INFO("Constructor:{}", toString());
-}
+Token::Token(Token::TokenType type) : type_(type), id_(TokenId++) {}
 
 const Token::TokenType &Token::type() const { return type_; }
 

@@ -39,7 +39,6 @@ public:
   explicit Sptr(T *ptr = nullptr)
       : ptr_(ptr), pc_(new detail::PointerCounter()) {
     (*pc_)++;
-    F_INFO("Constructor:{}", toString());
   }
 
   // copy
@@ -47,7 +46,6 @@ public:
     ptr_ = sp.ptr_;
     pc_ = sp.pc_;
     (*pc_)++;
-    F_INFO("Copy Constructor:{}", toString());
   }
 
   Sptr &operator=(const Sptr<T> &sp) {
@@ -87,10 +85,7 @@ public:
   }
 
   // move
-  Sptr(Sptr<T> &&sp) : Sptr() {
-    swap(sp);
-    F_INFO("Move Constructor:{}", toString());
-  }
+  Sptr(Sptr<T> &&sp) : Sptr() { swap(sp); }
 
   Sptr &operator=(Sptr<T> &&sp) {
     if (this == &sp) {
@@ -167,9 +162,7 @@ private:
 
 template <typename T> class Uptr : public boost::noncopyable, Stringify {
 public:
-  explicit Uptr(T *ptr = nullptr) : ptr_(ptr) {
-    F_INFO("Constructor:{}", toString());
-  }
+  explicit Uptr(T *ptr = nullptr) : ptr_(ptr) {}
 
   // disable copy
   Uptr(const Uptr<T> &) = delete;
@@ -191,11 +184,7 @@ public:
   }
 
   // move
-  Uptr(Uptr<T> &&up) : Uptr() {
-    F_INFO("Move Constructor enter:{}", toString());
-    swap(up);
-    F_INFO("Move Constructor:{}", toString());
-  }
+  Uptr(Uptr<T> &&up) : Uptr() { swap(up); }
 
   Uptr &operator=(Uptr<T> &&up) {
     F_INFO("Move Assign enter:{}", toString());

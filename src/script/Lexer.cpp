@@ -323,20 +323,24 @@ void Lexer::parse() {
       continue;
     }
     switch (text_.charAt(i)) {
-    case (UChar)'+': // + ++ number
+    case (UChar)'+': // + ++ += number
     {
       if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'+') {
-        parseConstToken(i, Token::T_INC, queue_);
+        parseConstToken(i, Token::T_INC, queue_, 2);
+      } else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+        parseConstToken(i, Token::T_ADDASSIGN, queue_, 2);
       } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
         parseNumber(text_, i, queue_);
       } else {
         parseConstToken(i, Token::T_ADD, queue_);
       }
     } break;
-    case (UChar)'-': // - -- number
+    case (UChar)'-': // - -- -= number
     {
       if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'-') {
-        parseConstToken(i, Token::T_DEC, queue_);
+        parseConstToken(i, Token::T_DEC, queue_, 2);
+      } else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+        parseConstToken(i, Token::T_SUBASSIGN, queue_, 2);
       } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
         parseNumber(text_, i, queue_);
       } else {
@@ -356,19 +360,30 @@ void Lexer::parse() {
       parseNumber(text_, i, queue_);
       break;
     case (UChar)'*': // *
-      parseConstToken(i, Token::T_MUL, queue_);
+      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+        parseConstToken(i, Token::T_MULASSIGN, queue_, 2);
+      } else {
+        parseConstToken(i, Token::T_MUL, queue_);
+      }
       break;
-    case (UChar)'/': // / or // or /*
+    case (UChar)'/': // operator / /= or comment // /*
     {
-      if (i + 1 < text_.length() && (text_.charAt(i + 1) == (UChar)'/' ||
-                                     text_.charAt(i + 1) == (UChar)'*')) {
+      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+        parseConstToken(i, Token::T_DIVASSIGN, queue_, 2);
+      } else if (i + 1 < text_.length() &&
+                 (text_.charAt(i + 1) == (UChar)'/' ||
+                  text_.charAt(i + 1) == (UChar)'*')) {
         parseComment(text_, i);
       } else {
         parseConstToken(i, Token::T_DIV, queue_);
       }
     } break;
-    case (UChar)'%':
-      parseConstToken(i, Token::T_MOD, queue_);
+    case (UChar)'%': // % %=
+      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+        parseConstToken(i, Token::T_MODASSIGN, queue_, 2);
+      } else {
+        parseConstToken(i, Token::T_MOD, queue_);
+      }
       break;
     case (UChar)'"': // string or char
       parseString(text_, i, queue_);
