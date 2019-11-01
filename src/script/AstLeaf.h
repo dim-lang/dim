@@ -13,9 +13,9 @@ public:
   AstLeaf(Sptr<Token> token);
   virtual ~AstLeaf() = default;
 
-  virtual Sptr<AstTree> child(int i);
-  virtual int childrenNumber();
-  virtual std::string toString();
+  virtual Sptr<AstTree> child(int i) const;
+  virtual int childrenNumber() const;
+  virtual std::string toString() const;
   virtual Sptr<Token> token() const;
 
 protected:

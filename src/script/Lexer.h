@@ -18,6 +18,7 @@ public:
   Lexer(const icu::UnicodeString &text);
   virtual ~Lexer();
 
+  virtual void add(const icu::UnicodeString &text);
   virtual Sptr<Token> read();
   virtual Sptr<Token> peek(int pos);
   virtual std::string toString() const;
@@ -27,8 +28,9 @@ private:
 
   std::deque<Sptr<Token>> queue_;
   bool parse_;
+  int index_;
   int pos_;
-  icu::UnicodeString text_;
+  std::vector<icu::UnicodeString> text_;
 };
 
 } // namespace fastype

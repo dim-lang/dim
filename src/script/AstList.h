@@ -14,9 +14,9 @@ public:
   AstList(const std::vector<Sptr<AstTree>> &children);
   virtual ~AstList() = default;
 
-  virtual Sptr<AstTree> child(int i);
-  virtual int childrenNumber();
-  virtual std::string toString();
+  virtual Sptr<AstTree> child(int i) const;
+  virtual int childrenNumber() const;
+  virtual std::string toString() const;
 
 protected:
   std::vector<Sptr<AstTree>> children_;
