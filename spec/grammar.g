@@ -1,19 +1,21 @@
 grammar fastype;
 
 
-// expression-1: primary expression
+// expressions
+
 primaryExpr
     :   Identifier
-    |   Constant
+    |   IntegerConstant
+    |   FloatingConstant
+    |   BooleanConstant
     |   StringLiteral+
     |   '(' expression ')'
     ;
 
-// expression-2: postfix expression
 postExpr
     :   primaryExpr
     |   postExpr '[' expression ']'   // array indexing, for example: people[0]
-    |   postExpr '(' argumentExprList? ')'   // function call, for example: print("hello world", 10, 20)
+    |   postExpr '(' argumentExprList? ')'   // function call, for example: print(x="hello world", 10, 20)
     |   postExpr '.' Identifier   // get field, for example: student.score
     |   postExpr '++'
     |   postExpr '--'
@@ -24,7 +26,6 @@ argumentExprList
     |   argumentExprList ',' assignmentExpr
     ;
 
-// expression-3: unary expression
 unaryExpr
     :   postExpr
     |   '++' unaryExpr
@@ -33,10 +34,9 @@ unaryExpr
     ;
 
 unaryOperator
-    :   '&' | '*' | '+' | '-' | '~' | '!'
+    :   '+' | '-' | '~' | '!'
     ;
 
-// expression-5: multiplicative expression
 multipleExpr
     :   unaryExpr
     |   multipleExpr '*' unaryExpr
@@ -44,14 +44,12 @@ multipleExpr
     |   multipleExpr '%' unaryExpr
     ;
 
-// expression-6: additive expression
 addExpr
     :   multipleExpr
     |   addExpr '+' multipleExpr
     |   addExpr '-' multipleExpr
     ;
 
-// expression-7: relational expression
 relationExpr
     :   addExpr
     |   relationExpr '<' addExpr
@@ -60,29 +58,25 @@ relationExpr
     |   relationExpr '>=' addExpr
     ;
 
-// expression-8: equality expression
 eqExpr
     :   relationExpr
     |   eqExpr '==' relationExpr
     |   eqExpr '!=' relationExpr
     ;
 
-// expression-9: logical and expression
 andExpr
     :   addExpr
-    |   andExpr '&&' addExpr
+    |   andExpr 'and' addExpr
     ;
 
-// expression-10: logical or expression
 orExpr
     :   andExpr
-    |   orExpr '||' andExpr
+    |   orExpr 'or' andExpr
     ;
 
-// expression-11: assignment expression
 assignmentExpr
     :   orExpr
-    |   'let' Identifier assignmentOperator assignmentExpr
+    |   Identifier assignmentOperator assignmentExpr
     ;
 
 assignmentOperator
@@ -94,108 +88,42 @@ assignmentOperator
     | '-='
     ;
 
-// expression-12: expression
-expression
+expr
     :   orExpr
-    |   expression ',' orExpr
-    ;
-
-// declaration-1: declaration
-declaration
-    : 'let' initDeclaratorList ';'
-    | declarationSpecifiers ';'
-    ;
-
-declarationSpecifiers
-    :   declarationSpecifier+
-    ;
-
-declarationSpecifier
-    :   functionSpecifier
-    |   alignmentSpecifier
-    ;
-
-initDeclaratorList
-    :   initDeclarator
-    |   initDeclaratorList ',' initDeclarator
     ;
 
 initDeclarator
-    :   'let' declarator '=' initializer
-    ;
-
-structDeclaratorList
-    :   structDeclarator
-    |   structDeclaratorList ',' structDeclarator
-    ;
-
-declarator
-    :   directDeclarator
-    ;
-
-directDeclarator
-    :   Identifier
-    |   '(' declarator ')'
-    |   directDeclarator '[' assignmentExpr? ']'
-    |   directDeclarator '[' 'static' assignmentExpr ']'
-    |   directDeclarator '(' identifierList? ')'   // function call, like: print(x, y)
-    |   Identifier ':' DigitSequence  // bit field
-    ;
-
-parameterList
-    :   Identifier
-    |   parameterList ',' Identifier
-    ;
-
-identifierList
-    :   Identifier
-    |   identifierList ',' Identifier
-    ;
-
-abstractDeclarator
-    :   directAbstractDeclarator
-    ;
-
-directAbstractDeclarator
-    :   '(' abstractDeclarator ')'
-    |   '[' assignmentExpr? ']'
-    |   '(' parameterTypeList? ')'
-    |   directAbstractDeclarator '[' assignmentExpr? ']'
-    |   directAbstractDeclarator '(' parameterTypeList? ')'
-    ;
+    :   'let' Identifier '=' initializer
 
 initializer
-    :   assignmentExpr
-    |   '{' initializerList '}'
-    |   '{' initializerList ',' '}'
+    :   assignmentExpr   // single value
+    |   '[' arrayInitializerList? ']'     // array value, for example: [1, 2, 3]
+    |   '[' arrayInitializerList ',' ']'  // array value, for example: [1, 2, 3,]
+    |   '{' mapInitializerList '}'        // map value, for example: { "a":"b", "hello":"world" }
+    |   '{' mapInitializerList ',' '}'    // map value, for example: { "a":"b", "hello":"world", }
     ;
 
-initializerList
-    :   designation? initializer
-    |   initializerList ',' designation? initializer
+arrayInitializerList   // 1, 2, 3
+    :   initializer
+    |   arrayInitializerList ',' initializer
     ;
 
-designation
-    :   designatorList '='
+mapInitializerList   // "a":"b", "hello":"world"
+    :   mapInitializer
+    |   mapInitializer ',' mapInitializerList
     ;
 
-designatorList
-    :   designator
-    |   designatorList designator
+mapInitializer
+    :   initializer ':' initializer
     ;
 
-designator
-    :   '[' orExpr ']'
-    |   '.' Identifier
-    ;
-
-statement
+state
     :   '{' blockItemList? '}'
-    |   expressionStatement
-    |   selectionStatement
-    |   iterationStatement
-    |   jumpStatement
-    |   ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (orExpr (',' orExpr)*)? (':' (orExpr (',' orExpr)*)?)* ')' ';'
+    |   exprState
+    |   selectState
+    |   iterateState
+    |   jumpState
+    |   '(' orExpr ')' ';'
     ;
 
 blockItemList
@@ -204,173 +132,41 @@ blockItemList
     ;
 
 blockItem
-    :   statement
+    :   state
     ;
 
-expressionStatement
-    :   expression? ';'
+exprState
+    :   expr? ';'
     ;
 
-selectionStatement
-    :   'if' '(' expression ')' statement ('else' statement)?
-    |   'switch' '(' expression ')' statement
+selectState
+    :   'if' '(' expr ')' state ('else' state)?
     ;
 
-iterationStatement
-    :   While '(' expression ')' statement
-    |   Do statement While '(' expression ')' ';'
-    |   For '(' forCondition ')' statement
+iterateState
+    :   While '(' expr ')' state
+    |   For '(' forCondition ')' state
     ;
 
 forCondition
-	:   forDeclaration ';' forExpression? ';' forExpression?
-	|   expression? ';' forExpression? ';' forExpression?
-	;
+    :   forDeclaration ';' forExpression? ';' forExpression?
+    |   expr? ';' forExpression? ';' forExpression?
+    ;
 
 forDeclaration
-    :   declarationSpecifiers initDeclaratorList
-	| 	declarationSpecifiers
+    :   Identifier '=' expr
     ;
 
 forExpression
     :   assignmentExpr
-    |   forExpression ',' assignmentExpr
     ;
 
-jumpStatement
-    :   'goto' Identifier ';'
-    |   'continue' ';'
+jumpState
+    :   'continue' ';'
     |   'break' ';'
-    |   'return' expression? ';'
-    |   'goto' unaryExpr ';' // GCC extension
-    ;
-
-compilationUnit
-    :   translationUnit? EOF
-    ;
-
-translationUnit
-    :   externalDeclaration
-    |   translationUnit externalDeclaration
+    |   'return' expr? ';'
     ;
 
 functionDefinition
     :   'func' Identifier '(' identifierList ? ')' '{' blockItemList? '}'
-    ;
-
-declarationList
-    :   declaration
-    |   declarationList declaration
-    ;
-
-Auto : 'auto';
-Break : 'break';
-Case : 'case';
-Char : 'char';
-Const : 'const';
-Continue : 'continue';
-Default : 'default';
-Do : 'do';
-Double : 'double';
-Else : 'else';
-Enum : 'enum';
-Extern : 'extern';
-Float : 'float';
-For : 'for';
-Goto : 'goto';
-If : 'if';
-Inline : 'inline';
-Int : 'int';
-Long : 'long';
-Register : 'register';
-Restrict : 'restrict';
-Return : 'return';
-Short : 'short';
-Signed : 'signed';
-Sizeof : 'sizeof';
-Static : 'static';
-Struct : 'struct';
-Switch : 'switch';
-Typedef : 'typedef';
-Union : 'union';
-Unsigned : 'unsigned';
-Void : 'void';
-Volatile : 'volatile';
-While : 'while';
-
-Alignas : '_Alignas';
-Alignof : '_Alignof';
-Atomic : '_Atomic';
-Bool : '_Bool';
-Complex : '_Complex';
-Generic : '_Generic';
-Imaginary : '_Imaginary';
-Noreturn : '_Noreturn';
-StaticAssert : '_Static_assert';
-ThreadLocal : '_Thread_local';
-
-LeftParen : '(';
-RightParen : ')';
-LeftBracket : '[';
-RightBracket : ']';
-LeftBrace : '{';
-RightBrace : '}';
-
-Less : '<';
-LessEqual : '<=';
-Greater : '>';
-GreaterEqual : '>=';
-LeftShift : '<<';
-RightShift : '>>';
-
-Plus : '+';
-PlusPlus : '++';
-Minus : '-';
-MinusMinus : '--';
-Star : '*';
-Div : '/';
-Mod : '%';
-
-And : '&';
-Or : '|';
-AndAnd : '&&';
-OrOr : '||';
-Caret : '^';
-Not : '!';
-Tilde : '~';
-
-Question : '?';
-Colon : ':';
-Semi : ';';
-Comma : ',';
-
-Assign : '=';
-// '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
-StarAssign : '*=';
-DivAssign : '/=';
-ModAssign : '%=';
-PlusAssign : '+=';
-MinusAssign : '-=';
-LeftShiftAssign : '<<=';
-RightShiftAssign : '>>=';
-AndAssign : '&=';
-XorAssign : '^=';
-OrAssign : '|=';
-
-Equal : '==';
-NotEqual : '!=';
-
-Arrow : '->';
-Dot : '.';
-Ellipsis : '...';
-
-Constant
-    :   IntegerConstant
-    |   FloatingConstant
-    |   BooleanConstant
-    ;
-
-fragment
-Sign
-    :   '+' | '-'
     ;
