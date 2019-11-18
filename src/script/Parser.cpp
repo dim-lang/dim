@@ -42,9 +42,9 @@ Sptr<AstTree> Parser::term() {
 
 Sptr<AstTree> Parser::factor() {
   Sptr<Token> t = token_;
-  if (t.type() == TT_INTEGER) {
-    eat(TT_INTEGER);
-    return new Num(t);
+  if (t.type() == Token::TokenType::TT_INTEGER) {
+    eat(Token::TokenType::TT_INTEGER);
+    return Sptr<AstTree>(new IntegerConstant(t));
   } else if (t.type() == TT_LPAREN) {
     eat(TT_LPAREN);
     Ast *node = expr();

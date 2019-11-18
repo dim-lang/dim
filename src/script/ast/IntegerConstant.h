@@ -13,7 +13,7 @@ namespace fastype {
 
 class IntegerConstant : public AstTree {
 public:
-  IntegerConstant(Sptr<AstTree> op, Sptr<AstTree> expr);
+  IntegerConstant(Sptr<Token> token);
   virtual ~IntegerConstant() = default;
   virtual Sptr<AstTree> op() const;
   virtual Sptr<AstTree> expr() const;
@@ -21,8 +21,7 @@ public:
   virtual std::string name() const;
 
 private:
-  Sptr<AstTree> op_;
-  Sptr<AstTree> expr_;
+  Sptr<Token> token_;
 };
 
 } // namespace fastype
