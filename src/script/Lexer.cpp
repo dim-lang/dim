@@ -353,32 +353,34 @@ void Lexer::readImpl() {
     } break;
     case (UChar)'*': // *
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-        parseConstToken(i, Token::T_MULASSIGN, queue_, 2);
-      } else {
-        parseConstToken(i, Token::T_MUL, queue_);
-      }
+      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+      // parseConstToken(i, Token::T_MULASSIGN, queue_, 2);
+      //} else {
+      parseConstToken(i, Token::T_MUL, queue_);
+      //}
       return;
     } break;
-    case (UChar)'/': // operator / /= or comment // /*
+    case (UChar)'/': // /
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-        parseConstToken(i, Token::T_DIVASSIGN, queue_, 2);
-      } else if (i + 1 < text_.length() &&
-                 (text_.charAt(i + 1) == (UChar)'/' ||
-                  text_.charAt(i + 1) == (UChar)'*')) {
-        parseComment(text_, i);
-      } else {
-        parseConstToken(i, Token::T_DIV, queue_);
-      }
+      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+      // parseConstToken(i, Token::T_DIVASSIGN, queue_, 2);
+      //} else if (i + 1 < text_.length() &&
+      //(text_.charAt(i + 1) == (UChar)'/' ||
+      // text_.charAt(i + 1) == (UChar)'*')) {
+      // parseComment(text_, i);
+      //} else {
+      parseConstToken(i, Token::T_DIV, queue_);
+      //}
+      return;
     } break;
-    case (UChar)'%': // % %=
+    case (UChar)'%': // %
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-        parseConstToken(i, Token::T_MODASSIGN, queue_, 2);
-      } else {
-        parseConstToken(i, Token::T_MOD, queue_);
-      }
+      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
+      // parseConstToken(i, Token::T_MODASSIGN, queue_, 2);
+      //} else {
+      parseConstToken(i, Token::T_MOD, queue_);
+      //}
+      return;
     } break;
     case (UChar)'0': // number
     case (UChar)'1':
@@ -393,6 +395,7 @@ void Lexer::readImpl() {
       parseNumber(text_, i, queue_);
       return;
     } break;
+      /*
     case (UChar)'"': // string or char
       parseString(text_, i, queue_);
       break;
@@ -505,12 +508,16 @@ void Lexer::readImpl() {
     case (UChar)':':
       parseConstToken(i, Token::T_COLON, queue_);
       break;
-    case (UChar)'(':
+    */
+    case (UChar)'(': {
       parseConstToken(i, Token::T_LP, queue_);
-      break;
-    case (UChar)')':
+      return;
+    } break;
+    case (UChar)')': {
       parseConstToken(i, Token::T_RP, queue_);
-      break;
+      return;
+    } break;
+    /*
     case (UChar)'[':
       parseConstToken(i, Token::T_LBRACKET, queue_);
       break;
@@ -523,12 +530,13 @@ void Lexer::readImpl() {
     case (UChar)'}':
       parseConstToken(i, Token::T_RBRACE, queue_);
       break;
+    */
     default:
       F_CHECK(false, "unknown token at text_[{}]: {}", i,
               F_SUB_STRING(text_, i, _1));
     }
   }
-} // namespace fastype
+}
 
 } // namespace fastype
 
