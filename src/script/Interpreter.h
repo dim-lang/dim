@@ -11,7 +11,7 @@ namespace fastype {
 class Interpreter : public NodeVisitor {
 public:
   Interpreter(Sptr<Parser> parser);
-  virtual ~Interpreter() = default;
+  virtual ~Interpreter();
 
   virtual long long visit(Ast *node);
   virtual long long visitBinaryOp(Ast *node);
@@ -21,6 +21,9 @@ public:
   long long interpret();
 
 private:
+  void releaseTree();
+
+  Ast *tree_;
   Sptr<Parser> parser_;
 };
 
