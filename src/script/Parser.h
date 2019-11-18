@@ -1,0 +1,33 @@
+// Copyright 2019- <fastype.org>
+// Apache License Version 2.0
+
+#pragma once
+#include "SmartPointer.h"
+#include "Stringify.h"
+#include "script/Token.h"
+#include <deque>
+#include <unicode/numfmt.h>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
+
+namespace fastype {
+
+class Parser : public Stringify {
+public:
+  Parser(Sptr<Lexer> lexer);
+  virtual ~Parser() = default;
+  Sptr<AstTree> parse();
+  virtual std::string toString() const;
+
+private:
+  void eat(Token::TokenType tokenType);
+  Sptr<AstTree> expr();
+  Sptr<AstTree> term();
+  Sptr<AstTree> factor();
+
+  Sptr<Token> token_;
+  Sptr<Lexer> lexer_;
+};
+
+} // namespace fastype
