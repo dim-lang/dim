@@ -6,18 +6,16 @@
 
 namespace fastype {
 
-IntegerConstant::IntegerConstant(Sptr<AstTree> op, Sptr<AstTree> expr)
-    : op_(op), expr_(expr) {}
+IntegerConstant::IntegerConstant(Sptr<Token> token) : token_(token) {}
 
-Sptr<AstTree> IntegerConstant::op() const { return op_; }
-
-Sptr<AstTree> IntegerConstant::expr() const { return expr_; }
+long long IntegerConstant::value() const { return token_->integer(); }
 
 std::string IntegerConstant::toString() const {
-  return fmt::format("[ @IntegerConstant op_:{}, expr_:{} ]", op_->toString(),
-                     expr_->toString());
+  return fmt::format("[ @IntegerConstant token_:{} ]", token_->toString());
 }
 
-std::string IntegerConstant::name() const { return "IntegerConstant"; }
+Ast::AstType IntegerConstant::type() const {
+  return Ast::AstType::INTEGER_CONSTANT;
+}
 
 } // namespace fastype

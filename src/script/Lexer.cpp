@@ -321,64 +321,68 @@ void Lexer::readImpl() {
     if (parseWhitespace(text_, pos_)) {
       continue;
     }
-    // if (parseKeyword(text_, i, queue_)) {
+    // if (parseKeyword(text_, pos_, queue_)) {
     // return;
     //}
-    switch (text_.charAt(i)) {
+    switch (text_.charAt(pos_)) {
     case (UChar)'+': // +
     {
-      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'+') {
-      // parseConstToken(i, Token::T_INC, queue_, 2);
-      //} else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=')
-      //{ parseConstToken(i, Token::T_ADDASSIGN, queue_, 2);
-      //} else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
-      // parseNumber(text_, i, queue_);
+      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'+')
+      // { parseConstToken(pos_, Token::T_INC, queue_, 2);
+      //} else if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) ==
+      //(UChar)'=') { parseConstToken(pos_, Token::T_ADDASSIGN, queue_, 2); }
+      // else if (pos_ + 1 < text_.length() && u_isdigit(text_.charAt(pos_ +
+      // 1)))
+      //{
+      // parseNumber(text_, pos_, queue_);
       //} else {
-      parseConstToken(i, Token::T_ADD, queue_);
+      parseConstToken(pos_, Token::T_ADD, queue_);
       //}
       return;
     } break;
     case (UChar)'-': // -
     {
-      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'-') {
-      // parseConstToken(i, Token::T_DEC, queue_, 2);
-      //} else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=')
-      //{ parseConstToken(i, Token::T_SUBASSIGN, queue_, 2);
-      //} else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
-      // parseNumber(text_, i, queue_);
+      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'-')
+      // { parseConstToken(pos_, Token::T_DEC, queue_, 2);
+      //} else if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) ==
+      //(UChar)'=') { parseConstToken(pos_, Token::T_SUBASSIGN, queue_, 2); }
+      // else if (pos_ + 1 < text_.length() && u_isdigit(text_.charAt(pos_ +
+      // 1)))
+      //{
+      // parseNumber(text_, pos_, queue_);
       //} else {
-      parseConstToken(i, Token::T_SUB, queue_);
+      parseConstToken(pos_, Token::T_SUB, queue_);
       //}
       return;
     } break;
     case (UChar)'*': // *
     {
-      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-      // parseConstToken(i, Token::T_MULASSIGN, queue_, 2);
+      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
+      // { parseConstToken(pos_, Token::T_MULASSIGN, queue_, 2);
       //} else {
-      parseConstToken(i, Token::T_MUL, queue_);
+      parseConstToken(pos_, Token::T_MUL, queue_);
       //}
       return;
     } break;
     case (UChar)'/': // /
     {
-      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-      // parseConstToken(i, Token::T_DIVASSIGN, queue_, 2);
-      //} else if (i + 1 < text_.length() &&
-      //(text_.charAt(i + 1) == (UChar)'/' ||
-      // text_.charAt(i + 1) == (UChar)'*')) {
-      // parseComment(text_, i);
+      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
+      // { parseConstToken(pos_, Token::T_DIVASSIGN, queue_, 2);
+      //} else if (pos_ + 1 < text_.length() &&
+      //(text_.charAt(pos_ + 1) == (UChar)'/' ||
+      // text_.charAt(pos_ + 1) == (UChar)'*')) {
+      // parseComment(text_, pos_);
       //} else {
-      parseConstToken(i, Token::T_DIV, queue_);
+      parseConstToken(pos_, Token::T_DIV, queue_);
       //}
       return;
     } break;
     case (UChar)'%': // %
     {
-      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-      // parseConstToken(i, Token::T_MODASSIGN, queue_, 2);
+      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
+      // { parseConstToken(pos_, Token::T_MODASSIGN, queue_, 2);
       //} else {
-      parseConstToken(i, Token::T_MOD, queue_);
+      parseConstToken(pos_, Token::T_MOD, queue_);
       //}
       return;
     } break;
@@ -392,53 +396,53 @@ void Lexer::readImpl() {
     case (UChar)'7':
     case (UChar)'8':
     case (UChar)'9': {
-      parseNumber(text_, i, queue_);
+      parseNumber(text_, pos_, queue_);
       return;
     } break;
       /*
     case (UChar)'"': // string or char
-      parseString(text_, i, queue_);
+      parseString(text_, pos_, queue_);
       break;
     case (UChar)'=': // = or ==
-      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("==")) {
-        parseConstToken(i, Token::T_EQ, queue_, 2);
+      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("==")) {
+        parseConstToken(pos_, Token::T_EQ, queue_, 2);
       } else {
-        parseConstToken(i, Token::T_ASSIGNMENT, queue_);
+        parseConstToken(pos_, Token::T_ASSIGNMENT, queue_);
       }
       break;
     case (UChar)'!': // ! or !=
-      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("!=")) {
-        parseConstToken(i, Token::T_NEQ, queue_, 2);
+      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("!=")) {
+        parseConstToken(pos_, Token::T_NEQ, queue_, 2);
       } else {
-        parseConstToken(i, Token::T_NOT, queue_);
+        parseConstToken(pos_, Token::T_NOT, queue_);
       }
       break;
     case (UChar)'<': // < or <=
-      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE("<=")) {
-        parseConstToken(i, Token::T_LE, queue_, 2);
+      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("<=")) {
+        parseConstToken(pos_, Token::T_LE, queue_, 2);
       } else {
-        parseConstToken(i, Token::T_LT, queue_);
+        parseConstToken(pos_, Token::T_LT, queue_);
       }
       break;
     case (UChar)'>': // > or >=
-      if (text_.tempSubString(i, 2) == UNICODE_STRING_SIMPLE(">=")) {
-        parseConstToken(i, Token::T_GE, queue_, 2);
+      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE(">=")) {
+        parseConstToken(pos_, Token::T_GE, queue_, 2);
       } else {
-        parseConstToken(i, Token::T_GT, queue_);
+        parseConstToken(pos_, Token::T_GT, queue_);
       }
       break;
     case (UChar)'T': // True or identifier
-      if (text_.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
-        parseConstToken(i, Token::T_TRUE, queue_, 4);
+      if (text_.tempSubString(pos_, 4) == UNICODE_STRING_SIMPLE("True")) {
+        parseConstToken(pos_, Token::T_TRUE, queue_, 4);
       } else {
-        parseIdentifier(text_, i, queue_);
+        parseIdentifier(text_, pos_, queue_);
       }
       break;
     case (UChar)'F': // False or identifier
-      if (text_.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
-        parseConstToken(i, Token::T_FALSE, queue_, 5);
+      if (text_.tempSubString(pos_, 5) == UNICODE_STRING_SIMPLE("False")) {
+        parseConstToken(pos_, Token::T_FALSE, queue_, 5);
       } else {
-        parseIdentifier(text_, i, queue_);
+        parseIdentifier(text_, pos_, queue_);
       }
       break;
     case (UChar)'A':
@@ -494,46 +498,46 @@ void Lexer::readImpl() {
     case (UChar)'y':
     case (UChar)'z':
     case (UChar)'_':
-      parseIdentifier(text_, i, queue_);
+      parseIdentifier(text_, pos_, queue_);
       break;
     case (UChar)',':
-      parseConstToken(i, Token::T_COMMA, queue_);
+      parseConstToken(pos_, Token::T_COMMA, queue_);
       break;
     case (UChar)';':
-      parseConstToken(i, Token::T_SEMI, queue_);
+      parseConstToken(pos_, Token::T_SEMI, queue_);
       break;
     case (UChar)'?':
-      parseConstToken(i, Token::T_QUESTION, queue_);
+      parseConstToken(pos_, Token::T_QUESTION, queue_);
       break;
     case (UChar)':':
-      parseConstToken(i, Token::T_COLON, queue_);
+      parseConstToken(pos_, Token::T_COLON, queue_);
       break;
     */
     case (UChar)'(': {
-      parseConstToken(i, Token::T_LP, queue_);
+      parseConstToken(pos_, Token::T_LP, queue_);
       return;
     } break;
     case (UChar)')': {
-      parseConstToken(i, Token::T_RP, queue_);
+      parseConstToken(pos_, Token::T_RP, queue_);
       return;
     } break;
     /*
     case (UChar)'[':
-      parseConstToken(i, Token::T_LBRACKET, queue_);
+      parseConstToken(pos_, Token::T_LBRACKET, queue_);
       break;
     case (UChar)']':
-      parseConstToken(i, Token::T_RBRACKET, queue_);
+      parseConstToken(pos_, Token::T_RBRACKET, queue_);
       break;
     case (UChar)'{':
-      parseConstToken(i, Token::T_LBRACE, queue_);
+      parseConstToken(pos_, Token::T_LBRACE, queue_);
       break;
     case (UChar)'}':
-      parseConstToken(i, Token::T_RBRACE, queue_);
+      parseConstToken(pos_, Token::T_RBRACE, queue_);
       break;
     */
     default:
-      F_CHECK(false, "unknown token at text_[{}]: {}", i,
-              F_SUB_STRING(text_, i, _1));
+      F_CHECK(false, "unknown token at text_[{}]: {}", pos_,
+              F_SUB_STRING(text_, pos_, _1));
     }
   }
 }

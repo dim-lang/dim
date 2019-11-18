@@ -6,20 +6,20 @@
 
 namespace fastype {
 
-BinaryOp::BinaryOp(Sptr<AstTree> left, Sptr<AstTree> op, Sptr<AstTree> right)
+BinaryOp::BinaryOp(Ast *left, Sptr<Token> op, Ast *right)
     : left_(left), op_(op), right_(right) {}
 
-Sptr<AstTree> BinaryOp::left() const { return left_; }
+Ast *BinaryOp::left() const { return left_; }
 
-Sptr<AstTree> BinaryOp::op() const { return op_; }
+Sptr<Token> BinaryOp::op() const { return op_; }
 
-Sptr<AstTree> BinaryOp::right() const { return right_; }
+Ast *BinaryOp::right() const { return right_; }
 
 std::string BinaryOp::toString() const {
   return fmt::format("[ @BinaryOp left_:{}, op_:{}, right_:{} ]",
                      left_->toString(), op_->toString(), right_->toString());
 }
 
-std::string BinaryOp::name() const { return "BinaryOp"; }
+Ast::AstType BinaryOp::type() const { Ast::AstType::BINARY_OP; }
 
 } // namespace fastype

@@ -3,7 +3,7 @@
 
 #pragma once
 #include "SmartPointer.h"
-#include "script/AstTree.h"
+#include "script/Ast.h"
 #include "script/Token.h"
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
@@ -11,18 +11,18 @@
 
 namespace fastype {
 
-class UnaryOp : public AstTree {
+class UnaryOp : public Ast {
 public:
-  UnaryOp(Sptr<AstTree> op, Sptr<AstTree> expr);
+  UnaryOp(Sptr<Token> op, Ast *expr);
   virtual ~UnaryOp() = default;
-  virtual Sptr<AstTree> op() const;
-  virtual Sptr<AstTree> expr() const;
+  virtual Sptr<Token> op() const;
+  virtual Ast *expr() const;
   virtual std::string toString() const;
-  virtual std::string name() const;
+  virtual Ast::AstType type() const;
 
 private:
-  Sptr<AstTree> op_;
-  Sptr<AstTree> expr_;
+  Sptr<Token> op_;
+  Ast *expr_;
 };
 
 } // namespace fastype

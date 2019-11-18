@@ -4,6 +4,8 @@
 #pragma once
 #include "SmartPointer.h"
 #include "Stringify.h"
+#include "script/Ast.h"
+#include "script/Lexer.h"
 #include "script/Token.h"
 #include <deque>
 #include <unicode/numfmt.h>
@@ -17,14 +19,15 @@ class Parser : public Stringify {
 public:
   Parser(Sptr<Lexer> lexer);
   virtual ~Parser() = default;
-  Sptr<AstTree> parse();
+  Ast *parse();
   virtual std::string toString() const;
 
 private:
   void eat(Token::TokenType tokenType);
-  Sptr<AstTree> expr();
-  Sptr<AstTree> term();
-  Sptr<AstTree> factor();
+  void eat(Sptr<Token> token);
+  Ast *expr();
+  Ast *term();
+  Ast *factor();
 
   Sptr<Token> token_;
   Sptr<Lexer> lexer_;

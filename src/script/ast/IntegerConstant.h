@@ -3,7 +3,7 @@
 
 #pragma once
 #include "SmartPointer.h"
-#include "script/AstTree.h"
+#include "script/Ast.h"
 #include "script/Token.h"
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
@@ -11,14 +11,13 @@
 
 namespace fastype {
 
-class IntegerConstant : public AstTree {
+class IntegerConstant : public Ast {
 public:
   IntegerConstant(Sptr<Token> token);
   virtual ~IntegerConstant() = default;
-  virtual Sptr<AstTree> op() const;
-  virtual Sptr<AstTree> expr() const;
+  virtual long long value() const;
   virtual std::string toString() const;
-  virtual std::string name() const;
+  virtual Ast::AstType type() const;
 
 private:
   Sptr<Token> token_;

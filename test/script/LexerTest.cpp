@@ -38,34 +38,45 @@ TEST_CASE("Lexer", "[Lexer]") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
     fastype::Lexer lex(data);
-    REQUIRE(lex.peek(0)->isIdentifier());
-    REQUIRE(lex.peek(0)->literal() == UNICODE_STRING_SIMPLE("x"));
-    REQUIRE(lex.peek(1) == fastype::Token::T_ASSIGNMENT);
-    REQUIRE(lex.peek(2)->isInteger());
-    REQUIRE(lex.peek(2)->integer() == 1);
-    REQUIRE(lex.peek(3)->isIdentifier());
-    REQUIRE(lex.peek(3)->literal() == UNICODE_STRING_SIMPLE("a"));
-    REQUIRE(lex.peek(4) == fastype::Token::T_ASSIGNMENT);
-    REQUIRE(lex.peek(5)->isString());
-    REQUIRE(lex.peek(5)->literal() == UNICODE_STRING_SIMPLE("\"hello world\""));
-    REQUIRE(lex.peek(6)->isPunctuation());
-    REQUIRE(lex.peek(6) == fastype::Token::T_SEMI);
+    fastype::Sptr<fastype::Token> t = lex.read();
+    REQUIRE(t->isIdentifier());
+    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("x"));
+    t = lex.read();
+    REQUIRE(t == fastype::Token::T_ASSIGNMENT);
+    t = lex.read();
+    REQUIRE(t->isInteger());
+    REQUIRE(t->integer() == 1);
+    t = lex.read();
+    REQUIRE(t->isIdentifier());
+    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("a"));
+    t = lex.read();
+    REQUIRE(t == fastype::Token::T_ASSIGNMENT);
+    t = lex.read();
+    REQUIRE(t->isString());
+    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("\"hello world\""));
+    t = lex.read();
+    REQUIRE(t->isPunctuation());
+    REQUIRE(t == fastype::Token::T_SEMI);
   }
   SECTION("LexerTest2.fast") {
     icu::UnicodeString data =
         readFile(UNICODE_STRING_SIMPLE("test/script/LexerTest2.fast"));
     fastype::Lexer lex(data);
-    REQUIRE(lex.peek(0)->isKeyword());
-    REQUIRE(lex.peek(0) == fastype::Token::T_FOR);
-    REQUIRE(lex.peek(1)->isPunctuation());
-    REQUIRE(lex.peek(1) == fastype::Token::T_LP);
-    REQUIRE(lex.peek(2)->isIdentifier());
-    REQUIRE(lex.peek(2)->literal() == UNICODE_STRING_SIMPLE("i"));
-    REQUIRE(lex.peek(3) == fastype::Token::T_ASSIGNMENT);
-    REQUIRE(lex.peek(4)->isInteger());
-    REQUIRE(lex.peek(4)->integer() == 0);
-    REQUIRE(lex.peek(5) == fastype::Token::T_SEMI);
-    REQUIRE(lex.peek(11) == fastype::Token::T_INC);
-    REQUIRE(lex.peek(15) == fastype::Token::T_ADDASSIGN);
+    fastype::Sptr<fastype::Token> t = lex.read();
+    REQUIRE(t->isKeyword());
+    REQUIRE(t == fastype::Token::T_FOR);
+    t = lex.read();
+    REQUIRE(t->isPunctuation());
+    REQUIRE(t == fastype::Token::T_LP);
+    t = lex.read();
+    REQUIRE(t->isIdentifier());
+    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("i"));
+    t = lex.read();
+    REQUIRE(t == fastype::Token::T_ASSIGNMENT);
+    t = lex.read();
+    REQUIRE(t->isInteger());
+    REQUIRE(t->integer() == 0);
+    t = lex.read();
+    REQUIRE(t == fastype::Token::T_SEMI);
   }
 }

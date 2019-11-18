@@ -62,6 +62,12 @@ set(F_CORE
 
     script/Token.cpp
     script/Lexer.cpp
+    script/Parser.cpp
+    script/Interpreter.cpp
+    script/ast/BinaryOp.cpp
+    script/ast/UnaryOp.cpp
+    script/ast/IntegerConstant.cpp
+    script/ast/FloatingConstant.cpp
     script/token/AssignmentToken.cpp
     script/token/BooleanToken.cpp
     script/token/ComparatorToken.cpp
