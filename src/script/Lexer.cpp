@@ -23,41 +23,32 @@
 
 namespace fastype {
 
-Lexer::Lexer(const icu::UnicodeString &text)
-    : queue_(), parse_(false), pos_(0), text_(text) {}
-
-std::string Lexer::toString() const {
-  std::string _1;
-  return fmt::format("[ @Lexer queue_#size:{}, parse_:{}, pos_:{}, text_:{} ]",
-                     queue_.size(), parse_, pos_, F_SUB_STRING(text_, 0, _1));
-}
+Lexer::Lexer(const icu::UnicodeString &text) : pos_(0), text_(text) {}
 
 Lexer::~Lexer() {
   while (!queue_.empty()) {
     queue_.pop_front();
   }
   queue_.clear();
+  queue_.shrink_to_fit();
 }
 
-Sptr<Token> Lexer::read() {
-  parse();
-  return pos_ >= (int)queue_.size() ? Token::T_EOF : queue_[pos_++];
-}
-
-Sptr<Token> Lexer::peek(int pos) {
-  parse();
-  return pos >= (int)queue_.size() ? Token::T_EOF : queue_[pos];
+std::string Lexer::toString() const {
+  std::string _1;
+  return fmt::format("[ @Lexer pos_:{}, text_:{} ]", pos_,
+                     F_SUB_STRING(text_, 0, _1));
 }
 
 // parse whitespace
 // @return   true if is whitespace and skipped
 //           false if not
 static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
-  if (u_isspace(text.charAt(i))) {
+  bool parsed = false;
+  while (u_isspace(text.charAt(i))) {
     i += 1;
-    return true;
+    parsed = true;
   }
-  return false;
+  return parsed;
 }
 
 // parse keyword
@@ -195,19 +186,23 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
       j++;
       continue;
     }
+    // floating number: 23.91
     if (text.charAt(j) == (UChar)'.') {
       j++;
       dotCount++;
       continue;
     }
+    // exp: 12e8
     if (text.charAt(j) == (UChar)'e' || text.charAt(j) == (UChar)'E') {
       j++;
       expCount++;
-      continue;
-    }
-    if (text.charAt(j) == (UChar)'+' || text.charAt(j) == (UChar)'-') {
-      j++;
-      flagCount++;
+
+      // exp with flag: 3E+5
+      if (j + 1 < text.length() && (text.charAt(j + 1) == (UChar)'+' ||
+                                    text.charAt(j + 1) == (UChar)'-')) {
+        j++;
+        flagCount++;
+      }
       continue;
     }
     break;
@@ -308,65 +303,63 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
   i = j;
 }
 
-void Lexer::parse() {
-  if (parse_) {
-    return;
-  }
+Sptr<Token> Lexer::read() {
+  readImpl();
 
+  if (queue_.empty()) {
+    Sptr<Token> t = queue_.front();
+    queue_.pop_front();
+    return t;
+  }
+  return Token::T_EOF;
+}
+
+void Lexer::readImpl() {
   std::string _1;
 
-  int i = 0;
-  while (i < text_.length()) {
-    if (parseWhitespace(text_, i)) {
+  while (pos_ < text_.length()) {
+    if (parseWhitespace(text_, pos_)) {
       continue;
     }
-    if (parseKeyword(text_, i, queue_)) {
-      continue;
-    }
+    // if (parseKeyword(text_, i, queue_)) {
+    // return;
+    //}
     switch (text_.charAt(i)) {
-    case (UChar)'+': // + ++ += number
+    case (UChar)'+': // +
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'+') {
-        parseConstToken(i, Token::T_INC, queue_, 2);
-      } else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-        parseConstToken(i, Token::T_ADDASSIGN, queue_, 2);
-      } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
-        parseNumber(text_, i, queue_);
-      } else {
-        parseConstToken(i, Token::T_ADD, queue_);
-      }
+      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'+') {
+      // parseConstToken(i, Token::T_INC, queue_, 2);
+      //} else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=')
+      //{ parseConstToken(i, Token::T_ADDASSIGN, queue_, 2);
+      //} else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+      // parseNumber(text_, i, queue_);
+      //} else {
+      parseConstToken(i, Token::T_ADD, queue_);
+      //}
+      return;
     } break;
-    case (UChar)'-': // - -- -= number
+    case (UChar)'-': // -
     {
-      if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'-') {
-        parseConstToken(i, Token::T_DEC, queue_, 2);
-      } else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
-        parseConstToken(i, Token::T_SUBASSIGN, queue_, 2);
-      } else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
-        parseNumber(text_, i, queue_);
-      } else {
-        parseConstToken(i, Token::T_SUB, queue_);
-      }
+      // if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'-') {
+      // parseConstToken(i, Token::T_DEC, queue_, 2);
+      //} else if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=')
+      //{ parseConstToken(i, Token::T_SUBASSIGN, queue_, 2);
+      //} else if (i + 1 < text_.length() && u_isdigit(text_.charAt(i + 1))) {
+      // parseNumber(text_, i, queue_);
+      //} else {
+      parseConstToken(i, Token::T_SUB, queue_);
+      //}
+      return;
     } break;
-    case (UChar)'0': // number
-    case (UChar)'1':
-    case (UChar)'2':
-    case (UChar)'3':
-    case (UChar)'4':
-    case (UChar)'5':
-    case (UChar)'6':
-    case (UChar)'7':
-    case (UChar)'8':
-    case (UChar)'9':
-      parseNumber(text_, i, queue_);
-      break;
     case (UChar)'*': // *
+    {
       if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
         parseConstToken(i, Token::T_MULASSIGN, queue_, 2);
       } else {
         parseConstToken(i, Token::T_MUL, queue_);
       }
-      break;
+      return;
+    } break;
     case (UChar)'/': // operator / /= or comment // /*
     {
       if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
@@ -380,12 +373,26 @@ void Lexer::parse() {
       }
     } break;
     case (UChar)'%': // % %=
+    {
       if (i + 1 < text_.length() && text_.charAt(i + 1) == (UChar)'=') {
         parseConstToken(i, Token::T_MODASSIGN, queue_, 2);
       } else {
         parseConstToken(i, Token::T_MOD, queue_);
       }
-      break;
+    } break;
+    case (UChar)'0': // number
+    case (UChar)'1':
+    case (UChar)'2':
+    case (UChar)'3':
+    case (UChar)'4':
+    case (UChar)'5':
+    case (UChar)'6':
+    case (UChar)'7':
+    case (UChar)'8':
+    case (UChar)'9': {
+      parseNumber(text_, i, queue_);
+      return;
+    } break;
     case (UChar)'"': // string or char
       parseString(text_, i, queue_);
       break;
@@ -521,8 +528,7 @@ void Lexer::parse() {
               F_SUB_STRING(text_, i, _1));
     }
   }
-  parse_ = true;
-}
+} // namespace fastype
 
 } // namespace fastype
 

@@ -3,30 +3,26 @@
 
 #pragma once
 #include "SmartPointer.h"
-#include "Stringify.h"
+#include "script/AstTree.h"
 #include "script/Token.h"
-#include <deque>
-#include <unicode/numfmt.h>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
 
 namespace fastype {
 
-class Lexer : public Stringify {
+class IntegerConstant : public AstTree {
 public:
-  Lexer(const icu::UnicodeString &text);
-  virtual ~Lexer();
-  Sptr<Token> read();
+  IntegerConstant(Sptr<AstTree> op, Sptr<AstTree> expr);
+  virtual ~IntegerConstant() = default;
+  virtual Sptr<AstTree> op() const;
+  virtual Sptr<AstTree> expr() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
 private:
-  void readImpl();
-
-  int pos_;
-  icu::UnicodeString text_;
-  icu::UnicodeString currentChar_;
-  std::deque<Sptr<Token>> queue_;
+  Sptr<AstTree> op_;
+  Sptr<AstTree> expr_;
 };
 
 } // namespace fastype

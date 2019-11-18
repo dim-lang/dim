@@ -95,6 +95,7 @@ public:
   void clear() {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     map_.clear();
+    map_.shrink_to_fit();
   }
 
   int size() const {

@@ -59,7 +59,6 @@ bool Option::hasHelp() const { return varMap_.count(F_OPT_HELP); }
 
 std::string Option::help() const {
   std::stringstream ss;
-  ss.clear();
   ss << optDesc_;
   return ss.str();
 }
