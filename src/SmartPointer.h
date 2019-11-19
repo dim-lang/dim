@@ -50,7 +50,6 @@ public:
 
   Sptr &operator=(const Sptr<T> &sp) {
     if (this == &sp) {
-      F_INFO("Copy Assign self:{}", toString());
       return *this;
     }
     (*pc_)--;
@@ -65,7 +64,6 @@ public:
     F_CHECK(pc_, "pc_ {} != nullptr", (void *)pc_);
     (*pc_)++;
     F_CHECK(pc_->get() >= 1, "pc_->get {} >= 1", pc_->get());
-    F_INFO("Copy Assign:{}", toString());
     return *this;
   }
 
@@ -89,11 +87,9 @@ public:
 
   Sptr &operator=(Sptr<T> &&sp) {
     if (this == &sp) {
-      F_INFO("Move Assign self:{}", toString());
       return *this;
     }
     swap(sp);
-    F_INFO("Move Assign:{}", toString());
     return *this;
   }
 
@@ -105,13 +101,9 @@ public:
       delete pc_;
       pc_ = nullptr;
     }
-    F_INFO("Destructor:{}", toString());
   }
 
-  int32_t useCount() const {
-    F_INFO("{}", toString());
-    return pc_->get();
-  }
+  int32_t useCount() const { return pc_->get(); }
 
   // release the old resource if reference count = 0
   // bind with the new resource and set reference count = 1
@@ -127,13 +119,11 @@ public:
     // if (p) {
     (*pc_)++;
     //}
-    F_INFO("{}", toString());
   }
 
   void swap(Sptr<T> &sp) {
     std::swap(ptr_, sp.ptr_);
     std::swap(pc_, sp.pc_);
-    F_INFO("{}", toString());
   }
 
   explicit operator bool() const { return ptr_; }
@@ -187,34 +177,21 @@ public:
   Uptr(Uptr<T> &&up) : Uptr() { swap(up); }
 
   Uptr &operator=(Uptr<T> &&up) {
-    F_INFO("Move Assign enter:{}", toString());
     if (this == &up) {
-      F_INFO("Move Assign self:{}", toString());
       return *this;
     }
     swap(up);
-    F_INFO("Move Assign:{}", toString());
     return *this;
   }
 
-  virtual ~Uptr() {
-    F_INFO("Destructor enter:{}", toString());
-    release();
-    F_INFO("Destructor:{}", toString());
-  }
+  virtual ~Uptr() { release(); }
 
   void reset(T *p = nullptr) {
-    F_INFO("enter:{}", toString());
     release();
     ptr_ = p;
-    F_INFO("{}", toString());
   }
 
-  void swap(Uptr<T> &up) {
-    F_INFO("enter:{}", toString());
-    std::swap(ptr_, up.ptr_);
-    F_INFO("{}", toString());
-  }
+  void swap(Uptr<T> &up) { std::swap(ptr_, up.ptr_); }
 
   explicit operator bool() const { return ptr_; }
   T &operator*() const { return *ptr_; }
@@ -227,12 +204,10 @@ public:
 
 private:
   void release() {
-    F_INFO("enter:{}", toString());
     if (ptr_) {
       delete ptr_;
       ptr_ = nullptr;
     }
-    F_INFO("{}", toString());
   }
 
   T *ptr_;

@@ -34,9 +34,6 @@ message(F_LIB: ${F_LIB})
 
 include_directories(${F_INC})
 include_directories(../src)
-include_directories(../src/spdlog/include)
-include_directories(../src/boost)
-include_directories(../src/icu/icu4c/source)
 link_directories(${F_LIB_DIR})
 link_directories(../src)
 
@@ -49,3 +46,8 @@ add_executable(fastype-CursesPanelExample CursesPanelExample.cpp)
 target_include_directories(fastype-CursesPanelExample PRIVATE ${F_INC})
 target_link_libraries(fastype-CursesPanelExample ${F_LIB} fastypecore)
 set_target_properties(fastype-CursesPanelExample PROPERTIES VERSION ${PROJECT_VERSION})
+
+add_executable(fastype-icuu_fgets icuu_fgets.cpp)
+target_include_directories(fastype-icuu_fgets PRIVATE ${F_INC})
+target_link_libraries(fastype-icuu_fgets ${F_LIB} fastypecore)
+set_target_properties(fastype-icuu_fgets PROPERTIES VERSION ${PROJECT_VERSION})
