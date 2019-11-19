@@ -20,6 +20,6 @@ std::string BinaryOp::toString() const {
                      left_->toString(), op_->toString(), right_->toString());
 }
 
-Ast::AstType BinaryOp::type() const { Ast::AstType::BINARY_OP; }
+Ast::AstType BinaryOp::type() const { return Ast::AstType::BINARY_OP; }
 
 } // namespace fastype

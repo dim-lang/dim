@@ -86,15 +86,13 @@ function init_all() {
 }
 
 function clean_all() {
-    rm *.log
-    rm -rf debug
-    rm -rf release
+    rm *.log >>/dev/null 2>&1
 }
 
 function purge_all() {
-    rm *.log
-    rm -rf debug
-    rm -rf release
+    rm *.log >>/dev/null 2>&1
+    rm -rf debug >>/dev/null 2>&1
+    rm -rf release >>/dev/null 2>&1
 }
 
 function build_debug() {
