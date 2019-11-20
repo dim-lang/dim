@@ -46,6 +46,7 @@ set(T_SRC
     exception/NotFoundExceptionTest.cpp
     script/TokenTest.cpp
     script/LexerTest.cpp
+    script/InterpreterTest.cpp
     )
 
 include_directories(${F_INC})

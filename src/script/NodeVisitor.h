@@ -5,15 +5,15 @@
 
 namespace fastype {
 
-class AstTree;
+class Ast;
 
 class NodeVisitor {
 public:
   virtual ~NodeVisitor() = default;
-  virtual long long visit(AstTree *node) = 0;
-  virtual long long visitBinaryOp(AstTree *node) = 0;
-  virtual long long visitIntergerConstant(AstTree *node) = 0;
-  virtual long long visitUnaryOp(AstTree *node) = 0;
+  virtual long long visit(Ast *node) = 0;
+  virtual long long visitBinaryOp(Ast *node) = 0;
+  virtual long long visitIntergerConstant(Ast *node) = 0;
+  virtual long long visitUnaryOp(Ast *node) = 0;
 };
 
 } // namespace fastype
