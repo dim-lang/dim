@@ -44,7 +44,10 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
     int pos = 0;
     int32_t dataLen;
     do {
-      u_fgets(data + pos, l, fp);
+      UChar *r = u_fgets(data + pos, l, fp);
+      if (!r) {
+        goto end_of_lines;
+      }
       dataLen = u_strlen(data);
       F_CHECK(dataLen > 0, "dataLen {} > 0", dataLen);
       F_CHECK(dataLen < l, "dataLen {} < l {}", dataLen, l);
@@ -58,6 +61,7 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
     } while (dataLen >= l - 1);
   }
 
+end_of_lines:
   u_fclose(fp);
   free(data);
   return ret;
