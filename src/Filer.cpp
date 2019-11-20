@@ -25,36 +25,40 @@ icu::UnicodeString Filer::readAll(const icu::UnicodeString &fileName,
   } while (n > 0);
 
   u_fclose(fp);
-  fp = nullptr;
 
-  iuc::UnicodeString ret = icu::UnicodeString(data, tot);
+  icu::UnicodeString ret = icu::UnicodeString(data, tot);
   free(data);
   return ret;
 }
 
 std::vector<icu::UnicodeString>
-Filer::readLines(const icu::UnicodeString &fileName,
-                 const char *locale = nullptr, const char *codepage = "UTF-8") {
+Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
+                 const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
   F_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
-  UChar *data = nullptr;
   int l = 1024, n = 0, tot = 0;
+  UChar *data = (UChar *)malloc(l);
   std::vector<icu::UnicodeString> ret;
 
-  do {
-    if (data == nullptr || tot >= l) {
-      l *= 2;
-      data = (UChar *)realloc(data, l);
-    }
-
-    n = u_file_read(data + tot, l - tot, fp);
-    tot += n;
-  } while (n > 0);
+  while (true) {
+    int pos = 0;
+    int32_t dataLen;
+    do {
+      u_fgets(data + pos, l, fp);
+      dataLen = u_strlen(data);
+      F_CHECK(dataLen > 0, "dataLen {} > 0", dataLen);
+      F_CHECK(dataLen < l, "dataLen {} < l {}", dataLen, l);
+      if (dataLen < l - 1) {
+        ret.push_back(icu::UnicodeString(data, dataLen - 1));
+      } else {
+        l *= 2;
+        data = (UChar *)realloc(data, l);
+        pos = dataLen - 1;
+      }
+    } while (dataLen >= l - 1);
+  }
 
   u_fclose(fp);
-  fp = nullptr;
-
-  iuc::UnicodeString ret = icu::UnicodeString(data, tot);
   free(data);
   return ret;
 }

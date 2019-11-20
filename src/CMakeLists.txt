@@ -42,6 +42,14 @@ set(F_CORE
     Option.cpp
     Timer.cpp
     DateTime.cpp
+    Filer.cpp
+    Hasher.cpp
+    Line.cpp
+    Buffer.cpp
+    Cache.cpp
+    ResourceHandler.cpp
+    Random.cpp
+    Approximate.cpp
 
     graph/Dot.cpp
 
@@ -79,14 +87,6 @@ set(F_CORE
     script/token/PunctuationToken.cpp
     script/token/KeywordToken.cpp
     script/token/StringToken.cpp
-
-    Hasher.cpp
-    Line.cpp
-    Buffer.cpp
-    Cache.cpp
-    ResourceHandler.cpp
-    Random.cpp
-    Approximate.cpp
     )
 set(F_SRC
     fastype.cpp
