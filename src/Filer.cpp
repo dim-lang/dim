@@ -52,7 +52,7 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
       F_CHECK(dataLen > 0, "dataLen {} > 0", dataLen);
       F_CHECK(dataLen < l, "dataLen {} < l {}", dataLen, l);
       if (dataLen < l - 1) {
-        ret.push_back(icu::UnicodeString(data, dataLen - 1));
+        ret.push_back(icu::UnicodeString(data, dataLen));
       } else {
         l *= 2;
         data = (UChar *)realloc(data, l);
