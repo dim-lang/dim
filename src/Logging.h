@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
+#include "exception/CheckFailureException.h"
 #include <boost/assert.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <cstdio>
