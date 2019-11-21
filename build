@@ -87,14 +87,14 @@ function init_all() {
 
 function clean_all() {
     rm *.log >>/dev/null 2>&1
-    if [ -d $DEBUG ]; then cd $DEBUG && make clean && cd ..; fi
-    if [ -d $RELEASE ]; then cd $RELEASE && make clean && cd ..; fi
+    if [ -d debug ]; then cd debug && make clean && cd ..; fi
+    if [ -d release ]; then cd release && make clean && cd ..; fi
 }
 
 function purge_all() {
     rm *.log >>/dev/null 2>&1
-    if [ -d $DEBUG ]; then rm -rf $DEBUG >>/dev/null 2>&1; fi
-    if [ -d $RELEASE ]; then rm -rf $RELEASE >>/dev/null 2>&1; fi
+    if [ -d debug ]; then rm -rf debug>>/dev/null 2>&1; fi
+    if [ -d release ]; then rm -rf release>>/dev/null 2>&1; fi
 }
 
 function build_debug() {
