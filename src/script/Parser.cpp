@@ -29,11 +29,15 @@ Parser::Parser(Sptr<Lexer> lexer) : token_(nullptr), lexer_(lexer) {
 void Parser::eat(Token::TokenType tokenType) {
   F_CHECK(tokenType == token_->type(), "tokenType {} == token_#type {}",
           tokenType, token_->toString());
+  F_THROW(ParseException, "invlid token type: {}, token_->type: {}", tokenType,
+          token_->type());
   token_ = lexer_->read();
 }
 
 void Parser::eat(Sptr<Token> token) {
-  F_CHECK(token.get(), "token {} is null", (void *)token.get());
+  F_CHECK(token.get(), "token {} is not null", (void *)token.get());
+  F_THROW(ParseException, "token pointer must not null: {}",
+          (void *)token.get());
   token_ = lexer_->read();
 }
 
@@ -60,6 +64,8 @@ Ast *Parser::factor() {
     return t;
   }
   F_CHECK(false, "Parser::factor must not be here, node: {}", node->toString());
+  F_THROW(ParseException, "invlid node: {}", node->toString());
+  return nullptr;
 }
 
 Ast *Parser::expr() {
