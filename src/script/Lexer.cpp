@@ -306,7 +306,7 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
 Sptr<Token> Lexer::read() {
   readImpl();
 
-  if (queue_.empty()) {
+  if (!queue_.empty()) {
     Sptr<Token> t = queue_.front();
     queue_.pop_front();
     return t;

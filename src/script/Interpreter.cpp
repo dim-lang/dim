@@ -10,7 +10,8 @@
 
 namespace fastype {
 
-Interpreter::Interpreter(Sptr<Parser> parser) : parser_(parser) {}
+Interpreter::Interpreter(Sptr<Parser> parser)
+    : tree_(nullptr), parser_(parser) {}
 
 Interpreter::~Interpreter() { releaseTree(); }
 
