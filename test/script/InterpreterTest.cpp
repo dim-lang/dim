@@ -28,6 +28,6 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     fastype::Sptr<fastype::Parser> parser(new fastype::Parser(lexer));
     fastype::Sptr<fastype::Interpreter> interpreter(
         new fastype::Interpreter(parser));
-    REQUIRE(interpreter->interpret() == 1LL);
+    REQUIRE(interpreter->interpret() == -10LL);
   }
 }
