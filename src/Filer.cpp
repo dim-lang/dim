@@ -36,7 +36,7 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
                  const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
   F_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
-  int l = 1024, n = 0, tot = 0;
+  int l = 1024;
   UChar *data = (UChar *)malloc(l);
   std::vector<icu::UnicodeString> ret;
 
