@@ -12,6 +12,7 @@ public:
   BooleanToken(bool value);
   virtual ~BooleanToken() = default;
   virtual bool boolean() const;
+  virtual bool equal(const Sptr<Token> t) const;
   virtual std::string toString() const;
 
 private:

@@ -42,6 +42,7 @@ set(T_SRC
     UptrTest.cpp
     RandomTest.cpp
     FilerTest.cpp
+    ApproximateTest.cpp
 
     exception/NotFoundExceptionTest.cpp
     script/TokenTest.cpp

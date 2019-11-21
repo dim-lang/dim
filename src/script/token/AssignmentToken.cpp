@@ -11,6 +11,10 @@ AssignmentToken::AssignmentToken(const icu::UnicodeString &value)
 
 icu::UnicodeString AssignmentToken::literal() const { return value_; }
 
+bool AssignmentToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isAssignment() && t->literal() == literal();
+}
+
 std::string AssignmentToken::toString() const {
   std::string _1;
   return fmt::format("[ @AssignmentToken id_:{}, type_:{}, value_:{} ]", id_,

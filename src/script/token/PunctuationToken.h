@@ -12,6 +12,7 @@ public:
   PunctuationToken(const icu::UnicodeString &value);
   virtual ~PunctuationToken() = default;
   virtual icu::UnicodeString literal() const;
+  virtual bool equal(const Sptr<Token> t) const;
   virtual std::string toString() const;
 
 private:

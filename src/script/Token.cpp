@@ -326,6 +326,10 @@ bool Token::boolean() const {
   F_THROW(NotImplementException, "boolean not implement! {}", toString());
 }
 
+bool Token::equal(const Sptr<Token> t) const {
+  F_THROW(NotImplementException, "operator== not implement! {}", toString());
+}
+
 std::string Token::toString() const {
   return fmt::format("[ @Token type_:{}, id_:{} ]", tokenTypeName(type_), id_);
 }

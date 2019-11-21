@@ -15,7 +15,7 @@ std::string FloatingConstant::toString() const {
 }
 
 Ast::AstType FloatingConstant::type() const {
-  return Ast::AstType::INTEGER_CONSTANT;
+  return Ast::AstType::FLOATING_CONSTANT;
 }
 
 } // namespace fastype

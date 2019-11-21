@@ -12,6 +12,10 @@ KeywordToken::KeywordToken(const icu::UnicodeString &value)
 
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 
+bool KeywordToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isKeyword() && literal() == t->literal();
+}
+
 std::string KeywordToken::toString() const {
   std::string _1;
   return fmt::format("[ @KeywordToken id_:{}, type_:{}, value_:{} ]", id_,

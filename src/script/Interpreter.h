@@ -15,13 +15,14 @@ public:
 
   virtual long long visit(Ast *node);
   virtual long long visitBinaryOp(Ast *node);
-  virtual long long visitIntergerConstant(Ast *node);
   virtual long long visitUnaryOp(Ast *node);
+  virtual long long visitIntergerConstant(Ast *node);
+  virtual double visitFloatingConstant(Ast *node);
 
   long long interpret();
 
 private:
-  void releaseTree();
+  void release();
 
   Ast *tree_;
   Sptr<Parser> parser_;

@@ -12,6 +12,10 @@ PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
 
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
+bool PunctuationToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isPunctuation() && literal() == t->literal();
+}
+
 std::string PunctuationToken::toString() const {
   std::string _1;
   return fmt::format("[ @PunctuationToken id_:{}, type_:{}, value_:{} ]", id_,

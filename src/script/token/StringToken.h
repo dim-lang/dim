@@ -12,6 +12,7 @@ public:
   StringToken(const icu::UnicodeString &value);
   virtual ~StringToken() = default;
   virtual icu::UnicodeString literal() const;
+  virtual bool equal(const Sptr<Token> t) const;
   virtual std::string toString() const;
 
 private:

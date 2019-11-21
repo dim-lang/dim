@@ -7,6 +7,8 @@
 
 //#define F_ABS(x) ((x < 0.0) ? -x : x)
 #define F_ABS(x) std::abs(x)
+#define F_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define F_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 namespace fastype {
 
@@ -39,3 +41,5 @@ bool Approximate::lt(double a, double b, double epsilon) {
 } // namespace fastype
 
 #undef F_ABS
+#undef F_MAX
+#undef F_MIN

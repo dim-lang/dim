@@ -11,6 +11,10 @@ IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
 
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 
+bool IdentifierToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isIdentifier() && literal() == t->literal();
+}
+
 std::string IdentifierToken::toString() const {
   std::string _1;
   return fmt::format("[ @IdentifierToken id_:{}, type_:{}, value_:{} ]", id_,

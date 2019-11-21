@@ -11,6 +11,10 @@ ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
 
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
+bool ComparatorToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isComparator() && t->literal() == literal();
+}
+
 std::string ComparatorToken::toString() const {
   std::string _1;
   return fmt::format("[ @ComparatorToken id_:{}, type_:{}, value_:{} ]", id_,

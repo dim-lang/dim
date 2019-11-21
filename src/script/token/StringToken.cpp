@@ -12,6 +12,10 @@ StringToken::StringToken(const icu::UnicodeString &value)
 
 icu::UnicodeString StringToken::literal() const { return value_; }
 
+bool StringToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isString() && literal() == t->literal();
+}
+
 std::string StringToken::toString() const {
   std::string _1;
   return fmt::format("[ @StringToken id_:{}, type_:{}, value_:{} ]", id_,

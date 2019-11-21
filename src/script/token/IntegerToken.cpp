@@ -11,6 +11,10 @@ IntegerToken::IntegerToken(long long value)
 
 long long IntegerToken::integer() const { return value_; }
 
+bool IntegerToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isInteger() && integer() == t->integer();
+}
+
 std::string IntegerToken::toString() const {
   return fmt::format("[ @IntegerToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_);

@@ -8,6 +8,10 @@ namespace fastype {
 
 EofToken::EofToken() : Token(TokenType::TT_EOF) {}
 
+bool EofToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isEof();
+}
+
 std::string EofToken::toString() const {
   return fmt::format("[ @EofToken id_:{}, type_:{} ]", id_,
                      Token::tokenTypeName(type_));

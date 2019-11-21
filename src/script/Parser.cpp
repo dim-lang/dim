@@ -43,7 +43,7 @@ void Parser::eat(Sptr<Token> token) {
 
 Ast *Parser::term() {
   Ast *node = factor();
-  while (token_ == Token::T_MUL || token_ == Token::T_DIV ||
+  while (Token::T_MUL->equal(token_) || Token::T_DIV->equal(token_) ||
          token_ == Token::T_MOD) {
     Sptr<Token> t = token_;
     eat(token_);
@@ -53,18 +53,27 @@ Ast *Parser::term() {
 }
 
 Ast *Parser::factor() {
-  Sptr<Token> node = token_;
-  if (node->type() == Token::TokenType::TT_INTEGER) {
+  Sptr<Token> token = token_;
+  if (token == Token::T_ADD) {
+    eat(Token::T_ADD);
+    Ast *node = new UnaryOp(token, factor());
+    return node;
+  } else if (token == Token::T_SUB) {
+    eat(Token::T_ADD);
+    Ast *node = new UnaryOp(token, factor());
+    return node;
+  } else if (token->type() == Token::TokenType::TT_INTEGER) {
     eat(Token::TokenType::TT_INTEGER);
-    return new IntegerConstant(node);
-  } else if (node == Token::T_LP) {
+    return new IntegerConstant(token);
+  } else if (token == Token::T_LP) {
     eat(Token::T_LP);
-    Ast *t = expr();
+    Ast *node = expr();
     eat(Token::T_RP);
-    return t;
+    return node;
   }
-  F_CHECK(false, "Parser::factor must not be here, node: {}", node->toString());
-  F_THROW(ParseException, "invlid node: {}", node->toString());
+  F_CHECK(false, "Parser::factor must not be here, token: {}",
+          token->toString());
+  F_THROW(ParseException, "invlid token: {}", token->toString());
   return nullptr;
 }
 

@@ -12,6 +12,10 @@ OperatorToken::OperatorToken(const icu::UnicodeString &value)
 
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
+bool OperatorToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isOperator() && literal() == t->literal();
+}
+
 std::string OperatorToken::toString() const {
   std::string _1;
   return fmt::format("[ @OperatorToken id_:{}, type_:{}, value_:{} ]", id_,

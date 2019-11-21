@@ -11,6 +11,10 @@ FloatingToken::FloatingToken(double value)
 
 double FloatingToken::floating() const { return value_; }
 
+bool FloatingToken::equal(const Sptr<Token> t) const {
+  return t.get() && t->isFloating() && floating() == t->floating();
+}
+
 std::string FloatingToken::toString() const {
   return fmt::format("[ @FloatingToken id_:{}, type_:{}, value_:{} ]", id_,
                      Token::tokenTypeName(type_), value_);
