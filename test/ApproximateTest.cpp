@@ -11,5 +11,7 @@ TEST_CASE("Approximate", "[Approximate]") {
     REQUIRE(!fastype::Approximate::eq((float)0.0001F, (float)0.0009F));
     REQUIRE(fastype::Approximate::eq((float)0.00013F, (float)0.00013F));
     REQUIRE(fastype::Approximate::eq((float)0.000009F, (float)0.00001F));
+    REQUIRE(fastype::Approximate::eq((double)0.0000000000009,
+                                     (double)0.000000000001));
   }
 }

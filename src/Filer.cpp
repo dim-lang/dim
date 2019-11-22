@@ -3,6 +3,7 @@
 
 #include "Filer.h"
 #include "Logging.h"
+#include "exception/BadAllocException.h"
 #include <cstdlib>
 
 namespace fastype {
@@ -18,6 +19,10 @@ icu::UnicodeString Filer::readAll(const icu::UnicodeString &fileName,
     if (data == nullptr || tot >= l) {
       l *= 2;
       data = (UChar *)realloc(data, l);
+      F_CHECK(data != nullptr, "data {} != nullptr", (void *)data);
+      if (!data) {
+        F_THROW(BadAllocException, "realloc failure, l: {}", l);
+      }
     }
 
     n = u_file_read(data + tot, l - tot, fp);
@@ -38,6 +43,10 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
   F_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
   int l = 1024;
   UChar *data = (UChar *)malloc(l);
+  F_CHECK(data != nullptr, "data {} != nullptr", (void *)data);
+  if (!data) {
+    F_THROW(BadAllocException, "realloc failure, l: {}", l);
+  }
   std::vector<icu::UnicodeString> ret;
 
   while (true) {
@@ -56,6 +65,10 @@ Filer::readLines(const icu::UnicodeString &fileName, const char *locale,
       } else {
         l *= 2;
         data = (UChar *)realloc(data, l);
+        F_CHECK(data != nullptr, "data {} != nullptr", (void *)data);
+        if (!data) {
+          F_THROW(BadAllocException, "realloc failure, l: {}", l);
+        }
         pos = dataLen - 1;
       }
     } while (dataLen >= l - 1);
