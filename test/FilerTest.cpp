@@ -19,9 +19,9 @@ TEST_CASE("Filer", "[Filer]") {
     icu::UnicodeString text = fastype::Filer::readAll(
         UNICODE_STRING_SIMPLE("test/FilerTestBigFile.html"));
     REQUIRE(text.length() == 3969L);
-    REQUIRE((int)text.tempSubString(0, 31).compare(
+    REQUIRE((int)text.tempSubString(0, 15).compare(
                 UNICODE_STRING_SIMPLE("<!DOCTYPE html>")) == 0);
-    REQUIRE((int)text.tempSubString(195, 25).compare(
+    REQUIRE((int)text.tempSubString(3961, 7).compare(
                 UNICODE_STRING_SIMPLE("</html>")) == 0);
   }
   SECTION("readLines CMakeLists.txt") {
@@ -47,16 +47,15 @@ TEST_CASE("Filer", "[Filer]") {
   SECTION("readLines FilerTestBigFile.html") {
     std::vector<icu::UnicodeString> texts = fastype::Filer::readLines(
         UNICODE_STRING_SIMPLE("test/FilerTestBigFile.html"));
-    REQUIRE(texts.size() == 8);
-    REQUIRE((int)texts[0].compare(UNICODE_STRING_SIMPLE(
-                "# Copyright 2019- <fastype.org>\n")) == 0);
-    REQUIRE((int)texts[1].compare(
-                UNICODE_STRING_SIMPLE("# Apache License Version 2.0\n")) == 0);
-    REQUIRE((int)texts[2].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[3].compare(UNICODE_STRING_SIMPLE(
-                "cmake_minimum_required(VERSION 3.8)\n")) == 0);
-    REQUIRE((int)texts[4].compare(UNICODE_STRING_SIMPLE(
-                "project(fastype-parent VERSION 0.1.0 LANGUAGES CXX)\n")) == 0);
+    REQUIRE(texts.size() == 138);
+    REQUIRE((int)texts[0].compare(UNICODE_STRING_SIMPLE("<!DOCTYPE html>\n")) ==
+            0);
+    REQUIRE((int)texts[1].compare(UNICODE_STRING_SIMPLE(
+                "<!-- saved from url=(0022)https://www.baidu.com/ -->\n")) ==
+            0);
+    REQUIRE((int)texts[2].compare(UNICODE_STRING_SIMPLE("<html>\n")) == 0);
+    REQUIRE((int)texts[3].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
+    REQUIRE((int)texts[4].compare(UNICODE_STRING_SIMPLE("<head>\n")) == 0);
     REQUIRE((int)texts[5].compare(
                 UNICODE_STRING_SIMPLE("add_subdirectory(src)\n")) == 0);
     REQUIRE((int)texts[6].compare(
