@@ -4,9 +4,15 @@
 #include "script/Parser.h"
 #include "Logging.h"
 #include "exception/ParseException.h"
+#include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
+#include "script/ast/CompoundStatement.h"
+#include "script/ast/Empty.h"
+#include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
+#include "script/ast/StatementList.h"
 #include "script/ast/UnaryOp.h"
+#include "script/ast/Variable.h"
 #include "script/token/BooleanToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/FloatingToken.h"
@@ -74,11 +80,9 @@ Ast *Parser::factor() {
     Ast *node = expr();
     eat(Token::T_RP);
     return node;
+  } else {
+    return variable();
   }
-  F_CHECK(false, "Parser::factor must not be here, token: {}",
-          token->toString());
-  F_THROW(ParseException, "invlid token: {}", token->toString());
-  return nullptr;
 }
 
 Ast *Parser::expr() {
@@ -91,7 +95,61 @@ Ast *Parser::expr() {
   return node;
 }
 
-Ast *Parser::parse() { return expr(); }
+Ast *Parser::program() { return statementList(); }
+
+Ast *Parser::compoundStatement() {
+  eat(Token::T_LBRACE);
+  std::vector<Ast *> childrenList = statementList();
+  eat(Token::T_RBRACE);
+  return new CompoundStatement(childrenList);
+}
+
+std::vector<Ast *> Parser::statementList() {
+  std::vector<Ast *> ret;
+  Ast *node;
+  while ((node = statement()) != nullptr) {
+    ret.push_back(node);
+  }
+  return ret;
+}
+
+Ast *Parser::statement() {
+  Ast *node;
+  if (token_ == Token::T_LBRACE) {
+    return compoundStatement();
+  } else if (token_ == Token::T_LET) {
+    return assignmentStatement();
+  } else {
+    return empty();
+  }
+}
+
+Ast *Parser::assignmentStatement() {
+  Sptr<Token> letToken = token_;
+  eat(Token::T_LET);
+  Ast *left = variable();
+  Sptr<Token> assignToken = token_;
+  eat(Token::T_ASSIGNMENT);
+  Ast *right = expr();
+  return new AssignmentStatement(left, assignToken, right);
+}
+
+Ast *Parser::variable() {
+  Ast *node = new Variable(token_);
+  eat(Token::TokenType::TT_IDENTIFIER);
+  return node;
+}
+
+Ast *Parser::empty() { return new Empty(); }
+
+Ast *Parser::parse() {
+  Ast *node = program();
+  F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());
+  if (!token_->isEof()) {
+    F_THROW(ParseException, "token_ {} must be eof", token_->toString());
+  }
+  return node;
+}
 
 std::string Parser::toString() const {
   return fmt::format("[ @Parser token_:{}, lexer_:{} ]", token_->toString(),

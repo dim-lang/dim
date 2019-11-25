@@ -15,7 +15,10 @@ namespace fastype {
 Interpreter::Interpreter(Sptr<Parser> parser)
     : tree_(nullptr), parser_(parser) {}
 
-Interpreter::~Interpreter() { release(); }
+Interpreter::~Interpreter() {
+  release(tree_);
+  tree_ = nullptr;
+}
 
 long long Interpreter::visit(Ast *node) {
   switch (node->type()) {
@@ -79,12 +82,12 @@ double Interpreter::visitFloatingConstant(Ast *node) {
 }
 
 long long Interpreter::interpret() {
-  release();
+  release(tree_);
   tree_ = parser_->parse();
   return visit(tree_);
 }
 
-static void releaseImpl(Ast *node) {
+void Interpreter::release(Ast *node) {
   if (!node) {
     return;
   }
@@ -104,13 +107,6 @@ static void releaseImpl(Ast *node) {
     F_THROW(ParseException, "invalid node type: {}", node->toString());
   }
   delete node;
-}
-
-void Interpreter::release() {
-  if (!tree_) {
-    return;
-  }
-  releaseImpl(tree_);
 }
 
 } // namespace fastype

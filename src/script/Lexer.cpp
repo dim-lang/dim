@@ -51,121 +51,6 @@ static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
   return parsed;
 }
 
-// parse keyword
-// @return   true if is keyword
-//           false if not
-static bool parseKeyword(const icu::UnicodeString &text, int &i,
-                         std::deque<Sptr<Token>> &q) {
-  switch (text.charAt(i)) {
-  case (UChar)'l':
-    if (i + 3 < text.length() &&
-        text.tempSubString(i, 3) == Token::T_LET->literal()) {
-      q.push_back(Token::T_LET);
-      i += 3;
-      return true;
-    }
-    break;
-  case (UChar)'n':
-    if (i + 4 < text.length() &&
-        text.tempSubString(i, 4) == Token::T_NULL->literal()) {
-      q.push_back(Token::T_NULL);
-      i += 4;
-      return true;
-    }
-    break;
-  case (UChar)'i':
-    if (i + 2 < text.length() &&
-        text.tempSubString(i, 2) == Token::T_IF->literal()) {
-      q.push_back(Token::T_IF);
-      i += 2;
-      return true;
-    } else if (i + 10 < text.length() &&
-               text.tempSubString(i, 10) == Token::T_ISINSTANCE->literal()) {
-      q.push_back(Token::T_ISINSTANCE);
-      i += 10;
-      return true;
-    } else if (i + 6 < text.length() &&
-               text.tempSubString(i, 6) == Token::T_IMPORT->literal()) {
-      q.push_back(Token::T_IMPORT);
-      i += 6;
-      return true;
-    }
-    break;
-  case (UChar)'e':
-    if (i + 6 < text.length() &&
-        text.tempSubString(i, 6) == Token::T_ELSEIF->literal()) {
-      q.push_back(Token::T_ELSEIF);
-      i += 6;
-      return true;
-    } else if (i + 4 < text.length() &&
-               text.tempSubString(i, 4) == Token::T_ELSE->literal()) {
-      q.push_back(Token::T_ELSE);
-      i += 4;
-      return true;
-    }
-    break;
-  case (UChar)'f':
-    if (i + 3 < text.length() &&
-        text.tempSubString(i, 3) == Token::T_FOR->literal()) {
-      q.push_back(Token::T_FOR);
-      i += 3;
-      return true;
-    } else if (i + 4 < text.length() &&
-               text.tempSubString(i, 4) == Token::T_FUNC->literal()) {
-      q.push_back(Token::T_FUNC);
-      i += 4;
-      return true;
-    }
-    break;
-  case (UChar)'w':
-    if (i + 5 < text.length() &&
-        text.tempSubString(i, 5) == Token::T_WHILE->literal()) {
-      q.push_back(Token::T_WHILE);
-      i += 5;
-      return true;
-    }
-    break;
-  case (UChar)'b':
-    if (i + 5 < text.length() &&
-        text.tempSubString(i, 5) == Token::T_BREAK->literal()) {
-      q.push_back(Token::T_BREAK);
-      i += 5;
-      return true;
-    }
-    break;
-  case (UChar)'c':
-    if (i + 8 < text.length() &&
-        text.tempSubString(i, 8) == Token::T_CONTINUE->literal()) {
-      q.push_back(Token::T_CONTINUE);
-      i += 8;
-      return true;
-    } else if (i + 5 < text.length() &&
-               text.tempSubString(i, 5) == Token::T_CLASS->literal()) {
-      q.push_back(Token::T_CLASS);
-      i += 5;
-      return true;
-    }
-    break;
-  case (UChar)'t':
-    if (i + 4 < text.length() &&
-        text.tempSubString(i, 4) == Token::T_TYPE->literal()) {
-      q.push_back(Token::T_TYPE);
-      i += 4;
-      return true;
-    }
-    break;
-  case (UChar)'r':
-    if (i + 6 < text.length() &&
-        text.tempSubString(i, 6) == Token::T_RETURN->literal()) {
-      q.push_back(Token::T_RETURN);
-      i += 6;
-      return true;
-    }
-    break;
-  }
-  return false;
-}
-
 // parse constant token
 static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
                             int diff = 1) {
@@ -284,8 +169,11 @@ static void parseString(const icu::UnicodeString &text, int &i,
 }
 
 // parse identifier
-static void parseIdentifier(const icu::UnicodeString &text, int &i,
+static bool parseIdentifier(const icu::UnicodeString &text, int &i,
                             std::deque<Sptr<Token>> &q) {
+  if (!u_isalpha(text.charAt(i)) && text.charAt(i) != (UChar)'_') {
+    return false;
+  }
   int j = i;
   while (j < text.length()) {
     if (u_isalnum(text.charAt(j)) || text.charAt(j) == (UChar)'_') {
@@ -301,6 +189,138 @@ static void parseIdentifier(const icu::UnicodeString &text, int &i,
       Sptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
   q.push_back(idToken);
   i = j;
+  return true;
+}
+
+// parse keyword or identifier
+// @return   true if is keyword
+//           false if not
+static bool parseKeywordOrIdentifier(const icu::UnicodeString &text, int &i,
+                                     std::deque<Sptr<Token>> &q) {
+  switch (text.charAt(i)) {
+  case (UChar)'l':
+    if (i + 3 < text.length() &&
+        text.tempSubString(i, 3) == Token::T_LET->literal()) {
+      q.push_back(Token::T_LET);
+      i += 3;
+      return true;
+    }
+    break;
+  case (UChar)'n':
+    if (i + 4 < text.length() &&
+        text.tempSubString(i, 4) == Token::T_NULL->literal()) {
+      q.push_back(Token::T_NULL);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'i':
+    if (i + 2 < text.length() &&
+        text.tempSubString(i, 2) == Token::T_IF->literal()) {
+      q.push_back(Token::T_IF);
+      i += 2;
+      return true;
+    } else if (i + 10 < text.length() &&
+               text.tempSubString(i, 10) == Token::T_ISINSTANCE->literal()) {
+      q.push_back(Token::T_ISINSTANCE);
+      i += 10;
+      return true;
+    } else if (i + 6 < text.length() &&
+               text.tempSubString(i, 6) == Token::T_IMPORT->literal()) {
+      q.push_back(Token::T_IMPORT);
+      i += 6;
+      return true;
+    }
+    break;
+  case (UChar)'e':
+    if (i + 6 < text.length() &&
+        text.tempSubString(i, 6) == Token::T_ELSEIF->literal()) {
+      q.push_back(Token::T_ELSEIF);
+      i += 6;
+      return true;
+    } else if (i + 4 < text.length() &&
+               text.tempSubString(i, 4) == Token::T_ELSE->literal()) {
+      q.push_back(Token::T_ELSE);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'f':
+    if (i + 3 < text.length() &&
+        text.tempSubString(i, 3) == Token::T_FOR->literal()) {
+      q.push_back(Token::T_FOR);
+      i += 3;
+      return true;
+    } else if (i + 4 < text.length() &&
+               text.tempSubString(i, 4) == Token::T_FUNC->literal()) {
+      q.push_back(Token::T_FUNC);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'w':
+    if (i + 5 < text.length() &&
+        text.tempSubString(i, 5) == Token::T_WHILE->literal()) {
+      q.push_back(Token::T_WHILE);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'b':
+    if (i + 5 < text.length() &&
+        text.tempSubString(i, 5) == Token::T_BREAK->literal()) {
+      q.push_back(Token::T_BREAK);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'c':
+    if (i + 8 < text.length() &&
+        text.tempSubString(i, 8) == Token::T_CONTINUE->literal()) {
+      q.push_back(Token::T_CONTINUE);
+      i += 8;
+      return true;
+    } else if (i + 5 < text.length() &&
+               text.tempSubString(i, 5) == Token::T_CLASS->literal()) {
+      q.push_back(Token::T_CLASS);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'t':
+    if (i + 4 < text.length() &&
+        text.tempSubString(i, 4) == Token::T_TYPE->literal()) {
+      q.push_back(Token::T_TYPE);
+      i += 4;
+      return true;
+    }
+    break;
+  case (UChar)'r':
+    if (i + 6 < text.length() &&
+        text.tempSubString(i, 6) == Token::T_RETURN->literal()) {
+      q.push_back(Token::T_RETURN);
+      i += 6;
+      return true;
+    }
+    break;
+  case (UChar)'F':
+    if (i + 5 < text.length() &&
+        text.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
+      q.push_back(Token::T_FALSE);
+      i += 5;
+      return true;
+    }
+    break;
+  case (UChar)'T':
+    if (i + 4 < text.length() &&
+        text.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
+      q.push_back(Token::T_TRUE);
+      i += 4;
+      return true;
+    }
+    break;
+  }
+  return parseIdentifier(text, i, q);
 }
 
 Sptr<Token> Lexer::read() {
@@ -314,6 +334,17 @@ Sptr<Token> Lexer::read() {
   return Token::T_EOF;
 }
 
+Sptr<Token> Lexer::peek(int pos) {
+  do {
+    int n = queue_.size();
+    readImpl();
+    if (queue_.size() <= n) {
+      break;
+    }
+  } while (queue_.size() <= pos);
+  return queue_.size() <= pos ? Token::T_EOF : queue_[pos];
+}
+
 void Lexer::readImpl() {
   std::string _1;
 
@@ -321,69 +352,71 @@ void Lexer::readImpl() {
     if (parseWhitespace(text_, pos_)) {
       continue;
     }
-    // if (parseKeyword(text_, pos_, queue_)) {
-    // return;
-    //}
+    if (parseKeywordOrIdentifier(text_, pos_, queue_)) {
+      return;
+    }
     switch (text_.charAt(pos_)) {
-    case (UChar)'+': // +
-    {
-      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'+')
-      // { parseConstToken(pos_, Token::T_INC, queue_, 2);
-      //} else if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) ==
-      //(UChar)'=') { parseConstToken(pos_, Token::T_ADDASSIGN, queue_, 2); }
-      // else if (pos_ + 1 < text_.length() && u_isdigit(text_.charAt(pos_ +
-      // 1)))
-      //{
-      // parseNumber(text_, pos_, queue_);
-      //} else {
-      parseConstToken(pos_, Token::T_ADD, queue_);
-      //}
+    case (UChar)'+': {
+      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'+') {
+        // ++
+        parseConstToken(pos_, Token::T_INC, queue_, 2);
+      } else if (pos_ + 1 < text_.length() &&
+                 text_.charAt(pos_ + 1) == (UChar)'=') {
+        // +=
+        parseConstToken(pos_, Token::T_ADDASSIGN, queue_, 2);
+      } else {
+        // +
+        parseConstToken(pos_, Token::T_ADD, queue_);
+      }
       return;
     } break;
-    case (UChar)'-': // -
-    {
-      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'-')
-      // { parseConstToken(pos_, Token::T_DEC, queue_, 2);
-      //} else if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) ==
-      //(UChar)'=') { parseConstToken(pos_, Token::T_SUBASSIGN, queue_, 2); }
-      // else if (pos_ + 1 < text_.length() && u_isdigit(text_.charAt(pos_ +
-      // 1)))
-      //{
-      // parseNumber(text_, pos_, queue_);
-      //} else {
-      parseConstToken(pos_, Token::T_SUB, queue_);
-      //}
+    case (UChar)'-': {
+      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'-') {
+        // --
+        parseConstToken(pos_, Token::T_DEC, queue_, 2);
+      } else if (pos_ + 1 < text_.length() &&
+                 text_.charAt(pos_ + 1) == (UChar)'=') {
+        // -=
+        parseConstToken(pos_, Token::T_SUBASSIGN, queue_, 2);
+      } else {
+        // -
+        parseConstToken(pos_, Token::T_SUB, queue_);
+      }
       return;
     } break;
-    case (UChar)'*': // *
-    {
-      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
-      // { parseConstToken(pos_, Token::T_MULASSIGN, queue_, 2);
-      //} else {
-      parseConstToken(pos_, Token::T_MUL, queue_);
-      //}
+    case (UChar)'*': {
+      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+        // *=
+        parseConstToken(pos_, Token::T_MULASSIGN, queue_, 2);
+      } else {
+        // *
+        parseConstToken(pos_, Token::T_MUL, queue_);
+      }
       return;
     } break;
-    case (UChar)'/': // /
-    {
-      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
-      // { parseConstToken(pos_, Token::T_DIVASSIGN, queue_, 2);
-      //} else if (pos_ + 1 < text_.length() &&
-      //(text_.charAt(pos_ + 1) == (UChar)'/' ||
-      // text_.charAt(pos_ + 1) == (UChar)'*')) {
-      // parseComment(text_, pos_);
-      //} else {
-      parseConstToken(pos_, Token::T_DIV, queue_);
-      //}
+    case (UChar)'/': {
+      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+        // /=
+        parseConstToken(pos_, Token::T_DIVASSIGN, queue_, 2);
+      } else if (pos_ + 1 < text_.length() &&
+                 (text_.charAt(pos_ + 1) == (UChar)'/' ||
+                  text_.charAt(pos_ + 1) == (UChar)'*')) {
+        // block comment start /*
+        parseComment(text_, pos_);
+      } else {
+        // /
+        parseConstToken(pos_, Token::T_DIV, queue_);
+      }
       return;
     } break;
-    case (UChar)'%': // %
-    {
-      // if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=')
-      // { parseConstToken(pos_, Token::T_MODASSIGN, queue_, 2);
-      //} else {
-      parseConstToken(pos_, Token::T_MOD, queue_);
-      //}
+    case (UChar)'%': {
+      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+        // %=
+        parseConstToken(pos_, Token::T_MODASSIGN, queue_, 2);
+      } else {
+        // %
+        parseConstToken(pos_, Token::T_MOD, queue_);
+      }
       return;
     } break;
     case (UChar)'0': // number
@@ -399,17 +432,19 @@ void Lexer::readImpl() {
       parseNumber(text_, pos_, queue_);
       return;
     } break;
-      /*
     case (UChar)'"': // string or char
       parseString(text_, pos_, queue_);
       break;
-    case (UChar)'=': // = or ==
+    case (UChar)'=':
       if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("==")) {
+        // ==
         parseConstToken(pos_, Token::T_EQ, queue_, 2);
       } else {
+        // =
         parseConstToken(pos_, Token::T_ASSIGNMENT, queue_);
       }
       break;
+      /*
     case (UChar)'!': // ! or !=
       if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("!=")) {
         parseConstToken(pos_, Token::T_NEQ, queue_, 2);
@@ -431,81 +466,14 @@ void Lexer::readImpl() {
         parseConstToken(pos_, Token::T_GT, queue_);
       }
       break;
-    case (UChar)'T': // True or identifier
-      if (text_.tempSubString(pos_, 4) == UNICODE_STRING_SIMPLE("True")) {
-        parseConstToken(pos_, Token::T_TRUE, queue_, 4);
-      } else {
-        parseIdentifier(text_, pos_, queue_);
-      }
-      break;
-    case (UChar)'F': // False or identifier
-      if (text_.tempSubString(pos_, 5) == UNICODE_STRING_SIMPLE("False")) {
-        parseConstToken(pos_, Token::T_FALSE, queue_, 5);
-      } else {
-        parseIdentifier(text_, pos_, queue_);
-      }
-      break;
-    case (UChar)'A':
-    case (UChar)'B':
-    case (UChar)'C':
-    case (UChar)'D':
-    case (UChar)'E':
-    // case (UChar)'F':
-    case (UChar)'G':
-    case (UChar)'H':
-    case (UChar)'I':
-    case (UChar)'J':
-    case (UChar)'K':
-    case (UChar)'L':
-    case (UChar)'M':
-    case (UChar)'N':
-    case (UChar)'O':
-    case (UChar)'P':
-    case (UChar)'Q':
-    case (UChar)'R':
-    case (UChar)'S':
-    // case (UChar)'T':
-    case (UChar)'U':
-    case (UChar)'V':
-    case (UChar)'W':
-    case (UChar)'X':
-    case (UChar)'Y':
-    case (UChar)'Z':
-    case (UChar)'a':
-    case (UChar)'b':
-    case (UChar)'c':
-    case (UChar)'d':
-    case (UChar)'e':
-    case (UChar)'f':
-    case (UChar)'g':
-    case (UChar)'h':
-    case (UChar)'i':
-    case (UChar)'j':
-    case (UChar)'k':
-    case (UChar)'l':
-    case (UChar)'m':
-    case (UChar)'n':
-    case (UChar)'o':
-    case (UChar)'p':
-    case (UChar)'q':
-    case (UChar)'r':
-    case (UChar)'s':
-    case (UChar)'t':
-    case (UChar)'u':
-    case (UChar)'v':
-    case (UChar)'w':
-    case (UChar)'x':
-    case (UChar)'y':
-    case (UChar)'z':
-    case (UChar)'_':
-      parseIdentifier(text_, pos_, queue_);
-      break;
     case (UChar)',':
       parseConstToken(pos_, Token::T_COMMA, queue_);
       break;
+      */
     case (UChar)';':
       parseConstToken(pos_, Token::T_SEMI, queue_);
       break;
+      /*
     case (UChar)'?':
       parseConstToken(pos_, Token::T_QUESTION, queue_);
       break;
@@ -521,7 +489,6 @@ void Lexer::readImpl() {
       parseConstToken(pos_, Token::T_RP, queue_);
       return;
     } break;
-    /*
     case (UChar)'[':
       parseConstToken(pos_, Token::T_LBRACKET, queue_);
       break;
@@ -534,7 +501,6 @@ void Lexer::readImpl() {
     case (UChar)'}':
       parseConstToken(pos_, Token::T_RBRACE, queue_);
       break;
-    */
     default:
       F_CHECK(false, "unknown token at text_[{}]: {}", pos_,
               F_SUB_STRING(text_, pos_, _1));

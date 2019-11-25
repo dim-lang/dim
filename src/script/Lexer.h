@@ -18,6 +18,7 @@ public:
   Lexer(const icu::UnicodeString &text);
   virtual ~Lexer();
   Sptr<Token> read();
+  Sptr<Token> peek(int pos);
   virtual std::string toString() const;
 
 private:

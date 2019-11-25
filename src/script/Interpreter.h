@@ -20,10 +20,9 @@ public:
   virtual double visitFloatingConstant(Ast *node);
 
   long long interpret();
+  static void release(Ast *node);
 
 private:
-  void release();
-
   Ast *tree_;
   Sptr<Parser> parser_;
 };

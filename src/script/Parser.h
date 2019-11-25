@@ -12,6 +12,7 @@
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <vector>
 
 namespace fastype {
 
@@ -28,6 +29,13 @@ private:
   Ast *expr();
   Ast *term();
   Ast *factor();
+  Ast *program();
+  Ast *compoundStatement();
+  std::vector<Ast *> statementList();
+  Ast *statement();
+  Ast *assignmentStatement();
+  Ast *variable();
+  Ast *empty();
 
   Sptr<Token> token_;
   Sptr<Lexer> lexer_;

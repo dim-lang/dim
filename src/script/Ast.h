@@ -17,6 +17,10 @@ public:
     IDENTIFIER_CONSTANT = 5,
     BINARY_OP = 6,
     UNARY_OP = 7,
+    COMPOUND_STATEMENT = 8,
+    ASSIGNMENT_STATEMENT = 9,
+    VARIABLE = 10,
+    EMPTY = 11,
   };
 
   virtual ~Ast() = default;
