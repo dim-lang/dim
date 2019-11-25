@@ -56,11 +56,12 @@ TEST_CASE("Filer", "[Filer]") {
     REQUIRE((int)texts[2].compare(UNICODE_STRING_SIMPLE("<html>\n")) == 0);
     REQUIRE((int)texts[3].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
     REQUIRE((int)texts[4].compare(UNICODE_STRING_SIMPLE("<head>\n")) == 0);
-    REQUIRE((int)texts[5].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(src)\n")) == 0);
-    REQUIRE((int)texts[6].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(test)\n")) == 0);
-    REQUIRE((int)texts[7].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(example)\n")) == 0);
+    REQUIRE((int)texts[5].compare(UNICODE_STRING_SIMPLE(
+                "    <meta http-equiv=\"Content-Type\" content=\"text/html; "
+                "charset=UTF-8\">\n")) == 0);
+    REQUIRE((int)texts[6].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
+    REQUIRE((int)texts[7].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
+    REQUIRE((int)texts[136].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
+    REQUIRE((int)texts[137].compare(UNICODE_STRING_SIMPLE("</html>\n")) == 0);
   }
 }
