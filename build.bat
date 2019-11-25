@@ -64,7 +64,7 @@ if not exist src\icu (
     cd %ROOT%
 )
 if not exist src\icu\icu4c\lib (
-    echo [fastype] build icu4c x64 manually via: src\icu\icu4c\\source\allinone\allinone.sln
+    echo [fastype] build icu4c x64 manually via: src\icu\icu4c\source\allinone\allinone.sln
     echo [fastype] reference: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
