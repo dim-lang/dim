@@ -78,7 +78,8 @@ cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFIL
 cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
-echo [41m[fastype] NOTICE:[0m
-echo [41m[fastype]     1 - please build icu4c x64 manually with `src\icu\icu4c\source\allinone\allinone.sln`[0m
-echo [41m[fastype]         see wiki: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows[0m
-echo [41m[fastype]     2 - please build fastype manually with `debug\fastype-parent.sln` and `release\fastype-parent.sln`[0m
+echo
+echo [fastype] NOTICE:
+echo [fastype]     1 - please build icu4c x64 manually with `src\icu\icu4c\source\allinone\allinone.sln`
+echo [fastype]         see wiki: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
+echo [fastype]     2 - please build fastype manually with `debug\fastype-parent.sln` and `release\fastype-parent.sln`
