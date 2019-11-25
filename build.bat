@@ -28,6 +28,13 @@ if not exist %ROOT%\src\spdlog (
     cd %ROOT%
 )
 echo [fastype] prepare gabime/spdlog v1.3.1 - done
+echo [fastype] prepare fmtlib/fmt 5.3.0
+if not exist %ROOT%\src\fmt (
+    cd %ROOT%\src
+    git clone -b 5.3.0 --single-branch --depth 1 https://github.com/fmtlib/fmt.git
+    cd %ROOT%
+)
+echo [fastype] prepare fmtlib/fmt 5.3.0 - done
 echo [fastype] prepare nlohmann/json v3.7.0
 if not exist %ROOT%\src\json (
     cd %ROOT%\src
