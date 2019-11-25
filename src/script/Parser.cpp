@@ -29,15 +29,19 @@ Parser::Parser(Sptr<Lexer> lexer) : token_(nullptr), lexer_(lexer) {
 void Parser::eat(Token::TokenType tokenType) {
   F_CHECK(tokenType == token_->type(), "tokenType {} == token_#type {}",
           tokenType, token_->toString());
-  F_THROW(ParseException, "invlid token type: {}, token_->type: {}", tokenType,
-          token_->type());
+  if (tokenType != token_->type()) {
+    F_THROW(ParseException, "invlid token type: {}, token_->type: {}",
+            tokenType, token_->type());
+  }
   token_ = lexer_->read();
 }
 
 void Parser::eat(Sptr<Token> token) {
   F_CHECK(token.get(), "token {} is not null", (void *)token.get());
-  F_THROW(ParseException, "token pointer must not null: {}",
-          (void *)token.get());
+  if (!token.get()) {
+    F_THROW(ParseException, "token pointer must not null: {}",
+            (void *)token.get());
+  }
   token_ = lexer_->read();
 }
 
