@@ -64,11 +64,9 @@ if not exist src\icu (
     cd %ROOT%
 )
 if not exist src\icu\icu4c\lib (
-    echo [fastype] build icu4c x64 manually via: src\icu\icu4c\source\allinone\allinone.sln
-    echo [fastype] reference: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
+    echo [fastype] icu4c x64 library not ready
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
-
 echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
@@ -78,3 +76,8 @@ if not exist %RELEASE% md %RELEASE%
 cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
 cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
+
+echo [fastype] [101;93m NOTICE: [0m
+echo [fastype] [101;93m   1 - please build icu4c x64 manually with `src\icu\icu4c\source\allinone\allinone.sln` [0m
+echo [fastype] [101;93m       see wiki: https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows [0m
+echo [fastype] [101;93m   2 - please build fastype manually with `debug\fastype-parent.sln` and `release\fastype-parent.sln` [0m
