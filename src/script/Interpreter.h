@@ -3,28 +3,57 @@
 
 #pragma once
 #include "SmartPointer.h"
+#include "Stringify.h"
 #include "script/NodeVisitor.h"
 #include "script/Parser.h"
+#include <unicode/numfmt.h>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 
-class Interpreter : public NodeVisitor {
+class Interpreter : public Stringify {
 public:
   Interpreter(Sptr<Parser> parser);
   virtual ~Interpreter();
 
-  virtual long long visit(Ast *node);
+  // general visit
+  virtual void visit(Ast *node);
+
+  // operations
   virtual long long visitBinaryOp(Ast *node);
   virtual long long visitUnaryOp(Ast *node);
+
+  // constants
   virtual long long visitIntergerConstant(Ast *node);
   virtual double visitFloatingConstant(Ast *node);
+  virtual icu::UnicodeString visitStringConstant(Ast *node);
+  virtual bool visitBooleanConstant(Ast *node);
+  virtual Ast *visitIdentifierConstant(Ast *node);
 
-  long long interpret();
+  // statements
+  virtual void visitCompoundStatement(Ast *node);
+  virtual void visitAssignmentStatement(Ast *node);
+  virtual void visitEmptyStatement(Ast *node);
+  virtual void visitStatement(Ast *node);
+
+  // variable
+  virtual Ast *visitVariable(Ast *node);
+
+  // program
+  virtual void visitProgram(Ast *node);
+
+  virtual void interpret();
+
+  const std::unordered_map<icu::UnicodeString, Ast *> globalScope() const;
+  virtual std::string toString() const;
   static void release(Ast *node);
 
 private:
   Ast *tree_;
   Sptr<Parser> parser_;
+  std::unordered_map<icu::UnicodeString, Ast *> globalScope_;
 };
 
 } // namespace fastype

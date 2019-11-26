@@ -7,9 +7,10 @@
 #include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
 #include "script/ast/CompoundStatement.h"
-#include "script/ast/Empty.h"
+#include "script/ast/EmptyStatement.h"
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
+#include "script/ast/Program.h"
 #include "script/ast/StatementList.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
@@ -51,99 +52,108 @@ void Parser::eat(Sptr<Token> token) {
   token_ = lexer_->read();
 }
 
-Ast *Parser::term() {
-  Ast *node = factor();
+Ast *Parser::parseTerm() {
+  Ast *node = parseFactor();
   while (Token::T_MUL->equal(token_) || Token::T_DIV->equal(token_) ||
          token_ == Token::T_MOD) {
     Sptr<Token> t = token_;
     eat(token_);
-    node = new BinaryOp(node, t, factor());
+    node = new BinaryOp(node, t, parseFactor());
   }
   return node;
 }
 
-Ast *Parser::factor() {
+Ast *Parser::parseFactor() {
   Sptr<Token> token = token_;
   if (token == Token::T_ADD) {
     eat(Token::T_ADD);
-    Ast *node = new UnaryOp(token, factor());
+    Ast *node = new UnaryOp(token, parseFactor());
     return node;
   } else if (token == Token::T_SUB) {
     eat(Token::T_ADD);
-    Ast *node = new UnaryOp(token, factor());
+    Ast *node = new UnaryOp(token, parseFactor());
     return node;
   } else if (token->type() == Token::TokenType::TT_INTEGER) {
     eat(Token::TokenType::TT_INTEGER);
     return new IntegerConstant(token);
   } else if (token == Token::T_LP) {
     eat(Token::T_LP);
-    Ast *node = expr();
+    Ast *node = parseExpr();
     eat(Token::T_RP);
     return node;
   } else {
-    return variable();
+    return parseVariable();
   }
 }
 
-Ast *Parser::expr() {
-  Ast *node = term();
+Ast *Parser::parseExpr() {
+  Ast *node = parseTerm();
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
     Sptr<Token> t = token_;
     eat(t);
-    node = new BinaryOp(node, t, term());
+    node = new BinaryOp(node, t, parseTerm());
   }
   return node;
 }
 
-Ast *Parser::program() { return statementList(); }
+Ast *Parser::parseProgram() {
+  std::vector<Ast *> childrenList = parseStatementList();
+  return new Program(childrenList);
+}
 
-Ast *Parser::compoundStatement() {
+Ast *Parser::parseCompoundStatement() {
   eat(Token::T_LBRACE);
-  std::vector<Ast *> childrenList = statementList();
+  std::vector<Ast *> childrenList = parseStatementList();
   eat(Token::T_RBRACE);
   return new CompoundStatement(childrenList);
 }
 
-std::vector<Ast *> Parser::statementList() {
+std::vector<Ast *> Parser::parseStatementList() {
   std::vector<Ast *> ret;
   Ast *node;
-  while ((node = statement()) != nullptr) {
+  while ((node = parseStatement()) != nullptr) {
     ret.push_back(node);
   }
   return ret;
 }
 
-Ast *Parser::statement() {
+Ast *Parser::parseStatement() {
   Ast *node;
   if (token_ == Token::T_LBRACE) {
-    return compoundStatement();
+    return parseCompoundStatement();
   } else if (token_ == Token::T_LET) {
-    return assignmentStatement();
+    return parseAssignmentStatement();
   } else {
-    return empty();
+    return parseEmptyStatement();
   }
 }
 
-Ast *Parser::assignmentStatement() {
+Ast *Parser::parseAssignmentStatement() {
   Sptr<Token> letToken = token_;
   eat(Token::T_LET);
-  Ast *left = variable();
+  Ast *left = parseVariable();
   Sptr<Token> assignToken = token_;
   eat(Token::T_ASSIGNMENT);
-  Ast *right = expr();
+  Ast *right = parseExpr();
   return new AssignmentStatement(left, assignToken, right);
 }
 
-Ast *Parser::variable() {
+Ast *Parser::parseVariable() {
   Ast *node = new Variable(token_);
   eat(Token::TokenType::TT_IDENTIFIER);
   return node;
 }
 
-Ast *Parser::empty() { return new Empty(); }
+Ast *Parser::parseEmptyStatement() {
+  // eat all ';'
+  while (token_ == Token::T_SEMI) {
+    eat(Token::T_SEMI);
+  }
+  return new EmptyStatement();
+}
 
 Ast *Parser::parse() {
-  Ast *node = program();
+  Ast *node = parseProgram();
   F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());
   if (!token_->isEof()) {
     F_THROW(ParseException, "token_ {} must be eof", token_->toString());

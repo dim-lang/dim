@@ -11,12 +11,16 @@
 
 namespace fastype {
 
-class Empty : public Ast {
+class StringConstant : public Ast {
 public:
-  Empty();
-  virtual ~Empty() = default;
+  StringConstant(Sptr<Token> token);
+  virtual ~StringConstant() = default;
+  virtual icu::UnicodeString value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
+
+private:
+  Sptr<Token> token_;
 };
 
 } // namespace fastype

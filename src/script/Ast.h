@@ -21,6 +21,7 @@ public:
     ASSIGNMENT_STATEMENT = 9,
     VARIABLE = 10,
     EMPTY = 11,
+    STATEMENT_LIST = 12,
   };
 
   virtual ~Ast() = default;

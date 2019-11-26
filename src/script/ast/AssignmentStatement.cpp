@@ -11,6 +11,10 @@ AssignmentStatement::AssignmentStatement(Sptr<Token> letToken, Ast *left,
     : letToken_(letToken), left_(left), assignToken_(assignToken),
       right_(right) {}
 
+Ast *AssignmentStatement::left() const { return left_; }
+
+Ast *AssignmentStatement::right() const { return right_; }
+
 double AssignmentStatement::value() const { return token_->floating(); }
 
 std::string AssignmentStatement::toString() const {

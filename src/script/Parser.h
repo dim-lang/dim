@@ -26,16 +26,16 @@ public:
 private:
   void eat(Token::TokenType tokenType);
   void eat(Sptr<Token> token);
-  Ast *expr();
-  Ast *term();
-  Ast *factor();
-  Ast *program();
-  Ast *compoundStatement();
-  std::vector<Ast *> statementList();
-  Ast *statement();
-  Ast *assignmentStatement();
-  Ast *variable();
-  Ast *empty();
+  Ast *parseExpr();
+  Ast *parseTerm();
+  Ast *parseFactor();
+  Ast *parseProgram();
+  Ast *parseCompoundStatement();
+  std::vector<Ast *> parseStatementList();
+  Ast *parseStatement();
+  Ast *parseAssignmentStatement();
+  Ast *parseVariable();
+  Ast *parseEmptyStatement();
 
   Sptr<Token> token_;
   Sptr<Lexer> lexer_;

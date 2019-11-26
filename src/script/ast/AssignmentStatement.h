@@ -16,7 +16,8 @@ public:
   AssignmentStatement(Sptr<Token> letToken, Ast *left, Sptr<Token> assignToken,
                       Ast *right);
   virtual ~AssignmentStatement() = default;
-  virtual double value() const;
+  virtual Ast *left() const;
+  virtual Ast *right() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 

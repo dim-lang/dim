@@ -5,21 +5,18 @@
 #include "SmartPointer.h"
 #include "script/Ast.h"
 #include "script/Token.h"
-#include <vector>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 
-class CompoundStatement : public Ast {
+class EmptyStatement : public Ast {
 public:
-  CompoundStatement(std::vector<Ast *> children);
-  virtual ~CompoundStatement() = default;
-  virtual int size() const;
-  virtual Ast *get(int pos) const;
+  EmptyStatement();
+  virtual ~EmptyStatement() = default;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
-
-private:
-  std::vector<Ast *> children_;
 };
 
 } // namespace fastype

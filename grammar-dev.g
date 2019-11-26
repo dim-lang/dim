@@ -8,12 +8,16 @@ statement_list  :   statement*
 
 statement   :   compound_statement
             |   assignment_statement
+            |   empty_statement
             ;
 
 compound_statement  : '{' statement_list '}'
                     ;
 
 assignment_statement:   'let' variable '=' expr ';'
+                    ;
+
+empty_statement     :   ';'
                     ;
 
 variable:   IDENTIFIER
