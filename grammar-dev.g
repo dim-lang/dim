@@ -3,6 +3,14 @@ grammar fastype;
 program :   statement_list
         ;
 
+declaration :   variable_declaration
+            |   function_declaration
+            |   class_declaration
+            ;
+
+variable_declaration:   'let' ( variable '=' expr )+ ';'
+                    ;
+
 statement_list  :   statement*
                 ;
 
@@ -14,8 +22,9 @@ statement   :   compound_statement
 compound_statement  : '{' statement_list '}'
                     ;
 
-assignment_statement:   'let' variable '=' expr ';'
+assignment_statement:   variable '=' expr ';'
                     ;
+
 
 empty_statement     :   ';'
                     ;

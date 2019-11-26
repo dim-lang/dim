@@ -4,7 +4,7 @@
 #include "script/Interpreter.h"
 #include "Logging.h"
 #include "Token.h"
-#include "exception/ParseException.h"
+#include "exception/ScriptException.h"
 #include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
 #include "script/ast/BooleanConstant.h"
@@ -45,7 +45,7 @@ long long Interpreter::visit(Ast *node) {
     break;
   default:
     F_CHECK(false, "must not reach here, node:{}", node->toString());
-    F_THROW(ParseException, "invalid node type: {}", node->toString());
+    F_THROW(ScriptException, "invalid node type: {}", node->toString());
   }
   return -1LL;
 }
@@ -64,7 +64,7 @@ long long Interpreter::visitBinaryOp(Ast *node) {
     return visit(e->left()) % visit(e->right());
   }
   F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ParseException, "invalid node type: {}", node->toString());
+  F_THROW(ScriptException, "invalid node type: {}", node->toString());
   return -1LL;
 }
 
@@ -76,7 +76,7 @@ long long Interpreter::visitUnaryOp(Ast *node) {
     return -visit(e->expr());
   }
   F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ParseException, "invalid node type: {}", node->toString());
+  F_THROW(ScriptException, "invalid node type: {}", node->toString());
   return -1LL;
 }
 
@@ -112,7 +112,7 @@ Ast *Interpreter::visitVariable(Ast *node) {
   F_CHECK(globalScope_.find(e->value) == globalScope_.end(),
           "variable {} not found in globalScope_", e->toString());
   if (globalScope_.find(e->value) == globalScope_.end()) {
-    F_THROW(ParseException, "variable {} not found in globalScope_",
+    F_THROW(ScriptException, "variable {} not found in globalScope_",
             e->toString());
   }
   return globalScope_.at(e->value());
@@ -141,7 +141,7 @@ void Interpreter::release(Ast *node) {
     break;
   default:
     F_CHECK(false, "must not reach here, node:{}", node->toString());
-    F_THROW(ParseException, "invalid node type: {}", node->toString());
+    F_THROW(ScriptException, "invalid node type: {}", node->toString());
   }
   delete node;
 }

@@ -3,7 +3,7 @@
 
 #include "script/Parser.h"
 #include "Logging.h"
-#include "exception/ParseException.h"
+#include "exception/ScriptException.h"
 #include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
 #include "script/ast/CompoundStatement.h"
@@ -37,7 +37,7 @@ void Parser::eat(Token::TokenType tokenType) {
   F_CHECK(tokenType == token_->type(), "tokenType {} == token_#type {}",
           tokenType, token_->toString());
   if (tokenType != token_->type()) {
-    F_THROW(ParseException, "invlid token type: {}, token_->type: {}",
+    F_THROW(ScriptException, "invlid token type: {}, token_->type: {}",
             tokenType, token_->type());
   }
   token_ = lexer_->read();
@@ -46,7 +46,7 @@ void Parser::eat(Token::TokenType tokenType) {
 void Parser::eat(Sptr<Token> token) {
   F_CHECK(token.get(), "token {} is not null", (void *)token.get());
   if (!token.get()) {
-    F_THROW(ParseException, "token pointer must not null: {}",
+    F_THROW(ScriptException, "token pointer must not null: {}",
             (void *)token.get());
   }
   token_ = lexer_->read();
@@ -155,7 +155,7 @@ Ast *Parser::parse() {
   Ast *node = parseProgram();
   F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());
   if (!token_->isEof()) {
-    F_THROW(ParseException, "token_ {} must be eof", token_->toString());
+    F_THROW(ScriptException, "token_ {} must be eof", token_->toString());
   }
   return node;
 }

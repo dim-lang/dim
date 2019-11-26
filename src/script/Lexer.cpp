@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/Lexer.h"
-#include "exception/ParseException.h"
+#include "exception/ScriptException.h"
 #include "script/token/BooleanToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/FloatingToken.h"

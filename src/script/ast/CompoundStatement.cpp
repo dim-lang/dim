@@ -3,7 +3,7 @@
 
 #include "script/ast/CompoundStatement.h"
 #include "Logging.h"
-#include "exception/ParseException.h"
+#include "exception/ScriptException.h"
 #include "script/Interpreter.h"
 #include <fmt/format.h>
 
@@ -19,10 +19,10 @@ Ast *CompoundStatement::get(int pos) const {
   F_CHECK(pos < children_.size(), "pos {} < children_#size {}", pos,
           children_.size());
   if (pos < 0) {
-    F_THROW(ParseException, "children index failure! pos {} < 0", pos);
+    F_THROW(ScriptException, "children index failure! pos {} < 0", pos);
   }
   if (pos >= children_.size()) {
-    F_THROW(ParseException,
+    F_THROW(ScriptException,
             "children index failure! pos {} >= children_#size {}", pos,
             children_.size());
   }

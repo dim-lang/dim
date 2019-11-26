@@ -6,6 +6,6 @@
 
 namespace fastype {
 
-F_EXCEPTION(ParseException);
+F_EXCEPTION(ScriptException);
 
 } // namespace fastype
