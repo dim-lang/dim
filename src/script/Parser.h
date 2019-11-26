@@ -36,6 +36,8 @@ private:
   Ast *parseAssignmentStatement();
   Ast *parseVariable();
   Ast *parseEmptyStatement();
+  Ast *parseDeclarations();
+  Ast *parseVariableDeclaration();
 
   Sptr<Token> token_;
   Sptr<Lexer> lexer_;

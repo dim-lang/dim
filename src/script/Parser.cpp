@@ -151,6 +151,19 @@ Ast *Parser::parseEmptyStatement() {
   return new EmptyStatement();
 }
 
+Ast *Parser::parseDeclarations() {
+  std::vector<Ast *> declList;
+  if (token_ == Token::T_LET) {
+    eat(Token::T_LET);
+    while (token_->isIdentifier()) {
+      Ast *vardec = parseVariableDeclaration();
+      declList.push_back(vardec);
+    }
+  }
+}
+
+Ast *Parser::parseVariableDeclaration() {}
+
 Ast *Parser::parse() {
   Ast *node = parseProgram();
   F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());

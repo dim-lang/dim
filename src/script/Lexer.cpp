@@ -401,7 +401,7 @@ void Lexer::readImpl() {
       } else if (pos_ + 1 < text_.length() &&
                  (text_.charAt(pos_ + 1) == (UChar)'/' ||
                   text_.charAt(pos_ + 1) == (UChar)'*')) {
-        // block comment start /*
+        // comment start /* or //
         parseComment(text_, pos_);
       } else {
         // /

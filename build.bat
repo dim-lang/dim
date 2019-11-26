@@ -1,8 +1,7 @@
-@echo off
-cls
 @rem Copyright 2019- <fastype.org>
 @rem Apache License Version 2.0
 
+@echo off
 set ROOT=%cd%
 set OS=Windows
 echo [fastype] prepare for %OS%

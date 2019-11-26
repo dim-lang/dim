@@ -8,10 +8,12 @@ declaration :   variable_declaration
             |   class_declaration
             ;
 
-variable_declaration:   'let' ( variable '=' expr )+ ';'
+variable_declaration:   'let' variable '=' expr ';'
+                    |   'let' variable '=' expr (',' variable '=' expr )+ ';'
                     ;
 
 statement_list  :   statement*
+                |   declaration*
                 ;
 
 statement   :   compound_statement
@@ -26,11 +28,8 @@ assignment_statement:   variable '=' expr ';'
                     ;
 
 
-empty_statement     :   ';'
-                    ;
-
-variable:   IDENTIFIER
-        ;
+empty_statement :   ';'
+                ;
 
 expr:   term
     |   term '+' term
@@ -43,11 +42,11 @@ term:   factor
     |   factor '%' factor
     ;
 
-factor  :   INTEGER
-        |   FLOATING
-        |   BOOLEAN
-        |   STRING
-        |   IDENTIFIER
+factor  :   INTEGER_CONSTANT
+        |   FLOATING_CONSTANT
+        |   BOOLEAN_CONSTANT
+        |   STRING_CONSTANT
+        |   variable
         |   '(' expr ')'
         |   '+' factor
         |   '-' factor
@@ -55,4 +54,7 @@ factor  :   INTEGER
         |   '--' factor
         |   factor '++'
         |   factor '--'
+        ;
+
+variable:   IDENTIFIER
         ;
