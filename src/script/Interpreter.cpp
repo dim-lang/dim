@@ -25,7 +25,6 @@ Interpreter::Interpreter(Sptr<Parser> parser)
 
 Interpreter::~Interpreter() {
   globalScope_.clear();
-  globalScope_.shrink_to_fit();
   release(tree_);
   tree_ = nullptr;
 }

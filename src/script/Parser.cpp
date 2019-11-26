@@ -118,7 +118,6 @@ std::vector<Ast *> Parser::parseStatementList() {
 }
 
 Ast *Parser::parseStatement() {
-  Ast *node;
   if (token_ == Token::T_LBRACE) {
     return parseCompoundStatement();
   } else if (token_ == Token::T_LET) {
@@ -135,7 +134,7 @@ Ast *Parser::parseAssignmentStatement() {
   Sptr<Token> assignToken = token_;
   eat(Token::T_ASSIGNMENT);
   Ast *right = parseExpr();
-  return new AssignmentStatement(left, assignToken, right);
+  return new AssignmentStatement(letToken, left, assignToken, right);
 }
 
 Ast *Parser::parseVariable() {

@@ -4,12 +4,20 @@
 #pragma once
 #include "SmartPointer.h"
 #include "Stringify.h"
-#include "script/NodeVisitor.h"
 #include "script/Parser.h"
 #include <unicode/numfmt.h>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+
+namespace std {
+template <> class hash<icu::UnicodeString> {
+public:
+  size_t operator()(const icu::UnicodeString &s) const {
+    return (size_t)s.hashCode();
+  }
+};
+}; // namespace std
 
 namespace fastype {
 
@@ -20,6 +28,8 @@ public:
 
   // general visit
   virtual void visit(Ast *node);
+  virtual void visitStatement(Ast *node);
+  virtual void visitOp(Ast *node);
 
   // operations
   virtual long long visitBinaryOp(Ast *node);
