@@ -3,23 +3,31 @@ grammar fastype;
 program :   statement_list
         ;
 
-declaration :   variable_declaration
-            |   function_declaration
-            |   class_declaration
-            ;
-
-variable_declaration:   'let' variable '=' expr ';'
-                    |   'let' variable '=' expr (',' variable '=' expr )+ ';'
-                    ;
-
 statement_list  :   statement*
                 |   declaration*
+                ;
+
+declaration :   variable_declaration
+            |   function_declaration
+            ;
+
+variable_declaration:   'let' variable '=' expr (',' variable '=' expr)* ';'
+                    ;
+
+function_declaration:   'func' IDENTIFIER '(' variable_list ')' compound_statement
+                    ;
+
+variable_list   :   variable ( ',' variable )*
                 ;
 
 statement   :   compound_statement
             |   assignment_statement
             |   empty_statement
+            |   return_statement
             ;
+
+return_statement:   'return' expr ';'
+                ;
 
 compound_statement  : '{' statement_list '}'
                     ;

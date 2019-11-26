@@ -444,43 +444,45 @@ void Lexer::readImpl() {
         parseConstToken(pos_, Token::T_ASSIGNMENT, queue_);
       }
       break;
-      /*
-    case (UChar)'!': // ! or !=
+    case (UChar)'!':
       if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("!=")) {
+        // !
         parseConstToken(pos_, Token::T_NEQ, queue_, 2);
       } else {
+        // !=
         parseConstToken(pos_, Token::T_NOT, queue_);
       }
       break;
-    case (UChar)'<': // < or <=
+    case (UChar)'<':
       if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("<=")) {
+        // <
         parseConstToken(pos_, Token::T_LE, queue_, 2);
       } else {
+        // <=
         parseConstToken(pos_, Token::T_LT, queue_);
       }
       break;
-    case (UChar)'>': // > or >=
+    case (UChar)'>':
       if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE(">=")) {
+        // >
         parseConstToken(pos_, Token::T_GE, queue_, 2);
       } else {
+        // >=
         parseConstToken(pos_, Token::T_GT, queue_);
       }
       break;
     case (UChar)',':
       parseConstToken(pos_, Token::T_COMMA, queue_);
       break;
-      */
     case (UChar)';':
       parseConstToken(pos_, Token::T_SEMI, queue_);
       break;
-      /*
     case (UChar)'?':
       parseConstToken(pos_, Token::T_QUESTION, queue_);
       break;
     case (UChar)':':
       parseConstToken(pos_, Token::T_COLON, queue_);
       break;
-    */
     case (UChar)'(': {
       parseConstToken(pos_, Token::T_LP, queue_);
       return;
@@ -503,6 +505,8 @@ void Lexer::readImpl() {
       break;
     default:
       F_CHECK(false, "unknown token at text_[{}]: {}", pos_,
+              F_SUB_STRING(text_, pos_, _1));
+      F_THROW(ScriptException, "unknown token at text_[{}]: {}", pos_,
               F_SUB_STRING(text_, pos_, _1));
     }
   }
