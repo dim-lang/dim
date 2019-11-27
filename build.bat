@@ -78,6 +78,7 @@ cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_P
 echo [fastype] prepare msvc project - done
 
 echo [fastype] NOTICE:
-echo [fastype]   1 - please build icu4c x64 manually with `src\icu\icu4c\source\allinone\allinone.sln` with wiki:
+echo [fastype]   1 - please manually download prebuilt ICU4C library and link Release x64 with fastype.
 echo [fastype]       https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
+echo [fastype]   2 - please manually download boost-1.70.0 source code and put
 echo [fastype]   2 - please build fastype manually with `debug\fastype-parent.sln` and `release\fastype-parent.sln`

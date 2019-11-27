@@ -24,6 +24,13 @@ Download fastype source code from github and build mannually.
 |  Ubuntu    | g++, cmake, boost, fmt, icu4c                                     |
 |  Windows   | msvc, cmake                                                       |
 
+For windows platform, please build manually:
+
+1. Download prebuilt ICU4C library [here](https://www.npcglib.org/~stathis/blog/precompiled-icu-past/) (choose *ICU v58.2* with *MSVC2017*) and unzip to `/src`.
+2. Download boost source code [here](https://www.boost.org/users/history/version_1_70_0.html) (choose `boost_1_70_0.7z`) and unzip to `/src`.
+3. Create project with `build.bat` and build with `debug\fastype-parent.sln` and `release\fastype-parent.sln`.
+
+
 #### Build
 
 |  Platform      |  Build                                                                          |
