@@ -12,7 +12,7 @@ KeywordToken::KeywordToken(const icu::UnicodeString &value)
 
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 
-bool KeywordToken::equal(const Sptr<Token> t) const {
+bool KeywordToken::equal(const Sptr<Token> &t) const {
   return t.get() && t->isKeyword() && literal() == t->literal();
 }
 

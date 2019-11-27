@@ -12,7 +12,7 @@ OperatorToken::OperatorToken(const icu::UnicodeString &value)
 
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
-bool OperatorToken::equal(const Sptr<Token> t) const {
+bool OperatorToken::equal(const Sptr<Token> &t) const {
   return t.get() && t->isOperator() && literal() == t->literal();
 }
 

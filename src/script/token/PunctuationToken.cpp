@@ -12,7 +12,7 @@ PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
 
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
-bool PunctuationToken::equal(const Sptr<Token> t) const {
+bool PunctuationToken::equal(const Sptr<Token> &t) const {
   return t.get() && t->isPunctuation() && literal() == t->literal();
 }
 

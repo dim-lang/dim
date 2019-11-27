@@ -12,7 +12,7 @@ StringToken::StringToken(const icu::UnicodeString &value)
 
 icu::UnicodeString StringToken::literal() const { return value_; }
 
-bool StringToken::equal(const Sptr<Token> t) const {
+bool StringToken::equal(const Sptr<Token> &t) const {
   return t.get() && t->isString() && literal() == t->literal();
 }
 

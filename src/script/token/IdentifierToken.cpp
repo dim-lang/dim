@@ -11,7 +11,7 @@ IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
 
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 
-bool IdentifierToken::equal(const Sptr<Token> t) const {
+bool IdentifierToken::equal(const Sptr<Token> &t) const {
   return t.get() && t->isIdentifier() && literal() == t->literal();
 }
 

@@ -12,7 +12,7 @@ public:
   IntegerToken(long long value);
   virtual ~IntegerToken() = default;
   virtual long long integer() const;
-  virtual bool equal(const Sptr<Token> t) const;
+  virtual bool equal(const Sptr<Token> &t) const;
   virtual std::string toString() const;
 
 private:
