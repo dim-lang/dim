@@ -6,22 +6,16 @@
 
 namespace fastype {
 
-AssignmentStatement::AssignmentStatement(Sptr<Token> letToken, Ast *left,
-                                         Sptr<Token> assignToken, Ast *right)
-    : letToken_(letToken), left_(left), assignToken_(assignToken),
-      right_(right) {}
+AssignmentStatement::AssignmentStatement(Ast *var, Ast *expr)
+    : var_(var), expr_(expr) {}
 
-Ast *AssignmentStatement::left() const { return left_; }
+Ast *AssignmentStatement::var() const { return var_; }
 
-Ast *AssignmentStatement::right() const { return right_; }
-
-double AssignmentStatement::value() const { return token_->floating(); }
+Ast *AssignmentStatement::expr() const { return expr_; }
 
 std::string AssignmentStatement::toString() const {
-  return fmt::format("[ @AssignmentStatement letToken_:{}, left_:{}, "
-                     "assignToken_:{}, right_:{} ]",
-                     letToken_->toString(), left_->toString(),
-                     assignToken_->toString(), right_->toString());
+  return fmt::format("[ @AssignmentStatement var_:{}, expr_:{} ]",
+                     var_->toString(), expr_->toString());
 }
 
 Ast::AstType AssignmentStatement::type() const {

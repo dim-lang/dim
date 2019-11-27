@@ -18,7 +18,7 @@ int StatementList::size() const { return children_.size(); }
 Ast *StatementList::get(int i) const { return children_[i]; }
 
 std::string StatementList::toString() const {
-  return fmt::format("[ @StatementList children_#size: {} ]", children_.size());
+  return ast::AstVectortoString(children_, "StatementList");
 }
 
 Ast::AstType StatementList::type() const {

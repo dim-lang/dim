@@ -6,14 +6,17 @@
 #include "exception/ScriptException.h"
 #include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
+#include "script/ast/BooleanConstant.h"
 #include "script/ast/CompoundStatement.h"
 #include "script/ast/EmptyStatement.h"
+#include "script/ast/FloatingConstant.h"
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"
 #include "script/ast/StatementList.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
+#include "script/ast/VariableDeclaration.h"
 #include "script/token/BooleanToken.h"
 #include "script/token/EofToken.h"
 #include "script/token/FloatingToken.h"
@@ -52,41 +55,109 @@ void Parser::eat(Sptr<Token> token) {
   token_ = lexer_->read();
 }
 
-Ast *Parser::parseTerm() {
-  Ast *node = parseFactor();
-  while (Token::T_MUL->equal(token_) || Token::T_DIV->equal(token_) ||
-         token_ == Token::T_MOD) {
-    Sptr<Token> t = token_;
-    eat(token_);
-    node = new BinaryOp(node, t, parseFactor());
+Ast *Parser::parseProgram() { return new Program(parseStatementList()); }
+
+Ast *Parser::parseStatementList() {
+  std::vector<Ast *> nodes;
+  Ast *e = nullptr;
+
+  do {
+    if (token_ == Token::T_LET) {
+      // variable_declaration
+      std::vector<Ast *> vars = parseVariableDeclaration();
+      nodes.reserve(vars.size() + nodes.size());
+      nodes.insert(nodes.end(), vars.begin(), vars.end());
+    } else if (token_ == Token::T_FUNC) {
+      // function_declaration
+      e = parseFunctionDeclaration();
+      nodes.push_back(e);
+    } else if (token_ == Token::T_CLASS) {
+      // class_declaration
+      e = parseClassDeclaration();
+      nodes.push_back(e);
+    } else if (token_ == Token::T_LBRACE) {
+      // compound_statement
+      e = parseCompoundStatement();
+      nodes.push_back(e);
+    } else if (token_ == Token::T_SEMI) {
+      // empty_statement
+      e = parseEmptyStatement();
+      nodes.push_back(e);
+    } else if (token_->isIdentifier()) {
+      // assignment_statement
+      e = parseAssignmentStatement();
+      nodes.push_back(e);
+    } else if (token_ == Token::T_RETURN) {
+      // return_statement
+      e = parseReturnStatement();
+      nodes.push_back(e);
+    } else {
+      F_CHECK(false, "invalid statement_list at token_:{}", token_->toString());
+      F_THROW(ScriptException, "invalid statement_list at token_:{}",
+              token_->toString());
+    }
+  } while (e != nullptr);
+
+  return new StatementList(nodes);
+}
+
+Ast *Parser::parseVariableDeclaration() {
+  std::vector<Ast *> nodes;
+
+  // first
+  eat(Token::T_LET);
+  Ast *var = parseVariable();
+  eat(Token::T_ASSIGNMENT);
+  Ast *expr = parseExpression();
+  nodes.push_back(new AssignmentStatement(var, expr));
+
+  // others
+  while (token_ == Token::T_COMMA) {
+    eat(Token::T_COMMA);
+    Ast *var = parseVariable();
+    eat(Token::T_ASSIGNMENT);
+    Ast *expr = parseExpression();
+    nodes.push_back(new AssignmentStatement(var, expr));
   }
+
+  // finish
+  eat(Token::T_SEMI);
+
+  return new VariableDeclaration(nodes);
+}
+
+Ast *Parser::parseFunctionDeclaration() { return nullptr; }
+
+Ast *Parser::parseClassDeclaration() { return nullptr; }
+
+Ast *Parser::parseCompoundStatement() {
+  eat(Token::T_LBRACE);
+  Ast *node = parseStatementList();
+  eat(Token::T_RBRACE);
+  return new CompoundStatement(node);
+}
+
+Ast *Parser::parseAssignmentStatement() {
+  Ast *var = parseVariable();
+  eat(Token::T_ASSIGNMENT);
+  Ast *expr = parseExpression();
+  eat(Token::T_SEMI);
+  return new AssignmentStatement(var, expr);
+}
+
+Ast *Parser::parseEmptyStatement() {
+  eat(Token::T_SEMI);
+  return new EmptyStatement();
+}
+
+Ast *Parser::parseReturnStatement() {
+  eat(Token::T_RETURN);
+  Ast *expr = parseExpression();
+  eat(Token::T_SEMI);
   return node;
 }
 
-Ast *Parser::parseFactor() {
-  Sptr<Token> token = token_;
-  if (token == Token::T_ADD) {
-    eat(Token::T_ADD);
-    Ast *node = new UnaryOp(token, parseFactor());
-    return node;
-  } else if (token == Token::T_SUB) {
-    eat(Token::T_ADD);
-    Ast *node = new UnaryOp(token, parseFactor());
-    return node;
-  } else if (token->type() == Token::TokenType::TT_INTEGER) {
-    eat(Token::TokenType::TT_INTEGER);
-    return new IntegerConstant(token);
-  } else if (token == Token::T_LP) {
-    eat(Token::T_LP);
-    Ast *node = parseExpr();
-    eat(Token::T_RP);
-    return node;
-  } else {
-    return parseVariable();
-  }
-}
-
-Ast *Parser::parseExpr() {
+Ast *Parser::parseExpression() {
   Ast *node = parseTerm();
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
     Sptr<Token> t = token_;
@@ -96,45 +167,51 @@ Ast *Parser::parseExpr() {
   return node;
 }
 
-Ast *Parser::parseProgram() {
-  std::vector<Ast *> childrenList = parseStatementList();
-  return new Program(childrenList);
-}
-
-Ast *Parser::parseCompoundStatement() {
-  eat(Token::T_LBRACE);
-  std::vector<Ast *> childrenList = parseStatementList();
-  eat(Token::T_RBRACE);
-  return new CompoundStatement(childrenList);
-}
-
-std::vector<Ast *> Parser::parseStatementList() {
-  std::vector<Ast *> ret;
-  Ast *node;
-  while ((node = parseStatement()) != nullptr) {
-    ret.push_back(node);
+Ast *Parser::parseTerm() {
+  Ast *node = parseFactor();
+  while (token_ == Token::T_MUL || token_ == Token::T_DIV ||
+         token_ == Token::T_MOD) {
+    Sptr<Token> t = token_;
+    eat(token_);
+    node = new BinaryOp(node, t, parseFactor());
   }
-  return ret;
+  return node;
 }
 
-Ast *Parser::parseStatement() {
-  if (token_ == Token::T_LBRACE) {
-    return parseCompoundStatement();
-  } else if (token_ == Token::T_LET) {
-    return parseAssignmentStatement();
+Ast *Parser::parseFactor() {
+  Sptr<Token> t = token_;
+  if (t == Token::T_ADD) {
+    eat(Token::T_ADD);
+    return new UnaryOp(t, parseFactor());
+  } else if (t == Token::T_SUB) {
+    eat(Token::T_ADD);
+    return new UnaryOp(t, parseFactor());
+  } else if (t == Token::T_INC) {
+    eat(Token::T_INC);
+    return new UnaryOp(t, parseFactor());
+  } else if (t == Token::T_DEC) {
+    eat(Token::T_DEC);
+    return new UnaryOp(t, parseFactor());
+  } else if (t->isInteger()) {
+    eat(Token::TokenType::TT_INTEGER);
+    return new IntegerConstant(t);
+  } else if (t->isFloating()) {
+    eat(Token::TokenType::TT_FLOATING);
+    return new FloatingConstant(t);
+  } else if (t->isBoolean()) {
+    eat(Token::TokenType::TT_BOOLEAN);
+    return new BooleanConstant(t);
+  } else if (t->isString()) {
+    eat(Token::TokenType::TT_STRING);
+    return new StringConstant(t);
+  } else if (t == Token::T_LP) {
+    eat(Token::T_LP);
+    Ast *node = parseExpression();
+    eat(Token::T_RP);
+    return node;
   } else {
-    return parseEmptyStatement();
+    return parseVariable();
   }
-}
-
-Ast *Parser::parseAssignmentStatement() {
-  Sptr<Token> letToken = token_;
-  eat(Token::T_LET);
-  Ast *left = parseVariable();
-  Sptr<Token> assignToken = token_;
-  eat(Token::T_ASSIGNMENT);
-  Ast *right = parseExpr();
-  return new AssignmentStatement(letToken, left, assignToken, right);
 }
 
 Ast *Parser::parseVariable() {
@@ -142,27 +219,6 @@ Ast *Parser::parseVariable() {
   eat(Token::TokenType::TT_IDENTIFIER);
   return node;
 }
-
-Ast *Parser::parseEmptyStatement() {
-  // eat all ';'
-  while (token_ == Token::T_SEMI) {
-    eat(Token::T_SEMI);
-  }
-  return new EmptyStatement();
-}
-
-Ast *Parser::parseDeclarations() {
-  std::vector<Ast *> declList;
-  if (token_ == Token::T_LET) {
-    eat(Token::T_LET);
-    while (token_->isIdentifier()) {
-      Ast *vardec = parseVariableDeclaration();
-      declList.push_back(vardec);
-    }
-  }
-}
-
-Ast *Parser::parseVariableDeclaration() {}
 
 Ast *Parser::parse() {
   Ast *node = parseProgram();

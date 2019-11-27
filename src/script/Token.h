@@ -132,7 +132,7 @@ public:
   virtual double floating() const;
   virtual bool boolean() const;
 
-  virtual bool equal(const Sptr<Token> t) const;
+  virtual bool equal(const Sptr<Token> &t) const;
 
   virtual std::string toString() const;
 

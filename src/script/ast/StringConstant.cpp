@@ -15,7 +15,7 @@ std::string StringConstant::toString() const {
 }
 
 Ast::AstType StringConstant::type() const {
-  return Ast::AstType::INTEGER_CONSTANT;
+  return Ast::AstType::STRING_CONSTANT;
 }
 
 } // namespace fastype

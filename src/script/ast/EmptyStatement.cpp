@@ -12,6 +12,8 @@ std::string EmptyStatement::toString() const {
   return fmt::format("[ @EmptyStatement ]");
 }
 
-Ast::AstType EmptyStatement::type() const { return Ast::AstType::EMPTY; }
+Ast::AstType EmptyStatement::type() const {
+  return Ast::AstType::EMPTY_STATEMENT;
+}
 
 } // namespace fastype

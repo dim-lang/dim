@@ -6,18 +6,19 @@
 
 namespace fastype {
 
-VariableDeclaration::VariableDeclaration(Sptr<Token> token) : token_(token) {}
+VariableDeclaration::VariableDeclaration(const std::vector<Ast *> &children)
+    : children_(children) {}
 
-icu::UnicodeString VariableDeclaration::value() const {
-  return token_->literal();
-}
+int VariableDeclaration::size() { return children_.size(); }
+
+Ast *VariableDeclaration::get(int i) { return children_[i]; }
 
 std::string VariableDeclaration::toString() const {
-  return fmt::format("[ @VariableDeclaration token_:{} ]", token_->toString());
+  return ast::AstVectortoString(children_, "VariableDeclaration");
 }
 
 Ast::AstType VariableDeclaration::type() const {
-  return Ast::AstType::VARIABLE;
+  return Ast::AstType::VARIABLE_DECLARATION;
 }
 
 } // namespace fastype

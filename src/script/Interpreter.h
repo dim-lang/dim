@@ -26,41 +26,35 @@ public:
   Interpreter(Sptr<Parser> parser);
   virtual ~Interpreter();
 
-  // general visit
+  virtual void interpret();
+  const std::unordered_map<icu::UnicodeString, Ast *> globalScope() const;
+  virtual std::string toString() const;
+
+private:
+  // general
   virtual void visit(Ast *node);
-  virtual void visitStatement(Ast *node);
-  virtual void visitOp(Ast *node);
-
-  // operations
-  virtual long long visitBinaryOp(Ast *node);
-  virtual long long visitUnaryOp(Ast *node);
-
-  // constants
-  virtual long long visitIntergerConstant(Ast *node);
-  virtual double visitFloatingConstant(Ast *node);
-  virtual icu::UnicodeString visitStringConstant(Ast *node);
-  virtual bool visitBooleanConstant(Ast *node);
-  virtual Ast *visitIdentifierConstant(Ast *node);
-
-  // statements
-  virtual void visitCompoundStatement(Ast *node);
-  virtual void visitAssignmentStatement(Ast *node);
-  virtual void visitEmptyStatement(Ast *node);
-  virtual void visitStatement(Ast *node);
-
-  // variable
-  virtual Ast *visitVariable(Ast *node);
 
   // program
   virtual void visitProgram(Ast *node);
+  virtual void visitStatementList(Ast *node);
 
-  virtual void interpret();
+  // declaration
+  virtual void visitVariableDeclaration(Ast *node);
+  virtual void visitFunctionDeclaration(Ast *node);
+  virtual void visitClassDeclaration(Ast *node);
 
-  const std::unordered_map<icu::UnicodeString, Ast *> globalScope() const;
-  virtual std::string toString() const;
+  // statement
+  virtual void visitCompoundStatement(Ast *node);
+  virtual void visitAssignmentStatement(Ast *node);
+  virtual void visitEmptyStatement(Ast *node);
+  virtual void visitReturnStatement(Ast *node);
+
+  // expression
+  virtual Ast *visitBinaryOp(Ast *node);
+  virtual Ast *visitUnaryOp(Ast *node);
+
   static void release(Ast *node);
 
-private:
   Ast *tree_;
   Sptr<Parser> parser_;
   std::unordered_map<icu::UnicodeString, Ast *> globalScope_;

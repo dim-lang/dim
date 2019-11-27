@@ -2,25 +2,20 @@
 // Apache License Version 2.0
 
 #include "script/ast/Program.h"
+#include "script/ast/Util.h"
 #include <fmt/format.h>
 
 namespace fastype {
 
-Program::Program(const std::vector<Ast *> &children)
-    : children_(children.size()) {
-  for (int i = 0; i < children.size(); i++) {
-    children_.push_back(children[i]);
-  }
-}
+Program::Program(Ast *node) : statementList_(node) {}
 
-int Program::size() const { return children_.size(); }
-
-Ast *Program::get(int i) const { return children_[i]; }
+Ast *Program::statementList() const { return statementList_; }
 
 std::string Program::toString() const {
-  return fmt::format("[ @Program children_#size: {} ]", children_.size());
+  return fmt::format("[ @Program statementList_:{} ]",
+                     statementList_->toString());
 }
 
-Ast::AstType Program::type() const { return Ast::AstType::STATEMENT_LIST; }
+Ast::AstType Program::type() const { return Ast::AstType::PROGRAM; }
 
 } // namespace fastype

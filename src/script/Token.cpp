@@ -326,7 +326,7 @@ bool Token::boolean() const {
   F_THROW(NotImplementException, "boolean not implement! {}", toString());
 }
 
-bool Token::equal(const Sptr<Token> t) const {
+bool Token::equal(const Sptr<Token> &t) const {
   F_THROW(NotImplementException, "operator== not implement! {}", toString());
 }
 

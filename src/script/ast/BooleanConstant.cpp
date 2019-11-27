@@ -15,7 +15,7 @@ std::string BooleanConstant::toString() const {
 }
 
 Ast::AstType BooleanConstant::type() const {
-  return Ast::AstType::INTEGER_CONSTANT;
+  return Ast::AstType::BOOLEAN_CONSTANT;
 }
 
 } // namespace fastype

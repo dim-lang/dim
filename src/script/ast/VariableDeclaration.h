@@ -13,16 +13,15 @@ namespace fastype {
 
 class VariableDeclaration : public Ast {
 public:
-  VariableDeclaration(Ast *var, Ast *expr);
+  VariableDeclaration(const std::vector<Ast *> &children);
   virtual ~VariableDeclaration() = default;
-  virtual Ast *var() const;
-  virtual Ast *expr() const;
+  virtual int size() const;
+  virtual Ast *get(int i) const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Ast *var_;
-  Ast *expr_;
+  std::vector<Ast *> children_;
 };
 
 } // namespace fastype

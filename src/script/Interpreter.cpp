@@ -16,7 +16,9 @@
 #include "script/ast/StringConstant.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
+#include <algorithm>
 #include <sstream>
+#include <utility>
 
 namespace fastype {
 
@@ -29,7 +31,86 @@ Interpreter::~Interpreter() {
   tree_ = nullptr;
 }
 
-long long Interpreter::visit(Ast *node) {
+void Interpreter::visit(Ast *node) {
+  switch (node->type()) {
+  case Ast::AstType::PROGRAM:
+    visitProgram(node);
+    break;
+  case Ast::AstType::STATEMENT_LIST:
+    visitStatementList(node);
+    break;
+  case Ast::AstType::VARIABLE_DECLARATION:
+    visitVariableDeclaration(node);
+    break;
+  case Ast::AstType::FUNCTION_DECLARATION:
+    visitFunctionDeclaration(node);
+    break;
+  case Ast::AstType::CLASS_DECLARATION:
+    visitClassDeclaration(node);
+    break;
+  case Ast::AstType::COMPOUND_STATEMENT:
+    visitCompoundStatement(node);
+    break;
+  case Ast::AstType::ASSIGNMENT_STATEMENT:
+    visitAssignmentStatement(node);
+    break;
+  case Ast::AstType::EMPTY_STATEMENT:
+    visitEmptyStatement(node);
+    break;
+  case Ast::AstType::RETURN_STATEMENT:
+    visitReturnStatement(node);
+    break;
+  default:
+    F_CHECK(false, "must not reach here, node:{}", node->toString());
+    F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
+  }
+}
+
+void Interpreter::visitProgram(Ast *node) {
+  (Program *)e = (Program *)node;
+  visit(e->statementList());
+}
+
+void Interpreter::visitStatementList(Ast *node) {
+  (StatementList *)e = (StatementList *)node;
+  for (int i = 0; i < e->size(); i++) {
+    Ast *child = e->get(i);
+    visit(child);
+  }
+}
+
+void Interpreter::visitVariableDeclaration(Ast *node) {
+  (VariableDeclaration *)e = (VariableDeclaration *)node;
+  for (int i = 0; i < e->size(); i++) {
+    Ast *child = e->get(i);
+    visit(child);
+  }
+}
+
+void Interpreter::visitFunctionDeclaration(Ast *node) {}
+
+void Interpreter::visitClassDeclaration(Ast *node) {}
+
+void Interpreter::visitCompoundStatement(Ast *node) {
+  CompoundStatement *e = (CompoundStatement *)node;
+  for (int i = 0; i < e->size(); i++) {
+    Ast *child = e->get(i);
+    visit(child);
+  }
+}
+
+void Interpreter::visitAssignmentStatement(Ast *node) {
+  AssignmentStatement *e = (AssignmentStatement *)node;
+  Variable *var = (Variable *)e->var();
+  Ast *expr = e->expr();
+  globalScope_[var->value()] = visitBinaryOp(expr);
+}
+
+void Interpreter::visitEmptyStatement(Ast *node) {}
+
+void Interpreter::visitReturnStatement(Ast *node) {}
+
+static Ast *visitExpression(Ast *node) {
   switch (node->type()) {
   case Ast::AstType::BINARY_OP:
     return visitBinaryOp(node);
@@ -37,85 +118,116 @@ long long Interpreter::visit(Ast *node) {
   case Ast::AstType::UNARY_OP:
     return visitUnaryOp(node);
     break;
-  case Ast::AstType::INTEGER_CONSTANT:
-    return visitIntergerConstant(node);
-    break;
-  case Ast::AstType::FLOATING_CONSTANT:
-    return (long long)visitFloatingConstant(node);
-    break;
   default:
-    F_CHECK(false, "must not reach here, node:{}", node->toString());
-    F_THROW(ScriptException, "invalid node type: {}", node->toString());
+    return node;
   }
-  return -1LL;
 }
 
-long long Interpreter::visitBinaryOp(Ast *node) {
+static inline bool isIC(Ast *node) {
+  return node->type() == Ast::AstType::INTEGER_CONSTANT;
+}
+
+static inline bool isFC(Ast *node) {
+  return node->type() == Ast::AstType::FLOATING_CONSTANT;
+}
+
+Ast *Interpreter::visitBinaryOp(Ast *node) {
   BinaryOp *e = (BinaryOp *)node;
+  Ast *l = visitExpression(e->left());
+  Ast *r = visitExpression(e->right());
+
   if (e->op() == Token::T_ADD) {
-    return visit(e->left()) + visit(e->right());
+    if (isIC(l) && isIC(r)) {
+      return new IntegerConstant(((IntegerConstant *)l)->value() +
+                                 ((IntegerConstant *)r)->value());
+    } else if (isIC(l) && isFC(r)) {
+      return new FloatingConstant((double)((IntegerConstant *)l)->value() +
+                                  ((FloatingConstant *)r)->value());
+    } else if (isFC(l) && isIC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() +
+                                  (double)((IntegerConstant *)r)->value());
+    } else if (isFC(l) && isFC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() +
+                                  ((FloatingConstant *)r)->value());
+    }
   } else if (e->op() == Token::T_SUB) {
-    return visit(e->left()) - visit(e->right());
+    if (isIC(l) && isIC(r)) {
+      return new IntegerConstant(((IntegerConstant *)l)->value() -
+                                 ((IntegerConstant *)r)->value());
+    } else if (isIC(l) && isFC(r)) {
+      return new FloatingConstant((double)((IntegerConstant *)l)->value() -
+                                  ((FloatingConstant *)r)->value());
+    } else if (isFC(l) && isIC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() -
+                                  (double)((IntegerConstant *)r)->value());
+    } else if (isFC(l) && isFC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() -
+                                  ((FloatingConstant *)r)->value());
+    }
   } else if (e->op() == Token::T_MUL) {
-    return visit(e->left()) * visit(e->right());
+    if (isIC(l) && isIC(r)) {
+      return new IntegerConstant(((IntegerConstant *)l)->value() *
+                                 ((IntegerConstant *)r)->value());
+    } else if (isIC(l) && isFC(r)) {
+      return new FloatingConstant((double)((IntegerConstant *)l)->value() *
+                                  ((FloatingConstant *)r)->value());
+    } else if (isFC(l) && isIC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() *
+                                  (double)((IntegerConstant *)r)->value());
+    } else if (isFC(l) && isFC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() *
+                                  ((FloatingConstant *)r)->value());
+    }
   } else if (e->op() == Token::T_DIV) {
-    return visit(e->left()) / visit(e->right());
+    if (isIC(l) && isIC(r)) {
+      return new IntegerConstant(((IntegerConstant *)l)->value() /
+                                 ((IntegerConstant *)r)->value());
+    } else if (isIC(l) && isFC(r)) {
+      return new FloatingConstant((double)((IntegerConstant *)l)->value() /
+                                  ((FloatingConstant *)r)->value());
+    } else if (isFC(l) && isIC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() /
+                                  (double)((IntegerConstant *)r)->value());
+    } else if (isFC(l) && isFC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() /
+                                  ((FloatingConstant *)r)->value());
+    }
   } else if (e->op() == Token::T_MOD) {
-    return visit(e->left()) % visit(e->right());
+    if (isIC(l) && isIC(r)) {
+      return new IntegerConstant(((IntegerConstant *)l)->value() %
+                                 ((IntegerConstant *)r)->value());
+    } else if (isIC(l) && isFC(r)) {
+      return new FloatingConstant((double)((IntegerConstant *)l)->value() %
+                                  ((FloatingConstant *)r)->value());
+    } else if (isFC(l) && isIC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() %
+                                  (double)((IntegerConstant *)r)->value());
+    } else if (isFC(l) && isFC(r)) {
+      return new FloatingConstant(((FloatingConstant *)l)->value() %
+                                  ((FloatingConstant *)r)->value());
+    }
   }
   F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ScriptException, "invalid node type: {}", node->toString());
-  return -1LL;
+  F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
+  return nullptr;
 }
 
-long long Interpreter::visitUnaryOp(Ast *node) {
+Ast *Interpreter::visitUnaryOp(Ast *node) {
   UnaryOp *e = (UnaryOp *)node;
+  Ast *expr = visitExpression(e->expr());
   if (e->op() == Token::T_ADD) {
-    return visit(e->expr());
+    return expr;
   } else if (e->op() == Token::T_SUB) {
-    return -visit(e->expr());
+    Ast *expr = e->expr();
+    if (isIC(expr)) {
+      return new IntegerConstant(-((IntegerConstant *)expr)->value());
+    } else if (isFC(expr)) {
+      return new FloatingConstant(-((FloatingConstant *)l)->value());
+    }
   }
   F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ScriptException, "invalid node type: {}", node->toString());
-  return -1LL;
-}
-
-long long Interpreter::visitIntergerConstant(Ast *node) {
-  IntegerConstant *e = (IntegerConstant *)node;
-  return e->value();
-}
-
-double Interpreter::visitFloatingConstant(Ast *node) {
-  FloatingConstant *e = (FloatingConstant *)node;
-  return e->value();
-}
-
-void Interpreter::visitCompoundStatement(Ast *node) {
-  CompoundStatement *e = (CompoundStatement *)node;
-  for (int i = 0; i < e->size(); i++) {
-    Ast *stmt = e->get(i);
-    visit(stmt);
-  }
-}
-
-void Interpreter::visitAssignmentStatement(Ast *node) {
-  AssignmentStatement *e = (AssignmentStatement *)node;
-  Variable *left = (Variable *)e->left();
-  Ast *right = e->right();
-  globalScope_.insert(std::make_pair(left->value(), right));
-}
-
-void Interpreter::visitEmptyStatement(Ast *node) {}
-
-Ast *Interpreter::visitVariable(Ast *node) {
-  Variable *e = (Variable *)node;
-  F_CHECK(globalScope_.find(e->value) == globalScope_.end(),
-          "variable {} not found in globalScope_", e->toString());
-  if (globalScope_.find(e->value) == globalScope_.end()) {
-    F_THROW(ScriptException, "variable {} not found in globalScope_",
-            e->toString());
-  }
-  return globalScope_.at(e->value());
+  F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
+  return nullptr;
 }
 
 void Interpreter::interpret() {
@@ -141,7 +253,7 @@ void Interpreter::release(Ast *node) {
     break;
   default:
     F_CHECK(false, "must not reach here, node:{}", node->toString());
-    F_THROW(ScriptException, "invalid node type: {}", node->toString());
+    F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
   }
   delete node;
 }

@@ -11,15 +11,14 @@ namespace fastype {
 
 class CompoundStatement : public Ast {
 public:
-  CompoundStatement(std::vector<Ast *> children);
+  CompoundStatement(Ast *node);
   virtual ~CompoundStatement() = default;
-  virtual int size() const;
-  virtual Ast *get(int pos) const;
+  virtual Ast *statementList() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  std::vector<Ast *> children_;
+  Ast *statementList_;
 };
 
 } // namespace fastype
