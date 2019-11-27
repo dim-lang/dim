@@ -145,7 +145,7 @@ Ast *Parser::parseEmptyStatement() {
 
 Ast *Parser::parseReturnStatement() {
   eat(Token::T_RETURN);
-  Ast *expr = parseExpression();
+  Ast *node = parseExpression();
   eat(Token::T_SEMI);
   return node;
 }
