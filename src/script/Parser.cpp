@@ -14,6 +14,7 @@
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"
 #include "script/ast/StatementList.h"
+#include "script/ast/StringConstant.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
 #include "script/ast/VariableDeclaration.h"
