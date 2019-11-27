@@ -11,7 +11,7 @@ WinTerm::WinTerm() : Term() { F_DEBUG("Construct"); }
 WinTerm::~WinTerm() { F_DEBUG("Destruct"); }
 
 void WinTerm::show(const std::string &fileName) {
-  F_DEBUGF("show fileName:{}", fileName);
+  F_DEBUG("show fileName:{}", fileName);
 }
 
 } // namespace fastype
