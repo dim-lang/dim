@@ -64,38 +64,31 @@ Ast *Parser::parseStatementList() {
   do {
     if (token_ == Token::T_LET) {
       // variable_declaration
-      std::vector<Ast *> vars = parseVariableDeclaration();
-      nodes.reserve(vars.size() + nodes.size());
-      nodes.insert(nodes.end(), vars.begin(), vars.end());
+      e = parseVariableDeclaration();
     } else if (token_ == Token::T_FUNC) {
       // function_declaration
       e = parseFunctionDeclaration();
-      nodes.push_back(e);
     } else if (token_ == Token::T_CLASS) {
       // class_declaration
       e = parseClassDeclaration();
-      nodes.push_back(e);
     } else if (token_ == Token::T_LBRACE) {
       // compound_statement
       e = parseCompoundStatement();
-      nodes.push_back(e);
     } else if (token_ == Token::T_SEMI) {
       // empty_statement
       e = parseEmptyStatement();
-      nodes.push_back(e);
     } else if (token_->isIdentifier()) {
       // assignment_statement
       e = parseAssignmentStatement();
-      nodes.push_back(e);
     } else if (token_ == Token::T_RETURN) {
       // return_statement
       e = parseReturnStatement();
-      nodes.push_back(e);
     } else {
       F_CHECK(false, "invalid statement_list at token_:{}", token_->toString());
       F_THROW(ScriptException, "invalid statement_list at token_:{}",
               token_->toString());
     }
+    nodes.push_back(e);
   } while (e != nullptr);
 
   return new StatementList(nodes);
