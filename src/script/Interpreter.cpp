@@ -13,6 +13,7 @@
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"
+#include "script/ast/StatementList.h"
 #include "script/ast/StringConstant.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
@@ -67,12 +68,12 @@ void Interpreter::visit(Ast *node) {
 }
 
 void Interpreter::visitProgram(Ast *node) {
-  (Program *)e = (Program *)node;
+  Program *e = (Program *)node;
   visit(e->statementList());
 }
 
 void Interpreter::visitStatementList(Ast *node) {
-  (StatementList *)e = (StatementList *)node;
+  StatementList *e = (StatementList *)node;
   for (int i = 0; i < e->size(); i++) {
     Ast *child = e->get(i);
     visit(child);
@@ -80,7 +81,7 @@ void Interpreter::visitStatementList(Ast *node) {
 }
 
 void Interpreter::visitVariableDeclaration(Ast *node) {
-  (VariableDeclaration *)e = (VariableDeclaration *)node;
+  VariableDeclaration *e = (VariableDeclaration *)node;
   for (int i = 0; i < e->size(); i++) {
     Ast *child = e->get(i);
     visit(child);
@@ -131,6 +132,12 @@ static inline bool isFC(Ast *node) {
   return node->type() == Ast::AstType::FLOATING_CONSTANT;
 }
 
+#define F_NEWIC(a, b, op)                                                      \
+  (new IntegerConstant(Sptr<Token>(new IntegerToken(a op b))))
+
+#define F_NEWFC(a, b, op)                                                      \
+  (new FloatingConstant(Sptr<Token>(new FloatingToken(a op b))))
+
 Ast *Interpreter::visitBinaryOp(Ast *node) {
   BinaryOp *e = (BinaryOp *)node;
   Ast *l = visitExpression(e->left());
@@ -138,17 +145,21 @@ Ast *Interpreter::visitBinaryOp(Ast *node) {
 
   if (e->op() == Token::T_ADD) {
     if (isIC(l) && isIC(r)) {
-      return new IntegerConstant(((IntegerConstant *)l)->value() +
-                                 ((IntegerConstant *)r)->value());
+      return F_NEWIC(((IntegerConstant *)l)->value(),
+                     ((IntegerConstant *)r)->value(), +);
     } else if (isIC(l) && isFC(r)) {
-      return new FloatingConstant((double)((IntegerConstant *)l)->value() +
-                                  ((FloatingConstant *)r)->value());
+      return F_NEWFC((double)((IntegerConstant *)l)->value(),
+                     ((FloatingConstant *)r)->value(), +);
     } else if (isFC(l) && isIC(r)) {
       return new FloatingConstant(((FloatingConstant *)l)->value() +
                                   (double)((IntegerConstant *)r)->value());
+      return F_NEWFC(((FloatingConstant *)l)->value(),
+                     (double)((IntegerConstant *)r)->value(), +);
     } else if (isFC(l) && isFC(r)) {
       return new FloatingConstant(((FloatingConstant *)l)->value() +
                                   ((FloatingConstant *)r)->value());
+      return F_NEWFC(((FloatingConstant *)l)->value(),
+                     ((FloatingConstant *)r)->value(), +);
     }
   } else if (e->op() == Token::T_SUB) {
     if (isIC(l) && isIC(r)) {
