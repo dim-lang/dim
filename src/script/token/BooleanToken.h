@@ -9,14 +9,14 @@ namespace fastype {
 
 class BooleanToken : public Token {
 public:
-  BooleanToken(Sptr<Token> token);
+  BooleanToken(bool value);
   virtual ~BooleanToken() = default;
   virtual bool value() const;
   virtual bool equal(const Sptr<Token> &t) const;
   virtual std::string toString() const;
 
 private:
-  Sptr<Token> token_;
+  bool value_;
 };
 
 } // namespace fastype
