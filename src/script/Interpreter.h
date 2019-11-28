@@ -19,9 +19,11 @@ public:
   }
 };
 
-template <> class hash<Sptr<Ast>> {
+template <> class hash<fastype::Sptr<fastype::Ast>> {
 public:
-  size_t operator()(const Sptr<Ast> &s) const { return (size_t)s.get(); }
+  size_t operator()(const fastype::Sptr<fastype::Ast> &s) const {
+    return (size_t)s.get();
+  }
 };
 }; // namespace std
 
