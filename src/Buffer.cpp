@@ -83,7 +83,7 @@ char *Buffer::ucharToString(UChar *s, int sn, char *d, int dn) {
 const icu::UnicodeString &Buffer::fileName() const { return fileName_; }
 
 std::shared_ptr<Buffer> Buffer::open(const icu::UnicodeString &fileName) {
-  return std::make_shared(new Buffer(fileName));
+  return std::shared_ptr<Buffer>(new Buffer(fileName));
 }
 
 void Buffer::close(std::shared_ptr<Buffer> file) { file.reset(); }
