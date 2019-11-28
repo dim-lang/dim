@@ -103,7 +103,7 @@ public:
     }
   }
 
-  int32_t useCount() const { return pc_->get(); }
+  int32_t count() const { return pc_->get(); }
 
   // release the old resource if reference count = 0
   // bind with the new resource and set reference count = 1

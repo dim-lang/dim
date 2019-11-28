@@ -56,11 +56,13 @@ void Parser::eat(Sptr<Token> token) {
   token_ = lexer_->read();
 }
 
-Sptr<Ast> Parser::parseProgram() { return new Program(parseStatementList()); }
+Sptr<Ast> Parser::parseProgram() {
+  return Sptr<Ast>(new Program(parseStatementList()));
+}
 
 Sptr<Ast> Parser::parseStatementList() {
   std::vector<Sptr<Ast>> nodes;
-  Sptr<Ast> e = nullptr;
+  Sptr<Ast> e(nullptr);
 
   do {
     if (token_ == Token::T_LET) {
@@ -90,9 +92,9 @@ Sptr<Ast> Parser::parseStatementList() {
               token_->toString());
     }
     nodes.push_back(e);
-  } while (e != nullptr);
+  } while (e);
 
-  return new StatementList(nodes);
+  return Sptr<Ast>(new StatementList(nodes));
 }
 
 Sptr<Ast> Parser::parseVariableDeclaration() {
@@ -103,7 +105,7 @@ Sptr<Ast> Parser::parseVariableDeclaration() {
   Sptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
   Sptr<Ast> expr = parseExpression();
-  nodes.push_back(new AssignmentStatement(var, expr));
+  nodes.push_back(Sptr<Ast>(new AssignmentStatement(var, expr)));
 
   // others
   while (token_ == Token::T_COMMA) {
@@ -111,24 +113,24 @@ Sptr<Ast> Parser::parseVariableDeclaration() {
     Sptr<Ast> var = parseVariable();
     eat(Token::T_ASSIGNMENT);
     Sptr<Ast> expr = parseExpression();
-    nodes.push_back(new AssignmentStatement(var, expr));
+    nodes.push_back(Sptr<Ast>(new AssignmentStatement(var, expr)));
   }
 
   // finish
   eat(Token::T_SEMI);
 
-  return new VariableDeclaration(nodes);
+  return Sptr<Ast>(new VariableDeclaration(nodes));
 }
 
-Sptr<Ast> Parser::parseFunctionDeclaration() { return nullptr; }
+Sptr<Ast> Parser::parseFunctionDeclaration() { return Sptr<Ast>(nullptr); }
 
-Sptr<Ast> Parser::parseClassDeclaration() { return nullptr; }
+Sptr<Ast> Parser::parseClassDeclaration() { return Sptr<Ast>(nullptr); }
 
 Sptr<Ast> Parser::parseCompoundStatement() {
   eat(Token::T_LBRACE);
   Sptr<Ast> node = parseStatementList();
   eat(Token::T_RBRACE);
-  return new CompoundStatement(node);
+  return Sptr<Ast>(new CompoundStatement(node));
 }
 
 Sptr<Ast> Parser::parseAssignmentStatement() {
@@ -136,12 +138,12 @@ Sptr<Ast> Parser::parseAssignmentStatement() {
   eat(Token::T_ASSIGNMENT);
   Sptr<Ast> expr = parseExpression();
   eat(Token::T_SEMI);
-  return new AssignmentStatement(var, expr);
+  return Sptr<Ast>(new AssignmentStatement(var, expr));
 }
 
 Sptr<Ast> Parser::parseEmptyStatement() {
   eat(Token::T_SEMI);
-  return new EmptyStatement();
+  return Sptr<Ast>(new EmptyStatement());
 }
 
 Sptr<Ast> Parser::parseReturnStatement() {
@@ -156,7 +158,7 @@ Sptr<Ast> Parser::parseExpression() {
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
     Sptr<Token> t = token_;
     eat(t);
-    node = new BinaryOp(node, t, parseTerm());
+    node = Sptr<Ast>(new BinaryOp(node, t, parseTerm()));
   }
   return node;
 }
@@ -167,7 +169,7 @@ Sptr<Ast> Parser::parseTerm() {
          token_ == Token::T_MOD) {
     Sptr<Token> t = token_;
     eat(token_);
-    node = new BinaryOp(node, t, parseFactor());
+    node = Sptr<Ast>(new BinaryOp(node, t, parseFactor()));
   }
   return node;
 }
@@ -176,28 +178,28 @@ Sptr<Ast> Parser::parseFactor() {
   Sptr<Token> t = token_;
   if (t == Token::T_ADD) {
     eat(Token::T_ADD);
-    return new UnaryOp(t, parseFactor());
+    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_SUB) {
     eat(Token::T_ADD);
-    return new UnaryOp(t, parseFactor());
+    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_INC) {
     eat(Token::T_INC);
-    return new UnaryOp(t, parseFactor());
+    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_DEC) {
     eat(Token::T_DEC);
-    return new UnaryOp(t, parseFactor());
+    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t->isInteger()) {
     eat(Token::TokenType::TT_INTEGER);
-    return new IntegerConstant(t);
+    return Sptr<Ast>(new IntegerConstant(t));
   } else if (t->isFloating()) {
     eat(Token::TokenType::TT_FLOATING);
-    return new FloatingConstant(t);
+    return Sptr<Ast>(new FloatingConstant(t));
   } else if (t->isBoolean()) {
     eat(Token::TokenType::TT_BOOLEAN);
-    return new BooleanConstant(t);
+    return Sptr<Ast>(new BooleanConstant(t));
   } else if (t->isString()) {
     eat(Token::TokenType::TT_STRING);
-    return new StringConstant(t);
+    return Sptr<Ast>(new StringConstant(t));
   } else if (t == Token::T_LP) {
     eat(Token::T_LP);
     Sptr<Ast> node = parseExpression();
@@ -209,7 +211,7 @@ Sptr<Ast> Parser::parseFactor() {
 }
 
 Sptr<Ast> Parser::parseVariable() {
-  Sptr<Ast> node = new Variable(token_);
+  Sptr<Ast> node(new Variable(token_));
   eat(Token::TokenType::TT_IDENTIFIER);
   return node;
 }
