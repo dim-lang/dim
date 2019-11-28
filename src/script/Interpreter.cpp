@@ -35,7 +35,6 @@ Interpreter::Interpreter(Sptr<Parser> parser)
 Interpreter::~Interpreter() {
   globalScope_.clear();
   release(tree_);
-  tree_ = nullptr;
 }
 
 void Interpreter::visit(Sptr<Ast> node) {
@@ -74,12 +73,12 @@ void Interpreter::visit(Sptr<Ast> node) {
 }
 
 void Interpreter::visitProgram(Sptr<Ast> node) {
-  Program *e = (Program *)node;
+  Sptr<Program> e((Program *)node.get());
   visit(e->statementList());
 }
 
 void Interpreter::visitStatementList(Sptr<Ast> node) {
-  StatementList *e = (StatementList *)node;
+  Sptr<StatementList> e((StatementList *)node.get());
   for (int i = 0; i < e->size(); i++) {
     Sptr<Ast> child = e->get(i);
     visit(child);
@@ -87,7 +86,7 @@ void Interpreter::visitStatementList(Sptr<Ast> node) {
 }
 
 void Interpreter::visitVariableDeclaration(Sptr<Ast> node) {
-  VariableDeclaration *e = (VariableDeclaration *)node;
+  Sptr<VariableDeclaration> e((VariableDeclaration *)node.get());
   for (int i = 0; i < e->size(); i++) {
     Sptr<Ast> child = e->get(i);
     visit(child);
@@ -99,7 +98,7 @@ void Interpreter::visitFunctionDeclaration(Sptr<Ast> node) {}
 void Interpreter::visitClassDeclaration(Sptr<Ast> node) {}
 
 void Interpreter::visitCompoundStatement(Sptr<Ast> node) {
-  CompoundStatement *e = (CompoundStatement *)node;
+  Sptr<CompoundStatement> e((CompoundStatement *)node.get());
   StatementList *sl = (StatementList *)e->statementList();
   for (int i = 0; i < sl->size(); i++) {
     Sptr<Ast> child = sl->get(i);
@@ -273,7 +272,7 @@ void Interpreter::release(Sptr<Ast> node) {
     F_CHECK(false, "must not reach here, node:{}", node->toString());
     F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
   }
-  delete node;
+  node.reset();
 }
 
 const std::unordered_map<icu::UnicodeString, Sptr<Ast>>
