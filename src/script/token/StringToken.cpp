@@ -2,8 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/token/StringToken.h"
-#include "exception/NotFoundException.h"
-#include <unordered_set>
 
 namespace fastype {
 
@@ -12,7 +10,7 @@ StringToken::StringToken(const icu::UnicodeString &value)
 
 icu::UnicodeString StringToken::literal() const { return value_; }
 
-bool StringToken::equal(const Sptr<Token> &t) const {
+bool StringToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isString() && literal() == t->literal();
 }
 

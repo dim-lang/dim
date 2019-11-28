@@ -2,8 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/token/OperatorToken.h"
-#include "exception/NotFoundException.h"
-#include <unordered_set>
 
 namespace fastype {
 
@@ -12,7 +10,7 @@ OperatorToken::OperatorToken(const icu::UnicodeString &value)
 
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
-bool OperatorToken::equal(const Sptr<Token> &t) const {
+bool OperatorToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isOperator() && literal() == t->literal();
 }
 

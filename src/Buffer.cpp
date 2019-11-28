@@ -82,11 +82,11 @@ char *Buffer::ucharToString(UChar *s, int sn, char *d, int dn) {
 
 const icu::UnicodeString &Buffer::fileName() const { return fileName_; }
 
-Sptr<Buffer> Buffer::open(const icu::UnicodeString &fileName) {
-  return Sptr<Buffer>(new Buffer(fileName));
+std::shared_ptr<Buffer> Buffer::open(const icu::UnicodeString &fileName) {
+  return std::make_shared(new Buffer(fileName));
 }
 
-void Buffer::close(Sptr<Buffer> file) { file.reset(); }
+void Buffer::close(std::shared_ptr<Buffer> file) { file.reset(); }
 
 Line Buffer::get(int lineNumber) { return lineList_[lineNumber]; }
 

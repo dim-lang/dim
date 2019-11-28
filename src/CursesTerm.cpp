@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <ncurses.h>
 #include <string>
-#include <unicode/unistr.h>
 #include <unordered_map>
 
 namespace fastype {
@@ -24,7 +23,7 @@ CursesTerm::CursesTerm() : Term() {
 CursesTerm::~CursesTerm() {}
 
 void CursesTerm::show(const icu::UnicodeString &fileName) {
-  Sptr<Buffer> f = Buffer::open(fileName);
+  std::shared_ptr<Buffer> f = Buffer::open(fileName);
   int ch, row, col, y, x;
   initscr();
   getmaxyx(stdscr, row, col);

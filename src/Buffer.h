@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Line.h"
-#include "SmartPointer.h"
 #include "Stringify.h"
+#include <memory>
 #include <unicode/unistr.h>
 #include <unicode/ustdio.h>
 #include <unicode/ustring.h>
@@ -30,8 +30,8 @@ public:
   int clear();
   virtual std::string toString() const;
 
-  static Sptr<Buffer> open(const icu::UnicodeString &fileName);
-  static void close(Sptr<Buffer> file);
+  static std::shared_ptr<Buffer> open(const icu::UnicodeString &fileName);
+  static void close(std::shared_ptr<Buffer> file);
 
 private:
   Buffer(const icu::UnicodeString &fileName);

@@ -3,10 +3,6 @@
 
 #pragma once
 #include "Term.h"
-#include <string>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 
 namespace fastype {
 

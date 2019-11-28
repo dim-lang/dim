@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "Stringify.h"
+#include <memory>
 #include <string>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
@@ -38,75 +38,75 @@ public:
   // token constants
 
   // eofs
-  const static Sptr<Token> T_EOF;
+  const static std::shared_ptr<Token> T_EOF;
 
   // operators
-  const static Sptr<Token> T_ADD;       // +
-  const static Sptr<Token> T_SUB;       // -
-  const static Sptr<Token> T_MUL;       // *
-  const static Sptr<Token> T_DIV;       // /
-  const static Sptr<Token> T_MOD;       // %
-  const static Sptr<Token> T_NOT;       // !
-  const static Sptr<Token> T_INC;       // ++
-  const static Sptr<Token> T_DEC;       // --
-  const static Sptr<Token> T_ADDASSIGN; // +=
-  const static Sptr<Token> T_SUBASSIGN; // -=
-  const static Sptr<Token> T_MULASSIGN; // *=
-  const static Sptr<Token> T_DIVASSIGN; // /=
-  const static Sptr<Token> T_MODASSIGN; // %=
+  const static std::shared_ptr<Token> T_ADD;       // +
+  const static std::shared_ptr<Token> T_SUB;       // -
+  const static std::shared_ptr<Token> T_MUL;       // *
+  const static std::shared_ptr<Token> T_DIV;       // /
+  const static std::shared_ptr<Token> T_MOD;       // %
+  const static std::shared_ptr<Token> T_NOT;       // !
+  const static std::shared_ptr<Token> T_INC;       // ++
+  const static std::shared_ptr<Token> T_DEC;       // --
+  const static std::shared_ptr<Token> T_ADDASSIGN; // +=
+  const static std::shared_ptr<Token> T_SUBASSIGN; // -=
+  const static std::shared_ptr<Token> T_MULASSIGN; // *=
+  const static std::shared_ptr<Token> T_DIVASSIGN; // /=
+  const static std::shared_ptr<Token> T_MODASSIGN; // %=
 
   // assignment
-  const static Sptr<Token> T_ASSIGNMENT; // =
+  const static std::shared_ptr<Token> T_ASSIGNMENT; // =
 
   // comparator
-  const static Sptr<Token> T_EQ;  // ==
-  const static Sptr<Token> T_NEQ; // !=
-  const static Sptr<Token> T_LT;  // <
-  const static Sptr<Token> T_LE;  // <=
-  const static Sptr<Token> T_GT;  // >
-  const static Sptr<Token> T_GE;  // >=
+  const static std::shared_ptr<Token> T_EQ;  // ==
+  const static std::shared_ptr<Token> T_NEQ; // !=
+  const static std::shared_ptr<Token> T_LT;  // <
+  const static std::shared_ptr<Token> T_LE;  // <=
+  const static std::shared_ptr<Token> T_GT;  // >
+  const static std::shared_ptr<Token> T_GE;  // >=
 
   // booleans
-  const static Sptr<Token> T_TRUE;  // True
-  const static Sptr<Token> T_FALSE; // False
+  const static std::shared_ptr<Token> T_TRUE;  // True
+  const static std::shared_ptr<Token> T_FALSE; // False
 
   // punctuations
-  const static Sptr<Token> T_LP;       // (
-  const static Sptr<Token> T_RP;       // )
-  const static Sptr<Token> T_LBRACKET; // [
-  const static Sptr<Token> T_RBRACKET; // ]
-  const static Sptr<Token> T_LBRACE;   // {
-  const static Sptr<Token> T_RBRACE;   // }
-  const static Sptr<Token> T_COMMA;    // ,
-  const static Sptr<Token> T_SEMI;     // ;
-  const static Sptr<Token> T_QUESTION; // ?
-  const static Sptr<Token> T_COLON;    // :
+  const static std::shared_ptr<Token> T_LP;       // (
+  const static std::shared_ptr<Token> T_RP;       // )
+  const static std::shared_ptr<Token> T_LBRACKET; // [
+  const static std::shared_ptr<Token> T_RBRACKET; // ]
+  const static std::shared_ptr<Token> T_LBRACE;   // {
+  const static std::shared_ptr<Token> T_RBRACE;   // }
+  const static std::shared_ptr<Token> T_COMMA;    // ,
+  const static std::shared_ptr<Token> T_SEMI;     // ;
+  const static std::shared_ptr<Token> T_QUESTION; // ?
+  const static std::shared_ptr<Token> T_COLON;    // :
 
   // keywords
-  const static Sptr<Token> T_LET;        // let
-  const static Sptr<Token> T_NULL;       // null
-  const static Sptr<Token> T_IF;         // if
-  const static Sptr<Token> T_ELSEIF;     // elseif
-  const static Sptr<Token> T_ELSE;       // else
-  const static Sptr<Token> T_FOR;        // for
-  const static Sptr<Token> T_WHILE;      // while
-  const static Sptr<Token> T_BREAK;      // break
-  const static Sptr<Token> T_CONTINUE;   // continue
-  const static Sptr<Token> T_FUNC;       // func
-  const static Sptr<Token> T_CLASS;      // class
-  const static Sptr<Token> T_TYPE;       // type
-  const static Sptr<Token> T_ISINSTANCE; // isinstance
-  const static Sptr<Token> T_IMPORT;     // import
-  const static Sptr<Token> T_RETURN;     // return
-  const static Sptr<Token> T_VOID;       // void
+  const static std::shared_ptr<Token> T_LET;        // let
+  const static std::shared_ptr<Token> T_NULL;       // null
+  const static std::shared_ptr<Token> T_IF;         // if
+  const static std::shared_ptr<Token> T_ELSEIF;     // elseif
+  const static std::shared_ptr<Token> T_ELSE;       // else
+  const static std::shared_ptr<Token> T_FOR;        // for
+  const static std::shared_ptr<Token> T_WHILE;      // while
+  const static std::shared_ptr<Token> T_BREAK;      // break
+  const static std::shared_ptr<Token> T_CONTINUE;   // continue
+  const static std::shared_ptr<Token> T_FUNC;       // func
+  const static std::shared_ptr<Token> T_CLASS;      // class
+  const static std::shared_ptr<Token> T_TYPE;       // type
+  const static std::shared_ptr<Token> T_ISINSTANCE; // isinstance
+  const static std::shared_ptr<Token> T_IMPORT;     // import
+  const static std::shared_ptr<Token> T_RETURN;     // return
+  const static std::shared_ptr<Token> T_VOID;       // void
 
-  static const std::vector<Sptr<Token>> eofs();
-  static const std::vector<Sptr<Token>> operators();
-  static const std::vector<Sptr<Token>> assignments();
-  static const std::vector<Sptr<Token>> comparators();
-  static const std::vector<Sptr<Token>> booleans();
-  static const std::vector<Sptr<Token>> punctuations();
-  static const std::vector<Sptr<Token>> keywords();
+  static const std::vector<std::shared_ptr<Token>> eofs();
+  static const std::vector<std::shared_ptr<Token>> operators();
+  static const std::vector<std::shared_ptr<Token>> assignments();
+  static const std::vector<std::shared_ptr<Token>> comparators();
+  static const std::vector<std::shared_ptr<Token>> booleans();
+  static const std::vector<std::shared_ptr<Token>> punctuations();
+  static const std::vector<std::shared_ptr<Token>> keywords();
 
   Token(TokenType type);
   virtual ~Token() = default;
@@ -132,7 +132,7 @@ public:
   virtual double floating() const;
   virtual bool boolean() const;
 
-  virtual bool equal(const Sptr<Token> &t) const;
+  virtual bool equal(const std::shared_ptr<Token> &t) const;
 
   virtual std::string toString() const;
 

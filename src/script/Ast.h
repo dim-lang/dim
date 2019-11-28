@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "Stringify.h"
 
 namespace fastype {
@@ -31,8 +30,6 @@ public:
   };
 
   virtual ~Ast() = default;
-  // virtual Sptr<Ast> child(int i) const = 0;
-  // virtual int childrenNumber() const = 0;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
 };

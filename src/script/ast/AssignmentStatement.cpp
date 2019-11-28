@@ -6,12 +6,13 @@
 
 namespace fastype {
 
-AssignmentStatement::AssignmentStatement(Sptr<Ast> var, Sptr<Ast> expr)
+AssignmentStatement::AssignmentStatement(std::shared_ptr<Ast> var,
+                                         std::shared_ptr<Ast> expr)
     : var_(var), expr_(expr) {}
 
-Sptr<Ast> AssignmentStatement::var() const { return var_; }
+std::shared_ptr<Ast> AssignmentStatement::var() const { return var_; }
 
-Sptr<Ast> AssignmentStatement::expr() const { return expr_; }
+std::shared_ptr<Ast> AssignmentStatement::expr() const { return expr_; }
 
 std::string AssignmentStatement::toString() const {
   return fmt::format("[ @AssignmentStatement var_:{}, expr_:{} ]",

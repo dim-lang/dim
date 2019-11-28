@@ -2,8 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/token/PunctuationToken.h"
-#include "exception/NotFoundException.h"
-#include <unordered_set>
 
 namespace fastype {
 
@@ -12,7 +10,7 @@ PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
 
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
-bool PunctuationToken::equal(const Sptr<Token> &t) const {
+bool PunctuationToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isPunctuation() && literal() == t->literal();
 }
 

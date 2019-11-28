@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "Stringify.h"
 #include "script/Parser.h"
 #include <unicode/numfmt.h>
@@ -19,9 +18,9 @@ public:
   }
 };
 
-template <> class hash<fastype::Sptr<fastype::Ast>> {
+template <> class hash<fastype::std::shared_ptr<fastype::Ast>> {
 public:
-  size_t operator()(const fastype::Sptr<fastype::Ast> &s) const {
+  size_t operator()(const fastype::std::shared_ptr<fastype::Ast> &s) const {
     return (size_t)s.get();
   }
 };
@@ -31,42 +30,43 @@ namespace fastype {
 
 class Interpreter : public Stringify {
 public:
-  Interpreter(Sptr<Parser> parser);
+  Interpreter(std::shared_ptr<Parser> parser);
   virtual ~Interpreter();
 
   virtual void interpret();
-  const std::unordered_map<icu::UnicodeString, Sptr<Ast>> globalScope() const;
+  const std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>>
+  globalScope() const;
   virtual std::string toString() const;
 
 private:
   // general
-  virtual void visit(Sptr<Ast> node);
+  virtual void visit(std::shared_ptr<Ast> node);
 
   // program
-  virtual void visitProgram(Sptr<Ast> node);
-  virtual void visitStatementList(Sptr<Ast> node);
+  virtual void visitProgram(std::shared_ptr<Ast> node);
+  virtual void visitStatementList(std::shared_ptr<Ast> node);
 
   // declaration
-  virtual void visitVariableDeclaration(Sptr<Ast> node);
-  virtual void visitFunctionDeclaration(Sptr<Ast> node);
-  virtual void visitClassDeclaration(Sptr<Ast> node);
+  virtual void visitVariableDeclaration(std::shared_ptr<Ast> node);
+  virtual void visitFunctionDeclaration(std::shared_ptr<Ast> node);
+  virtual void visitClassDeclaration(std::shared_ptr<Ast> node);
 
   // statement
-  virtual void visitCompoundStatement(Sptr<Ast> node);
-  virtual void visitAssignmentStatement(Sptr<Ast> node);
-  virtual void visitEmptyStatement(Sptr<Ast> node);
-  virtual void visitReturnStatement(Sptr<Ast> node);
+  virtual void visitCompoundStatement(std::shared_ptr<Ast> node);
+  virtual void visitAssignmentStatement(std::shared_ptr<Ast> node);
+  virtual void visitEmptyStatement(std::shared_ptr<Ast> node);
+  virtual void visitReturnStatement(std::shared_ptr<Ast> node);
 
   // expression
-  virtual Sptr<Ast> visitExpression(Sptr<Ast> node);
-  virtual Sptr<Ast> visitBinaryOp(Sptr<Ast> node);
-  virtual Sptr<Ast> visitUnaryOp(Sptr<Ast> node);
+  virtual std::shared_ptr<Ast> visitExpression(std::shared_ptr<Ast> node);
+  virtual std::shared_ptr<Ast> visitBinaryOp(std::shared_ptr<Ast> node);
+  virtual std::shared_ptr<Ast> visitUnaryOp(std::shared_ptr<Ast> node);
 
-  static void release(Sptr<Ast> node);
+  static void release(std::shared_ptr<Ast> node);
 
-  Sptr<Ast> tree_;
-  Sptr<Parser> parser_;
-  std::unordered_map<icu::UnicodeString, Sptr<Ast>> globalScope_;
+  std::shared_ptr<Ast> tree_;
+  std::shared_ptr<Parser> parser_;
+  std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;
 };
 
 } // namespace fastype

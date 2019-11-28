@@ -2,7 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
+#include <memory>
+#include <string>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -15,7 +16,7 @@ public:
 
   virtual void show(const icu::UnicodeString &fileName) = 0;
 
-  static Sptr<Term> open(const icu::UnicodeString &termName);
+  static std::shared_ptr<Term> open(const icu::UnicodeString &termName);
 };
 
 } // namespace fastype

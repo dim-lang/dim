@@ -8,7 +8,7 @@
 #include "script/Lexer.h"
 #include "script/Token.h"
 #include <deque>
-#include <unicode/numfmt.h>
+#include <memory>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -18,38 +18,38 @@ namespace fastype {
 
 class Parser : public Stringify {
 public:
-  Parser(Sptr<Lexer> lexer);
+  Parser(std::shared_ptr<Lexer> lexer);
   virtual ~Parser() = default;
-  Sptr<Ast> parse();
+  std::shared_ptr<Ast> parse();
   virtual std::string toString() const;
 
 private:
   void eat(Token::TokenType tokenType);
-  void eat(Sptr<Token> token);
+  void eat(std::shared_ptr<Token> token);
 
   // block
-  Sptr<Ast> parseProgram();
-  Sptr<Ast> parseStatementList();
+  std::shared_ptr<Ast> parseProgram();
+  std::shared_ptr<Ast> parseStatementList();
 
   // declaration
-  Sptr<Ast> parseVariableDeclaration();
-  Sptr<Ast> parseFunctionDeclaration();
-  Sptr<Ast> parseClassDeclaration();
+  std::shared_ptr<Ast> parseVariableDeclaration();
+  std::shared_ptr<Ast> parseFunctionDeclaration();
+  std::shared_ptr<Ast> parseClassDeclaration();
 
   // statement
-  Sptr<Ast> parseCompoundStatement();
-  Sptr<Ast> parseAssignmentStatement();
-  Sptr<Ast> parseEmptyStatement();
-  Sptr<Ast> parseReturnStatement();
+  std::shared_ptr<Ast> parseCompoundStatement();
+  std::shared_ptr<Ast> parseAssignmentStatement();
+  std::shared_ptr<Ast> parseEmptyStatement();
+  std::shared_ptr<Ast> parseReturnStatement();
 
   // expression
-  Sptr<Ast> parseExpression();
-  Sptr<Ast> parseTerm();
-  Sptr<Ast> parseFactor();
-  Sptr<Ast> parseVariable();
+  std::shared_ptr<Ast> parseExpression();
+  std::shared_ptr<Ast> parseTerm();
+  std::shared_ptr<Ast> parseFactor();
+  std::shared_ptr<Ast> parseVariable();
 
-  Sptr<Token> token_;
-  Sptr<Lexer> lexer_;
+  std::shared_ptr<Token> token_;
+  std::shared_ptr<Lexer> lexer_;
 };
 
 } // namespace fastype

@@ -3,20 +3,17 @@
 
 #pragma once
 #include "script/Token.h"
-#include <string>
 
 namespace fastype {
 
 class EofToken : public Token {
 public:
   virtual ~EofToken() = default;
-  virtual bool equal(const Sptr<Token> &t) const;
+  virtual bool equal(const std::shared_ptr<Token> &t) const;
   virtual std::string toString() const;
 
 private:
   EofToken();
-
-  friend class Token;
 };
 
 } // namespace fastype

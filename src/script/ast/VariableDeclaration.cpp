@@ -6,12 +6,13 @@
 
 namespace fastype {
 
-VariableDeclaration::VariableDeclaration(const std::vector<Sptr<Ast>> &children)
+VariableDeclaration::VariableDeclaration(
+    const std::vector<std::shared_ptr<Ast>> &children)
     : children_(children) {}
 
 int VariableDeclaration::size() { return children_.size(); }
 
-Sptr<Ast> VariableDeclaration::get(int i) { return children_[i]; }
+std::shared_ptr<Ast> VariableDeclaration::get(int i) { return children_[i]; }
 
 std::string VariableDeclaration::toString() const {
   return ast::AstVectortoString(children_, "VariableDeclaration");

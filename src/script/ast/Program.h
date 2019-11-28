@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "script/Ast.h"
 #include "script/Token.h"
+#include <memory>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -14,14 +14,14 @@ namespace fastype {
 
 class Program : public Ast {
 public:
-  Program(Sptr<Ast> node);
+  Program(std::shared_ptr<Ast> node);
   virtual ~Program() = default;
-  virtual Sptr<Ast> statementList() const;
+  virtual std::shared_ptr<Ast> statementList() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Sptr<Ast> statementList_;
+  std::shared_ptr<Ast> statementList_;
 };
 
 } // namespace fastype

@@ -6,7 +6,8 @@
 
 namespace fastype {
 
-FloatingConstant::FloatingConstant(Sptr<Token> token) : token_(token) {}
+FloatingConstant::FloatingConstant(std::shared_ptr<Token> token)
+    : token_(token) {}
 
 double FloatingConstant::value() const { return token_->floating(); }
 

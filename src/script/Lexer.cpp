@@ -52,7 +52,8 @@ static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
 }
 
 // parse constant token
-static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
+static void parseConstToken(int &i, std::shared_ptr<Token> t,
+                            std::deque<std::shared_ptr<Token>> &q,
                             int diff = 1) {
   q.push_back(t);
   i += diff;
@@ -60,7 +61,7 @@ static void parseConstToken(int &i, Sptr<Token> t, std::deque<Sptr<Token>> &q,
 
 // parse integer or floating
 static void parseNumber(const icu::UnicodeString &text, int &i,
-                        std::deque<Sptr<Token>> &q) {
+                        std::deque<std::shared_ptr<Token>> &q) {
   std::string _1;
   int dotCount = 0;  // .
   int expCount = 0;  // e or E
@@ -106,12 +107,14 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
   // floating number
   if (dotCount > 0) {
     double value = std::stod(utf8);
-    Sptr<Token> floatingToken = Sptr<Token>(new FloatingToken(value));
+    std::shared_ptr<Token> floatingToken =
+        std::shared_ptr<Token>(new FloatingToken(value));
     q.push_back(floatingToken);
   } else {
     // integer number
     long long value = std::stoll(utf8);
-    Sptr<Token> integerToken = Sptr<Token>(new IntegerToken(value));
+    std::shared_ptr<Token> integerToken =
+        std::shared_ptr<Token>(new IntegerToken(value));
     q.push_back(integerToken);
   }
 
@@ -143,7 +146,7 @@ static void parseComment(const icu::UnicodeString &text, int &i) {
 
 // parse string
 static void parseString(const icu::UnicodeString &text, int &i,
-                        std::deque<Sptr<Token>> &q) {
+                        std::deque<std::shared_ptr<Token>> &q) {
   std::string _1;
   int j = i + 1;
   bool findString = false;
@@ -162,15 +165,15 @@ static void parseString(const icu::UnicodeString &text, int &i,
   }
   F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j, i,
           F_SUB_STRING(text, i, _1));
-  Sptr<Token> strToken =
-      Sptr<Token>(new StringToken(text.tempSubString(i, j - i)));
+  std::shared_ptr<Token> strToken =
+      std::shared_ptr<Token>(new StringToken(text.tempSubString(i, j - i)));
   q.push_back(strToken);
   i = j;
 }
 
 // parse identifier
 static bool parseIdentifier(const icu::UnicodeString &text, int &i,
-                            std::deque<Sptr<Token>> &q) {
+                            std::deque<std::shared_ptr<Token>> &q) {
   if (!u_isalpha(text.charAt(i)) && text.charAt(i) != (UChar)'_') {
     return false;
   }
@@ -185,8 +188,8 @@ static bool parseIdentifier(const icu::UnicodeString &text, int &i,
   std::string _1;
   F_CHECK(j > i, "j {} > i {}, text[{}]:{}", j, i, i,
           F_SUB_STRING(text, i, _1));
-  Sptr<Token> idToken =
-      Sptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
+  std::shared_ptr<Token> idToken =
+      std::shared_ptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
   q.push_back(idToken);
   i = j;
   return true;
@@ -196,7 +199,7 @@ static bool parseIdentifier(const icu::UnicodeString &text, int &i,
 // @return   true if is keyword
 //           false if not
 static bool parseKeywordOrIdentifier(const icu::UnicodeString &text, int &i,
-                                     std::deque<Sptr<Token>> &q) {
+                                     std::deque<std::shared_ptr<Token>> &q) {
   switch (text.charAt(i)) {
   case (UChar)'l':
     if (i + 3 < text.length() &&
@@ -323,18 +326,18 @@ static bool parseKeywordOrIdentifier(const icu::UnicodeString &text, int &i,
   return parseIdentifier(text, i, q);
 }
 
-Sptr<Token> Lexer::read() {
+std::shared_ptr<Token> Lexer::read() {
   readImpl();
 
   if (!queue_.empty()) {
-    Sptr<Token> t = queue_.front();
+    std::shared_ptr<Token> t = queue_.front();
     queue_.pop_front();
     return t;
   }
   return Token::T_EOF;
 }
 
-Sptr<Token> Lexer::peek(int pos) {
+std::shared_ptr<Token> Lexer::peek(int pos) {
   do {
     int n = queue_.size();
     readImpl();

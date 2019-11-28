@@ -2,9 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "Term.h"
-#include <string>
 
 namespace fastype {
 

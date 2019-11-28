@@ -10,9 +10,12 @@
 
 namespace fastype {
 
-CompoundStatement::CompoundStatement(Sptr<Ast> node) : statementList_(node) {}
+CompoundStatement::CompoundStatement(std::shared_ptr<Ast> node)
+    : statementList_(node) {}
 
-Sptr<Ast> CompoundStatement::statementList() const { return statementList_; }
+std::shared_ptr<Ast> CompoundStatement::statementList() const {
+  return statementList_;
+}
 
 std::string CompoundStatement::toString() const {
   return ast::AstVectortoString(children_, "CompoundStatement");

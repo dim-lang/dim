@@ -11,7 +11,7 @@ IntegerToken::IntegerToken(long long value)
 
 long long IntegerToken::integer() const { return value_; }
 
-bool IntegerToken::equal(const Sptr<Token> &t) const {
+bool IntegerToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isInteger() && integer() == t->integer();
 }
 

@@ -2,8 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/token/KeywordToken.h"
-#include "exception/NotFoundException.h"
-#include <unordered_set>
 
 namespace fastype {
 
@@ -12,7 +10,7 @@ KeywordToken::KeywordToken(const icu::UnicodeString &value)
 
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 
-bool KeywordToken::equal(const Sptr<Token> &t) const {
+bool KeywordToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isKeyword() && literal() == t->literal();
 }
 

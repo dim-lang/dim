@@ -6,7 +6,7 @@
 
 namespace fastype {
 
-Variable::Variable(Sptr<Token> token) : token_(token) {}
+Variable::Variable(std::shared_ptr<Token> token) : token_(token) {}
 
 icu::UnicodeString Variable::value() const { return token_->literal(); }
 

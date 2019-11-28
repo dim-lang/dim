@@ -5,6 +5,7 @@
 #include "SmartPointer.h"
 #include "script/Ast.h"
 #include "script/Token.h"
+#include <memory>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -13,18 +14,19 @@ namespace fastype {
 
 class BinaryOp : public Ast {
 public:
-  BinaryOp(Sptr<Ast> left, Sptr<Token> op, Sptr<Ast> right);
+  BinaryOp(std::shared_ptr<Ast> left, std::shared_ptr<Token> op,
+           std::shared_ptr<Ast> right);
   virtual ~BinaryOp() = default;
-  virtual Sptr<Ast> left() const;
-  virtual Sptr<Token> op() const;
-  virtual Sptr<Ast> right() const;
+  virtual std::shared_ptr<Ast> left() const;
+  virtual std::shared_ptr<Token> op() const;
+  virtual std::shared_ptr<Ast> right() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Sptr<Ast> left_;
-  Sptr<Token> op_;
-  Sptr<Ast> right_;
+  std::shared_ptr<Ast> left_;
+  std::shared_ptr<Token> op_;
+  std::shared_ptr<Ast> right_;
 };
 
 } // namespace fastype

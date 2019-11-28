@@ -6,11 +6,12 @@
 
 namespace fastype {
 
-UnaryOp::UnaryOp(Sptr<Token> op, Sptr<Ast> expr) : op_(op), expr_(expr) {}
+UnaryOp::UnaryOp(std::shared_ptr<Token> op, std::shared_ptr<Ast> expr)
+    : op_(op), expr_(expr) {}
 
-Sptr<Token> UnaryOp::op() const { return op_; }
+std::shared_ptr<Token> UnaryOp::op() const { return op_; }
 
-Sptr<Ast> UnaryOp::expr() const { return expr_; }
+std::shared_ptr<Ast> UnaryOp::expr() const { return expr_; }
 
 std::string UnaryOp::toString() const {
   return fmt::format("[ @UnaryOp op_:{}, expr_:{} ]", op_->toString(),

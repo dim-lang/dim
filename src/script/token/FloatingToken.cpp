@@ -11,7 +11,7 @@ FloatingToken::FloatingToken(double value)
 
 double FloatingToken::floating() const { return value_; }
 
-bool FloatingToken::equal(const Sptr<Token> &t) const {
+bool FloatingToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isFloating() && floating() == t->floating();
 }
 

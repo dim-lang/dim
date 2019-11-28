@@ -15,7 +15,6 @@
 #include "script/token/OperatorToken.h"
 #include "script/token/PunctuationToken.h"
 #include <fmt/format.h>
-#include <string>
 
 namespace fastype {
 
@@ -124,99 +123,117 @@ Token::TokenType Token::tokenTypeFromName(const std::string &name) {
   F_THROW(NotFoundException, "tokenTypeFromName not found! name: {}", name);
 }
 
-const Sptr<Token> Token::T_EOF(new EofToken());
+const std::shared_ptr<Token> Token::T_EOF(new EofToken());
 
-const Sptr<Token> Token::T_ADD(new OperatorToken(UNICODE_STRING_SIMPLE("+")));
-const Sptr<Token> Token::T_SUB(new OperatorToken(UNICODE_STRING_SIMPLE("-")));
-const Sptr<Token> Token::T_MUL(new OperatorToken(UNICODE_STRING_SIMPLE("*")));
-const Sptr<Token> Token::T_DIV(new OperatorToken(UNICODE_STRING_SIMPLE("/")));
-const Sptr<Token> Token::T_MOD(new OperatorToken(UNICODE_STRING_SIMPLE("%")));
-const Sptr<Token> Token::T_NOT(new OperatorToken(UNICODE_STRING_SIMPLE("!")));
-const Sptr<Token> Token::T_INC(new OperatorToken(UNICODE_STRING_SIMPLE("++")));
-const Sptr<Token> Token::T_DEC(new OperatorToken(UNICODE_STRING_SIMPLE("--")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_ADD(new OperatorToken(UNICODE_STRING_SIMPLE("+")));
+const std::shared_ptr<Token>
+    Token::T_SUB(new OperatorToken(UNICODE_STRING_SIMPLE("-")));
+const std::shared_ptr<Token>
+    Token::T_MUL(new OperatorToken(UNICODE_STRING_SIMPLE("*")));
+const std::shared_ptr<Token>
+    Token::T_DIV(new OperatorToken(UNICODE_STRING_SIMPLE("/")));
+const std::shared_ptr<Token>
+    Token::T_MOD(new OperatorToken(UNICODE_STRING_SIMPLE("%")));
+const std::shared_ptr<Token>
+    Token::T_NOT(new OperatorToken(UNICODE_STRING_SIMPLE("!")));
+const std::shared_ptr<Token>
+    Token::T_INC(new OperatorToken(UNICODE_STRING_SIMPLE("++")));
+const std::shared_ptr<Token>
+    Token::T_DEC(new OperatorToken(UNICODE_STRING_SIMPLE("--")));
+const std::shared_ptr<Token>
     Token::T_ADDASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("+=")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_SUBASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("-=")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_MULASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("*=")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_DIVASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("/=")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_MODASSIGN(new OperatorToken(UNICODE_STRING_SIMPLE("%=")));
 
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_ASSIGNMENT(new AssignmentToken(UNICODE_STRING_SIMPLE("=")));
 
-const Sptr<Token> Token::T_EQ(new ComparatorToken(UNICODE_STRING_SIMPLE("==")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_EQ(new ComparatorToken(UNICODE_STRING_SIMPLE("==")));
+const std::shared_ptr<Token>
     Token::T_NEQ(new ComparatorToken(UNICODE_STRING_SIMPLE("!=")));
-const Sptr<Token> Token::T_LT(new ComparatorToken(UNICODE_STRING_SIMPLE("<")));
-const Sptr<Token> Token::T_LE(new ComparatorToken(UNICODE_STRING_SIMPLE("<=")));
-const Sptr<Token> Token::T_GT(new ComparatorToken(UNICODE_STRING_SIMPLE(">")));
-const Sptr<Token> Token::T_GE(new ComparatorToken(UNICODE_STRING_SIMPLE(">=")));
+const std::shared_ptr<Token>
+    Token::T_LT(new ComparatorToken(UNICODE_STRING_SIMPLE("<")));
+const std::shared_ptr<Token>
+    Token::T_LE(new ComparatorToken(UNICODE_STRING_SIMPLE("<=")));
+const std::shared_ptr<Token>
+    Token::T_GT(new ComparatorToken(UNICODE_STRING_SIMPLE(">")));
+const std::shared_ptr<Token>
+    Token::T_GE(new ComparatorToken(UNICODE_STRING_SIMPLE(">=")));
 
-const Sptr<Token> Token::T_TRUE(new BooleanToken(true));
-const Sptr<Token> Token::T_FALSE(new BooleanToken(false));
+const std::shared_ptr<Token> Token::T_TRUE(new BooleanToken(true));
+const std::shared_ptr<Token> Token::T_FALSE(new BooleanToken(false));
 
-const Sptr<Token> Token::T_LP(new PunctuationToken(UNICODE_STRING_SIMPLE("(")));
-const Sptr<Token> Token::T_RP(new PunctuationToken(UNICODE_STRING_SIMPLE(")")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_LP(new PunctuationToken(UNICODE_STRING_SIMPLE("(")));
+const std::shared_ptr<Token>
+    Token::T_RP(new PunctuationToken(UNICODE_STRING_SIMPLE(")")));
+const std::shared_ptr<Token>
     Token::T_LBRACKET(new PunctuationToken(UNICODE_STRING_SIMPLE("[")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_RBRACKET(new PunctuationToken(UNICODE_STRING_SIMPLE("]")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_LBRACE(new PunctuationToken(UNICODE_STRING_SIMPLE("{")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_RBRACE(new PunctuationToken(UNICODE_STRING_SIMPLE("}")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_COMMA(new PunctuationToken(UNICODE_STRING_SIMPLE(",")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_SEMI(new PunctuationToken(UNICODE_STRING_SIMPLE(";")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_QUESTION(new PunctuationToken(UNICODE_STRING_SIMPLE("?")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_COLON(new PunctuationToken(UNICODE_STRING_SIMPLE(":")));
 
-const Sptr<Token> Token::T_LET(new KeywordToken(UNICODE_STRING_SIMPLE("let")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_LET(new KeywordToken(UNICODE_STRING_SIMPLE("let")));
+const std::shared_ptr<Token>
     Token::T_NULL(new KeywordToken(UNICODE_STRING_SIMPLE("null")));
-const Sptr<Token> Token::T_IF(new KeywordToken(UNICODE_STRING_SIMPLE("if")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_IF(new KeywordToken(UNICODE_STRING_SIMPLE("if")));
+const std::shared_ptr<Token>
     Token::T_ELSEIF(new KeywordToken(UNICODE_STRING_SIMPLE("elseif")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_ELSE(new KeywordToken(UNICODE_STRING_SIMPLE("else")));
-const Sptr<Token> Token::T_FOR(new KeywordToken(UNICODE_STRING_SIMPLE("for")));
-const Sptr<Token>
+const std::shared_ptr<Token>
+    Token::T_FOR(new KeywordToken(UNICODE_STRING_SIMPLE("for")));
+const std::shared_ptr<Token>
     Token::T_WHILE(new KeywordToken(UNICODE_STRING_SIMPLE("while")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_BREAK(new KeywordToken(UNICODE_STRING_SIMPLE("break")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_CONTINUE(new KeywordToken(UNICODE_STRING_SIMPLE("continue")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_FUNC(new KeywordToken(UNICODE_STRING_SIMPLE("func")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_CLASS(new KeywordToken(UNICODE_STRING_SIMPLE("class")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_TYPE(new KeywordToken(UNICODE_STRING_SIMPLE("type")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_ISINSTANCE(new KeywordToken(UNICODE_STRING_SIMPLE("isinstance")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_IMPORT(new KeywordToken(UNICODE_STRING_SIMPLE("import")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_RETURN(new KeywordToken(UNICODE_STRING_SIMPLE("return")));
-const Sptr<Token>
+const std::shared_ptr<Token>
     Token::T_VOID(new KeywordToken(UNICODE_STRING_SIMPLE("void")));
 
-const std::vector<Sptr<Token>> Token::eofs() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::eofs() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_EOF,
   };
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::operators() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::operators() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_ADD,       Token::T_SUB,       Token::T_MUL,
       Token::T_DIV,       Token::T_MOD,       Token::T_NOT,
       Token::T_INC,       Token::T_DEC,       Token::T_ADDASSIGN,
@@ -226,31 +243,31 @@ const std::vector<Sptr<Token>> Token::operators() {
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::assignments() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::assignments() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_ASSIGNMENT,
   };
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::comparators() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::comparators() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_EQ, Token::T_NEQ, Token::T_LT,
       Token::T_LE, Token::T_GT,  Token::T_GE,
   };
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::booleans() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::booleans() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_TRUE,
       Token::T_FALSE,
   };
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::punctuations() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::punctuations() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_LP,       Token::T_RP,     Token::T_LBRACKET, Token::T_RBRACKET,
       Token::T_LBRACE,   Token::T_RBRACE, Token::T_COMMA,    Token::T_SEMI,
       Token::T_QUESTION, Token::T_COLON,
@@ -258,8 +275,8 @@ const std::vector<Sptr<Token>> Token::punctuations() {
   return types;
 }
 
-const std::vector<Sptr<Token>> Token::keywords() {
-  const static std::vector<Sptr<Token>> types = {
+const std::vector<std::shared_ptr<Token>> Token::keywords() {
+  const static std::vector<std::shared_ptr<Token>> types = {
       Token::T_LET,        Token::T_NULL,   Token::T_IF,     Token::T_ELSEIF,
       Token::T_ELSE,       Token::T_FOR,    Token::T_WHILE,  Token::T_BREAK,
       Token::T_CONTINUE,   Token::T_FUNC,   Token::T_CLASS,  Token::T_TYPE,
@@ -326,7 +343,7 @@ bool Token::boolean() const {
   F_THROW(NotImplementException, "boolean not implement! {}", toString());
 }
 
-bool Token::equal(const Sptr<Token> &t) const {
+bool Token::equal(const std::shared_ptr<Token> &t) const {
   F_THROW(NotImplementException, "operator== not implement! {}", toString());
 }
 

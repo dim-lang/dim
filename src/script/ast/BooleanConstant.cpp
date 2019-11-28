@@ -6,7 +6,8 @@
 
 namespace fastype {
 
-BooleanConstant::BooleanConstant(Sptr<Token> token) : token_(token) {}
+BooleanConstant::BooleanConstant(std::shared_ptr<Token> token)
+    : token_(token) {}
 
 bool BooleanConstant::value() const { return token_->boolean(); }
 

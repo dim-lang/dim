@@ -18,7 +18,7 @@ TEST_CASE("Lexer", "[Lexer]") {
     icu::UnicodeString data = fastype::Filer::readAll(
         UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
     fastype::Lexer lex(data);
-    fastype::Sptr<fastype::Token> t = lex.read();
+    std::shared_ptr<fastype::Token> t = lex.read();
     REQUIRE(t->isKeyword());
     REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("let"));
     t = lex.read();

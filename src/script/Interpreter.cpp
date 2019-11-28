@@ -29,7 +29,7 @@
 
 namespace fastype {
 
-Interpreter::Interpreter(Sptr<Parser> parser)
+Interpreter::Interpreter(std::shared_ptr<Parser> parser)
     : tree_(nullptr), parser_(parser), globalScope_() {}
 
 Interpreter::~Interpreter() {
@@ -37,7 +37,7 @@ Interpreter::~Interpreter() {
   release(tree_);
 }
 
-void Interpreter::visit(Sptr<Ast> node) {
+void Interpreter::visit(std::shared_ptr<Ast> node) {
   switch (node->type()) {
   case Ast::AstType::PROGRAM:
     visitProgram(node);
@@ -72,52 +72,52 @@ void Interpreter::visit(Sptr<Ast> node) {
   }
 }
 
-void Interpreter::visitProgram(Sptr<Ast> node) {
-  Sptr<Program> e((Program *)node.get());
+void Interpreter::visitProgram(std::shared_ptr<Ast> node) {
+  std::shared_ptr<Program> e((Program *)node.get());
   visit(e->statementList());
 }
 
-void Interpreter::visitStatementList(Sptr<Ast> node) {
-  Sptr<StatementList> e((StatementList *)node.get());
+void Interpreter::visitStatementList(std::shared_ptr<Ast> node) {
+  std::shared_ptr<StatementList> e((StatementList *)node.get());
   for (int i = 0; i < e->size(); i++) {
-    Sptr<Ast> child = e->get(i);
+    std::shared_ptr<Ast> child = e->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitVariableDeclaration(Sptr<Ast> node) {
-  Sptr<VariableDeclaration> e((VariableDeclaration *)node.get());
+void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
+  std::shared_ptr<VariableDeclaration> e((VariableDeclaration *)node.get());
   for (int i = 0; i < e->size(); i++) {
-    Sptr<Ast> child = e->get(i);
+    std::shared_ptr<Ast> child = e->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitFunctionDeclaration(Sptr<Ast> node) {}
+void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {}
 
-void Interpreter::visitClassDeclaration(Sptr<Ast> node) {}
+void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {}
 
-void Interpreter::visitCompoundStatement(Sptr<Ast> node) {
-  Sptr<CompoundStatement> e((CompoundStatement *)node.get());
-  StatementList *sl = (StatementList *)e->statementList();
+void Interpreter::visitCompoundStatement(std::shared_ptr<Ast> node) {
+  std::shared_ptr<CompoundStatement> e((CompoundStatement *)node.get());
+  std::shared_ptr<StatementList> sl((StatementList *)e->statementList().get());
   for (int i = 0; i < sl->size(); i++) {
-    Sptr<Ast> child = sl->get(i);
+    std::shared_ptr<Ast> child = sl->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitAssignmentStatement(Sptr<Ast> node) {
-  AssignmentStatement *e = (AssignmentStatement *)node;
-  Variable *var = (Variable *)e->var();
-  Sptr<Ast> expr = e->expr();
+void Interpreter::visitAssignmentStatement(std::shared_ptr<Ast> node) {
+  std::shared_ptr<AssignmentStatement> e((AssignmentStatement *)node.get());
+  std::shared_ptr<Variable> var((Variable *)e->var().get());
+  std::shared_ptr<Ast> expr = e->expr();
   globalScope_[var->value()] = visitBinaryOp(expr);
 }
 
-void Interpreter::visitEmptyStatement(Sptr<Ast> node) {}
+void Interpreter::visitEmptyStatement(std::shared_ptr<Ast> node) {}
 
-void Interpreter::visitReturnStatement(Sptr<Ast> node) {}
+void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {}
 
-Sptr<Ast> Interpreter::visitExpression(Sptr<Ast> node) {
+std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   switch (node->type()) {
   case Ast::AstType::BINARY_OP:
     return visitBinaryOp(node);
@@ -130,35 +130,35 @@ Sptr<Ast> Interpreter::visitExpression(Sptr<Ast> node) {
   }
 }
 
-static inline bool isIC(Sptr<Ast> node) {
+static inline bool isIC(std::shared_ptr<Ast> node) {
   return node->type() == Ast::AstType::INTEGER_CONSTANT;
 }
 
-static inline bool isFC(Sptr<Ast> node) {
+static inline bool isFC(std::shared_ptr<Ast> node) {
   return node->type() == Ast::AstType::FLOATING_CONSTANT;
 }
 
 #define F_NEWIC(a, b, op)                                                      \
-  (new IntegerConstant(Sptr<Token>(new IntegerToken(a op b))))
+  (std::shared_ptr<Ast>(                                                       \
+      new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(a op b)))))
 
 #define F_NEWFC(a, b, op)                                                      \
-  (new FloatingConstant(Sptr<Token>(new FloatingToken(a op b))))
+  (std::shared_ptr<Ast>(new FloatingConstant(                                  \
+      std::shared_ptr<Token>(new FloatingToken(a op b)))))
 
-Sptr<Ast> Interpreter::visitBinaryOp(Sptr<Ast> node) {
-  BinaryOp *e = (BinaryOp *)node;
-  Sptr<Ast> l = visitExpression(e->left());
-  Sptr<Ast> r = visitExpression(e->right());
+std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
+  std::shared_ptr<BinaryOp> e((BinaryOp *)node.get());
+  std::shared_ptr<Ast> l = visitExpression(e->left());
+  std::shared_ptr<Ast> r = visitExpression(e->right());
 
   if (e->op() == Token::T_ADD) {
     if (isIC(l) && isIC(r)) {
-      return F_NEWIC(((IntegerConstant *)l)->value(),
-                     ((IntegerConstant *)r)->value(), +);
+      return F_NEWIC(std::shared_ptr<IntegerConstant>(l.get())->value(),
+                     std::shared_ptr<IntegerConstant>(r.get())->value(), +);
     } else if (isIC(l) && isFC(r)) {
-      return F_NEWFC((double)((IntegerConstant *)l)->value(),
-                     ((FloatingConstant *)r)->value(), +);
+      return F_NEWFC((double)std::shared_ptr<IntegerConstant>(l.get())->value(),
+                     std::shared_ptr<FloatingConstant>(r.get())->value(), +);
     } else if (isFC(l) && isIC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() +
-                                  (double)((IntegerConstant *)r)->value());
       return F_NEWFC(((FloatingConstant *)l)->value(),
                      (double)((IntegerConstant *)r)->value(), +);
     } else if (isFC(l) && isFC(r)) {
@@ -229,13 +229,13 @@ Sptr<Ast> Interpreter::visitBinaryOp(Sptr<Ast> node) {
   return nullptr;
 }
 
-Sptr<Ast> Interpreter::visitUnaryOp(Sptr<Ast> node) {
+std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
   UnaryOp *e = (UnaryOp *)node;
-  Sptr<Ast> expr = visitExpression(e->expr());
+  std::shared_ptr<Ast> expr = visitExpression(e->expr());
   if (e->op() == Token::T_ADD) {
     return expr;
   } else if (e->op() == Token::T_SUB) {
-    Sptr<Ast> expr = e->expr();
+    std::shared_ptr<Ast> expr = e->expr();
     if (isIC(expr)) {
       return new IntegerConstant(-((IntegerConstant *)expr)->value());
     } else if (isFC(expr)) {
@@ -253,7 +253,7 @@ void Interpreter::interpret() {
   visit(tree_);
 }
 
-void Interpreter::release(Sptr<Ast> node) {
+void Interpreter::release(std::shared_ptr<Ast> node) {
   if (!node) {
     return;
   }
@@ -275,7 +275,7 @@ void Interpreter::release(Sptr<Ast> node) {
   node.reset();
 }
 
-const std::unordered_map<icu::UnicodeString, Sptr<Ast>>
+const std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>>
 Interpreter::globalScope() const {
   return globalScope_;
 }

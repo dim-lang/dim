@@ -6,7 +6,8 @@
 
 namespace fastype {
 
-IdentifierConstant::IdentifierConstant(Sptr<Token> token) : token_(token) {}
+IdentifierConstant::IdentifierConstant(std::shared_ptr<Token> token)
+    : token_(token) {}
 
 icu::UnicodeString IdentifierConstant::value() const {
   return token_->literal();

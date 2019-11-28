@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     std::string firstFileName = inputFileList[0];
     icu::UnicodeString firstFileNameUnicode =
         icu::UnicodeString::fromUTF8(firstFileName);
-    fastype::Sptr<fastype::Term> term =
+    std::shared_ptr<fastype::Term> term =
         fastype::Term::open(firstFileNameUnicode);
     term->show(firstFileNameUnicode);
   }

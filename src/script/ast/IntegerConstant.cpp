@@ -6,7 +6,8 @@
 
 namespace fastype {
 
-IntegerConstant::IntegerConstant(Sptr<Token> token) : token_(token) {}
+IntegerConstant::IntegerConstant(std::shared_ptr<Token> token)
+    : token_(token) {}
 
 long long IntegerConstant::value() const { return token_->integer(); }
 

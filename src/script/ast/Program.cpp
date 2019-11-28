@@ -7,9 +7,9 @@
 
 namespace fastype {
 
-Program::Program(Sptr<Ast> node) : statementList_(node) {}
+Program::Program(std::shared_ptr<Ast> node) : statementList_(node) {}
 
-Sptr<Ast> Program::statementList() const { return statementList_; }
+std::shared_ptr<Ast> Program::statementList() const { return statementList_; }
 
 std::string Program::toString() const {
   return fmt::format("[ @Program statementList_:{} ]",

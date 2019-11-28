@@ -4,6 +4,7 @@
 #pragma once
 #include "script/Ast.h"
 #include <fmt/format.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -11,7 +12,7 @@ namespace fastype {
 
 namespace ast {
 
-std::string AstVectortoString(const std::vector<Sptr<Ast>> &vec,
+std::string AstVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
                               const std::string &name);
 
 } // namespace ast

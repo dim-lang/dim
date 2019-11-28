@@ -18,16 +18,16 @@
 
 namespace fastype {
 
-static ConcurrentHashMap<icu::UnicodeString, Sptr<Term>> TermMap;
+static ConcurrentHashMap<icu::UnicodeString, std::shared_ptr<Term>> TermMap;
 
-Sptr<Term> Term::open(const icu::UnicodeString &termName) {
+std::shared_ptr<Term> Term::open(const icu::UnicodeString &termName) {
   TermMap.lock();
   if (TermMap.find(termName) == TermMap.end()) {
 
 #if BOOST_WINDOWS
-    Sptr<Term> term = Sptr<Term>(new WinTerm());
+    std::shared_ptr<Term> term = std::shared_ptr<Term>(new WinTerm());
 #else
-    Sptr<Term> term = Sptr<Term>(new CursesTerm());
+    std::shared_ptr<Term> term = std::shared_ptr<Term>(new CursesTerm());
 #endif
 
     TermMap.insert(std::make_pair(termName, term));

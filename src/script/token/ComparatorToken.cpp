@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/token/ComparatorToken.h"
-#include <unordered_set>
 
 namespace fastype {
 
@@ -11,7 +10,7 @@ ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
 
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
-bool ComparatorToken::equal(const Sptr<Token> &t) const {
+bool ComparatorToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isComparator() && t->literal() == literal();
 }
 

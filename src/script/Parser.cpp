@@ -33,7 +33,7 @@
 
 namespace fastype {
 
-Parser::Parser(Sptr<Lexer> lexer) : token_(nullptr), lexer_(lexer) {
+Parser::Parser(std::shared_ptr<Lexer> lexer) : token_(nullptr), lexer_(lexer) {
   token_ = lexer_->read();
 }
 
@@ -47,7 +47,7 @@ void Parser::eat(Token::TokenType tokenType) {
   token_ = lexer_->read();
 }
 
-void Parser::eat(Sptr<Token> token) {
+void Parser::eat(std::shared_ptr<Token> token) {
   F_CHECK(token.get(), "token {} is not null", (void *)token.get());
   if (!token.get()) {
     F_THROW(ScriptException, "token pointer must not null: {}",
@@ -56,13 +56,13 @@ void Parser::eat(Sptr<Token> token) {
   token_ = lexer_->read();
 }
 
-Sptr<Ast> Parser::parseProgram() {
-  return Sptr<Ast>(new Program(parseStatementList()));
+std::shared_ptr<Ast> Parser::parseProgram() {
+  return std::shared_ptr<Ast>(new Program(parseStatementList()));
 }
 
-Sptr<Ast> Parser::parseStatementList() {
-  std::vector<Sptr<Ast>> nodes;
-  Sptr<Ast> e(nullptr);
+std::shared_ptr<Ast> Parser::parseStatementList() {
+  std::vector<std::shared_ptr<Ast>> nodes;
+  std::shared_ptr<Ast> e(nullptr);
 
   do {
     if (token_ == Token::T_LET) {
@@ -94,115 +94,119 @@ Sptr<Ast> Parser::parseStatementList() {
     nodes.push_back(e);
   } while (e);
 
-  return Sptr<Ast>(new StatementList(nodes));
+  return std::shared_ptr<Ast>(new StatementList(nodes));
 }
 
-Sptr<Ast> Parser::parseVariableDeclaration() {
-  std::vector<Sptr<Ast>> nodes;
+std::shared_ptr<Ast> Parser::parseVariableDeclaration() {
+  std::vector<std::shared_ptr<Ast>> nodes;
 
   // first
   eat(Token::T_LET);
-  Sptr<Ast> var = parseVariable();
+  std::shared_ptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
-  Sptr<Ast> expr = parseExpression();
-  nodes.push_back(Sptr<Ast>(new AssignmentStatement(var, expr)));
+  std::shared_ptr<Ast> expr = parseExpression();
+  nodes.push_back(std::shared_ptr<Ast>(new AssignmentStatement(var, expr)));
 
   // others
   while (token_ == Token::T_COMMA) {
     eat(Token::T_COMMA);
-    Sptr<Ast> var = parseVariable();
+    std::shared_ptr<Ast> var = parseVariable();
     eat(Token::T_ASSIGNMENT);
-    Sptr<Ast> expr = parseExpression();
-    nodes.push_back(Sptr<Ast>(new AssignmentStatement(var, expr)));
+    std::shared_ptr<Ast> expr = parseExpression();
+    nodes.push_back(std::shared_ptr<Ast>(new AssignmentStatement(var, expr)));
   }
 
   // finish
   eat(Token::T_SEMI);
 
-  return Sptr<Ast>(new VariableDeclaration(nodes));
+  return std::shared_ptr<Ast>(new VariableDeclaration(nodes));
 }
 
-Sptr<Ast> Parser::parseFunctionDeclaration() { return Sptr<Ast>(nullptr); }
+std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
+  return std::shared_ptr<Ast>(nullptr);
+}
 
-Sptr<Ast> Parser::parseClassDeclaration() { return Sptr<Ast>(nullptr); }
+std::shared_ptr<Ast> Parser::parseClassDeclaration() {
+  return std::shared_ptr<Ast>(nullptr);
+}
 
-Sptr<Ast> Parser::parseCompoundStatement() {
+std::shared_ptr<Ast> Parser::parseCompoundStatement() {
   eat(Token::T_LBRACE);
-  Sptr<Ast> node = parseStatementList();
+  std::shared_ptr<Ast> node = parseStatementList();
   eat(Token::T_RBRACE);
-  return Sptr<Ast>(new CompoundStatement(node));
+  return std::shared_ptr<Ast>(new CompoundStatement(node));
 }
 
-Sptr<Ast> Parser::parseAssignmentStatement() {
-  Sptr<Ast> var = parseVariable();
+std::shared_ptr<Ast> Parser::parseAssignmentStatement() {
+  std::shared_ptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
-  Sptr<Ast> expr = parseExpression();
+  std::shared_ptr<Ast> expr = parseExpression();
   eat(Token::T_SEMI);
-  return Sptr<Ast>(new AssignmentStatement(var, expr));
+  return std::shared_ptr<Ast>(new AssignmentStatement(var, expr));
 }
 
-Sptr<Ast> Parser::parseEmptyStatement() {
+std::shared_ptr<Ast> Parser::parseEmptyStatement() {
   eat(Token::T_SEMI);
-  return Sptr<Ast>(new EmptyStatement());
+  return std::shared_ptr<Ast>(new EmptyStatement());
 }
 
-Sptr<Ast> Parser::parseReturnStatement() {
+std::shared_ptr<Ast> Parser::parseReturnStatement() {
   eat(Token::T_RETURN);
-  Sptr<Ast> node = parseExpression();
+  std::shared_ptr<Ast> node = parseExpression();
   eat(Token::T_SEMI);
   return node;
 }
 
-Sptr<Ast> Parser::parseExpression() {
-  Sptr<Ast> node = parseTerm();
+std::shared_ptr<Ast> Parser::parseExpression() {
+  std::shared_ptr<Ast> node = parseTerm();
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
-    Sptr<Token> t = token_;
+    std::shared_ptr<Token> t = token_;
     eat(t);
-    node = Sptr<Ast>(new BinaryOp(node, t, parseTerm()));
+    node = std::shared_ptr<Ast>(new BinaryOp(node, t, parseTerm()));
   }
   return node;
 }
 
-Sptr<Ast> Parser::parseTerm() {
-  Sptr<Ast> node = parseFactor();
+std::shared_ptr<Ast> Parser::parseTerm() {
+  std::shared_ptr<Ast> node = parseFactor();
   while (token_ == Token::T_MUL || token_ == Token::T_DIV ||
          token_ == Token::T_MOD) {
-    Sptr<Token> t = token_;
+    std::shared_ptr<Token> t = token_;
     eat(token_);
-    node = Sptr<Ast>(new BinaryOp(node, t, parseFactor()));
+    node = std::shared_ptr<Ast>(new BinaryOp(node, t, parseFactor()));
   }
   return node;
 }
 
-Sptr<Ast> Parser::parseFactor() {
-  Sptr<Token> t = token_;
+std::shared_ptr<Ast> Parser::parseFactor() {
+  std::shared_ptr<Token> t = token_;
   if (t == Token::T_ADD) {
     eat(Token::T_ADD);
-    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
+    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_SUB) {
     eat(Token::T_ADD);
-    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
+    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_INC) {
     eat(Token::T_INC);
-    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
+    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t == Token::T_DEC) {
     eat(Token::T_DEC);
-    return Sptr<Ast>(new UnaryOp(t, parseFactor()));
+    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t->isInteger()) {
     eat(Token::TokenType::TT_INTEGER);
-    return Sptr<Ast>(new IntegerConstant(t));
+    return std::shared_ptr<Ast>(new IntegerConstant(t));
   } else if (t->isFloating()) {
     eat(Token::TokenType::TT_FLOATING);
-    return Sptr<Ast>(new FloatingConstant(t));
+    return std::shared_ptr<Ast>(new FloatingConstant(t));
   } else if (t->isBoolean()) {
     eat(Token::TokenType::TT_BOOLEAN);
-    return Sptr<Ast>(new BooleanConstant(t));
+    return std::shared_ptr<Ast>(new BooleanConstant(t));
   } else if (t->isString()) {
     eat(Token::TokenType::TT_STRING);
-    return Sptr<Ast>(new StringConstant(t));
+    return std::shared_ptr<Ast>(new StringConstant(t));
   } else if (t == Token::T_LP) {
     eat(Token::T_LP);
-    Sptr<Ast> node = parseExpression();
+    std::shared_ptr<Ast> node = parseExpression();
     eat(Token::T_RP);
     return node;
   } else {
@@ -210,14 +214,14 @@ Sptr<Ast> Parser::parseFactor() {
   }
 }
 
-Sptr<Ast> Parser::parseVariable() {
-  Sptr<Ast> node(new Variable(token_));
+std::shared_ptr<Ast> Parser::parseVariable() {
+  std::shared_ptr<Ast> node(new Variable(token_));
   eat(Token::TokenType::TT_IDENTIFIER);
   return node;
 }
 
-Sptr<Ast> Parser::parse() {
-  Sptr<Ast> node = parseProgram();
+std::shared_ptr<Ast> Parser::parse() {
+  std::shared_ptr<Ast> node = parseProgram();
   F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());
   if (!token_->isEof()) {
     F_THROW(ScriptException, "token_ {} must be eof", token_->toString());

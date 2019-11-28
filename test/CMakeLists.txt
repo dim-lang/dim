@@ -38,8 +38,6 @@ set(T_SRC
     LineTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
-    SptrTest.cpp
-    UptrTest.cpp
     RandomTest.cpp
     FilerTest.cpp
     ApproximateTest.cpp

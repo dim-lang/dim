@@ -5,6 +5,7 @@
 #include "SmartPointer.h"
 #include "script/Ast.h"
 #include "script/Token.h"
+#include <memory>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
@@ -13,14 +14,14 @@ namespace fastype {
 
 class BooleanConstant : public Ast {
 public:
-  BooleanConstant(Sptr<Token> token);
+  BooleanConstant(std::shared_ptr<Token> token);
   virtual ~BooleanConstant() = default;
   virtual bool value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Sptr<Token> token_;
+  std::shared_ptr<Token> token_;
 };
 
 } // namespace fastype
