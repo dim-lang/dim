@@ -331,7 +331,7 @@ icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());
 }
 
-long long Token::integer() const {
+int64_t Token::integer() const {
   F_THROW(NotImplementException, "integer not implement! {}", toString());
 }
 

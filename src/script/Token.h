@@ -3,6 +3,10 @@
 
 #pragma once
 #include "Stringify.h"
+#include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <string>
 #include <unicode/uchar.h>
@@ -128,7 +132,7 @@ public:
   virtual bool isString() const;
 
   virtual icu::UnicodeString literal() const;
-  virtual long long integer() const;
+  virtual int64_t integer() const;
   virtual double floating() const;
   virtual bool boolean() const;
 

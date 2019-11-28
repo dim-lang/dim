@@ -4,10 +4,10 @@
 #pragma once
 #include "Stringify.h"
 #include "script/Parser.h"
-#include <unicode/numfmt.h>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <unordered_map>
 
 namespace std {
 
@@ -18,9 +18,9 @@ public:
   }
 };
 
-template <> class hash<fastype::std::shared_ptr<fastype::Ast>> {
+template <> class hash<std::shared_ptr<fastype::Ast>> {
 public:
-  size_t operator()(const fastype::std::shared_ptr<fastype::Ast> &s) const {
+  size_t operator()(const std::shared_ptr<fastype::Ast> &s) const {
     return (size_t)s.get();
   }
 };

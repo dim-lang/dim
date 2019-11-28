@@ -6,10 +6,10 @@
 
 namespace fastype {
 
-IntegerToken::IntegerToken(long long value)
+IntegerToken::IntegerToken(int64_t value)
     : Token(TokenType::TT_INTEGER), value_(value) {}
 
-long long IntegerToken::integer() const { return value_; }
+int64_t IntegerToken::integer() const { return value_; }
 
 bool IntegerToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isInteger() && integer() == t->integer();

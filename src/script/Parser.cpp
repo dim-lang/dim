@@ -157,12 +157,47 @@ std::shared_ptr<Ast> Parser::parseReturnStatement() {
   return node;
 }
 
+#define F_ISC(x)                                                               \
+  ((x)->type() == Ast::AstType::INTEGER_CONSTANT ||                            \
+   (x)->type() == Ast::AstType::FLOATING_CONSTANT)
+
+#define F_ISIC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
+
+#define F_ISFC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
+
 std::shared_ptr<Ast> Parser::parseExpression() {
   std::shared_ptr<Ast> node = parseTerm();
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
     std::shared_ptr<Token> t = token_;
     eat(t);
-    node = std::shared_ptr<Ast>(new BinaryOp(node, t, parseTerm()));
+    std::shared_ptr<Ast> right = parseTerm();
+
+    // calculate constants
+    if (F_ISC(node) && F_ISC(right)) {
+      if (F_ISIC(node) && F_ISIC(right)) {
+        int64_t a = std::static_pointer_cast<IntegerConstant>(node)->value();
+        int64_t b = std::static_pointer_cast<IntegerConstant>(right)->value();
+        node = std::shared_ptr<Ast>(new IntegerConstant(
+            std::shared_ptr<IntegerToken>(new IntegerToken(a + b))));
+      } else if (F_ISIC(node) && !F_ISIC(right)) {
+        int64_t a = std::static_pointer_cast<IntegerConstant>(node)->value();
+        double b = std::static_pointer_cast<FloatingConstant>(right)->value();
+        node = std::shared_ptr<Ast>(new FloatingConstant(
+            std::shared_ptr<FloatingToken>(new FloatingToken((double)a + b))));
+      } else if (!F_ISIC(node) && F_ISIC(right)) {
+        double a = std::static_pointer_cast<FloatingConstant>(node)->value();
+        int64_t b = std::static_pointer_cast<IntegerConstant>(right)->value();
+        node = std::shared_ptr<Ast>(new FloatingConstant(
+            std::shared_ptr<FloatingToken>(new FloatingToken(a + (double)b))));
+      } else if (!F_ISIC(node) && !F_ISIC(right)) {
+        double a = std::static_pointer_cast<FloatingConstant>(node)->value();
+        double b = std::static_pointer_cast<FloatingConstant>(right)->value();
+        node = std::shared_ptr<Ast>(new FloatingConstant(
+            std::shared_ptr<FloatingToken>(new FloatingToken(a + b))));
+      }
+    } else {
+      node = std::shared_ptr<Ast>(new BinaryOp(node, t, right));
+    }
   }
   return node;
 }

@@ -113,7 +113,7 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
     q.push_back(floatingToken);
   } else {
     // integer number
-    long long value = std::stoll(utf8);
+    int64_t value = (int64_t)std::stoll(utf8);
     std::shared_ptr<Token> integerToken =
         std::shared_ptr<Token>(new IntegerToken(value));
     q.push_back(integerToken);

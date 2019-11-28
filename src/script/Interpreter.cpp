@@ -153,19 +153,19 @@ std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
 
   if (e->op() == Token::T_ADD) {
     if (isIC(l) && isIC(r)) {
-      return F_NEWIC(std::shared_ptr<IntegerConstant>(l.get())->value(),
-                     std::shared_ptr<IntegerConstant>(r.get())->value(), +);
+      return F_NEWIC(std::static_pointer_cast<IntegerConstant>(l)->value(),
+                     std::static_pointer_cast<IntegerConstant>(r)->value(), +);
     } else if (isIC(l) && isFC(r)) {
-      return F_NEWFC((double)std::shared_ptr<IntegerConstant>(l.get())->value(),
-                     std::shared_ptr<FloatingConstant>(r.get())->value(), +);
+      return F_NEWFC(
+          (double)std::static_pointer_cast<IntegerConstant>(l)->value(),
+          std::static_pointer_cast<FloatingConstant>(r)->value(), +);
     } else if (isFC(l) && isIC(r)) {
-      return F_NEWFC(((FloatingConstant *)l)->value(),
-                     (double)((IntegerConstant *)r)->value(), +);
+      return F_NEWFC(
+          std::static_pointer_cast<FloatingConstant>(l)->value(),
+          (double)std::static_pointer_cast<IntegerConstant>(r)->value(), +);
     } else if (isFC(l) && isFC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() +
-                                  ((FloatingConstant *)r)->value());
-      return F_NEWFC(((FloatingConstant *)l)->value(),
-                     ((FloatingConstant *)r)->value(), +);
+      return F_NEWFC(std::static_pointer_cast<FloatingConstant>(l)->value(),
+                     std::static_pointer_cast<FloatingConstant>(r)->value(), +);
     }
   } else if (e->op() == Token::T_SUB) {
     if (isIC(l) && isIC(r)) {
