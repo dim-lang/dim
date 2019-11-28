@@ -25,3 +25,4 @@ json
 boost
 icu
 Catch2
+PDCurses
