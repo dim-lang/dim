@@ -17,6 +17,12 @@
 #include "script/ast/StringConstant.h"
 #include "script/ast/UnaryOp.h"
 #include "script/ast/Variable.h"
+#include "script/ast/VariableDeclaration.h"
+#include "script/token/BooleanToken.h"
+#include "script/token/FloatingToken.h"
+#include "script/token/IdentifierToken.h"
+#include "script/token/IntegerToken.h"
+#include "script/token/StringToken.h"
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -32,7 +38,7 @@ Interpreter::~Interpreter() {
   tree_ = nullptr;
 }
 
-void Interpreter::visit(Ast *node) {
+void Interpreter::visit(Sptr<Ast> node) {
   switch (node->type()) {
   case Ast::AstType::PROGRAM:
     visitProgram(node);
@@ -67,51 +73,52 @@ void Interpreter::visit(Ast *node) {
   }
 }
 
-void Interpreter::visitProgram(Ast *node) {
+void Interpreter::visitProgram(Sptr<Ast> node) {
   Program *e = (Program *)node;
   visit(e->statementList());
 }
 
-void Interpreter::visitStatementList(Ast *node) {
+void Interpreter::visitStatementList(Sptr<Ast> node) {
   StatementList *e = (StatementList *)node;
   for (int i = 0; i < e->size(); i++) {
-    Ast *child = e->get(i);
+    Sptr<Ast> child = e->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitVariableDeclaration(Ast *node) {
+void Interpreter::visitVariableDeclaration(Sptr<Ast> node) {
   VariableDeclaration *e = (VariableDeclaration *)node;
   for (int i = 0; i < e->size(); i++) {
-    Ast *child = e->get(i);
+    Sptr<Ast> child = e->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitFunctionDeclaration(Ast *node) {}
+void Interpreter::visitFunctionDeclaration(Sptr<Ast> node) {}
 
-void Interpreter::visitClassDeclaration(Ast *node) {}
+void Interpreter::visitClassDeclaration(Sptr<Ast> node) {}
 
-void Interpreter::visitCompoundStatement(Ast *node) {
+void Interpreter::visitCompoundStatement(Sptr<Ast> node) {
   CompoundStatement *e = (CompoundStatement *)node;
-  for (int i = 0; i < e->size(); i++) {
-    Ast *child = e->get(i);
+  StatementList *sl = (StatementList *)e->statementList();
+  for (int i = 0; i < sl->size(); i++) {
+    Sptr<Ast> child = sl->get(i);
     visit(child);
   }
 }
 
-void Interpreter::visitAssignmentStatement(Ast *node) {
+void Interpreter::visitAssignmentStatement(Sptr<Ast> node) {
   AssignmentStatement *e = (AssignmentStatement *)node;
   Variable *var = (Variable *)e->var();
-  Ast *expr = e->expr();
+  Sptr<Ast> expr = e->expr();
   globalScope_[var->value()] = visitBinaryOp(expr);
 }
 
-void Interpreter::visitEmptyStatement(Ast *node) {}
+void Interpreter::visitEmptyStatement(Sptr<Ast> node) {}
 
-void Interpreter::visitReturnStatement(Ast *node) {}
+void Interpreter::visitReturnStatement(Sptr<Ast> node) {}
 
-static Ast *visitExpression(Ast *node) {
+Sptr<Ast> Interpreter::visitExpression(Sptr<Ast> node) {
   switch (node->type()) {
   case Ast::AstType::BINARY_OP:
     return visitBinaryOp(node);
@@ -124,11 +131,11 @@ static Ast *visitExpression(Ast *node) {
   }
 }
 
-static inline bool isIC(Ast *node) {
+static inline bool isIC(Sptr<Ast> node) {
   return node->type() == Ast::AstType::INTEGER_CONSTANT;
 }
 
-static inline bool isFC(Ast *node) {
+static inline bool isFC(Sptr<Ast> node) {
   return node->type() == Ast::AstType::FLOATING_CONSTANT;
 }
 
@@ -138,10 +145,10 @@ static inline bool isFC(Ast *node) {
 #define F_NEWFC(a, b, op)                                                      \
   (new FloatingConstant(Sptr<Token>(new FloatingToken(a op b))))
 
-Ast *Interpreter::visitBinaryOp(Ast *node) {
+Sptr<Ast> Interpreter::visitBinaryOp(Sptr<Ast> node) {
   BinaryOp *e = (BinaryOp *)node;
-  Ast *l = visitExpression(e->left());
-  Ast *r = visitExpression(e->right());
+  Sptr<Ast> l = visitExpression(e->left());
+  Sptr<Ast> r = visitExpression(e->right());
 
   if (e->op() == Token::T_ADD) {
     if (isIC(l) && isIC(r)) {
@@ -223,13 +230,13 @@ Ast *Interpreter::visitBinaryOp(Ast *node) {
   return nullptr;
 }
 
-Ast *Interpreter::visitUnaryOp(Ast *node) {
+Sptr<Ast> Interpreter::visitUnaryOp(Sptr<Ast> node) {
   UnaryOp *e = (UnaryOp *)node;
-  Ast *expr = visitExpression(e->expr());
+  Sptr<Ast> expr = visitExpression(e->expr());
   if (e->op() == Token::T_ADD) {
     return expr;
   } else if (e->op() == Token::T_SUB) {
-    Ast *expr = e->expr();
+    Sptr<Ast> expr = e->expr();
     if (isIC(expr)) {
       return new IntegerConstant(-((IntegerConstant *)expr)->value());
     } else if (isFC(expr)) {
@@ -247,7 +254,7 @@ void Interpreter::interpret() {
   visit(tree_);
 }
 
-void Interpreter::release(Ast *node) {
+void Interpreter::release(Sptr<Ast> node) {
   if (!node) {
     return;
   }
@@ -269,7 +276,7 @@ void Interpreter::release(Ast *node) {
   delete node;
 }
 
-const std::unordered_map<icu::UnicodeString, Ast *>
+const std::unordered_map<icu::UnicodeString, Sptr<Ast>>
 Interpreter::globalScope() const {
   return globalScope_;
 }

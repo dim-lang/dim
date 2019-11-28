@@ -14,14 +14,14 @@ namespace fastype {
 
 class Program : public Ast {
 public:
-  Program(Ast *node);
+  Program(Sptr<Ast> node);
   virtual ~Program() = default;
-  virtual Ast *statementList() const;
+  virtual Sptr<Ast> statementList() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Ast *statementList_;
+  Sptr<Ast> statementList_;
 };
 
 } // namespace fastype

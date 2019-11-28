@@ -56,11 +56,11 @@ void Parser::eat(Sptr<Token> token) {
   token_ = lexer_->read();
 }
 
-Ast *Parser::parseProgram() { return new Program(parseStatementList()); }
+Sptr<Ast> Parser::parseProgram() { return new Program(parseStatementList()); }
 
-Ast *Parser::parseStatementList() {
-  std::vector<Ast *> nodes;
-  Ast *e = nullptr;
+Sptr<Ast> Parser::parseStatementList() {
+  std::vector<Sptr<Ast>> nodes;
+  Sptr<Ast> e = nullptr;
 
   do {
     if (token_ == Token::T_LET) {
@@ -95,22 +95,22 @@ Ast *Parser::parseStatementList() {
   return new StatementList(nodes);
 }
 
-Ast *Parser::parseVariableDeclaration() {
-  std::vector<Ast *> nodes;
+Sptr<Ast> Parser::parseVariableDeclaration() {
+  std::vector<Sptr<Ast>> nodes;
 
   // first
   eat(Token::T_LET);
-  Ast *var = parseVariable();
+  Sptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
-  Ast *expr = parseExpression();
+  Sptr<Ast> expr = parseExpression();
   nodes.push_back(new AssignmentStatement(var, expr));
 
   // others
   while (token_ == Token::T_COMMA) {
     eat(Token::T_COMMA);
-    Ast *var = parseVariable();
+    Sptr<Ast> var = parseVariable();
     eat(Token::T_ASSIGNMENT);
-    Ast *expr = parseExpression();
+    Sptr<Ast> expr = parseExpression();
     nodes.push_back(new AssignmentStatement(var, expr));
   }
 
@@ -120,39 +120,39 @@ Ast *Parser::parseVariableDeclaration() {
   return new VariableDeclaration(nodes);
 }
 
-Ast *Parser::parseFunctionDeclaration() { return nullptr; }
+Sptr<Ast> Parser::parseFunctionDeclaration() { return nullptr; }
 
-Ast *Parser::parseClassDeclaration() { return nullptr; }
+Sptr<Ast> Parser::parseClassDeclaration() { return nullptr; }
 
-Ast *Parser::parseCompoundStatement() {
+Sptr<Ast> Parser::parseCompoundStatement() {
   eat(Token::T_LBRACE);
-  Ast *node = parseStatementList();
+  Sptr<Ast> node = parseStatementList();
   eat(Token::T_RBRACE);
   return new CompoundStatement(node);
 }
 
-Ast *Parser::parseAssignmentStatement() {
-  Ast *var = parseVariable();
+Sptr<Ast> Parser::parseAssignmentStatement() {
+  Sptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
-  Ast *expr = parseExpression();
+  Sptr<Ast> expr = parseExpression();
   eat(Token::T_SEMI);
   return new AssignmentStatement(var, expr);
 }
 
-Ast *Parser::parseEmptyStatement() {
+Sptr<Ast> Parser::parseEmptyStatement() {
   eat(Token::T_SEMI);
   return new EmptyStatement();
 }
 
-Ast *Parser::parseReturnStatement() {
+Sptr<Ast> Parser::parseReturnStatement() {
   eat(Token::T_RETURN);
-  Ast *node = parseExpression();
+  Sptr<Ast> node = parseExpression();
   eat(Token::T_SEMI);
   return node;
 }
 
-Ast *Parser::parseExpression() {
-  Ast *node = parseTerm();
+Sptr<Ast> Parser::parseExpression() {
+  Sptr<Ast> node = parseTerm();
   while (token_ == Token::T_ADD || token_ == Token::T_SUB) {
     Sptr<Token> t = token_;
     eat(t);
@@ -161,8 +161,8 @@ Ast *Parser::parseExpression() {
   return node;
 }
 
-Ast *Parser::parseTerm() {
-  Ast *node = parseFactor();
+Sptr<Ast> Parser::parseTerm() {
+  Sptr<Ast> node = parseFactor();
   while (token_ == Token::T_MUL || token_ == Token::T_DIV ||
          token_ == Token::T_MOD) {
     Sptr<Token> t = token_;
@@ -172,7 +172,7 @@ Ast *Parser::parseTerm() {
   return node;
 }
 
-Ast *Parser::parseFactor() {
+Sptr<Ast> Parser::parseFactor() {
   Sptr<Token> t = token_;
   if (t == Token::T_ADD) {
     eat(Token::T_ADD);
@@ -200,7 +200,7 @@ Ast *Parser::parseFactor() {
     return new StringConstant(t);
   } else if (t == Token::T_LP) {
     eat(Token::T_LP);
-    Ast *node = parseExpression();
+    Sptr<Ast> node = parseExpression();
     eat(Token::T_RP);
     return node;
   } else {
@@ -208,14 +208,14 @@ Ast *Parser::parseFactor() {
   }
 }
 
-Ast *Parser::parseVariable() {
-  Ast *node = new Variable(token_);
+Sptr<Ast> Parser::parseVariable() {
+  Sptr<Ast> node = new Variable(token_);
   eat(Token::TokenType::TT_IDENTIFIER);
   return node;
 }
 
-Ast *Parser::parse() {
-  Ast *node = parseProgram();
+Sptr<Ast> Parser::parse() {
+  Sptr<Ast> node = parseProgram();
   F_CHECK(token_->isEof(), "token_ {} is eof", token_->toString());
   if (!token_->isEof()) {
     F_THROW(ScriptException, "token_ {} must be eof", token_->toString());

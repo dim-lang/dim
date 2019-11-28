@@ -20,7 +20,7 @@ class Parser : public Stringify {
 public:
   Parser(Sptr<Lexer> lexer);
   virtual ~Parser() = default;
-  Ast *parse();
+  Sptr<Ast> parse();
   virtual std::string toString() const;
 
 private:
@@ -28,25 +28,25 @@ private:
   void eat(Sptr<Token> token);
 
   // block
-  Ast *parseProgram();
-  Ast *parseStatementList();
+  Sptr<Ast> parseProgram();
+  Sptr<Ast> parseStatementList();
 
   // declaration
-  Ast *parseVariableDeclaration();
-  Ast *parseFunctionDeclaration();
-  Ast *parseClassDeclaration();
+  Sptr<Ast> parseVariableDeclaration();
+  Sptr<Ast> parseFunctionDeclaration();
+  Sptr<Ast> parseClassDeclaration();
 
   // statement
-  Ast *parseCompoundStatement();
-  Ast *parseAssignmentStatement();
-  Ast *parseEmptyStatement();
-  Ast *parseReturnStatement();
+  Sptr<Ast> parseCompoundStatement();
+  Sptr<Ast> parseAssignmentStatement();
+  Sptr<Ast> parseEmptyStatement();
+  Sptr<Ast> parseReturnStatement();
 
   // expression
-  Ast *parseExpression();
-  Ast *parseTerm();
-  Ast *parseFactor();
-  Ast *parseVariable();
+  Sptr<Ast> parseExpression();
+  Sptr<Ast> parseTerm();
+  Sptr<Ast> parseFactor();
+  Sptr<Ast> parseVariable();
 
   Sptr<Token> token_;
   Sptr<Lexer> lexer_;

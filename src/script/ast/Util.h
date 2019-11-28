@@ -11,7 +11,7 @@ namespace fastype {
 
 namespace ast {
 
-std::string AstVectortoString(const std::vector<Ast *> &vec,
+std::string AstVectortoString(const std::vector<Sptr<Ast>> &vec,
                               const std::string &name);
 
 } // namespace ast

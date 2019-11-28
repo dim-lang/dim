@@ -13,16 +13,16 @@ namespace fastype {
 
 class UnaryOp : public Ast {
 public:
-  UnaryOp(Sptr<Token> op, Ast *expr);
+  UnaryOp(Sptr<Token> op, Sptr<Ast> expr);
   virtual ~UnaryOp() = default;
   virtual Sptr<Token> op() const;
-  virtual Ast *expr() const;
+  virtual Sptr<Ast> expr() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
   Sptr<Token> op_;
-  Ast *expr_;
+  Sptr<Ast> expr_;
 };
 
 } // namespace fastype

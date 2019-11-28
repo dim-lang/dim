@@ -148,7 +148,7 @@ private:
 
   T *ptr_;
   detail::PointerCounter *pc_;
-}; // Sptr
+};
 
 template <typename T> class Uptr : public boost::noncopyable, Stringify {
 public:
@@ -211,6 +211,14 @@ private:
   }
 
   T *ptr_;
-}; // Uptr
+};
+
+template <typename T, typename U> Sptr<U> castSptr(const Sptr<T> &ptr) {
+  return Sptr<U>((U *)ptr.get());
+}
+
+template <typename T, typename U> Uptr<U> castUptr(const Uptr<T> &ptr) {
+  return Uptr<U>((U *)ptr.get());
+}
 
 } // namespace fastype

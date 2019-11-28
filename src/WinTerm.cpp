@@ -3,15 +3,17 @@
 
 #include "WinTerm.h"
 #include "Logging.h"
+#include <string>
 
 namespace fastype {
 
-WinTerm::WinTerm() : Term() { F_DEBUG("Construct"); }
+WinTerm::WinTerm() : Term() { F_INFO("Construct"); }
 
-WinTerm::~WinTerm() { F_DEBUG("Destruct"); }
+WinTerm::~WinTerm() { F_INFO("Destruct"); }
 
-void WinTerm::show(const std::string &fileName) {
-  F_DEBUG("show fileName:{}", fileName);
+void WinTerm::show(const icu::UnicodeString &fileName) {
+  std::string _1;
+  F_INFO("fileName:{}", fileName.toUTF8String(_1));
 }
 
 } // namespace fastype

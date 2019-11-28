@@ -35,10 +35,10 @@ empty_statement :   ';'
 return_statement:   'return' expression ';'
                 ;
 
-expression  :   term ( '+' | '-' term )*
+expression  :   term ('+' | '-' term)*
             ;
 
-term:   factor ( '*' | '/' | '%' factor)*
+term:   factor ('*' | '/' | '%' factor)*
     ;
 
 factor  :   INTEGER_CONSTANT

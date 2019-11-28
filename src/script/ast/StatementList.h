@@ -14,15 +14,15 @@ namespace fastype {
 
 class StatementList : public Ast {
 public:
-  StatementList(const std::vector<Ast *> &children);
+  StatementList(const std::vector<Sptr<Ast>> &children);
   virtual ~StatementList() = default;
   virtual int size() const;
-  virtual Ast *get(int i) const;
+  virtual Sptr<Ast> get(int i) const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  std::vector<Ast *> children_;
+  std::vector<Sptr<Ast>> children_;
 };
 
 } // namespace fastype

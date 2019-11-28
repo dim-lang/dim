@@ -8,7 +8,9 @@ namespace fastype {
 
 IdentifierConstant::IdentifierConstant(Sptr<Token> token) : token_(token) {}
 
-long long IdentifierConstant::value() const { return token_->integer(); }
+icu::UnicodeString IdentifierConstant::value() const {
+  return token_->literal();
+}
 
 std::string IdentifierConstant::toString() const {
   return fmt::format("[ @IdentifierConstant token_:{} ]", token_->toString());

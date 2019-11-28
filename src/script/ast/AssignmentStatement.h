@@ -13,16 +13,16 @@ namespace fastype {
 
 class AssignmentStatement : public Ast {
 public:
-  AssignmentStatement(Ast *var, Ast *expr);
+  AssignmentStatement(Sptr<Ast> var, Sptr<Ast> expr);
   virtual ~AssignmentStatement() = default;
-  virtual Ast *var() const;
-  virtual Ast *expr() const;
+  virtual Sptr<Ast> var() const;
+  virtual Sptr<Ast> expr() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Ast *var_;
-  Ast *expr_;
+  Sptr<Ast> var_;
+  Sptr<Ast> expr_;
 };
 
 } // namespace fastype

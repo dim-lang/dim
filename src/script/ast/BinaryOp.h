@@ -13,18 +13,18 @@ namespace fastype {
 
 class BinaryOp : public Ast {
 public:
-  BinaryOp(Ast *left, Sptr<Token> op, Ast *right);
+  BinaryOp(Sptr<Ast> left, Sptr<Token> op, Sptr<Ast> right);
   virtual ~BinaryOp() = default;
-  virtual Ast *left() const;
+  virtual Sptr<Ast> left() const;
   virtual Sptr<Token> op() const;
-  virtual Ast *right() const;
+  virtual Sptr<Ast> right() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Ast *left_;
+  Sptr<Ast> left_;
   Sptr<Token> op_;
-  Ast *right_;
+  Sptr<Ast> right_;
 };
 
 } // namespace fastype

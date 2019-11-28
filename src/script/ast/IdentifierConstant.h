@@ -13,14 +13,14 @@ namespace fastype {
 
 class IdentifierConstant : public Ast {
 public:
-  IdentifierConstant(Ast *value);
+  IdentifierConstant(Sptr<Token> token);
   virtual ~IdentifierConstant() = default;
-  virtual Ast *value() const;
+  virtual icu::UnicodeString value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 
 private:
-  Ast *value_;
+  Sptr<Token> token_;
 };
 
 } // namespace fastype

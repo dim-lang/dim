@@ -4,6 +4,9 @@
 #pragma once
 #include "Term.h"
 #include <string>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 
@@ -12,7 +15,7 @@ public:
   WinTerm();
   virtual ~WinTerm();
 
-  virtual void show(const std::string &fileName);
+  virtual void show(const icu::UnicodeString &fileName);
 };
 
 } // namespace fastype
