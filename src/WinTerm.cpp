@@ -7,9 +7,9 @@
 
 namespace fastype {
 
-WinTerm::WinTerm() : Term() { F_INFO("Construct"); }
+WinTerm::WinTerm() : Term() { F_INFO_MSG("Construct"); }
 
-WinTerm::~WinTerm() { F_INFO("Destruct"); }
+WinTerm::~WinTerm() { F_INFO_MSG("Destruct"); }
 
 void WinTerm::show(const icu::UnicodeString &fileName) {
   std::string _1;
