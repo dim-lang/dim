@@ -8,7 +8,7 @@ namespace fastype {
 
 VariableDeclaration::VariableDeclaration(
     const std::vector<std::shared_ptr<Ast>> &children)
-    : children_(children.size()) {
+    : children_() {
   for (int i = 0; i < children.size(); i++) {
     children_.push_back(children[i]);
   }
