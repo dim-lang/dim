@@ -76,10 +76,14 @@ set(F_CORE
     script/ast/UnaryOp.cpp
     script/ast/IntegerConstant.cpp
     script/ast/FloatingConstant.cpp
+    script/ast/StringConstant.cpp
+    script/ast/BooleanConstant.cpp
+    script/ast/IdentifierConstant.cpp
     script/ast/AssignmentStatement.cpp
     script/ast/CompoundStatement.cpp
     script/ast/EmptyStatement.cpp
     script/ast/StatementList.cpp
+    script/ast/VariableDeclaration.cpp
     script/ast/Variable.cpp
     script/ast/Program.cpp
     script/token/AssignmentToken.cpp

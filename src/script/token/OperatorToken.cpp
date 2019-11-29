@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/token/OperatorToken.h"
+#include <fmt/format.h>
 
 namespace fastype {
 

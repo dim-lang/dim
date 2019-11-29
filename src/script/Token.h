@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <fmt/format.h>
 #include <memory>
 #include <string>
 #include <unicode/uchar.h>
