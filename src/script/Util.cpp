@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "script/ast/Util.h"
+#include "script/Util.h"
 #include <sstream>
 
 namespace fastype {

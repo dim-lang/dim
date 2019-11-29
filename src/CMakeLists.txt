@@ -72,7 +72,7 @@ set(F_CORE
     script/Lexer.cpp
     script/Parser.cpp
     script/Interpreter.cpp
-    script/ast/Util.cpp
+    script/Util.cpp
     script/ast/BinaryOp.cpp
     script/ast/UnaryOp.cpp
     script/ast/IntegerConstant.cpp

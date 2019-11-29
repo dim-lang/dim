@@ -5,7 +5,7 @@
 #include "Logging.h"
 #include "exception/ScriptException.h"
 #include "script/Interpreter.h"
-#include "script/ast/Util.h"
+#include "script/Util.h"
 
 namespace fastype {
 

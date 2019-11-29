@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/ast/Program.h"
-#include "script/ast/Util.h"
+#include "script/Util.h"
 
 namespace fastype {
 
