@@ -171,8 +171,9 @@ TEST_CASE("Token", "[Token]") {
   }
 
   SECTION("keyword") {
-    fastype::KeywordToken kt(UNICODE_STRING_SIMPLE("let"));
-    REQUIRE(kt.isKeyword());
-    F_INFO("keyword: {}", kt.toString());
+    for (auto t : fastype::Token::keywords()) {
+      REQUIRE(t->isKeyword());
+      F_INFO("keyword: {}", t->toString());
+    }
   }
 }

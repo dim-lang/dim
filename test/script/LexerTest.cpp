@@ -19,19 +19,23 @@ TEST_CASE("Lexer", "[Lexer]") {
         UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
     fastype::Lexer lex(data);
     std::shared_ptr<fastype::Token> t = lex.read();
-    REQUIRE(t->isKeyword());
-    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("let"));
+    REQUIRE(t->isInteger());
+    REQUIRE(t->integer() == 1LL);
     t = lex.read();
-    REQUIRE(t->isIdentifier());
-    REQUIRE(t->literal() == UNICODE_STRING_SIMPLE("a"));
-    t = lex.read();
-    REQUIRE(t == fastype::Token::T_ASSIGNMENT);
+    REQUIRE(t->isOperator());
+    REQUIRE(t == fastype::Token::T_ADD);
     t = lex.read();
     REQUIRE(t->isInteger());
-    REQUIRE(t->integer() == 2);
+    REQUIRE(t->integer() == 6LL);
+    t = lex.read();
+    REQUIRE(t->isOperator());
+    REQUIRE(t == fastype::Token::T_DIV);
     t = lex.read();
     REQUIRE(t->isPunctuation());
-    REQUIRE(t == fastype::Token::T_SEMI);
+    REQUIRE(t == fastype::Token::T_LP);
+    t = lex.read();
+    REQUIRE(t->isOperator());
+    REQUIRE(t == fastype::Token::T_SUB);
   }
   SECTION("LexerTest2.fast") {
     icu::UnicodeString data = fastype::Filer::readAll(
