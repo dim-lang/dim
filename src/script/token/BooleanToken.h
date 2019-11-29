@@ -10,7 +10,7 @@ class BooleanToken : public Token {
 public:
   BooleanToken(bool value);
   virtual ~BooleanToken() = default;
-  virtual bool value() const;
+  virtual bool boolean() const;
   virtual bool equal(const std::shared_ptr<Token> &t) const;
   virtual std::string toString() const;
 

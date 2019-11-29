@@ -18,7 +18,8 @@ std::shared_ptr<Ast> CompoundStatement::statementList() const {
 }
 
 std::string CompoundStatement::toString() const {
-  return ast::AstVectortoString(statementList_, "CompoundStatement");
+  return fmt::format("[ @CompoundStatemen statementList_:{} ]",
+                     statementList_->toString());
 }
 
 Ast::AstType CompoundStatement::type() const {

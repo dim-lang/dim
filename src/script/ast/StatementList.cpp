@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/ast/StatementList.h"
+#include "script/ast/Util.h"
 #include <fmt/format.h>
 
 namespace fastype {

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "script/token/AssignmentToken.h"
+#include <fmt/format.h>
 
 namespace fastype {
 
