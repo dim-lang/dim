@@ -8,7 +8,7 @@ namespace fastype {
 
 namespace detail {
 
-std::string astVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
+std::string astVectorToString(const std::vector<std::shared_ptr<Ast>> &vec,
                               const std::string &name) {
   std::stringstream ss;
   ss << fmt::format("[ @{} children_#size: ", name);

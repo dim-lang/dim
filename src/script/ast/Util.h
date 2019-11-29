@@ -12,7 +12,7 @@ namespace fastype {
 
 namespace detail {
 
-std::string astVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
+std::string astVectorToString(const std::vector<std::shared_ptr<Ast>> &vec,
                               const std::string &name);
 
 } // namespace detail

@@ -21,7 +21,7 @@ std::shared_ptr<Ast> VariableDeclaration::get(int i) const {
 }
 
 std::string VariableDeclaration::toString() const {
-  return detail::astVectortoString(children_, "VariableDeclaration");
+  return detail::astVectorToString(children_, "VariableDeclaration");
 }
 
 Ast::AstType VariableDeclaration::type() const {

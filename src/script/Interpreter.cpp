@@ -93,15 +93,22 @@ void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
   }
 }
 
-void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {}
+void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
+  F_CHECK(false, "not implement! node:{}", node->toString());
+  F_THROW(ScriptException, "not implement, node: {}", node->toString());
+}
 
-void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {}
+void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {
+  F_CHECK(false, "not implement! node:{}", node->toString());
+  F_THROW(ScriptException, "not implement, node: {}", node->toString());
+}
 
 void Interpreter::visitCompoundStatement(std::shared_ptr<Ast> node) {
   std::shared_ptr<CompoundStatement> e((CompoundStatement *)node.get());
-  std::shared_ptr<StatementList> sl((StatementList *)e->statementList().get());
-  for (int i = 0; i < sl->size(); i++) {
-    std::shared_ptr<Ast> child = sl->get(i);
+  std::shared_ptr<StatementList> l =
+      std::static_pointer_cast<StatementList>(e->statementList());
+  for (int i = 0; i < l->size(); i++) {
+    std::shared_ptr<Ast> child = l->get(i);
     visit(child);
   }
 }
@@ -115,7 +122,10 @@ void Interpreter::visitAssignmentStatement(std::shared_ptr<Ast> node) {
 
 void Interpreter::visitEmptyStatement(std::shared_ptr<Ast> node) {}
 
-void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {}
+void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {
+  F_CHECK(false, "not implement! node:{}", node->toString());
+  F_THROW(ScriptException, "not implement, node: {}", node->toString());
+}
 
 std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   switch (node->type()) {
@@ -128,8 +138,21 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   case Ast::AstType::VARIABLE:
     return visitVariable(node);
     break;
-  default:
+  case Ast::AstType::INTEGER_CONSTANT:
     return node;
+    break;
+  case Ast::AstType::FLOATING_CONSTANT:
+    return node;
+    break;
+  case Ast::AstType::BOOLEAN_CONSTANT:
+    return node;
+    break;
+  case Ast::AstType::STRING_CONSTANT:
+    return node;
+    break;
+  default:
+    F_CHECK(false, "must not reach here, node:{}", node->toString());
+    F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
   }
 }
 
@@ -184,8 +207,10 @@ std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
               std::static_pointer_cast<IntegerConstant>(r)->value()))));
     }
   }
-  F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
+  F_CHECK(false, "must not reach here, node:{}, l:{}, r:{}", node->toString(),
+          l->toString(), r->toString());
+  F_THROW(ScriptException, "must not reach here, node:{}, l:{}, r:{}",
+          node->toString(), l->toString(), r->toString());
   return std::shared_ptr<Ast>(nullptr);
 }
 
@@ -215,18 +240,18 @@ std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
   return std::shared_ptr<Ast>(nullptr);
 }
 
-void Interpreter::interpret() {
-  release(tree_);
-  tree_ = parser_->parse();
-  visit(tree_);
-}
-
 std::shared_ptr<Ast> Interpreter::visitVariable(std::shared_ptr<Ast> node) {
   std::shared_ptr<Variable> e = std::static_pointer_cast<Variable>(node);
   if (globalScope_.find(e->value()) == globalScope_.end()) {
     F_THROW(ScriptException, "variable {} not found", e->toString());
   }
   return globalScope_[e->value()];
+}
+
+void Interpreter::interpret() {
+  release(tree_);
+  tree_ = parser_->parse();
+  visit(tree_);
 }
 
 void Interpreter::release(std::shared_ptr<Ast> node) {
@@ -241,9 +266,6 @@ void Interpreter::release(std::shared_ptr<Ast> node) {
   case Ast::AstType::UNARY_OP: {
     release(std::static_pointer_cast<UnaryOp>(node)->expr());
   } break;
-  default:
-    F_CHECK(false, "must not reach here, node:{}", node->toString());
-    F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
   }
   node.reset();
 }
