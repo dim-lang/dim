@@ -28,6 +28,6 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Interpreter> interpreter(
         new fastype::Interpreter(parser));
-    REQUIRE(interpreter->interpret() == 14LL);
+    interpreter->interpret();
   }
 }
