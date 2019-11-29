@@ -61,6 +61,7 @@ private:
   virtual std::shared_ptr<Ast> visitExpression(std::shared_ptr<Ast> node);
   virtual std::shared_ptr<Ast> visitBinaryOp(std::shared_ptr<Ast> node);
   virtual std::shared_ptr<Ast> visitUnaryOp(std::shared_ptr<Ast> node);
+  virtual std::shared_ptr<Ast> visitVariable(std::shared_ptr<Ast> node);
 
   static void release(std::shared_ptr<Ast> node);
 

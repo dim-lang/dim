@@ -110,7 +110,7 @@ void Interpreter::visitAssignmentStatement(std::shared_ptr<Ast> node) {
   std::shared_ptr<AssignmentStatement> e((AssignmentStatement *)node.get());
   std::shared_ptr<Variable> var((Variable *)e->var().get());
   std::shared_ptr<Ast> expr = e->expr();
-  globalScope_[var->value()] = visitBinaryOp(expr);
+  globalScope_[var->value()] = visitExpression(expr);
 }
 
 void Interpreter::visitEmptyStatement(std::shared_ptr<Ast> node) {}
@@ -124,6 +124,9 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
     break;
   case Ast::AstType::UNARY_OP:
     return visitUnaryOp(node);
+    break;
+  case Ast::AstType::VARIABLE:
+    return visitVariable(node);
     break;
   default:
     return node;
@@ -202,7 +205,7 @@ std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
     } else if (F_IS_FC(expr)) {
       return std::shared_ptr<Ast>(
           new FloatingConstant(std::shared_ptr<Token>(new FloatingToken(
-              -std::static_pointer_cast<FloatingConstant>(l)->value()))));
+              -std::static_pointer_cast<FloatingConstant>(expr)->value()))));
     }
   }
   F_CHECK(false, "must not reach here, node:{}, expr:{}", node->toString(),
@@ -218,21 +221,26 @@ void Interpreter::interpret() {
   visit(tree_);
 }
 
+std::shared_ptr<Ast> Interpreter::visitVariable(std::shared_ptr<Ast> node) {
+  std::shared_ptr<Variable> e = std::static_pointer_cast<Variable>(node);
+  if (globalScope_.find(e->value()) == globalScope_.end()) {
+    F_THROW(ScriptException, "variable {} not found", e->toString());
+  }
+  return globalScope_[e->value()];
+}
+
 void Interpreter::release(std::shared_ptr<Ast> node) {
   if (!node) {
     return;
   }
   switch (node->type()) {
   case Ast::AstType::BINARY_OP: {
-    releaseImpl(((BinaryOp *)node)->left());
-    releaseImpl(((BinaryOp *)node)->right());
+    release(std::static_pointer_cast<BinaryOp>(node)->left());
+    release(std::static_pointer_cast<BinaryOp>(node)->right());
   } break;
   case Ast::AstType::UNARY_OP: {
-    releaseImpl(((UnaryOp *)node)->expr());
+    release(std::static_pointer_cast<UnaryOp>(node)->expr());
   } break;
-  case Ast::AstType::INTEGER_CONSTANT:
-  case Ast::AstType::FLOATING_CONSTANT:
-    break;
   default:
     F_CHECK(false, "must not reach here, node:{}", node->toString());
     F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
