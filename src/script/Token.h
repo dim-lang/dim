@@ -106,13 +106,13 @@ public:
   const static std::shared_ptr<Token> T_RETURN;     // return
   const static std::shared_ptr<Token> T_VOID;       // void
 
-  static const std::vector<std::shared_ptr<Token>> eofs();
-  static const std::vector<std::shared_ptr<Token>> operators();
-  static const std::vector<std::shared_ptr<Token>> assignments();
-  static const std::vector<std::shared_ptr<Token>> comparators();
-  static const std::vector<std::shared_ptr<Token>> booleans();
-  static const std::vector<std::shared_ptr<Token>> punctuations();
-  static const std::vector<std::shared_ptr<Token>> keywords();
+  static const std::vector<std::shared_ptr<Token>> &eofs();
+  static const std::vector<std::shared_ptr<Token>> &operators();
+  static const std::vector<std::shared_ptr<Token>> &assignments();
+  static const std::vector<std::shared_ptr<Token>> &comparators();
+  static const std::vector<std::shared_ptr<Token>> &booleans();
+  static const std::vector<std::shared_ptr<Token>> &punctuations();
+  static const std::vector<std::shared_ptr<Token>> &keywords();
 
   Token(TokenType type);
   virtual ~Token() = default;
