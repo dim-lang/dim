@@ -57,7 +57,10 @@ void Parser::eat(std::shared_ptr<Token> token) {
 }
 
 std::shared_ptr<Ast> Parser::parseProgram() {
-  return std::shared_ptr<Ast>(new Program(parseStatementList()));
+  std::shared_ptr<Ast> r =
+      std::shared_ptr<Ast>(new Program(parseStatementList()));
+  F_CHECK(r, "r {} not null", (void *)r.get());
+  return r;
 }
 
 std::shared_ptr<Ast> Parser::parseStatementList() {
@@ -68,24 +71,31 @@ std::shared_ptr<Ast> Parser::parseStatementList() {
     if (token_ == Token::T_LET) {
       // variable_declaration
       e = parseVariableDeclaration();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_ == Token::T_FUNC) {
       // function_declaration
       e = parseFunctionDeclaration();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_ == Token::T_CLASS) {
       // class_declaration
       e = parseClassDeclaration();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_ == Token::T_LBRACE) {
       // compound_statement
       e = parseCompoundStatement();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_ == Token::T_SEMI) {
       // empty_statement
       e = parseEmptyStatement();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_->isIdentifier()) {
       // assignment_statement
       e = parseAssignmentStatement();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else if (token_ == Token::T_RETURN) {
       // return_statement
       e = parseReturnStatement();
+      F_CHECK(e, "e {} not null", (void *)e.get());
     } else {
       F_CHECK(false, "invalid statement_list at token_:{}", token_->toString());
       F_THROW(ScriptException, "invalid statement_list at token_:{}",
@@ -94,7 +104,9 @@ std::shared_ptr<Ast> Parser::parseStatementList() {
     nodes.push_back(e);
   } while (token_ != Token::T_EOF);
 
-  return std::shared_ptr<Ast>(new StatementList(nodes));
+  std::shared_ptr<Ast> r = std::shared_ptr<Ast>(new StatementList(nodes));
+  F_CHECK(r, "r {} not null", (void *)r.get());
+  return r;
 }
 
 std::shared_ptr<Ast> Parser::parseVariableDeclaration() {
@@ -119,7 +131,9 @@ std::shared_ptr<Ast> Parser::parseVariableDeclaration() {
   // finish
   eat(Token::T_SEMI);
 
-  return std::shared_ptr<Ast>(new VariableDeclaration(nodes));
+  std::shared_ptr<Ast> r = std::shared_ptr<Ast>(new VariableDeclaration(nodes));
+  F_CHECK(r, "r {} not null", (void *)r.get());
+  return r;
 }
 
 std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
