@@ -172,7 +172,7 @@ std::shared_ptr<Ast> Parser::parseExpression() {
     eat(t);
     std::shared_ptr<Ast> right = parseTerm();
 
-    // calculate constants
+    // optimization: calculate constants
     if (F_ISC(node) && F_ISC(right)) {
       if (F_ISIC(node) && F_ISIC(right)) {
         int64_t a = std::static_pointer_cast<IntegerConstant>(node)->value();
@@ -217,10 +217,18 @@ std::shared_ptr<Ast> Parser::parseFactor() {
   std::shared_ptr<Token> t = token_;
   if (t == Token::T_ADD) {
     eat(Token::T_ADD);
-    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
+    // optimization: ignore unary + operator
+    return parseFactor();
   } else if (t == Token::T_SUB) {
     eat(Token::T_ADD);
-    return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
+    // optimization: negative unary - operator
+    std::shared_ptr<Ast> f = parseFactor();
+    if (f->type() == Ast::AstType::INTEGER_CONSTANT) {
+      return std::shared_ptr<Ast>(
+          new IntegerConstant(std::shared_ptr<IntegerToken>(new IntegerToken(
+              -std::static_pointer_cast<IntegerConstant>(f)->value()))));
+    }
+    return std::shared_ptr<Ast>(new UnaryOp(t, f));
   } else if (t == Token::T_INC) {
     eat(Token::T_INC);
     return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));

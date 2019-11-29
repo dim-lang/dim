@@ -130,21 +130,35 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   }
 }
 
-static inline bool isIC(std::shared_ptr<Ast> node) {
-  return node->type() == Ast::AstType::INTEGER_CONSTANT;
-}
+#define F_IS_IC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
 
-static inline bool isFC(std::shared_ptr<Ast> node) {
-  return node->type() == Ast::AstType::FLOATING_CONSTANT;
-}
-
-#define F_NEWIC(a, b, op)                                                      \
-  (std::shared_ptr<Ast>(                                                       \
-      new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(a op b)))))
-
-#define F_NEWFC(a, b, op)                                                      \
-  (std::shared_ptr<Ast>(new FloatingConstant(                                  \
-      std::shared_ptr<Token>(new FloatingToken(a op b)))))
+#define F_OP_I_AND_F(l, r, op)                                                 \
+  if (F_IS_IC(l) && F_IS_IC(r)) {                                              \
+    return std::shared_ptr<Ast>(                                               \
+        new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(           \
+            std::static_pointer_cast<IntegerConstant>(l)                       \
+                ->value() op std::static_pointer_cast<IntegerConstant>(r)      \
+                ->value()))));                                                 \
+  } else if (F_IS_IC(l) && F_IS_FC(r)) {                                       \
+    return std::shared_ptr<Ast>(                                               \
+        new FloatingConstant(std::shared_ptr<Token>(new FloatingToken(         \
+            (double)std::static_pointer_cast<IntegerConstant>(l)               \
+                ->value() op std::static_pointer_cast<FloatingConstant>(r)     \
+                ->value()))));                                                 \
+  } else if (F_IS_FC(l) && F_IS_IC(r)) {                                       \
+    return std::shared_ptr<Ast>(new FloatingConstant(std::shared_ptr<Token>(   \
+        new FloatingToken(std::static_pointer_cast<FloatingConstant>(l)        \
+                              ->value() op(double)                             \
+                                  std::static_pointer_cast<IntegerConstant>(r) \
+                              ->value()))));                                   \
+  } else if (F_IS_FC(l) && F_IS_FC(r)) {                                       \
+    return std::shared_ptr<Ast>(                                               \
+        new FloatingConstant(std::shared_ptr<Token>(new FloatingToken(         \
+            std::static_pointer_cast<FloatingConstant>(l)                      \
+                ->value() op std::static_pointer_cast<FloatingConstant>(r)     \
+                ->value()))));                                                 \
+  }
 
 std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
   std::shared_ptr<BinaryOp> e((BinaryOp *)node.get());
@@ -152,99 +166,50 @@ std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
   std::shared_ptr<Ast> r = visitExpression(e->right());
 
   if (e->op() == Token::T_ADD) {
-    if (isIC(l) && isIC(r)) {
-      return F_NEWIC(std::static_pointer_cast<IntegerConstant>(l)->value(),
-                     std::static_pointer_cast<IntegerConstant>(r)->value(), +);
-    } else if (isIC(l) && isFC(r)) {
-      return F_NEWFC(
-          (double)std::static_pointer_cast<IntegerConstant>(l)->value(),
-          std::static_pointer_cast<FloatingConstant>(r)->value(), +);
-    } else if (isFC(l) && isIC(r)) {
-      return F_NEWFC(
-          std::static_pointer_cast<FloatingConstant>(l)->value(),
-          (double)std::static_pointer_cast<IntegerConstant>(r)->value(), +);
-    } else if (isFC(l) && isFC(r)) {
-      return F_NEWFC(std::static_pointer_cast<FloatingConstant>(l)->value(),
-                     std::static_pointer_cast<FloatingConstant>(r)->value(), +);
-    }
+    F_OP_I_AND_F(l, r, +);
   } else if (e->op() == Token::T_SUB) {
-    if (isIC(l) && isIC(r)) {
-      return new IntegerConstant(((IntegerConstant *)l)->value() -
-                                 ((IntegerConstant *)r)->value());
-    } else if (isIC(l) && isFC(r)) {
-      return new FloatingConstant((double)((IntegerConstant *)l)->value() -
-                                  ((FloatingConstant *)r)->value());
-    } else if (isFC(l) && isIC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() -
-                                  (double)((IntegerConstant *)r)->value());
-    } else if (isFC(l) && isFC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() -
-                                  ((FloatingConstant *)r)->value());
-    }
+    F_OP_I_AND_F(l, r, -);
   } else if (e->op() == Token::T_MUL) {
-    if (isIC(l) && isIC(r)) {
-      return new IntegerConstant(((IntegerConstant *)l)->value() *
-                                 ((IntegerConstant *)r)->value());
-    } else if (isIC(l) && isFC(r)) {
-      return new FloatingConstant((double)((IntegerConstant *)l)->value() *
-                                  ((FloatingConstant *)r)->value());
-    } else if (isFC(l) && isIC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() *
-                                  (double)((IntegerConstant *)r)->value());
-    } else if (isFC(l) && isFC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() *
-                                  ((FloatingConstant *)r)->value());
-    }
+    F_OP_I_AND_F(l, r, *);
   } else if (e->op() == Token::T_DIV) {
-    if (isIC(l) && isIC(r)) {
-      return new IntegerConstant(((IntegerConstant *)l)->value() /
-                                 ((IntegerConstant *)r)->value());
-    } else if (isIC(l) && isFC(r)) {
-      return new FloatingConstant((double)((IntegerConstant *)l)->value() /
-                                  ((FloatingConstant *)r)->value());
-    } else if (isFC(l) && isIC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() /
-                                  (double)((IntegerConstant *)r)->value());
-    } else if (isFC(l) && isFC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() /
-                                  ((FloatingConstant *)r)->value());
-    }
+    F_OP_I_AND_F(l, r, /);
   } else if (e->op() == Token::T_MOD) {
-    if (isIC(l) && isIC(r)) {
-      return new IntegerConstant(((IntegerConstant *)l)->value() %
-                                 ((IntegerConstant *)r)->value());
-    } else if (isIC(l) && isFC(r)) {
-      return new FloatingConstant((double)((IntegerConstant *)l)->value() %
-                                  ((FloatingConstant *)r)->value());
-    } else if (isFC(l) && isIC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() %
-                                  (double)((IntegerConstant *)r)->value());
-    } else if (isFC(l) && isFC(r)) {
-      return new FloatingConstant(((FloatingConstant *)l)->value() %
-                                  ((FloatingConstant *)r)->value());
+    if (F_IS_IC(l) && F_IS_IC(r)) {
+      return std::shared_ptr<Ast>(
+          new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(
+              std::static_pointer_cast<IntegerConstant>(l)->value() %
+              std::static_pointer_cast<IntegerConstant>(r)->value()))));
     }
   }
   F_CHECK(false, "must not reach here, node:{}", node->toString());
   F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
-  return nullptr;
+  return std::shared_ptr<Ast>(nullptr);
 }
 
+#undef F_OP_I_AND_F
+
 std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
-  UnaryOp *e = (UnaryOp *)node;
+  std::shared_ptr<UnaryOp> e = std::static_pointer_cast<UnaryOp>(node);
   std::shared_ptr<Ast> expr = visitExpression(e->expr());
   if (e->op() == Token::T_ADD) {
     return expr;
   } else if (e->op() == Token::T_SUB) {
     std::shared_ptr<Ast> expr = e->expr();
-    if (isIC(expr)) {
-      return new IntegerConstant(-((IntegerConstant *)expr)->value());
-    } else if (isFC(expr)) {
-      return new FloatingConstant(-((FloatingConstant *)l)->value());
+    if (F_IS_IC(expr)) {
+      return std::shared_ptr<Ast>(
+          new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(
+              -std::static_pointer_cast<IntegerConstant>(expr)->value()))));
+    } else if (F_IS_FC(expr)) {
+      return std::shared_ptr<Ast>(
+          new FloatingConstant(std::shared_ptr<Token>(new FloatingToken(
+              -std::static_pointer_cast<FloatingConstant>(l)->value()))));
     }
   }
-  F_CHECK(false, "must not reach here, node:{}", node->toString());
-  F_THROW(ScriptException, "must not reach here, node: {}", node->toString());
-  return nullptr;
+  F_CHECK(false, "must not reach here, node:{}, expr:{}", node->toString(),
+          expr->toString());
+  F_THROW(ScriptException, "must not reach here, node:{}, expr:{}",
+          node->toString(), expr->toString());
+  return std::shared_ptr<Ast>(nullptr);
 }
 
 void Interpreter::interpret() {
