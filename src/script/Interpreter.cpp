@@ -73,12 +73,13 @@ void Interpreter::visit(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitProgram(std::shared_ptr<Ast> node) {
-  std::shared_ptr<Program> e((Program *)node.get());
+  std::shared_ptr<Program> e = std::static_pointer_cast<Program>(node);
   visit(e->statementList());
 }
 
 void Interpreter::visitStatementList(std::shared_ptr<Ast> node) {
-  std::shared_ptr<StatementList> e((StatementList *)node.get());
+  std::shared_ptr<StatementList> e =
+      std::static_pointer_cast<StatementList>(node);
   for (int i = 0; i < e->size(); i++) {
     std::shared_ptr<Ast> child = e->get(i);
     visit(child);
@@ -86,7 +87,8 @@ void Interpreter::visitStatementList(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
-  std::shared_ptr<VariableDeclaration> e((VariableDeclaration *)node.get());
+  std::shared_ptr<VariableDeclaration> e =
+      std::static_pointer_cast<VariableDeclaration>(node);
   for (int i = 0; i < e->size(); i++) {
     std::shared_ptr<Ast> child = e->get(i);
     visit(child);
@@ -104,7 +106,8 @@ void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitCompoundStatement(std::shared_ptr<Ast> node) {
-  std::shared_ptr<CompoundStatement> e((CompoundStatement *)node.get());
+  std::shared_ptr<CompoundStatement> e =
+      std::static_pointer_cast<CompoundStatement>(node);
   std::shared_ptr<StatementList> l =
       std::static_pointer_cast<StatementList>(e->statementList());
   for (int i = 0; i < l->size(); i++) {
@@ -114,7 +117,8 @@ void Interpreter::visitCompoundStatement(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitAssignmentStatement(std::shared_ptr<Ast> node) {
-  std::shared_ptr<AssignmentStatement> e((AssignmentStatement *)node.get());
+  std::shared_ptr<AssignmentStatement> e =
+      std::static_pointer_cast<AssignmentStatement>(node);
   std::shared_ptr<Variable> var((Variable *)e->var().get());
   std::shared_ptr<Ast> expr = e->expr();
   globalScope_[var->value()] = visitExpression(expr);
@@ -187,7 +191,7 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   }
 
 std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
-  std::shared_ptr<BinaryOp> e((BinaryOp *)node.get());
+  std::shared_ptr<BinaryOp> e = std::static_pointer_cast<BinaryOp>(node);
   std::shared_ptr<Ast> l = visitExpression(e->left());
   std::shared_ptr<Ast> r = visitExpression(e->right());
 
