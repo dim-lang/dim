@@ -6,7 +6,6 @@
 #include "exception/ScriptException.h"
 #include "script/Interpreter.h"
 #include "script/ast/Util.h"
-#include <fmt/format.h>
 
 namespace fastype {
 

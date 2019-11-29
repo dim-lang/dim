@@ -22,9 +22,9 @@ public:
 namespace std {
 
 template <> struct hash<icu::UnicodeString> {
+public:
   std::size_t operator()(const icu::UnicodeString &s) const {
-    return (std::size_t)fastype::Hasher::hash32(s.getBuffer(),
-                                                s.length() * sizeof(UChar));
+    return (size_t)s.hashCode();
   }
 };
 

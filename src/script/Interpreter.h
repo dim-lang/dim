@@ -2,29 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Hasher.h"
 #include "Stringify.h"
 #include "script/Parser.h"
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 #include <unordered_map>
-
-namespace std {
-
-template <> struct hash<icu::UnicodeString> {
-public:
-  size_t operator()(const icu::UnicodeString &s) const {
-    return (size_t)s.hashCode();
-  }
-};
-
-template <> class hash<std::shared_ptr<fastype::Ast>> {
-public:
-  size_t operator()(const std::shared_ptr<fastype::Ast> &s) const {
-    return (size_t)s.get();
-  }
-};
-}; // namespace std
 
 namespace fastype {
 

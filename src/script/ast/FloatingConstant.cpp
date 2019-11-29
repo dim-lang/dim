@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "script/ast/FloatingConstant.h"
-#include <fmt/format.h>
 
 namespace fastype {
 

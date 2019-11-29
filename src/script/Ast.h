@@ -3,6 +3,8 @@
 
 #pragma once
 #include "Stringify.h"
+#include <fmt/format.h>
+#include <memory>
 
 namespace fastype {
 
@@ -35,3 +37,14 @@ public:
 };
 
 } // namespace fastype
+
+namespace std {
+
+template <> class hash<std::shared_ptr<fastype::Ast>> {
+public:
+  size_t operator()(const std::shared_ptr<fastype::Ast> &s) const {
+    return (size_t)s.get();
+  }
+};
+
+}; // namespace std

@@ -10,11 +10,11 @@
 
 namespace fastype {
 
-namespace ast {
+namespace detail {
 
-std::string AstVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
+std::string astVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
                               const std::string &name);
 
-} // namespace ast
+} // namespace detail
 
 } // namespace fastype

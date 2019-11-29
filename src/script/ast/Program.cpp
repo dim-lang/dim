@@ -3,7 +3,6 @@
 
 #include "script/ast/Program.h"
 #include "script/ast/Util.h"
-#include <fmt/format.h>
 
 namespace fastype {
 

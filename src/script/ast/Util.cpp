@@ -6,20 +6,20 @@
 
 namespace fastype {
 
-namespace ast {
+namespace detail {
 
-std::string AstVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
+std::string astVectortoString(const std::vector<std::shared_ptr<Ast>> &vec,
                               const std::string &name) {
   std::stringstream ss;
   ss << fmt::format("[ @{} children_#size: ", name);
   ss << vec.size() << ", ";
   for (int i = 0; i < vec.size(); i++) {
-    ss << i << ":" << vec[i]->toString() << ", "
+    ss << i << ":" << vec[i]->toString() << ", ";
   }
   ss << "]";
   return ss.str();
 }
 
-} // namespace ast
+} // namespace detail
 
 } // namespace fastype

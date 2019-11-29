@@ -10,6 +10,9 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <string>
+#include <unicode/uchar.h>
+#include <unicode/unistr.h>
+#include <unicode/ustring.h>
 
 namespace fastype {
 

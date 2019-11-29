@@ -19,7 +19,7 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Interpreter> interpreter(
         new fastype::Interpreter(parser));
-    REQUIRE(interpreter->interpret() == -9LL);
+    interpreter->interpret();
   }
   SECTION("Interpret LexerTest2.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(

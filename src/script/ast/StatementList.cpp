@@ -3,7 +3,6 @@
 
 #include "script/ast/StatementList.h"
 #include "script/ast/Util.h"
-#include <fmt/format.h>
 
 namespace fastype {
 
@@ -19,7 +18,7 @@ int StatementList::size() const { return children_.size(); }
 std::shared_ptr<Ast> StatementList::get(int i) const { return children_[i]; }
 
 std::string StatementList::toString() const {
-  return ast::AstVectortoString(children_, "StatementList");
+  return detail::astVectortoString(children_, "StatementList");
 }
 
 Ast::AstType StatementList::type() const {
