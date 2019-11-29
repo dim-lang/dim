@@ -14,7 +14,13 @@ std::string astVectorToString(const std::vector<std::shared_ptr<Ast>> &vec,
   ss << fmt::format("[ @{} children_#size: ", name);
   ss << vec.size() << ", ";
   for (int i = 0; i < vec.size(); i++) {
-    ss << i << ":" << vec[i]->toString() << ", ";
+    ss << i << ":";
+    if (vec[i]) {
+      ss << vec[i]->toString();
+    } else {
+      ss << "null";
+    }
+    ss << ", ";
   }
   ss << "]";
   return ss.str();
