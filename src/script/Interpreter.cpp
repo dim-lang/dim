@@ -270,11 +270,6 @@ void Interpreter::release(std::shared_ptr<Ast> node) {
   node.reset();
 }
 
-const std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>>
-Interpreter::globalScope() const {
-  return globalScope_;
-}
-
 std::string Interpreter::toString() const {
   std::stringstream ss;
   ss << "[ @Interpreter globalScope_#size:";

@@ -20,6 +20,7 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     std::shared_ptr<fastype::Interpreter> interpreter(
         new fastype::Interpreter(parser));
     interpreter->interpret();
+    F_INFO_MSG(interpreter->toString());
   }
   SECTION("Interpret LexerTest2.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
@@ -29,5 +30,6 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     std::shared_ptr<fastype::Interpreter> interpreter(
         new fastype::Interpreter(parser));
     interpreter->interpret();
+    F_INFO_MSG(interpreter->toString());
   }
 }

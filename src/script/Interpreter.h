@@ -15,8 +15,6 @@ public:
   virtual ~Interpreter();
 
   virtual void interpret();
-  const std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>>
-  globalScope() const;
   virtual std::string toString() const;
 
 private:
