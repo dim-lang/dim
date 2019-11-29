@@ -24,7 +24,9 @@ Download fastype source code from github and build mannually.
 |  Ubuntu    | g++, cmake, boost, fmt, icu4c                                     |
 |  Windows   | msvc, cmake                                                       |
 
-NOTICE: if git clone boost repository is too slow for you, please manually download `boost_1_70_0.7z` [here](https://www.boost.org/users/history/version_1_70_0.html) and unzip to `/src`.
+NOTICE:
+
+On windows platform, third party dependencies will be git clone through github. If git clone [boost](https://github.com/boostorg/boost) repository is too slow, please manually download `boost_1_70_0.7z` [here](https://www.boost.org/users/history/version_1_70_0.html) and unzip to `/src`.
 
 #### Build
 
