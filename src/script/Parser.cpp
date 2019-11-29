@@ -92,7 +92,7 @@ std::shared_ptr<Ast> Parser::parseStatementList() {
               token_->toString());
     }
     nodes.push_back(e);
-  } while (e);
+  } while (token_ != Token::T_EOF);
 
   return std::shared_ptr<Ast>(new StatementList(nodes));
 }
