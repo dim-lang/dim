@@ -16,9 +16,8 @@ TEST_CASE("NotFoundException", "[NotFoundException]") {
       try {
         F_THROW(fastype::NotFoundException, "{}", i);
       } catch (fastype::NotFoundException &e) {
-        F_INFO("not found: {}", e.toString());
+        REQUIRE(true);
       }
     }
-    REQUIRE(true);
   }
 }

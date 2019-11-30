@@ -113,34 +113,29 @@ TEST_CASE("Token", "[Token]") {
     REQUIRE(!fastype::Token::T_EOF->isKeyword());
     REQUIRE(!fastype::Token::T_EOF->isString());
     REQUIRE(!fastype::Token::T_EOF->toString().empty());
-    F_INFO("Token::T_EOF:{}", fastype::Token::T_EOF->toString());
   }
 
   SECTION("operators") {
     for (auto t : fastype::Token::operators()) {
       REQUIRE(t->isOperator());
-      F_INFO("operator: {}", t->toString());
     }
   }
 
   SECTION("assignments") {
     for (auto t : fastype::Token::assignments()) {
       REQUIRE(t->isAssignment());
-      F_INFO("assignment: {}", t->toString());
     }
   }
 
   SECTION("comparators") {
     for (auto t : fastype::Token::comparators()) {
       REQUIRE(t->isComparator());
-      F_INFO("comparator: {}", t->toString());
     }
   }
 
   SECTION("booleans") {
     for (auto t : fastype::Token::booleans()) {
       REQUIRE(t->isBoolean());
-      F_INFO("boolean: {}", t->toString());
     }
   }
 
@@ -148,32 +143,27 @@ TEST_CASE("Token", "[Token]") {
     std::string s = fastype::Random::nextAlphaNumeric();
     fastype::StringToken st(icu::UnicodeString::fromUTF8(s));
     REQUIRE(st.isString());
-    F_INFO("string: {}", st.toString());
   }
 
   SECTION("integer") {
     int i = fastype::Random::nextInt();
     fastype::IntegerToken it(i);
     REQUIRE(it.isInteger());
-    F_INFO("integer: {}", it.toString());
   }
 
   SECTION("floating") {
     fastype::FloatingToken ft(10.105);
     REQUIRE(ft.isFloating());
-    F_INFO("floating: {}", ft.toString());
   }
 
   SECTION("punctuation") {
     fastype::PunctuationToken pt(UNICODE_STRING_SIMPLE(","));
     REQUIRE(pt.isPunctuation());
-    F_INFO("punctuation: {}", pt.toString());
   }
 
   SECTION("keyword") {
     for (auto t : fastype::Token::keywords()) {
       REQUIRE(t->isKeyword());
-      F_INFO("keyword: {}", t->toString());
     }
   }
 }
