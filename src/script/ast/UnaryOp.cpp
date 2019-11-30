@@ -13,8 +13,9 @@ std::shared_ptr<Token> UnaryOp::op() const { return op_; }
 std::shared_ptr<Ast> UnaryOp::expr() const { return expr_; }
 
 std::string UnaryOp::toString() const {
-  return fmt::format("[ @UnaryOp op_:{}, expr_:{} ]", op_->toString(),
-                     expr_->toString());
+  std::string _1 = op_ ? op_->toString() : "null";
+  std::string _2 = expr_ ? expr_->toString() : "null";
+  return fmt::format("[ @UnaryOp op_:{}, expr_:{} ]", _1, _2);
 }
 
 Ast::AstType UnaryOp::type() const { return Ast::AstType::UNARY_OP; }

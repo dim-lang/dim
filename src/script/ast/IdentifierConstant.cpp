@@ -13,7 +13,8 @@ icu::UnicodeString IdentifierConstant::value() const {
 }
 
 std::string IdentifierConstant::toString() const {
-  return fmt::format("[ @IdentifierConstant token_:{} ]", token_->toString());
+  std::string _1 = token_ ? token_->toString() : "null";
+  return fmt::format("[ @IdentifierConstant token_:{} ]", _1);
 }
 
 Ast::AstType IdentifierConstant::type() const {

@@ -14,8 +14,9 @@ std::shared_ptr<Ast> AssignmentStatement::var() const { return var_; }
 std::shared_ptr<Ast> AssignmentStatement::expr() const { return expr_; }
 
 std::string AssignmentStatement::toString() const {
-  return fmt::format("[ @AssignmentStatement var_:{}, expr_:{} ]",
-                     var_->toString(), expr_->toString());
+  std::string _1 = var_ ? var_->toString() : "null";
+  std::string _2 = expr_ ? expr_->toString() : "null";
+  return fmt::format("[ @AssignmentStatement var_:{}, expr_:{} ]", _1, _2);
 }
 
 Ast::AstType AssignmentStatement::type() const {

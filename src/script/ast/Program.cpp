@@ -11,8 +11,8 @@ Program::Program(std::shared_ptr<Ast> node) : statementList_(node) {}
 std::shared_ptr<Ast> Program::statementList() const { return statementList_; }
 
 std::string Program::toString() const {
-  return fmt::format("[ @Program statementList_:{} ]",
-                     statementList_->toString());
+  std::string _1 = statementList_ ? statementList_->toString() : "null";
+  return fmt::format("[ @Program statementList_:{} ]", _1);
 }
 
 Ast::AstType Program::type() const { return Ast::AstType::PROGRAM; }

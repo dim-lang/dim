@@ -16,8 +16,10 @@ std::shared_ptr<Token> BinaryOp::op() const { return op_; }
 std::shared_ptr<Ast> BinaryOp::right() const { return right_; }
 
 std::string BinaryOp::toString() const {
-  return fmt::format("[ @BinaryOp left_:{}, op_:{}, right_:{} ]",
-                     left_->toString(), op_->toString(), right_->toString());
+  std::string _1 = left_ ? left_->toString() : "null";
+  std::string _2 = op_ ? op_->toString() : "null";
+  std::string _3 = right_ ? right_->toString() : "null";
+  return fmt::format("[ @BinaryOp left_:{}, op_:{}, right_:{} ]", _1, _2, _3);
 }
 
 Ast::AstType BinaryOp::type() const { return Ast::AstType::BINARY_OP; }

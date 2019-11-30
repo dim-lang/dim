@@ -15,12 +15,8 @@ std::string astVectorToString(const std::vector<std::shared_ptr<Ast>> &vec,
   ss << vec.size() << ", ";
   for (int i = 0; i < vec.size(); i++) {
     ss << i << ":";
-    if (vec[i]) {
-      ss << vec[i]->toString();
-    } else {
-      ss << "null";
-    }
-    ss << ", ";
+    std::string _1 = vec[i] ? vec[i]->toString() : "null";
+    ss << _1 << ", ";
   }
   ss << "]";
   return ss.str();

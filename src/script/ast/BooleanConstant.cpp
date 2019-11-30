@@ -11,7 +11,8 @@ BooleanConstant::BooleanConstant(std::shared_ptr<Token> token)
 bool BooleanConstant::value() const { return token_->boolean(); }
 
 std::string BooleanConstant::toString() const {
-  return fmt::format("[ @BooleanConstant token_:{} ]", token_->toString());
+  std::string _1 = token_ ? token_->toString() : "null";
+  return fmt::format("[ @BooleanConstant token_:{} ]", _1);
 }
 
 Ast::AstType BooleanConstant::type() const {
