@@ -115,7 +115,7 @@ public:
   static const std::vector<std::shared_ptr<Token>> &keywords();
 
   Token(TokenType type);
-  virtual ~Token() = default;
+  virtual ~Token();
 
   virtual const TokenType &type() const;
   virtual long long id() const;

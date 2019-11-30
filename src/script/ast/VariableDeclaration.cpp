@@ -14,6 +14,12 @@ VariableDeclaration::VariableDeclaration(
   }
 }
 
+VariableDeclaration::~VariableDeclaration() {
+  for (int i = 0; i < children_.size(); i++) {
+    children_[i].reset();
+  }
+}
+
 int VariableDeclaration::size() const { return children_.size(); }
 
 std::shared_ptr<Ast> VariableDeclaration::get(int i) const {

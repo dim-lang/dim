@@ -31,9 +31,9 @@ public:
     STRING_CONSTANT,
   };
 
-  virtual ~Ast() = default;
+  virtual ~Ast();
   virtual AstType type() const = 0;
-  virtual std::string toString() const = 0;
+  virtual std::string toString() const;
 };
 
 } // namespace fastype

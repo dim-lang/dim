@@ -16,7 +16,7 @@ namespace fastype {
 class VariableDeclaration : public Ast {
 public:
   VariableDeclaration(const std::vector<std::shared_ptr<Ast>> &children);
-  virtual ~VariableDeclaration() = default;
+  virtual ~VariableDeclaration();
   virtual int size() const;
   virtual std::shared_ptr<Ast> get(int i) const;
   virtual std::string toString() const;

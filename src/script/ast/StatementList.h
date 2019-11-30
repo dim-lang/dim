@@ -15,7 +15,7 @@ namespace fastype {
 class StatementList : public Ast {
 public:
   StatementList(const std::vector<std::shared_ptr<Ast>> &children);
-  virtual ~StatementList() = default;
+  virtual ~StatementList();
   virtual int size() const;
   virtual std::shared_ptr<Ast> get(int i) const;
   virtual std::string toString() const;

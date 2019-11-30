@@ -271,7 +271,7 @@ void Interpreter::release(std::shared_ptr<Ast> node) {
     release(std::static_pointer_cast<UnaryOp>(node)->expr());
   } break;
   }
-  // node.reset();
+  node.reset();
 }
 
 std::string Interpreter::toString() const {

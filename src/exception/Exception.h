@@ -52,5 +52,5 @@ protected:
 #endif
 
 #ifndef F_THROW_MSG
-#define F_THROW_MSG(msg) throw ex(__FILE__, __LINE__, __FUNCTION__, msg)
+#define F_THROW_MSG(ex, msg) throw ex(__FILE__, __LINE__, __FUNCTION__, msg)
 #endif

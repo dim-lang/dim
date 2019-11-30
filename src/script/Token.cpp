@@ -289,6 +289,8 @@ static long long TokenId = 0LL;
 
 Token::Token(Token::TokenType type) : type_(type), id_(TokenId++) {}
 
+Token::~Token() { F_INFO("Destructor {}", toString()); }
+
 const Token::TokenType &Token::type() const { return type_; }
 
 long long Token::id() const { return id_; }
