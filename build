@@ -18,7 +18,7 @@ function init_apt() {
     sudo apt-get install gcc g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu4c, gperftools
-    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev valgrind
+    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev valgrind libncurses-dev
     echo [fastype] prepare boost, icu4c, gperftools - done
 }
 
@@ -36,7 +36,7 @@ function init_pacman() {
     sudo pacman -S g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu, gperftools
-    yes | sudo pacman -S boost icu gperftools valgrind
+    yes | sudo pacman -S boost icu gperftools valgrind ncurses
     echo [fastype] prepare boost, icu, gperftools - done
 }
 
