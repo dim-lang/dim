@@ -271,7 +271,7 @@ void Interpreter::release(std::shared_ptr<Ast> node) {
     release(std::static_pointer_cast<UnaryOp>(node)->expr());
   } break;
   }
-  node.reset();
+  // node.reset();
 }
 
 std::string Interpreter::toString() const {
@@ -281,7 +281,7 @@ std::string Interpreter::toString() const {
   int n = 0;
   for (auto i = globalScope_.begin(); i != globalScope_.end(); i++) {
     std::string _1;
-    ss << fmt::format("[{}-{}:{}], ", n++, i->first.toUTF8String(_1),
+    ss << fmt::format("[{}:{} - {}], ", n++, i->first.toUTF8String(_1),
                       i->second->toString());
   }
   ss << "]";
