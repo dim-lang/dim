@@ -15,7 +15,7 @@ namespace fastype {
 class FloatingConstant : public Ast {
 public:
   FloatingConstant(std::shared_ptr<Token> token);
-  virtual ~FloatingConstant() = default;
+  virtual ~FloatingConstant();
   virtual double value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

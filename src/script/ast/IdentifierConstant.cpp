@@ -8,6 +8,10 @@ namespace fastype {
 IdentifierConstant::IdentifierConstant(std::shared_ptr<Token> token)
     : token_(token) {}
 
+IdentifierConstant::~IdentifierConstant() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 icu::UnicodeString IdentifierConstant::value() const {
   return token_->literal();
 }

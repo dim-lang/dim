@@ -14,7 +14,7 @@ namespace fastype {
 class StringConstant : public Ast {
 public:
   StringConstant(std::shared_ptr<Token> token);
-  virtual ~StringConstant() = default;
+  virtual ~StringConstant();
   virtual icu::UnicodeString value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

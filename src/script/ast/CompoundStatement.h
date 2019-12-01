@@ -12,7 +12,7 @@ namespace fastype {
 class CompoundStatement : public Ast {
 public:
   CompoundStatement(std::shared_ptr<Ast> node);
-  virtual ~CompoundStatement() = default;
+  virtual ~CompoundStatement();
   virtual std::shared_ptr<Ast> statementList() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

@@ -8,6 +8,10 @@ namespace fastype {
 UnaryOp::UnaryOp(std::shared_ptr<Token> op, std::shared_ptr<Ast> expr)
     : op_(op), expr_(expr) {}
 
+UnaryOp::~UnaryOp() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 std::shared_ptr<Token> UnaryOp::op() const { return op_; }
 
 std::shared_ptr<Ast> UnaryOp::expr() const { return expr_; }

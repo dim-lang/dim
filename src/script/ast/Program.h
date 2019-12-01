@@ -15,7 +15,7 @@ namespace fastype {
 class Program : public Ast {
 public:
   Program(std::shared_ptr<Ast> node);
-  virtual ~Program() = default;
+  virtual ~Program();
   virtual std::shared_ptr<Ast> statementList() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

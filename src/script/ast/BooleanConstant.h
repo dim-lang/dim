@@ -15,7 +15,7 @@ namespace fastype {
 class BooleanConstant : public Ast {
 public:
   BooleanConstant(std::shared_ptr<Token> token);
-  virtual ~BooleanConstant() = default;
+  virtual ~BooleanConstant();
   virtual bool value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

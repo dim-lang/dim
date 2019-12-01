@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Logging.h"
 #include "Stringify.h"
 #include <fmt/format.h>
 #include <memory>
@@ -31,9 +32,9 @@ public:
     STRING_CONSTANT,
   };
 
-  virtual ~Ast();
+  virtual ~Ast() = default;
   virtual AstType type() const = 0;
-  virtual std::string toString() const;
+  virtual std::string toString() const = 0;
 };
 
 } // namespace fastype

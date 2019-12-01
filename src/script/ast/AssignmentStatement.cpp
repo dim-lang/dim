@@ -9,6 +9,10 @@ AssignmentStatement::AssignmentStatement(std::shared_ptr<Ast> var,
                                          std::shared_ptr<Ast> expr)
     : var_(var), expr_(expr) {}
 
+AssignmentStatement::~AssignmentStatement() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 std::shared_ptr<Ast> AssignmentStatement::var() const { return var_; }
 
 std::shared_ptr<Ast> AssignmentStatement::expr() const { return expr_; }

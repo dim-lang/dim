@@ -8,6 +8,10 @@ namespace fastype {
 
 Program::Program(std::shared_ptr<Ast> node) : statementList_(node) {}
 
+Program::~Program() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 std::shared_ptr<Ast> Program::statementList() const { return statementList_; }
 
 std::string Program::toString() const {

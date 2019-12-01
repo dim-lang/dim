@@ -7,6 +7,10 @@ namespace fastype {
 
 EmptyStatement::EmptyStatement() {}
 
+EmptyStatement::~EmptyStatement() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 std::string EmptyStatement::toString() const {
   return fmt::format("[ @EmptyStatement ]");
 }

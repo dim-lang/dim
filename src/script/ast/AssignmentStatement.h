@@ -14,7 +14,7 @@ namespace fastype {
 class AssignmentStatement : public Ast {
 public:
   AssignmentStatement(std::shared_ptr<Ast> var, std::shared_ptr<Ast> expr);
-  virtual ~AssignmentStatement() = default;
+  virtual ~AssignmentStatement();
   virtual std::shared_ptr<Ast> var() const;
   virtual std::shared_ptr<Ast> expr() const;
   virtual std::string toString() const;

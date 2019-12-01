@@ -8,6 +8,10 @@ namespace fastype {
 IntegerConstant::IntegerConstant(std::shared_ptr<Token> token)
     : token_(token) {}
 
+IntegerConstant::~IntegerConstant() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 long long IntegerConstant::value() const { return token_->integer(); }
 
 std::string IntegerConstant::toString() const {

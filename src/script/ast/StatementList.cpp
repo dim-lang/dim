@@ -14,8 +14,9 @@ StatementList::StatementList(const std::vector<std::shared_ptr<Ast>> &children)
 }
 
 StatementList::~StatementList() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
   for (int i = 0; i < children_.size(); i++) {
-    children_[i].reset();
+    // children_[i].reset();
   }
 }
 

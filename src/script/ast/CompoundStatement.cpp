@@ -12,13 +12,17 @@ namespace fastype {
 CompoundStatement::CompoundStatement(std::shared_ptr<Ast> node)
     : statementList_(node) {}
 
+CompoundStatement::~CompoundStatement() {
+  F_INFO("Destructor this:{}, {}", (void *)this, toString());
+}
+
 std::shared_ptr<Ast> CompoundStatement::statementList() const {
   return statementList_;
 }
 
 std::string CompoundStatement::toString() const {
   std::string _1 = statementList_ ? statementList_->toString() : "null";
-  return fmt::format("[ @CompoundStatemen statementList_:{} ]", _1);
+  return fmt::format("[ @CompoundStatement statementList_:{} ]", _1);
 }
 
 Ast::AstType CompoundStatement::type() const {
