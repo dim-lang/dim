@@ -263,11 +263,6 @@ std::shared_ptr<Ast> Parser::parseTerm() {
   return node;
 }
 
-#undef F_IS_IF
-#undef F_IS_IC
-#undef F_IS_FC
-#undef F_OP_I_AND_F
-
 std::shared_ptr<Ast> Parser::parseFactor() {
   std::shared_ptr<Token> t = token_;
   if (t == Token::T_ADD) {
@@ -275,10 +270,14 @@ std::shared_ptr<Ast> Parser::parseFactor() {
     // optimization: ignore unary + operator
     return parseFactor();
   } else if (t == Token::T_SUB) {
-    eat(Token::T_ADD);
+    eat(Token::T_SUB);
     // optimization: negative unary - operator
     std::shared_ptr<Ast> f = parseFactor();
-    if (f->type() == Ast::AstType::INTEGER_CONSTANT) {
+    if (F_IS_IC(f)) {
+      return std::shared_ptr<Ast>(
+          new IntegerConstant(std::shared_ptr<IntegerToken>(new IntegerToken(
+              -std::static_pointer_cast<IntegerConstant>(f)->value()))));
+    } else if (F_IS_FC(f)) {
       return std::shared_ptr<Ast>(
           new IntegerConstant(std::shared_ptr<IntegerToken>(new IntegerToken(
               -std::static_pointer_cast<IntegerConstant>(f)->value()))));
@@ -311,6 +310,11 @@ std::shared_ptr<Ast> Parser::parseFactor() {
     return parseVariable();
   }
 }
+
+#undef F_IS_IF
+#undef F_IS_IC
+#undef F_IS_FC
+#undef F_OP_I_AND_F
 
 std::shared_ptr<Ast> Parser::parseVariable() {
   std::shared_ptr<Ast> node(new Variable(token_));
