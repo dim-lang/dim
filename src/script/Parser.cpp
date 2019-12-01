@@ -272,17 +272,17 @@ std::shared_ptr<Ast> Parser::parseFactor() {
   } else if (t == Token::T_SUB) {
     eat(Token::T_SUB);
     // optimization: negative unary - operator
-    std::shared_ptr<Ast> f = parseFactor();
-    if (F_IS_IC(f)) {
+    std::shared_ptr<Ast> right = parseFactor();
+    if (F_IS_IC(right)) {
       return std::shared_ptr<Ast>(
           new IntegerConstant(std::shared_ptr<IntegerToken>(new IntegerToken(
-              -std::static_pointer_cast<IntegerConstant>(f)->value()))));
-    } else if (F_IS_FC(f)) {
+              -std::static_pointer_cast<IntegerConstant>(right)->value()))));
+    } else if (F_IS_FC(right)) {
       return std::shared_ptr<Ast>(
-          new IntegerConstant(std::shared_ptr<IntegerToken>(new IntegerToken(
-              -std::static_pointer_cast<IntegerConstant>(f)->value()))));
+          new FloatingConstant(std::shared_ptr<FloatingToken>(new FloatingToken(
+              -std::static_pointer_cast<FloatingConstant>(right)->value()))));
     }
-    return std::shared_ptr<Ast>(new UnaryOp(t, f));
+    return std::shared_ptr<Ast>(new UnaryOp(t, right));
   } else if (t == Token::T_INC) {
     eat(Token::T_INC);
     return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
