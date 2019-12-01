@@ -193,13 +193,13 @@ std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
   std::shared_ptr<Ast> r = visitExpression(e->right());
 
   if (e->op() == Token::T_ADD) {
-    F_OP_I_AND_F(l, r, +);
+    F_OP_I_AND_F(l, r, +)
   } else if (e->op() == Token::T_SUB) {
-    F_OP_I_AND_F(l, r, -);
+    F_OP_I_AND_F(l, r, -)
   } else if (e->op() == Token::T_MUL) {
-    F_OP_I_AND_F(l, r, *);
+    F_OP_I_AND_F(l, r, *)
   } else if (e->op() == Token::T_DIV) {
-    F_OP_I_AND_F(l, r, /);
+    F_OP_I_AND_F(l, r, /)
   } else if (e->op() == Token::T_MOD) {
     if (F_IS_IC(l) && F_IS_IC(r)) {
       int64_t a1 = std::static_pointer_cast<IntegerConstant>(l)->value();

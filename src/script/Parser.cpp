@@ -212,9 +212,9 @@ std::shared_ptr<Ast> Parser::parseExpression() {
 
     // optimization: calculate constants
     if (F_IS_IF(node) && F_IS_IF(right)) {
-      if (token_ == Token::T_ADD) {
+      if (t == Token::T_ADD) {
         F_OP_I_AND_F(node, right, +)
-      } else if (token_ == Token::T_SUB) {
+      } else if (t == Token::T_SUB) {
         F_OP_I_AND_F(node, right, -)
       }
     } else {
@@ -234,11 +234,11 @@ std::shared_ptr<Ast> Parser::parseTerm() {
 
     // optimization: calculate constants
     if (F_IS_IF(node) && F_IS_IF(right)) {
-      if (token_ == Token::T_MUL) {
+      if (t == Token::T_MUL) {
         F_OP_I_AND_F(node, right, *)
-      } else if (token_ == Token::T_DIV) {
+      } else if (t == Token::T_DIV) {
         F_OP_I_AND_F(node, right, /)
-      } else if (token_ == Token::T_MOD) {
+      } else if (t == Token::T_MOD) {
         if (F_IS_IC(node) && F_IS_IC(right)) {
           int64_t a1 = std::static_pointer_cast<IntegerConstant>(node)->value();
           int64_t b1 =
