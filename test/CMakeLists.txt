@@ -45,6 +45,7 @@ set(T_SRC
     exception/NotFoundExceptionTest.cpp
     script/TokenTest.cpp
     script/LexerTest.cpp
+    script/ParserTest.cpp
     script/InterpreterTest.cpp
     )
 

@@ -171,13 +171,37 @@ std::shared_ptr<Ast> Parser::parseReturnStatement() {
   return node;
 }
 
-#define F_ISC(x)                                                               \
+#define F_IS_IF(x)                                                             \
   ((x)->type() == Ast::AstType::INTEGER_CONSTANT ||                            \
    (x)->type() == Ast::AstType::FLOATING_CONSTANT)
 
-#define F_ISIC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
 
-#define F_ISFC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
+
+#define F_OP_I_AND_F(node, r, op)                                              \
+  if (F_IS_IC(node) && F_IS_IC(r)) {                                           \
+    int64_t a1 = std::static_pointer_cast<IntegerConstant>(node)->value();     \
+    int64_t b1 = std::static_pointer_cast<IntegerConstant>(r)->value();        \
+    node = std::shared_ptr<Ast>(new IntegerConstant(                           \
+        std::shared_ptr<IntegerToken>(new IntegerToken(a1 op b1))));           \
+  } else if (F_IS_IC(node) && F_IS_FC(r)) {                                    \
+    double a2 =                                                                \
+        (double)std::static_pointer_cast<IntegerConstant>(node)->value();      \
+    double b2 = std::static_pointer_cast<FloatingConstant>(r)->value();        \
+    node = std::shared_ptr<Ast>(new FloatingConstant(                          \
+        std::shared_ptr<FloatingToken>(new FloatingToken(a2 op b2))));         \
+  } else if (F_IS_FC(node) && F_IS_IC(r)) {                                    \
+    double a3 = std::static_pointer_cast<FloatingConstant>(node)->value();     \
+    double b3 = (double)std::static_pointer_cast<IntegerConstant>(r)->value(); \
+    node = std::shared_ptr<Ast>(new FloatingConstant(                          \
+        std::shared_ptr<FloatingToken>(new FloatingToken(a3 op b3))));         \
+  } else if (F_IS_FC(node) && F_IS_FC(r)) {                                    \
+    double a4 = std::static_pointer_cast<FloatingConstant>(node)->value();     \
+    double b4 = std::static_pointer_cast<FloatingConstant>(r)->value();        \
+    node = std::shared_ptr<Ast>(new FloatingConstant(                          \
+        std::shared_ptr<FloatingToken>(new FloatingToken(a4 op b4))));         \
+  }
 
 std::shared_ptr<Ast> Parser::parseExpression() {
   std::shared_ptr<Ast> node = parseTerm();
@@ -187,27 +211,11 @@ std::shared_ptr<Ast> Parser::parseExpression() {
     std::shared_ptr<Ast> right = parseTerm();
 
     // optimization: calculate constants
-    if (F_ISC(node) && F_ISC(right)) {
-      if (F_ISIC(node) && F_ISIC(right)) {
-        int64_t a = std::static_pointer_cast<IntegerConstant>(node)->value();
-        int64_t b = std::static_pointer_cast<IntegerConstant>(right)->value();
-        node = std::shared_ptr<Ast>(new IntegerConstant(
-            std::shared_ptr<IntegerToken>(new IntegerToken(a + b))));
-      } else if (F_ISIC(node) && !F_ISIC(right)) {
-        int64_t a = std::static_pointer_cast<IntegerConstant>(node)->value();
-        double b = std::static_pointer_cast<FloatingConstant>(right)->value();
-        node = std::shared_ptr<Ast>(new FloatingConstant(
-            std::shared_ptr<FloatingToken>(new FloatingToken((double)a + b))));
-      } else if (!F_ISIC(node) && F_ISIC(right)) {
-        double a = std::static_pointer_cast<FloatingConstant>(node)->value();
-        int64_t b = std::static_pointer_cast<IntegerConstant>(right)->value();
-        node = std::shared_ptr<Ast>(new FloatingConstant(
-            std::shared_ptr<FloatingToken>(new FloatingToken(a + (double)b))));
-      } else if (!F_ISIC(node) && !F_ISIC(right)) {
-        double a = std::static_pointer_cast<FloatingConstant>(node)->value();
-        double b = std::static_pointer_cast<FloatingConstant>(right)->value();
-        node = std::shared_ptr<Ast>(new FloatingConstant(
-            std::shared_ptr<FloatingToken>(new FloatingToken(a + b))));
+    if (F_IS_IF(node) && F_IS_IF(right)) {
+      if (token_ == Token::T_ADD) {
+        F_OP_I_AND_F(node, right, +)
+      } else if (token_ == Token::T_SUB) {
+        F_OP_I_AND_F(node, right, -)
       }
     } else {
       node = std::shared_ptr<Ast>(new BinaryOp(node, t, right));
@@ -222,10 +230,43 @@ std::shared_ptr<Ast> Parser::parseTerm() {
          token_ == Token::T_MOD) {
     std::shared_ptr<Token> t = token_;
     eat(token_);
-    node = std::shared_ptr<Ast>(new BinaryOp(node, t, parseFactor()));
+    std::shared_ptr<Ast> right = parseFactor();
+
+    // optimization: calculate constants
+    if (F_IS_IF(node) && F_IS_IF(right)) {
+      if (token_ == Token::T_MUL) {
+        F_OP_I_AND_F(node, right, *)
+      } else if (token_ == Token::T_DIV) {
+        F_OP_I_AND_F(node, right, /)
+      } else if (token_ == Token::T_MOD) {
+        if (F_IS_IC(node) && F_IS_IC(right)) {
+          int64_t a1 = std::static_pointer_cast<IntegerConstant>(node)->value();
+          int64_t b1 =
+              std::static_pointer_cast<IntegerConstant>(right)->value();
+          node = std::shared_ptr<Ast>(new IntegerConstant(
+              std::shared_ptr<IntegerToken>(new IntegerToken(a1 % b1))));
+        }
+      } else {
+        F_CHECK(
+            false,
+            "floating number can't calculate MOD operation, node:{}, right:{}",
+            node->toString(), right->toString());
+        F_THROW(
+            ScriptException,
+            "floating number can't calculate MOD operation, node:{}, right:{}",
+            node->toString(), right->toString());
+      }
+    } else {
+      node = std::shared_ptr<Ast>(new BinaryOp(node, t, right));
+    }
   }
   return node;
 }
+
+#undef F_IS_IF
+#undef F_IS_IC
+#undef F_IS_FC
+#undef F_OP_I_AND_F
 
 std::shared_ptr<Ast> Parser::parseFactor() {
   std::shared_ptr<Token> t = token_;
