@@ -14,7 +14,7 @@ namespace fastype {
 class UnaryOp : public Ast {
 public:
   UnaryOp(std::shared_ptr<Token> op, std::shared_ptr<Ast> expr);
-  virtual ~UnaryOp();
+  virtual ~UnaryOp() = default;
   virtual std::shared_ptr<Token> op() const;
   virtual std::shared_ptr<Ast> expr() const;
   virtual std::string toString() const;

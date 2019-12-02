@@ -14,7 +14,7 @@ namespace fastype {
 class IntegerConstant : public Ast {
 public:
   IntegerConstant(std::shared_ptr<Token> token);
-  virtual ~IntegerConstant();
+  virtual ~IntegerConstant() = default;
   virtual long long value() const;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;

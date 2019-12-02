@@ -8,10 +8,6 @@ namespace fastype {
 BooleanConstant::BooleanConstant(std::shared_ptr<Token> token)
     : token_(token) {}
 
-BooleanConstant::~BooleanConstant() {
-  F_INFO("Destructor this:{}, {}", (void *)this, toString());
-}
-
 bool BooleanConstant::value() const { return token_->boolean(); }
 
 std::string BooleanConstant::toString() const {

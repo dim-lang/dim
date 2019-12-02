@@ -13,7 +13,7 @@ namespace fastype {
 class EmptyStatement : public Ast {
 public:
   EmptyStatement();
-  virtual ~EmptyStatement();
+  virtual ~EmptyStatement() = default;
   virtual std::string toString() const;
   virtual Ast::AstType type() const;
 };

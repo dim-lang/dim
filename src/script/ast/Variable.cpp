@@ -7,10 +7,6 @@ namespace fastype {
 
 Variable::Variable(std::shared_ptr<Token> token) : token_(token) {}
 
-Variable::~Variable() {
-  F_INFO("Destructor this:{}, {}", (void *)this, toString());
-}
-
 icu::UnicodeString Variable::value() const { return token_->literal(); }
 
 std::string Variable::toString() const {

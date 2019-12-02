@@ -16,7 +16,7 @@ class BinaryOp : public Ast {
 public:
   BinaryOp(std::shared_ptr<Ast> left, std::shared_ptr<Token> op,
            std::shared_ptr<Ast> right);
-  virtual ~BinaryOp();
+  virtual ~BinaryOp() = default;
   virtual std::shared_ptr<Ast> left() const;
   virtual std::shared_ptr<Token> op() const;
   virtual std::shared_ptr<Ast> right() const;

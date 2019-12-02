@@ -14,10 +14,7 @@ VariableDeclaration::VariableDeclaration(
   }
 }
 
-VariableDeclaration::~VariableDeclaration() {
-  F_INFO("Destructor this:{}, {}", (void *)this, toString());
-  children_.clear();
-}
+VariableDeclaration::~VariableDeclaration() { children_.clear(); }
 
 int VariableDeclaration::size() const { return children_.size(); }
 

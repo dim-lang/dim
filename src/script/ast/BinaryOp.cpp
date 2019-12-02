@@ -9,10 +9,6 @@ BinaryOp::BinaryOp(std::shared_ptr<Ast> left, std::shared_ptr<Token> op,
                    std::shared_ptr<Ast> right)
     : left_(left), op_(op), right_(right) {}
 
-BinaryOp::~BinaryOp() {
-  F_INFO("Destructor this:{}, {}", (void *)this, toString());
-}
-
 std::shared_ptr<Ast> BinaryOp::left() const { return left_; }
 
 std::shared_ptr<Token> BinaryOp::op() const { return op_; }
