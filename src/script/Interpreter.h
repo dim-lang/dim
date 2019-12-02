@@ -42,8 +42,6 @@ private:
   virtual std::shared_ptr<Ast> visitUnaryOp(std::shared_ptr<Ast> node);
   virtual std::shared_ptr<Ast> visitVariable(std::shared_ptr<Ast> node);
 
-  static void release(std::shared_ptr<Ast> node);
-
   std::shared_ptr<Ast> tree_;
   std::shared_ptr<Parser> parser_;
   std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;

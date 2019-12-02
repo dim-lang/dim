@@ -33,10 +33,7 @@ namespace fastype {
 Interpreter::Interpreter(std::shared_ptr<Parser> parser)
     : tree_(nullptr), parser_(parser), globalScope_() {}
 
-Interpreter::~Interpreter() {
-  globalScope_.clear();
-  release(tree_);
-}
+Interpreter::~Interpreter() { globalScope_.clear(); }
 
 void Interpreter::visit(std::shared_ptr<Ast> node) {
   switch (node->type()) {
@@ -162,6 +159,7 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
 }
 
 #define F_IS_IC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
+
 #define F_IS_FC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(l, r, op)                                                 \
@@ -215,8 +213,6 @@ std::shared_ptr<Ast> Interpreter::visitBinaryOp(std::shared_ptr<Ast> node) {
   return std::shared_ptr<Ast>(nullptr);
 }
 
-#undef F_OP_I_AND_F
-
 std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
   std::shared_ptr<UnaryOp> e = std::static_pointer_cast<UnaryOp>(node);
   std::shared_ptr<Ast> expr = visitExpression(e->expr());
@@ -241,6 +237,10 @@ std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
   return std::shared_ptr<Ast>(nullptr);
 }
 
+#undef F_IS_IC
+#undef F_IS_FC
+#undef F_OP_I_AND_F
+
 std::shared_ptr<Ast> Interpreter::visitVariable(std::shared_ptr<Ast> node) {
   std::shared_ptr<Variable> e = std::static_pointer_cast<Variable>(node);
   if (globalScope_.find(e->value()) == globalScope_.end()) {
@@ -250,25 +250,8 @@ std::shared_ptr<Ast> Interpreter::visitVariable(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::interpret() {
-  release(tree_);
   tree_ = parser_->parse();
   visit(tree_);
-}
-
-void Interpreter::release(std::shared_ptr<Ast> node) {
-  if (!node) {
-    return;
-  }
-  switch (node->type()) {
-  case Ast::AstType::BINARY_OP: {
-    release(std::static_pointer_cast<BinaryOp>(node)->left());
-    release(std::static_pointer_cast<BinaryOp>(node)->right());
-  } break;
-  case Ast::AstType::UNARY_OP: {
-    release(std::static_pointer_cast<UnaryOp>(node)->expr());
-  } break;
-  }
-  node.reset();
 }
 
 std::string Interpreter::toString() const {
