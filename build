@@ -24,7 +24,7 @@ function init_apt() {
 
 function init_dnf() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    sudo dnf install -y gcc make cmake automake autoconf
+    sudo dnf install -y gcc g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu4c, gperftools
     sudo dnf install -y boost-devel libicu-devel gperftools-devel
