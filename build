@@ -15,25 +15,25 @@ function init_macos() {
 
 function init_apt() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    sudo apt-get install gcc g++ make cmake automake autoconf
+    sudo apt-get install -y gcc g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev
-    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
+    sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
     echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev - done
 }
 
 function init_dnf() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    sudo dnf install gcc make cmake automake autoconf
+    sudo dnf install -y gcc make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu4c, gperftools
-    sudo dnf install boost-devel libicu-devel gperftools-devel
+    sudo dnf install -y boost-devel libicu-devel gperftools-devel
     echo [fastype] prepare boost, icu4c, gperftools - done
 }
 
 function init_pacman() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    sudo pacman -S g++ make cmake automake autoconf
+    yes | sudo pacman -S g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu, gperftools, ncurses
     yes | sudo pacman -S boost icu gperftools ncurses
