@@ -4,7 +4,6 @@
 #include "script/Interpreter.h"
 #include "Filer.h"
 #include "Logging.h"
-#include "SmartPointer.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 #include <cstdlib>

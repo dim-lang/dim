@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Stringify.h"
+#include "config/Header.h"
 #include <exception>
-#include <fmt/format.h>
 #include <stdexcept>
 #include <string>
 

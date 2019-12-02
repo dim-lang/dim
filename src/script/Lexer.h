@@ -3,12 +3,10 @@
 
 #pragma once
 #include "Stringify.h"
+#include "config/Header.h"
 #include "script/Token.h"
 #include <deque>
 #include <memory>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 
 namespace fastype {
 

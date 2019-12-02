@@ -4,7 +4,6 @@
 #pragma once
 #include "event/EventLoop.h"
 #include "event/Poll.h"
-#include <boost/core/noncopyable.hpp>
 #include <list>
 #include <queue>
 #include <unordered_map>
@@ -21,15 +20,12 @@ public:
   void setId(int64_t id) { id_ = id; }
   FileHandler &handler() { return handler_; }
   void setHandler(FileHandler handler) { handler_ = handler; }
-  void *&data() { return holder_.resource(); }
-  void setData(void *data) { holder_.setResource(data); }
-  ResourceHandler &releaser() { return holder_.handler(); }
-  void setReleaser(ResourceHandler releaser) { holder_.setHandler(releaser); }
+  void *data() { return nullptr; }
+  void setData(void *data) {}
 
 private:
   int64_t id_; // fd
   FileHandler handler_;
-  ResourceHolder holder_;
 };
 
 class TimeoutEvent : public boost::noncopyable {
@@ -47,10 +43,8 @@ public:
   void setHandler(TimeoutHandler handler) { handler_ = handler; }
   int &repeat() { return repeat_; }
   void setRepeat(int repeat) { repeat_ = repeat; }
-  void *&data() { return holder_.resource(); }
-  void setData(void *data) { holder_.setResource(data); }
-  ResourceHandler &releaser() { return holder_.handler(); }
-  void setReleaser(ResourceHandler releaser) { holder_.setHandler(releaser); }
+  void *data() { return nullptr; }
+  void setData(void *data) {}
 
 private:
   int64_t id_;        // timeout event id
@@ -58,7 +52,6 @@ private:
   int64_t millisec_;
   TimeoutHandler handler_;
   int repeat_;
-  ResourceHolder holder_;
 };
 
 class TimeoutEventComparator {
@@ -89,14 +82,12 @@ public:
   EventLoopImpl();
   virtual ~EventLoopImpl();
 
-  virtual int addReader(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler releaser);
+  virtual int addReader(int64_t fd, FileHandler handler, void *data);
   virtual int removeReader(int64_t fd);
-  virtual int addWriter(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler releaser);
+  virtual int addWriter(int64_t fd, FileHandler handler, void *data);
   virtual int removeWriter(int64_t fd);
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler releaser, int repeat = 1);
+                       int repeat = 1);
   virtual int removeTimer(int64_t id);
   virtual void start();
   virtual void stop();

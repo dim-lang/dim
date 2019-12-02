@@ -44,8 +44,7 @@ EventLoopImpl::~EventLoopImpl() {
   stop_ = true;
 }
 
-int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data,
-                             ResourceHandler releaser) {
+int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data) {
   // fd already exist
   auto it = readerMap_.find(fd);
   if (it != readerMap_.end()) {
@@ -59,7 +58,6 @@ int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data,
   fe->setId(fd);
   fe->setHandler(handler);
   fe->setData(data);
-  fe->setReleaser(releaser);
 
   readerMap_.insert(std::make_pair(fd, fe));
   poll_->add(fd, F_EVENT_READ);
@@ -79,8 +77,7 @@ int EventLoopImpl::removeReader(int64_t fd) {
   return 0;
 }
 
-int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data,
-                             ResourceHandler releaser) {
+int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data) {
   // fd not exist
   auto it = writerMap_.find(fd);
   if (it == writerMap_.end()) {
@@ -98,7 +95,6 @@ int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data,
   fe->setId(fd);
   fe->setHandler(handler);
   fe->setData(data);
-  fe->setReleaser(releaser);
 
   writerMap_[fd]->push_front(fe);
   poll_->add(fd, F_EVENT_WRITE);
@@ -124,7 +120,7 @@ static uint64_t nextTimeoutId() {
 }
 
 int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
-                            void *data, ResourceHandler releaser, int repeat) {
+                            void *data, int repeat) {
 
   timestamp_ = DateTime::millinow();
   int64_t now = cachedTime();
@@ -139,7 +135,6 @@ int EventLoopImpl::addTimer(int64_t millisec, TimeoutHandler handler,
   te->setTimestamp(now + millisec);
   te->setHandler(handler);
   te->setData(data);
-  te->setReleaser(releaser);
   te->setRepeat(repeat);
 
   timerMap_.insert(std::make_pair(te->id(), te));

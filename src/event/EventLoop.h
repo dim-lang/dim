@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "ResourceHandler.h"
-#include <boost/core/noncopyable.hpp>
+#include "config/Header.h"
 #include <cstdint>
 #include <string>
 
@@ -25,15 +24,13 @@ public:
   static void close(EventLoop *eventLoop);
 
   // @return  read file event fd
-  virtual int addReader(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler resourceHandler) = 0;
+  virtual int addReader(int64_t fd, FileHandler handler, void *data) = 0;
 
   // @return  0 if remove success, -1 if remove fail
   virtual int removeReader(int64_t fd) = 0;
 
   // @return  write file event fd
-  virtual int addWriter(int64_t fd, FileHandler handler, void *data,
-                        ResourceHandler resourceHandler) = 0;
+  virtual int addWriter(int64_t fd, FileHandler handler, void *data) = 0;
 
   // @return  0 if remove success, -1 if remove fail
   virtual int removeWriter(int64_t fd) = 0;
@@ -43,7 +40,7 @@ public:
   // @param repeat  repeat times, 1 is default, 0 is ignored, -1 is forever
   // @return        timer event id
   virtual int addTimer(int64_t millisec, TimeoutHandler handler, void *data,
-                       ResourceHandler resourceHandler, int repeat = 1) = 0;
+                       int repeat = 1) = 0;
 
   // @param id  timer event id
   // @return    0 if remove success, -1 if remove fail

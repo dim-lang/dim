@@ -24,7 +24,6 @@
 #include "script/token/IntegerToken.h"
 #include "script/token/StringToken.h"
 #include <algorithm>
-#include <boost/preprocessor/cat.hpp>
 #include <sstream>
 #include <utility>
 

@@ -2,10 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "config/Header.h"
 #include <string>
-#include <unicode/unistr.h>
-#include <unicode/ustdio.h>
-#include <unicode/ustring.h>
 #include <vector>
 
 namespace fastype {

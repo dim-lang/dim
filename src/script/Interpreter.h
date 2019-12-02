@@ -4,6 +4,7 @@
 #pragma once
 #include "Hasher.h"
 #include "Stringify.h"
+#include "config/Header.h"
 #include "script/Parser.h"
 #include <unordered_map>
 

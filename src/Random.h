@@ -3,7 +3,6 @@
 
 #pragma once
 #include "Logging.h"
-#include <boost/preprocessor/cat.hpp>
 #include <cstdint>
 #include <cstring>
 #include <limits>

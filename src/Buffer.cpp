@@ -11,7 +11,6 @@
 #include <fmt/format.h>
 #include <numeric>
 #include <string>
-#include <unicode/utypes.h>
 
 #define F_BUF_SIZE 8192
 #define F_BUF_TO_STRING_SIZE 32

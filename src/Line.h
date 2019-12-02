@@ -3,9 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
+#include "config/Header.h"
 #include <vector>
 
 namespace fastype {

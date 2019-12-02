@@ -3,16 +3,10 @@
 
 #pragma once
 #include "Stringify.h"
+#include "config/Header.h"
 #include "exception/CheckFailureException.h"
-#include <boost/assert.hpp>
-#include <boost/preprocessor/stringize.hpp>
 #include <cstdio>
-#include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <string>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 
 namespace fastype {
 

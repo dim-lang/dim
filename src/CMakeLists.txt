@@ -47,7 +47,6 @@ set(F_CORE
     Line.cpp
     Buffer.cpp
     Cache.cpp
-    ResourceHandler.cpp
     Random.cpp
     Approximate.cpp
 

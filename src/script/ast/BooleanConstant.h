@@ -2,13 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "SmartPointer.h"
 #include "script/Ast.h"
 #include "script/Token.h"
 #include <memory>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 
 namespace fastype {
 

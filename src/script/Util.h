@@ -3,7 +3,6 @@
 
 #pragma once
 #include "script/Ast.h"
-#include <fmt/format.h>
 #include <memory>
 #include <string>
 #include <vector>

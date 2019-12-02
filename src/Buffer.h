@@ -5,9 +5,6 @@
 #include "Line.h"
 #include "Stringify.h"
 #include <memory>
-#include <unicode/unistr.h>
-#include <unicode/ustdio.h>
-#include <unicode/ustring.h>
 #include <vector>
 
 namespace fastype {

@@ -3,16 +3,13 @@
 
 #pragma once
 #include "Stringify.h"
+#include "config/Header.h"
 #include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <fmt/format.h>
 #include <memory>
 #include <string>
-#include <unicode/uchar.h>
-#include <unicode/unistr.h>
-#include <unicode/ustring.h>
 #include <vector>
 
 namespace fastype {

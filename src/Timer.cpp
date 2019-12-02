@@ -3,6 +3,7 @@
 
 #include "Timer.h"
 #include "Logging.h"
+#include "config/Header.h"
 
 namespace fastype {
 

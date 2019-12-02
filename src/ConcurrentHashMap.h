@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include <boost/core/noncopyable.hpp>
+#include "config/Header.h"
 #include <mutex>
 #include <unordered_map>
 #include <utility>
