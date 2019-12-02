@@ -33,7 +33,7 @@ function init_dnf() {
 
 function init_pacman() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    yes | sudo pacman -S g++ make cmake automake autoconf
+    yes | sudo pacman -S gcc make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu, gperftools, ncurses
     yes | sudo pacman -S boost icu gperftools ncurses
