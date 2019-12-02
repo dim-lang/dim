@@ -97,9 +97,7 @@ std::shared_ptr<Ast> Parser::parseStatementList() {
       e = parseReturnStatement();
       F_CHECK(e, "e {} not null", (void *)e.get());
     } else {
-      F_CHECK(false, "invalid statement_list at token_:{}", token_->toString());
-      F_THROW(ScriptException, "invalid statement_list at token_:{}",
-              token_->toString());
+      break;
     }
     nodes.push_back(e);
   } while (token_ != Token::T_EOF);
