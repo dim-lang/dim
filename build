@@ -27,7 +27,7 @@ function init_dnf() {
     sudo dnf install gcc make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
     echo [fastype] prepare boost, icu4c, gperftools
-    sudo dnf install boost-devel icu-devel gperftools-devel
+    sudo dnf install boost-devel libicu-devel gperftools-devel
     echo [fastype] prepare boost, icu4c, gperftools - done
 }
 
