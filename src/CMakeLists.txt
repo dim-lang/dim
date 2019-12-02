@@ -73,7 +73,6 @@ set(F_CORE
     script/Parser.cpp
     script/Interpreter.cpp
     script/Util.cpp
-    script/Ast.cpp
     script/ast/BinaryOp.cpp
     script/ast/UnaryOp.cpp
     script/ast/IntegerConstant.cpp
