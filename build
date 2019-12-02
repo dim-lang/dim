@@ -8,18 +8,18 @@ function init_macos() {
     echo [fastype] prepare compiler and toolchain for macOS
     brew install gcc cmake automake autoconf
     echo [fastype] prepare compiler and toolchain for macOS - done
-    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools via homebrew
-    brew install spdlog fmt boost icu4c gperftools
-    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools via homebrew - done
+    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew
+    brew install spdlog fmt boost icu4c gperftools ncurses
+    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew - done
 }
 
 function init_apt() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
     sudo apt-get install gcc g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare boost, icu4c, gperftools
-    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev valgrind libncurses-dev
-    echo [fastype] prepare boost, icu4c, gperftools - done
+    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev
+    sudo apt-get install libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
+    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev - done
 }
 
 function init_dnf() {
@@ -35,9 +35,9 @@ function init_pacman() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
     sudo pacman -S g++ make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare boost, icu, gperftools
-    yes | sudo pacman -S boost icu gperftools valgrind ncurses
-    echo [fastype] prepare boost, icu, gperftools - done
+    echo [fastype] prepare boost, icu, gperftools, ncurses
+    yes | sudo pacman -S boost icu gperftools ncurses
+    echo [fastype] prepare boost, icu, gperftools, ncurses - done
 }
 
 function init_linux() {
