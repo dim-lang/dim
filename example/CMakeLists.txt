@@ -10,6 +10,8 @@ message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
 
+# library
+
 if (APPLE)
     # MacOSX
     include(../src/CMakeMacOSX.cmake)
@@ -20,13 +22,15 @@ elseif (UNIX AND NOT APPLE)
     elseif (${F_OS} STREQUAL "Linux")
         # Linux
         include(../src/CMakeLinux.cmake)
-    else()
+    else ()
         message(FATAL_ERROR "${F_OS} Not Support!")
-    endif(${F_OS} STREQUAL "BSD")
+    endif (${F_OS} STREQUAL "BSD")
 elseif (MSVC)
     # Windows
     include(../src/CMakeWindows.cmake)
-endif(APPLE)
+endif (APPLE)
+
+# executable
 
 message(F_INC: ${F_INC})
 message(F_LIB_DIR: ${F_LIB_DIR})
@@ -37,6 +41,8 @@ include_directories(../src)
 link_directories(${F_LIB_DIR})
 link_directories(../src)
 
+if (UNIX)
+
 add_executable(fastype-CursesTermExample CursesTermExample.cpp)
 target_include_directories(fastype-CursesTermExample PRIVATE ${F_INC})
 target_link_libraries(fastype-CursesTermExample ${F_LIB} fastypecore)
@@ -46,6 +52,8 @@ add_executable(fastype-CursesPanelExample CursesPanelExample.cpp)
 target_include_directories(fastype-CursesPanelExample PRIVATE ${F_INC})
 target_link_libraries(fastype-CursesPanelExample ${F_LIB} fastypecore)
 set_target_properties(fastype-CursesPanelExample PROPERTIES VERSION ${PROJECT_VERSION})
+
+endif (UNIX)
 
 add_executable(fastype-icuu_fgets icuu_fgets.cpp)
 target_include_directories(fastype-icuu_fgets PRIVATE ${F_INC})
