@@ -6,11 +6,14 @@
 
 function init_macos() {
     echo [fastype] prepare compiler and toolchain for macOS
-    brew install gcc cmake automake autoconf
+    brew install cmake automake autoconf
     echo [fastype] prepare compiler and toolchain for macOS - done
     echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew
     brew install spdlog fmt boost icu4c gperftools ncurses
     echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew - done
+    cp src/CMakeMacOSX.cmake src/CMakeLists.txt
+    cp test/CMakeMacOSX.cmake test/CMakeLists.txt
+    cp example/CMakeMacOSX.cmake example/CMakeLists.txt
 }
 
 function init_apt() {
@@ -20,6 +23,9 @@ function init_apt() {
     echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev
     sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
     echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev - done
+    cp src/CMakeLinux.cmake src/CMakeLists.txt
+    cp test/CMakeLinux.cmake test/CMakeLists.txt
+    cp example/CMakeLinux.cmake example/CMakeLists.txt
 }
 
 function init_dnf() {
@@ -29,6 +35,9 @@ function init_dnf() {
     echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel
     sudo dnf install -y boost-devel libicu-devel gperftools-devel ncurses-devel
     echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel - done
+    cp src/CMakeLinux.cmake src/CMakeLists.txt
+    cp test/CMakeLinux.cmake test/CMakeLists.txt
+    cp example/CMakeLinux.cmake example/CMakeLists.txt
 }
 
 function init_pacman() {
@@ -38,6 +47,9 @@ function init_pacman() {
     echo [fastype] prepare boost, icu, gperftools, ncurses
     yes | sudo pacman -S boost icu gperftools ncurses
     echo [fastype] prepare boost, icu, gperftools, ncurses - done
+    cp src/CMakeLinux.cmake src/CMakeLists.txt
+    cp test/CMakeLinux.cmake test/CMakeLists.txt
+    cp example/CMakeLinux.cmake example/CMakeLists.txt
 }
 
 function init_linux() {

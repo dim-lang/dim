@@ -8,58 +8,35 @@ message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-
-find_package(Curses REQUIRED)
-find_package(Threads REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+add_definitions(-DFMT_HEADER_ONLY)
 
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
-message(CMakeMacOSX.cmake)
-message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
-message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
-message(CURSES_INCLUDE_DIRS: ${CURSES_INCLUDE_DIRS})
+message(CMakeWindows.cmake)
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
 set(F_INC
     .
     ../src
-    ${CURSES_INCLUDE_DIRS}
-    Threads::Threads
-    /usr/local/opt/spdlog/include
-    /usr/local/opt/fmt/include
-    /usr/local/opt/boost/include
-    /usr/local/opt/icu4c/include
-    /usr/local/opt/catch2/include
+    spdlog/include
+    fmt/include
+    boost
+    icu/icu4c/include
     )
+
 set(F_LIB
-    ${CURSES_LIBRARIES}
-    Threads::Threads
-    fmt
-    boost_program_options-mt
-    boost_system-mt
-    icuuc
-    icuio
-    icudata
-    icui18n
-    tcmalloc
-    panel
+    boost_program_options-vc141-mt-x64-1_70.lib
+    boost_system-vc141-mt-x64-1_70.lib
     )
+
 set(F_LIB_DIR
-    .
-    ${CURSES_LIBRARY_DIRS}
-    /usr/local/opt/spdlog/lib
-    /usr/local/opt/fmt/lib
-    /usr/local/opt/boost/lib
-    /usr/local/opt/icu4c/lib
-    /usr/local/opt/gperftools/lib
+    boost/stage/lib
+    icu/icu4c/lib64
     )
 
 message(F_INC: ${F_INC})
@@ -92,6 +69,8 @@ include_directories(../src/icu/icu4c/source)
 include_directories(Catch2/single_include)
 link_directories(${F_LIB_DIR})
 link_directories(../src)
+link_directories(..)
+link_directories(.)
 
 add_executable(fastype-test ${T_SRC})
 target_include_directories(fastype-test PRIVATE ${F_INC})

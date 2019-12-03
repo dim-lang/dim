@@ -19,14 +19,11 @@ Download fastype source code from github and build mannually.
 
 |  Platform  |  Manually Installed Dependencies                                  |
 |------------|-------------------------------------------------------------------|
-|  MacOSX    | clang++, cmake, boost, spdlog, fmt, icu4c                         |
-|  Macjaro   | g++, cmake, boost, fmt, icu4c                                     |
-|  Ubuntu    | g++, cmake, boost, fmt, icu4c                                     |
-|  Windows   | msvc, cmake                                                       |
-
-NOTICE:
-
-On windows platform, third party dependencies will be git clone through github. If git clone [boost](https://github.com/boostorg/boost) repository is too slow, please manually download `boost_1_70_0.7z` [here](https://www.boost.org/users/history/version_1_70_0.html) and unzip to `/src`.
+|  MacOSX    | Xcode, git, homebrew                                              |
+|  Manjaro   | git                                                               |
+|  Fedora    | git                                                               |
+|  Ubuntu    | git                                                               |
+|  Windows   | Visual Studio 2017, cmake, git                                    |
 
 #### Build
 

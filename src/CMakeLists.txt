@@ -8,33 +8,62 @@ message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(Configure.h.in ../../src/Configure.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
+find_package(Curses REQUIRED)
+find_package(Threads REQUIRED)
+
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
+message(CMakeMacOSX.cmake)
+message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
+message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
+message(CURSES_INCLUDE_DIRS: ${CURSES_INCLUDE_DIRS})
+message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
+message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
-if (APPLE)
-    # MacOSX
-    include(CMakeMacOSX.cmake)
-elseif (UNIX AND NOT APPLE)
-    if (${F_OS} STREQUAL "BSD")
-        # BSD
-        include(CMakeBSD.cmake)
-    elseif (${F_OS} STREQUAL "Linux")
-        # Linux
-        include(CMakeLinux.cmake)
-    else()
-        message(FATAL_ERROR "${F_OS} Not Support!")
-    endif(${F_OS} STREQUAL "BSD")
-elseif (MSVC)
-    # Windows
-    include(CMakeWindows.cmake)
-endif(APPLE)
+set(F_INC
+    .
+    ${CURSES_INCLUDE_DIRS}
+    Threads::Threads
+    /usr/local/opt/spdlog/include
+    /usr/local/opt/fmt/include
+    /usr/local/opt/boost/include
+    /usr/local/opt/icu4c/include
+    /usr/local/opt/catch2/include
+    )
+set(F_LIB
+    ${CURSES_LIBRARIES}
+    Threads::Threads
+    fmt
+    boost_program_options-mt
+    boost_system-mt
+    icuuc
+    icuio
+    icudata
+    icui18n
+    tcmalloc
+    panel
+    )
+set(F_LIB_DIR
+    .
+    ${CURSES_LIBRARY_DIRS}
+    /usr/local/opt/spdlog/lib
+    /usr/local/opt/fmt/lib
+    /usr/local/opt/boost/lib
+    /usr/local/opt/icu4c/lib
+    /usr/local/opt/gperftools/lib
+    )
 
 message(F_INC: ${F_INC})
 message(F_LIB_DIR: ${F_LIB_DIR})
 message(F_LIB: ${F_LIB})
-
 
 set(F_CORE
     Logging.cpp
@@ -49,6 +78,7 @@ set(F_CORE
     Cache.cpp
     Random.cpp
     Approximate.cpp
+    CursesTerm.cpp
 
     graph/Dot.cpp
 
@@ -104,12 +134,6 @@ set(F_SRC
 set(FD_SRC
     fastyped.cpp
     )
-
-if (MSVC)
-    set(F_CORE ${F_CORE} WinTerm.cpp)
-else()
-    set(F_CORE ${F_CORE} CursesTerm.cpp)
-endif(MSVC)
 
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
