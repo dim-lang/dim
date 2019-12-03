@@ -135,7 +135,7 @@ function build_release() {
     esac
     echo [fastype] prepare for $OS
 
-    cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release .. && make -j8 && cd $ROOT
+    cd $RELEASE && cmake -DF_OS=$OS -DCMAKE_BUILD_TYPE=Release .. && make && cd $ROOT
     cd $ROOT
 }
 
