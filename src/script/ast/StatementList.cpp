@@ -7,11 +7,7 @@
 namespace fastype {
 
 StatementList::StatementList(const std::vector<std::shared_ptr<Ast>> &children)
-    : children_() {
-  for (int i = 0; i < children.size(); i++) {
-    children_.push_back(children[i]);
-  }
-}
+    : children_(children) {}
 
 StatementList::~StatementList() { children_.clear(); }
 
