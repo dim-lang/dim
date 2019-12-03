@@ -3,8 +3,6 @@
 
 cmake_minimum_required(VERSION 3.8)
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
-message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
-message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
@@ -17,16 +15,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 
+message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
+message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
-message(CMakeLinux.cmake)
-message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
-message(CURSES_LIBRARY_DIRS: ${CURSES_LIBRARY_DIRS})
-message(CURSES_INCLUDE_DIRS: ${CURSES_INCLUDE_DIRS})
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
 set(F_INC
     .
