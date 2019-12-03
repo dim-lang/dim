@@ -22,6 +22,7 @@ message(F_OS: ${F_OS})
 
 set(F_INCLUDE_DIR
     ${CURSES_INCLUDE_DIR}
+    Threads::Threads
     )
 
 set(F_LIBRARIES
@@ -31,6 +32,7 @@ set(F_LIBRARIES
 
 set(F_LIBRARY_DIR
     ${UNIX_LIBRARY_DIR}
+    ${CURSES_LIBRARY_DIRS}
     )
 
 message(F_INC: ${F_INC})

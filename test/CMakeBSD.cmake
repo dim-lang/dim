@@ -15,13 +15,13 @@ find_package(Threads REQUIRED)
 
 message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
 message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
-message(CURSES_LIBRARIES: ${CURSES_LIBRARIES})
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 message(F_OS: ${F_OS})
 
 set(F_INC
+    .
     ../src
     ${CURSES_INCLUDE_DIR}
     )
