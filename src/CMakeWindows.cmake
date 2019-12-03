@@ -13,9 +13,9 @@ message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
 set(F_INC
     .
-    spdlog/include/
+    spdlog/include
     fmt/include
-    boost/
+    boost
     icu/icu4c/include
     )
 
