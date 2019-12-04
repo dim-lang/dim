@@ -23,7 +23,7 @@ set(F_INC
     icu/icu4c/include
     )
 set(F_LIB
-    boost_program_options-vc141-mt-x64-1_70.lib
+    libboost_program_options-vc141-mt-x64-1_70.lib
     )
 set(F_LIB_DIR
     boost/stage/lib
