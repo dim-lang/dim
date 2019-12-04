@@ -47,6 +47,7 @@ set(F_LIB
     )
 set(F_LIB_DIR
     .
+    ..
     ../src
     ${CURSES_LIBRARY_DIRS}
     /usr/local/opt/spdlog/lib
@@ -85,9 +86,6 @@ include_directories(../src/boost)
 include_directories(../src/icu/icu4c/source)
 include_directories(Catch2/single_include)
 link_directories(${F_LIB_DIR})
-link_directories(../src)
-link_directories(..)
-link_directories(.)
 
 add_executable(fastype-test ${T_SRC})
 target_include_directories(fastype-test PRIVATE ${F_INC})
