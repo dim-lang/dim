@@ -67,14 +67,14 @@ if not exist src\icu\icu4c\lib (
     echo [fastype] icu4c x64 library not ready
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
-echo [fastype] prepare msvc project
+echo [fastype] prepare msvc project for %OS%
 set DEBUG=debug
 set RELEASE=release
 cd %ROOT%
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
-cd %DEBUG% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
-cd %RELEASE% && cmake -DF_OS=%OS% -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
+cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
+cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
 echo [fastype] NOTICE:

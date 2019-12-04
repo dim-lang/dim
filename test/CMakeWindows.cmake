@@ -35,6 +35,8 @@ set(F_LIB
     )
 
 set(F_LIB_DIR
+    .
+    ../src
     boost/stage/lib
     icu/icu4c/lib64
     )

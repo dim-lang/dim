@@ -15,12 +15,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 find_package(Curses REQUIRED)
 find_package(Threads REQUIRED)
 
-message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
-message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
+message(CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR})
+message(CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR})
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
-message(F_OS: ${F_OS})
 
 set(F_INC
     .
@@ -45,6 +44,8 @@ set(F_LIB
     tcmalloc
     )
 set(F_LIB_DIR
+    .
+    ../src
     ${CURSES_LIBRARY_DIRS}
     /usr/lib
     /usr/lib/x86_64-linux-gnu
