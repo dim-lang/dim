@@ -55,14 +55,17 @@ message(F_LIB: ${F_LIB})
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
-target_include_directories(fastype-CursesPanelExample PRIVATE ${F_INC})
+add_executable(fastype-CursesPanelExample CursesPanelExample.cpp)
 target_link_libraries(fastype-CursesPanelExample ${F_LIB})
+target_include_directories(fastype-CursesPanelExample PRIVATE ${F_INC})
 set_target_properties(fastype-CursesPanelExample PROPERTIES VERSION ${PROJECT_VERSION})
 
+add_executable(fastype-CursesTermExample CursesTermExample.cpp)
 target_include_directories(fastype-CursesTermExample PRIVATE ${F_INC})
 target_link_libraries(fastype-CursesTermExample ${F_LIB})
 set_target_properties(fastype-CursesTermExample PROPERTIES VERSION ${PROJECT_VERSION})
 
+add_executable(fastype-icuu_fgets icuu_fgets.cpp)
 target_include_directories(fastype-icuu_fgets PRIVATE ${F_INC})
 target_link_libraries(fastype-icuu_fgets ${F_LIB})
 set_target_properties(fastype-icuu_fgets PROPERTIES VERSION ${PROJECT_VERSION})
