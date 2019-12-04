@@ -67,7 +67,7 @@ if not exist src\icu\icu4c\lib (
     echo [fastype] icu4c x64 library not ready
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
-echo [fastype] prepare msvc project for %OS%
+echo [fastype] prepare msvc project
 set DEBUG=debug
 set RELEASE=release
 cd %ROOT%
