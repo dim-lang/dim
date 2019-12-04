@@ -22,21 +22,13 @@ set(F_INC
     boost
     icu/icu4c/include
     )
-
 set(F_LIB
     boost_program_options-vc141-mt-x64-1_70.lib
     )
-
 set(F_LIB_DIR
     boost/stage/lib
     icu/icu4c/lib64
     )
-
-add_definitions(-DFMT_HEADER_ONLY)
-
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
-message(F_LIB: ${F_LIB})
 
 set(F_CORE
     Logging.cpp
@@ -104,10 +96,12 @@ set(F_CORE
 set(F_SRC
     fastype.cpp
     )
+
 set(FD_SRC
     fastyped.cpp
     )
 
+add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 

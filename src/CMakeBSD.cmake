@@ -23,20 +23,14 @@ set(F_INCLUDE_DIR
     ${CURSES_INCLUDE_DIR}
     Threads::Threads
     )
-
 set(F_LIBRARIES
     ${CURSES_LIBRARIES}
     Threads::Threads
     )
-
 set(F_LIBRARY_DIR
     ${UNIX_LIBRARY_DIR}
     ${CURSES_LIBRARY_DIRS}
     )
-
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
-message(F_LIB: ${F_LIB})
 
 set(F_CORE
     Logging.cpp

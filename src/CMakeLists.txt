@@ -54,10 +54,6 @@ set(F_LIB_DIR
     /usr/local/opt/gperftools/lib
     )
 
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
-message(F_LIB: ${F_LIB})
-
 set(F_CORE
     Logging.cpp
     Term.cpp
