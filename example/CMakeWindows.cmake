@@ -33,8 +33,3 @@ set(F_LIB_DIR
 add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
-
-add_executable(fastype-icuu_fgets icuu_fgets.cpp)
-target_include_directories(fastype-icuu_fgets PRIVATE ${F_INC})
-target_link_libraries(fastype-icuu_fgets ${F_LIB})
-set_target_properties(fastype-icuu_fgets PROPERTIES VERSION ${PROJECT_VERSION})

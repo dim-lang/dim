@@ -4,15 +4,9 @@
 #include <cassert>
 #include <cstdio>
 #include <string>
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
-#include "unicode/unistr.h"
-#include "unicode/ustdio.h"
-#include "unicode/ustring.h"
-#else
 #include <unicode/unistr.h>
 #include <unicode/ustdio.h>
 #include <unicode/ustring.h>
-#endif
 #include <vector>
 
 #define SZ1 10
