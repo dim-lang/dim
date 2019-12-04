@@ -4,24 +4,6 @@
 
 # ---- library ----
 
-function linux_distribution() {
-    if [ $(uname) == "Linux" ]; then
-        if cat /etc/*release | grep ^NAME | grep Ubuntu 1>/dev/null 2>&1; then
-            echo Ubuntu
-        elif cat /etc/*release | grep ^NAME | grep Debian 1>/dev/null 2>&1; then
-            echo Debian
-        elif cat /etc/*release | grep ^NAME | grep Fedora 1>/dev/null 2>&1; then
-            echo Fedora
-        elif cat /etc/*release | grep ^NAME | grep Manjaro 1>/dev/null 2>&1; then
-            echo Manjaro
-        else
-            echo Unknown
-        fi
-    else
-        echo Unknown
-    fi
-}
-
 function init_macos() {
     echo [fastype] prepare compiler and toolchain for macOS
     brew install cmake automake autoconf
@@ -69,14 +51,21 @@ function init_linux() {
         cd src && git clone -b '5.3.0' --single-branch --depth 1 https://github.com/fmtlib/fmt.git && cd ..
     fi
     echo [fastype] prepare fmtlib/fmt 5.3.0 - done
-    distrib = $(linux_distribution)
-    case "$distrib" in
-      Ubuntu*) init_apt ;;
-      Debian*) init_apt ;;
-      Fedora*) init_dnf ;;
-      Manjaro*) init_pacman ;;
-      *) echo [fastype] Error! Unknown Operating System $(uname)! && exit 3 ;;
-    esac
+    if [ $(uname) == "Linux" ]; then
+        if cat /etc/*release | grep ^NAME | grep Ubuntu 1>/dev/null 2>&1; then
+            init_apt
+        elif cat /etc/*release | grep ^NAME | grep Debian 1>/dev/null 2>&1; then
+            init_apt
+        elif cat /etc/*release | grep ^NAME | grep Fedora 1>/dev/null 2>&1; then
+            init_dnf
+        elif cat /etc/*release | grep ^NAME | grep Manjaro 1>/dev/null 2>&1; then
+            init_pacman
+        else
+            echo [fastype] Error! Unknown Operating System $(uname)! && exit 3
+        fi
+    else
+        echo [fastype] Error! Unknown Operating System $(uname)! && exit 3
+    fi
 }
 
 function init_all() {
