@@ -3,20 +3,17 @@
 
 cmake_minimum_required(VERSION 3.8)
 project(fastype VERSION 0.1.0 LANGUAGES CXX)
-message(input_config: ${CMAKE_CURRENT_SOURCE_DIR})
-message(output_config: ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
-add_definitions(-DFMT_HEADER_ONLY)
 
+message(CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR})
+message(CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR})
 message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(CMAKE_CXX_STANDARD: ${CMAKE_CXX_STANDARD})
 
 set(F_INC
     .
@@ -35,7 +32,6 @@ set(F_LIB
 
 set(F_LIB_DIR
     .
-    ..
     ../src
     ../src/boost/stage/lib
     ../src/icu/icu4c/lib64

@@ -47,7 +47,6 @@ set(F_LIB
     )
 set(F_LIB_DIR
     .
-    ..
     ../src
     /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib

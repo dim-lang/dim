@@ -22,6 +22,11 @@ message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 set(F_INC
     .
     ../src
+    ../src/spdlog/include
+    ../src/fmt/include
+    ../src/boost
+    ../src/icu/icu4c/source
+    Catch2/single_include
     ${CURSES_INCLUDE_DIR}
     )
 
@@ -36,10 +41,6 @@ set(F_LIB_DIR
     ../src
     ${UNIX_LIBRARY_DIR}
     )
-
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
-message(F_LIB: ${F_LIB})
 
 set(T_SRC
     MainTest.cpp
@@ -59,12 +60,6 @@ set(T_SRC
     )
 
 include_directories(${F_INC})
-include_directories(../src)
-include_directories(../src/spdlog/include)
-include_directories(../src/fmt/include)
-include_directories(../src/boost)
-include_directories(../src/icu/icu4c/source)
-include_directories(Catch2/single_include)
 link_directories(${F_LIB_DIR})
 
 add_executable(fastype-test ${T_SRC})

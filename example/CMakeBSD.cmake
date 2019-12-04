@@ -35,11 +35,6 @@ set(F_LIBRARY_DIR
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
-
-message(F_INC: ${F_INC})
-message(F_LIB_DIR: ${F_LIB_DIR})
-message(F_LIB: ${F_LIB})
-
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
