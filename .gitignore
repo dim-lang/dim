@@ -28,6 +28,6 @@ Catch2
 PDCurses
 
 # CMakeLists.txt
-src/CMakeLists.txt
-test/CMakeLists.txt
-example/CMakeLists.txt
+src/*.txt
+test/*.txt
+example/*.txt
