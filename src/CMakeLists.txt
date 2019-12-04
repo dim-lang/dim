@@ -23,8 +23,8 @@ message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 
 set(F_INC
     .
-    ${CURSES_INCLUDE_DIRS}
     Threads::Threads
+    /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
@@ -32,8 +32,9 @@ set(F_INC
     /usr/local/opt/catch2/include
     )
 set(F_LIB
-    ${CURSES_LIBRARIES}
     Threads::Threads
+    ncurses
+    panel
     fmt
     boost_program_options-mt
     boost_system-mt
@@ -42,11 +43,10 @@ set(F_LIB
     icudata
     icui18n
     tcmalloc
-    panel
     )
 set(F_LIB_DIR
     .
-    ${CURSES_LIBRARY_DIRS}
+    /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
