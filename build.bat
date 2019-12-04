@@ -73,6 +73,9 @@ set RELEASE=release
 cd %ROOT%
 if not exist %DEBUG% md %DEBUG%
 if not exist %RELEASE% md %RELEASE%
+cp src\CMakeWindows.cmake src\CMakeLists.txt
+cp test\CMakeWindows.cmake test\CMakeLists.txt
+cp example\CMakeWindows.cmake example\CMakeLists.txt
 cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
 cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
