@@ -81,6 +81,14 @@ cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 
 echo [fastype] prepare msvc project - done
 
 echo [fastype] NOTICE:
-echo [fastype]   1 - please manually download prebuilt ICU4C library and link Release x64 with fastype.
-echo [fastype]       https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows
-echo [fastype]   2 - please build fastype manually with `debug\fastype-parent.sln` and `release\fastype-parent.sln`
+echo [fastype]   1 - please manually build ICU4C library with wiki: `https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows`
+echo [fastype]   2 - please manually add `src\boost\stage\lib` and `src\icu\icu4c\lib64` to `Attribute -> VC++ Directory -> Library Directory` in msvc project `fastype-parent.sln`
+echo [fastype]   3 - please manually add libraries below to `Attribute -> Linker -> Input -> Additional Dependencies` in msvc project `fastype-parent.sln`
+echo [fastype]       * boost_program_options-vc141-mt-x64-1_70.lib
+echo [fastype]       * boost_system-vc141-mt-x64-1_70.lib
+echo [fastype]       * icudt.lib
+echo [fastype]       * icuio.lib
+echo [fastype]       * icutu.lib
+echo [fastype]       * icuuc.lib
+echo [fastype]       * icuin.lib
+echo [fastype]   4 - please manually build fastype with msvc project `fastype-parent.sln`
