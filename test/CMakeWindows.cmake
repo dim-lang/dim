@@ -60,6 +60,7 @@ set(T_SRC
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
+add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
