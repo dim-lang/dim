@@ -17,17 +17,17 @@ message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 
 set(F_INC
     .
+    ../windows/vcpkg/installed/x64-windows/include
     spdlog/include
     fmt/include
-    boost
     icu/icu4c/include
     )
 set(F_LIB
-    libboost_program_options-vc141-mt-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x64-1_71.lib
     )
 set(F_LIB_DIR
-    boost/stage/lib
     icu/icu4c/lib64
+    ../windows/vcpkg/installed/x64-windows/lib
     )
 
 set(F_CORE
