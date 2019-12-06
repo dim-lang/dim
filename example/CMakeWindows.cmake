@@ -22,7 +22,7 @@ set(F_INC
     )
 
 set(F_LIB
-    boost_program_options-vc141-mt-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x64-1_70.lib
     )
 
 set(F_LIB_DIR

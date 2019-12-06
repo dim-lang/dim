@@ -17,7 +17,7 @@ message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 
 set(F_INC
     .
-    ../windows/vcpkg/installed/x64-windows/include
+    boost
     spdlog/include
     fmt/include
     icu/icu4c/include
@@ -27,7 +27,8 @@ set(F_LIB
     )
 set(F_LIB_DIR
     icu/icu4c/lib64
-    ../windows/vcpkg/installed/x64-windows/lib
+    boost/stage/lib
+    icu/icu64/lib64
     )
 
 set(F_CORE
