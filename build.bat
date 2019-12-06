@@ -53,7 +53,7 @@ cp example\CMakeWindows.cmake example\CMakeLists.txt
 echo [fastype] prepare microsoft/vcpkg
 git clone https://github.com/Microsoft/vcpkg.git
 cd vcpkg
-git clone https://github.com/fastype/vcpkg-windows-downloads.git downloads
+git clone --depth 1 https://github.com/fastype/vcpkg-windows-downloads.git downloads
 cp ..\vcpkg-triplets-x64-windows-vc141.cmake triplets\x64-windows-vc141.cmake
 .\bootstrap-vcpkg.bat
 echo [fastype] prepare microsoft/vcpkg - done
