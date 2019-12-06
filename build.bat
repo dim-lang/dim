@@ -42,6 +42,16 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
+echo [fastype] prepare unicode-org/icu release-65-1
+if not exist src\icu (
+    cd %ROOT%\src
+    git clone -b release-65-1 --single-branch --depth 1 https://github.com/unicode-org/icu.git
+    cd %ROOT%
+)
+if not exist src\icu\icu4c\lib64 (
+    echo [fastype] please manually build icu4c library
+)
+echo [fastype] prepare unicode-org/icu release-65-1 - done
 echo [fastype] prepare boostorg/boost boost-1.71.0
 if not exist src\boost (
     cd %ROOT%\src
@@ -57,16 +67,6 @@ if not exist src\boost\stage\lib (
     cd %ROOT%
 )
 echo [fastype] prepare boostorg/boost boost-1.71.0 - done
-echo [fastype] prepare unicode-org/icu release-65-1
-if not exist src\icu (
-    cd %ROOT%\src
-    git clone -b release-65-1 --single-branch --depth 1 https://github.com/unicode-org/icu.git
-    cd %ROOT%
-)
-if not exist src\icu\icu4c\lib64 (
-    echo [fastype] please manually build icu4c library
-)
-echo [fastype] prepare unicode-org/icu release-65-1 - done
 
 set WINDOWS=windows
 cd %ROOT%
@@ -81,5 +81,9 @@ cd %WINDOWS% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 
 echo [fastype] prepare msvc project - done
 
 echo [fastype] NOTICE:
-echo [fastype]   1 - open msvc project `windows/fastype-parent.sln`
-echo [fastype]   2 - build fastype with msvc project `windows/fastype-parent.sln`
+echo [fastype]   1 - please manually build `ICU4C` shared release x64 library with msvc project `src/icu/icu4c/source/allinone.sln`
+echo [fastype]   2 - please manually build `boost` static release x64 library with cmd commands:
+echo [fastype]       $ cd src\boost
+echo [fastype]       $ .\bootstrap.bat
+echo [fastype]       $ .\b2 -j4
+echo [fastype]   3 - please manually build `fastype` with msvc project `windows/fastype-parent.sln`
