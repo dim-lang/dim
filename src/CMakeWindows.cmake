@@ -23,13 +23,13 @@ set(F_INC
     icu4c/include
     )
 set(F_LIB
-    libboost_program_options-vc141-mt-gd-x64-1_70.lib
-    libboost_system-vc141-mt-gd-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x64-1_71.lib
+    libboost_system-vc141-mt-gd-x64-1_71.lib
     )
 set(F_LIB_DIR
     icu/icu4c/lib64
     boost/lib64-msvc-14.1
-    icu/icu64/lib64
+    icu4c/lib64
     )
 
 set(F_CORE
