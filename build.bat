@@ -59,4 +59,4 @@ echo [fastype] 1. please download prebuilt `boost_1_71_0-msvc-14.1-64.exe` and e
 echo [fastype]      https://sourceforge.net/projects/boost/files/boost-binaries/1.71.0/boost_1_71_0-msvc-14.1-64.exe/download
 echo [fastype] 2. please download prebuilt `icu4c-65_1-Win64-MSVC2017.zip` and extract to `src\icu4c`
 echo [fastype]      https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip
-echo [fastype] 3. please manually add `boost` `icu4c` library to msvc project `%WINDOWS%/fastype-parent.sln` and build fastype
+echo [fastype] 3. please manually build msvc project `%WINDOWS%/fastype-parent.sln` in Release x64
