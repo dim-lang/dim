@@ -34,7 +34,7 @@ set(F_LIB_DIR
     .
     ../src
     ../src/boost/lib64-msvc-14.1
-    ../src/icu/icu4c/lib64
+    ../src/icu4c/lib64
     )
 
 set(T_SRC
