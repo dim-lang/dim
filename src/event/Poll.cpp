@@ -5,8 +5,8 @@
 #include "config/Event.h"
 #include "event/poll/Epoll.h"
 #include "event/poll/Kqueue.h"
+#include "event/poll/MswinSelect.h"
 #include "event/poll/Select.h"
-#include "event/poll/WinSelect.h"
 
 namespace fastype {
 
@@ -16,7 +16,7 @@ Poll *Poll::open(EventLoopImpl *evloop) {
 #elif defined(F_EVENT_HAVE_KQUEUE)
   return new Kqueue(evloop);
 #elif defined(F_PLATFORM_WINDOWS)
-  return new WinSelect(evloop);
+  return new MswinSelect(evloop);
 #else
   return new Select(evloop);
 #endif
@@ -28,7 +28,7 @@ void Poll::close(Poll *p) {
 #elif defined(F_EVENT_HAVE_KQUEUE)
   delete (Kqueue *)p;
 #elif defined(F_PLATFORM_WINDOWS)
-  delete (WinSelect *)p;
+  delete (MswinSelect *)p;
 #else
   delete (Select *)p;
 #endif
