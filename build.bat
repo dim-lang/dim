@@ -42,31 +42,6 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
-echo [fastype] prepare unicode-org/icu release-65-1
-if not exist src\icu (
-    cd %ROOT%\src
-    git clone -b release-65-1 --single-branch --depth 1 https://github.com/unicode-org/icu.git
-    cd %ROOT%
-)
-if not exist src\icu\icu4c\lib64 (
-    echo [fastype] please manually build icu4c library
-)
-echo [fastype] prepare unicode-org/icu release-65-1 - done
-echo [fastype] prepare boostorg/boost boost-1.71.0
-if not exist src\boost (
-    cd %ROOT%\src
-    git clone -b boost-1.71.0 --single-branch --depth 1 https://github.com/boostorg/boost.git
-    cd boost
-    git submodule update --init
-    cd %ROOT%
-)
-if not exist src\boost\stage\lib (
-    cd src\boost
-    cmd /c .\bootstrap.bat
-    cmd /c .\b2 -j4
-    cd %ROOT%
-)
-echo [fastype] prepare boostorg/boost boost-1.71.0 - done
 
 set WINDOWS=windows
 cd %ROOT%
