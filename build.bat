@@ -68,27 +68,16 @@ if not exist src\icu\icu4c\lib (
 )
 echo [fastype] prepare unicode-org/icu release-64-2 - done
 echo [fastype] prepare msvc project
-set DEBUG=debug
-set RELEASE=release
+set WINDOWS=windows
 cd %ROOT%
-if not exist %DEBUG% md %DEBUG%
-if not exist %RELEASE% md %RELEASE%
+if not exist %WINDOWS% md %WINDOWS%
 cp src\CMakeWindows.cmake src\CMakeLists.txt
 cp test\CMakeWindows.cmake test\CMakeLists.txt
 cp example\CMakeWindows.cmake example\CMakeLists.txt
-cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
-cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
+cd %WINDOWS% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
 echo [fastype] NOTICE:
-echo [fastype]   1 - please manually build ICU4C library with wiki: `https://htmlpreview.github.io/?https://github.com/unicode-org/icu/blob/release-64-2/icu4c/readme.html#HowToBuildWindows`
-echo [fastype]   2 - please manually add `src\boost\stage\lib` and `src\icu\icu4c\lib64` to `Attribute -> VC++ Directory -> Library Directory` in msvc project `fastype-parent.sln`
-echo [fastype]   3 - please manually add libraries below to `Attribute -> Linker -> Input -> Additional Dependencies` in msvc project `fastype-parent.sln`
-echo [fastype]       * boost_program_options-vc141-mt-x64-1_70.lib
-echo [fastype]       * boost_system-vc141-mt-x64-1_70.lib
-echo [fastype]       * icudt.lib
-echo [fastype]       * icuio.lib
-echo [fastype]       * icutu.lib
-echo [fastype]       * icuuc.lib
-echo [fastype]       * icuin.lib
-echo [fastype]   4 - please manually build fastype with msvc project `fastype-parent.sln`
+echo [fastype]   1 - open msvc project `windows/fastype-parent.sln`
+echo [fastype]   2 - install newest library `boost`, `ICU4C.Full.Lib` through NuGet
+echo [fastype]   4 - build fastype with msvc project `windows/fastype-parent.sln`
