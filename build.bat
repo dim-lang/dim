@@ -42,31 +42,6 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
-echo [fastype] prepare boostorg/boost boost-1.70.0
-if not exist src\boost (
-    cd %ROOT%\src
-    git clone -b boost-1.70.0 --single-branch --depth 1 https://github.com/boostorg/boost.git
-    cd boost
-    git submodule update --init
-    cd %ROOT%
-)
-if not exist src\boost\stage\lib (
-    cd src\boost
-    cmd /c .\bootstrap.bat
-    cmd /c .\b2 -j4
-    cd %ROOT%
-)
-echo [fastype] prepare boostorg/boost boost-1.70.0 - done
-echo [fastype] prepare unicode-org/icu release-64-2
-if not exist src\icu (
-    cd %ROOT%\src
-    git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
-    cd %ROOT%
-)
-if not exist src\icu\icu4c\lib64 (
-    echo [fastype] icu4c x64 library not ready
-)
-echo [fastype] prepare unicode-org/icu release-64-2 - done
 
 set WINDOWS=windows
 cd %ROOT%
@@ -74,6 +49,21 @@ if not exist %WINDOWS% md %WINDOWS%
 cp src\CMakeWindows.cmake src\CMakeLists.txt
 cp test\CMakeWindows.cmake test\CMakeLists.txt
 cp example\CMakeWindows.cmake example\CMakeLists.txt
+
+echo [fastype] prepare microsoft/vcpkg
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+git clone https://github.com/fastype/vcpkg-windows-downloads.git downloads
+cp ..\vcpkg-triplets-x64-windows-vc141.cmake triplets\x64-windows-vc141.cmake
+.\bootstrap-vcpkg.bat
+echo [fastype] prepare microsoft/vcpkg - done
+
+echo [fastype] prepare unicode-org/icu
+.\vcpkg install icu --triplet x64-windows-vc141
+echo [fastype] prepare unicode-org/icu - done
+echo [fastype] prepare boostorg/boost
+.\vcpkg install boost-locale[icu] boost-regex[icu] boost --triplet x64-windows-vc141 --recurse
+echo [fastype] prepare boostorg/boost - done
 
 echo [fastype] prepare msvc project
 cd %ROOT%
