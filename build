@@ -106,8 +106,8 @@ function build_debug() {
 
     case "$OSTYPE" in
       solaris*) echo "[fastype] Solaris Not Support!" && exit 3 ;;
-      darwin*)  cp src/CMakeMacOSX.cmake src/CMakeLists.txt && cp test/CMakeMacOSX.cmake test/CMakeLists.txt && cp example/CMakeMacOSX.cmake example/CMakeLists.txt ;;
-      linux*)   cp src/CMakeLinux.cmake src/CMakeLists.txt && cp test/CMakeLinux.cmake test/CMakeLists.txt && cp example/CMakeLinux.cmake example/CMakeLists.txt ;;
+      darwin*)  cp src/cmake/macos.cmake src/CMakeLists.txt && cp test/cmake/macos.cmake test/CMakeLists.txt && cp example/cmake/macos.cmake example/CMakeLists.txt ;;
+      linux*)   cp src/cmake/linux.cmake src/CMakeLists.txt && cp test/cmake/linux.cmake test/CMakeLists.txt && cp example/cmake/linux.cmake example/CMakeLists.txt ;;
       bsd*)     echo "[fastype] BSD Not Support!" && exit 3 ;;
       *)        echo "[fastype] Unknown OS: $OSTYPE!" && exit 3 ;;
     esac
@@ -124,8 +124,8 @@ function build_release() {
 
     case "$OSTYPE" in
       solaris*) echo "[fastype] Solaris Not Support!" && exit 3 ;;
-      darwin*)  cp src/CMakeMacOSX.cmake src/CMakeLists.txt && cp test/CMakeMacOSX.cmake test/CMakeLists.txt && cp example/CMakeMacOSX.cmake example/CMakeLists.txt ;;
-      linux*)   cp src/CMakeLinux.cmake src/CMakeLists.txt && cp test/CMakeLinux.cmake test/CMakeLists.txt && cp example/CMakeLinux.cmake example/CMakeLists.txt ;;
+      darwin*)  cp src/cmake/macos.cmake src/CMakeLists.txt && cp test/cmake/macos.cmake test/CMakeLists.txt && cp example/cmake/macos.cmake example/CMakeLists.txt ;;
+      linux*)   cp src/cmake/linux.cmake src/CMakeLists.txt && cp test/cmake/linux.cmake test/CMakeLists.txt && cp example/cmake/linux.cmake example/CMakeLists.txt ;;
       bsd*)     echo "[fastype] BSD Not Support!" && exit 3 ;;
       *)        echo "[fastype] Unknown OS: $OSTYPE!" && exit 3 ;;
     esac
