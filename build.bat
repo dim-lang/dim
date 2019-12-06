@@ -80,10 +80,12 @@ cd %ROOT%
 cd %WINDOWS% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
-echo [fastype] NOTICE:
 echo [fastype]   1 - please manually build `ICU4C` shared release x64 library with msvc project `src/icu/icu4c/source/allinone.sln`
 echo [fastype]   2 - please manually build `boost` static release x64 library with cmd commands:
 echo [fastype]       $ cd src\boost
 echo [fastype]       $ .\bootstrap.bat
 echo [fastype]       $ .\b2 -j4
 echo [fastype]   3 - please manually build `fastype` with msvc project `windows/fastype-parent.sln`
+echo [fastype] NOTICE:
+echo [fastype]   1 - please download prebuilt `boost_1_71_0-msvc-14.1-64.exe` if building from source code too slow: https://sourceforge.net/projects/boost/files/boost-binaries/1.71.0/boost_1_71_0-msvc-14.1-64.exe/download
+echo [fastype]   2 - please download prebuilt `icu4c-65_1-Win64-MSVC2017.zip` if building from source code too slow: https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip
