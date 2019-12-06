@@ -127,7 +127,7 @@ set(FD_SRC
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
-add_library(fastypecore SHARED ${F_CORE})
+add_library(fastypecore STATIC ${F_CORE})
 target_include_directories(fastypecore PRIVATE ${F_INC})
 target_link_libraries(fastypecore ${F_LIB})
 set_target_properties(fastypecore PROPERTIES VERSION ${PROJECT_VERSION})
