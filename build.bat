@@ -46,9 +46,9 @@ echo [fastype] prepare nlohmann/json v3.7.0 - done
 set WINDOWS=windows
 cd %ROOT%
 if not exist %WINDOWS% md %WINDOWS%
-cp src\CMakeWindows.cmake src\CMakeLists.txt
-cp test\CMakeWindows.cmake test\CMakeLists.txt
-cp example\CMakeWindows.cmake example\CMakeLists.txt
+cp src\cmake\msvc.cmake src\CMakeLists.txt
+cp test\cmake\msvc.cmake test\CMakeLists.txt
+cp example\cmake\msvc.cmake example\CMakeLists.txt
 
 echo [fastype] prepare msvc project
 cd %ROOT%
