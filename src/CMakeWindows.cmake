@@ -17,10 +17,10 @@ message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 
 set(F_INC
     .
-    boost
     spdlog/include
     fmt/include
-    icu/icu4c/include
+    boost
+    icu4c/include
     )
 set(F_LIB
     libboost_program_options-vc141-mt-gd-x64-1_70.lib

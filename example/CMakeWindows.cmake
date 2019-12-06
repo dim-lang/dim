@@ -18,7 +18,7 @@ set(F_INC
     spdlog/include
     fmt/include
     boost
-    icu/icu4c/include
+    icu4c/include
     )
 
 set(F_LIB

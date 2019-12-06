@@ -21,7 +21,7 @@ set(F_INC
     ../src/spdlog/include
     ../src/fmt/include
     ../src/boost
-    ../src/icu/icu4c/include
+    ../src/icu4c/include
     Catch2/single_include
     )
 
