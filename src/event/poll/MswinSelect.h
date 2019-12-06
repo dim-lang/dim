@@ -7,17 +7,17 @@
 #ifdef F_EVENT_HAVE_WINSELECT
 
 #include "event/Poll.h"
-#include <WinSock2.h>
+//#include <WinSock2.h>
 #include <cstdint>
 
 namespace fastype {
 
 class EventLoopImpl;
 
-class WinSelect : public Poll {
+class MswinSelect : public Poll {
 public:
-  WinSelect(EventLoopImpl *evloop);
-  virtual ~WinSelect();
+  MswinSelect(EventLoopImpl *evloop);
+  virtual ~MswinSelect();
 
   virtual int expand(int size);
   virtual int capacity() const;
@@ -27,8 +27,8 @@ public:
   virtual std::string name() const;
 
 private:
-  fd_set readset_;
-  fd_set readset2_;
+  // fd_set readset_;
+  // fd_set readset2_;
 
   EventLoopImpl *evloop_;
 

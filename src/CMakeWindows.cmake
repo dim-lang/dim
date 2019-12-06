@@ -67,7 +67,7 @@ set(F_CORE
     event/poll/Epoll.cpp
     event/poll/Kqueue.cpp
     event/poll/Select.cpp
-    event/poll/WinSelect.cpp
+    event/poll/MswinSelect.cpp
 
     script/Token.cpp
     script/Lexer.cpp
