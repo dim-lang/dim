@@ -43,20 +43,20 @@ if not exist %ROOT%\src\json (
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
 
-set WINDOWS=windows
+set BUILD=msvc
 cd %ROOT%
-if not exist %WINDOWS% md %WINDOWS%
+if not exist %BUILD% md %BUILD%
 cp src\cmake\msvc.cmake src\CMakeLists.txt
 cp test\cmake\msvc.cmake test\CMakeLists.txt
 cp example\cmake\msvc.cmake example\CMakeLists.txt
 
 echo [fastype] prepare msvc project
 cd %ROOT%
-cd %WINDOWS% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
+cd %BUILD% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
 echo [fastype] 1. please download prebuilt `boost_1_71_0-msvc-14.1-64.exe` and extract to `src\boost`
 echo [fastype]      https://sourceforge.net/projects/boost/files/boost-binaries/1.71.0/boost_1_71_0-msvc-14.1-64.exe/download
 echo [fastype] 2. please download prebuilt `icu4c-65_1-Win64-MSVC2017.zip` and extract to `src\icu4c`
 echo [fastype]      https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip
-echo [fastype] 3. please manually build msvc project `%WINDOWS%/fastype-parent.sln` in Release x64
+echo [fastype] 3. please manually build msvc project `%BUILD%/fastype-parent.sln` in Release x64
