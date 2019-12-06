@@ -26,14 +26,14 @@ set(F_INC
     )
 
 set(F_LIB
-    boost_program_options-vc141-mt-gd-x64-1_70.lib
-    boost_system-vc141-mt-gd-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x64-1_70.lib
+    libboost_system-vc141-mt-gd-x64-1_70.lib
     )
 
 set(F_LIB_DIR
     .
     ../src
-    ../src/boost/stage/lib
+    ../src/boost/lib64-msvc-14.1
     ../src/icu/icu4c/lib64
     )
 

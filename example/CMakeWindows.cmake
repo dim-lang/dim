@@ -23,10 +23,11 @@ set(F_INC
 
 set(F_LIB
     libboost_program_options-vc141-mt-gd-x64-1_70.lib
+    libboost_system-vc141-mt-gd-x64-1_70.lib
     )
 
 set(F_LIB_DIR
-    boost/stage/lib
+    boost/lib64-msvc-14.1
     icu/icu4c/lib64
     )
 
