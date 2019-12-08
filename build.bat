@@ -42,21 +42,46 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
+echo [fastype] prepare boostorg/boost 1.71.0
+if not exist %ROOT%\src\boost (
+    cd %ROOT%\src
+    git clone -b 1.71.0 --single-branch --depth 1 https://github.com/boostorg/boost.git
+    cd boost
+    git submodule update --init
+    cd %ROOT%
+)
+echo [fastype] prepare boostorg/boost 1.71.0 - done
+echo [fastype] prepare unicode-org/icu release-65-1
+if not exist %ROOT%\src\icu (
+    cd %ROOT%\src
+    git clone -b release-65-1 --single-branch --depth 1 https://github.com/unicode-org/icu 
+    cd %ROOT%
+)
+echo [fastype] prepare unicode-org/icu release-65-1 - done
 
-set BUILD=msvc
+echo [fastype] prepare msvc project
+set DEBUG=msvcd
+set RELEASE=msvc
+
 cd %ROOT%
-if not exist %BUILD% md %BUILD%
+if not exist %DEBUG% md %DEBUG%
+cp src\cmake\msvcd.cmake src\CMakeLists.txt
+cp test\cmake\msvcd.cmake test\CMakeLists.txt
+cp example\cmake\msvcd.cmake example\CMakeLists.txt
+cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
+
+cd %ROOT%
+if not exist %RELEASE% md %RELEASE%
 cp src\cmake\msvc.cmake src\CMakeLists.txt
 cp test\cmake\msvc.cmake test\CMakeLists.txt
 cp example\cmake\msvc.cmake example\CMakeLists.txt
-
-echo [fastype] prepare msvc project
-cd %ROOT%
-cd %BUILD% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
+cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
-echo [fastype] 1. please download prebuilt `boost_1_71_0-msvc-14.1-64.exe` and extract to `src\boost`
-echo [fastype]      https://sourceforge.net/projects/boost/files/boost-binaries/1.71.0/boost_1_71_0-msvc-14.1-64.exe/download
-echo [fastype] 2. please download prebuilt `icu4c-65_1-Win64-MSVC2017.zip` and extract to `src\icu4c`
-echo [fastype]      https://github.com/unicode-org/icu/releases/download/release-65-1/icu4c-65_1-Win64-MSVC2017.zip
-echo [fastype] 3. please manually build msvc project `%BUILD%/fastype-parent.sln` in Release x64
+echo [fastype] 1. please manually build `icu4c` library by msvc project `src\icu\icu4c\source\allinone\allinone.sln` with option `Debug x64` and `Release x64`
+echo [fastype] 2. please manually build `boost` library source code with:
+echo [fastype]      $ cd %ROOT%\src\boost
+echo [fastype]      $ .\bootstrap.bat
+echo [fastype]      $ .\b2 (add option `-j8` to use 8 worker threads to build concurrently if you can)
+echo [fastype] 3. please manually build debug version with msvc project `%DEBUG%\fastype-parent.sln` with option `Debug x64` 
+echo [fastype] 4. please manually build release version with msvc project `%RELEASE%\fastype-parent.sln` with option `Release x64`

@@ -23,7 +23,7 @@ Download fastype source code from github and build mannually.
 |  Manjaro   | git                                                               |
 |  Fedora    | git                                                               |
 |  Ubuntu    | git                                                               |
-|  Windows   | Visual Studio 2017, cmake, git                                    |
+|  Windows   | Visual Studio 2017, cmake, git, python3                           |
 
 #### Build
 
