@@ -20,7 +20,7 @@ set(F_INC
     spdlog/include
     fmt/include
     boost
-    icu4c/include
+    icu/icu4c/include
     )
 set(F_LIB
     libboost_program_options-vc141-mt-x64-1_71.lib
@@ -34,7 +34,7 @@ set(F_LIB
 set(F_LIB_DIR
     icu/icu4c/lib64
     boost/lib64-msvc-14.1
-    icu4c/lib64
+    icu/icu4c/lib64
     )
 
 set(F_CORE

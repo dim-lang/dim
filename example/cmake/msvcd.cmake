@@ -18,7 +18,7 @@ set(F_INC
     spdlog/include
     fmt/include
     boost
-    icu4c/include
+    icu/icu4c/include
     )
 
 set(F_LIB
@@ -33,7 +33,7 @@ set(F_LIB
 
 set(F_LIB_DIR
     boost/lib64-msvc-14.1
-    icu4c/lib64
+    icu/icu4c/lib64
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
