@@ -43,15 +43,15 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
-echo [fastype] prepare boostorg/boost 1.70.0
+echo [fastype] prepare boostorg/boost boost-1.70.0
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
-    git clone -b 1.70.0 --single-branch --depth 1 https://github.com/boostorg/boost.git
+    git clone -b boost-1.70.0 --single-branch --depth 1 https://github.com/boostorg/boost.git
     cd boost
     git submodule update --init
     cd %ROOT%
 )
-echo [fastype] prepare boostorg/boost 1.70.0 - done
+echo [fastype] prepare boostorg/boost boost-1.70.0 - done
 echo [fastype] prepare unicode-org/icu release-64-2
 if not exist %DEVROOT%\icu (
     cd %DEVROOT%
@@ -79,11 +79,11 @@ cp example\cmake\msvc.cmake example\CMakeLists.txt
 cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
-echo [fastype] 1. please manually build `icu4c` release-64-2 library:
+echo [fastype] 1. please manually build `icu4c` library:
 echo [fastype]    open msvc project `%DEVROOT%\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
 echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, finally move `%DEVROOT%\icu` directory to `%ROOT%\src`
 echo [fastype]      $ mv %DEVROOT%\icu %ROOT%\src
-echo [fastype] 2. please manually build `boost` 1.70.0 library:
+echo [fastype] 2. please manually build `boost` library:
 echo [fastype]      $ cd %ROOT%\src\boost
 echo [fastype]      $ .\bootstrap.bat
 echo [fastype]      $ .\b2 (add option `-j8` to use 8 worker threads to build concurrently if you can)
