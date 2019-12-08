@@ -82,4 +82,4 @@ echo [fastype]      $ git clone -b release-64-2 --single-branch --depth 1 https:
 echo [fastype]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
 echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, then move `\icu` library to `%ROOT%\src`
 echo [fastype]      $ mv \icu %ROOT%\src
-echo [fastype] 3. please manually build msvc project `%DEBUG%\fastype-parent.sln` with `Debug x64`, `%RELEASE%\fastype-parent.sln` with `Release x64`
+echo [fastype] 2. please manually build msvc project `%DEBUG%\fastype-parent.sln` with `Debug x64`, `%RELEASE%\fastype-parent.sln` with `Release x64`
