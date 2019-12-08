@@ -23,8 +23,8 @@ set(F_INC
     icu/icu4c/include
     )
 set(F_LIB
-    libboost_program_options-vc141-mt-x64-1_71.lib
-    libboost_system-vc141-mt-x64-1_71.lib
+    libboost_program_options-vc141-mt-x64-1_70.lib
+    libboost_system-vc141-mt-x64-1_70.lib
     icudt.lib
     icuin.lib
     icuio.lib
