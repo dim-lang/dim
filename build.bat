@@ -80,10 +80,10 @@ echo [fastype] prepare msvc project - done
 
 echo [fastype] 1. please manually build `icu4c` library:
 echo [fastype]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
-echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, finally move `\icu` directory to `%ROOT%\src`
+echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, then move `\icu` library to `%ROOT%\src`
 echo [fastype]      $ mv \icu %ROOT%\src
 echo [fastype] 2. please manually build `boost` library:
 echo [fastype]      $ cd %ROOT%\src\boost
 echo [fastype]      $ .\bootstrap.bat
-echo [fastype]      $ .\b2 (add option `-j8` to use 8 worker threads to build concurrently if you can)
+echo [fastype]      $ .\b2 toolset=msvc-14.1 address-model=64 architecture=x86 link=static threading=multi runtime-link=shared --build-type=complete stage (add `-j8` if you can)
 echo [fastype] 3. please manually build msvc project `%DEBUG%\fastype-parent.sln` with `Debug x64`, `%RELEASE%\fastype-parent.sln` with `Release x64`
