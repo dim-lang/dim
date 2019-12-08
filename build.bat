@@ -4,6 +4,8 @@
 @echo off
 set ROOT=%cd%
 set DEVROOT=%cd:~0,2%
+echo ROOT: %ROOT%\
+echo DEVROOT: %DEVROOT%\
 set OS=Windows
 echo [fastype] prepare for %OS%
 
@@ -53,8 +55,9 @@ if not exist %ROOT%\src\boost (
 )
 echo [fastype] prepare boostorg/boost boost-1.70.0 - done
 echo [fastype] prepare unicode-org/icu release-64-2
+echo %DEVROOT%\icu
 if not exist %DEVROOT%\icu (
-    cd %DEVROOT%
+    cd %DEVROOT%\
     git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
     cd %ROOT%
 )
