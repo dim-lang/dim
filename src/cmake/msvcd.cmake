@@ -32,8 +32,7 @@ set(F_LIB
     icuucd.lib
     )
 set(F_LIB_DIR
-    icu/icu4c/lib64
-    boost/lib64-msvc-14.1
+    boost/stage/lib
     icu/icu4c/lib64
     )
 
