@@ -200,4 +200,9 @@ if [ "$1" = "all" ]; then
     exit 0
 fi
 
-build_help
+if [ "$#" > 0 ]; then
+    build_help
+    exit 0
+fi
+
+build_release
