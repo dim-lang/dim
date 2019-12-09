@@ -68,9 +68,6 @@ echo [fastype] prepare msvc project
 set RELEASE=msvc
 cd %ROOT%
 if not exist %RELEASE% md %RELEASE%
-cp src\cmake\msvc.cmake src\CMakeLists.txt
-cp test\cmake\msvc.cmake test\CMakeLists.txt
-cp example\cmake\msvc.cmake example\CMakeLists.txt
 cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
