@@ -200,7 +200,7 @@ if [ "$1" = "all" ]; then
     exit 0
 fi
 
-if [ "$#" > 0 ]; then
+if [ "$#" > 1 ]; then
     build_help
     exit 0
 fi
