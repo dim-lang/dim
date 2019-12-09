@@ -80,4 +80,25 @@ end_of_lines:
   return ret;
 }
 
+static int64_t writeImpl(const icu::UnicodeString &fileName,
+                         const icu::UnicodeString &text, const char *perm,
+                         const char *locale, const char *codepage) {
+  UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
+  F_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
+  int64_t n = (int64_t)u_file_write(text.getBuffer(), text.length(), fp);
+  return n;
+}
+
+int64_t Filer::writeAll(const icu::UnicodeString &fileName,
+                        const icu::UnicodeString &text, const char *locale,
+                        const char *codepage) {
+  return writeImpl(fileName, text, "w", locale, codepage);
+}
+
+int64_t Filer::appendAll(const icu::UnicodeString &fileName,
+                         const icu::UnicodeString &text, const char *locale,
+                         const char *codepage) {
+  return writeImpl(fileName, text, "a", locale, codepage);
+}
+
 } // namespace fastype
