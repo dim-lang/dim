@@ -6,62 +6,21 @@
 #include <cstring>
 
 TEST_CASE("Filer", "[Filer]") {
-  SECTION("readAll CMakeLists.txt") {
-    icu::UnicodeString text =
-        fastype::Filer::readAll(UNICODE_STRING_SIMPLE("CMakeLists.txt"));
-    REQUIRE(text.length() == 221);
-    REQUIRE((int)text.tempSubString(0, 31).compare(
-                UNICODE_STRING_SIMPLE("# Copyright 2019- <fastype.org>")) == 0);
-    REQUIRE((int)text.tempSubString(195, 25).compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(example)")) == 0);
-  }
-  SECTION("readAll FilerTestBigFile.html") {
-    icu::UnicodeString text = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/FilerTestBigFile.html"));
-    REQUIRE(text.length() == 3969L);
-    REQUIRE((int)text.tempSubString(0, 15).compare(
-                UNICODE_STRING_SIMPLE("<!DOCTYPE html>")) == 0);
-    REQUIRE((int)text.tempSubString(3961, 7).compare(
-                UNICODE_STRING_SIMPLE("</html>")) == 0);
-  }
-  SECTION("readLines CMakeLists.txt") {
-    std::vector<icu::UnicodeString> texts =
-        fastype::Filer::readLines(UNICODE_STRING_SIMPLE("CMakeLists.txt"));
-    REQUIRE(texts.size() == 8);
-    REQUIRE((int)texts[0].compare(UNICODE_STRING_SIMPLE(
-                "# Copyright 2019- <fastype.org>\n")) == 0);
-    REQUIRE((int)texts[1].compare(
-                UNICODE_STRING_SIMPLE("# Apache License Version 2.0\n")) == 0);
-    REQUIRE((int)texts[2].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[3].compare(UNICODE_STRING_SIMPLE(
-                "cmake_minimum_required(VERSION 3.8)\n")) == 0);
-    REQUIRE((int)texts[4].compare(UNICODE_STRING_SIMPLE(
-                "project(fastype-parent VERSION 0.1.0 LANGUAGES CXX)\n")) == 0);
-    REQUIRE((int)texts[5].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(src)\n")) == 0);
-    REQUIRE((int)texts[6].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(test)\n")) == 0);
-    REQUIRE((int)texts[7].compare(
-                UNICODE_STRING_SIMPLE("add_subdirectory(example)\n")) == 0);
-  }
-  SECTION("readLines FilerTestBigFile.html") {
-    std::vector<icu::UnicodeString> texts = fastype::Filer::readLines(
-        UNICODE_STRING_SIMPLE("test/FilerTestBigFile.html"));
-    REQUIRE(texts.size() == 138);
-    REQUIRE((int)texts[0].compare(UNICODE_STRING_SIMPLE("<!DOCTYPE html>\n")) ==
-            0);
-    REQUIRE((int)texts[1].compare(UNICODE_STRING_SIMPLE(
-                "<!-- saved from url=(0022)https://www.baidu.com/ -->\n")) ==
-            0);
-    REQUIRE((int)texts[2].compare(UNICODE_STRING_SIMPLE("<html>\n")) == 0);
-    REQUIRE((int)texts[3].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[4].compare(UNICODE_STRING_SIMPLE("<head>\n")) == 0);
-    REQUIRE((int)texts[5].compare(UNICODE_STRING_SIMPLE(
-                "    <meta http-equiv=\"Content-Type\" content=\"text/html; "
-                "charset=UTF-8\">\n")) == 0);
-    REQUIRE((int)texts[6].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[7].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[136].compare(UNICODE_STRING_SIMPLE("\n")) == 0);
-    REQUIRE((int)texts[137].compare(UNICODE_STRING_SIMPLE("</html>\n")) == 0);
+  SECTION("readAll/writeAll") {
+    icu::UnicodeString text = UNICODE_STRING_SIMPLE(
+        "This is a long string for testing Filer::writeAll and Filer::readAll "
+        "static methods.\n"
+        "Test cases will firstly write this unicode string into a temporary "
+        "file named \"readwrite.log\",\n"
+        "then read text from this temporary file. Finally compare the read "
+        "text with the original text.\n"
+        "For convenience, our test cases do not compare substring, but only "
+        "the whole text.\n");
+    REQUIRE(fastype::Filer::writeAll(UNICODE_STRING_SIMPLE("readwrite.log"),
+                                     text) == text.length());
+    icu::UnicodeString text2 =
+        fastype::Filer::readAll(UNICODE_STRING_SIMPLE("readwrite.log"));
+    REQUIRE(text.length() == text2.length());
+    REQUIRE((int)text.compare(text2) == 0);
   }
 }
