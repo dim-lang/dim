@@ -149,8 +149,6 @@ function build_help() {
 
 # ---- main ----
 
-set -x
-
 if [ "$1" = "help" ]; then
     build_help
     exit 0
