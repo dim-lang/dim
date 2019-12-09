@@ -21,6 +21,6 @@ TEST_CASE("Filer", "[Filer]") {
     icu::UnicodeString text2 =
         fastype::Filer::readAll(UNICODE_STRING_SIMPLE("readwrite.log"));
     REQUIRE(text.length() == text2.length());
-    REQUIRE((int)text.compare(text2) == 0);
+    REQUIRE((int)text2.tempSubString(0, text.length()).compare(text) == 0);
   }
 }
