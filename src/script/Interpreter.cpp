@@ -218,7 +218,6 @@ std::shared_ptr<Ast> Interpreter::visitUnaryOp(std::shared_ptr<Ast> node) {
   if (e->op() == Token::T_ADD) {
     return expr;
   } else if (e->op() == Token::T_SUB) {
-    std::shared_ptr<Ast> expr = e->expr();
     if (F_IS_IC(expr)) {
       return std::shared_ptr<Ast>(
           new IntegerConstant(std::shared_ptr<Token>(new IntegerToken(
