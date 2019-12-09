@@ -38,7 +38,7 @@ set(F_LIB
 set(F_LIBD
     libboost_program_options-vc141-mt-gd-x64-1_70.lib
     libboost_system-vc141-mt-gd-x64-1_70.lib
-    icudtd.lib
+    icudt.lib
     icuind.lib
     icuiod.lib
     icutud.lib
