@@ -86,6 +86,7 @@ static int64_t writeImpl(const icu::UnicodeString &fileName,
   UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
   F_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
   int64_t n = (int64_t)u_file_write(text.getBuffer(), text.length(), fp);
+  u_fclose(fp);
   return n;
 }
 
