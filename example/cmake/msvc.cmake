@@ -31,6 +31,16 @@ set(F_LIB
     icuuc.lib
     )
 
+set(F_LIBD
+    libboost_program_options-vc141-mt-gd-x64-1_70.lib
+    libboost_system-vc141-mt-gd-x64-1_70.lib
+    icudtd.lib
+    icuind.lib
+    icuiod.lib
+    icutud.lib
+    icuucd.lib
+    )
+
 set(F_LIB_DIR
     boost/stage/lib
     icu/icu4c/lib64

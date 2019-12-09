@@ -31,6 +31,15 @@ set(F_LIB
     icutu.lib
     icuuc.lib
     )
+set(F_LIBD
+    libboost_program_options-vc141-mt-gd-x64-1_70.lib
+    libboost_system-vc141-mt-gd-x64-1_70.lib
+    icudtd.lib
+    icuind.lib
+    icuiod.lib
+    icutud.lib
+    icuucd.lib
+    )
 set(F_LIB_DIR
     boost/stage/lib
     icu/icu4c/lib64
@@ -114,15 +123,18 @@ link_directories(${F_LIB_DIR})
 
 add_library(fastypecore STATIC ${F_CORE})
 target_include_directories(fastypecore PRIVATE ${F_INC})
-target_link_libraries(fastypecore ${F_LIB})
+target_link_libraries(fastypecore debug ${F_LIBD})
+target_link_libraries(fastypecore optimized ${F_LIB})
 set_target_properties(fastypecore PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastype ${F_SRC})
 target_include_directories(fastype PRIVATE ${F_INC})
-target_link_libraries(fastype ${F_LIB} fastypecore)
+target_link_libraries(fastype debug ${F_LIBD} fastypecore)
+target_link_libraries(fastype optimized ${F_LIB} fastypecore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastyped ${FD_SRC})
 target_include_directories(fastyped PRIVATE ${F_INC})
-target_link_libraries(fastyped ${F_LIB} fastypecore)
+target_link_libraries(fastyped debug ${F_LIBD} fastypecore)
+target_link_libraries(fastyped optimized ${F_LIB} fastypecore)
 set_target_properties(fastyped PROPERTIES VERSION ${PROJECT_VERSION})

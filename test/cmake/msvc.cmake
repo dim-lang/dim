@@ -35,6 +35,16 @@ set(F_LIB
     icuuc.lib
     )
 
+set(F_LIBD
+    libboost_program_options-vc141-mt-gd-x64-1_70.lib
+    libboost_system-vc141-mt-gd-x64-1_70.lib
+    icudtd.lib
+    icuind.lib
+    icuiod.lib
+    icutud.lib
+    icuucd.lib
+    )
+
 set(F_LIB_DIR
     .
     ../src
@@ -66,5 +76,6 @@ link_directories(${F_LIB_DIR})
 
 add_executable(fastype-test ${T_SRC})
 target_include_directories(fastype-test PRIVATE ${F_INC})
-target_link_libraries(fastype-test ${F_LIB} fastypecore)
+target_link_libraries(fastype-test debug ${F_LIBD} fastypecore)
+target_link_libraries(fastype-test optimized ${F_LIB} fastypecore)
 set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})
