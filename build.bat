@@ -42,6 +42,13 @@ if not exist %ROOT%\src\json (
     cd %ROOT%
 )
 echo [fastype] prepare nlohmann/json v3.7.0 - done
+echo [fastype] prepare unicode-org/icu release-64-2
+if not exist %ROOT%\src\icu (
+    cd %ROOT%\src
+    git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
+    cd %ROOT%
+)
+echo [fastype] prepare unicode-org/icu release-64-2 - done
 echo [fastype] prepare boostorg/boost boost-1.70.0
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
@@ -58,16 +65,7 @@ if not exist %ROOT%\src\boost\stage (
 echo [fastype] prepare boostorg/boost boost-1.70.0 - done
 
 echo [fastype] prepare msvc project
-set DEBUG=msvcd
 set RELEASE=msvc
-
-cd %ROOT%
-if not exist %DEBUG% md %DEBUG%
-cp src\cmake\msvcd.cmake src\CMakeLists.txt
-cp test\cmake\msvcd.cmake test\CMakeLists.txt
-cp example\cmake\msvcd.cmake example\CMakeLists.txt
-cd %DEBUG% && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_GENERATOR_PLATFORM=x64 --config Debug .. && cd %ROOT%
-
 cd %ROOT%
 if not exist %RELEASE% md %RELEASE%
 cp src\cmake\msvc.cmake src\CMakeLists.txt
@@ -77,8 +75,8 @@ cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 
 echo [fastype] prepare msvc project - done
 
 echo [fastype] 1. please manually build `icu4c` library:
+echo [fastype]      $ mv %ROOT%\src\icu \
 echo [fastype]      $ cd \
-echo [fastype]      $ git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
 echo [fastype]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
 echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, then move `\icu` library to `%ROOT%\src`
 echo [fastype]      $ mv \icu %ROOT%\src
