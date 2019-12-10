@@ -15,10 +15,10 @@ find_package(Threads REQUIRED)
 
 set(F_INC
     Threads::Threads
-    spdlog/include
-    fmt/include
     /usr/include
     /usr/include/x86_64-linux-gnu
+    ../src/spdlog/include
+    ../src/fmt/include
     )
 set(F_LIB
     Threads::Threads

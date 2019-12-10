@@ -9,10 +9,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
 set(F_INC
-    spdlog/include
-    fmt/include
-    boost
-    icu/icu4c/include
+    ../src/spdlog/include
+    ../src/fmt/include
+    ../src/boost
+    ../src/icu/icu4c/include
     )
 
 set(F_LIB
