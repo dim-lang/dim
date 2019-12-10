@@ -42,6 +42,15 @@ function init_pacman() {
     echo [fastype] prepare boost, icu, gperftools, ncurses - done
 }
 
+function init_zypper() {
+    sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
+    sudo zypper in gcc make cmake automake autoconf
+    echo [fastype] prepare compiler and toolchain - done
+    echo [fastype] prepare boost, icu, gperftools, ncurses
+    sudo zypper in boost icu gperftools ncurses
+    echo [fastype] prepare boost, icu, gperftools, ncurses - done
+}
+
 function init_linux() {
     cd $ROOT
     echo [fastype] prepare gabime/spdlog v1.3.1
@@ -63,6 +72,8 @@ function init_linux() {
             init_dnf
         elif cat /etc/*release | grep ^NAME | grep Manjaro 1>/dev/null 2>&1; then
             init_pacman
+        elif cat /etc/*release | grep ^NAME | grep openSUSE 1>/dev/null 2>&1; then
+            init_zypper
         else
             echo [fastype] Error! Unknown Operating System $(uname)! && exit 3
         fi
