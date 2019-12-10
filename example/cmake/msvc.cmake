@@ -36,8 +36,8 @@ set(F_LIBD
     )
 
 set(F_LIB_DIR
-    boost/stage/lib
-    icu/icu4c/lib64
+    ../src/boost/stage/lib
+    ../src/icu/icu4c/lib64
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
