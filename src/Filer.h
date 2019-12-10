@@ -21,16 +21,16 @@ public:
             const char *codepage = "UTF-8");
 
   // write all into one file
-  static int64_t writeAll(const icu::UnicodeString &fileName,
-                          const icu::UnicodeString &text,
-                          const char *locale = nullptr,
-                          const char *codepage = "UTF-8");
+  static int writeAll(const icu::UnicodeString &fileName,
+                      const icu::UnicodeString &text,
+                      const char *locale = nullptr,
+                      const char *codepage = "UTF-8");
 
   // write all into one file
-  static int64_t appendAll(const icu::UnicodeString &fileName,
-                           const icu::UnicodeString &text,
-                           const char *locale = nullptr,
-                           const char *codepage = "UTF-8");
+  static int appendAll(const icu::UnicodeString &fileName,
+                       const icu::UnicodeString &text,
+                       const char *locale = nullptr,
+                       const char *codepage = "UTF-8");
 };
 
 } // namespace fastype
