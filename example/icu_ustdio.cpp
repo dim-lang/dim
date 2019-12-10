@@ -45,9 +45,10 @@ icu::UnicodeString readFile(const icu::UnicodeString &fileName,
   return ret;
 }
 
-void getString(const std::string &fileName) {
-  UFILE *fp = u_fopen("CMakeLists.txt", "r", nullptr, "UTF-8");
-  assert(fp != nullptr);
+void getString(const icu::UicodeString &fileName) {
+  UFILE *fp;
+  fp = u_fopen_u(fileName.getBuffer(), "r", nullptr, "UTF-8");
+  assert(fp);
   UChar buf1[SZ1];
   UChar *r1 = u_fgets(buf1, SZ1, fp);
   u_printf(
@@ -56,8 +57,8 @@ void getString(const std::string &fileName) {
       r1);
   u_fclose(fp);
 
-  fp = u_fopen("CMakeLists.txt", "r", nullptr, "UTF-8");
-  assert(fp != nullptr);
+  fp = u_fopen_u(fileName.getBuffer(), "r", nullptr, "UTF-8");
+  assert(fp);
   UChar buf2[SZ2];
   UChar *r2 = u_fgets(buf2, SZ2, fp);
   u_printf(
