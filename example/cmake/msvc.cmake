@@ -8,12 +8,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
-message(CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR})
-message(CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR})
-message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
-message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
-message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
-
 set(F_INC
     spdlog/include
     fmt/include
@@ -51,8 +45,8 @@ add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 include_directories(${F_INC})
 link_directories(${F_LIB_DIR})
 
-add_executable(fastype-icuu_fgets icuu_fgets.cpp)
-target_include_directories(fastype-icuu_fgets PRIVATE ${F_INC})
-target_link_libraries(fastype-icuu_fgets debug ${F_LIBD})
-target_link_libraries(fastype-icuu_fgets optimized ${F_LIB})
-set_target_properties(fastype-icuu_fgets PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(fastype-icu_ustdio icu_ustdio.cpp)
+target_include_directories(fastype-icu_ustdio PRIVATE ${F_INC})
+target_link_libraries(fastype-icu_ustdio debug ${F_LIBD})
+target_link_libraries(fastype-icu_ustdio optimized ${F_LIB})
+set_target_properties(fastype-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
