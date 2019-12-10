@@ -15,7 +15,7 @@
 int writeFile(const icu::UnicodeString &fileName,
               const icu::UnicodeString &text, const char *locale = nullptr,
               const char *codepage = "UTF-8") {
-  UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
+  UFILE *fp = u_fopen_u(fileName.getBuffer(), "w", locale, codepage);
   assert(fp);
   int n = u_file_write(text.getBuffer(), text.length(), fp);
   u_fclose(fp);
