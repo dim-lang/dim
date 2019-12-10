@@ -45,7 +45,7 @@ icu::UnicodeString readFile(const icu::UnicodeString &fileName,
   return ret;
 }
 
-void getString(const icu::UicodeString &fileName) {
+void getString(const icu::UnicodeString &fileName) {
   UFILE *fp;
   fp = u_fopen_u(fileName.getBuffer(), "r", nullptr, "UTF-8");
   assert(fp);
