@@ -10,7 +10,7 @@ core
 # cmake
 /release
 /debug
-/windows
+/msvc
 
 # log
 *.log
