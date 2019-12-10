@@ -69,10 +69,12 @@ void getString(const icu::UnicodeString &fileName) {
 }
 
 int main(int argc, char *argv[]) {
-  icu::UnicodeString text =
-      UNICODE_STRING_SIMPLE("Hello World, Goodbye World, This world is so "
-                            "beautiful, I love it so much.\nI need a very long "
-                            "string to test ICU4C library.\n");
+  icu::UnicodeString text = UNICODE_STRING_SIMPLE(
+      "Hello World, Goodbye World, This world is so "
+      "beautiful, I love it so much.\nI need a very long "
+      "string to test ICU4C library.\nAnd ICU4C stdio api is also "
+      "needed.\nfgets function is really helpful to read data line by line, "
+      "and file_read/file_write can read/write text into whole file.\n");
   writeFile(UNICODE_STRING_SIMPLE("icu_ustdio_write.log"), text);
   icu::UnicodeString text2 =
       readFile(UNICODE_STRING_SIMPLE("icu_ustdio_write.log"));
