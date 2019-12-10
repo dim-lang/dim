@@ -16,8 +16,9 @@ TEST_CASE("Filer", "[Filer]") {
         "text with the original text.\n"
         "For convenience, our test cases do not compare substring, but only "
         "the whole text.\n");
-    REQUIRE(fastype::Filer::writeAll(UNICODE_STRING_SIMPLE("FilerTest1.log"),
-                                     text) == text.length());
+    int n =
+        fastype::Filer::writeAll(UNICODE_STRING_SIMPLE("FilerTest1.log"), text);
+    REQUIRE(n == text.length());
     icu::UnicodeString text2 =
         fastype::Filer::readAll(UNICODE_STRING_SIMPLE("FilerTest1.log"));
     REQUIRE(text.length() == text2.length());
