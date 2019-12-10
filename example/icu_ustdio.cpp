@@ -77,6 +77,6 @@ int main(int argc, char *argv[]) {
   icu::UnicodeString text2 =
       readFile(UNICODE_STRING_SIMPLE("icu_ustdio_write.log"));
   assert((int)text.compare(text2) == 0);
-  getString("icu_ustdio_write.log");
+  getString(UNICODE_STRING_SIMPLE("icu_ustdio_write.log"));
   return 0;
 }
