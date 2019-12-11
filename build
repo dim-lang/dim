@@ -44,11 +44,11 @@ function init_pacman() {
 
 function init_zypper() {
     sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
-    sudo zypper install -y gcc gcc-c++ make cmake automake autoconf
+    sudo zypper install -y gcc-32bit gcc-c++-32bit make cmake automake autoconf
     echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel, ncurses-utils
-    sudo zypper install -y libboost*-devel libicu-devel gperftools-devel ncurses-devel ncurses-utils
-    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel, ncurses-utils - done
+    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel
+    sudo zypper install -y libboost*-devel libboost*-32bit libicu-devel-32bit gperftools-devel ncurses-devel-32bit
+    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel - done
 }
 
 function init_linux() {
