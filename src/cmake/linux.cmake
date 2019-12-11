@@ -13,16 +13,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 find_package(Threads REQUIRED)
-
-message(CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR})
-message(CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR})
-message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
-message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
-message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
+find_package(Curses REQUIRED)
 
 set(F_INC
     .
     Threads::Threads
+    ${CURSES_INCLUDE_DIR}
     spdlog/include
     fmt/include
     /usr/include
@@ -30,6 +26,7 @@ set(F_INC
     )
 set(F_LIB
     Threads::Threads
+    ${CURSES_LIBRARIES}
     ncurses
     panel
     boost_program_options
@@ -41,6 +38,7 @@ set(F_LIB
     tcmalloc
     )
 set(F_LIB_DIR
+    ${CURSES_LIBRARY_DIRS}
     /usr/lib
     /usr/lib/x86_64-linux-gnu
     )
