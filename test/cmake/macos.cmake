@@ -13,13 +13,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 find_package(Threads REQUIRED)
-find_package(Curses REQUIRED)
 
 set(F_INC
     .
     ../src
     Threads::Threads
-    ${CURSES_INCLUDE_DIR}
+    /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
@@ -29,7 +28,7 @@ set(F_INC
     )
 set(F_LIB
     Threads::Threads
-    ${CURSES_LIBRARIES}
+    ncurses
     panel
     fmt
     boost_program_options-mt
@@ -43,7 +42,7 @@ set(F_LIB
 set(F_LIB_DIR
     .
     ../src
-    ${CURSES_LIBRARY_DIRS}
+    /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
