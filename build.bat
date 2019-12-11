@@ -60,7 +60,7 @@ if not exist %ROOT%\src\boost (
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c .\bootstrap.bat
-    cmd /c .\b2 toolset=msvc-14.1 link=static threading=multi runtime-link=shared --build-type=complete stage
+    cmd /c .\b2 link=static threading=multi runtime-link=shared --build-type=complete stage
 )
 echo [fastype] prepare boostorg/boost boost-1.70.0 - done
 
