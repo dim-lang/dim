@@ -26,7 +26,6 @@ set(F_INC
 set(F_LIB
     Threads::Threads
     ${CURSES_LIBRARIES}
-    ncurses
     panel
     boost_program_options
     boost_system
