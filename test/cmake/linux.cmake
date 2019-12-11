@@ -21,6 +21,7 @@ set(F_INC
     Threads::Threads
     ${CURSES_INCLUDE_DIR}
     /usr/include
+    /usr/include/ncurses
     /usr/include/x86_64-linux-gnu
     ../src/spdlog/include
     ../src/fmt/include

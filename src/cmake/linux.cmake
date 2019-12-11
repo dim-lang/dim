@@ -26,6 +26,7 @@ set(F_INC
     spdlog/include
     fmt/include
     /usr/include
+    /usr/include/ncurses
     /usr/include/x86_64-linux-gnu
     )
 set(F_LIB
