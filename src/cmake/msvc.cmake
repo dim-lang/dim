@@ -23,8 +23,8 @@ set(F_INC
     icu/icu4c/include
     )
 set(F_LIB
-    libboost_program_options-vc141-mt-x64-1_70.lib
-    libboost_system-vc141-mt-x64-1_70.lib
+    libboost_program_options-vc141-mt-x32-1_70.lib
+    libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
     icuin.lib
     icuio.lib
@@ -32,8 +32,8 @@ set(F_LIB
     icuuc.lib
     )
 set(F_LIBD
-    libboost_program_options-vc141-mt-gd-x64-1_70.lib
-    libboost_system-vc141-mt-gd-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x32-1_70.lib
+    libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
     icuind.lib
     icuiod.lib
@@ -42,7 +42,7 @@ set(F_LIBD
     )
 set(F_LIB_DIR
     boost/stage/lib
-    icu/icu4c/lib64
+    icu/icu4c/lib
     )
 
 set(F_CORE

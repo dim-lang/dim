@@ -16,8 +16,8 @@ set(F_INC
     )
 
 set(F_LIB
-    libboost_program_options-vc141-mt-x64-1_70.lib
-    libboost_system-vc141-mt-x64-1_70.lib
+    libboost_program_options-vc141-mt-x32-1_70.lib
+    libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
     icuin.lib
     icuio.lib
@@ -26,8 +26,8 @@ set(F_LIB
     )
 
 set(F_LIBD
-    libboost_program_options-vc141-mt-gd-x64-1_70.lib
-    libboost_system-vc141-mt-gd-x64-1_70.lib
+    libboost_program_options-vc141-mt-gd-x32-1_70.lib
+    libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
     icuind.lib
     icuiod.lib
@@ -37,7 +37,7 @@ set(F_LIBD
 
 set(F_LIB_DIR
     ../src/boost/stage/lib
-    ../src/icu/icu4c/lib64
+    ../src/icu/icu4c/lib
     )
 
 add_definitions(-DFMT_HEADER_ONLY)

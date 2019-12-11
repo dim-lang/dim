@@ -60,7 +60,7 @@ if not exist %ROOT%\src\boost (
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c .\bootstrap.bat
-    cmd /c .\b2 toolset=msvc-14.1 address-model=64 architecture=x86 link=static threading=multi runtime-link=shared --build-type=complete stage
+    cmd /c .\b2 toolset=msvc-14.1 link=static threading=multi runtime-link=shared --build-type=complete stage
 )
 echo [fastype] prepare boostorg/boost boost-1.70.0 - done
 
@@ -68,13 +68,13 @@ echo [fastype] prepare msvc project
 set RELEASE=msvc
 cd %ROOT%
 if not exist %RELEASE% md %RELEASE%
-cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 --config Release .. && cd %ROOT%
+cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [fastype] prepare msvc project - done
 
 echo [fastype] 1. please manually build `icu4c` library:
 echo [fastype]      $ mv %ROOT%\src\icu \
 echo [fastype]      $ cd \
 echo [fastype]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
-echo [fastype]    build `icu4c` library with option `Debug x64` and `Release x64`, then move `\icu` library to `%ROOT%\src`
+echo [fastype]    build `icu4c` library with option `Debug Win32` and `Release Win32`, then move `\icu` library to `%ROOT%\src`
 echo [fastype]      $ mv \icu %ROOT%\src
-echo [fastype] 2. please manually build msvc project `%DEBUG%\fastype-parent.sln` with `Debug x64`, `%RELEASE%\fastype-parent.sln` with `Release x64`
+echo [fastype] 2. please manually build msvc project `%DEBUG%\fastype-parent.sln` with `Debug Win32`, `%RELEASE%\fastype-parent.sln` with `Release Win32`
