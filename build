@@ -179,6 +179,7 @@ if [ "$1" = "init" ]; then
     case "$OSTYPE" in
       darwin*)  init_macos ;;
       linux*)   init_linux ;;
+      bsd*)     init_bsd ;;
       *)        ;;
     esac
     exit 0
