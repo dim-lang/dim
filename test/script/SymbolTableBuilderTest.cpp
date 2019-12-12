@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "script/Interpreter.h"
+#include "script/SymbolTableBuilder.h"
 #include "Filer.h"
 #include "Logging.h"
 #include "catch2/catch.hpp"
@@ -10,24 +10,24 @@
 #include <cstring>
 #include <string>
 
-TEST_CASE("Interpreter", "[Interpreter]") {
-  SECTION("Interpret InterpreterTest1.fast") {
+TEST_CASE("SymbolTableBuilder", "[SymbolTableBuilder]") {
+  SECTION("SymbolTableBuilder InterpreterTest1.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
         UNICODE_STRING_SIMPLE("test/script/InterpreterTest1.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
-    std::shared_ptr<fastype::Interpreter> interpreter(
-        new fastype::Interpreter(parser));
+    std::shared_ptr<fastype::SymbolTableBuilder> interpreter(
+        new fastype::SymbolTableBuilder(parser));
     interpreter->interpret();
     F_INFO_MSG(interpreter->toString());
   }
-  SECTION("Interpret InterpreterTest2.fast") {
+  SECTION("SymbolTableBuilder InterpreterTest2.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
         UNICODE_STRING_SIMPLE("test/script/InterpreterTest2.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
-    std::shared_ptr<fastype::Interpreter> interpreter(
-        new fastype::Interpreter(parser));
+    std::shared_ptr<fastype::SymbolTableBuilder> interpreter(
+        new fastype::SymbolTableBuilder(parser));
     interpreter->interpret();
     F_INFO_MSG(interpreter->toString());
   }

@@ -8,7 +8,6 @@
 #include "script/Symbol.h"
 #include <memory>
 #include <unordered_map>
-#include <vector>
 
 namespace fastype {
 

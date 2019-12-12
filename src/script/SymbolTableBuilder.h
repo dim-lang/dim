@@ -6,17 +6,20 @@
 #include "Stringify.h"
 #include "config/Header.h"
 #include "script/NodeVisitor.h"
-#include "script/Parser.h"
+#include "script/Symbol.h"
+#include "script/SymbolTable.h"
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
 namespace fastype {
 
-class Interpreter : public NodeVisitor {
+class SymbolTableBuilder : public NodeVisitor {
 public:
-  Interpreter(std::shared_ptr<Parser> parser);
-  virtual ~Interpreter();
-  virtual void interpret();
-  virtual std::string toString() const;
+  SymbolTableBuilder();
+  virtual ~SymbolTableBuilder() = default;
+  virtual void travel();
+  virtual std::string toString() const = 0;
 
 private:
   virtual void visit(std::shared_ptr<Ast> node);
@@ -38,9 +41,7 @@ private:
   virtual std::shared_ptr<Ast> visitUnaryOp(std::shared_ptr<Ast> node);
   virtual std::shared_ptr<Ast> visitVariable(std::shared_ptr<Ast> node);
 
-  std::shared_ptr<Ast> tree_;
-  std::shared_ptr<Parser> parser_;
-  std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;
+  SymbolTable symbolTable_;
 };
 
 } // namespace fastype
