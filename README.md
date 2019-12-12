@@ -20,9 +20,11 @@ Download fastype source code from github and build mannually.
 |  Platform  |  Manually Installed Dependencies                                  |
 |------------|-------------------------------------------------------------------|
 |  MacOSX    | Xcode, git, homebrew                                              |
+|  *BSD      | pkg, bash, git                                                    |
 |  Manjaro   | git                                                               |
 |  Fedora    | git                                                               |
 |  Ubuntu    | git                                                               |
+|  OpenSUSE  | git                                                               |
 |  Windows   | Visual Studio 2017, cmake, git, python3                           |
 
 #### Build

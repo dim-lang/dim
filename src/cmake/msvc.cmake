@@ -15,14 +15,15 @@ message(CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH})
 message(CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 message(CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE})
 
-set(F_INC
+set(FINC
     .
     spdlog/include
     fmt/include
     boost
     icu/icu4c/include
     )
-set(F_LIB
+
+set(FLIB
     libboost_program_options-vc141-mt-x32-1_70.lib
     libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
@@ -31,7 +32,8 @@ set(F_LIB
     icutu.lib
     icuuc.lib
     )
-set(F_LIBD
+
+set(FLIBD
     libboost_program_options-vc141-mt-gd-x32-1_70.lib
     libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
@@ -40,101 +42,33 @@ set(F_LIBD
     icutud.lib
     icuucd.lib
     )
-set(F_LIB_DIR
+
+set(FLIB_DIR
     boost/stage/lib
     icu/icu4c/lib
     )
 
-set(F_CORE
-    Logging.cpp
-    Term.cpp
-    Option.cpp
-    Timer.cpp
-    DateTime.cpp
-    Filer.cpp
-    Hasher.cpp
-    Line.cpp
-    Buffer.cpp
-    Cache.cpp
-    Random.cpp
-    Approximate.cpp
-    WinTerm.cpp
-
-    graph/Dot.cpp
-
-    view/Position.cpp
-    view/Area.cpp
-    #view/Window.cpp
-    view/Vec.cpp
-    #view/Cursor.cpp
-
-    controller/Key.cpp
-
-    event/Poll.cpp
-    event/EventLoopImpl.cpp
-    event/poll/Epoll.cpp
-    event/poll/Kqueue.cpp
-    event/poll/Select.cpp
-    event/poll/MswinSelect.cpp
-
-    script/Token.cpp
-    script/Lexer.cpp
-    script/Parser.cpp
-    script/Interpreter.cpp
-    script/Util.cpp
-    script/ast/BinaryOp.cpp
-    script/ast/UnaryOp.cpp
-    script/ast/IntegerConstant.cpp
-    script/ast/FloatingConstant.cpp
-    script/ast/StringConstant.cpp
-    script/ast/BooleanConstant.cpp
-    script/ast/IdentifierConstant.cpp
-    script/ast/AssignmentStatement.cpp
-    script/ast/CompoundStatement.cpp
-    script/ast/EmptyStatement.cpp
-    script/ast/StatementList.cpp
-    script/ast/VariableDeclaration.cpp
-    script/ast/Variable.cpp
-    script/ast/Program.cpp
-    script/token/AssignmentToken.cpp
-    script/token/BooleanToken.cpp
-    script/token/ComparatorToken.cpp
-    script/token/EofToken.cpp
-    script/token/FloatingToken.cpp
-    script/token/IdentifierToken.cpp
-    script/token/IntegerToken.cpp
-    script/token/OperatorToken.cpp
-    script/token/PunctuationToken.cpp
-    script/token/KeywordToken.cpp
-    script/token/StringToken.cpp
-    )
-set(F_SRC
-    fastype.cpp
-    )
-
-set(FD_SRC
-    fastyped.cpp
-    )
+include(./src.cmake)
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-include_directories(${F_INC})
-link_directories(${F_LIB_DIR})
+include_directories(${FINC})
+link_directories(${FLIB_DIR})
 
-add_library(fastypecore STATIC ${F_CORE})
-target_include_directories(fastypecore PRIVATE ${F_INC})
-target_link_libraries(fastypecore debug ${F_LIBD})
-target_link_libraries(fastypecore optimized ${F_LIB})
+add_library(fastypecore STATIC ${FCORE})
+target_include_directories(fastypecore PRIVATE ${FINC})
+#target_link_libraries(fastypecore debug ${FLIBD})
+target_link_libraries(fastypecore ${FLIB})
 set_target_properties(fastypecore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(fastype ${F_SRC})
-target_include_directories(fastype PRIVATE ${F_INC})
-target_link_libraries(fastype debug ${F_LIBD} fastypecore)
-target_link_libraries(fastype optimized ${F_LIB} fastypecore)
+add_executable(fastype ${FCLI})
+target_include_directories(fastype PRIVATE ${FINC})
+#target_link_libraries(fastype debug ${FLIBD} fastypecore)
+target_link_libraries(fastype ${FLIB} fastypecore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(fastyped ${FD_SRC})
-target_include_directories(fastyped PRIVATE ${F_INC})
-target_link_libraries(fastyped debug ${F_LIBD} fastypecore)
-target_link_libraries(fastyped optimized ${F_LIB} fastypecore)
+add_executable(fastyped ${FSRV})
+target_include_directories(fastyped PRIVATE ${FINC})
+#target_link_libraries(fastyped debug ${FLIBD} fastypecore)
+target_link_libraries(fastyped ${FLIB} fastypecore)
 set_target_properties(fastyped PROPERTIES VERSION ${PROJECT_VERSION})

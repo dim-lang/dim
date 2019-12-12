@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
-set(F_INC
+set(FINC
     .
     ../src
     ../src/spdlog/include
@@ -19,7 +19,7 @@ set(F_INC
     Catch2/single_include
     )
 
-set(F_LIB
+set(FLIB
     libboost_program_options-vc141-mt-x32-1_70.lib
     libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
@@ -29,7 +29,7 @@ set(F_LIB
     icuuc.lib
     )
 
-set(F_LIBD
+set(FLIBD
     libboost_program_options-vc141-mt-gd-x32-1_70.lib
     libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
@@ -39,37 +39,22 @@ set(F_LIBD
     icuucd.lib
     )
 
-set(F_LIB_DIR
+set(FLIB_DIR
     .
     ../src
     ../src/boost/stage/lib
     ../src/icu/icu4c/lib
     )
 
-set(T_SRC
-    MainTest.cpp
-    LoggingTest.cpp
-    LineTest.cpp
-    ConfigureTest.cpp
-    TimerTest.cpp
-    RandomTest.cpp
-    FilerTest.cpp
-    ApproximateTest.cpp
-
-    exception/NotFoundExceptionTest.cpp
-    script/TokenTest.cpp
-    script/LexerTest.cpp
-    script/ParserTest.cpp
-    script/InterpreterTest.cpp
-    )
+include(./tsrc.cmake)
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-include_directories(${F_INC})
-link_directories(${F_LIB_DIR})
+include_directories(${FINC})
+link_directories(${FLIB_DIR})
 
-add_executable(fastype-test ${T_SRC})
-target_include_directories(fastype-test PRIVATE ${F_INC})
-target_link_libraries(fastype-test debug ${F_LIBD} fastypecore)
-target_link_libraries(fastype-test optimized ${F_LIB} fastypecore)
+add_executable(fastype-test ${FTEST})
+target_include_directories(fastype-test PRIVATE ${FINC})
+#target_link_libraries(fastype-test debug ${FLIBD} fastypecore)
+target_link_libraries(fastype-test ${FLIB} fastypecore)
 set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})

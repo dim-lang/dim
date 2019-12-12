@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 find_package(Threads REQUIRED)
 find_package(Curses REQUIRED)
 
-set(F_INC
+set(FINC
     .
     ../src
     Threads::Threads
@@ -27,7 +27,8 @@ set(F_INC
     ../src/fmt/include
     Catch2/single_include
     )
-set(F_LIB
+
+set(FLIB
     Threads::Threads
     ${CURSES_LIBRARIES}
     panel
@@ -39,7 +40,8 @@ set(F_LIB
     icui18n
     tcmalloc
     )
-set(F_LIB_DIR
+
+set(FLIB_DIR
     .
     ../src
     ${CURSES_LIBRARY_DIRS}
@@ -47,29 +49,13 @@ set(F_LIB_DIR
     /usr/lib/x86_64-linux-gnu
     )
 
-set(T_SRC
-    MainTest.cpp
-    LoggingTest.cpp
-    LineTest.cpp
-    ConfigureTest.cpp
-    TimerTest.cpp
-    RandomTest.cpp
-    FilerTest.cpp
-    ApproximateTest.cpp
-
-    exception/NotFoundExceptionTest.cpp
-    script/TokenTest.cpp
-    script/LexerTest.cpp
-    script/ParserTest.cpp
-    script/InterpreterTest.cpp
-    )
-
+include(./tsrc.cmake)
 
 add_definitions(-DFMT_HEADER_ONLY)
-include_directories(${F_INC})
-link_directories(${F_LIB_DIR})
+include_directories(${FINC})
+link_directories(${FLIB_DIR})
 
-add_executable(fastype-test ${T_SRC})
-target_include_directories(fastype-test PRIVATE ${F_INC})
-target_link_libraries(fastype-test ${F_LIB} fastypecore)
+add_executable(fastype-test ${FTEST})
+target_include_directories(fastype-test PRIVATE ${FINC})
+target_link_libraries(fastype-test ${FLIB} fastypecore)
 set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})

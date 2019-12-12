@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 find_package(Threads REQUIRED)
 
-set(F_INC
+set(FINC
     Threads::Threads
     /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
@@ -22,7 +22,7 @@ set(F_INC
     /usr/local/opt/icu4c/include
     /usr/local/opt/catch2/include
     )
-set(F_LIB
+set(FLIB
     Threads::Threads
     ncurses
     panel
@@ -35,7 +35,7 @@ set(F_LIB
     icui18n
     tcmalloc
     )
-set(F_LIB_DIR
+set(FLIB_DIR
     .
     /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
@@ -45,20 +45,20 @@ set(F_LIB_DIR
     /usr/local/opt/gperftools/lib
     )
 
-include_directories(${F_INC})
-link_directories(${F_LIB_DIR})
+include_directories(${FINC})
+link_directories(${FLIB_DIR})
 
 add_executable(fastype-ncurses_Panel ncurses_Panel.cpp)
-target_include_directories(fastype-ncurses_Panel PRIVATE ${F_INC})
-target_link_libraries(fastype-ncurses_Panel ${F_LIB})
+target_include_directories(fastype-ncurses_Panel PRIVATE ${FINC})
+target_link_libraries(fastype-ncurses_Panel ${FLIB})
 set_target_properties(fastype-ncurses_Panel PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastype-ncurses_Term ncurses_Term.cpp)
-target_include_directories(fastype-ncurses_Term PRIVATE ${F_INC})
-target_link_libraries(fastype-ncurses_Term ${F_LIB})
+target_include_directories(fastype-ncurses_Term PRIVATE ${FINC})
+target_link_libraries(fastype-ncurses_Term ${FLIB})
 set_target_properties(fastype-ncurses_Term PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastype-icu_ustdio icu_ustdio.cpp)
-target_include_directories(fastype-icu_ustdio PRIVATE ${F_INC})
-target_link_libraries(fastype-icu_ustdio ${F_LIB})
+target_include_directories(fastype-icu_ustdio PRIVATE ${FINC})
+target_link_libraries(fastype-icu_ustdio ${FLIB})
 set_target_properties(fastype-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

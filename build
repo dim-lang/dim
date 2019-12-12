@@ -7,48 +7,57 @@
 ROOT=`pwd`
 
 function init_macos() {
-    echo [fastype] prepare compiler and toolchain for macOS
+    echo [fastype] prepare compiler and toolchain through homebrew
     brew install cmake automake autoconf
-    echo [fastype] prepare compiler and toolchain for macOS - done
-    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew
+    echo [fastype] prepare compiler and toolchain through homebrew - done
+    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses through homebrew
     brew install spdlog fmt boost icu4c gperftools ncurses
-    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses via homebrew - done
+    echo [fastype] prepare spdlog, fmt, boost, icu4c, gperftools, ncurses through homebrew - done
+}
+
+function init_bsd() {
+    sudo echo [fastype] prepare compiler and toolchain through pkg || { echo [fastype] sudo not found; exit 3; }
+    sudo pkg install clang cmake automake autoconf
+    echo [fastype] prepare compiler and toolchain through pkg - done
+    echo [fastype] prepare spdlog, libfmt, boost-all, icu, ncurses through pkg
+    sudo pkg install spdlog libfmt boost-all icu ncurses
+    echo [fastype] prepare spdlog, libfmt, boost-all, icu, ncurses through pkg - done
 }
 
 function init_apt() {
-    sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
+    sudo echo [fastype] prepare compiler and toolchain through apt || { echo [fastype] sudo not found; exit 3; }
     sudo apt-get install -y gcc g++ make cmake automake autoconf
-    echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev
+    echo [fastype] prepare compiler and toolchain through apt - done
+    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev through apt
     sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
-    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev - done
+    echo [fastype] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev through apt - done
 }
 
 function init_dnf() {
-    sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
+    sudo echo [fastype] prepare compiler and toolchain through dnf || { echo [fastype] sudo not found; exit 3; }
     sudo dnf install -y gcc g++ make cmake automake autoconf
-    echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel
+    echo [fastype] prepare compiler and toolchain through dnf - done
+    echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel through dnf
     sudo dnf install -y boost-devel libicu-devel gperftools-devel ncurses-devel
-    echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel - done
+    echo [fastype] prepare boost-devel, libicu-devel, gperftools-devel, ncurses-devel through dnf - done
 }
 
 function init_pacman() {
-    sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
+    sudo echo [fastype] prepare compiler and toolchain through pacman || { echo [fastype] sudo not found; exit 3; }
     yes | sudo pacman -S gcc make cmake automake autoconf
-    echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare boost, icu, gperftools, ncurses
+    echo [fastype] prepare compiler and toolchain through pacman - done
+    echo [fastype] prepare boost, icu, gperftools, ncurses through pacman
     yes | sudo pacman -S boost icu gperftools ncurses
-    echo [fastype] prepare boost, icu, gperftools, ncurses - done
+    echo [fastype] prepare boost, icu, gperftools, ncurses through pacman - done
 }
 
 function init_zypper() {
-    sudo echo [fastype] prepare compiler and toolchain || { echo [fastype] sudo not found; exit 3; }
+    sudo echo [fastype] prepare compiler and toolchain through zypper || { echo [fastype] sudo not found; exit 3; }
     sudo zypper install -y gcc gcc-c++ gcc-32bit gcc-c++-32bit make cmake automake autoconf
-    echo [fastype] prepare compiler and toolchain - done
-    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel
+    echo [fastype] prepare compiler and toolchain through zypper - done
+    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel through zypper
     sudo zypper install -y libboost*-devel libboost*-32bit libicu-devel libicu-devel-32bit gperftools-devel ncurses-devel ncurses-devel-32bit
-    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel - done
+    echo [fastype] prepare libboost-devel, libicu-devel, gperftools-devel, ncurses-devel through zypper - done
 }
 
 function init_linux() {

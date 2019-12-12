@@ -6,6 +6,8 @@ project(fastype VERSION 0.1.0 LANGUAGES CXX)
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
+set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER clang++)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -13,50 +15,45 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 find_package(Threads REQUIRED)
 find_package(Curses REQUIRED)
 
-set(F_INC
+set(FINC
     .
     ../src
+    Threads::Threads
     ${CURSES_INCLUDE_DIR}
+    /usr/include
+    /usr/local/include
     ../src/spdlog/include
     ../src/fmt/include
-    ../src/boost
-    ../src/icu/icu4c/source
     Catch2/single_include
     )
 
-set(F_LIB
-    ${CURSES_LIBRARIES}
+set(FLIB
     Threads::Threads
+    ${CURSES_LIBRARIES}
+    panel
+    boost_program_options
+    boost_system
+    icuuc
+    icuio
+    icudata
+    icui18n
     )
 
-set(F_LIB_DIR
+set(FLIB_DIR
     .
-    ..
     ../src
     ${CURSES_LIBRARY_DIRS}
+    /usr/lib
+    /usr/local/lib
     )
 
-set(T_SRC
-    MainTest.cpp
-    LoggingTest.cpp
-    LineTest.cpp
-    ConfigureTest.cpp
-    TimerTest.cpp
-    RandomTest.cpp
-    FilerTest.cpp
-    ApproximateTest.cpp
+include(./tsrc.cmake)
 
-    exception/NotFoundExceptionTest.cpp
-    script/TokenTest.cpp
-    script/LexerTest.cpp
-    script/ParserTest.cpp
-    script/InterpreterTest.cpp
-    )
+add_definitions(-DFMT_HEADER_ONLY)
+include_directories(${FINC})
+link_directories(${FLIB_DIR})
 
-include_directories(${F_INC})
-link_directories(${F_LIB_DIR})
-
-add_executable(fastype-test ${T_SRC})
-target_include_directories(fastype-test PRIVATE ${F_INC})
-target_link_libraries(fastype-test ${F_LIB} fastypecore)
+add_executable(fastype-test ${FTEST})
+target_include_directories(fastype-test PRIVATE ${FINC})
+target_link_libraries(fastype-test ${FLIB} fastypecore)
 set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})
