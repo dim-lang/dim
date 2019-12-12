@@ -129,7 +129,7 @@ function build_debug() {
       solaris*) echo "[fastype] Solaris Not Support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
-      bsd*)     ;;
+      *bsd*)    ;;
       *)        echo "[fastype] Unknown OS: $FOS!" && exit 3 ;;
     esac
     echo [fastype] prepare for $FOS
@@ -147,7 +147,7 @@ function build_release() {
       solaris*) echo "[fastype] Solaris Not Support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
-      bsd*)     ;;
+      *bsd*)    ;;
       *)        echo "[fastype] Unknown OS: $FOS!" && exit 3 ;;
     esac
     echo [fastype] prepare for $FOS
@@ -180,7 +180,7 @@ if [ "$1" = "init" ]; then
     case "$FOS" in
       darwin*)  init_macos ;;
       linux*)   init_linux ;;
-      bsd*)     init_bsd ;;
+      *bsd*)    init_bsd ;;
       *)        ;;
     esac
     exit 0
