@@ -1,6 +1,10 @@
 # Copyright 2019- <fastype.org>
 # Apache License Version 2.0
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
 if (WIN32)
     include(cmake/msvc.cmake)
 elseif (APPLE)
