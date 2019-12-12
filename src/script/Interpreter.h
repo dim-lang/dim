@@ -5,12 +5,13 @@
 #include "Hasher.h"
 #include "Stringify.h"
 #include "config/Header.h"
+#include "script/NodeVisitor.h"
 #include "script/Parser.h"
 #include <unordered_map>
 
 namespace fastype {
 
-class Interpreter : public Stringify {
+class Interpreter : public NodeVisitor {
 public:
   Interpreter(std::shared_ptr<Parser> parser);
   virtual ~Interpreter();
