@@ -67,7 +67,7 @@ set(FCORE
 
 if (WIN32) 
     set(FCORE ${FCORE} WinTerm.cpp)
-else (WIN32)
+else ()
     set(FCORE ${FCORE} CursesTerm.cpp)
 endif (WIN32)
 
