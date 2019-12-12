@@ -1,6 +1,8 @@
 # Copyright 2019- <fastype.org>
 # Apache License Version 2.0
 
+include(cmake/src.cmake)
+
 if (WIN32)
     include(cmake/msvc.cmake)
 elseif (APPLE)

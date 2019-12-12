@@ -52,8 +52,6 @@ set(FLIB_DIR
     /usr/local/opt/gperftools/lib
     )
 
-include(./tsrc.cmake)
-
 include_directories(${FINC})
 link_directories(${FLIB_DIR})
 

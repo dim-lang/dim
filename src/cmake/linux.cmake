@@ -47,8 +47,6 @@ set(FLIB_DIR
     /usr/lib/x86_64-linux-gnu
     )
 
-include (./src.cmake)
-
 add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${FINC})
 link_directories(${FLIB_DIR})

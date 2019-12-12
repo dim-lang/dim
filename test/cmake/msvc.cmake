@@ -46,8 +46,6 @@ set(FLIB_DIR
     ../src/icu/icu4c/lib
     )
 
-include(./tsrc.cmake)
-
 add_definitions(-DFMT_HEADER_ONLY)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 include_directories(${FINC})

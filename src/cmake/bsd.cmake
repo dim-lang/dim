@@ -43,8 +43,6 @@ set(FLIB_DIR
     /usr/local/lib
     )
 
-include(./src.cmake)
-
 add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${FINC})
 link_directories(${FLIB_DIR})
