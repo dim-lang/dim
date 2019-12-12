@@ -18,7 +18,7 @@ function init_macos() {
 
 function init_bsd() {
     sudo echo [fastype] prepare compiler and toolchain through pkg || { echo [fastype] sudo not found; exit 3; }
-    sudo pkg install clang cmake automake autoconf
+    sudo pkg install cmake automake autoconf
     echo [fastype] prepare compiler and toolchain through pkg - done
     echo [fastype] prepare spdlog, libfmt, boost-all, icu, ncurses through pkg
     sudo pkg install spdlog libfmt boost-all icu ncurses
