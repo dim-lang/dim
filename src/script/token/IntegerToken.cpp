@@ -15,8 +15,9 @@ bool IntegerToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string IntegerToken::toString() const {
+  std::string _1;
   return fmt::format("[ @IntegerToken id_:{}, type_:{}, value_:{} ]", id_,
-                     Token::tokenTypeName(type_), value_);
+                     Token::tokenTypeName(type_).toUTF8String(_1), value_);
 }
 
 } // namespace fastype

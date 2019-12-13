@@ -15,8 +15,9 @@ bool FloatingToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string FloatingToken::toString() const {
+  std::string _1;
   return fmt::format("[ @FloatingToken id_:{}, type_:{}, value_:{} ]", id_,
-                     Token::tokenTypeName(type_), value_);
+                     Token::tokenTypeName(type_).toUTF8String(_1), value_);
 }
 
 } // namespace fastype
