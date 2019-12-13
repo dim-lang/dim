@@ -17,7 +17,7 @@ class Token : public Stringify {
 public:
   // token type
   enum TokenType {
-    TT_EOF,         // end of file
+    TT_EOF = 1,     // end of file
     TT_INTEGER,     // integer number
     TT_FLOATING,    // floating number
     TT_OPERATOR,    // operator: + - * / % ++ --

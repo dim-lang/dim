@@ -11,7 +11,7 @@ namespace fastype {
 class Ast : public Stringify {
 public:
   enum AstType {
-    PROGRAM,
+    PROGRAM = 1,
     STATEMENT_LIST,
     DECLARATION,
     STATEMENT,
