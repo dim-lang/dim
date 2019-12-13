@@ -14,12 +14,13 @@
 #include "script/token/KeywordToken.h"
 #include "script/token/OperatorToken.h"
 #include "script/token/PunctuationToken.h"
+#include <atomic>
 #include <fmt/format.h>
 
 namespace fastype {
 
 const std::vector<Token::TokenType> &Token::tokenTypes() {
-  const static std::vector<Token::TokenType> types = {
+  static const std::vector<Token::TokenType> types = {
       Token::TokenType::TT_EOF,         Token::TokenType::TT_INTEGER,
       Token::TokenType::TT_FLOATING,    Token::TokenType::TT_OPERATOR,
       Token::TokenType::TT_COMPARATOR,  Token::TokenType::TT_ASSIGNMENT,
@@ -235,7 +236,7 @@ const std::vector<std::shared_ptr<Token>> &Token::eofs() {
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::operators() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_ADD,       Token::T_SUB,       Token::T_MUL,
       Token::T_DIV,       Token::T_MOD,       Token::T_NOT,
       Token::T_INC,       Token::T_DEC,       Token::T_ADDASSIGN,
@@ -246,14 +247,14 @@ const std::vector<std::shared_ptr<Token>> &Token::operators() {
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::assignments() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_ASSIGNMENT,
   };
   return types;
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::comparators() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_EQ, Token::T_NEQ, Token::T_LT,
       Token::T_LE, Token::T_GT,  Token::T_GE,
   };
@@ -261,7 +262,7 @@ const std::vector<std::shared_ptr<Token>> &Token::comparators() {
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::booleans() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_TRUE,
       Token::T_FALSE,
   };
@@ -269,7 +270,7 @@ const std::vector<std::shared_ptr<Token>> &Token::booleans() {
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::punctuations() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_LP,       Token::T_RP,     Token::T_LBRACKET, Token::T_RBRACKET,
       Token::T_LBRACE,   Token::T_RBRACE, Token::T_COMMA,    Token::T_SEMI,
       Token::T_QUESTION, Token::T_COLON,
@@ -278,7 +279,7 @@ const std::vector<std::shared_ptr<Token>> &Token::punctuations() {
 }
 
 const std::vector<std::shared_ptr<Token>> &Token::keywords() {
-  const static std::vector<std::shared_ptr<Token>> types = {
+  static const std::vector<std::shared_ptr<Token>> types = {
       Token::T_LET,        Token::T_NULL,   Token::T_IF,     Token::T_ELSEIF,
       Token::T_ELSE,       Token::T_FOR,    Token::T_WHILE,  Token::T_BREAK,
       Token::T_CONTINUE,   Token::T_FUNC,   Token::T_CLASS,  Token::T_TYPE,
@@ -287,7 +288,7 @@ const std::vector<std::shared_ptr<Token>> &Token::keywords() {
   return types;
 }
 
-static long long TokenId = 0LL;
+static std::atomic_int64_t TokenId(0LL);
 
 Token::Token(Token::TokenType type) : type_(type), id_(TokenId++) {}
 

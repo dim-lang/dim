@@ -17,18 +17,18 @@ class Token : public Stringify {
 public:
   // token type
   enum TokenType {
-    TT_EOF = 1,         // end of file
-    TT_INTEGER = 2,     // integer number
-    TT_FLOATING = 3,    // floating number
-    TT_OPERATOR = 4,    // operator: + - * / % ++ --
-    TT_COMPARATOR = 5,  // comparator: == != < <= > >=
-    TT_ASSIGNMENT = 6,  // assignment: =
-    TT_BOOLEAN = 7,     // boolean: True False
-    TT_IDENTIFIER = 8,  // identifier
-    TT_PUNCTUATION = 9, // punctuation
-    TT_KEYWORD = 10,    // keyword: let null for if elseif else
-                        //          while break continue func class
-    TT_STRING = 11,     // string
+    TT_EOF,         // end of file
+    TT_INTEGER,     // integer number
+    TT_FLOATING,    // floating number
+    TT_OPERATOR,    // operator: + - * / % ++ --
+    TT_COMPARATOR,  // comparator: == != < <= > >=
+    TT_ASSIGNMENT,  // assignment: =
+    TT_BOOLEAN,     // boolean: True False
+    TT_IDENTIFIER,  // identifier
+    TT_PUNCTUATION, // punctuation
+    TT_KEYWORD,     // keyword: let null for if elseif else
+                    //          while break continue func class
+    TT_STRING,      // string
   };
 
   static const std::vector<TokenType> &tokenTypes();
@@ -140,7 +140,7 @@ public:
 
 protected:
   TokenType type_;
-  long long id_;
+  int64_t id_;
 };
 
 } // namespace fastype

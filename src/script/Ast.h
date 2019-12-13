@@ -11,7 +11,7 @@ namespace fastype {
 class Ast : public Stringify {
 public:
   enum AstType {
-    PROGRAM = 1,
+    PROGRAM,
     STATEMENT_LIST,
     DECLARATION,
     STATEMENT,
@@ -31,7 +31,11 @@ public:
     STRING_CONSTANT,
   };
 
-  static icu::UnicodeString astTypeName();
+  static const std::vector<AstType> &astTypes();
+  static int astTypeValue(AstType t);
+  static icu::UnicodeString astTypeName(AstType t);
+  static AstType astTypeFromValue(int value);
+  static AstType astTypeFromName(const icu::UnicodeString &name);
 
   virtual ~Ast() = default;
   virtual AstType type() const = 0;
