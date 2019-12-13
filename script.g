@@ -11,7 +11,7 @@ declaration :   variable_declaration
             |   function_declaration
             ;
 
-variable_declaration:   'let' variable '=' expression (',' variable '=' expression)* ';'
+variable_declaration:   'let' variable (':' IDENTIFIER)? '=' expression ';'
                     ;
 
 function_declaration:   'func' IDENTIFIER '(' variable (',' variable)* ')' compound_statement

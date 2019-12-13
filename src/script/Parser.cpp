@@ -108,28 +108,13 @@ std::shared_ptr<Ast> Parser::parseStatementList() {
 }
 
 std::shared_ptr<Ast> Parser::parseVariableDeclaration() {
-  std::vector<std::shared_ptr<Ast>> nodes;
-
-  // first
   eat(Token::T_LET);
   std::shared_ptr<Ast> var = parseVariable();
   eat(Token::T_ASSIGNMENT);
   std::shared_ptr<Ast> expr = parseExpression();
-  nodes.push_back(std::shared_ptr<Ast>(new AssignmentStatement(var, expr)));
-
-  // others
-  while (token_ == Token::T_COMMA) {
-    eat(Token::T_COMMA);
-    std::shared_ptr<Ast> var = parseVariable();
-    eat(Token::T_ASSIGNMENT);
-    std::shared_ptr<Ast> expr = parseExpression();
-    nodes.push_back(std::shared_ptr<Ast>(new AssignmentStatement(var, expr)));
-  }
-
-  // finish
   eat(Token::T_SEMI);
-
-  std::shared_ptr<Ast> r = std::shared_ptr<Ast>(new VariableDeclaration(nodes));
+  std::shared_ptr<Ast> r =
+      std::shared_ptr<Ast>(new VariableDeclaration(var, expr));
   F_CHECK(r, "r {} not null", (void *)r.get());
   return r;
 }

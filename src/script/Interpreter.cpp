@@ -86,10 +86,9 @@ void Interpreter::visitStatementList(std::shared_ptr<Ast> node) {
 void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
   std::shared_ptr<VariableDeclaration> e =
       std::static_pointer_cast<VariableDeclaration>(node);
-  for (int i = 0; i < e->size(); i++) {
-    std::shared_ptr<Ast> child = e->get(i);
-    visit(child);
-  }
+  std::shared_ptr<Variable> var = std::static_pointer_cast<Variable>(e->var());
+  std::shared_ptr<Ast> expr = e->expr();
+  globalScope_[var->value()] = visitExpression(expr);
 }
 
 void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {

@@ -5,20 +5,22 @@
 #include "Stringify.h"
 #include "config/Header.h"
 #include <memory>
-#include <vector>
 
 namespace fastype {
 
 class Symbol : public Stringify {
 public:
-  enum SymbolType {
-    BUILDIN = 1,
-    VARIABLE = 2,
-  };
+  const static icu::UnicodeString T_NONE;
+  const static icu::UnicodeString T_BUILTIN;
+  const static icu::UnicodeString T_VARIABLE;
+
+  const static std::shared_ptr<Symbol> S_NIL;
+  const static std::shared_ptr<Symbol> S_INTEGER;
+  const static std::shared_ptr<Symbol> S_FLOATING;
 
   virtual ~Symbol() = default;
   virtual const icu::UnicodeString &name() const = 0;
-  virtual SymbolType type() const = 0;
+  virtual const icu::UnicodeString &type() const = 0;
   virtual std::string toString() const = 0;
 };
 

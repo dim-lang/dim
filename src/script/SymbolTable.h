@@ -3,10 +3,7 @@
 
 #pragma once
 #include "Hasher.h"
-#include "Stringify.h"
-#include "config/Header.h"
 #include "script/Symbol.h"
-#include <memory>
 #include <unordered_map>
 
 namespace fastype {
@@ -17,6 +14,7 @@ public:
   virtual ~SymbolTable() = default;
   virtual void define(std::shared_ptr<Symbol> symbol);
   virtual std::shared_ptr<Symbol> lookup(const icu::UnicodeString &name) const;
+  virtual std::string toString() const;
 
 private:
   std::unordered_map<icu::UnicodeString, std::shared_ptr<Symbol>> symbols_;

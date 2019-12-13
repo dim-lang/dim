@@ -6,16 +6,18 @@
 
 namespace fastype {
 
-class BuiltinTypeSymbol : public Symbol {
+class VariableSymbol : public Symbol {
 public:
-  BuiltinTypeSymbol(const icu::UnicodeString &name);
-  virtual ~BuiltinTypeSymbol() = default;
+  VariableSymbol(const icu::UnicodeString &name,
+                 const icu::UnicodeString &type);
+  virtual ~VariableSymbol() = default;
   virtual const icu::UnicodeString &name() const;
   virtual const icu::UnicodeString &type() const;
   virtual std::string toString() const;
 
 private:
   icu::UnicodeString name_;
+  icu::UnicodeString type_;
 };
 
 } // namespace fastype

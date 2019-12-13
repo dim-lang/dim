@@ -2,28 +2,25 @@
 // Apache License Version 2.0
 
 #include "script/ast/VariableDeclaration.h"
-#include "script/Util.h"
 
 namespace fastype {
 
-VariableDeclaration::VariableDeclaration(
-    const std::vector<std::shared_ptr<Ast>> &children)
-    : children_(children) {}
+VariableDeclaration::VariableDeclaration(std::shared_ptr<Ast> var,
+                                         std::shared_ptr<Ast> expr)
+    : var_(var), expr_(expr) {}
 
-VariableDeclaration::~VariableDeclaration() { children_.clear(); }
+std::shared_ptr<Ast> VariableDeclaration::var() const { return var_; }
 
-int VariableDeclaration::size() const { return children_.size(); }
-
-std::shared_ptr<Ast> VariableDeclaration::get(int i) const {
-  return children_[i];
-}
+std::shared_ptr<Ast> VariableDeclaration::expr() const { return expr_; }
 
 std::string VariableDeclaration::toString() const {
-  return detail::astVectorToString(children_, "VariableDeclaration");
+  std::string _1 = var_ ? var_->toString() : "null";
+  std::string _2 = expr_ ? expr_->toString() : "null";
+  return fmt::format("[ @VariableDeclaration var_:{}, expr_:{} ]", _1, _2);
 }
 
 Ast::AstType VariableDeclaration::type() const {
-  return Ast::AstType::VARIABLE_DECLARATION;
+  return Ast::AstType::ASSIGNMENT_STATEMENT;
 }
 
 } // namespace fastype
