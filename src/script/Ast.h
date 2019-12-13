@@ -31,6 +31,8 @@ public:
     STRING_CONSTANT,
   };
 
+  static icu::UnicodeString astTypeName();
+
   virtual ~Ast() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;

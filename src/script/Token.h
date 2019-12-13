@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace fastype {
@@ -34,9 +33,9 @@ public:
 
   static const std::vector<TokenType> &tokenTypes();
   static int tokenTypeValue(TokenType tt);
-  static std::string tokenTypeName(TokenType tt);
+  static icu::UnicodeString tokenTypeName(TokenType tt);
   static TokenType tokenTypeFromValue(int value);
-  static TokenType tokenTypeFromName(const std::string &name);
+  static TokenType tokenTypeFromName(const icu::UnicodeString &name);
 
   // token constants
 

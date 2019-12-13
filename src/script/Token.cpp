@@ -58,30 +58,30 @@ int Token::tokenTypeValue(Token::TokenType tt) {
   F_THROW(NotFoundException, "tokenTypeValue not found! tt: {}", (int)tt);
 }
 
-std::string Token::tokenTypeName(Token::TokenType tt) {
+icu::UnicodeString Token::tokenTypeName(Token::TokenType tt) {
   switch (tt) {
   case Token::TokenType::TT_EOF:
-    return "TT_EOF";
+    return UNICODE_STRING_SIMPLE("TT_EOF");
   case Token::TokenType::TT_INTEGER:
-    return "TT_INTEGER";
+    return UNICODE_STRING_SIMPLE("TT_INTEGER");
   case Token::TokenType::TT_FLOATING:
-    return "TT_FLOATING";
+    return UNICODE_STRING_SIMPLE("TT_FLOATING");
   case Token::TokenType::TT_OPERATOR:
-    return "TT_OPERATOR";
+    return UNICODE_STRING_SIMPLE("TT_OPERATOR");
   case Token::TokenType::TT_COMPARATOR:
-    return "TT_COMPARATOR";
+    return UNICODE_STRING_SIMPLE("TT_COMPARATOR");
   case Token::TokenType::TT_ASSIGNMENT:
-    return "TT_ASSIGNMENT";
+    return UNICODE_STRING_SIMPLE("TT_ASSIGNMENT");
   case Token::TokenType::TT_BOOLEAN:
-    return "TT_BOOLEAN";
+    return UNICODE_STRING_SIMPLE("TT_BOOLEAN");
   case Token::TokenType::TT_IDENTIFIER:
-    return "TT_IDENTIFIER";
+    return UNICODE_STRING_SIMPLE("TT_IDENTIFIER");
   case Token::TokenType::TT_PUNCTUATION:
-    return "TT_PUNCTUATION";
+    return UNICODE_STRING_SIMPLE("TT_PUNCTUATION");
   case Token::TokenType::TT_KEYWORD:
-    return "TT_KEYWORD";
+    return UNICODE_STRING_SIMPLE("TT_KEYWORD");
   case Token::TokenType::TT_STRING:
-    return "TT_STRING";
+    return UNICODE_STRING_SIMPLE("TT_STRING");
   }
   F_THROW(NotFoundException, "tokenTypeName not found! tt: {}", (int)tt);
 }
@@ -114,13 +114,15 @@ Token::TokenType Token::tokenTypeFromValue(int value) {
   F_THROW(NotFoundException, "tokenTypeFromValue not found! value: {}", value);
 }
 
-Token::TokenType Token::tokenTypeFromName(const std::string &name) {
+Token::TokenType Token::tokenTypeFromName(const icu::UnicodeString &name) {
   for (Token::TokenType tt : tokenTypes()) {
     if (tokenTypeName(tt) == name) {
       return tt;
     }
   }
-  F_THROW(NotFoundException, "tokenTypeFromName not found! name: {}", name);
+  std::string _1;
+  F_THROW(NotFoundException, "tokenTypeFromName not found! name: {}",
+          name.toUTF8String(_1));
 }
 
 const std::shared_ptr<Token> Token::T_EOF(new EofToken());
@@ -350,7 +352,9 @@ bool Token::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string Token::toString() const {
-  return fmt::format("[ @Token type_:{}, id_:{} ]", tokenTypeName(type_), id_);
+  std::string _1;
+  return fmt::format("[ @Token type_:{}, id_:{} ]",
+                     tokenTypeName(type_).toUTF8String(_1), id_);
 }
 
 } // namespace fastype

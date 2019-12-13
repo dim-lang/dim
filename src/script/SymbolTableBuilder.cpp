@@ -4,6 +4,8 @@
 #include "exception/ScriptException.h"
 #include "script/NodeVisitor.h"
 #include "script/SymbolTable.h"
+#include "script/symbol/BuiltinTypeSymbol.h"
+#include "script/symbol/VariableSymbol.h"
 
 namespace fastype {
 
@@ -68,10 +70,9 @@ void SymbolTableBuilder::visitStatementList(std::shared_ptr<Ast> node) {
 void SymbolTableBuilder::visitVariableDeclaration(std::shared_ptr<Ast> node) {
   std::shared_ptr<VariableDeclaration> e =
       std::static_pointer_cast<VariableDeclaration>(node);
-  for (int i = 0; i < e->size(); i++) {
-    std::shared_ptr<Ast> child = e->get(i);
-    visit(child);
-  }
+  std::shared_ptr<Variable> var = std::static_pointer_cast<Variable>(e->var());
+  symbolTable_.lookup(node->type());
+  symbolTable_.define(std::shared_ptr<VariableSymbol>(new VariableSymbol()));
 }
 
 void SymbolTableBuilder::visitFunctionDeclaration(std::shared_ptr<Ast> node) {}
