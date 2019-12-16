@@ -14,8 +14,6 @@ std::string StringConstant::toString() const {
   return fmt::format("[ @StringConstant token_:{} ]", token_->toString());
 }
 
-Ast::AstType StringConstant::type() const {
-  return Ast::AstType::STRING_CONSTANT;
-}
+Type StringConstant::type() const { return Type::T_STRING_CONSTANT; }
 
 } // namespace fastype

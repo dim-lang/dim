@@ -18,7 +18,7 @@ public:
   virtual std::shared_ptr<Ast> var() const;
   virtual std::shared_ptr<Ast> expr() const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::shared_ptr<Ast> var_;

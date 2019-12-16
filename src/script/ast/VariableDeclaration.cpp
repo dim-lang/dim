@@ -19,8 +19,6 @@ std::string VariableDeclaration::toString() const {
   return fmt::format("[ @VariableDeclaration var_:{}, expr_:{} ]", _1, _2);
 }
 
-Ast::AstType VariableDeclaration::type() const {
-  return Ast::AstType::ASSIGNMENT_STATEMENT;
-}
+Type VariableDeclaration::type() const { return Type::T_ASSIGNMENT_STATEMENT; }
 
 } // namespace fastype

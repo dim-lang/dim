@@ -14,7 +14,7 @@ public:
   virtual ~Variable() = default;
   virtual icu::UnicodeString value() const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::shared_ptr<Token> token_;

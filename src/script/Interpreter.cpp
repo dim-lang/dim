@@ -3,8 +3,9 @@
 
 #include "script/Interpreter.h"
 #include "Logging.h"
-#include "Token.h"
 #include "exception/ScriptException.h"
+#include "script/Token.h"
+#include "script/Type.h"
 #include "script/ast/AssignmentStatement.h"
 #include "script/ast/BinaryOp.h"
 #include "script/ast/BooleanConstant.h"
@@ -35,32 +36,32 @@ Interpreter::Interpreter(std::shared_ptr<Parser> parser)
 Interpreter::~Interpreter() { globalScope_.clear(); }
 
 void Interpreter::visit(std::shared_ptr<Ast> node) {
-  switch (node->type()) {
-  case Ast::AstType::PROGRAM:
+  switch (node->type().value()) {
+  case Type::T_PROGRAM.value():
     visitProgram(node);
     break;
-  case Ast::AstType::STATEMENT_LIST:
+  case Type::T_STATEMENT_LIST.value():
     visitStatementList(node);
     break;
-  case Ast::AstType::VARIABLE_DECLARATION:
+  case Type::T_VARIABLE_DECLARATION:
     visitVariableDeclaration(node);
     break;
-  case Ast::AstType::FUNCTION_DECLARATION:
+  case Type::T_FUNCTION_DECLARATION:
     visitFunctionDeclaration(node);
     break;
-  case Ast::AstType::CLASS_DECLARATION:
+  case Type::T_CLASS_DECLARATION:
     visitClassDeclaration(node);
     break;
-  case Ast::AstType::COMPOUND_STATEMENT:
+  case Type::T_COMPOUND_STATEMENT:
     visitCompoundStatement(node);
     break;
-  case Ast::AstType::ASSIGNMENT_STATEMENT:
+  case Type::T_ASSIGNMENT_STATEMENT:
     visitAssignmentStatement(node);
     break;
-  case Ast::AstType::EMPTY_STATEMENT:
+  case Type::T_EMPTY_STATEMENT:
     visitEmptyStatement(node);
     break;
-  case Ast::AstType::RETURN_STATEMENT:
+  case Type::T_RETURN_STATEMENT:
     visitReturnStatement(node);
     break;
   default:
@@ -129,25 +130,25 @@ void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {
 
 std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   switch (node->type()) {
-  case Ast::AstType::BINARY_OP:
+  case Type::T_BINARY_OP:
     return visitBinaryOp(node);
     break;
-  case Ast::AstType::UNARY_OP:
+  case Type::T_UNARY_OP:
     return visitUnaryOp(node);
     break;
-  case Ast::AstType::VARIABLE:
+  case Type::T_VARIABLE:
     return visitVariable(node);
     break;
-  case Ast::AstType::INTEGER_CONSTANT:
+  case Type::T_INTEGER_CONSTANT:
     return node;
     break;
-  case Ast::AstType::FLOATING_CONSTANT:
+  case Type::T_FLOATING_CONSTANT:
     return node;
     break;
-  case Ast::AstType::BOOLEAN_CONSTANT:
+  case Type::T_BOOLEAN_CONSTANT:
     return node;
     break;
-  case Ast::AstType::STRING_CONSTANT:
+  case Type::T_STRING_CONSTANT:
     return node;
     break;
   default:
@@ -156,9 +157,9 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   }
 }
 
-#define F_IS_IC(x) ((x)->type() == Ast::AstType::INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == Type::T_INTEGER_CONSTANT)
 
-#define F_IS_FC(x) ((x)->type() == Ast::AstType::FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == Type::T_FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(l, r, op)                                                 \
   if (F_IS_IC(l) && F_IS_IC(r)) {                                              \

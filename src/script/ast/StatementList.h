@@ -16,7 +16,7 @@ public:
   virtual int size() const;
   virtual std::shared_ptr<Ast> get(int i) const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::vector<std::shared_ptr<Ast>> children_;
