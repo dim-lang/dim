@@ -6,7 +6,7 @@
 namespace fastype {
 
 ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
-    : Token(TokenType::TT_COMPARATOR), value_(value) {}
+    : Token(Type::T_COMPARATOR), value_(value) {}
 
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
@@ -15,10 +15,9 @@ bool ComparatorToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string ComparatorToken::toString() const {
-  std::string _1, _2;
+  std::string _1;
   return fmt::format("[ @ComparatorToken id_:{}, type_:{}, value_:{} ]", id_,
-                     Token::tokenTypeName(type_).toUTF8String(_1),
-                     value_.toUTF8String(_2));
+                     type_.nameUTF8(), value_.toUTF8String(_1));
 }
 
 } // namespace fastype
