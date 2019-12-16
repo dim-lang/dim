@@ -38,31 +38,31 @@ Interpreter::~Interpreter() { globalScope_.clear(); }
 
 void Interpreter::visit(std::shared_ptr<Ast> node) {
   switch (node->type().value()) {
-  case Type::T_PROGRAM.value():
+  case F_TYPE_PROGRAM:
     visitProgram(node);
     break;
-  case Type::T_STATEMENT_LIST.value():
+  case F_TYPE_STATEMENT_LIST:
     visitStatementList(node);
     break;
-  case Type::T_VARIABLE_DECLARATION:
+  case F_TYPE_VARIABLE_DECLARATION:
     visitVariableDeclaration(node);
     break;
-  case Type::T_FUNCTION_DECLARATION:
+  case F_TYPE_FUNCTION_DECLARATION:
     visitFunctionDeclaration(node);
     break;
-  case Type::T_CLASS_DECLARATION:
+  case F_TYPE_CLASS_DECLARATION:
     visitClassDeclaration(node);
     break;
-  case Type::T_COMPOUND_STATEMENT:
+  case F_TYPE_COMPOUND_STATEMENT:
     visitCompoundStatement(node);
     break;
-  case Type::T_ASSIGNMENT_STATEMENT:
+  case F_TYPE_ASSIGNMENT_STATEMENT:
     visitAssignmentStatement(node);
     break;
-  case Type::T_EMPTY_STATEMENT:
+  case F_TYPE_EMPTY_STATEMENT:
     visitEmptyStatement(node);
     break;
-  case Type::T_RETURN_STATEMENT:
+  case F_TYPE_RETURN_STATEMENT:
     visitReturnStatement(node);
     break;
   default:
@@ -130,26 +130,26 @@ void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {
 }
 
 std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
-  switch (node->type()) {
-  case Type::T_BINARY_OP:
+  switch (node->type().value()) {
+  case F_TYPE_BINARY_OP:
     return visitBinaryOp(node);
     break;
-  case Type::T_UNARY_OP:
+  case F_TYPE_UNARY_OP:
     return visitUnaryOp(node);
     break;
-  case Type::T_VARIABLE:
+  case F_TYPE_VARIABLE:
     return visitVariable(node);
     break;
-  case Type::T_INTEGER_CONSTANT:
+  case F_TYPE_INTEGER_CONSTANT:
     return node;
     break;
-  case Type::T_FLOATING_CONSTANT:
+  case F_TYPE_FLOATING_CONSTANT:
     return node;
     break;
-  case Type::T_BOOLEAN_CONSTANT:
+  case F_TYPE_BOOLEAN_CONSTANT:
     return node;
     break;
-  case Type::T_STRING_CONSTANT:
+  case F_TYPE_STRING_CONSTANT:
     return node;
     break;
   default:
