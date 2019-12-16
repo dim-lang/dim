@@ -4,38 +4,35 @@
 #pragma once
 #include "Logging.h"
 #include "Stringify.h"
+#include "script/Type.h"
 #include <memory>
 
 namespace fastype {
 
 class Ast : public Stringify {
 public:
-  enum AstType {
-    PROGRAM = 1,
-    STATEMENT_LIST,
-    DECLARATION,
-    STATEMENT,
-    VARIABLE_DECLARATION,
-    FUNCTION_DECLARATION,
-    CLASS_DECLARATION,
-    COMPOUND_STATEMENT,
-    ASSIGNMENT_STATEMENT,
-    EMPTY_STATEMENT,
-    RETURN_STATEMENT,
-    BINARY_OP,
-    UNARY_OP,
-    VARIABLE,
-    INTEGER_CONSTANT,
-    FLOATING_CONSTANT,
-    BOOLEAN_CONSTANT,
-    STRING_CONSTANT,
-  };
-
-  static const std::vector<AstType> &astTypes();
-  static int astTypeValue(AstType t);
-  static icu::UnicodeString astTypeName(AstType t);
-  static AstType astTypeFromValue(int value);
-  static AstType astTypeFromName(const icu::UnicodeString &name);
+  /**
+   * AstType
+   * PROGRAM
+   * STATEMENT_LIST
+   * DECLARATION
+   * STATEMENT
+   * VARIABLE_DECLARATION
+   * FUNCTION_DECLARATION
+   * CLASS_DECLARATION
+   * COMPOUND_STATEMENT
+   * ASSIGNMENT_STATEMENT
+   * EMPTY_STATEMENT
+   * RETURN_STATEMENT
+   * BINARY_OP
+   * UNARY_OP
+   * VARIABLE
+   * INTEGER_CONSTANT
+   * FLOATING_CONSTANT
+   * BOOLEAN_CONSTANT
+   * STRING_CONSTANT
+   */
+  static const std::vector<Type> &astTypes();
 
   virtual ~Ast() = default;
   virtual AstType type() const = 0;

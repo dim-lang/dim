@@ -4,6 +4,7 @@
 #pragma once
 #include "Stringify.h"
 #include "config/Header.h"
+#include "script/Type.h"
 #include <climits>
 #include <cstddef>
 #include <cstdint>
@@ -15,27 +16,21 @@ namespace fastype {
 
 class Token : public Stringify {
 public:
-  // token type
-  enum TokenType {
-    TT_EOF = 1,     // end of file
-    TT_INTEGER,     // integer number
-    TT_FLOATING,    // floating number
-    TT_OPERATOR,    // operator: + - * / % ++ --
-    TT_COMPARATOR,  // comparator: == != < <= > >=
-    TT_ASSIGNMENT,  // assignment: =
-    TT_BOOLEAN,     // boolean: True False
-    TT_IDENTIFIER,  // identifier
-    TT_PUNCTUATION, // punctuation
-    TT_KEYWORD,     // keyword: let null for if elseif else
-                    //          while break continue func class
-    TT_STRING,      // string
-  };
-
-  static const std::vector<TokenType> &tokenTypes();
-  static int tokenTypeValue(TokenType tt);
-  static icu::UnicodeString tokenTypeName(TokenType tt);
-  static TokenType tokenTypeFromValue(int value);
-  static TokenType tokenTypeFromName(const icu::UnicodeString &name);
+  /**
+   * token type
+   * T_EOF,
+   * T_INTEGER,
+   * T_FLOATING,
+   * T_OPERATOR,
+   * T_COMPARATOR,
+   * T_ASSIGNMENT,
+   * T_BOOLEAN,
+   * T_IDENTIFIER,
+   * T_PUNCTUATION,
+   * T_KEYWORD,
+   * T_STRING,
+   */
+  static const std::vector<Type> &tokenTypes();
 
   // token constants
 
@@ -110,10 +105,10 @@ public:
   static const std::vector<std::shared_ptr<Token>> &punctuations();
   static const std::vector<std::shared_ptr<Token>> &keywords();
 
-  Token(TokenType type);
+  Token(Type type);
   virtual ~Token();
 
-  virtual const TokenType &type() const;
+  virtual const Type &type() const;
   virtual long long id() const;
 
   // token type
@@ -139,7 +134,7 @@ public:
   virtual std::string toString() const;
 
 protected:
-  TokenType type_;
+  Type type_;
   int64_t id_;
 };
 
