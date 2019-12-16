@@ -26,6 +26,7 @@
 #include "script/token/StringToken.h"
 #include <algorithm>
 #include <sstream>
+#include <unordered_map>
 #include <utility>
 
 namespace fastype {

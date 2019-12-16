@@ -5,6 +5,50 @@
 #include "Stringify.h"
 #include "config/Header.h"
 
+// token type
+// end of file
+#define F_TYPE_EOF 1
+// integer number
+#define F_TYPE_INTEGER 2
+// floating number
+#define F_TYPE_FLOATING 3
+// operator: + - * / % ++ --
+#define F_TYPE_OPERATOR 4
+// comparator: == != < <= > >=
+#define F_TYPE_COMPARATOR 5
+// assignment: =
+#define F_TYPE_ASSIGNMENT 6
+// boolean: True False
+#define F_TYPE_BOOLEAN 7
+// identifier
+#define F_TYPE_IDENTIFIER 8
+// punctuation
+#define F_TYPE_PUNCTUATION 9
+// keyword: let null for if elseif else while break continue func class
+#define F_TYPE_KEYWORD 10
+// string
+#define F_TYPE_STRING 11
+
+// ast type
+#define F_TYPE_PROGRAM 101
+#define F_TYPE_STATEMENT_LIST 102
+#define F_TYPE_DECLARATION 103
+#define F_TYPE_STATEMENT 104
+#define F_TYPE_VARIABLE_DECLARATION 105
+#define F_TYPE_FUNCTION_DECLARATION 106
+#define F_TYPE_CLASS_DECLARATION 107
+#define F_TYPE_COMPOUND_STATEMENT 108
+#define F_TYPE_ASSIGNMENT_STATEMENT 109
+#define F_TYPE_EMPTY_STATEMENT 110
+#define F_TYPE_RETURN_STATEMENT 111
+#define F_TYPE_BINARY_OP 112
+#define F_TYPE_UNARY_OP 113
+#define F_TYPE_VARIABLE 114
+#define F_TYPE_INTEGER_CONSTANT 115
+#define F_TYPE_FLOATING_CONSTANT 116
+#define F_TYPE_BOOLEAN_CONSTANT 117
+#define F_TYPE_STRING_CONSTANT 118
+
 namespace fastype {
 
 class Type : public Stringify {
@@ -60,9 +104,7 @@ public:
   int compare(const Type &t) const;
 
 private:
-  Type(const icu::UnicodeString &name);
-
-  static int TypeId;
+  Type(const icu::UnicodeString &name, int typeId);
 
   icu::UnicodeString name_;
   int value_;

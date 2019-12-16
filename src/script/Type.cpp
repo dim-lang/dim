@@ -5,7 +5,8 @@
 
 namespace fastype {
 
-Type::Type(const icu::UnicodeString &name) : name_(name), value_(TypeId++) {}
+Type::Type(const icu::UnicodeString &name, int typeId)
+    : name_(name), value_(typeId) {}
 
 const Type &Type::fromValue(int value) {}
 
@@ -38,10 +39,8 @@ bool Type::operator>=(const Type &t) const { return compare(t) >= 0; }
 
 int Type::compare(const Type &t) const { return value_ - t.value_; }
 
-int Type::TypeId = 1;
-
-const Type Type::T_EOF(UNICODE_STRING_SIMPLE("EOF"));
-const Type Type::T_INTEGER(UNICODE_STRING_SIMPLE("INTEGER"));
+const Type Type::T_EOF(UNICODE_STRING_SIMPLE("EOF"), F_TYPE_EOF);
+const Type Type::T_INTEGER(UNICODE_STRING_SIMPLE("INTEGER"), F_TYPE_INTEGER);
 const Type Type::T_FLOATING(UNICODE_STRING_SIMPLE("FLOATING"));
 const Type Type::T_OPERATOR(UNICODE_STRING_SIMPLE("OPERATOR"));
 const Type Type::T_COMPARATOR(UNICODE_STRING_SIMPLE("COMPARATOR"));
