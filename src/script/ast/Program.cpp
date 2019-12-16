@@ -15,6 +15,6 @@ std::string Program::toString() const {
   return fmt::format("[ @Program statementList_:{} ]", _1);
 }
 
-Ast::AstType Program::type() const { return Ast::AstType::PROGRAM; }
+Type Program::type() const { return Type::T_PROGRAM; }
 
 } // namespace fastype

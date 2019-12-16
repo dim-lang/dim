@@ -35,7 +35,7 @@ public:
   static const std::vector<Type> &astTypes();
 
   virtual ~Ast() = default;
-  virtual AstType type() const = 0;
+  virtual Type type() const = 0;
   virtual std::string toString() const = 0;
 };
 

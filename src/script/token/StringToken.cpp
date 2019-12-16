@@ -6,7 +6,7 @@
 namespace fastype {
 
 StringToken::StringToken(const icu::UnicodeString &value)
-    : Token(TokenType::TT_STRING), value_(value) {}
+    : Token(Type::T_STRING), value_(value) {}
 
 icu::UnicodeString StringToken::literal() const { return value_; }
 
@@ -15,10 +15,9 @@ bool StringToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string StringToken::toString() const {
-  std::string _1, _2;
+  std::string _1;
   return fmt::format("[ @StringToken id_:{}, type_:{}, value_:{} ]", id_,
-                     Token::tokenTypeName(type_).toUTF8String(_1),
-                     value_.toUTF8String(_2));
+                     type_.nameUTF8(), value_.toUTF8String(_1));
 }
 
 } // namespace fastype

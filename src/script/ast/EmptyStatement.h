@@ -15,7 +15,7 @@ public:
   EmptyStatement();
   virtual ~EmptyStatement() = default;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 };
 
 } // namespace fastype

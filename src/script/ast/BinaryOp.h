@@ -17,7 +17,7 @@ public:
   virtual std::shared_ptr<Token> op() const;
   virtual std::shared_ptr<Ast> right() const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::shared_ptr<Ast> left_;

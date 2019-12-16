@@ -17,8 +17,6 @@ std::string IdentifierConstant::toString() const {
   return fmt::format("[ @IdentifierConstant token_:{} ]", _1);
 }
 
-Ast::AstType IdentifierConstant::type() const {
-  return Ast::AstType::INTEGER_CONSTANT;
-}
+Type IdentifierConstant::type() const { return Type::T_INTEGER_CONSTANT; }
 
 } // namespace fastype

@@ -15,8 +15,6 @@ std::string FloatingConstant::toString() const {
   return fmt::format("[ @FloatingConstant token_:{} ]", _1);
 }
 
-Ast::AstType FloatingConstant::type() const {
-  return Ast::AstType::FLOATING_CONSTANT;
-}
+Type FloatingConstant::type() const { return Type::T_FLOATING_CONSTANT; }
 
 } // namespace fastype

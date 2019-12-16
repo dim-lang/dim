@@ -15,8 +15,6 @@ std::string IntegerConstant::toString() const {
   return fmt::format("[ @IntegerConstant token_:{} ]", _1);
 }
 
-Ast::AstType IntegerConstant::type() const {
-  return Ast::AstType::INTEGER_CONSTANT;
-}
+Type IntegerConstant::type() const { return Type::T_INTEGER_CONSTANT; }
 
 } // namespace fastype

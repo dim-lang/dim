@@ -19,8 +19,6 @@ std::string AssignmentStatement::toString() const {
   return fmt::format("[ @AssignmentStatement var_:{}, expr_:{} ]", _1, _2);
 }
 
-Ast::AstType AssignmentStatement::type() const {
-  return Ast::AstType::ASSIGNMENT_STATEMENT;
-}
+Type AssignmentStatement::type() const { return Type::T_ASSIGNMENT_STATEMENT; }
 
 } // namespace fastype

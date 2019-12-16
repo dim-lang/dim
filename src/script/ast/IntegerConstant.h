@@ -14,7 +14,7 @@ public:
   virtual ~IntegerConstant() = default;
   virtual long long value() const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::shared_ptr<Token> token_;

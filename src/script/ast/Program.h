@@ -15,7 +15,7 @@ public:
   virtual ~Program() = default;
   virtual std::shared_ptr<Ast> statementList() const;
   virtual std::string toString() const;
-  virtual Ast::AstType type() const;
+  virtual Type type() const;
 
 private:
   std::shared_ptr<Ast> statementList_;

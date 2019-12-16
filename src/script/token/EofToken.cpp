@@ -5,7 +5,7 @@
 
 namespace fastype {
 
-EofToken::EofToken() : Token(TokenType::TT_EOF) {}
+EofToken::EofToken() : Token(Type::T_EOF) {}
 
 bool EofToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isEof();

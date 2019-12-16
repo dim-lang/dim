@@ -20,7 +20,7 @@
 namespace fastype {
 
 const std::vector<Type> &Token::tokenTypes() {
-  static const std::vector<Token::TokenType> types = {
+  static const std::vector<Type> types = {
       Type::T_EOF,      Type::T_INTEGER,    Type::T_FLOATING,
       Type::T_OPERATOR, Type::T_COMPARATOR, Type::T_ASSIGNMENT,
       Type::T_BOOLEAN,  Type::T_IDENTIFIER, Type::T_PUNCTUATION,
