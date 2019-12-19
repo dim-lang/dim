@@ -109,7 +109,6 @@ public:
   virtual ~Token();
 
   virtual const Type &type() const;
-  virtual long long id() const;
 
   // token type
   virtual bool isEof() const;
@@ -135,7 +134,6 @@ public:
 
 protected:
   Type type_;
-  int64_t id_;
 };
 
 } // namespace fastype

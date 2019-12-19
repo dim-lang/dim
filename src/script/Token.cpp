@@ -191,15 +191,11 @@ const std::vector<std::shared_ptr<Token>> &Token::keywords() {
   return types;
 }
 
-static std::atomic_int64_t TokenId(0LL);
-
-Token::Token(Type type) : type_(type), id_(TokenId++) {}
+Token::Token(Type type) : type_(type) {}
 
 Token::~Token() { F_INFO("Destructor {}", toString()); }
 
 const Type &Token::type() const { return type_; }
-
-long long Token::id() const { return id_; }
 
 bool Token::isEof() const { return type_ == Type::T_EOF; }
 
@@ -244,7 +240,7 @@ bool Token::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string Token::toString() const {
-  return fmt::format("[ @Token type_:{}, id_:{} ]", type_.nameUTF8(), id_);
+  return fmt::format("[ @Token type_:{} ]", type_.nameUTF8());
 }
 
 } // namespace fastype

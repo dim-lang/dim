@@ -16,8 +16,8 @@ bool BooleanToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string BooleanToken::toString() const {
-  return fmt::format("[ @BooleanToken id_:{}, type_:{}, value_:{} ]", id_,
-                     type_.nameUTF8(), value_);
+  return fmt::format("[ @BooleanToken type_:{}, value_:{} ]", type_.nameUTF8(),
+                     value_);
 }
 
 } // namespace fastype

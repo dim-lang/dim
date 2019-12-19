@@ -16,8 +16,8 @@ bool StringToken::equal(const std::shared_ptr<Token> &t) const {
 
 std::string StringToken::toString() const {
   std::string _1;
-  return fmt::format("[ @StringToken id_:{}, type_:{}, value_:{} ]", id_,
-                     type_.nameUTF8(), value_.toUTF8String(_1));
+  return fmt::format("[ @StringToken type_:{}, value_:{} ]", type_.nameUTF8(),
+                     value_.toUTF8String(_1));
 }
 
 } // namespace fastype

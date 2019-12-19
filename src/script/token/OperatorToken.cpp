@@ -16,8 +16,8 @@ bool OperatorToken::equal(const std::shared_ptr<Token> &t) const {
 
 std::string OperatorToken::toString() const {
   std::string _1;
-  return fmt::format("[ @OperatorToken id_:{}, type_:{}, value_:{} ]", id_,
-                     type_.nameUTF8(), value_.toUTF8String(_1));
+  return fmt::format("[ @OperatorToken type_:{}, value_:{} ]", type_.nameUTF8(),
+                     value_.toUTF8String(_1));
 }
 
 } // namespace fastype

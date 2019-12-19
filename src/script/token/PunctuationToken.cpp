@@ -16,7 +16,7 @@ bool PunctuationToken::equal(const std::shared_ptr<Token> &t) const {
 
 std::string PunctuationToken::toString() const {
   std::string _1;
-  return fmt::format("[ @PunctuationToken id_:{}, type_:{}, value_:{} ]", id_,
+  return fmt::format("[ @PunctuationToken type_:{}, value_:{} ]",
                      type_.nameUTF8(), value_.toUTF8String(_1));
 }
 

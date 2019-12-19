@@ -12,7 +12,7 @@ bool EofToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string EofToken::toString() const {
-  return fmt::format("[ @EofToken id_:{}, type_:{} ]", id_, type_.nameUTF8());
+  return fmt::format("[ @EofToken type_:{} ]", type_.nameUTF8());
 }
 
 } // namespace fastype

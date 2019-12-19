@@ -16,7 +16,7 @@ bool ComparatorToken::equal(const std::shared_ptr<Token> &t) const {
 
 std::string ComparatorToken::toString() const {
   std::string _1;
-  return fmt::format("[ @ComparatorToken id_:{}, type_:{}, value_:{} ]", id_,
+  return fmt::format("[ @ComparatorToken type_:{}, value_:{} ]",
                      type_.nameUTF8(), value_.toUTF8String(_1));
 }
 

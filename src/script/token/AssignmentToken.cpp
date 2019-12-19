@@ -16,7 +16,7 @@ bool AssignmentToken::equal(const std::shared_ptr<Token> &t) const {
 
 std::string AssignmentToken::toString() const {
   std::string _1;
-  return fmt::format("[ @AssignmentToken id_:{}, type_:{}, value_:{} ]", id_,
+  return fmt::format("[ @AssignmentToken type_:{}, value_:{} ]",
                      type_.nameUTF8(), value_.toUTF8String(_1));
 }
 
