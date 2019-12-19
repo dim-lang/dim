@@ -38,6 +38,7 @@ set(FCORE
     script/Parser.cpp
     script/Interpreter.cpp
     script/Util.cpp
+    script/Type.cpp
     script/ast/BinaryOp.cpp
     script/ast/UnaryOp.cpp
     script/ast/IntegerConstant.cpp
