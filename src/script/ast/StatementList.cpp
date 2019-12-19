@@ -19,6 +19,6 @@ std::string StatementList::toString() const {
   return detail::astVectorToString(children_, "StatementList");
 }
 
-Type StatementList::type() const { return Type::T_STATEMENT_LIST; }
+Type StatementList::type() const { return Type::TP_STATEMENT_LIST; }
 
 } // namespace fastype

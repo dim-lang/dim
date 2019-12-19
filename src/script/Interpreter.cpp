@@ -158,9 +158,9 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   }
 }
 
-#define F_IS_IC(x) ((x)->type() == Type::T_INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == Type::TP_INTEGER_CONSTANT)
 
-#define F_IS_FC(x) ((x)->type() == Type::T_FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == Type::TP_FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(l, r, op)                                                 \
   if (F_IS_IC(l) && F_IS_IC(r)) {                                              \

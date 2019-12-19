@@ -18,17 +18,17 @@ class Token : public Stringify {
 public:
   /**
    * token type
-   * T_EOF,
-   * T_INTEGER,
-   * T_FLOATING,
-   * T_OPERATOR,
-   * T_COMPARATOR,
-   * T_ASSIGNMENT,
-   * T_BOOLEAN,
-   * T_IDENTIFIER,
-   * T_PUNCTUATION,
-   * T_KEYWORD,
-   * T_STRING,
+   * TP_EOF,
+   * TP_INTEGER,
+   * TP_FLOATING,
+   * TP_OPERATOR,
+   * TP_COMPARATOR,
+   * TP_ASSIGNMENT,
+   * TP_BOOLEAN,
+   * TP_IDENTIFIER,
+   * TP_PUNCTUATION,
+   * TP_KEYWORD,
+   * TP_STRING,
    */
   static const std::vector<Type> &tokenTypes();
 

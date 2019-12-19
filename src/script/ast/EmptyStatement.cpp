@@ -11,6 +11,6 @@ std::string EmptyStatement::toString() const {
   return fmt::format("[ @EmptyStatement ]");
 }
 
-Type EmptyStatement::type() const { return Type::T_EMPTY_STATEMENT; }
+Type EmptyStatement::type() const { return Type::TP_EMPTY_STATEMENT; }
 
 } // namespace fastype

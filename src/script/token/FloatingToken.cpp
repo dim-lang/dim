@@ -6,7 +6,7 @@
 namespace fastype {
 
 FloatingToken::FloatingToken(double value)
-    : Token(Type::T_FLOATING), value_(value) {}
+    : Token(Type::TP_FLOATING), value_(value) {}
 
 double FloatingToken::floating() const { return value_; }
 

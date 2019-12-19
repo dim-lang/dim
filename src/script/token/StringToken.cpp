@@ -6,7 +6,7 @@
 namespace fastype {
 
 StringToken::StringToken(const icu::UnicodeString &value)
-    : Token(Type::T_STRING), value_(value) {}
+    : Token(Type::TP_STRING), value_(value) {}
 
 icu::UnicodeString StringToken::literal() const { return value_; }
 

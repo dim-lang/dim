@@ -6,7 +6,7 @@
 namespace fastype {
 
 KeywordToken::KeywordToken(const icu::UnicodeString &value)
-    : Token(Type::T_KEYWORD), value_(value) {}
+    : Token(Type::TP_KEYWORD), value_(value) {}
 
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 

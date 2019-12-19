@@ -68,7 +68,7 @@ TEST_CASE("Token", "[Token]") {
   }
 
   SECTION("eof") {
-    REQUIRE(fastype::Token::T_EOF->type() == fastype::Type::T_EOF);
+    REQUIRE(fastype::Token::T_EOF->type().compare(fastype::Type::T_EOF) == 0);
     REQUIRE(fastype::Token::T_EOF->isEof());
     REQUIRE(!fastype::Token::T_EOF->isOperator());
     REQUIRE(!fastype::Token::T_EOF->isAssignment());

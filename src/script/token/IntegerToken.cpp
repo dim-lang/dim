@@ -6,7 +6,7 @@
 namespace fastype {
 
 IntegerToken::IntegerToken(int64_t value)
-    : Token(Type::T_INTEGER), value_(value) {}
+    : Token(Type::TP_INTEGER), value_(value) {}
 
 int64_t IntegerToken::integer() const { return value_; }
 

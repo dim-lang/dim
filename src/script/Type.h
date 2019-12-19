@@ -62,38 +62,38 @@ public:
   virtual std::string toString() const;
 
   // token type
-  static const Type T_EOF;         // end of file
-  static const Type T_INTEGER;     // integer number
-  static const Type T_FLOATING;    // floating number
-  static const Type T_OPERATOR;    // operator: + - * / % ++ --
-  static const Type T_COMPARATOR;  // comparator: == != < <= > >=
-  static const Type T_ASSIGNMENT;  // assignment: =
-  static const Type T_BOOLEAN;     // boolean: True False
-  static const Type T_IDENTIFIER;  // identifier
-  static const Type T_PUNCTUATION; // punctuation
-  static const Type T_KEYWORD;     // keyword: let null for if elseif else
-                                   // while break continue func class
-  static const Type T_STRING;      // string
+  static const Type TP_EOF;         // end of file
+  static const Type TP_INTEGER;     // integer number
+  static const Type TP_FLOATING;    // floating number
+  static const Type TP_OPERATOR;    // operator: + - * / % ++ --
+  static const Type TP_COMPARATOR;  // comparator: == != < <= > >=
+  static const Type TP_ASSIGNMENT;  // assignment: =
+  static const Type TP_BOOLEAN;     // boolean: True False
+  static const Type TP_IDENTIFIER;  // identifier
+  static const Type TP_PUNCTUATION; // punctuation
+  static const Type TP_KEYWORD;     // keyword: let null for if elseif else
+                                    // while break continue func class
+  static const Type TP_STRING;      // string
 
   // ast type
-  static const Type T_PROGRAM;
-  static const Type T_STATEMENT_LIST;
-  static const Type T_DECLARATION;
-  static const Type T_STATEMENT;
-  static const Type T_VARIABLE_DECLARATION;
-  static const Type T_FUNCTION_DECLARATION;
-  static const Type T_CLASS_DECLARATION;
-  static const Type T_COMPOUND_STATEMENT;
-  static const Type T_ASSIGNMENT_STATEMENT;
-  static const Type T_EMPTY_STATEMENT;
-  static const Type T_RETURN_STATEMENT;
-  static const Type T_BINARY_OP;
-  static const Type T_UNARY_OP;
-  static const Type T_VARIABLE;
-  static const Type T_INTEGER_CONSTANT;
-  static const Type T_FLOATING_CONSTANT;
-  static const Type T_BOOLEAN_CONSTANT;
-  static const Type T_STRING_CONSTANT;
+  static const Type TP_PROGRAM;
+  static const Type TP_STATEMENT_LIST;
+  static const Type TP_DECLARATION;
+  static const Type TP_STATEMENT;
+  static const Type TP_VARIABLE_DECLARATION;
+  static const Type TP_FUNCTION_DECLARATION;
+  static const Type TP_CLASS_DECLARATION;
+  static const Type TP_COMPOUND_STATEMENT;
+  static const Type TP_ASSIGNMENT_STATEMENT;
+  static const Type TP_EMPTY_STATEMENT;
+  static const Type TP_RETURN_STATEMENT;
+  static const Type TP_BINARY_OP;
+  static const Type TP_UNARY_OP;
+  static const Type TP_VARIABLE;
+  static const Type TP_INTEGER_CONSTANT;
+  static const Type TP_FLOATING_CONSTANT;
+  static const Type TP_BOOLEAN_CONSTANT;
+  static const Type TP_STRING_CONSTANT;
 
   bool operator==(const Type &t) const;
   bool operator!=(const Type &t) const;

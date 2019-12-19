@@ -21,10 +21,10 @@ namespace fastype {
 
 const std::vector<Type> &Token::tokenTypes() {
   static const std::vector<Type> types = {
-      Type::T_EOF,      Type::T_INTEGER,    Type::T_FLOATING,
-      Type::T_OPERATOR, Type::T_COMPARATOR, Type::T_ASSIGNMENT,
-      Type::T_BOOLEAN,  Type::T_IDENTIFIER, Type::T_PUNCTUATION,
-      Type::T_KEYWORD,  Type::T_STRING,
+      Type::TP_EOF,      Type::TP_INTEGER,    Type::TP_FLOATING,
+      Type::TP_OPERATOR, Type::TP_COMPARATOR, Type::TP_ASSIGNMENT,
+      Type::TP_BOOLEAN,  Type::TP_IDENTIFIER, Type::TP_PUNCTUATION,
+      Type::TP_KEYWORD,  Type::TP_STRING,
   };
   return types;
 }
@@ -197,27 +197,35 @@ Token::~Token() { F_INFO("Destructor {}", toString()); }
 
 const Type &Token::type() const { return type_; }
 
-bool Token::isEof() const { return type_ == Type::T_EOF; }
+bool Token::isEof() const { return type_.compare(Type::TP_EOF) == 0; }
 
-bool Token::isOperator() const { return type_ == Type::T_OPERATOR; }
+bool Token::isOperator() const { return type_.compare(Type::TP_OPERATOR) == 0; }
 
-bool Token::isAssignment() const { return type_ == Type::T_ASSIGNMENT; }
+bool Token::isAssignment() const {
+  return type_.compare(Type::TP_ASSIGNMENT) == 0;
+}
 
-bool Token::isComparator() const { return type_ == Type::T_COMPARATOR; }
+bool Token::isComparator() const {
+  return type_.compare(Type::TP_COMPARATOR) == 0;
+}
 
-bool Token::isBoolean() const { return type_ == Type::T_BOOLEAN; }
+bool Token::isBoolean() const { return type_.compare(Type::TP_BOOLEAN) == 0; }
 
-bool Token::isInteger() const { return type_ == Type::T_INTEGER; }
+bool Token::isInteger() const { return type_.compare(Type::TP_INTEGER) == 0; }
 
-bool Token::isFloating() const { return type_ == Type::T_FLOATING; }
+bool Token::isFloating() const { return type_.compare(Type::TP_FLOATING) == 0; }
 
-bool Token::isIdentifier() const { return type_ == Type::T_IDENTIFIER; }
+bool Token::isIdentifier() const {
+  return type_.compare(Type::TP_IDENTIFIER) == 0;
+}
 
-bool Token::isPunctuation() const { return type_ == Type::T_PUNCTUATION; }
+bool Token::isPunctuation() const {
+  return type_.compare(Type::TP_PUNCTUATION) == 0;
+}
 
-bool Token::isKeyword() const { return type_ == Type::T_KEYWORD; }
+bool Token::isKeyword() const { return type_.compare(Type::TP_KEYWORD) == 0; }
 
-bool Token::isString() const { return type_ == Type::T_STRING; }
+bool Token::isString() const { return type_.compare(Type::TP_STRING) == 0; }
 
 icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());

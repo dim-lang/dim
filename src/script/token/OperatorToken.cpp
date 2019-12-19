@@ -6,7 +6,7 @@
 namespace fastype {
 
 OperatorToken::OperatorToken(const icu::UnicodeString &value)
-    : Token(Type::T_OPERATOR), value_(value) {}
+    : Token(Type::TP_OPERATOR), value_(value) {}
 
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 

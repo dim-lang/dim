@@ -6,7 +6,7 @@
 namespace fastype {
 
 IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
-    : Token(Type::T_IDENTIFIER), value_(value) {}
+    : Token(Type::TP_IDENTIFIER), value_(value) {}
 
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 

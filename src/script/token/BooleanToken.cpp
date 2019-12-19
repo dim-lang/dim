@@ -6,7 +6,7 @@
 namespace fastype {
 
 BooleanToken::BooleanToken(bool value)
-    : Token(Type::T_BOOLEAN), value_(value) {}
+    : Token(Type::TP_BOOLEAN), value_(value) {}
 
 bool BooleanToken::boolean() const { return value_; }
 

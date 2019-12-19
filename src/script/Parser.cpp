@@ -155,12 +155,12 @@ std::shared_ptr<Ast> Parser::parseReturnStatement() {
 }
 
 #define F_IS_IF(x)                                                             \
-  ((x)->type() == Type::T_INTEGER_CONSTANT ||                                  \
-   (x)->type() == Type::T_FLOATING_CONSTANT)
+  ((x)->type() == Type::TP_INTEGER_CONSTANT ||                                 \
+   (x)->type() == Type::TP_FLOATING_CONSTANT)
 
-#define F_IS_IC(x) ((x)->type() == Type::T_INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == Type::TP_INTEGER_CONSTANT)
 
-#define F_IS_FC(x) ((x)->type() == Type::T_FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == Type::TP_FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(node, r, op)                                              \
   if (F_IS_IC(node) && F_IS_IC(r)) {                                           \
@@ -273,16 +273,16 @@ std::shared_ptr<Ast> Parser::parseFactor() {
     eat(Token::T_DEC);
     return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t->isInteger()) {
-    eat(Type::T_INTEGER);
+    eat(Type::TP_INTEGER);
     return std::shared_ptr<Ast>(new IntegerConstant(t));
   } else if (t->isFloating()) {
-    eat(Type::T_FLOATING);
+    eat(Type::TP_FLOATING);
     return std::shared_ptr<Ast>(new FloatingConstant(t));
   } else if (t->isBoolean()) {
-    eat(Type::T_BOOLEAN);
+    eat(Type::TP_BOOLEAN);
     return std::shared_ptr<Ast>(new BooleanConstant(t));
   } else if (t->isString()) {
-    eat(Type::T_STRING);
+    eat(Type::TP_STRING);
     return std::shared_ptr<Ast>(new StringConstant(t));
   } else if (t == Token::T_LP) {
     eat(Token::T_LP);
@@ -301,7 +301,7 @@ std::shared_ptr<Ast> Parser::parseFactor() {
 
 std::shared_ptr<Ast> Parser::parseVariable() {
   std::shared_ptr<Ast> node(new Variable(token_));
-  eat(Type::T_IDENTIFIER);
+  eat(Type::TP_IDENTIFIER);
   return node;
 }
 

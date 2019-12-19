@@ -6,7 +6,7 @@
 namespace fastype {
 
 PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
-    : Token(Type::T_PUNCTUATION), value_(value) {}
+    : Token(Type::TP_PUNCTUATION), value_(value) {}
 
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 

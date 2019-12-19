@@ -22,6 +22,6 @@ std::string BinaryOp::toString() const {
   return fmt::format("[ @BinaryOp left_:{}, op_:{}, right_:{} ]", _1, _2, _3);
 }
 
-Type BinaryOp::type() const { return Type::T_BINARY_OP; }
+Type BinaryOp::type() const { return Type::TP_BINARY_OP; }
 
 } // namespace fastype

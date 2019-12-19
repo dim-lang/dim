@@ -6,7 +6,7 @@
 namespace fastype {
 
 ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
-    : Token(Type::T_COMPARATOR), value_(value) {}
+    : Token(Type::TP_COMPARATOR), value_(value) {}
 
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
