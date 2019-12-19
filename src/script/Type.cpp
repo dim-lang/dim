@@ -148,6 +148,7 @@ bool Type::operator>=(const Type &t) const { return compare(t) >= 0; }
 
 int Type::compare(const Type &t) const { return value_ - t.value_; }
 
+// token type
 const Type Type::T_EOF(UNICODE_STRING_SIMPLE("EOF"), F_TYPE_EOF);
 const Type Type::T_INTEGER(UNICODE_STRING_SIMPLE("INTEGER"), F_TYPE_INTEGER);
 const Type Type::T_FLOATING(UNICODE_STRING_SIMPLE("FLOATING"), F_TYPE_FLOATING);
@@ -164,6 +165,7 @@ const Type Type::T_PUNCTUATION(UNICODE_STRING_SIMPLE("PUNCTUATION"),
 const Type Type::T_KEYWORD(UNICODE_STRING_SIMPLE("KEYWORD"), F_TYPE_KEYWORD);
 const Type Type::T_STRING(UNICODE_STRING_SIMPLE("STRING"), F_TYPE_STRING);
 
+// ast type
 const Type Type::T_PROGRAM(UNICODE_STRING_SIMPLE("PROGRAM"), F_TYPE_PROGRAM);
 const Type Type::T_STATEMENT_LIST(UNICODE_STRING_SIMPLE("STATEMENT_LIST"),
                                   F_TYPE_STATEMENT_LIST);
