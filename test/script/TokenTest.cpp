@@ -22,41 +22,41 @@
 TEST_CASE("Token", "[Token]") {
   SECTION("TokenType") {
     REQUIRE(fastype::Token::tokenTypes().size() == 11);
-    REQUIRE(fastype::Token::tokenTypes()[0] == fastype::Type::T_EOF);
-    REQUIRE(fastype::Token::tokenTypes()[1] == fastype::Type::T_INTEGER);
-    REQUIRE(fastype::Token::tokenTypes()[2] == fastype::Type::T_FLOATING);
-    REQUIRE(fastype::Token::tokenTypes()[3] == fastype::Type::T_OPERATOR);
-    REQUIRE(fastype::Token::tokenTypes()[4] == fastype::Type::T_COMPARATOR);
-    REQUIRE(fastype::Token::tokenTypes()[5] == fastype::Type::T_ASSIGNMENT);
-    REQUIRE(fastype::Token::tokenTypes()[6] == fastype::Type::T_BOOLEAN);
-    REQUIRE(fastype::Token::tokenTypes()[7] == fastype::Type::T_IDENTIFIER);
-    REQUIRE(fastype::Token::tokenTypes()[8] == fastype::Type::T_PUNCTUATION);
-    REQUIRE(fastype::Token::tokenTypes()[9] == fastype::Type::T_KEYWORD);
-    REQUIRE(fastype::Token::tokenTypes()[10] == fastype::Type::T_STRING);
+    REQUIRE(fastype::Token::tokenTypes()[0] == fastype::Type::TP_EOF);
+    REQUIRE(fastype::Token::tokenTypes()[1] == fastype::Type::TP_INTEGER);
+    REQUIRE(fastype::Token::tokenTypes()[2] == fastype::Type::TP_FLOATING);
+    REQUIRE(fastype::Token::tokenTypes()[3] == fastype::Type::TP_OPERATOR);
+    REQUIRE(fastype::Token::tokenTypes()[4] == fastype::Type::TP_COMPARATOR);
+    REQUIRE(fastype::Token::tokenTypes()[5] == fastype::Type::TP_ASSIGNMENT);
+    REQUIRE(fastype::Token::tokenTypes()[6] == fastype::Type::TP_BOOLEAN);
+    REQUIRE(fastype::Token::tokenTypes()[7] == fastype::Type::TP_IDENTIFIER);
+    REQUIRE(fastype::Token::tokenTypes()[8] == fastype::Type::TP_PUNCTUATION);
+    REQUIRE(fastype::Token::tokenTypes()[9] == fastype::Type::TP_KEYWORD);
+    REQUIRE(fastype::Token::tokenTypes()[10] == fastype::Type::TP_STRING);
 
-    REQUIRE(fastype::Type::T_EOF.value() == 1);
-    REQUIRE(fastype::Type::T_INTEGER.value() == 2);
-    REQUIRE(fastype::Type::T_FLOATING.value() == 3);
-    REQUIRE(fastype::Type::T_OPERATOR.value() == 4);
-    REQUIRE(fastype::Type::T_COMPARATOR.value() == 5);
-    REQUIRE(fastype::Type::T_ASSIGNMENT.value() == 6);
-    REQUIRE(fastype::Type::T_BOOLEAN.value() == 7);
-    REQUIRE(fastype::Type::T_IDENTIFIER.value() == 8);
-    REQUIRE(fastype::Type::T_PUNCTUATION.value() == 9);
-    REQUIRE(fastype::Type::T_KEYWORD.value() == 10);
-    REQUIRE(fastype::Type::T_STRING.value() == 11);
+    REQUIRE(fastype::Type::TP_EOF.value() == 1);
+    REQUIRE(fastype::Type::TP_INTEGER.value() == 2);
+    REQUIRE(fastype::Type::TP_FLOATING.value() == 3);
+    REQUIRE(fastype::Type::TP_OPERATOR.value() == 4);
+    REQUIRE(fastype::Type::TP_COMPARATOR.value() == 5);
+    REQUIRE(fastype::Type::TP_ASSIGNMENT.value() == 6);
+    REQUIRE(fastype::Type::TP_BOOLEAN.value() == 7);
+    REQUIRE(fastype::Type::TP_IDENTIFIER.value() == 8);
+    REQUIRE(fastype::Type::TP_PUNCTUATION.value() == 9);
+    REQUIRE(fastype::Type::TP_KEYWORD.value() == 10);
+    REQUIRE(fastype::Type::TP_STRING.value() == 11);
 
-    REQUIRE(fastype::Type::T_EOF.nameUTF8() == "EOF");
-    REQUIRE(fastype::Type::T_INTEGER.nameUTF8() == "INTEGER");
-    REQUIRE(fastype::Type::T_FLOATING.nameUTF8() == "FLOATING");
-    REQUIRE(fastype::Type::T_OPERATOR.nameUTF8() == "OPERATOR");
-    REQUIRE(fastype::Type::T_COMPARATOR.nameUTF8() == "COMPARATOR");
-    REQUIRE(fastype::Type::T_ASSIGNMENT.nameUTF8() == "ASSIGNMENT");
-    REQUIRE(fastype::Type::T_BOOLEAN.nameUTF8() == "BOOLEAN");
-    REQUIRE(fastype::Type::T_IDENTIFIER.nameUTF8() == "IDENTIFIER");
-    REQUIRE(fastype::Type::T_PUNCTUATION.nameUTF8() == "PUNCTUATION");
-    REQUIRE(fastype::Type::T_KEYWORD.nameUTF8() == "KEYWORD");
-    REQUIRE(fastype::Type::T_STRING.nameUTF8() == "STRING");
+    REQUIRE(fastype::Type::TP_EOF.nameUTF8() == "EOF");
+    REQUIRE(fastype::Type::TP_INTEGER.nameUTF8() == "INTEGER");
+    REQUIRE(fastype::Type::TP_FLOATING.nameUTF8() == "FLOATING");
+    REQUIRE(fastype::Type::TP_OPERATOR.nameUTF8() == "OPERATOR");
+    REQUIRE(fastype::Type::TP_COMPARATOR.nameUTF8() == "COMPARATOR");
+    REQUIRE(fastype::Type::TP_ASSIGNMENT.nameUTF8() == "ASSIGNMENT");
+    REQUIRE(fastype::Type::TP_BOOLEAN.nameUTF8() == "BOOLEAN");
+    REQUIRE(fastype::Type::TP_IDENTIFIER.nameUTF8() == "IDENTIFIER");
+    REQUIRE(fastype::Type::TP_PUNCTUATION.nameUTF8() == "PUNCTUATION");
+    REQUIRE(fastype::Type::TP_KEYWORD.nameUTF8() == "KEYWORD");
+    REQUIRE(fastype::Type::TP_STRING.nameUTF8() == "STRING");
 
     for (int i = 0; i < (int)fastype::Token::tokenTypes().size(); i++) {
       REQUIRE(
@@ -68,7 +68,7 @@ TEST_CASE("Token", "[Token]") {
   }
 
   SECTION("eof") {
-    REQUIRE(fastype::Token::T_EOF->type().compare(fastype::Type::T_EOF) == 0);
+    REQUIRE(fastype::Token::T_EOF->type().compare(fastype::Type::TP_EOF) == 0);
     REQUIRE(fastype::Token::T_EOF->isEof());
     REQUIRE(!fastype::Token::T_EOF->isOperator());
     REQUIRE(!fastype::Token::T_EOF->isAssignment());
