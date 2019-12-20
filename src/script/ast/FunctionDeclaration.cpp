@@ -5,9 +5,10 @@
 
 namespace fastype {
 
-FunctionDeclaration(std::shared_ptr<Ast> functionId_,
-                    const std::vector<std::shared_ptr<Ast>> &varList,
-                    std::shared_ptr<Ast> compoundStatement)
+FunctionDeclaration::FunctionDeclaration(
+    std::shared_ptr<Ast> functionId,
+    const std::vector<std::shared_ptr<Ast>> &varList,
+    std::shared_ptr<Ast> compoundStatement)
     : functionId_(functionId), varList_(varList),
       compoundStatement_(compoundStatement) {}
 
@@ -28,7 +29,7 @@ std::string FunctionDeclaration::toString() const {
   ss << fmt::format("[ @FunctionDeclaration id:{}, varSize:{}, ",
                     functionId_->toString(), varList_.size());
   for (int i = 0; i < (int)varList_.size(); i++) {
-    ss << fmt::format("{}:{}, ", i, varList_[i]->toString);
+    ss << fmt::format("{}:{}, ", i, varList_[i]->toString());
   }
   std::string _1 = compoundStatement_ ? compoundStatement_->toString() : "null";
   ss << _1 << " ]";
