@@ -51,6 +51,7 @@ set(FCORE
     script/ast/EmptyStatement.cpp
     script/ast/StatementList.cpp
     script/ast/VariableDeclaration.cpp
+    script/ast/FunctionDeclaration.cpp
     script/ast/Variable.cpp
     script/ast/Program.cpp
     script/token/AssignmentToken.cpp

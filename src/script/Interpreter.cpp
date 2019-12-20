@@ -11,6 +11,7 @@
 #include "script/ast/BooleanConstant.h"
 #include "script/ast/CompoundStatement.h"
 #include "script/ast/FloatingConstant.h"
+#include "script/ast/FunctionDeclaration.h"
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"

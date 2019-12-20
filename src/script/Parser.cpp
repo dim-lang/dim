@@ -10,6 +10,7 @@
 #include "script/ast/CompoundStatement.h"
 #include "script/ast/EmptyStatement.h"
 #include "script/ast/FloatingConstant.h"
+#include "script/ast/FunctionDeclaration.h"
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"
@@ -126,7 +127,7 @@ std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
   std::vector<std::shared_ptr<Ast>> varList;
   while (token_->isIdentifier()) {
     varList.push_back(parseVariable());
-    if (token_->isPunctuation() && token_->equals(Token::T_COMMA)) {
+    if (token_->isPunctuation() && token_->equal(Token::T_COMMA)) {
       eat(Token::T_COMMA);
     }
   }

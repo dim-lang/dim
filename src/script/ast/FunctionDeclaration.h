@@ -22,9 +22,9 @@ public:
   virtual int type() const;
 
 private:
-  std::shared_ptr<Ast> functionId_;          // function identifier
-  std::vector<std::shared_ptr<Ast>> varList; // variable list
-  std::shared_ptr<Ast> compoundStatement_;   // compound statement
+  std::shared_ptr<Ast> functionId_;           // function identifier
+  std::vector<std::shared_ptr<Ast>> varList_; // variable list
+  std::shared_ptr<Ast> compoundStatement_;    // compound statement
 };
 
 } // namespace fastype
