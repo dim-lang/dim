@@ -11,17 +11,17 @@
 #include <string>
 
 TEST_CASE("Parser", "[Parser]") {
-  SECTION("ParserTest1.fast") {
+  SECTION("ScriptTest1.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/ParserTest1.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest1.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Ast> tree = parser->parse();
     F_INFO_MSG(tree->toString());
   }
-  SECTION("ParserTest2.fast") {
+  SECTION("ScriptTest2.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/ParserTest2.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest2.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Ast> tree = parser->parse();

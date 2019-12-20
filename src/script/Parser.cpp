@@ -120,7 +120,20 @@ std::shared_ptr<Ast> Parser::parseVariableDeclaration() {
 }
 
 std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
-  return std::shared_ptr<Ast>(nullptr);
+  eat(Token::T_FUNC);
+  std::shared_ptr<Ast> functionId = parseIdentifierConstant();
+  eat(Token::T_LP);
+  std::vector<std::shared_ptr<Ast>> varList;
+  while (token_->isIdentifier()) {
+    varList.push_back(parseVariable());
+    if (token_->isPunctuation() && token_->equals(Token::T_COMMA)) {
+      eat(Token::T_COMMA);
+    }
+  }
+  eat(Token::T_RP);
+  std::shared_ptr<Ast> compoundStatement = parseCompoundStatement();
+  return std::shared_ptr<Ast>(
+      new FunctionDeclaration(functionId, varList, compoundStatement));
 }
 
 std::shared_ptr<Ast> Parser::parseClassDeclaration() {
@@ -301,6 +314,12 @@ std::shared_ptr<Ast> Parser::parseFactor() {
 
 std::shared_ptr<Ast> Parser::parseVariable() {
   std::shared_ptr<Ast> node(new Variable(token_));
+  eat(F_TYPE_IDENTIFIER);
+  return node;
+}
+
+std::shared_ptr<Ast> Parser::parseIdentifierConstant() {
+  std::shared_ptr<Ast> node(new IdentifierConstant(token_));
   eat(F_TYPE_IDENTIFIER);
   return node;
 }

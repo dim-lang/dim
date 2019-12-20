@@ -14,9 +14,9 @@
 #include <unicode/ustring.h>
 
 TEST_CASE("Lexer", "[Lexer]") {
-  SECTION("LexerTest1.fast") {
+  SECTION("ScriptTest1.fast") {
     icu::UnicodeString data = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/LexerTest1.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest1.fast"));
     fastype::Lexer lex(data);
     std::shared_ptr<fastype::Token> t = lex.read();
     REQUIRE(t->isInteger());
@@ -37,9 +37,9 @@ TEST_CASE("Lexer", "[Lexer]") {
     REQUIRE(t->isOperator());
     REQUIRE(t == fastype::Token::T_SUB);
   }
-  SECTION("LexerTest2.fast") {
+  SECTION("ScriptTest2.fast") {
     icu::UnicodeString data = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/LexerTest2.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest2.fast"));
     fastype::Lexer lex(data);
   }
 }

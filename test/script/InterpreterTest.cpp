@@ -11,9 +11,9 @@
 #include <string>
 
 TEST_CASE("Interpreter", "[Interpreter]") {
-  SECTION("Interpret InterpreterTest1.fast") {
+  SECTION("ScriptTest1.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/InterpreterTest1.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest1.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Interpreter> interpreter(
@@ -21,9 +21,9 @@ TEST_CASE("Interpreter", "[Interpreter]") {
     interpreter->interpret();
     F_INFO_MSG(interpreter->toString());
   }
-  SECTION("Interpret InterpreterTest2.fast") {
+  SECTION("ScriptTest2.fast") {
     icu::UnicodeString text = fastype::Filer::readAll(
-        UNICODE_STRING_SIMPLE("test/script/InterpreterTest2.fast"));
+        UNICODE_STRING_SIMPLE("test/script/ScriptTest2.fast"));
     std::shared_ptr<fastype::Lexer> lexer(new fastype::Lexer(text));
     std::shared_ptr<fastype::Parser> parser(new fastype::Parser(lexer));
     std::shared_ptr<fastype::Interpreter> interpreter(

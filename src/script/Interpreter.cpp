@@ -90,12 +90,31 @@ void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
       std::static_pointer_cast<VariableDeclaration>(node);
   std::shared_ptr<Variable> var = std::static_pointer_cast<Variable>(e->var());
   std::shared_ptr<Ast> expr = e->expr();
+
+  // check no declaration before
+  F_CHECK(globalScope_.find(var->value()) == globalScope_.end(),
+          "variable declaration:{} not exist", var->toString());
+  if (globalScope_.find(var->value()) != globalScope_.end()) {
+    F_THROW(ScriptException, "variable declaration:{} not exist",
+            var->toString());
+  }
+
   globalScope_[var->value()] = visitExpression(expr);
 }
 
 void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
-  F_CHECK(false, "not implement! node:{}", node->toString());
-  F_THROW(ScriptException, "not implement, node: {}", node->toString());
+  std::shared_ptr<FunctionDeclaration> funcId =
+      std::static_pointer_cast<FunctionDeclaration>(node)->functionId();
+
+  // check no declaration before
+  F_CHECK(globalScope_.find(funcId->value()) == globalScope_.end(),
+          "function declaration:{} not exist", funcId->toString());
+  if (globalScope_.find(funcId->value()) != globalScope_.end()) {
+    F_THROW(ScriptException, "function declaration:{} not exist",
+            funcId->toString());
+  }
+
+  globalScope_[funcId->value()] = node;
 }
 
 void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {

@@ -6,5 +6,9 @@
     ;
     ;
 }
-let x = 11;
-
+func World(x, y) {
+    x = 1;
+    y = 2;
+    let z = x + y;
+}
+let u = 11;

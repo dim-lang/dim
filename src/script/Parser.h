@@ -44,6 +44,7 @@ private:
   std::shared_ptr<Ast> parseTerm();
   std::shared_ptr<Ast> parseFactor();
   std::shared_ptr<Ast> parseVariable();
+  std::shared_ptr<Ast> parseIdentifierConstant();
 
   std::shared_ptr<Token> token_;
   std::shared_ptr<Lexer> lexer_;

@@ -116,9 +116,6 @@ int Type::value(const icu::UnicodeString &name) {
       {UNICODE_STRING_SIMPLE("FLOATING_CONSTANT"), F_TYPE_FLOATING_CONSTANT},
       {UNICODE_STRING_SIMPLE("BOOLEAN_CONSTANT"), F_TYPE_BOOLEAN_CONSTANT},
       {UNICODE_STRING_SIMPLE("STRING_CONSTANT"), F_TYPE_STRING_CONSTANT},
-      // symbol type
-      {UNICODE_STRING_SIMPLE("BUILTIN_SYMBOL"), F_TYPE_BUILTIN_SYMBOL},
-      {UNICODE_STRING_SIMPLE("VARIABLE_SYMBOL"), F_TYPE_VARIABLE_SYMBOL},
   };
   std::unordered_map<icu::UnicodeString, int>::const_iterator it =
       typeMapping.find(name);
