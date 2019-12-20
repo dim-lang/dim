@@ -6,7 +6,7 @@
 namespace fastype {
 
 IntegerToken::IntegerToken(int64_t value)
-    : Token(Type::TP_INTEGER), value_(value) {}
+    : Token(F_TYPE_INTEGER), value_(value) {}
 
 int64_t IntegerToken::integer() const { return value_; }
 
@@ -15,8 +15,8 @@ bool IntegerToken::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string IntegerToken::toString() const {
-  return fmt::format("[ @IntegerToken type_:{}, value_:{} ]", type_.nameUTF8(),
-                     value_);
+  return fmt::format("[ @IntegerToken type_:{}, value_:{} ]",
+                     Type::nameUTF8(type_), value_);
 }
 
 } // namespace fastype

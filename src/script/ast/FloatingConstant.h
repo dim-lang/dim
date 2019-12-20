@@ -14,7 +14,7 @@ public:
   virtual ~FloatingConstant() = default;
   virtual double value() const;
   virtual std::string toString() const;
-  virtual Type type() const;
+  virtual int type() const;
 
 private:
   std::shared_ptr<Token> token_;

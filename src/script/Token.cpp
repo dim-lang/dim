@@ -19,12 +19,11 @@
 
 namespace fastype {
 
-const std::vector<Type> &Token::tokenTypes() {
-  static const std::vector<Type> types = {
-      Type::TP_EOF,      Type::TP_INTEGER,    Type::TP_FLOATING,
-      Type::TP_OPERATOR, Type::TP_COMPARATOR, Type::TP_ASSIGNMENT,
-      Type::TP_BOOLEAN,  Type::TP_IDENTIFIER, Type::TP_PUNCTUATION,
-      Type::TP_KEYWORD,  Type::TP_STRING,
+const std::vector<int> &Token::tokenTypes() {
+  static const std::vector<int> types = {
+      F_TYPE_EOF,         F_TYPE_INTEGER,    F_TYPE_FLOATING, F_TYPE_OPERATOR,
+      F_TYPE_COMPARATOR,  F_TYPE_ASSIGNMENT, F_TYPE_BOOLEAN,  F_TYPE_IDENTIFIER,
+      F_TYPE_PUNCTUATION, F_TYPE_KEYWORD,    F_TYPE_STRING,
   };
   return types;
 }
@@ -191,41 +190,33 @@ const std::vector<std::shared_ptr<Token>> &Token::keywords() {
   return types;
 }
 
-Token::Token(Type type) : type_(type) {}
+Token::Token(int type) : type_(type) {}
 
 Token::~Token() { F_INFO("Destructor {}", toString()); }
 
-const Type &Token::type() const { return type_; }
+int Token::type() const { return type_; }
 
-bool Token::isEof() const { return type_.compare(Type::TP_EOF) == 0; }
+bool Token::isEof() const { return type_ == F_TYPE_EOF; }
 
-bool Token::isOperator() const { return type_.compare(Type::TP_OPERATOR) == 0; }
+bool Token::isOperator() const { return type_ == F_TYPE_OPERATOR; }
 
-bool Token::isAssignment() const {
-  return type_.compare(Type::TP_ASSIGNMENT) == 0;
-}
+bool Token::isAssignment() const { return type_ == F_TYPE_ASSIGNMENT; }
 
-bool Token::isComparator() const {
-  return type_.compare(Type::TP_COMPARATOR) == 0;
-}
+bool Token::isComparator() const { return type_ == F_TYPE_COMPARATOR; }
 
-bool Token::isBoolean() const { return type_.compare(Type::TP_BOOLEAN) == 0; }
+bool Token::isBoolean() const { return type_ == F_TYPE_BOOLEAN; }
 
-bool Token::isInteger() const { return type_.compare(Type::TP_INTEGER) == 0; }
+bool Token::isInteger() const { return type_ == F_TYPE_INTEGER; }
 
-bool Token::isFloating() const { return type_.compare(Type::TP_FLOATING) == 0; }
+bool Token::isFloating() const { return type_ == F_TYPE_FLOATING; }
 
-bool Token::isIdentifier() const {
-  return type_.compare(Type::TP_IDENTIFIER) == 0;
-}
+bool Token::isIdentifier() const { return type_ == F_TYPE_IDENTIFIER; }
 
-bool Token::isPunctuation() const {
-  return type_.compare(Type::TP_PUNCTUATION) == 0;
-}
+bool Token::isPunctuation() const { return type_ == F_TYPE_PUNCTUATION; }
 
-bool Token::isKeyword() const { return type_.compare(Type::TP_KEYWORD) == 0; }
+bool Token::isKeyword() const { return type_ == F_TYPE_KEYWORD; }
 
-bool Token::isString() const { return type_.compare(Type::TP_STRING) == 0; }
+bool Token::isString() const { return type_ == F_TYPE_STRING; }
 
 icu::UnicodeString Token::literal() const {
   F_THROW(NotImplementException, "literal not implement! {}", toString());
@@ -248,7 +239,7 @@ bool Token::equal(const std::shared_ptr<Token> &t) const {
 }
 
 std::string Token::toString() const {
-  return fmt::format("[ @Token type_:{} ]", type_.nameUTF8());
+  return fmt::format("[ @Token type_:{} ]", Type::nameUTF8(type_));
 }
 
 } // namespace fastype

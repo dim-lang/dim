@@ -5,14 +5,14 @@
 
 namespace fastype {
 
-EofToken::EofToken() : Token(Type::TP_EOF) {}
+EofToken::EofToken() : Token(F_TYPE_EOF) {}
 
 bool EofToken::equal(const std::shared_ptr<Token> &t) const {
   return t.get() && t->isEof();
 }
 
 std::string EofToken::toString() const {
-  return fmt::format("[ @EofToken type_:{} ]", type_.nameUTF8());
+  return fmt::format("[ @EofToken type_:{} ]", Type::nameUTF8(type_));
 }
 
 } // namespace fastype

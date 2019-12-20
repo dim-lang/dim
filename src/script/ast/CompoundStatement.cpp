@@ -21,6 +21,6 @@ std::string CompoundStatement::toString() const {
   return fmt::format("[ @CompoundStatement statementList_:{} ]", _1);
 }
 
-Type CompoundStatement::type() const { return Type::TP_COMPOUND_STATEMENT; }
+int CompoundStatement::type() const { return F_TYPE_COMPOUND_STATEMENT; }
 
 } // namespace fastype

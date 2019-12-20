@@ -37,7 +37,7 @@ Interpreter::Interpreter(std::shared_ptr<Parser> parser)
 Interpreter::~Interpreter() { globalScope_.clear(); }
 
 void Interpreter::visit(std::shared_ptr<Ast> node) {
-  switch (node->type().value()) {
+  switch (node->type()) {
   case F_TYPE_PROGRAM:
     visitProgram(node);
     break;
@@ -130,7 +130,7 @@ void Interpreter::visitReturnStatement(std::shared_ptr<Ast> node) {
 }
 
 std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
-  switch (node->type().value()) {
+  switch (node->type()) {
   case F_TYPE_BINARY_OP:
     return visitBinaryOp(node);
     break;
@@ -158,9 +158,9 @@ std::shared_ptr<Ast> Interpreter::visitExpression(std::shared_ptr<Ast> node) {
   }
 }
 
-#define F_IS_IC(x) ((x)->type() == Type::TP_INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == F_TYPE_INTEGER_CONSTANT)
 
-#define F_IS_FC(x) ((x)->type() == Type::TP_FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == F_TYPE_FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(l, r, op)                                                 \
   if (F_IS_IC(l) && F_IS_IC(r)) {                                              \

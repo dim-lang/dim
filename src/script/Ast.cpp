@@ -5,26 +5,26 @@
 
 namespace fastype {
 
-const std::vector<Type> &Ast::astTypes() {
-  static const std::vector<Type> types = {
-      Type::T_PROGRAM,
-      Type::T_STATEMENT_LIST,
-      Type::T_DECLARATION,
-      Type::T_STATEMENT,
-      Type::T_VARIABLE_DECLARATION,
-      Type::T_FUNCTION_DECLARATION,
-      Type::T_CLASS_DECLARATION,
-      Type::T_COMPOUND_STATEMENT,
-      Type::T_ASSIGNMENT_STATEMENT,
-      Type::T_EMPTY_STATEMENT,
-      Type::T_RETURN_STATEMENT,
-      Type::T_BINARY_OP,
-      Type::T_UNARY_OP,
-      Type::T_VARIABLE,
-      Type::T_INTEGER_CONSTANT,
-      Type::T_FLOATING_CONSTANT,
-      Type::T_BOOLEAN_CONSTANT,
-      Type::T_STRING_CONSTANT,
+const std::vector<int> &Ast::astTypes() {
+  static const std::vector<int> types = {
+      F_TYPE_PROGRAM,
+      F_TYPE_STATEMENT_LIST,
+      F_TYPE_DECLARATION,
+      F_TYPE_STATEMENT,
+      F_TYPE_VARIABLE_DECLARATION,
+      F_TYPE_FUNCTION_DECLARATION,
+      F_TYPE_CLASS_DECLARATION,
+      F_TYPE_COMPOUND_STATEMENT,
+      F_TYPE_ASSIGNMENT_STATEMENT,
+      F_TYPE_EMPTY_STATEMENT,
+      F_TYPE_RETURN_STATEMENT,
+      F_TYPE_BINARY_OP,
+      F_TYPE_UNARY_OP,
+      F_TYPE_VARIABLE,
+      F_TYPE_INTEGER_CONSTANT,
+      F_TYPE_FLOATING_CONSTANT,
+      F_TYPE_BOOLEAN_CONSTANT,
+      F_TYPE_STRING_CONSTANT,
   };
   return types;
 }

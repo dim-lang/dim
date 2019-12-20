@@ -21,7 +21,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  void eat(const Type &tokenType);
+  void eat(int tokenType);
   void eat(std::shared_ptr<Token> token);
 
   // block

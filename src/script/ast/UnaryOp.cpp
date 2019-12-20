@@ -18,6 +18,6 @@ std::string UnaryOp::toString() const {
   return fmt::format("[ @UnaryOp op_:{}, expr_:{} ]", _1, _2);
 }
 
-Type UnaryOp::type() const { return Type::TP_UNARY_OP; }
+int UnaryOp::type() const { return F_TYPE_UNARY_OP; }
 
 } // namespace fastype

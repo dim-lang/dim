@@ -15,6 +15,6 @@ std::string BooleanConstant::toString() const {
   return fmt::format("[ @BooleanConstant token_:{} ]", _1);
 }
 
-Type BooleanConstant::type() const { return Type::TP_BOOLEAN_CONSTANT; }
+int BooleanConstant::type() const { return F_TYPE_BOOLEAN_CONSTANT; }
 
 } // namespace fastype

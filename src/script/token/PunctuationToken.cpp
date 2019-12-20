@@ -6,7 +6,7 @@
 namespace fastype {
 
 PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
-    : Token(Type::TP_PUNCTUATION), value_(value) {}
+    : Token(F_TYPE_PUNCTUATION), value_(value) {}
 
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
@@ -17,7 +17,7 @@ bool PunctuationToken::equal(const std::shared_ptr<Token> &t) const {
 std::string PunctuationToken::toString() const {
   std::string _1;
   return fmt::format("[ @PunctuationToken type_:{}, value_:{} ]",
-                     type_.nameUTF8(), value_.toUTF8String(_1));
+                     Type::nameUTF8(type_), value_.toUTF8String(_1));
 }
 
 } // namespace fastype

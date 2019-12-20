@@ -37,12 +37,12 @@ Parser::Parser(std::shared_ptr<Lexer> lexer) : token_(nullptr), lexer_(lexer) {
   token_ = lexer_->read();
 }
 
-void Parser::eat(const Type &tokenType) {
+void Parser::eat(int tokenType) {
   F_CHECK(tokenType == token_->type(), "tokenType {} == token_#type {}",
-          tokenType.nameUTF8(), token_->toString());
+          Type::nameUTF8(tokenType), token_->toString());
   if (tokenType != token_->type()) {
     F_THROW(ScriptException, "invlid token type: {}, token_: {}",
-            tokenType.nameUTF8(), token_->toString());
+            Type::nameUTF8(tokenType), token_->toString());
   }
   token_ = lexer_->read();
 }
@@ -155,12 +155,12 @@ std::shared_ptr<Ast> Parser::parseReturnStatement() {
 }
 
 #define F_IS_IF(x)                                                             \
-  ((x)->type() == Type::TP_INTEGER_CONSTANT ||                                 \
-   (x)->type() == Type::TP_FLOATING_CONSTANT)
+  ((x)->type() == F_TYPE_INTEGER_CONSTANT ||                                   \
+   (x)->type() == F_TYPE_FLOATING_CONSTANT)
 
-#define F_IS_IC(x) ((x)->type() == Type::TP_INTEGER_CONSTANT)
+#define F_IS_IC(x) ((x)->type() == F_TYPE_INTEGER_CONSTANT)
 
-#define F_IS_FC(x) ((x)->type() == Type::TP_FLOATING_CONSTANT)
+#define F_IS_FC(x) ((x)->type() == F_TYPE_FLOATING_CONSTANT)
 
 #define F_OP_I_AND_F(node, r, op)                                              \
   if (F_IS_IC(node) && F_IS_IC(r)) {                                           \
@@ -273,16 +273,16 @@ std::shared_ptr<Ast> Parser::parseFactor() {
     eat(Token::T_DEC);
     return std::shared_ptr<Ast>(new UnaryOp(t, parseFactor()));
   } else if (t->isInteger()) {
-    eat(Type::TP_INTEGER);
+    eat(F_TYPE_INTEGER);
     return std::shared_ptr<Ast>(new IntegerConstant(t));
   } else if (t->isFloating()) {
-    eat(Type::TP_FLOATING);
+    eat(F_TYPE_FLOATING);
     return std::shared_ptr<Ast>(new FloatingConstant(t));
   } else if (t->isBoolean()) {
-    eat(Type::TP_BOOLEAN);
+    eat(F_TYPE_BOOLEAN);
     return std::shared_ptr<Ast>(new BooleanConstant(t));
   } else if (t->isString()) {
-    eat(Type::TP_STRING);
+    eat(F_TYPE_STRING);
     return std::shared_ptr<Ast>(new StringConstant(t));
   } else if (t == Token::T_LP) {
     eat(Token::T_LP);
@@ -301,7 +301,7 @@ std::shared_ptr<Ast> Parser::parseFactor() {
 
 std::shared_ptr<Ast> Parser::parseVariable() {
   std::shared_ptr<Ast> node(new Variable(token_));
-  eat(Type::TP_IDENTIFIER);
+  eat(F_TYPE_IDENTIFIER);
   return node;
 }
 

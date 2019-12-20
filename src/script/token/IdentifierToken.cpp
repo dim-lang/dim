@@ -6,7 +6,7 @@
 namespace fastype {
 
 IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
-    : Token(Type::TP_IDENTIFIER), value_(value) {}
+    : Token(F_TYPE_IDENTIFIER), value_(value) {}
 
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 
@@ -17,7 +17,7 @@ bool IdentifierToken::equal(const std::shared_ptr<Token> &t) const {
 std::string IdentifierToken::toString() const {
   std::string _1;
   return fmt::format("[ @IdentifierToken type_:{}, value_:{} ]",
-                     type_.nameUTF8(), value_.toUTF8String(_1));
+                     Type::nameUTF8(type_), value_.toUTF8String(_1));
 }
 
 } // namespace fastype

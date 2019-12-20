@@ -12,7 +12,8 @@ namespace fastype {
 class Ast : public Stringify {
 public:
   /**
-   * AstType
+   * ast type
+   *
    * PROGRAM
    * STATEMENT_LIST
    * DECLARATION
@@ -32,10 +33,10 @@ public:
    * BOOLEAN_CONSTANT
    * STRING_CONSTANT
    */
-  static const std::vector<Type> &astTypes();
+  static const std::vector<int> &astTypes();
 
   virtual ~Ast() = default;
-  virtual Type type() const = 0;
+  virtual int type() const = 0;
   virtual std::string toString() const = 0;
 };
 

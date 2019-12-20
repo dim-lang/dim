@@ -18,19 +18,19 @@ class Token : public Stringify {
 public:
   /**
    * token type
-   * TP_EOF,
-   * TP_INTEGER,
-   * TP_FLOATING,
-   * TP_OPERATOR,
-   * TP_COMPARATOR,
-   * TP_ASSIGNMENT,
-   * TP_BOOLEAN,
-   * TP_IDENTIFIER,
-   * TP_PUNCTUATION,
-   * TP_KEYWORD,
-   * TP_STRING,
+   * F_TYPE_EOF,
+   * F_TYPE_INTEGER,
+   * F_TYPE_FLOATING,
+   * F_TYPE_OPERATOR,
+   * F_TYPE_COMPARATOR,
+   * F_TYPE_ASSIGNMENT,
+   * F_TYPE_BOOLEAN,
+   * F_TYPE_IDENTIFIER,
+   * F_TYPE_PUNCTUATION,
+   * F_TYPE_KEYWORD,
+   * F_TYPE_STRING,
    */
-  static const std::vector<Type> &tokenTypes();
+  static const std::vector<int> &tokenTypes();
 
   // token constants
 
@@ -105,10 +105,10 @@ public:
   static const std::vector<std::shared_ptr<Token>> &punctuations();
   static const std::vector<std::shared_ptr<Token>> &keywords();
 
-  Token(Type type);
+  Token(int type);
   virtual ~Token();
 
-  virtual const Type &type() const;
+  virtual int type() const;
 
   // token type
   virtual bool isEof() const;
@@ -133,7 +133,7 @@ public:
   virtual std::string toString() const;
 
 protected:
-  Type type_;
+  int type_;
 };
 
 } // namespace fastype

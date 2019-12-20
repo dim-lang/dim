@@ -14,6 +14,6 @@ std::string Variable::toString() const {
   return fmt::format("[ @Variable token_:{} ]", _1);
 }
 
-Type Variable::type() const { return Type::TP_VARIABLE; }
+int Variable::type() const { return F_TYPE_VARIABLE; }
 
 } // namespace fastype

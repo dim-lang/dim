@@ -4,6 +4,7 @@
 #pragma once
 #include "Stringify.h"
 #include "config/Header.h"
+#include <string>
 
 // token type
 // end of file
@@ -51,63 +52,11 @@
 
 namespace fastype {
 
-class Type : public Stringify {
+class Type {
 public:
-  virtual ~Type() = default;
-  static const Type &fromValue(int value);
-  static const Type &fromName(const icu::UnicodeString &name);
-  virtual int value() const;
-  virtual const icu::UnicodeString &name() const;
-  virtual std::string nameUTF8() const;
-  virtual std::string toString() const;
-
-  // token type
-  static const Type TP_EOF;         // end of file
-  static const Type TP_INTEGER;     // integer number
-  static const Type TP_FLOATING;    // floating number
-  static const Type TP_OPERATOR;    // operator: + - * / % ++ --
-  static const Type TP_COMPARATOR;  // comparator: == != < <= > >=
-  static const Type TP_ASSIGNMENT;  // assignment: =
-  static const Type TP_BOOLEAN;     // boolean: True False
-  static const Type TP_IDENTIFIER;  // identifier
-  static const Type TP_PUNCTUATION; // punctuation
-  static const Type TP_KEYWORD;     // keyword: let null for if elseif else
-                                    // while break continue func class
-  static const Type TP_STRING;      // string
-
-  // ast type
-  static const Type TP_PROGRAM;
-  static const Type TP_STATEMENT_LIST;
-  static const Type TP_DECLARATION;
-  static const Type TP_STATEMENT;
-  static const Type TP_VARIABLE_DECLARATION;
-  static const Type TP_FUNCTION_DECLARATION;
-  static const Type TP_CLASS_DECLARATION;
-  static const Type TP_COMPOUND_STATEMENT;
-  static const Type TP_ASSIGNMENT_STATEMENT;
-  static const Type TP_EMPTY_STATEMENT;
-  static const Type TP_RETURN_STATEMENT;
-  static const Type TP_BINARY_OP;
-  static const Type TP_UNARY_OP;
-  static const Type TP_VARIABLE;
-  static const Type TP_INTEGER_CONSTANT;
-  static const Type TP_FLOATING_CONSTANT;
-  static const Type TP_BOOLEAN_CONSTANT;
-  static const Type TP_STRING_CONSTANT;
-
-  bool operator==(const Type &t) const;
-  bool operator!=(const Type &t) const;
-  bool operator<(const Type &t) const;
-  bool operator<=(const Type &t) const;
-  bool operator>(const Type &t) const;
-  bool operator>=(const Type &t) const;
-  int compare(const Type &t) const;
-
-private:
-  Type(const icu::UnicodeString &name, int typeId);
-
-  icu::UnicodeString name_;
-  int value_;
+  static icu::UnicodeString name(int value);
+  static std::string nameUTF8(int value);
+  static int value(const icu::UnicodeString &name);
 };
 
 } // namespace fastype
