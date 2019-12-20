@@ -104,8 +104,10 @@ void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
-  std::shared_ptr<FunctionDeclaration> funcId =
-      std::static_pointer_cast<FunctionDeclaration>(node)->functionId();
+  std::shared_ptr<FunctionDeclaration> e =
+      std::static_pointer_cast<FunctionDeclaration>(node);
+  std::shared_ptr<IdentifierConstant> funcId =
+      std::static_pointer_cast<IdentifierConstant>(e->functionId());
 
   // check no declaration before
   F_CHECK(globalScope_.find(funcId->value()) == globalScope_.end(),
