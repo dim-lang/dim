@@ -11,7 +11,7 @@ public:
   BuiltinTypeSymbol(const icu::UnicodeString &name);
   virtual ~BuiltinTypeSymbol() = default;
   virtual const icu::UnicodeString &name() const;
-  virtual const icu::UnicodeString &type() const;
+  virtual int type() const;
   virtual std::string toString() const;
 
 private:

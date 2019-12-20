@@ -31,12 +31,6 @@ protected:
   virtual void visitAssignmentStatement(std::shared_ptr<Ast> node) = 0;
   virtual void visitEmptyStatement(std::shared_ptr<Ast> node) = 0;
   virtual void visitReturnStatement(std::shared_ptr<Ast> node) = 0;
-
-  // expression
-  virtual std::shared_ptr<Ast> visitExpression(std::shared_ptr<Ast> node) = 0;
-  virtual std::shared_ptr<Ast> visitBinaryOp(std::shared_ptr<Ast> node) = 0;
-  virtual std::shared_ptr<Ast> visitUnaryOp(std::shared_ptr<Ast> node) = 0;
-  virtual std::shared_ptr<Ast> visitVariable(std::shared_ptr<Ast> node) = 0;
 };
 
 } // namespace fastype

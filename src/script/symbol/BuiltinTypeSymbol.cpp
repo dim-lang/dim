@@ -10,9 +10,7 @@ BuiltinTypeSymbol::BuiltinTypeSymbol(const icu::UnicodeString &name)
 
 const icu::UnicodeString &BuiltinTypeSymbol::name() const { return name_; }
 
-const icu::UnicodeString &BuiltinTypeSymbol::type() const {
-  return Symbol::T_NONE;
-}
+int &BuiltinTypeSymbol::type() const { return F_TYPE_BUILTIN_SYMBOL; }
 
 std::string BuiltinTypeSymbol::toString() const {
   std::string _1;
