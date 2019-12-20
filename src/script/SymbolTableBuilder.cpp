@@ -20,31 +20,31 @@ std::string SymbolTableBuilder::toString() const {
 
 void SymbolTableBuilder::visit(std::shared_ptr<Ast> node) {
   switch (node->type()) {
-  case Ast::AstType::PROGRAM:
+  case F_TYPE_PROGRAM:
     visitProgram(node);
     break;
-  case Ast::AstType::STATEMENT_LIST:
+  case F_TYPE_STATEMENT_LIST:
     visitStatementList(node);
     break;
-  case Ast::AstType::VARIABLE_DECLARATION:
+  case F_TYPE_VARIABLE_DECLARATION:
     visitVariableDeclaration(node);
     break;
-  case Ast::AstType::FUNCTION_DECLARATION:
+  case F_TYPE_FUNCTION_DECLARATION:
     visitFunctionDeclaration(node);
     break;
-  case Ast::AstType::CLASS_DECLARATION:
+  case F_TYPE_CLASS_DECLARATION:
     visitClassDeclaration(node);
     break;
-  case Ast::AstType::COMPOUND_STATEMENT:
+  case F_TYPE_COMPOUND_STATEMENT:
     visitCompoundStatement(node);
     break;
-  case Ast::AstType::ASSIGNMENT_STATEMENT:
+  case F_TYPE_ASSIGNMENT_STATEMENT:
     visitAssignmentStatement(node);
     break;
-  case Ast::AstType::EMPTY_STATEMENT:
+  case F_TYPE_EMPTY_STATEMENT:
     visitEmptyStatement(node);
     break;
-  case Ast::AstType::RETURN_STATEMENT:
+  case F_TYPE_RETURN_STATEMENT:
     visitReturnStatement(node);
     break;
   default:
@@ -105,25 +105,25 @@ void SymbolTableBuilder::visitReturnStatement(std::shared_ptr<Ast> node) {}
 std::shared_ptr<Ast>
 SymbolTableBuilder::visitExpression(std::shared_ptr<Ast> node) {
   switch (node->type()) {
-  case Ast::AstType::BINARY_OP:
+  case F_TYPE_BINARY_OP:
     return visitBinaryOp(node);
     break;
-  case Ast::AstType::UNARY_OP:
+  case F_TYPE_UNARY_OP:
     return visitUnaryOp(node);
     break;
-  case Ast::AstType::VARIABLE:
+  case F_TYPE_VARIABLE:
     return visitVariable(node);
     break;
-  case Ast::AstType::INTEGER_CONSTANT:
+  case F_TYPE_INTEGER_CONSTANT:
     return node;
     break;
-  case Ast::AstType::FLOATING_CONSTANT:
+  case F_TYPE_FLOATING_CONSTANT:
     return node;
     break;
-  case Ast::AstType::BOOLEAN_CONSTANT:
+  case F_TYPE_BOOLEAN_CONSTANT:
     return node;
     break;
-  case Ast::AstType::STRING_CONSTANT:
+  case F_TYPE_STRING_CONSTANT:
     return node;
     break;
   default:
