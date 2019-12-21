@@ -11,7 +11,7 @@ IdentifierToken::IdentifierToken(const icu::UnicodeString &value)
 icu::UnicodeString IdentifierToken::literal() const { return value_; }
 
 bool IdentifierToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isIdentifier() && literal() == t->literal();
+  return t && t->isIdentifier() && literal() == t->literal();
 }
 
 std::string IdentifierToken::toString() const {

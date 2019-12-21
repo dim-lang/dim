@@ -10,7 +10,7 @@ BooleanToken::BooleanToken(bool value) : Token(F_TYPE_BOOLEAN), value_(value) {}
 bool BooleanToken::boolean() const { return value_; }
 
 bool BooleanToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isBoolean() &&
+  return t && t->isBoolean() &&
          std::static_pointer_cast<BooleanToken>(t)->boolean() == value_;
 }
 

@@ -11,7 +11,7 @@ ComparatorToken::ComparatorToken(const icu::UnicodeString &value)
 icu::UnicodeString ComparatorToken::literal() const { return value_; }
 
 bool ComparatorToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isComparator() && t->literal() == literal();
+  return t && t->isComparator() && t->literal() == literal();
 }
 
 std::string ComparatorToken::toString() const {

@@ -50,6 +50,11 @@
 #define F_TYPE_BOOLEAN_CONSTANT 117
 #define F_TYPE_STRING_CONSTANT 118
 
+// symbol type
+#define F_TYPE_BUILTIN_TYPE_SYMBOL 201
+#define F_TYPE_VARIABLE_SYMBOL 202
+#define F_TYPE_FUNCTION_SYMBOL 203
+
 namespace fastype {
 
 class Type {

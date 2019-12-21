@@ -70,6 +70,14 @@ icu::UnicodeString Type::name(int value) {
     return UNICODE_STRING_SIMPLE("BOOLEAN_CONSTANT");
   case F_TYPE_STRING_CONSTANT:
     return UNICODE_STRING_SIMPLE("STRING_CONSTANT");
+
+    // symbol type
+  case F_TYPE_BUILTIN_TYPE_SYMBOL:
+    return UNICODE_STRING_SIMPLE("BUILTIN_TYPE_SYMBOL");
+  case F_TYPE_VARIABLE_SYMBOL:
+    return UNICODE_STRING_SIMPLE("VARIABLE_SYMBOL");
+  case F_TYPE_FUNCTION_SYMBOL:
+    return UNICODE_STRING_SIMPLE("FUNCTION_SYMBOL");
   default:
     F_THROW(ScriptException, "type value not found:{}", value);
   }
@@ -94,6 +102,7 @@ int Type::value(const icu::UnicodeString &name) {
       {UNICODE_STRING_SIMPLE("PUNCTUATION"), F_TYPE_PUNCTUATION},
       {UNICODE_STRING_SIMPLE("KEYWORD"), F_TYPE_KEYWORD},
       {UNICODE_STRING_SIMPLE("STRING"), F_TYPE_STRING},
+
       // ast type
       {UNICODE_STRING_SIMPLE("PROGRAM"), F_TYPE_PROGRAM},
       {UNICODE_STRING_SIMPLE("STATEMENT_LIST"), F_TYPE_STATEMENT_LIST},
@@ -116,6 +125,12 @@ int Type::value(const icu::UnicodeString &name) {
       {UNICODE_STRING_SIMPLE("FLOATING_CONSTANT"), F_TYPE_FLOATING_CONSTANT},
       {UNICODE_STRING_SIMPLE("BOOLEAN_CONSTANT"), F_TYPE_BOOLEAN_CONSTANT},
       {UNICODE_STRING_SIMPLE("STRING_CONSTANT"), F_TYPE_STRING_CONSTANT},
+
+      // symbol type
+      {UNICODE_STRING_SIMPLE("BUILTIN_TYPE_SYMBOL"),
+       F_TYPE_BUILTIN_TYPE_SYMBOL},
+      {UNICODE_STRING_SIMPLE("VARIABLE_SYMBOL"), F_TYPE_VARIABLE_SYMBOL},
+      {UNICODE_STRING_SIMPLE("FUNCTION_SYMBOL"), F_TYPE_FUNCTION_SYMBOL},
   };
   std::unordered_map<icu::UnicodeString, int>::const_iterator it =
       typeMapping.find(name);

@@ -11,7 +11,7 @@ PunctuationToken::PunctuationToken(const icu::UnicodeString &value)
 icu::UnicodeString PunctuationToken::literal() const { return value_; }
 
 bool PunctuationToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isPunctuation() && literal() == t->literal();
+  return t && t->isPunctuation() && literal() == t->literal();
 }
 
 std::string PunctuationToken::toString() const {

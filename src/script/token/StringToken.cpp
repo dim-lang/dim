@@ -11,7 +11,7 @@ StringToken::StringToken(const icu::UnicodeString &value)
 icu::UnicodeString StringToken::literal() const { return value_; }
 
 bool StringToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isString() && literal() == t->literal();
+  return t && t->isString() && literal() == t->literal();
 }
 
 std::string StringToken::toString() const {

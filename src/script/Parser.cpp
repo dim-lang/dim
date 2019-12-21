@@ -124,9 +124,9 @@ std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
   eat(Token::T_FUNC);
   std::shared_ptr<Ast> functionId = parseIdentifierConstant();
   eat(Token::T_LP);
-  std::vector<std::shared_ptr<Ast>> varList;
+  std::vector<std::shared_ptr<Ast>> parameterList;
   while (token_->isIdentifier()) {
-    varList.push_back(parseVariable());
+    parameterList.push_back(parseVariable());
     if (token_->isPunctuation() && token_->equal(Token::T_COMMA)) {
       eat(Token::T_COMMA);
     }
@@ -134,7 +134,7 @@ std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
   eat(Token::T_RP);
   std::shared_ptr<Ast> compoundStatement = parseCompoundStatement();
   return std::shared_ptr<Ast>(
-      new FunctionDeclaration(functionId, varList, compoundStatement));
+      new FunctionDeclaration(functionId, parameterList, compoundStatement));
 }
 
 std::shared_ptr<Ast> Parser::parseClassDeclaration() {

@@ -11,7 +11,7 @@ IntegerToken::IntegerToken(int64_t value)
 int64_t IntegerToken::integer() const { return value_; }
 
 bool IntegerToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isInteger() && integer() == t->integer();
+  return t && t->isInteger() && integer() == t->integer();
 }
 
 std::string IntegerToken::toString() const {

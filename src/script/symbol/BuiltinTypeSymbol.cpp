@@ -5,12 +5,23 @@
 
 namespace fastype {
 
+const BuiltinTypeSymbol
+    BuiltinTypeSymbol::S_INTEGER(UNICODE_STRING_SIMPLE("INTEGER"));
+const BuiltinTypeSymbol
+    BuiltinTypeSymbol::S_FLOATING(UNICODE_STRING_SIMPLE("FLOATING"));
+
 BuiltinTypeSymbol::BuiltinTypeSymbol(const icu::UnicodeString &name)
     : name_(name) {}
 
 const icu::UnicodeString &BuiltinTypeSymbol::name() const { return name_; }
 
-int &BuiltinTypeSymbol::type() const { return F_TYPE_BUILTIN_SYMBOL; }
+std::shared_ptr<Symbol> BuiltinTypeSymbol::type() const {
+  return Symbol::S_NIL;
+}
+
+bool BuiltinTypeSymbol::equal(std::shared_ptr<Symbol> s) const {
+  return s && s->type() == Symbol::S_NIL && (int)name_.compare(s->name()) == 0;
+}
 
 std::string BuiltinTypeSymbol::toString() const {
   std::string _1;

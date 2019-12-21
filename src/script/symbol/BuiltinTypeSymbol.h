@@ -8,10 +8,14 @@ namespace fastype {
 
 class BuiltinTypeSymbol : public Symbol {
 public:
+  static const BuiltinTypeSymbol S_INTEGER;
+  static const BuiltinTypeSymbol S_FLOATING;
+
   BuiltinTypeSymbol(const icu::UnicodeString &name);
   virtual ~BuiltinTypeSymbol() = default;
   virtual const icu::UnicodeString &name() const;
-  virtual int type() const;
+  virtual std::shared_ptr<Symbol> type() const;
+  virtual bool equal(std::shared_ptr<Symbol> s) const;
   virtual std::string toString() const;
 
 private:

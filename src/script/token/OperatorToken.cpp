@@ -11,7 +11,7 @@ OperatorToken::OperatorToken(const icu::UnicodeString &value)
 icu::UnicodeString OperatorToken::literal() const { return value_; }
 
 bool OperatorToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isOperator() && literal() == t->literal();
+  return t && t->isOperator() && literal() == t->literal();
 }
 
 std::string OperatorToken::toString() const {

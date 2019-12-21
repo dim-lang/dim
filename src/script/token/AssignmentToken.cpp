@@ -11,7 +11,7 @@ AssignmentToken::AssignmentToken(const icu::UnicodeString &value)
 icu::UnicodeString AssignmentToken::literal() const { return value_; }
 
 bool AssignmentToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isAssignment() && t->literal() == literal();
+  return t && t->isAssignment() && t->literal() == literal();
 }
 
 std::string AssignmentToken::toString() const {

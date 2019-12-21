@@ -11,7 +11,7 @@ KeywordToken::KeywordToken(const icu::UnicodeString &value)
 icu::UnicodeString KeywordToken::literal() const { return value_; }
 
 bool KeywordToken::equal(const std::shared_ptr<Token> &t) const {
-  return t.get() && t->isKeyword() && literal() == t->literal();
+  return t && t->isKeyword() && literal() == t->literal();
 }
 
 std::string KeywordToken::toString() const {
