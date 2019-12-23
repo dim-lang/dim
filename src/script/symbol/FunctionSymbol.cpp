@@ -7,9 +7,8 @@ namespace fastype {
 
 FunctionSymbol::FunctionSymbol(
     const icu::UnicodeString &name,
-    const std::vector<std::shared_ptr<Symbol>> &parameterList,
-    std::shared_ptr<Symbol> type)
-    : name_(name), parameterList_(parameterList), type_(type) {}
+    const std::vector<std::shared_ptr<Symbol>> &parameterList)
+    : name_(name), parameterList_(parameterList) {}
 
 const icu::UnicodeString &FunctionSymbol::name() const { return name_; }
 
@@ -21,7 +20,7 @@ FunctionSymbol::parameterList() const {
 std::shared_ptr<Symbol> FunctionSymbol::type() const { return Symbol::S_NIL; }
 
 bool FunctionSymbol::equal(std::shared_ptr<Symbol> s) const {
-  return s && type_->equal(s->type()) && (int)name_.compare(s->name()) == 0;
+  return s && s == Symbol::S_NIL;
 }
 
 std::string FunctionSymbol::toString() const {

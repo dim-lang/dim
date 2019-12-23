@@ -41,6 +41,7 @@ private:
   std::shared_ptr<Ast> tree_;
   std::shared_ptr<Parser> parser_;
   std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;
+  std::shared_ptr<ScopeSymbolTable> scope_;
 };
 
 } // namespace fastype

@@ -18,6 +18,7 @@ public:
   virtual ~ScopeSymbolTable() = default;
   virtual void insert(std::shared_ptr<Symbol> symbol);
   virtual std::shared_ptr<Symbol> lookup(const icu::UnicodeString &name) const;
+  virtual int level() const;
   virtual std::string toString() const;
 
 private:

@@ -34,9 +34,9 @@
 namespace fastype {
 
 Interpreter::Interpreter(std::shared_ptr<Parser> parser)
-    : tree_(nullptr), parser_(parser), globalScope_() {}
+    : tree_(nullptr), parser_(parser), scope_(nullptr) {}
 
-Interpreter::~Interpreter() { globalScope_.clear(); }
+Interpreter::~Interpreter() {}
 
 void Interpreter::visit(std::shared_ptr<Ast> node) {
   switch (node->type()) {
@@ -74,7 +74,7 @@ void Interpreter::visit(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitProgram(std::shared_ptr<Ast> node) {
-  std::shared_ptr<ScopeSymbolTable> globalScope(
+  scope_ = std::shared_ptr<ScopeSymbolTable>(
       new ScopeSymbolTable(UNICODE_STRING_SIMPLE("global_scope"), 1));
   std::shared_ptr<Program> e = std::static_pointer_cast<Program>(node);
   visit(e->statementList());
@@ -111,16 +111,25 @@ void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
       std::static_pointer_cast<FunctionDeclaration>(node);
   std::shared_ptr<IdentifierConstant> funcId =
       std::static_pointer_cast<IdentifierConstant>(e->functionId());
+  std::shared_ptr<Symbol> functionSymbol(
+      new FunctionSymbol(funcId->value(), e->parameterList()));
 
   // check no declaration before
-  F_CHECK(globalScope_.find(funcId->value()) == globalScope_.end(),
+  F_CHECK(scope_.find(funcId->value()) == scope_.end(),
           "function declaration:{} not exist", funcId->toString());
-  if (globalScope_.find(funcId->value()) != globalScope_.end()) {
+  if (scope_.find(funcId->value()) != scope_.end()) {
     F_THROW(ScriptException, "function declaration:{} not exist",
             funcId->toString());
   }
 
-  globalScope_[funcId->value()] = node;
+  scope_[funcId->value()] = node;
+  scope_ = std::shared_ptr<ScopeSymbolTable>(
+      new ScopeSymbolTable(funcId->value(), scope_->level() + 1));
+
+  for (int i = 0; i < (int)e->parameterList.size(); i++) {
+    scope_.insert();
+  }
+  visit();
 }
 
 void Interpreter::visitClassDeclaration(std::shared_ptr<Ast> node) {

@@ -24,6 +24,8 @@ ScopeSymbolTable::lookup(const icu::UnicodeString &name) const {
   return s == table_.end() ? Symbol::S_NIL : s->second;
 }
 
+int ScopeSymbolTable::level() const { return level_; }
+
 std::string ScopeSymbolTable::toString() const {
   return fmt::format("[ @ScopeSymbolTable table_#size:{}, level_:{} ]",
                      table_.size(), level_);

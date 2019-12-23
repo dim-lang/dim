@@ -9,8 +9,7 @@ namespace fastype {
 class FunctionSymbol : public Symbol {
 public:
   FunctionSymbol(const icu::UnicodeString &name,
-                 const std::vector<std::shared_ptr<Symbol>> &parameterList,
-                 std::shared_ptr<Symbol> type);
+                 const std::vector<std::shared_ptr<Symbol>> &parameterList);
   virtual ~FunctionSymbol() = default;
   virtual const icu::UnicodeString &name() const;
   virtual const std::vector<std::shared_ptr<Symbol>> &parameterList() const;
@@ -21,7 +20,6 @@ public:
 private:
   icu::UnicodeString name_;
   std::vector<std::shared_ptr<Symbol>> parameterList_;
-  std::shared_ptr<Symbol> type_;
 };
 
 } // namespace fastype
