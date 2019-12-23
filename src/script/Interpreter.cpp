@@ -4,6 +4,7 @@
 #include "script/Interpreter.h"
 #include "Logging.h"
 #include "exception/ScriptException.h"
+#include "script/ScopeSymbolTable.h"
 #include "script/Token.h"
 #include "script/Type.h"
 #include "script/ast/AssignmentStatement.h"
@@ -73,6 +74,8 @@ void Interpreter::visit(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitProgram(std::shared_ptr<Ast> node) {
+  std::shared_ptr<ScopeSymbolTable> globalScope(
+      new ScopeSymbolTable(UNICODE_STRING_SIMPLE("global_scope"), 1));
   std::shared_ptr<Program> e = std::static_pointer_cast<Program>(node);
   visit(e->statementList());
 }
