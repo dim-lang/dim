@@ -132,9 +132,9 @@ std::shared_ptr<Ast> Parser::parseFunctionDeclaration() {
     }
   }
   eat(Token::T_RP);
-  std::shared_ptr<Ast> compoundStatement = parseCompoundStatement();
+  std::shared_ptr<Ast> body = parseCompoundStatement();
   return std::shared_ptr<Ast>(
-      new FunctionDeclaration(functionId, parameterList, compoundStatement));
+      new FunctionDeclaration(functionId, parameterList, body));
 }
 
 std::shared_ptr<Ast> Parser::parseClassDeclaration() {

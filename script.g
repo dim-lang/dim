@@ -17,6 +17,9 @@ variable_declaration:   'let' variable (':' IDENTIFIER)? '=' expression ';'
 function_declaration:   'func' IDENTIFIER '(' variable (':' IDENTIFIER)? (',' variable (':' IDENTIFIER)?)* ')' compound_statement
                     ;
 
+function_body   :   '{' statement_list return_statement? '}'
+                ;
+
 statement   :   compound_statement
             |   assignment_statement
             |   empty_statement
