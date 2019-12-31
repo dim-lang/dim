@@ -12,10 +12,10 @@
 
 namespace fastype {
 
-class ScopeSymbolTable : public Stringify {
+class SymbolTable : public Stringify {
 public:
-  ScopeSymbolTable(const icu::UnicodeString &name, int level);
-  virtual ~ScopeSymbolTable() = default;
+  SymbolTable(const icu::UnicodeString &name, int level);
+  virtual ~SymbolTable() = default;
   virtual void insert(std::shared_ptr<Symbol> symbol);
   virtual std::shared_ptr<Symbol> lookup(const icu::UnicodeString &name) const;
   virtual int level() const;
