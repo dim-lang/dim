@@ -7,6 +7,7 @@
 #include "config/Header.h"
 #include "script/NodeVisitor.h"
 #include "script/Parser.h"
+#include "script/ast/Scope.h"
 #include <unordered_map>
 
 namespace fastype {
@@ -40,8 +41,8 @@ private:
 
   std::shared_ptr<Ast> tree_;
   std::shared_ptr<Parser> parser_;
-  std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;
-  std::shared_ptr<ScopeSymbolTable> scope_;
+  // std::unordered_map<icu::UnicodeString, std::shared_ptr<Ast>> globalScope_;
+  std::shared_ptr<Scope> scope_;
 };
 
 } // namespace fastype

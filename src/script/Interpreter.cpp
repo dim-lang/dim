@@ -4,7 +4,6 @@
 #include "script/Interpreter.h"
 #include "Logging.h"
 #include "exception/ScriptException.h"
-#include "script/ScopeSymbolTable.h"
 #include "script/Token.h"
 #include "script/Type.h"
 #include "script/ast/AssignmentStatement.h"
@@ -16,6 +15,7 @@
 #include "script/ast/IdentifierConstant.h"
 #include "script/ast/IntegerConstant.h"
 #include "script/ast/Program.h"
+#include "script/ast/Scope.h"
 #include "script/ast/StatementList.h"
 #include "script/ast/StringConstant.h"
 #include "script/ast/UnaryOp.h"
@@ -75,8 +75,8 @@ void Interpreter::visit(std::shared_ptr<Ast> node) {
 }
 
 void Interpreter::visitProgram(std::shared_ptr<Ast> node) {
-  scope_ = std::shared_ptr<ScopeSymbolTable>(
-      new ScopeSymbolTable(UNICODE_STRING_SIMPLE("global_scope"), 1));
+  scope_ =
+      std::shared_ptr<Scope>(new Scope(UNICODE_STRING_SIMPLE("global_scope")));
   std::shared_ptr<Program> e = std::static_pointer_cast<Program>(node);
   visit(e->statementList());
 }
@@ -97,14 +97,16 @@ void Interpreter::visitVariableDeclaration(std::shared_ptr<Ast> node) {
   std::shared_ptr<Ast> expr = e->expr();
 
   // check no variable declaration before
-  F_CHECK(scope_.find(var->value()) == scope_.end(),
-          "variable declaration:{} not exist", var->toString());
-  if (scope_.find(var->value()) != scope_.end()) {
-    F_THROW(ScriptException, "variable declaration:{} not exist",
-            var->toString());
+  std::string _1;
+  F_CHECK(!scope_->exist(var->value()),
+          "variable declaration:{} not found in scope:{}", var->toString(),
+          scope_->name().toUTF8String(_1));
+  if (!scope_->exist(var->value())) {
+    F_THROW(ScriptException, "variable declaration:{} not found in scope:{}",
+            var->toString(), scope_->name().toUTF8String(_1));
   }
 
-  scope_[var->value()] = visitExpression(expr);
+  (*scope_)[var->value()] = visitExpression(expr);
 }
 
 void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
@@ -112,23 +114,23 @@ void Interpreter::visitFunctionDeclaration(std::shared_ptr<Ast> node) {
       std::static_pointer_cast<FunctionDeclaration>(node);
   std::shared_ptr<IdentifierConstant> funcId =
       std::static_pointer_cast<IdentifierConstant>(e->functionId());
-  std::shared_ptr<Symbol> functionSymbol(
-      new FunctionSymbol(funcId->value(), e->parameterList()));
 
   // check no function declaration before
-  F_CHECK(scope_.find(funcId->value()) == scope_.end(),
-          "function declaration:{} not exist", funcId->toString());
-  if (scope_.find(funcId->value()) != scope_.end()) {
-    F_THROW(ScriptException, "function declaration:{} not exist",
-            funcId->toString());
+  std::string _1;
+  F_CHECK(!scope_->exist(funcId->value()),
+          "function declaration:{} not found in scope:{}", funcId->toString(),
+          scope_->name().toUTF8String(_1));
+  if (!scope_->exist(funcId->value())) {
+    F_THROW(ScriptException, "function declaration:{} not found in scope:{}",
+            funcId->toString(), scope_->name().toUTF8String(_1));
   }
 
   // add function to current scope
-  scope_.insert(functionSymbol);
+  scope_->insert(functionSymbol);
 
   // create new scope in function
-  scope_ = std::shared_ptr<ScopeSymbolTable>(
-      new ScopeSymbolTable(funcId->value(), scope_->level() + 1));
+  std::shared_ptr<Scope> functionScope =
+      std::shared_ptr<Scope>(new Scope(funcId->value(), scope_));
 
   // insert parameter to function scope
   for (int i = 0; i < (int)e->parameterList().size(); i++) {
