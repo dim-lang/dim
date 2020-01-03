@@ -27,3 +27,5 @@ boost
 icu
 Catch2
 PDCurses
+
+lex.yy.c

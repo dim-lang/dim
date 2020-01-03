@@ -9,11 +9,6 @@ extern "C" int yywarp() {}
 
 %%
 
-[ \t\v\n\f]             ;
-[a-zA-Z_][a-zA-Z0-9_]*  FSAVE_TOKEN; return FID;
-[0-9]+.[0-9]*           FSAVE_TOKEN; return FDOUBLE;
-[0-9]+                  FSAVE_TOKEN; return FINTEGER;
-\"(\\.|[^\\"])*\"       FSAVE_TOKEN; return FSTRING_LITERAL;
 "True"                  return FTOKEN(FTRUE);
 "False"                 return FTOKEN(FFALSE);
 "Nil"                   return FTOKEN(FNIL);
@@ -32,6 +27,11 @@ extern "C" int yywarp() {}
 "enum"                  return FTOKEN(FENUM);
 "and"                   return FTOKEN(FLOGICAND);
 "or"                    return FTOKEN(FLOGICOR);
+[ \t\v\n\f]             ;
+[a-zA-Z_][a-zA-Z0-9_]*  FSAVE_TOKEN; return FID;
+[0-9]+.[0-9]*           FSAVE_TOKEN; return FDOUBLE;
+[0-9]+                  FSAVE_TOKEN; return FINTEGER;
+\"(\\.|[^\\"])*\"       FSAVE_TOKEN; return FSTRING_LITERAL;
 "=="                    return FTOKEN(FEQ);
 "!="                    return FTOKEN(FNEQ);
 "<"                     return FTOKEN(FLT);
