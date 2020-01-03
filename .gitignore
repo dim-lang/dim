@@ -28,4 +28,5 @@ icu
 Catch2
 PDCurses
 
+# auto generate source code
 lex.yy.c

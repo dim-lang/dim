@@ -12,6 +12,7 @@ extern "C" int yywarp() {}
 "True"                  return FTOKEN(FTRUE);
 "False"                 return FTOKEN(FFALSE);
 "Nil"                   return FTOKEN(FNIL);
+"let"                   return FTOKEN(FLET);
 "if"                    return FTOKEN(FIF);
 "else"                  return FTOKEN(FELSE);
 "for"                   return FTOKEN(FFOR);
