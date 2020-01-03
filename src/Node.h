@@ -2,20 +2,31 @@
 // Apache License Version 2.0
 
 #pragma once
-#include <iosteam>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
 #include <vector>
 
 namespace fastype {
 
 /**
  * interface Node#codeGen
- * NExpression
- * NStatement
+ * interface NExpression -> Node
+ * interface NStatement -> Node
  *
- * NInteger->NExpression, NDouble->NExpression, NIdentifier->NExpression
+ * NInteger -> NExpression
+ * NDouble -> NExpression
+ * NStringLiteral -> NExpression
+ * NBoolean -> NExpression
+ * NIdentifier -> NExpression
+ * NMethodCall -> NExpression
+ * NBinaryOperator -> NExpression
+ * NAssignment -> NExpression
+ * NBlock -> NExpression
  *
- *
- *
+ * NExpressionStatement -> NStatement
+ * NVariableDeclaration -> NStatement
+ * NFunctionDeclaration -> NStatement
  */
 
 class CodeGenContext;
@@ -48,6 +59,20 @@ class NDouble : public NExpression {
 public:
   double value;
   NDouble(double value) : value(value) {}
+  virtual llvm::Value *codeGen(CodeGenContext &context);
+};
+
+class NStringLiteral : public NExpression {
+public:
+  std::string value;
+  NDouble(std::string value) : value(value) {}
+  virtual llvm::Value *codeGen(CodeGenContext &context);
+};
+
+class NBoolean : public NExpression {
+public:
+  bool value;
+  NDouble(bool value) : value(value) {}
   virtual llvm::Value *codeGen(CodeGenContext &context);
 };
 

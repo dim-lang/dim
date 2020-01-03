@@ -1,5 +1,5 @@
 %{
-#include "node.h"
+#include "Node.h"
 NBlock *programBlock;
 extern int yylex();
 void yyerror(const char *s) { printf("ERROR: %sn", s); }
@@ -18,13 +18,13 @@ std::string *string;
 int token;
 }
 
-%token <string> FIDENTIFIER FINTEGER FDOUBLE
+%token <string> FIDENTIFIER FINTEGER FDOUBLE FSTRING_LITERAL
 %token <token> FTRUE FFALSE FNIL FLET FIF FELSE FFOR FWHILE FBREAK FCONTINUE FVOID FRETURN FFUNC FSTRUCT FCLASS FIMPORT FENUM FLOGICAND FLOGICOR
 %token <token> FEQ FNEQ FLT FLE FGT FGE FLPAREN FRPAREN FLBRACKET FRBRACKET FLBRACE FRBRACE FDOT FCOMMA FQUESTION FCOLON FSEMI FNOT FCOMPLEMENT FAND FOR FXOR
 %token <token> FADD FSUB FMUL FDIV FMOD FASSIGN FADDASSIGN FSUBASSIGN FMULASSIGN FDIVASSIGN FMODASSIGN
 
 %type <ident> ident
-%type <expr> numeric expr
+%type <expr> constant expr
 %type <varvec> func_decl_args
 %type <exprvec> call_args
 %type <block> program stmts block
@@ -78,7 +78,7 @@ constant : FINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
 expr : ident FASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
      | ident FLPAREN call_args FRPAREN { $$ = new NMethodCall(*$1, *$3); delete $3; }
      | ident { $<ident>$ = $1; }
-     | constant
+     | constant { $<constant>$ = $1; }
      | expr binary_op expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
      | FLPAREN expr FRPAREN { $$ = $2; }
      ;

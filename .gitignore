@@ -30,3 +30,5 @@ PDCurses
 
 # auto generate source code
 lex.yy.c
+Parser.hpp
+Parser.cpp
