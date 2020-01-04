@@ -1,14 +1,17 @@
 %{
+#include <memory>
 #include <string>
 #include "Node.h"
 #include "Parser.hpp"
-#define FSAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
+#define FSAVE_TOKEN yylval.string = std::shared_ptr<std::string>(new std::string(yytext, yyleng))
 #define FTOKEN(t) (yylval.token = t)
 extern "C" int yywarp() {}
 %}
 
 %%
 
+"/*"                    { fastypeLexerComment(0); }
+"//"                    { fastypeLexerComment(1); }
 True                    return FTOKEN(FTRUE);
 False                   return FTOKEN(FFALSE);
 Nil                     return FTOKEN(FNIL);
@@ -28,9 +31,9 @@ import                  return FTOKEN(FIMPORT);
 enum                    return FTOKEN(FENUM);
 and                     return FTOKEN(FLOGICAND);
 or                      return FTOKEN(FLOGICOR);
-[ \t\v\n\f]             ;
+[ \r\t\v\n\f]           ;
 [a-zA-Z_][a-zA-Z_0-9]   FSAVE_TOKEN; return FIDENTIFIER;
-[0-9]+.[0-9]*           FSAVE_TOKEN; return FDOUBLE;
+[0-9]+.[0-9]+           FSAVE_TOKEN; return FDOUBLE;
 [0-9]+                  FSAVE_TOKEN; return FINTEGER;
 \"(\\.|[^\\"])*\"       FSAVE_TOKEN; return FSTRING_LITERAL;
 "=="                    return FTOKEN(FEQ);
@@ -69,3 +72,32 @@ or                      return FTOKEN(FLOGICOR);
 .                       printf("Unknown token!n"); yyterminate();
 
 %%
+
+static void fastypeLexerComment(int singleComment) {
+    if (singleComment) {
+        char c;
+        while (true) {
+            c = input();
+            putchar(c);
+            if (c == '\n') {
+                break;
+            }
+        }
+    } else {
+        char c, c1;
+        while (true) {
+            c = input();
+            while (c != '*' && c != 0)
+                putchar(c);
+            c1 = input();
+            if (c1 != '/' && c != 0) {
+                unput(c1);
+                continue;
+            }
+            if (c != 0) {
+                putchar(c1);
+                break;
+            }
+        }
+    }
+}

@@ -6,30 +6,30 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
 %}
 
 %union {
-Node *node;
-NBlock *block;
-NExpression *expr;
-NStatement *stmt;
-NIdentifier *ident;
+std::shared_ptr<Node> nodeValue;
+std::shared_ptr<NBlock> blockValue;
+std::shared_ptr<NExpression> expressionValue;
+std::shared_ptr<NStatement> statementValue;
+std::shared_ptr<NIdentifier> identifierValue;
 /*NVariableDeclaration *var_decl;*/
-std::vector<NVariableDeclaration*> varvec;
-std::vector<NExpression*> *exprvec;
-std::string *string;
-int token;
+std::shared_ptr<std::vector<std::shared_ptr<NVariableDeclaration>>> variableListValue;
+std::shared_ptr<std::vector<std::shared_ptr<NExpression>>> expressionListValue;
+std::shared_ptr<std::string> stringValue;
+int tokenValue;
 }
 
-%token <string> FIDENTIFIER FINTEGER FDOUBLE FSTRING_LITERAL
-%token <token> FTRUE FFALSE FNIL FLET FIF FELSE FFOR FWHILE FBREAK FCONTINUE FVOID FRETURN FFUNC FSTRUCT FCLASS FIMPORT FENUM FLOGICAND FLOGICOR
-%token <token> FEQ FNEQ FLT FLE FGT FGE FLPAREN FRPAREN FLBRACKET FRBRACKET FLBRACE FRBRACE FDOT FCOMMA FQUESTION FCOLON FSEMI FNOT FCOMPLEMENT FAND FOR FXOR
-%token <token> FADD FSUB FMUL FDIV FMOD FASSIGN FADDASSIGN FSUBASSIGN FMULASSIGN FDIVASSIGN FMODASSIGN
+%token <stringValue> FIDENTIFIER FINTEGER FDOUBLE FSTRING_LITERAL
+%token <tokenValue> FTRUE FFALSE FNIL FLET FIF FELSE FFOR FWHILE FBREAK FCONTINUE FVOID FRETURN FFUNC FSTRUCT FCLASS FIMPORT FENUM FLOGICAND FLOGICOR
+%token <tokenValue> FEQ FNEQ FLT FLE FGT FGE FLPAREN FRPAREN FLBRACKET FRBRACKET FLBRACE FRBRACE FDOT FCOMMA FQUESTION FCOLON FSEMI FNOT FCOMPLEMENT FAND FOR FXOR
+%token <tokenValue> FADD FSUB FMUL FDIV FMOD FASSIGN FADDASSIGN FSUBASSIGN FMULASSIGN FDIVASSIGN FMODASSIGN
 
-%type <ident> ident
-%type <expr> constant expr
-%type <varvec> func_decl_args
-%type <exprvec> call_args
-%type <block> program stmts block
-%type <stmt> stmt func_decl
-%type <token> binary_op
+%type <identifierValue> ident
+%type <expressionValue> primary_expr expr
+%type <variableListValue> func_decl_args
+%type <expressionListValue> call_args
+%type <blockValue> program stmts block
+%type <statementValue> stmt func_decl
+%type <tokenValue> binary_op
 
 %left FADD FSUB
 %left FMUL FDIV FMOD
@@ -46,7 +46,7 @@ stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
       ;
 
 stmt : func_decl
-     | expr { $$ = new NExpressionStatement(*$1); }
+     | expr FSEMI { $$ = new NExpressionStatement(*$1); }
      ;
 
 block : FLBRACE stmts FRBRACE { $$ = $2; }
@@ -63,17 +63,17 @@ func_decl_args : /*blank*/  { $$ = new VariableList(); }
 ident : FIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
       ;
 
-constant : FINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
-         | FDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; } 
-         | FSTRING_LITERAL { $$ = new NStringLiteral($1); delete $1; }
-         | FTRUE { $$ = new NBoolean($1); delete $1; }
-         | FFALSE { $$ = new NBoolean($1); delete $1; }
-         ;
+primary_expr : FINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
+             | FDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; } 
+             | FSTRING_LITERAL { $$ = new NStringLiteral($1); delete $1; }
+             | FTRUE { $$ = new NBoolean($1); delete $1; }
+             | FFALSE { $$ = new NBoolean($1); delete $1; }
+             ;
 
 expr : ident FASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }
      | ident FLPAREN call_args FRPAREN { $$ = new NMethodCall(*$1, *$3); delete $3; }
      | ident { $<ident>$ = $1; }
-     | constant { $<constant>$ = $1; }
+     | primary_expr { $<primary_expr>$ = $1; }
      | expr binary_op expr { $$ = new NBinaryOperator(*$1, $2, *$3); }
      | FLPAREN expr FRPAREN { $$ = $2; }
      ;

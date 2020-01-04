@@ -2,9 +2,12 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 namespace fastype {
