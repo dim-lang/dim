@@ -30,6 +30,7 @@ set(FLIB
     icuio
     icudata
     icui18n
+    fl
     )
 
 set(FLIB_DIR

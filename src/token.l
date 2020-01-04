@@ -1,7 +1,7 @@
 %{
 #include <string>
-#include "node.h"
-#include "parser.hpp"
+#include "Node.h"
+#include "Parser.hpp"
 #define FSAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
 #define FTOKEN(t) (yylval.token = t)
 extern "C" int yywarp() {}
@@ -9,27 +9,27 @@ extern "C" int yywarp() {}
 
 %%
 
-"True"                  return FTOKEN(FTRUE);
-"False"                 return FTOKEN(FFALSE);
-"Nil"                   return FTOKEN(FNIL);
-"let"                   return FTOKEN(FLET);
-"if"                    return FTOKEN(FIF);
-"else"                  return FTOKEN(FELSE);
-"for"                   return FTOKEN(FFOR);
-"while"                 return FTOKEN(FWHILE);
-"break"                 return FTOKEN(FBREAK);
-"continue"              return FTOKEN(FCONTINUE);
-"void"                  return FTOKEN(FVOID);
-"return"                return FTOKEN(FRETURN);
-"func"                  return FTOKEN(FFUNC);
-"struct"                return FTOKEN(FSTRUCT);
-"class"                 return FTOKEN(FCLASS);
-"import"                return FTOKEN(FIMPORT);
-"enum"                  return FTOKEN(FENUM);
-"and"                   return FTOKEN(FLOGICAND);
-"or"                    return FTOKEN(FLOGICOR);
+True                    return FTOKEN(FTRUE);
+False                   return FTOKEN(FFALSE);
+Nil                     return FTOKEN(FNIL);
+let                     return FTOKEN(FLET);
+if                      return FTOKEN(FIF);
+else                    return FTOKEN(FELSE);
+for                     return FTOKEN(FFOR);
+while                   return FTOKEN(FWHILE);
+break                   return FTOKEN(FBREAK);
+continue                return FTOKEN(FCONTINUE);
+void                    return FTOKEN(FVOID);
+return                  return FTOKEN(FRETURN);
+func                    return FTOKEN(FFUNC);
+struct                  return FTOKEN(FSTRUCT);
+class                   return FTOKEN(FCLASS);
+import                  return FTOKEN(FIMPORT);
+enum                    return FTOKEN(FENUM);
+and                     return FTOKEN(FLOGICAND);
+or                      return FTOKEN(FLOGICOR);
 [ \t\v\n\f]             ;
-[a-zA-Z_][a-zA-Z0-9_]*  FSAVE_TOKEN; return FIDENTIFIER;
+[a-zA-Z_][a-zA-Z_0-9]   FSAVE_TOKEN; return FIDENTIFIER;
 [0-9]+.[0-9]*           FSAVE_TOKEN; return FDOUBLE;
 [0-9]+                  FSAVE_TOKEN; return FINTEGER;
 \"(\\.|[^\\"])*\"       FSAVE_TOKEN; return FSTRING_LITERAL;

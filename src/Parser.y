@@ -11,7 +11,7 @@ NBlock *block;
 NExpression *expr;
 NStatement *stmt;
 NIdentifier *ident;
-NVariableDeclaration *var_decl;
+/*NVariableDeclaration *var_decl;*/
 std::vector<NVariableDeclaration*> varvec;
 std::vector<NExpression*> *exprvec;
 std::string *string;
@@ -28,7 +28,7 @@ int token;
 %type <varvec> func_decl_args
 %type <exprvec> call_args
 %type <block> program stmts block
-%type <stmt> stmt var_decl func_decl
+%type <stmt> stmt func_decl
 %type <token> binary_op
 
 %left FADD FSUB
@@ -45,8 +45,7 @@ stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
       | stmts stmt { $1->statements.push_back($<stmt>2); }
       ;
 
-stmt : var_decl
-     | func_decl
+stmt : func_decl
      | expr { $$ = new NExpressionStatement(*$1); }
      ;
 
@@ -54,16 +53,12 @@ block : FLBRACE stmts FRBRACE { $$ = $2; }
       | FLBRACE FRBRACE { $$ = new NBlock(); }
       ;
 
-var_decl : FLET ident FASSIGN expr { $$ = new NVariableDeclaration(*$1, *$2, $4); }
-         ;
-
 func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
           ;
 
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
-          | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-          | func_decl_args FCOMMA var_decl { $1->push_back($<var_decl>3); }
-          ;
+               | func_decl_args FCOMMA ident { $1->push_back($<ident>3); }
+               ;
 
 ident : FIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
       ;

@@ -15,7 +15,8 @@ set(FCORE
     Random.cpp
     Approximate.cpp
     CursesTerm.cpp
-    lex.yy.c
+    Token.cpp
+    Parser.cpp
 
     graph/Dot.cpp
 
