@@ -37,6 +37,11 @@ class AstStatement;
 class AstExpression;
 class AstVariableDeclaration;
 
+typedef std::vector<std::shared_ptr<AstExpression>> AstExpressionList;
+typedef std::vector<std::shared_ptr<AstStatement>> AstStatementList;
+typedef std::vector<std::shared_ptr<AstVariableDeclaration>>
+    AstVariableDeclarationList;
+
 class Ast {
 public:
   virtual ~Ast() = default;
@@ -79,11 +84,11 @@ public:
 class AstMethodCall : public AstExpression {
 public:
   std::shared_ptr<AstIdentifier> id;
-  std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>> argumentList;
-  AstMethodCall(
-      std::shared_ptr<AstIdentifier> id,
-      std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>> argumentList)
+  std::shared_ptr<AstExpressionList> argumentList;
+  AstMethodCall(std::shared_ptr<AstIdentifier> id,
+                std::shared_ptr<AstExpressionList> argumentList)
       : id(id), argumentList(argumentList) {}
+
   AstMethodCall(std::shared_ptr<AstIdentifier> id)
       : id(id), argumentList(nullptr) {}
 };
@@ -91,9 +96,10 @@ public:
 class AstBinaryOperator : public AstExpression {
 public:
   int op;
-  AstExpression &lhs;
-  AstExpression &rhs;
-  AstBinaryOperator(AstExpression &lhs, int op, AstExpression &rhs)
+  std::shared_ptr<AstExpression> lhs;
+  std::shared_ptr<AstExpression> rhs;
+  AstBinaryOperator(std::shared_ptr<AstExpression> lhs, int op,
+                    std::shared_ptr<AstExpression> rhs)
       : lhs(lhs), rhs(rhs), op(op) {}
 };
 
@@ -108,9 +114,8 @@ public:
 
 class AstBlock : public AstExpression {
 public:
-  std::shared_ptr<std::vector<std::shared_ptr<AstStatement>>> statementList;
-  AstBlock()
-      : statementList(new std::vector<std::shared_ptr<AstStatement>>()) {}
+  std::shared_ptr<AstStatementList> statementList;
+  AstBlock() : statementList(new AstStatementList()) {}
 };
 
 class AstExpressionStatement : public AstStatement {
@@ -136,13 +141,11 @@ class AstFunctionDeclaration : public AstStatement {
 public:
   std::shared_ptr<AstIdentifier> type;
   std::shared_ptr<AstIdentifier> id;
-  std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>
-      argumentList;
+  std::shared_ptr<AstVariableDeclarationList> argumentList;
   std::shared_ptr<AstBlock> block;
   AstFunctionDeclaration(
       std::shared_ptr<AstIdentifier> type, std::shared_ptr<AstIdentifier> id,
-      std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>
-          argumentList,
+      std::shared_ptr<AstVariableDeclarationList> argumentList,
       std::shared_ptr<AstBlock> block)
       : type(type), id(id), argumentList(argumentList), block(block) {}
 };

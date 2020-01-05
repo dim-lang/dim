@@ -12,8 +12,8 @@ std::shared_ptr<AstExpression> expression;
 std::shared_ptr<AstStatement> statement;
 std::shared_ptr<AstIdentifier> identifier;
 /*AstVariableDeclaration *var_decl;*/
-std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>> variableList;
-std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>> expressionList;
+std::shared_ptr<fastype::AstVariableDeclarationList> variableList;
+std::shared_ptr<fastype::AstExpressionList> expressionList;
 std::shared_ptr<std::string> string;
 int token;
 }
@@ -56,7 +56,7 @@ block : FLBRACE stmts FRBRACE { $$ = $2; }
 func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = std::shared_ptr<AstStatement>(new AstFunctionDeclaration($2, $4, $6)); }
           ;
 
-func_decl_args : /*blank*/  { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>(std::vector<std::shared_ptr<AstVariableDeclaration>>()); }
+func_decl_args : /*blank*/  { $$ = std::shared_ptr<fastype::AstVariableDeclarationList>(new fastype::AstVariableDeclarationList()); }
                | func_decl_args FCOMMA ident { $1->push_back($<ident>3); }
                ;
 
@@ -66,8 +66,8 @@ ident : FIDENTIFIER { $$ = std::shared_ptr<AstIdentifier>(new AstIdentifier($1))
 
 expr : ident FASSIGN expr { $$ = std::shared_ptr<AstExpression>(new AstAssignment($<ident>1, $3)); }
      | ident FLPAREN call_args FRPAREN { $$ = std::shared_ptr<AstExpression>(new AstMethodCall($1, $3)); }
-     | ident { $<ident>$ = $1; }
-     | expr binary_op expr { $$ = new AstBinaryOperator(*$1, $2, *$3); }
+     | ident { $<ident>$ = std::static_pointer_cast<AstExpression>($1); }
+     | expr binary_op expr { $$ = std::shared_ptr<AstExpression>(new AstBinaryOperator($1, $2, $3)); }
      | FLPAREN expr FRPAREN { $$ = $2; }
      | FINTEGER { $$ = std::shared_ptr<AstExpression>(new AstInteger(atol($1->c_str()))); delete $1; }
      | FDOUBLE { $$ = std::shared_ptr<AstExpression>(new AstDouble(atof($1->c_str()))); delete $1; }
@@ -76,8 +76,8 @@ expr : ident FASSIGN expr { $$ = std::shared_ptr<AstExpression>(new AstAssignmen
      | FFALSE { $$ = std::shared_ptr<AstExpression>(new AstBoolean(false)); delete $1; }
      ;
 
-call_args : /*blank*/  { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>>(new std::vector<std::shared_ptr<AstExpression>>()); }
-          | expr { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>>(new std::vector<std::shared_ptr<AstExpression>>()); $$->push_back($1); }
+call_args : /*blank*/  { $$ = std::shared_ptr<fastype::AstExpressionList>(new fastype::AstExpressionList()); }
+          | expr { $$ = std::shared_ptr<fastype::AstExpressionList>(new fastype::AstExpressionList()); $$->push_back($1); }
           | call_args FCOMMA expr  { $1->push_back($3); }
           ;
 
