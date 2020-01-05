@@ -41,26 +41,26 @@ int token;
 program : stmt { programBlock = $1; }
         ;
 
-stmts : stmt { $$ = new AstBlock(); $$->statements.push_back($<stmt>1); }
-      | stmts stmt { $1->statements.push_back($<stmt>2); }
+stmts : stmt { $$ = std::shared_ptr<AstBlock>(new AstBlock()); $$->statementList->push_back(std::shared_ptr<AstStatement>($<stmt>1)); }
+      | stmts stmt { $1->statementList->push_back(std::shared_ptr<AstStatement>($<stmt>2)); }
       ;
 
 stmt : func_decl
-     | expr FSEMI { $$ = new AstExpressionStatement(*$1); }
+     | expr FSEMI { $$ = std::shared_ptr<AstExpressionStatement>(new AstExpressionStatement($1)); }
      ;
 
 block : FLBRACE stmts FRBRACE { $$ = $2; }
-      | FLBRACE FRBRACE { $$ = new AstBlock(); }
+      | FLBRACE FRBRACE { $$ = std::shared_ptr<AstBlock>(new AstBlock()); }
       ;
 
-func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = new AstFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
+func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = std::shared_ptr<AstStatement>(new AstFunctionDeclaration($2, $4, $6)); }
           ;
 
-func_decl_args : /*blank*/  { $$ = new AstVariableList(); }
+func_decl_args : /*blank*/  { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>(std::vector<std::shared_ptr<AstVariableDeclaration>>()); }
                | func_decl_args FCOMMA ident { $1->push_back($<ident>3); }
                ;
 
-ident : FIDENTIFIER { $$ = new AstIdentifier(*$1); delete $1; }
+ident : FIDENTIFIER { $$ = std::shared_ptr<AstIdentifier>(new AstIdentifier($1)); }
       ;
 
 primary_expr : FINTEGER { $$ = new AstInteger(atol($1->c_str())); delete $1; }

@@ -37,7 +37,6 @@ class AstStatement;
 class AstExpression;
 class AstVariableDeclaration;
 
-typedef std::vector<AstStatement *> StatementList;
 typedef std::vector<AstExpression *> ExpressionList;
 typedef std::vector<AstVariableDeclaration *> VariableList;
 
@@ -65,13 +64,13 @@ public:
 class AstStringLiteral : public AstExpression {
 public:
   std::string value;
-  AstDouble(std::string value) : value(value) {}
+  AstStringLiteral(std::string value) : value(value) {}
 };
 
 class AstBoolean : public AstExpression {
 public:
   bool value;
-  AstDouble(bool value) : value(value) {}
+  AstBoolean(bool value) : value(value) {}
 };
 
 class AstIdentifier : public AstExpression {
@@ -107,14 +106,16 @@ public:
 
 class AstBlock : public AstExpression {
 public:
-  StatementList statements;
-  AstBlock() {}
+  std::shared_ptr<std::vector<std::shared_ptr<AstStatement>>> statementList;
+  AstBlock()
+      : statementList(new std::vector<std::shared_ptr<AstStatement>>()) {}
 };
 
 class AstExpressionStatement : public AstStatement {
 public:
-  AstExpression &expression;
-  AstExpressionStatement(AstExpression &expression) : expression(expression) {}
+  std::shared_ptr<AstExpression> expression;
+  AstExpressionStatement(std::shared_ptr<AstExpression> expression)
+      : expression(expression) {}
 };
 
 class AstVariableDeclaration : public AstStatement {
@@ -131,13 +132,17 @@ public:
 
 class AstFunctionDeclaration : public AstStatement {
 public:
-  const AstIdentifier &type;
-  const AstIdentifier &id;
-  VariableList arguments;
-  AstBlock &block;
-  AstFunctionDeclaration(const AstIdentifier &type, const AstIdentifier &id,
-                         const VariableList &arguments, AstBlock &block)
-      : type(type), id(id), arguments(arguments), block(block) {}
+  std::shared_ptr<AstIdentifier> type;
+  std::shared_ptr<AstIdentifier> id;
+  std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>
+      argumentList;
+  std::shared_ptr<AstBlock> block;
+  AstFunctionDeclaration(
+      std::shared_ptr<AstIdentifier> type, std::shared_ptr<AstIdentifier> id,
+      std::shared_ptr<std::vector<std::shared_ptr<AstVariableDeclaration>>>
+          argumentList,
+      std::shared_ptr<AstBlock> block)
+      : type(type), id(id), argumentList(argumentList), block(block) {}
 };
 
 } // namespace fastype
