@@ -37,9 +37,6 @@ class AstStatement;
 class AstExpression;
 class AstVariableDeclaration;
 
-typedef std::vector<AstExpression *> ExpressionList;
-typedef std::vector<AstVariableDeclaration *> VariableList;
-
 class Ast {
 public:
   virtual ~Ast() = default;
@@ -81,11 +78,14 @@ public:
 
 class AstMethodCall : public AstExpression {
 public:
-  const AstIdentifier &id;
-  ExpressionList arguments;
-  AstMethodCall(const AstIdentifier &id, ExpressionList &arguments)
-      : id(id), arguments(arguments) {}
-  AstMethodCall(const AstIdentifier &id) : id(id) {}
+  std::shared_ptr<AstIdentifier> id;
+  std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>> argumentList;
+  AstMethodCall(
+      std::shared_ptr<AstIdentifier> id,
+      std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>> argumentList)
+      : id(id), argumentList(argumentList) {}
+  AstMethodCall(std::shared_ptr<AstIdentifier> id)
+      : id(id), argumentList(nullptr) {}
 };
 
 class AstBinaryOperator : public AstExpression {
@@ -99,9 +99,11 @@ public:
 
 class AstAssignment : public AstExpression {
 public:
-  AstIdentifier &lhs;
-  AstExpression &rhs;
-  AstAssignment(AstIdentifier &lhs, AstExpression &rhs) : lhs(lhs), rhs(rhs) {}
+  std::shared_ptr<AstIdentifier> lhs;
+  std::shared_ptr<AstExpression> rhs;
+  AstAssignment(std::shared_ptr<AstIdentifier> lhs,
+                std::shared_ptr<AstExpression> rhs)
+      : lhs(lhs), rhs(rhs) {}
 };
 
 class AstBlock : public AstExpression {

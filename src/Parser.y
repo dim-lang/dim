@@ -63,23 +63,21 @@ func_decl_args : /*blank*/  { $$ = std::shared_ptr<std::vector<std::shared_ptr<A
 ident : FIDENTIFIER { $$ = std::shared_ptr<AstIdentifier>(new AstIdentifier($1)); }
       ;
 
-primary_expr : FINTEGER { $$ = new AstInteger(atol($1->c_str())); delete $1; }
-             | FDOUBLE { $$ = new AstDouble(atof($1->c_str())); delete $1; } 
-             | FSTRING_LITERAL { $$ = new AstStringLiteral($1); delete $1; }
-             | FTRUE { $$ = new AstBoolean($1); delete $1; }
-             | FFALSE { $$ = new AstBoolean($1); delete $1; }
-             ;
 
-expr : ident FASSIGN expr { $$ = new AstAssignment(*$<ident>1, *$3); }
-     | ident FLPAREN call_args FRPAREN { $$ = new AstMethodCall(*$1, *$3); delete $3; }
+expr : ident FASSIGN expr { $$ = std::shared_ptr<AstExpression>(new AstAssignment($<ident>1, $3)); }
+     | ident FLPAREN call_args FRPAREN { $$ = std::shared_ptr<AstExpression>(new AstMethodCall($1, $3)); }
      | ident { $<ident>$ = $1; }
-     | primary_expr { $<primary_expr>$ = $1; }
      | expr binary_op expr { $$ = new AstBinaryOperator(*$1, $2, *$3); }
      | FLPAREN expr FRPAREN { $$ = $2; }
+     | FINTEGER { $$ = std::shared_ptr<AstExpression>(new AstInteger(atol($1->c_str()))); delete $1; }
+     | FDOUBLE { $$ = std::shared_ptr<AstExpression>(new AstDouble(atof($1->c_str()))); delete $1; }
+     | FSTRING_LITERAL { $$ = std::shared_ptr<AstExpression>(new AstStringLiteral(*$1)); delete $1; }
+     | FTRUE { $$ = std::shared_ptr<AstExpression>(new AstBoolean(true)); delete $1; }
+     | FFALSE { $$ = std::shared_ptr<AstExpression>(new AstBoolean(false)); delete $1; }
      ;
 
-call_args : /*blank*/  { $$ = new AstExpressionList(); }
-          | expr { $$ = new AstExpressionList(); $$->push_back($1); }
+call_args : /*blank*/  { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>>(new std::vector<std::shared_ptr<AstExpression>>()); }
+          | expr { $$ = std::shared_ptr<std::vector<std::shared_ptr<AstExpression>>>(new std::vector<std::shared_ptr<AstExpression>>()); $$->push_back($1); }
           | call_args FCOMMA expr  { $1->push_back($3); }
           ;
 
