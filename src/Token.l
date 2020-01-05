@@ -1,7 +1,7 @@
 %{
 #include <memory>
 #include <string>
-#include "Node.h"
+#include "Ast.h"
 #include "Parser.hpp"
 #define FSAVE_TOKEN yylval.string = std::shared_ptr<std::string>(new std::string(yytext, yyleng))
 #define FTOKEN(t) (yylval.token = t)
@@ -73,7 +73,7 @@ or                      return FTOKEN(FLOGICOR);
 
 %%
 
-static void fastypeLexerComment(int singleComment) {
+void fastypeLexerComment(int singleComment) {
     if (singleComment) {
         char c;
         while (true) {

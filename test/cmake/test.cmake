@@ -10,10 +10,7 @@ set(FTEST
     RandomTest.cpp
     FilerTest.cpp
     ApproximateTest.cpp
+    TokenTest.cpp
 
     exception/NotFoundExceptionTest.cpp
-    script/TokenTest.cpp
-    script/LexerTest.cpp
-    script/ParserTest.cpp
-    script/InterpreterTest.cpp
     )

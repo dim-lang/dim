@@ -6,15 +6,14 @@
 #include "Random.h"
 #include "catch2/catch.hpp"
 
-#define TEST_MAX 128
-
 TEST_CASE("NotFoundException", "[NotFoundException]") {
   fastype::Random::initialize();
 
   SECTION("Exception") {
-    for (int i = 0; i < TEST_MAX; i++) {
+    for (int i = 0; i < 128; i++) {
       try {
         F_THROW(fastype::NotFoundException, "{}", i);
+        REQUIRE(false);
       } catch (fastype::NotFoundException &e) {
         REQUIRE(true);
       }
