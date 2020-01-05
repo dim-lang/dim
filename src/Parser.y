@@ -1,16 +1,17 @@
 %{
 #include "Ast.h"
-AstBlock *programBlock;
+fastype::AstBlock *programBlock;
 extern int yylex();
 void yyerror(const char *s) { printf("ERROR: %sn", s); }
+#define YYSTYPE yylval
 %}
 
 %union {
-std::shared_ptr<Ast> node;
-std::shared_ptr<AstBlock> block;
-std::shared_ptr<AstExpression> expression;
-std::shared_ptr<AstStatement> statement;
-std::shared_ptr<AstIdentifier> identifier;
+std::shared_ptr<fastype::Ast> node;
+std::shared_ptr<fastype::AstBlock> block;
+std::shared_ptr<fastype::AstExpression> expression;
+std::shared_ptr<fastype::AstStatement> statement;
+std::shared_ptr<fastype::AstIdentifier> identifier;
 /*AstVariableDeclaration *var_decl;*/
 std::shared_ptr<fastype::AstVariableDeclarationList> variableList;
 std::shared_ptr<fastype::AstExpressionList> expressionList;
@@ -24,7 +25,7 @@ int token;
 %token <token> FADD FSUB FMUL FDIV FMOD FASSIGN FADDASSIGN FSUBASSIGN FMULASSIGN FDIVASSIGN FMODASSIGN
 
 %type <identifier> ident
-%type <expression> primary_expr expr
+%type <expression> expr
 %type <variableList> func_decl_args
 %type <expressionList> call_args
 %type <block> program stmts block
@@ -41,39 +42,39 @@ int token;
 program : stmt { programBlock = $1; }
         ;
 
-stmts : stmt { $$ = std::shared_ptr<AstBlock>(new AstBlock()); $$->statementList->push_back(std::shared_ptr<AstStatement>($<stmt>1)); }
-      | stmts stmt { $1->statementList->push_back(std::shared_ptr<AstStatement>($<stmt>2)); }
+stmts : stmt { $$ = std::shared_ptr<fastype::AstBlock>(new fastype::AstBlock()); $$->statementList->push_back(std::shared_ptr<fastype::AstStatement>($<stmt>1)); }
+      | stmts stmt { $1->statementList->push_back(std::shared_ptr<fastype::AstStatement>($<stmt>2)); }
       ;
 
 stmt : func_decl
-     | expr FSEMI { $$ = std::shared_ptr<AstExpressionStatement>(new AstExpressionStatement($1)); }
+     | expr FSEMI { $$ = std::shared_ptr<fastype::AstExpressionStatement>(new fastype::AstExpressionStatement($1)); }
      ;
 
 block : FLBRACE stmts FRBRACE { $$ = $2; }
-      | FLBRACE FRBRACE { $$ = std::shared_ptr<AstBlock>(new AstBlock()); }
+      | FLBRACE FRBRACE { $$ = std::shared_ptr<fastype::AstBlock>(new fastype::AstBlock()); }
       ;
 
-func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = std::shared_ptr<AstStatement>(new AstFunctionDeclaration($2, $4, $6)); }
+func_decl : FFUNC ident FLPAREN func_decl_args FRPAREN block { $$ = std::shared_ptr<fastype::AstStatement>(new fastype::AstFunctionDeclaration($2, $4, $6)); }
           ;
 
 func_decl_args : /*blank*/  { $$ = std::shared_ptr<fastype::AstVariableDeclarationList>(new fastype::AstVariableDeclarationList()); }
                | func_decl_args FCOMMA ident { $1->push_back($<ident>3); }
                ;
 
-ident : FIDENTIFIER { $$ = std::shared_ptr<AstIdentifier>(new AstIdentifier($1)); }
+ident : FIDENTIFIER { $$ = std::shared_ptr<fastype::AstIdentifier>(new fastype::AstIdentifier($1)); }
       ;
 
 
-expr : ident FASSIGN expr { $$ = std::shared_ptr<AstExpression>(new AstAssignment($<ident>1, $3)); }
-     | ident FLPAREN call_args FRPAREN { $$ = std::shared_ptr<AstExpression>(new AstMethodCall($1, $3)); }
-     | ident { $<ident>$ = std::static_pointer_cast<AstExpression>($1); }
-     | expr binary_op expr { $$ = std::shared_ptr<AstExpression>(new AstBinaryOperator($1, $2, $3)); }
+expr : ident FASSIGN expr { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstAssignment($<ident>1, $3)); }
+     | ident FLPAREN call_args FRPAREN { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstMethodCall($1, $3)); }
+     | ident { $<ident>$ = std::static_pointer_cast<fastype::AstExpression>($1); }
+     | expr binary_op expr { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstBinaryOperator($1, $2, $3)); }
      | FLPAREN expr FRPAREN { $$ = $2; }
-     | FINTEGER { $$ = std::shared_ptr<AstExpression>(new AstInteger(atol($1->c_str()))); delete $1; }
-     | FDOUBLE { $$ = std::shared_ptr<AstExpression>(new AstDouble(atof($1->c_str()))); delete $1; }
-     | FSTRING_LITERAL { $$ = std::shared_ptr<AstExpression>(new AstStringLiteral(*$1)); delete $1; }
-     | FTRUE { $$ = std::shared_ptr<AstExpression>(new AstBoolean(true)); delete $1; }
-     | FFALSE { $$ = std::shared_ptr<AstExpression>(new AstBoolean(false)); delete $1; }
+     | FINTEGER { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstInteger(atol($1->c_str()))); delete $1; }
+     | FDOUBLE { $$ = std::shared_ptr<fastype::AstExpression>(new AstDouble(atof($1->c_str()))); delete $1; }
+     | FSTRING_LITERAL { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstStringLiteral(*$1)); delete $1; }
+     | FTRUE { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstBoolean(true)); delete $1; }
+     | FFALSE { $$ = std::shared_ptr<fastype::AstExpression>(new fastype::AstBoolean(false)); delete $1; }
      ;
 
 call_args : /*blank*/  { $$ = std::shared_ptr<fastype::AstExpressionList>(new fastype::AstExpressionList()); }

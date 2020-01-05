@@ -5,7 +5,13 @@
 #include "Parser.hpp"
 #define FSAVE_TOKEN yylval.string = std::shared_ptr<std::string>(new std::string(yytext, yyleng))
 #define FTOKEN(t) (yylval.token = t)
-extern "C" int yywarp() {}
+extern "C" int yywarp() { return 1; }
+#ifdef __cplusplus
+static int yyinput (void );
+#else
+static int input (void );
+#endif
+static void fastypeLexerComment(int singleComment);
 %}
 
 %%
@@ -73,11 +79,11 @@ or                      return FTOKEN(FLOGICOR);
 
 %%
 
-void fastypeLexerComment(int singleComment) {
+static void fastypeLexerComment(int singleComment) {
     if (singleComment) {
         char c;
         while (true) {
-            c = input();
+            c = yyinput();
             putchar(c);
             if (c == '\n') {
                 break;
@@ -86,10 +92,10 @@ void fastypeLexerComment(int singleComment) {
     } else {
         char c, c1;
         while (true) {
-            c = input();
+            c = yyinput();
             while (c != '*' && c != 0)
                 putchar(c);
-            c1 = input();
+            c1 = yyinput();
             if (c1 != '/' && c != 0) {
                 unput(c1);
                 continue;

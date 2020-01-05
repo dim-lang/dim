@@ -100,7 +100,7 @@ public:
   std::shared_ptr<AstExpression> rhs;
   AstBinaryOperator(std::shared_ptr<AstExpression> lhs, int op,
                     std::shared_ptr<AstExpression> rhs)
-      : lhs(lhs), rhs(rhs), op(op) {}
+      : op(op), lhs(lhs), rhs(rhs) {}
 };
 
 class AstAssignment : public AstExpression {
