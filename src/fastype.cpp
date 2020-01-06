@@ -16,9 +16,9 @@
 namespace boost_po = boost::program_options;
 
 int main(int argc, char **argv) {
-  fastype::Logging::initialize(".", "fastype");
-  fastype::Option conf(argc, argv);
-  F_INFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
+  Logging::initialize(".", "fastype");
+  Option conf(argc, argv);
+  FINFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;
@@ -35,8 +35,7 @@ int main(int argc, char **argv) {
     std::string firstFileName = inputFileList[0];
     icu::UnicodeString firstFileNameUnicode =
         icu::UnicodeString::fromUTF8(firstFileName);
-    std::shared_ptr<fastype::Term> term =
-        fastype::Term::open(firstFileNameUnicode);
+    std::shared_ptr<Term> term = Term::open(firstFileNameUnicode);
     term->show(firstFileNameUnicode);
   }
 

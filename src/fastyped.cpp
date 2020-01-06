@@ -8,8 +8,8 @@
 #include <thread>
 
 int main(int argc, char **argv) {
-  fastype::Logging::initialize("/tmp/fastype/log", "fastyped");
-  fastype::Option conf(argc, argv);
+  Logging::initialize("/tmp/fastype/log", "fastyped");
+  Option conf(argc, argv);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
   F_INFO_MSG("starting...");
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    F_INFO_MSG("looping...");
+    FINFO_MSG("looping...");
   }
 
   return 0;
