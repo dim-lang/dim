@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  F_INFO_MSG("starting...");
+  FINFO_MSG("starting...");
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     FINFO_MSG("looping...");
