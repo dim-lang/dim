@@ -24,7 +24,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  void lex();
+  void parse();
   bool hasMore();
 
   void parseWhitespace();

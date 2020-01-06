@@ -52,7 +52,7 @@ std::string Lexer::toString() const {
 }
 
 std::shared_ptr<Token> Lexer::read() {
-  lex();
+  parse();
 
   if (!queue_.empty()) {
     std::shared_ptr<Token> t = queue_.front();
@@ -65,7 +65,7 @@ std::shared_ptr<Token> Lexer::read() {
 std::shared_ptr<Token> Lexer::peek(int pos) {
   do {
     int n = (int)queue_.size();
-    lex();
+    parse();
     if ((int)queue_.size() <= n) {
       break;
     }
@@ -363,7 +363,7 @@ bool Lexer::parseKeyword() {
   return parseIdentifier();
 }
 
-void Lexer::lex() {
+void Lexer::parse() {
   if (!hasMore()) {
     return;
   }
