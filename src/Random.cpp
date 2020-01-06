@@ -299,7 +299,7 @@ icu::UnicodeString Random::nextString(const icu::UnicodeString &candidates,
 }
 
 icu::UnicodeString Random::nextString(const UChar *candidates, int c, int len) {
-  icu::UnicodeStringstream buffer;
+  icu::UnicodeString buffer;
   for (int i = 0; i < len; i++) {
     int pos = nextInt(c);
     buffer.append(candidates[pos]);
