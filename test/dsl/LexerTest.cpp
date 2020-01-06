@@ -17,8 +17,8 @@ static void lexerParse(const icu::UnicodeString &fileName) {
   icu::UnicodeString data = Filer::read(fileName);
   dsl::Lexer lex(data);
   while (true) {
-    std::shared_ptr<Token> t = lex.read();
-    if (t->equal(Token::TEOF)) {
+    std::shared_ptr<dsl::Token> t = lex.read();
+    if (t->equal(dsl::Token::TEOF)) {
       break;
     }
   }
