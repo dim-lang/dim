@@ -3,7 +3,9 @@
 
 #include "Filer.h"
 #include "catch2/catch.hpp"
+#include <algorithm>
 #include <cstring>
+#include <functional>
 
 TEST_CASE("Filer", "[Filer]") {
   SECTION("read/write") {
@@ -32,10 +34,10 @@ TEST_CASE("Filer", "[Filer]") {
         "all the lines text with the original text.\n");
     int n2 = Filer::write(UNICODE_STRING_SIMPLE("FilerTest2.log"), text2);
     REQUIRE(n2 == text2.length());
-    icu::UnicodeString result1 =
+    icu::UnicodeString result2 =
         Filer::read(UNICODE_STRING_SIMPLE("FilerTest2.log"));
-    REQUIRE(text2.length() == result1.length());
-    REQUIRE((int)result1.tempSubString(0, text2.length()).compare(text2) == 0);
+    REQUIRE(text2.length() == result2.length());
+    REQUIRE((int)result2.tempSubString(0, text2.length()).compare(text2) == 0);
   }
 
   SECTION("append/readline") {
@@ -56,7 +58,10 @@ TEST_CASE("Filer", "[Filer]") {
 
     std::vector<icu::UnicodeString> lines =
         Filer::readline(UNICODE_STRING_SIMPLE("FilerTest3.log"));
-    REQUIRE(lines.length() ==
+    REQUIRE(std::accumulate(lines.begin(), lines.end(), 0,
+                            [](const icu::UnicodeString &a, int b) {
+                              return a.length() + b;
+                            }) ==
             l1.length() + l2.length() + l3.length() + l4.length());
     REQUIRE(lines[0] == l1);
     REQUIRE(lines[1] == l2);
