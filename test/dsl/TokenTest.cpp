@@ -13,7 +13,7 @@ TEST_CASE("Token", "[Token]") {
   SECTION("Token") {
     // eof
     REQUIRE(dsl::Token::TEOF->type == FDSL_EOF);
-    REQUIRE(dsl::Token::TEOF->literal == UNICODE_STRING_SIMPLE("FDSL_EOF"));
+    REQUIRE(dsl::Token::TEOF->literal == UNICODE_STRING_SIMPLE(""));
 
     // operator
     REQUIRE(dsl::Token::TADD->type == FDSL_OPERATOR);
