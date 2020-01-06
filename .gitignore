@@ -29,6 +29,5 @@ Catch2
 PDCurses
 
 # auto generate source code
-Token.cpp
 Parser.hpp
 Parser.cpp
