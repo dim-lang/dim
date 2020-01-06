@@ -4,10 +4,9 @@
 #pragma once
 #include "Line.h"
 #include "Stringify.h"
+#include "config/Header.h"
 #include <memory>
 #include <vector>
-
-namespace fastype {
 
 // Buffer is a file's memory storage
 class Buffer : public Stringify {
@@ -46,5 +45,3 @@ private:
   int bufsize_;
   std::vector<Line> lineList_;
 };
-
-} // namespace fastype

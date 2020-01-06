@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Logging.h"
+#include "config/Header.h"
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -13,23 +14,23 @@ class Random {
 public:
   static void initialize();
 
-#define F_DECL_RAND(Type, Name)                                                \
+#define FDECL_RAND(Type, Name)                                                 \
   static Type BOOST_PP_CAT(next, Name)(Type right =                            \
                                            std::numeric_limits<Type>::max());  \
   static Type BOOST_PP_CAT(next, Name)(Type left, Type right)
 
   // @return   [0, right)
   // @return   [left, right)
-  F_DECL_RAND(short, Short);
-  F_DECL_RAND(unsigned short, UShort);
-  F_DECL_RAND(int, Int);
-  F_DECL_RAND(unsigned int, UInt);
-  F_DECL_RAND(long, Long);
-  F_DECL_RAND(unsigned long, ULong);
-  F_DECL_RAND(long long, LLong);
-  F_DECL_RAND(unsigned long long, ULLong);
+  FDECL_RAND(short, Short);
+  FDECL_RAND(unsigned short, UShort);
+  FDECL_RAND(int, Int);
+  FDECL_RAND(unsigned int, UInt);
+  FDECL_RAND(long, Long);
+  FDECL_RAND(unsigned long, ULong);
+  FDECL_RAND(long long, LLong);
+  FDECL_RAND(unsigned long long, ULLong);
 
-#undef F_DECL_RAND
+#undef FDECL_RAND
 
   static std::string nextAlpha(int len = 1);
   static std::string nextAlphaNumeric(int len = 1);

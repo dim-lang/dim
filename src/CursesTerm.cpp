@@ -26,11 +26,11 @@ void CursesTerm::show(const icu::UnicodeString &fileName) {
   initscr();
   getmaxyx(stdscr, row, col);
 
-  F_INFO("f#count: {}", f->count());
+  FINFO("f#count: {}", f->count());
   for (int i = 0; i < f->count(); i++) {
     Line l = f->get(i);
     getyx(stdscr, y, x);
-    F_INFO("row:{}", l.toString());
+    FINFO("row:{}", l.toString());
     for (int j = 0; j < l.value().length() - 1; j++) {
       ch = (int)l.value()[j];
       printw("%c", ch);
