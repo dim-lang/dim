@@ -6,8 +6,6 @@
 #include "config/Header.h"
 #include <vector>
 
-namespace fastype {
-
 class Line : public Stringify {
 public:
   Line();
@@ -32,5 +30,3 @@ private:
   int lineNumber_;
   bool dirty_;
 };
-
-} // namespace fastype

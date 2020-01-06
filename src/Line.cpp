@@ -5,13 +5,11 @@
 #include "Logging.h"
 #include <fmt/format.h>
 
-namespace fastype {
-
 Line::Line() : value_(), lineNumber_(-1), dirty_(false) {}
 
 Line::Line(const icu::UnicodeString &value, int lineNumber, int dirty)
     : value_(value), lineNumber_(lineNumber), dirty_(dirty) {
-  F_CHECK(lineNumber_ >= 0, "lineNumber_ {} >= 0", lineNumber_);
+  FCHECK(lineNumber_ >= 0, "lineNumber_ {} >= 0", lineNumber_);
 }
 
 std::string Line::toString() const {
@@ -31,5 +29,3 @@ int &Line::lineNumber() { return lineNumber_; }
 const bool &Line::dirty() const { return dirty_; }
 
 bool &Line::dirty() { return dirty_; }
-
-} // namespace fastype
