@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "dsl/Lexer.h"
+#include "Exception.h"
 #include "Logging.h"
 #include <cstdlib>
 #include <cstring>
@@ -511,7 +512,7 @@ bool Lexer::hasMore() {
     text_ = textList_.front();
     textList_.pop_front();
   }
-  return text_.size() > 0 && pos_ < text_.length();
+  return text_.length() > 0 && pos_ < text_.length();
 }
 
 } // namespace dsl

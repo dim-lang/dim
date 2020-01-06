@@ -36,7 +36,6 @@ private:
   bool parseKeyword();
 
   int pos_;
-  UChar ch_;
   icu::UnicodeString text_;
   std::deque<icu::UnicodeString> textList_;
   std::deque<std::shared_ptr<Token>> queue_;
