@@ -9,8 +9,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace fastype {
-
 class FileEvent : public boost::noncopyable {
 public:
   FileEvent() {}
@@ -129,5 +127,3 @@ private:
   bool stop_;
   Poll *poll_;
 };
-
-} // namespace fastype

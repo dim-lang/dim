@@ -4,13 +4,11 @@
 #pragma once
 #include "config/Event.h"
 
-#ifdef F_EVENT_HAVE_WINSELECT
+#ifdef FEVENT_HAVE_WINSELECT
 
 #include "event/Poll.h"
 //#include <WinSock2.h>
 #include <cstdint>
-
-namespace fastype {
 
 class EventLoopImpl;
 
@@ -34,7 +32,5 @@ private:
 
   friend class EventLoopImpl;
 };
-
-} // namespace fastype
 
 #endif

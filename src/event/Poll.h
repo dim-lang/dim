@@ -2,14 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "config/Header.h"
 #include <cstdint>
 #include <string>
 
-#define F_EVENT_NONE 0
-#define F_EVENT_READ 1
-#define F_EVENT_WRITE 2
-
-namespace fastype {
+#define FEVENT_NONE 0
+#define FEVENT_READ 1
+#define FEVENT_WRITE 2
 
 class EventLoopImpl;
 
@@ -48,5 +47,3 @@ public:
   // @return  api name
   virtual std::string name() const = 0;
 };
-
-} // namespace fastype

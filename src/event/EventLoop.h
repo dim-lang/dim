@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <string>
 
-namespace fastype {
-
 class EventLoop;
 
 typedef void (*FileHandler)(EventLoop *evloop, int64_t fd, void *data);
@@ -76,5 +74,3 @@ public:
 
   virtual bool hasTimer(int64_t id) const = 0;
 };
-
-} // namespace fastype

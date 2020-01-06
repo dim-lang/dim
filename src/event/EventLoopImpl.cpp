@@ -11,8 +11,6 @@
 #include <unordered_map>
 #include <vector>
 
-namespace fastype {
-
 EventLoopImpl::EventLoopImpl() : timestamp_(-1), stop_(true), poll_(nullptr) {
   poll_ = Poll::open(this);
   timestamp_ = DateTime::millinow();
@@ -60,7 +58,7 @@ int EventLoopImpl::addReader(int64_t fd, FileHandler handler, void *data) {
   fe->setData(data);
 
   readerMap_.insert(std::make_pair(fd, fe));
-  poll_->add(fd, F_EVENT_READ);
+  poll_->add(fd, FEVENT_READ);
   return 0;
 }
 
@@ -97,7 +95,7 @@ int EventLoopImpl::addWriter(int64_t fd, FileHandler handler, void *data) {
   fe->setData(data);
 
   writerMap_[fd]->push_front(fe);
-  poll_->add(fd, F_EVENT_WRITE);
+  poll_->add(fd, FEVENT_WRITE);
   return 0;
 }
 
@@ -187,7 +185,7 @@ int EventLoopImpl::process() {
   // process file events
   for (int i = 0; i < triggerList_.size(); i++) {
     TriggerEvent te = triggerList_[i];
-    if (te.event() & F_EVENT_READ) {
+    if (te.event() & FEVENT_READ) {
       auto it = readerMap_.find(te.id());
       if (it == readerMap_.end()) {
         continue;
@@ -197,7 +195,7 @@ int EventLoopImpl::process() {
       handler(this, fe->id(), fe->data());
       n++;
     }
-    if (te.event() & F_EVENT_WRITE) {
+    if (te.event() & FEVENT_WRITE) {
       auto it = writerMap_.find(te.id());
       if (it == writerMap_.end()) {
         continue;
@@ -328,5 +326,3 @@ void EventLoop::close(EventLoop *eventLoop) {
     delete (EventLoopImpl *)eventLoop;
   }
 }
-
-} // namespace fastype

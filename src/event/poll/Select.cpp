@@ -3,15 +3,13 @@
 
 #include "event/poll/Select.h"
 
-#ifdef F_EVENT_HAVE_SELECT
+#ifdef FEVENT_HAVE_SELECT
 
 #include "event/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
 #include <sys/select.h>
 #include <sys/time.h>
-
-namespace fastype {
 
 Select::Select(EventLoopImpl *evloop) : maxfd_(-1), evloop_(evloop) {
   FD_ZERO(&readset_);
@@ -30,10 +28,10 @@ int Select::capacity() const { return FD_SETSIZE; }
 
 int Select::add(int64_t fd, int event) {
   maxfd_ = std::max(maxfd_, fd);
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     FD_SET((int)fd, &readset_);
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     FD_SET((int)fd, &writeset_);
   }
   return 0;
@@ -43,10 +41,10 @@ int Select::remove(int64_t fd, int event) {
   if (fd == maxfd_) {
     maxfd_--;
   }
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     FD_CLR((int)fd, &readset_);
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     FD_CLR((int)fd, &writeset_);
   }
   return 0;
@@ -69,14 +67,14 @@ int Select::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i <= maxfd_; i++) {
-      int event = F_EVENT_NONE;
+      int event = FEVENT_NONE;
       if (FD_ISSET(i, &readset2_)) {
-        event |= F_EVENT_READ;
+        event |= FEVENT_READ;
       }
       if (FD_ISSET(i, &writeset2_)) {
-        event |= F_EVENT_WRITE;
+        event |= FEVENT_WRITE;
       }
-      if (event != F_EVENT_NONE) {
+      if (event != FEVENT_NONE) {
         evloop_->trigger((int64_t)i, event);
         count++;
       }
@@ -87,7 +85,5 @@ int Select::poll(int millisec) {
 }
 
 std::string Select::name() const { return "select"; }
-
-} // namespace fastype
 
 #endif

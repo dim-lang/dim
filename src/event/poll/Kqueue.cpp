@@ -3,9 +3,8 @@
 
 #include "event/poll/Kqueue.h"
 
-#ifdef F_EVENT_HAVE_KQUEUE
+#ifdef FEVENT_HAVE_KQUEUE
 
-#include "boost/align/align_up.hpp"
 #include "event/EventLoopImpl.h"
 #include <cstdlib>
 #include <cstring>
@@ -14,9 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define F_ALIGN_UP 16
-
-namespace fastype {
+#define FALIGN_UP 16
 
 Kqueue::Kqueue(EventLoopImpl *evloop)
     : fdset_(nullptr), capacity_(0), evloop_(evloop) {
@@ -36,7 +33,7 @@ Kqueue::~Kqueue() {
 
 int Kqueue::expand(int size) {
   int newCapacity = std::max<int>(
-      F_ALIGN_UP, (int)boost::alignment::align_up(size, F_ALIGN_UP));
+      FALIGN_UP, (int)boost::alignment::align_up(size, FALIGN_UP));
   struct kevent *newSet =
       (struct kevent *)realloc(fdset_, newCapacity * sizeof(struct kevent));
   if (!newSet) {
@@ -52,12 +49,12 @@ int Kqueue::capacity() const { return capacity_; }
 int Kqueue::add(int64_t fd, int event) {
   struct kevent ke;
 
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     EV_SET(&ke, (int)fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
     if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
       return -1;
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
     if (kevent(kqfd_, &ke, 1, nullptr, 0, nullptr) == -1)
       return -1;
@@ -68,11 +65,11 @@ int Kqueue::add(int64_t fd, int event) {
 int Kqueue::remove(int64_t fd, int event) {
   struct kevent ke;
 
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     EV_SET(&ke, (int)fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
     kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     EV_SET(&ke, (int)fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
     kevent(kqfd_, &ke, 1, nullptr, 0, nullptr);
   }
@@ -94,15 +91,15 @@ int Kqueue::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int event = F_EVENT_NONE;
+      int event = FEVENT_NONE;
       struct kevent *ke = &fdset_[i];
       if (ke->filter & EVFILT_READ) {
-        event |= F_EVENT_READ;
+        event |= FEVENT_READ;
       }
       if (ke->filter & EVFILT_WRITE) {
-        event |= F_EVENT_WRITE;
+        event |= FEVENT_WRITE;
       }
-      if (event != F_EVENT_NONE) {
+      if (event != FEVENT_NONE) {
         evloop_->trigger(ke->ident, event);
         count++;
       }
@@ -113,7 +110,5 @@ int Kqueue::poll(int millisec) {
 }
 
 std::string Kqueue::name() const { return "kqueue"; }
-
-} // namespace fastype
 
 #endif

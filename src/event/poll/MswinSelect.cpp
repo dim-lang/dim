@@ -3,9 +3,7 @@
 
 #include "event/poll/MswinSelect.h"
 
-#ifdef F_EVENT_HAVE_WINSELECT
-
-namespace fastype {
+#ifdef FEVENT_HAVE_WINSELECT
 
 MswinSelect::MswinSelect(EventLoopImpl *evloop) {}
 
@@ -22,7 +20,5 @@ int MswinSelect::remove(int64_t fd, int event) { return 0; }
 int MswinSelect::poll(int millisec) { return 0; }
 
 std::string MswinSelect::name() const { return "MswinSelect"; }
-
-} // namespace fastype
 
 #endif

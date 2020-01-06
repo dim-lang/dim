@@ -3,7 +3,7 @@
 
 #include "event/poll/Epoll.h"
 
-#ifdef F_EVENT_HAVE_EPOLL
+#ifdef FEVENT_HAVE_EPOLL
 
 #include "boost/align/align_up.hpp"
 #include "event/EventLoopImpl.h"
@@ -50,11 +50,11 @@ int Epoll::add(int64_t fd, int event) {
   int op = EPOLL_CTL_ADD;
 
   if (evloop_->hasReader(fd)) {
-    event |= F_EVENT_READ;
+    event |= FEVENT_READ;
     op = EPOLL_CTL_MOD;
   }
   if (evloop_->hasWriter(fd)) {
-    event |= F_EVENT_WRITE;
+    event |= FEVENT_WRITE;
     op = EPOLL_CTL_MOD;
   }
 
@@ -62,10 +62,10 @@ int Epoll::add(int64_t fd, int event) {
   ee.events = 0;
   ee.data.fd = (int)fd;
 
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     ee.events |= EPOLLIN;
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     ee.events |= EPOLLOUT;
   }
 
@@ -73,24 +73,24 @@ int Epoll::add(int64_t fd, int event) {
 }
 
 int Epoll::remove(int64_t fd, int event) {
-  int ev = F_EVENT_NONE;
+  int ev = FEVENT_NONE;
   if (evloop_->hasReader(fd)) {
-    ev |= F_EVENT_READ;
+    ev |= FEVENT_READ;
   }
   if (evloop_->hasWriter(fd)) {
-    ev |= F_EVENT_WRITE;
+    ev |= FEVENT_WRITE;
   }
   event = ev & (~event);
 
   struct epoll_event ee = {0};
   ee.data.fd = (int)fd;
-  if (event & F_EVENT_READ) {
+  if (event & FEVENT_READ) {
     ee.events |= EPOLLIN;
   }
-  if (event & F_EVENT_WRITE) {
+  if (event & FEVENT_WRITE) {
     ee.events |= EPOLLOUT;
   }
-  int op = event == F_EVENT_NONE ? EPOLL_CTL_DEL : EPOLL_CTL_MOD;
+  int op = event == FEVENT_NONE ? EPOLL_CTL_DEL : EPOLL_CTL_MOD;
   return epoll_ctl(epfd_, op, (int)fd, &ee) == -1 ? -1 : 0;
 }
 
@@ -104,21 +104,21 @@ int Epoll::poll(int millisec) {
 
   if (n > 0) {
     for (int i = 0; i < n; i++) {
-      int event = F_EVENT_NONE;
+      int event = FEVENT_NONE;
       struct epoll_event *ee = &fdset_[i];
       if (ee->events & EPOLLIN) {
-        event |= F_EVENT_READ;
+        event |= FEVENT_READ;
       }
       if (ee->events & EPOLLOUT) {
-        event |= F_EVENT_WRITE;
+        event |= FEVENT_WRITE;
       }
       if (ee->events & EPOLLERR) {
-        event |= F_EVENT_WRITE;
+        event |= FEVENT_WRITE;
       }
       if (ee->events & EPOLLHUP) {
-        event |= F_EVENT_WRITE;
+        event |= FEVENT_WRITE;
       }
-      if (event != F_EVENT_NONE) {
+      if (event != FEVENT_NONE) {
         evloop_->trigger(ee->data.fd, event);
         count++;
       }

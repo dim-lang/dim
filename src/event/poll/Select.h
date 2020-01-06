@@ -4,14 +4,12 @@
 #pragma once
 #include "config/Event.h"
 
-#ifdef F_EVENT_HAVE_SELECT
+#ifdef FEVENT_HAVE_SELECT
 
 #include "event/Poll.h"
 #include <cstdint>
 #include <sys/select.h>
 #include <sys/time.h>
-
-namespace fastype {
 
 class EventLoopImpl;
 
@@ -36,7 +34,5 @@ private:
 
   EventLoopImpl *evloop_;
 };
-
-} // namespace fastype
 
 #endif

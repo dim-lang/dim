@@ -6,6 +6,7 @@
 
 #if FPLATFORM_WINDOWS
 
+#include "boost/align/align_up.hpp"
 #include "boost/assert.hpp"
 #include "boost/core/noncopyable.hpp"
 #include "boost/preprocessor/cat.hpp"
@@ -21,6 +22,7 @@
 
 #else
 
+#include <boost/align/align_up.hpp>
 #include <boost/assert.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/preprocessor/cat.hpp>

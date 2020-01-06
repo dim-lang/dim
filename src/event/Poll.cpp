@@ -8,14 +8,12 @@
 #include "event/poll/MswinSelect.h"
 #include "event/poll/Select.h"
 
-namespace fastype {
-
 Poll *Poll::open(EventLoopImpl *evloop) {
-#if defined(F_EVENT_HAVE_EPOLL)
+#if defined(FEVENT_HAVE_EPOLL)
   return new Epoll(evloop);
-#elif defined(F_EVENT_HAVE_KQUEUE)
+#elif defined(FEVENT_HAVE_KQUEUE)
   return new Kqueue(evloop);
-#elif defined(F_PLATFORM_WINDOWS)
+#elif defined(FPLATFORM_WINDOWS)
   return new MswinSelect(evloop);
 #else
   return new Select(evloop);
@@ -23,15 +21,13 @@ Poll *Poll::open(EventLoopImpl *evloop) {
 }
 
 void Poll::close(Poll *p) {
-#if defined(F_EVENT_HAVE_EPOLL)
+#if defined(FEVENT_HAVE_EPOLL)
   delete (Epoll *)p;
-#elif defined(F_EVENT_HAVE_KQUEUE)
+#elif defined(FEVENT_HAVE_KQUEUE)
   delete (Kqueue *)p;
-#elif defined(F_PLATFORM_WINDOWS)
+#elif defined(FPLATFORM_WINDOWS)
   delete (MswinSelect *)p;
 #else
   delete (Select *)p;
 #endif
 }
-
-} // namespace fastype

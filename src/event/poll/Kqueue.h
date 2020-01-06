@@ -4,7 +4,7 @@
 #pragma once
 #include "config/Event.h"
 
-#ifdef F_EVENT_HAVE_KQUEUE
+#ifdef FEVENT_HAVE_KQUEUE
 
 #include "event/Poll.h"
 #include <cstdint>
@@ -12,8 +12,6 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include <sys/types.h>
-
-namespace fastype {
 
 class EventLoopImpl;
 
@@ -39,7 +37,5 @@ private:
 
   friend class EventLoopImpl;
 };
-
-} // namespace fastype
 
 #endif
