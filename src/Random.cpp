@@ -183,12 +183,12 @@ Random::nextStringImpl(const std::vector<std::pair<int, int>> &range, int n,
 
 UChar Random::nextCharImpl(const std::vector<std::pair<int, int>> &range,
                            int n) {
-  int n = 0;
+  int c = 0;
   int pos = nextInt(n);
   for (int i = 0; i < (int)range.size(); i++) {
     int p = range[i].second - range[i].first;
-    if (n + p > pos) {
-      int r = pos - n + range[i].first;
+    if (c + p > pos) {
+      int r = pos - c + range[i].first;
       FCHECK(r >= range[0].first, "r {} >= range[0].first {}", r,
              range[0].first);
       FCHECK(r < range[range.size() - 1].second,
@@ -196,9 +196,9 @@ UChar Random::nextCharImpl(const std::vector<std::pair<int, int>> &range,
              range[range.size() - 1].second);
       return (UChar)r;
     }
-    n += p;
+    c += p;
   }
-  FCHECK(false, "must not come here, pos:{} n:{}", pos, n);
+  FCHECK(false, "must not come here, pos:{} c:{}", pos, c);
   return (UChar)0;
 }
 
