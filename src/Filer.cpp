@@ -3,7 +3,6 @@
 
 #include "Filer.h"
 #include "Logging.h"
-#include "exception/BadAllocException.h"
 #include <cstdlib>
 
 icu::UnicodeString Filer::read(const icu::UnicodeString &fileName,
