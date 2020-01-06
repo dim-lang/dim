@@ -12,5 +12,5 @@ set(FTEST
     ApproximateTest.cpp
 
     dsl/TokenTest.cpp
-    dsl/LexerTest.cpp
+    #dsl/LexerTest.cpp
     )

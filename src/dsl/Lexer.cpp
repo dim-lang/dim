@@ -231,6 +231,11 @@ bool Lexer::parseKeyword() {
       queue_.push_back(Token::TNULL);
       pos_ += 4;
       return true;
+    } else if (pos_ + 3 < text_.length() &&
+               text_.tempSubString(pos_, 3) == Token::TLOGICALNOT->literal) {
+      queue_.push_back(Token::TLOGICALNOT);
+      pos_ += 3;
+      return true;
     }
     break;
   case (UChar)'i':
@@ -335,6 +340,22 @@ bool Lexer::parseKeyword() {
         text_.tempSubString(pos_, 4) == Token::TTRUE->literal) {
       queue_.push_back(Token::TTRUE);
       pos_ += 4;
+      return true;
+    }
+    break;
+  case (UChar)'o':
+    if (pos_ + 2 < text_.length() &&
+        text_.tempSubString(pos_, 2) == Token::TLOGICALOR->literal) {
+      queue_.push_back(Token::TLOGICALOR);
+      pos_ += 2;
+      return true;
+    }
+    break;
+  case (UChar)'a':
+    if (pos_ + 3 < text_.length() &&
+        text_.tempSubString(pos_, 3) == Token::TLOGICALAND->literal) {
+      queue_.push_back(Token::TLOGICALAND);
+      pos_ += 3;
       return true;
     }
     break;
@@ -447,7 +468,7 @@ void Lexer::lex() {
       parseConstToken(Token::TNEQ, 2);
     } else {
       // !=
-      parseConstToken(Token::TNOT);
+      parseConstToken(Token::TBITNOT);
     }
     break;
   case (UChar)'<':
@@ -468,8 +489,23 @@ void Lexer::lex() {
       parseConstToken(Token::TGT);
     }
     break;
+  case (UChar)'&':
+    parseConstToken(Token::TBITAND);
+    break;
+  case (UChar)'|':
+    parseConstToken(Token::TBITOR);
+    break;
+  case (UChar)'~':
+    parseConstToken(Token::TBITCOMPLEMENT);
+    break;
+  case (UChar)'^':
+    parseConstToken(Token::TBITXOR);
+    break;
   case (UChar)',':
     parseConstToken(Token::TCOMMA);
+    break;
+  case (UChar)'.':
+    parseConstToken(Token::TDOT);
     break;
   case (UChar)';':
     parseConstToken(Token::TSEMI);

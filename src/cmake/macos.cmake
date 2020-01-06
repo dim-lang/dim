@@ -18,7 +18,6 @@ set(FINC
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
     /usr/local/opt/catch2/include
-    /usr/local/opt/flex/include
     )
 
 set(FLIB
@@ -33,7 +32,6 @@ set(FLIB
     icudata
     icui18n
     tcmalloc
-    fl
     )
 
 set(FLIB_DIR
@@ -44,7 +42,6 @@ set(FLIB_DIR
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib
-    /usr/local/opt/flex/lib
     )
 
 include_directories(${FINC})

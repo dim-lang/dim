@@ -23,7 +23,6 @@ set(FLIB
     icuio.lib
     icutu.lib
     icuuc.lib
-    fl.lib
     )
 
 set(FLIBD
@@ -34,7 +33,6 @@ set(FLIBD
     icuiod.lib
     icutud.lib
     icuucd.lib
-    fl.lib
     )
 
 set(FLIB_DIR

@@ -35,7 +35,6 @@ set(FLIB
     icudata
     icui18n
     tcmalloc
-    fl
     )
 set(FLIB_DIR
     ${CURSES_LIBRARY_DIRS}

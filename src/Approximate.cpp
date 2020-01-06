@@ -5,41 +5,35 @@
 #include <cmath>
 #include <cstdlib>
 
-//#define F_ABS(x) ((x < 0.0) ? -x : x)
-#define F_ABS(x) std::abs(x)
-#define F_MAX(a, b) ((a) > (b) ? (a) : (b))
-#define F_MIN(a, b) ((a) < (b) ? (a) : (b))
-
-namespace fastype {
+//#define FABS(x) ((x < 0.0) ? -x : x)
+#define FABS(x) std::abs(x)
+#define FMAX(a, b) ((a) > (b) ? (a) : (b))
+#define FMIN(a, b) ((a) < (b) ? (a) : (b))
 
 bool Approximate::eq(float a, float b, float epsilon) {
-  return F_ABS(a - b) <=
-         ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return FABS(a - b) <= ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
 bool Approximate::eq(double a, double b, double epsilon) {
-  return F_ABS(a - b) <=
-         ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return FABS(a - b) <= ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
 bool Approximate::gt(float a, float b, float epsilon) {
-  return (a - b) > ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return (a - b) > ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
 bool Approximate::gt(double a, double b, double epsilon) {
-  return (a - b) > ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return (a - b) > ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
 bool Approximate::lt(float a, float b, float epsilon) {
-  return (b - a) > ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return (b - a) > ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
 bool Approximate::lt(double a, double b, double epsilon) {
-  return (b - a) > ((F_ABS(a) < F_ABS(b) ? F_ABS(b) : F_ABS(a)) * epsilon);
+  return (b - a) > ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
 
-} // namespace fastype
-
-#undef F_ABS
-#undef F_MAX
-#undef F_MIN
+#undef FABS
+#undef FMAX
+#undef FMIN

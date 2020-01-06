@@ -3,8 +3,6 @@
 
 #pragma once
 
-namespace fastype {
-
 class Approximate {
 public:
   static bool eq(float a, float b, float epsilon = 0.00001f);
@@ -16,5 +14,3 @@ public:
   static bool lt(float a, float b, float epsilon = 0.00001f);
   static bool lt(double a, double b, double epsilon = 0.000000000001);
 };
-
-} // namespace fastype

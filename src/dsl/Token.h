@@ -22,22 +22,24 @@ public:
   static const std::shared_ptr<Token> TEOF;
 
   // operators
-  static const std::shared_ptr<Token> TADD;       // +
-  static const std::shared_ptr<Token> TSUB;       // -
-  static const std::shared_ptr<Token> TMUL;       // *
-  static const std::shared_ptr<Token> TDIV;       // /
-  static const std::shared_ptr<Token> TMOD;       // %
-  static const std::shared_ptr<Token> TNOT;       // !
-  static const std::shared_ptr<Token> TINC;       // ++
-  static const std::shared_ptr<Token> TDEC;       // --
-  static const std::shared_ptr<Token> TADDASSIGN; // +=
-  static const std::shared_ptr<Token> TSUBASSIGN; // -=
-  static const std::shared_ptr<Token> TMULASSIGN; // *=
-  static const std::shared_ptr<Token> TDIVASSIGN; // /=
-  static const std::shared_ptr<Token> TMODASSIGN; // %=
-
-  // assignment
-  static const std::shared_ptr<Token> TASSIGN; // =
+  static const std::shared_ptr<Token> TADD;           // +
+  static const std::shared_ptr<Token> TSUB;           // -
+  static const std::shared_ptr<Token> TMUL;           // *
+  static const std::shared_ptr<Token> TDIV;           // /
+  static const std::shared_ptr<Token> TMOD;           // %
+  static const std::shared_ptr<Token> TBITNOT;        // !
+  static const std::shared_ptr<Token> TBITAND;        // &
+  static const std::shared_ptr<Token> TBITOR;         // |
+  static const std::shared_ptr<Token> TBITCOMPLEMENT; // ~
+  static const std::shared_ptr<Token> TBITXOR;        // ^
+  static const std::shared_ptr<Token> TINC;           // ++
+  static const std::shared_ptr<Token> TDEC;           // --
+  static const std::shared_ptr<Token> TASSIGN;        // =
+  static const std::shared_ptr<Token> TADDASSIGN;     // +=
+  static const std::shared_ptr<Token> TSUBASSIGN;     // -=
+  static const std::shared_ptr<Token> TMULASSIGN;     // *=
+  static const std::shared_ptr<Token> TDIVASSIGN;     // /=
+  static const std::shared_ptr<Token> TMODASSIGN;     // %=
 
   // comparator
   static const std::shared_ptr<Token> TEQ;  // ==
@@ -62,6 +64,7 @@ public:
   static const std::shared_ptr<Token> TSEMI;     // ;
   static const std::shared_ptr<Token> TQUESTION; // ?
   static const std::shared_ptr<Token> TCOLON;    // :
+  static const std::shared_ptr<Token> TDOT;      // .
 
   // keywords
   static const std::shared_ptr<Token> TLET;        // let
@@ -80,6 +83,9 @@ public:
   static const std::shared_ptr<Token> TIMPORT;     // import
   static const std::shared_ptr<Token> TRETURN;     // return
   static const std::shared_ptr<Token> TVOID;       // void
+  static const std::shared_ptr<Token> TLOGICALAND; // and
+  static const std::shared_ptr<Token> TLOGICALOR;  // or
+  static const std::shared_ptr<Token> TLOGICALNOT; // not
 
   Token(int type);
   Token(int type, const icu::UnicodeString &literal);

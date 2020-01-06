@@ -21,8 +21,16 @@ const std::shared_ptr<Token> Token::TDIV(new Token(FDSL_OPERATOR,
                                                    UNICODE_STRING_SIMPLE("/")));
 const std::shared_ptr<Token> Token::TMOD(new Token(FDSL_OPERATOR,
                                                    UNICODE_STRING_SIMPLE("%")));
-const std::shared_ptr<Token> Token::TNOT(new Token(FDSL_OPERATOR,
-                                                   UNICODE_STRING_SIMPLE("!")));
+const std::shared_ptr<Token>
+    Token::TBITNOT(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("!")));
+const std::shared_ptr<Token>
+    Token::TBITAND(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("&")));
+const std::shared_ptr<Token>
+    Token::TBITOR(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("|")));
+const std::shared_ptr<Token>
+    Token::TBITCOMPLEMENT(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("~")));
+const std::shared_ptr<Token>
+    Token::TBITXOR(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("^")));
 const std::shared_ptr<Token>
     Token::TINC(new Token(FDSL_OPERATOR, UNICODE_STRING_SIMPLE("++")));
 const std::shared_ptr<Token>
@@ -79,6 +87,8 @@ const std::shared_ptr<Token>
     Token::TQUESTION(new Token(FDSL_PUNCTUATION, UNICODE_STRING_SIMPLE("?")));
 const std::shared_ptr<Token>
     Token::TCOLON(new Token(FDSL_PUNCTUATION, UNICODE_STRING_SIMPLE(":")));
+const std::shared_ptr<Token> Token::TDOT(new Token(FDSL_PUNCTUATION,
+                                                   UNICODE_STRING_SIMPLE(".")));
 
 const std::shared_ptr<Token>
     Token::TLET(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("let")));
@@ -112,6 +122,12 @@ const std::shared_ptr<Token>
     Token::TRETURN(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("return")));
 const std::shared_ptr<Token>
     Token::TVOID(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("void")));
+const std::shared_ptr<Token>
+    Token::TLOGICALAND(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("and")));
+const std::shared_ptr<Token>
+    Token::TLOGICALOR(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("or")));
+const std::shared_ptr<Token>
+    Token::TLOGICALNOT(new Token(FDSL_KEYWORD, UNICODE_STRING_SIMPLE("not")));
 
 Token::Token(int type) : type(type), literal() {}
 

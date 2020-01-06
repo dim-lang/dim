@@ -59,8 +59,8 @@ TEST_CASE("Filer", "[Filer]") {
     std::vector<icu::UnicodeString> lines =
         Filer::readline(UNICODE_STRING_SIMPLE("FilerTest3.log"));
     REQUIRE(std::accumulate(lines.begin(), lines.end(), 0,
-                            [](const icu::UnicodeString &a, int b) {
-                              return a.length() + b;
+                            [](int a, const icu::UnicodeString &b) {
+                              return a + (int)b.length();
                             }) ==
             l1.length() + l2.length() + l3.length() + l4.length());
     REQUIRE(lines[0] == l1);
