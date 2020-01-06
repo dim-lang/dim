@@ -29,5 +29,3 @@ Catch2
 PDCurses
 
 # auto generate source code
-Parser.hpp
-Parser.cpp
