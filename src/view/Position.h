@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 class Position : public Stringify {
 public:
   Position();
@@ -43,5 +41,3 @@ public:
 private:
   Dot dot_;
 };
-
-} // namespace fastype

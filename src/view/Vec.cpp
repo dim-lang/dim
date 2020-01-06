@@ -3,10 +3,7 @@
 
 #include "view/Vec.h"
 #include "Logging.h"
-#include <fmt/format.h>
 #include <utility>
-
-namespace fastype {
 
 Vec::Vec() : dot_() {}
 
@@ -27,5 +24,3 @@ bool Vec::operator!=(const Vec &other) const { return dot_ != other.dot_; }
 std::string Vec::toString() const {
   return fmt::format("[ @Vec x_:{} y_:{} ]", dot_.x(), dot_.y());
 }
-
-} // namespace fastype

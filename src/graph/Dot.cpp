@@ -3,10 +3,8 @@
 
 #include "graph/Dot.h"
 #include "Logging.h"
-#include "fmt/format.h"
+#include "config/Header.h"
 #include <utility>
-
-namespace fastype {
 
 Dot::Dot() : x_(-1), y_(-1) {}
 
@@ -35,5 +33,3 @@ bool Dot::operator!=(const Dot &other) const { return !(*this == other); }
 std::string Dot::toString() const {
   return fmt::format("[ @Dot x_:{} y_:{} ]", x_, y_);
 }
-
-} // namespace fastype

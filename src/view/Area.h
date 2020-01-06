@@ -8,8 +8,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 class Area : public Stringify {
 public:
   Area();
@@ -37,5 +35,3 @@ public:
 private:
   Dot dot_;
 };
-
-} // namespace fastype

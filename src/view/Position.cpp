@@ -3,16 +3,13 @@
 
 #include "view/Position.h"
 #include "Logging.h"
-#include <fmt/format.h>
 #include <utility>
-
-namespace fastype {
 
 Position::Position() : dot_() {}
 
 Position::Position(int x, int y) : dot_(x, y) {
-  F_CHECK(x >= 0, "x {} >= 0", x);
-  F_CHECK(y >= 0, "y {} >= 0", y);
+  FCHECK(x >= 0, "x {} >= 0", x);
+  FCHECK(y >= 0, "y {} >= 0", y);
 }
 
 const int &Position::x() const { return dot_.x(); }
@@ -54,5 +51,3 @@ Position &Position::operator+=(const Vec &v) {
 std::string Position::toString() const {
   return fmt::format("[ @Position x_:{} y_:{} ]", dot_.x(), dot_.y());
 }
-
-} // namespace fastype

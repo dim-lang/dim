@@ -7,8 +7,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 // Dot can be present for multiple concept
 // On 2D plane, Dot can be :
 //
@@ -46,5 +44,3 @@ private:
   int x_;
   int y_;
 };
-
-} // namespace fastype

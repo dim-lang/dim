@@ -8,8 +8,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 class Vec : public Stringify {
 public:
   Vec();
@@ -35,5 +33,3 @@ public:
 private:
   Dot dot_;
 };
-
-} // namespace fastype
