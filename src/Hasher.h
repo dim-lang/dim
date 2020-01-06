@@ -7,17 +7,17 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 class Hasher {
 public:
   static uint32_t hash32(const void *key, const int len, uint32_t seed = 0UL);
   static uint64_t hash64(const void *key, const int len, uint64_t seed = 0ULL);
 };
 
+namespace dsl {
+
 class Ast;
 
-} // namespace fastype
+}
 
 namespace std {
 
@@ -28,9 +28,9 @@ public:
   }
 };
 
-template <> class hash<std::shared_ptr<fastype::Ast>> {
+template <> class hash<std::shared_ptr<dsl::Ast>> {
 public:
-  size_t operator()(const std::shared_ptr<fastype::Ast> &s) const {
+  size_t operator()(const std::shared_ptr<dsl::Ast> &s) const {
     return (size_t)s.get();
   }
 };

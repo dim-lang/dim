@@ -4,8 +4,6 @@
 #pragma once
 #include <cstdint>
 
-namespace fastype {
-
 class DateTime {
 public:
   // @return  current timestamp in seconds
@@ -14,5 +12,3 @@ public:
   // @return  current timestamp in milliseconds
   static int64_t millinow();
 };
-
-} // namespace fastype

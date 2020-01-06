@@ -3,11 +3,7 @@
 
 #pragma once
 
-namespace fastype {
-
 /**
  * Cache is a file's snapshot on disk storage
  */
 namespace Cache {};
-
-} // namespace fastype

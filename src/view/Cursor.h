@@ -4,8 +4,6 @@
 #pragma once
 #include "graph/Dot.h"
 
-namespace fastype {
-
 class Window;
 
 class Cursor {
@@ -38,5 +36,3 @@ private:
 
   friend class Window;
 };
-
-} // namespace fastype

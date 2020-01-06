@@ -4,7 +4,7 @@
 #pragma once
 #include "config/Platform.h"
 
-#if F_PLATFORM_WINDOWS
+#if FPLATFORM_WINDOWS
 
 #include "boost/assert.hpp"
 #include "boost/core/noncopyable.hpp"

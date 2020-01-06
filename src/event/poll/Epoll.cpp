@@ -13,9 +13,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define F_ALIGN_UP 16
-
-namespace fastype {
+#define FALIGN_UP 16
 
 Epoll::Epoll(EventLoopImpl *evloop)
     : fdset_(nullptr), capacity_(0), evloop_(evloop) {
@@ -35,7 +33,7 @@ Epoll::~Epoll() {
 
 int Epoll::expand(int size) {
   int newCapacity = std::max<int>(
-      F_ALIGN_UP, (int)boost::alignment::align_up(size, F_ALIGN_UP));
+      FALIGN_UP, (int)boost::alignment::align_up(size, FALIGN_UP));
   struct epoll_event *newSet = (struct epoll_event *)realloc(
       fdset_, newCapacity * sizeof(struct epoll_event));
   if (!newSet) {
@@ -131,7 +129,5 @@ int Epoll::poll(int millisec) {
 }
 
 std::string Epoll::name() const { return "epoll"; }
-
-} // namespace fastype
 
 #endif

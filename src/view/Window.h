@@ -12,8 +12,6 @@
 #include <ncurses.h>
 #include <panel.h>
 
-namespace fastype {
-
 class Window : boost::noncopyable, public Stringify {
 public:
   virtual ~Window();
@@ -164,5 +162,3 @@ private:
 
   friend class Cursor;
 };
-
-} // namespace fastype

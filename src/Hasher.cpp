@@ -5,8 +5,6 @@
 #include <cstdlib>
 #include <ctime>
 
-namespace fastype {
-
 static inline uint32_t rotl32(uint32_t x, int8_t r) {
   return (x << r) | (x >> (32 - r));
 }
@@ -153,5 +151,3 @@ uint64_t Hasher::hash64(const void *key, const int len, uint64_t seed) {
 
   return h;
 }
-
-} // namespace fastype

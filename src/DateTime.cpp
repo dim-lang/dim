@@ -5,8 +5,6 @@
 #include <chrono>
 #include <cstdint>
 
-namespace fastype {
-
 int64_t DateTime::now() {
   std::chrono::time_point<std::chrono::system_clock> now =
       std::chrono::system_clock::now();
@@ -20,5 +18,3 @@ int64_t DateTime::millinow() {
   auto dura = now.time_since_epoch();
   return std::chrono::duration_cast<std::chrono::milliseconds>(dura).count();
 }
-
-} // namespace fastype

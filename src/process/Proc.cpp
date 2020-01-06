@@ -15,8 +15,6 @@
 #include <unistd.h>
 #endif
 
-namespace fastype {
-
 int Daemonize::daemon() {
 
 #if BOOST_WINDOWS
@@ -82,5 +80,3 @@ int Daemonize::daemon() {
 }
 
 void Daemonize::signalHandler(int signalNumber) {}
-
-} // namespace fastype

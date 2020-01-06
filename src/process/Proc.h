@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace fastype {
-
 typedef int64_t ProcId;
 typedef void procRoutine();
 
@@ -20,5 +18,3 @@ public:
 private:
   static void signalHandler(int signalNumber);
 };
-
-} // namespace fastype

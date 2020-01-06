@@ -4,8 +4,6 @@
 #include "view/Cursor.h"
 #include "view/Window.h"
 
-namespace fastype {
-
 Cursor::Cursor(Window *window) : window_(window) {}
 
 int Cursor::row() { return window_->cursorPosition().x(); }
@@ -49,5 +47,3 @@ void Cursor::right(int length) {
 // void Cursor::hide() { window_->hideCursor(); }
 
 // bool Cursor::visible() { return window_->cursorVisible(); }
-
-} // namespace fastype

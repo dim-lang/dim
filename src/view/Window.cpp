@@ -9,8 +9,6 @@
 #include <ncurses.h>
 #include <panel.h>
 
-namespace fastype {
-
 Window::Window()
     : name_("root"), parent_(nullptr), p1_(0, 0), cursor_(this),
       window_(nullptr), panel_(nullptr) {
@@ -240,5 +238,3 @@ std::string Window::toString() const {
   return fmt::format("[ @Window p1_:{} area_:{} ]", p1_.toString(),
                      area_.toString());
 }
-
-} // namespace fastype
