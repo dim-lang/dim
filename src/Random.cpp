@@ -249,7 +249,7 @@ UChar Random::nextWhitespaceChar() {
 UChar Random::nextAsciiChar() { return nextCharImpl(AsciiRange, AsciiLength); }
 
 UChar Random::nextChar(const icu::UnicodeString &candidates) {
-  return nextChar(candidates.c_str(), candidates.length());
+  return nextChar(candidates.getBuffer(), candidates.length());
 }
 
 UChar Random::nextChar(const UChar *candidates, int c) {
@@ -295,14 +295,14 @@ icu::UnicodeString Random::nextAscii(int len) {
 
 icu::UnicodeString Random::nextString(const icu::UnicodeString &candidates,
                                       int len) {
-  return nextString(candidates.c_str(), candidates.length(), len);
+  return nextString(candidates.getBuffer(), candidates.length(), len);
 }
 
 icu::UnicodeString Random::nextString(const UChar *candidates, int c, int len) {
-  icu::UnicodeStringstream ss;
+  icu::UnicodeStringstream buffer;
   for (int i = 0; i < len; i++) {
     int pos = nextInt(c);
-    ss << candidates[pos];
+    buffer.append(candidates[pos]);
   }
-  return ss.str();
+  return buffer;
 }
