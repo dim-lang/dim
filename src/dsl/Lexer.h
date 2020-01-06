@@ -27,7 +27,7 @@ private:
   void lex();
   bool hasMore();
 
-  bool parseWhitespace();
+  void parseWhitespace();
   void parseConstToken(std::shared_ptr<Token> t, int count = 1);
   void parseNumber();
   void parseComment();

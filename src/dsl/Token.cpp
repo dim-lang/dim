@@ -72,8 +72,7 @@ const std::shared_ptr<Token>
 const std::shared_ptr<Token>
     Token::TRBRACE(new Token(FDSL_PUNCTUATION, UNICODE_STRING_SIMPLE("}")));
 const std::shared_ptr<Token>
-    Token::TCOMMA(new Token(FDSL_PUNCTUATION,
-                            UNICODE_STRING_SIMPLE(",UNICODE_STRING_SIMPLE(")));
+    Token::TCOMMA(new Token(FDSL_PUNCTUATION, UNICODE_STRING_SIMPLE(",")));
 const std::shared_ptr<Token>
     Token::TSEMI(new Token(FDSL_PUNCTUATION, UNICODE_STRING_SIMPLE(";")));
 const std::shared_ptr<Token>
@@ -123,24 +122,25 @@ const icu::UnicodeString &Token::literalValue() const { return literal; }
 
 int64_t Token::integerValue() const {
   std::string _1;
-  FCHECK(u_isdigit(literal[0]), "invalid integer token value:{}",
-         literal.toUTF8String(_1));
-  return (int64_t)std::stoll(literal);
+  literal.toUTF8String(_1);
+  FCHECK(u_isdigit(literal[0]), "invalid integer token value:{}", _1);
+  return (int64_t)std::stoll(_1);
 }
 
 double Token::realValue() const {
   std::string _1;
+  literal.toUTF8String(_1);
   FCHECK(u_isdigit(literal[0]) || literal[0] == (UChar)'.',
-         "invalid real token value:{}", literal.toUTF8String(_1));
-  return std::stod(literal);
+         "invalid real token value:{}", _1);
+  return std::stod(_1);
 }
 
 bool Token::booleanValue() const {
   std::string _1;
-  FCHECK((int)literal.compare(UNICODE_STRING_SIMPLE("True")) == 0 ||
-             (int)literal.compare(UNICODE_STRING_SIMPLE("False")) == 0,
+  FCHECK((int)literal.compare(TTRUE->literal) == 0 ||
+             (int)literal.compare(TFALSE->literal) == 0,
          "invalid boolean token value:{}", literal.toUTF8String(_1));
-  return (int)literal.compare(UNICODE_STRING_SIMPLE("True")) == 0;
+  return (int)literal.compare(TTRUE->literal) == 0;
 }
 
 bool Token::equal(std::shared_ptr<Token> t) const {

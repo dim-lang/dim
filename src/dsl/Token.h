@@ -85,7 +85,7 @@ public:
   Token(int type, const icu::UnicodeString &literal);
   virtual ~Token() = default;
 
-  virtual const icu::UnicodeString &stringValue() const;
+  virtual const icu::UnicodeString &literalValue() const;
   virtual int64_t integerValue() const;
   virtual double realValue() const;
   virtual bool booleanValue() const;

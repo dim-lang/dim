@@ -44,10 +44,10 @@ void Lexer::append(const std::vector<icu::UnicodeString> &textList) {
   }
 }
 
-icu::UnicodeString Lexer::toString() const {
+std::string Lexer::toString() const {
   std::string _1;
   return fmt::format("[ @Lexer pos_:{}, text_:{} ]", pos_,
-                     FSUBSTR(text_.front(), 0, _1));
+                     FSUBSTR(text_, 0, _1));
 }
 
 std::shared_ptr<Token> Lexer::read() {
@@ -73,15 +73,10 @@ std::shared_ptr<Token> Lexer::peek(int pos) {
 }
 
 // parse whitespace
-// @return   true if is whitespace and skipped
-//           false if not
-bool Lexer::parseWhitespace() {
-  bool parsed = false;
+void Lexer::parseWhitespace() {
   while (u_isspace(text_.charAt(pos_))) {
     pos_++;
-    parsed = true;
   }
-  return parsed;
 }
 
 // parse constant token
@@ -145,7 +140,7 @@ void Lexer::parseNumber() {
 }
 
 // parse comment
-static void parseComment() {
+void Lexer::parseComment() {
   icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
   icu::UnicodeString blockCommetEnd = UNICODE_STRING_SIMPLE("*/");
 
@@ -188,7 +183,7 @@ void Lexer::parseString() {
   FCHECK(findString, "parse string fail at pos_:{}, j:{}, text_[{}]: {}", pos_,
          j, pos_, FSUBSTR(text_, pos_, _1));
   std::shared_ptr<Token> strToken = std::shared_ptr<Token>(
-      new StringToken(text_.tempSubString(pos_, j - pos_)));
+      new Token(FDSL_STRING, text_.tempSubString(pos_, j - pos_)));
   queue_.push_back(strToken);
   pos_ = j;
 }
@@ -210,7 +205,7 @@ bool Lexer::parseIdentifier() {
   FCHECK(j > pos_, "j {} > pos_ {}, text_[{}]:{}", j, pos_, pos_,
          FSUBSTR(text_, pos_, _1));
   std::shared_ptr<Token> idToken = std::shared_ptr<Token>(
-      new IdentifierToken(text_.tempSubString(pos_, j - pos_)));
+      new Token(FDSL_IDENTIFIER, text_.tempSubString(pos_, j - pos_)));
   queue_.push_back(idToken);
   pos_ = j;
   return true;
@@ -223,7 +218,7 @@ bool Lexer::parseKeyword() {
   switch (text_.charAt(pos_)) {
   case (UChar)'l':
     if (pos_ + 3 < text_.length() &&
-        text_.tempSubString(pos_, 3) == Token::TLET->literal()) {
+        text_.tempSubString(pos_, 3) == Token::TLET->literal) {
       queue_.push_back(Token::TLET);
       pos_ += 3;
       return true;
@@ -231,7 +226,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'n':
     if (pos_ + 4 < text_.length() &&
-        text_.tempSubString(pos_, 4) == Token::TNULL->literal()) {
+        text_.tempSubString(pos_, 4) == Token::TNULL->literal) {
       queue_.push_back(Token::TNULL);
       pos_ += 4;
       return true;
@@ -239,17 +234,17 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'i':
     if (pos_ + 2 < text_.length() &&
-        text_.tempSubString(pos_, 2) == Token::TIF->literal()) {
+        text_.tempSubString(pos_, 2) == Token::TIF->literal) {
       queue_.push_back(Token::TIF);
       pos_ += 2;
       return true;
     } else if (pos_ + 10 < text_.length() &&
-               text_.tempSubString(pos_, 10) == Token::TISINSTANCE->literal()) {
+               text_.tempSubString(pos_, 10) == Token::TISINSTANCE->literal) {
       queue_.push_back(Token::TISINSTANCE);
       pos_ += 10;
       return true;
     } else if (pos_ + 6 < text_.length() &&
-               text_.tempSubString(pos_, 6) == Token::TIMPORT->literal()) {
+               text_.tempSubString(pos_, 6) == Token::TIMPORT->literal) {
       queue_.push_back(Token::TIMPORT);
       pos_ += 6;
       return true;
@@ -257,12 +252,12 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'e':
     if (pos_ + 6 < text_.length() &&
-        text_.tempSubString(pos_, 6) == Token::TELSEIF->literal()) {
+        text_.tempSubString(pos_, 6) == Token::TELSEIF->literal) {
       queue_.push_back(Token::TELSEIF);
       pos_ += 6;
       return true;
     } else if (pos_ + 4 < text_.length() &&
-               text_.tempSubString(pos_, 4) == Token::TELSE->literal()) {
+               text_.tempSubString(pos_, 4) == Token::TELSE->literal) {
       queue_.push_back(Token::TELSE);
       pos_ += 4;
       return true;
@@ -270,12 +265,12 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'f':
     if (pos_ + 3 < text_.length() &&
-        text_.tempSubString(pos_, 3) == Token::TFOR->literal()) {
+        text_.tempSubString(pos_, 3) == Token::TFOR->literal) {
       queue_.push_back(Token::TFOR);
       pos_ += 3;
       return true;
     } else if (pos_ + 4 < text_.length() &&
-               text_.tempSubString(pos_, 4) == Token::TFUNC->literal()) {
+               text_.tempSubString(pos_, 4) == Token::TFUNC->literal) {
       queue_.push_back(Token::TFUNC);
       pos_ += 4;
       return true;
@@ -283,7 +278,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'w':
     if (pos_ + 5 < text_.length() &&
-        text_.tempSubString(pos_, 5) == Token::TWHILE->literal()) {
+        text_.tempSubString(pos_, 5) == Token::TWHILE->literal) {
       queue_.push_back(Token::TWHILE);
       pos_ += 5;
       return true;
@@ -291,7 +286,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'b':
     if (pos_ + 5 < text_.length() &&
-        text_.tempSubString(pos_, 5) == Token::TBREAK->literal()) {
+        text_.tempSubString(pos_, 5) == Token::TBREAK->literal) {
       queue_.push_back(Token::TBREAK);
       pos_ += 5;
       return true;
@@ -299,12 +294,12 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'c':
     if (pos_ + 8 < text_.length() &&
-        text_.tempSubString(pos_, 8) == Token::TCONTINUE->literal()) {
+        text_.tempSubString(pos_, 8) == Token::TCONTINUE->literal) {
       queue_.push_back(Token::TCONTINUE);
       pos_ += 8;
       return true;
     } else if (pos_ + 5 < text_.length() &&
-               text_.tempSubString(pos_, 5) == Token::TCLASS->literal()) {
+               text_.tempSubString(pos_, 5) == Token::TCLASS->literal) {
       queue_.push_back(Token::TCLASS);
       pos_ += 5;
       return true;
@@ -312,7 +307,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'t':
     if (pos_ + 4 < text_.length() &&
-        text_.tempSubString(pos_, 4) == Token::TTYPE->literal()) {
+        text_.tempSubString(pos_, 4) == Token::TTYPE->literal) {
       queue_.push_back(Token::TTYPE);
       pos_ += 4;
       return true;
@@ -320,7 +315,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'r':
     if (pos_ + 6 < text_.length() &&
-        text_.tempSubString(pos_, 6) == Token::TRETURN->literal()) {
+        text_.tempSubString(pos_, 6) == Token::TRETURN->literal) {
       queue_.push_back(Token::TRETURN);
       pos_ += 6;
       return true;
@@ -328,7 +323,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'F':
     if (pos_ + 5 < text_.length() &&
-        text_.tempSubString(pos_, 5) == UNICODE_STRING_SIMPLE("False")) {
+        text_.tempSubString(pos_, 5) == Token::TFALSE->literal) {
       queue_.push_back(Token::TFALSE);
       pos_ += 5;
       return true;
@@ -336,7 +331,7 @@ bool Lexer::parseKeyword() {
     break;
   case (UChar)'T':
     if (pos_ + 4 < text_.length() &&
-        text_.tempSubString(pos_, 4) == UNICODE_STRING_SIMPLE("True")) {
+        text_.tempSubString(pos_, 4) == Token::TTRUE->literal) {
       queue_.push_back(Token::TTRUE);
       pos_ += 4;
       return true;
@@ -352,9 +347,7 @@ void Lexer::lex() {
   }
 
   std::string _1;
-  if (parseWhitespace()) {
-    continue;
-  }
+  parseWhitespace();
   if (parseKeyword()) {
     return;
   }
