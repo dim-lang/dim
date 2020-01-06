@@ -4,8 +4,6 @@
 #pragma once
 #include "Term.h"
 
-namespace fastype {
-
 class CursesTerm : public Term {
 public:
   explicit CursesTerm();
@@ -18,5 +16,3 @@ private:
   int row_;
   int col_;
 };
-
-} // namespace fastype

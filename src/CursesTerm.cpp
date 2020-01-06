@@ -13,8 +13,6 @@
 #include <string>
 #include <unordered_map>
 
-namespace fastype {
-
 CursesTerm::CursesTerm() : Term() {
   (void)row_;
   (void)col_;
@@ -42,5 +40,3 @@ void CursesTerm::show(const icu::UnicodeString &fileName) {
   getch();
   endwin();
 }
-
-} // namespace fastype

@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <utility>
 
-namespace fastype {
-
 template <typename K, typename T> class ConcurrentHashMap : boost::noncopyable {
 public:
   typedef typename std::unordered_map<
@@ -118,5 +116,3 @@ private:
   std::unordered_map<K, T> map_;
   std::recursive_mutex lock_;
 };
-
-} // namespace fastype
