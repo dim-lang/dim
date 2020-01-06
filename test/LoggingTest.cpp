@@ -7,9 +7,9 @@
 TEST_CASE("Logging", "[Logging]") {
   SECTION("logging operations") {
     INFO("Logging Operations");
-    F_DEBUG_MSG("debug test");
-    F_DEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
-    F_INFO_MSG("info test");
-    F_INFO("info test with args:{} {} {}", "hello", 1, 4.281);
+    FDEBUG_MSG("debug test");
+    FDEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
+    FINFO_MSG("info test");
+    FINFO("info test with args:{} {} {}", "hello", 1, 4.281);
   }
 }

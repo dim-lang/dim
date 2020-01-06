@@ -13,7 +13,7 @@ TEST_CASE("Timer", "[Timer]") {
 
   SECTION("Timer Start/Stop") {
     INFO("Timer Start/Stop");
-    fastype::Timer t;
+    Timer t;
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
     REQUIRE(t.elapse() >= TEST_UNIT);
@@ -22,7 +22,7 @@ TEST_CASE("Timer", "[Timer]") {
 
   SECTION("Timer Resume") {
     INFO("Timer Resume");
-    fastype::Timer t;
+    Timer t;
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
@@ -39,7 +39,7 @@ TEST_CASE("Timer", "[Timer]") {
 
   SECTION("Timer Always Stopped") {
     INFO("Timer Always Stopped");
-    fastype::Timer t;
+    Timer t;
     t.stop();
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();

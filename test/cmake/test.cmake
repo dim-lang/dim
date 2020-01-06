@@ -10,7 +10,7 @@ set(FTEST
     RandomTest.cpp
     FilerTest.cpp
     ApproximateTest.cpp
-    TokenTest.cpp
 
-    exception/NotFoundExceptionTest.cpp
+    dsl/TokenTest.cpp
+    dsl/LexerTest.cpp
     )

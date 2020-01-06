@@ -7,7 +7,7 @@
 
 TEST_CASE("Main", "[Main]") {
   SECTION("Main Initialize") {
-    fastype::Logging::initialize(".", "fastype-test");
-    F_INFO_MSG("fastype-test starting...");
+    Logging::initialize(".", "fastype-test");
+    FINFO_MSG("fastype-test starting...");
   }
 }
