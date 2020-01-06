@@ -5,6 +5,7 @@
 #include "ConcurrentHashMap.h"
 #include "Hasher.h"
 #include "Logging.h"
+#include "config/Header.h"
 #include "config/Platform.h"
 #include <cmath>
 #include <cstdio>
@@ -15,8 +16,6 @@
 #else
 #include "CursesTerm.h"
 #endif // #ifdef F_PLATFORM_WINDOWS
-
-namespace fastype {
 
 static ConcurrentHashMap<icu::UnicodeString, std::shared_ptr<Term>> TermMap;
 
@@ -35,5 +34,3 @@ std::shared_ptr<Term> Term::open(const icu::UnicodeString &termName) {
   TermMap.unlock();
   return TermMap[termName];
 }
-
-} // namespace fastype

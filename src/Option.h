@@ -8,8 +8,6 @@
 #include <vector>
 namespace boost_po = boost::program_options;
 
-namespace fastype {
-
 class Option {
 public:
   Option(int argCount, char **argString);
@@ -50,5 +48,3 @@ private:
   boost_po::positional_options_description posOptDesc_;
   boost_po::variables_map varMap_;
 };
-
-} // namespace fastype

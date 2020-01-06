@@ -4,11 +4,8 @@
 #pragma once
 #include "Stringify.h"
 #include "config/Header.h"
-#include "exception/CheckFailureException.h"
 #include <cstdio>
 #include <string>
-
-namespace fastype {
 
 class Logging {
 public:
@@ -17,24 +14,38 @@ public:
                          bool debug = false);
 };
 
-} // namespace fastype
-
 #ifdef NDEBUG
 
-#define F_DEBUG_MSG(msg)
-#define F_DEBUG(msg, ...)
-#define F_INFO_MSG(msg)
-#define F_INFO(msg, ...)
-#define F_CHECK_MSG(cond, msg)
-#define F_CHECK(cond, msg, ...)
+#define FDEBUG_MSG(msg)
+#define FDEBUG(msg, ...)
+#define FINFO_MSG(msg)
+#define FINFO(msg, ...)
+#define FCHECK_MSG(cond, msg)                                                  \
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
+                        __FILE__, __LINE__, __FUNCTION__,                      \
+                        BOOST_PP_STRINGIZE(cond), msg)                         \
+    }                                                                          \
+  } while (0)
+
+#define FCHECK(cond, msg, ...)                                                 \
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
+                        __FILE__, __LINE__, __FUNCTION__,                      \
+                        BOOST_PP_STRINGIZE(cond),                              \
+                        fmt::format(msg, __VA_ARGS__))                         \
+    }                                                                          \
+  } while (0)
 
 #else
 
-#define F_DEBUG_MSG(msg) SPDLOG_DEBUG(msg)
-#define F_DEBUG(msg, ...) SPDLOG_DEBUG(msg, __VA_ARGS__)
-#define F_INFO_MSG(msg) SPDLOG_INFO(msg)
-#define F_INFO(msg, ...) SPDLOG_INFO(msg, __VA_ARGS__)
-#define F_CHECK_MSG(cond, msg)                                                 \
+#define FDEBUG_MSG(msg) SPDLOG_DEBUG(msg)
+#define FDEBUG(msg, ...) SPDLOG_DEBUG(msg, __VA_ARGS__)
+#define FINFO_MSG(msg) SPDLOG_INFO(msg)
+#define FINFO(msg, ...) SPDLOG_INFO(msg, __VA_ARGS__)
+#define FCHECK_MSG(cond, msg)                                                  \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::fprintf(                                                            \
@@ -43,7 +54,7 @@ public:
     }                                                                          \
     BOOST_ASSERT(cond);                                                        \
   } while (0)
-#define F_CHECK(cond, msg, ...)                                                \
+#define FCHECK(cond, msg, ...)                                                 \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::fprintf(stderr,                                                     \
@@ -56,5 +67,5 @@ public:
 
 #endif // #ifdef NDEBUG
 
-#define F_ERROR_MSG(msg) SPDLOG_ERROR(msg)
-#define F_ERROR(msg, ...) SPDLOG_ERROR(msg, __VA_ARGS__)
+#define FERROR_MSG(msg) SPDLOG_ERROR(msg)
+#define FERROR(msg, ...) SPDLOG_ERROR(msg, __VA_ARGS__)

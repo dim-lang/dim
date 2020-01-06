@@ -9,8 +9,6 @@
 #include <numeric>
 #include <sstream>
 
-namespace fastype {
-
 std::random_device *Random::device_ = nullptr;
 std::mt19937 *Random::engine_ = nullptr;
 std::uniform_int_distribution<long> *Random::longDist_ = nullptr;
@@ -304,5 +302,3 @@ std::string Random::nextString(const char *candidates, int c, int len) {
   }
   return ss.str();
 }
-
-} // namespace fastype

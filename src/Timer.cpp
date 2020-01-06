@@ -5,8 +5,6 @@
 #include "Logging.h"
 #include "config/Header.h"
 
-namespace fastype {
-
 Timer::Timer()
     : timestamp_(std::chrono::system_clock::now()),
       count_(std::chrono::milliseconds::zero()), stop_(false) {}
@@ -32,5 +30,3 @@ void Timer::resume() {
   stop_ = false;
   timestamp_ = std::chrono::system_clock::now();
 }
-
-} // namespace fastype

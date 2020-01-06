@@ -4,11 +4,7 @@
 #pragma once
 #include <string>
 
-namespace fastype {
-
 class Stringify {
 public:
   virtual std::string toString() const = 0;
 };
-
-} // namespace fastype

@@ -9,8 +9,6 @@
 #include <random>
 #include <string>
 
-namespace fastype {
-
 class Random {
 public:
   static void initialize();
@@ -79,5 +77,3 @@ private:
   static std::uniform_int_distribution<long long> *llongDist_;
   static std::uniform_int_distribution<unsigned long long> *ullongDist_;
 };
-
-} // namespace fastype

@@ -5,8 +5,6 @@
 #include <chrono>
 #include <string>
 
-namespace fastype {
-
 class Timer {
 public:
   // auto start in constructor
@@ -25,5 +23,3 @@ private:
   std::chrono::milliseconds count_;
   bool stop_;
 };
-
-} // namespace fastype

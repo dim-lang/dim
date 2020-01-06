@@ -4,11 +4,7 @@
 #pragma once
 #include <string>
 
-#ifndef F_KEY
-#define F_KEY(k)
-#endif
-
-namespace fastype {
+#define FKEY(k)
 
 enum KeyEnum {};
 
@@ -39,5 +35,3 @@ public:
 private:
   int value;
 };
-
-} // namespace fastype

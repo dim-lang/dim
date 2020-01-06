@@ -24,8 +24,6 @@
 #define F_OPT_DEBUG "debug"
 #define F_OPT_D "d"
 
-namespace fastype {
-
 Option::Option() : optDesc_(F_OPT) {
   optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help message")(
       F_OPT_VERSION "," F_OPT_V, "version information")(
@@ -95,8 +93,6 @@ int Option::threadSize() const {
 }
 
 bool Option::debug() const { return varMap_.count(F_OPT_DEBUG); }
-
-} // namespace fastype
 
 #undef F_OPT
 #undef F_OPT_HELP

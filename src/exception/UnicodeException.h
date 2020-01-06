@@ -2,10 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "exception/Exception.h"
+#include "Exception.h"
 
-namespace fastype {
-
-F_EXCEPTION(UnicodeException);
-
-} // namespace fastype
+FEXCEPT(UnicodeException);

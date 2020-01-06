@@ -7,8 +7,6 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-namespace fastype {
-
 void Logging::initialize(const std::string &logPath, const std::string &logName,
                          bool debug) {
 #ifndef NDEBUG
@@ -27,5 +25,3 @@ void Logging::initialize(const std::string &logPath, const std::string &logName,
                   dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec);
   spdlog::set_default_logger(spdlog::basic_logger_mt(logName, fullFileName));
 }
-
-} // namespace fastype
