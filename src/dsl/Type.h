@@ -44,7 +44,7 @@
 #define FDSL_UNARY_OP 113
 #define FDSL_VARIABLE 114
 #define FDSL_INTEGER_CONSTANT 115
-#define FDSL_FLOATING_CONSTANT 116
+#define FDSL_REAL_CONSTANT 116
 #define FDSL_BOOLEAN_CONSTANT 117
 #define FDSL_STRING_CONSTANT 118
 #define FDSL_FUNCTION_DECLARATION_BODY 119
@@ -61,7 +61,7 @@ class Type {
 public:
   static std::string utf8Name(int value);
   static icu::UnicodeString name(int value);
-  static int value(const std::string &name);
+  static int value(const icu::UnicodeString &name);
 };
 
 } // namespace dsl
