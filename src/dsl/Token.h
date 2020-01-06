@@ -37,7 +37,7 @@ public:
   static const std::shared_ptr<Token> TMODASSIGN; // %=
 
   // assignment
-  static const std::shared_ptr<Token> TASSIGNMENT; // =
+  static const std::shared_ptr<Token> TASSIGN; // =
 
   // comparator
   static const std::shared_ptr<Token> TEQ;  // ==
@@ -52,8 +52,8 @@ public:
   static const std::shared_ptr<Token> TFALSE; // False
 
   // punctuations
-  static const std::shared_ptr<Token> TLP;       // (
-  static const std::shared_ptr<Token> TRP;       // )
+  static const std::shared_ptr<Token> TLPAREN;   // (
+  static const std::shared_ptr<Token> TRPAREN;   // )
   static const std::shared_ptr<Token> TLBRACKET; // [
   static const std::shared_ptr<Token> TRBRACKET; // ]
   static const std::shared_ptr<Token> TLBRACE;   // {
@@ -82,10 +82,10 @@ public:
   static const std::shared_ptr<Token> TVOID;       // void
 
   Token(int type);
-  Token(int type, const std::string &literal);
+  Token(int type, const icu::UnicodeString &literal);
   virtual ~Token() = default;
 
-  virtual std::string stringValue() const;
+  virtual const icu::UnicodeString &stringValue() const;
   virtual int64_t integerValue() const;
   virtual double realValue() const;
   virtual bool booleanValue() const;
@@ -94,7 +94,7 @@ public:
   virtual std::string toString() const;
 
   int type;
-  std::string literal;
+  icu::UnicodeString literal;
 };
 
 } // namespace dsl

@@ -1,92 +1,121 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "script/Lexer.h"
+#include "dsl/Lexer.h"
 #include "Logging.h"
-#include "exception/ScriptException.h"
-#include "script/token/BooleanToken.h"
-#include "script/token/EofToken.h"
-#include "script/token/FloatingToken.h"
-#include "script/token/IdentifierToken.h"
-#include "script/token/IntegerToken.h"
-#include "script/token/OperatorToken.h"
-#include "script/token/StringToken.h"
 #include <cstdlib>
 #include <cstring>
-#include <fmt/format.h>
-#include <regex>
 #include <string>
 
-#define F_SUB_STRING(x, pos, y)                                                \
+#define FSUBSTR(x, pos, y)                                                     \
   ((x).tempSubString(pos,                                                      \
                      std::min<int>(64, (int)(x).tempSubString(pos).length()))  \
        .toUTF8String(y))
 
-namespace fastype {
+namespace dsl {
 
-Lexer::Lexer(const icu::UnicodeString &text) : pos_(0), text_(text) {}
+Lexer::Lexer()
+    : pos_(0), text_(UNICODE_STRING_SIMPLE("")), textList_(), queue_() {}
+
+Lexer::Lexer(const icu::UnicodeString &text)
+    : pos_(0), text_(text), textList_(), queue_() {}
+
+Lexer::Lexer(const std::vector<icu::UnicodeString> &textList)
+    : pos_(0), text_(UNICODE_STRING_SIMPLE("")), textList_(), queue_() {
+  for (int i = 0; i < (int)textList.size(); i++) {
+    textList_.push_back(textList[0]);
+  }
+}
 
 Lexer::~Lexer() {
   while (!queue_.empty()) {
     queue_.pop_front();
   }
   queue_.clear();
-  queue_.shrink_to_fit();
 }
 
-std::string Lexer::toString() const {
+void Lexer::append(const icu::UnicodeString &text) {
+  textList_.push_back(text);
+}
+
+void Lexer::append(const std::vector<icu::UnicodeString> &textList) {
+  for (int i = 0; i < (int)textList.size(); i++) {
+    textList_.push_back(textList[0]);
+  }
+}
+
+icu::UnicodeString Lexer::toString() const {
   std::string _1;
   return fmt::format("[ @Lexer pos_:{}, text_:{} ]", pos_,
-                     F_SUB_STRING(text_, 0, _1));
+                     FSUBSTR(text_.front(), 0, _1));
+}
+
+std::shared_ptr<Token> Lexer::read() {
+  lex();
+
+  if (!queue_.empty()) {
+    std::shared_ptr<Token> t = queue_.front();
+    queue_.pop_front();
+    return t;
+  }
+  return Token::TEOF;
+}
+
+std::shared_ptr<Token> Lexer::peek(int pos) {
+  do {
+    int n = (int)queue_.size();
+    lex();
+    if ((int)queue_.size() <= n) {
+      break;
+    }
+  } while (queue_.size() <= pos);
+  return queue_.size() <= pos ? Token::TEOF : queue_[pos];
 }
 
 // parse whitespace
 // @return   true if is whitespace and skipped
 //           false if not
-static bool parseWhitespace(const icu::UnicodeString &text, int &i) {
+bool Lexer::parseWhitespace() {
   bool parsed = false;
-  while (u_isspace(text.charAt(i))) {
-    i += 1;
+  while (u_isspace(text_.charAt(pos_))) {
+    pos_++;
     parsed = true;
   }
   return parsed;
 }
 
 // parse constant token
-static void parseConstToken(int &i, std::shared_ptr<Token> t,
-                            std::deque<std::shared_ptr<Token>> &q,
-                            int diff = 1) {
-  q.push_back(t);
-  i += diff;
+void Lexer::parseConstToken(std::shared_ptr<Token> t, int count) {
+  queue_.push_back(t);
+  pos_ += count;
 }
 
-// parse integer or floating
-static void parseNumber(const icu::UnicodeString &text, int &i,
-                        std::deque<std::shared_ptr<Token>> &q) {
+// parse integer or real
+void Lexer::parseNumber() {
   std::string _1;
   int dotCount = 0;  // .
   int expCount = 0;  // e or E
   int flagCount = 0; // + or -
-  int j = i;
-  while (j < text.length()) {
-    if (u_isdigit(text.charAt(j))) {
+  int j = pos_;
+  while (j < text_.length()) {
+    if (u_isdigit(text_.charAt(j))) {
       j++;
       continue;
     }
-    // floating number: 23.91
-    if (text.charAt(j) == (UChar)'.') {
+    // real number: 23.91
+    if (text_.charAt(j) == (UChar)'.') {
       j++;
       dotCount++;
       continue;
     }
     // exp: 12e8
-    if (text.charAt(j) == (UChar)'e' || text.charAt(j) == (UChar)'E') {
+    if (text_.charAt(j) == (UChar)'e' || text_.charAt(j) == (UChar)'E') {
       j++;
       expCount++;
 
       // exp with flag: 3E+5
-      if (j + 1 < text.length() && (text.charAt(j + 1) == (UChar)'+' ||
-                                    text.charAt(j + 1) == (UChar)'-')) {
+      if (j + 1 < text_.length() && (text_.charAt(j + 1) == (UChar)'+' ||
+                                     text_.charAt(j + 1) == (UChar)'-')) {
         j++;
         flagCount++;
       }
@@ -95,427 +124,403 @@ static void parseNumber(const icu::UnicodeString &text, int &i,
     break;
   }
 
-  F_CHECK(dotCount <= 1, "dotCount {} <= 1 failure! text[{}]:{}", dotCount, i,
-          F_SUB_STRING(text, i, _1));
-  F_CHECK(expCount <= 1, "expCount {} <= 1 failure! text[{}]:{}", expCount, i,
-          F_SUB_STRING(text, i, _1));
-  F_CHECK(flagCount <= 2, "flagCount {} <= 2 failure! text[{}]:{}", flagCount,
-          i, F_SUB_STRING(text, i, _1));
+  FCHECK(dotCount <= 1, "dotCount {} <= 1 error! text_[{}]:{}", dotCount, pos_,
+         FSUBSTR(text_, pos_, _1));
+  FCHECK(expCount <= 1, "expCount {} <= 1 error! text_[{}]:{}", expCount, pos_,
+         FSUBSTR(text_, pos_, _1));
+  FCHECK(flagCount <= 2, "flagCount {} <= 2 error! text_[{}]:{}", flagCount,
+         pos_, FSUBSTR(text_, pos_, _1));
 
-  std::string utf8;
-  text.tempSubString(i, j - i).toUTF8String(utf8);
-
-  // floating number
+  // real number
   if (dotCount > 0) {
-    double value = std::stod(utf8);
-    std::shared_ptr<Token> floatingToken =
-        std::shared_ptr<Token>(new FloatingToken(value));
-    q.push_back(floatingToken);
+    queue_.push_back(std::shared_ptr<Token>(
+        new Token(FDSL_REAL, text_.tempSubString(pos_, j - pos_))));
   } else {
     // integer number
-    int64_t value = (int64_t)std::stoll(utf8);
-    std::shared_ptr<Token> integerToken =
-        std::shared_ptr<Token>(new IntegerToken(value));
-    q.push_back(integerToken);
+    queue_.push_back(std::shared_ptr<Token>(
+        new Token(FDSL_INTEGER, text_.tempSubString(pos_, j - pos_))));
   }
 
-  i = j;
+  pos_ = j;
 }
 
 // parse comment
-static void parseComment(const icu::UnicodeString &text, int &i) {
+static void parseComment() {
   icu::UnicodeString unixLineBreak = UNICODE_STRING_SIMPLE("\n");
   icu::UnicodeString blockCommetEnd = UNICODE_STRING_SIMPLE("*/");
 
-  F_CHECK(text.charAt(i) == (UChar)'/', "text[{}] {} == / {}", i,
-          (int)text.charAt(i), (int)'/');
-  F_CHECK(i + 1 < text.length(), "i+1 {} < text.length {}", i + 1,
-          text.length());
-  switch (text.charAt(i + 1)) {
+  FCHECK(text_.charAt(pos_) == (UChar)'/', "text_[{}] {} == / {}", pos_,
+         (int)text_.charAt(pos_), (int)'/');
+  FCHECK(pos_ + 1 < text_.length(), "pos_+1 {} < text_.length {}", pos_ + 1,
+         text_.length());
+  switch (text_.charAt(pos_ + 1)) {
   case (UChar)'/': // line comment
   {
-    int lineEndPos = text.indexOf(unixLineBreak, i + 1);
-    i = lineEndPos + 1;
+    int lineEndPos = text_.indexOf(unixLineBreak, pos_ + 1);
+    pos_ = lineEndPos + 1;
   } break;
   case (UChar)'*': // block comment
   {
-    int lineEndPos = text.indexOf(blockCommetEnd, i + 1);
-    i = lineEndPos + 2;
+    int lineEndPos = text_.indexOf(blockCommetEnd, pos_ + 1);
+    pos_ = lineEndPos + 2;
   } break;
   }
 }
 
 // parse string
-static void parseString(const icu::UnicodeString &text, int &i,
-                        std::deque<std::shared_ptr<Token>> &q) {
+void Lexer::parseString() {
   std::string _1;
-  int j = i + 1;
+  int j = pos_ + 1;
   bool findString = false;
   (void)findString;
-  while (j < text.length()) {
-    if (text.charAt(j) == (UChar)'\\') {
+  while (j < text_.length()) {
+    if (text_.charAt(j) == (UChar)'\\') {
       j += 2;
       continue;
     }
-    if (text.charAt(j) == (UChar)'\"') {
+    if (text_.charAt(j) == (UChar)'\"') {
       j += 1;
       findString = true;
       break;
     }
     j += 1;
   }
-  F_CHECK(findString, "parse string fail at i:{}, j:{}, text[{}]: {}", i, j, i,
-          F_SUB_STRING(text, i, _1));
-  std::shared_ptr<Token> strToken =
-      std::shared_ptr<Token>(new StringToken(text.tempSubString(i, j - i)));
-  q.push_back(strToken);
-  i = j;
+  FCHECK(findString, "parse string fail at pos_:{}, j:{}, text_[{}]: {}", pos_,
+         j, pos_, FSUBSTR(text_, pos_, _1));
+  std::shared_ptr<Token> strToken = std::shared_ptr<Token>(
+      new StringToken(text_.tempSubString(pos_, j - pos_)));
+  queue_.push_back(strToken);
+  pos_ = j;
 }
 
 // parse identifier
-static bool parseIdentifier(const icu::UnicodeString &text, int &i,
-                            std::deque<std::shared_ptr<Token>> &q) {
-  if (!u_isalpha(text.charAt(i)) && text.charAt(i) != (UChar)'_') {
+bool Lexer::parseIdentifier() {
+  if (!u_isalpha(text_.charAt(pos_)) && text_.charAt(pos_) != (UChar)'_') {
     return false;
   }
-  int j = i;
-  while (j < text.length()) {
-    if (u_isalnum(text.charAt(j)) || text.charAt(j) == (UChar)'_') {
+  int j = pos_;
+  while (j < text_.length()) {
+    if (u_isalnum(text_.charAt(j)) || text_.charAt(j) == (UChar)'_') {
       j++;
     } else {
       break;
     }
   }
   std::string _1;
-  F_CHECK(j > i, "j {} > i {}, text[{}]:{}", j, i, i,
-          F_SUB_STRING(text, i, _1));
-  std::shared_ptr<Token> idToken =
-      std::shared_ptr<Token>(new IdentifierToken(text.tempSubString(i, j - i)));
-  q.push_back(idToken);
-  i = j;
+  FCHECK(j > pos_, "j {} > pos_ {}, text_[{}]:{}", j, pos_, pos_,
+         FSUBSTR(text_, pos_, _1));
+  std::shared_ptr<Token> idToken = std::shared_ptr<Token>(
+      new IdentifierToken(text_.tempSubString(pos_, j - pos_)));
+  queue_.push_back(idToken);
+  pos_ = j;
   return true;
 }
 
 // parse keyword or identifier
 // @return   true if is keyword
 //           false if not
-static bool parseKeywordOrIdentifier(const icu::UnicodeString &text, int &i,
-                                     std::deque<std::shared_ptr<Token>> &q) {
-  switch (text.charAt(i)) {
+bool Lexer::parseKeyword() {
+  switch (text_.charAt(pos_)) {
   case (UChar)'l':
-    if (i + 3 < text.length() &&
-        text.tempSubString(i, 3) == Token::T_LET->literal()) {
-      q.push_back(Token::T_LET);
-      i += 3;
+    if (pos_ + 3 < text_.length() &&
+        text_.tempSubString(pos_, 3) == Token::TLET->literal()) {
+      queue_.push_back(Token::TLET);
+      pos_ += 3;
       return true;
     }
     break;
   case (UChar)'n':
-    if (i + 4 < text.length() &&
-        text.tempSubString(i, 4) == Token::T_NULL->literal()) {
-      q.push_back(Token::T_NULL);
-      i += 4;
+    if (pos_ + 4 < text_.length() &&
+        text_.tempSubString(pos_, 4) == Token::TNULL->literal()) {
+      queue_.push_back(Token::TNULL);
+      pos_ += 4;
       return true;
     }
     break;
   case (UChar)'i':
-    if (i + 2 < text.length() &&
-        text.tempSubString(i, 2) == Token::T_IF->literal()) {
-      q.push_back(Token::T_IF);
-      i += 2;
+    if (pos_ + 2 < text_.length() &&
+        text_.tempSubString(pos_, 2) == Token::TIF->literal()) {
+      queue_.push_back(Token::TIF);
+      pos_ += 2;
       return true;
-    } else if (i + 10 < text.length() &&
-               text.tempSubString(i, 10) == Token::T_ISINSTANCE->literal()) {
-      q.push_back(Token::T_ISINSTANCE);
-      i += 10;
+    } else if (pos_ + 10 < text_.length() &&
+               text_.tempSubString(pos_, 10) == Token::TISINSTANCE->literal()) {
+      queue_.push_back(Token::TISINSTANCE);
+      pos_ += 10;
       return true;
-    } else if (i + 6 < text.length() &&
-               text.tempSubString(i, 6) == Token::T_IMPORT->literal()) {
-      q.push_back(Token::T_IMPORT);
-      i += 6;
+    } else if (pos_ + 6 < text_.length() &&
+               text_.tempSubString(pos_, 6) == Token::TIMPORT->literal()) {
+      queue_.push_back(Token::TIMPORT);
+      pos_ += 6;
       return true;
     }
     break;
   case (UChar)'e':
-    if (i + 6 < text.length() &&
-        text.tempSubString(i, 6) == Token::T_ELSEIF->literal()) {
-      q.push_back(Token::T_ELSEIF);
-      i += 6;
+    if (pos_ + 6 < text_.length() &&
+        text_.tempSubString(pos_, 6) == Token::TELSEIF->literal()) {
+      queue_.push_back(Token::TELSEIF);
+      pos_ += 6;
       return true;
-    } else if (i + 4 < text.length() &&
-               text.tempSubString(i, 4) == Token::T_ELSE->literal()) {
-      q.push_back(Token::T_ELSE);
-      i += 4;
+    } else if (pos_ + 4 < text_.length() &&
+               text_.tempSubString(pos_, 4) == Token::TELSE->literal()) {
+      queue_.push_back(Token::TELSE);
+      pos_ += 4;
       return true;
     }
     break;
   case (UChar)'f':
-    if (i + 3 < text.length() &&
-        text.tempSubString(i, 3) == Token::T_FOR->literal()) {
-      q.push_back(Token::T_FOR);
-      i += 3;
+    if (pos_ + 3 < text_.length() &&
+        text_.tempSubString(pos_, 3) == Token::TFOR->literal()) {
+      queue_.push_back(Token::TFOR);
+      pos_ += 3;
       return true;
-    } else if (i + 4 < text.length() &&
-               text.tempSubString(i, 4) == Token::T_FUNC->literal()) {
-      q.push_back(Token::T_FUNC);
-      i += 4;
+    } else if (pos_ + 4 < text_.length() &&
+               text_.tempSubString(pos_, 4) == Token::TFUNC->literal()) {
+      queue_.push_back(Token::TFUNC);
+      pos_ += 4;
       return true;
     }
     break;
   case (UChar)'w':
-    if (i + 5 < text.length() &&
-        text.tempSubString(i, 5) == Token::T_WHILE->literal()) {
-      q.push_back(Token::T_WHILE);
-      i += 5;
+    if (pos_ + 5 < text_.length() &&
+        text_.tempSubString(pos_, 5) == Token::TWHILE->literal()) {
+      queue_.push_back(Token::TWHILE);
+      pos_ += 5;
       return true;
     }
     break;
   case (UChar)'b':
-    if (i + 5 < text.length() &&
-        text.tempSubString(i, 5) == Token::T_BREAK->literal()) {
-      q.push_back(Token::T_BREAK);
-      i += 5;
+    if (pos_ + 5 < text_.length() &&
+        text_.tempSubString(pos_, 5) == Token::TBREAK->literal()) {
+      queue_.push_back(Token::TBREAK);
+      pos_ += 5;
       return true;
     }
     break;
   case (UChar)'c':
-    if (i + 8 < text.length() &&
-        text.tempSubString(i, 8) == Token::T_CONTINUE->literal()) {
-      q.push_back(Token::T_CONTINUE);
-      i += 8;
+    if (pos_ + 8 < text_.length() &&
+        text_.tempSubString(pos_, 8) == Token::TCONTINUE->literal()) {
+      queue_.push_back(Token::TCONTINUE);
+      pos_ += 8;
       return true;
-    } else if (i + 5 < text.length() &&
-               text.tempSubString(i, 5) == Token::T_CLASS->literal()) {
-      q.push_back(Token::T_CLASS);
-      i += 5;
+    } else if (pos_ + 5 < text_.length() &&
+               text_.tempSubString(pos_, 5) == Token::TCLASS->literal()) {
+      queue_.push_back(Token::TCLASS);
+      pos_ += 5;
       return true;
     }
     break;
   case (UChar)'t':
-    if (i + 4 < text.length() &&
-        text.tempSubString(i, 4) == Token::T_TYPE->literal()) {
-      q.push_back(Token::T_TYPE);
-      i += 4;
+    if (pos_ + 4 < text_.length() &&
+        text_.tempSubString(pos_, 4) == Token::TTYPE->literal()) {
+      queue_.push_back(Token::TTYPE);
+      pos_ += 4;
       return true;
     }
     break;
   case (UChar)'r':
-    if (i + 6 < text.length() &&
-        text.tempSubString(i, 6) == Token::T_RETURN->literal()) {
-      q.push_back(Token::T_RETURN);
-      i += 6;
+    if (pos_ + 6 < text_.length() &&
+        text_.tempSubString(pos_, 6) == Token::TRETURN->literal()) {
+      queue_.push_back(Token::TRETURN);
+      pos_ += 6;
       return true;
     }
     break;
   case (UChar)'F':
-    if (i + 5 < text.length() &&
-        text.tempSubString(i, 5) == UNICODE_STRING_SIMPLE("False")) {
-      q.push_back(Token::T_FALSE);
-      i += 5;
+    if (pos_ + 5 < text_.length() &&
+        text_.tempSubString(pos_, 5) == UNICODE_STRING_SIMPLE("False")) {
+      queue_.push_back(Token::TFALSE);
+      pos_ += 5;
       return true;
     }
     break;
   case (UChar)'T':
-    if (i + 4 < text.length() &&
-        text.tempSubString(i, 4) == UNICODE_STRING_SIMPLE("True")) {
-      q.push_back(Token::T_TRUE);
-      i += 4;
+    if (pos_ + 4 < text_.length() &&
+        text_.tempSubString(pos_, 4) == UNICODE_STRING_SIMPLE("True")) {
+      queue_.push_back(Token::TTRUE);
+      pos_ += 4;
       return true;
     }
     break;
   }
-  return parseIdentifier(text, i, q);
+  return parseIdentifier();
 }
 
-std::shared_ptr<Token> Lexer::read() {
-  readImpl();
-
-  if (!queue_.empty()) {
-    std::shared_ptr<Token> t = queue_.front();
-    queue_.pop_front();
-    return t;
+void Lexer::lex() {
+  if (!hasMore()) {
+    return;
   }
-  return Token::T_EOF;
-}
 
-std::shared_ptr<Token> Lexer::peek(int pos) {
-  do {
-    int n = queue_.size();
-    readImpl();
-    if (queue_.size() <= n) {
-      break;
-    }
-  } while (queue_.size() <= pos);
-  return queue_.size() <= pos ? Token::T_EOF : queue_[pos];
-}
-
-void Lexer::readImpl() {
   std::string _1;
-
-  while (pos_ < text_.length()) {
-    if (parseWhitespace(text_, pos_)) {
-      continue;
+  if (parseWhitespace()) {
+    continue;
+  }
+  if (parseKeyword()) {
+    return;
+  }
+  switch (text_.charAt(pos_)) {
+  case (UChar)'+': {
+    if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'+') {
+      // ++
+      parseConstToken(Token::TINC, 2);
+    } else if (pos_ + 1 < text_.length() &&
+               text_.charAt(pos_ + 1) == (UChar)'=') {
+      // +=
+      parseConstToken(Token::TADDASSIGN, 2);
+    } else {
+      // +
+      parseConstToken(Token::TADD);
     }
-    if (parseKeywordOrIdentifier(text_, pos_, queue_)) {
-      return;
+    return;
+  } break;
+  case (UChar)'-': {
+    if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'-') {
+      // --
+      parseConstToken(Token::TDEC, 2);
+    } else if (pos_ + 1 < text_.length() &&
+               text_.charAt(pos_ + 1) == (UChar)'=') {
+      // -=
+      parseConstToken(Token::TSUBASSIGN, 2);
+    } else {
+      // -
+      parseConstToken(Token::TSUB);
     }
-    switch (text_.charAt(pos_)) {
-    case (UChar)'+': {
-      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'+') {
-        // ++
-        parseConstToken(pos_, Token::T_INC, queue_, 2);
-      } else if (pos_ + 1 < text_.length() &&
-                 text_.charAt(pos_ + 1) == (UChar)'=') {
-        // +=
-        parseConstToken(pos_, Token::T_ADDASSIGN, queue_, 2);
-      } else {
-        // +
-        parseConstToken(pos_, Token::T_ADD, queue_);
-      }
-      return;
-    } break;
-    case (UChar)'-': {
-      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'-') {
-        // --
-        parseConstToken(pos_, Token::T_DEC, queue_, 2);
-      } else if (pos_ + 1 < text_.length() &&
-                 text_.charAt(pos_ + 1) == (UChar)'=') {
-        // -=
-        parseConstToken(pos_, Token::T_SUBASSIGN, queue_, 2);
-      } else {
-        // -
-        parseConstToken(pos_, Token::T_SUB, queue_);
-      }
-      return;
-    } break;
-    case (UChar)'*': {
-      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
-        // *=
-        parseConstToken(pos_, Token::T_MULASSIGN, queue_, 2);
-      } else {
-        // *
-        parseConstToken(pos_, Token::T_MUL, queue_);
-      }
-      return;
-    } break;
-    case (UChar)'/': {
-      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
-        // /=
-        parseConstToken(pos_, Token::T_DIVASSIGN, queue_, 2);
-      } else if (pos_ + 1 < text_.length() &&
-                 (text_.charAt(pos_ + 1) == (UChar)'/' ||
-                  text_.charAt(pos_ + 1) == (UChar)'*')) {
-        // comment start /* or //
-        parseComment(text_, pos_);
-      } else {
-        // /
-        parseConstToken(pos_, Token::T_DIV, queue_);
-      }
-      return;
-    } break;
-    case (UChar)'%': {
-      if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
-        // %=
-        parseConstToken(pos_, Token::T_MODASSIGN, queue_, 2);
-      } else {
-        // %
-        parseConstToken(pos_, Token::T_MOD, queue_);
-      }
-      return;
-    } break;
-    case (UChar)'0': // number
-    case (UChar)'1':
-    case (UChar)'2':
-    case (UChar)'3':
-    case (UChar)'4':
-    case (UChar)'5':
-    case (UChar)'6':
-    case (UChar)'7':
-    case (UChar)'8':
-    case (UChar)'9': {
-      parseNumber(text_, pos_, queue_);
-      return;
-    } break;
-    case (UChar)'"': // string or char
-      parseString(text_, pos_, queue_);
-      break;
-    case (UChar)'=':
-      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("==")) {
-        // ==
-        parseConstToken(pos_, Token::T_EQ, queue_, 2);
-      } else {
-        // =
-        parseConstToken(pos_, Token::T_ASSIGNMENT, queue_);
-      }
-      break;
-    case (UChar)'!':
-      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("!=")) {
-        // !
-        parseConstToken(pos_, Token::T_NEQ, queue_, 2);
-      } else {
-        // !=
-        parseConstToken(pos_, Token::T_NOT, queue_);
-      }
-      break;
-    case (UChar)'<':
-      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("<=")) {
-        // <
-        parseConstToken(pos_, Token::T_LE, queue_, 2);
-      } else {
-        // <=
-        parseConstToken(pos_, Token::T_LT, queue_);
-      }
-      break;
-    case (UChar)'>':
-      if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE(">=")) {
-        // >
-        parseConstToken(pos_, Token::T_GE, queue_, 2);
-      } else {
-        // >=
-        parseConstToken(pos_, Token::T_GT, queue_);
-      }
-      break;
-    case (UChar)',':
-      parseConstToken(pos_, Token::T_COMMA, queue_);
-      break;
-    case (UChar)';':
-      parseConstToken(pos_, Token::T_SEMI, queue_);
-      break;
-    case (UChar)'?':
-      parseConstToken(pos_, Token::T_QUESTION, queue_);
-      break;
-    case (UChar)':':
-      parseConstToken(pos_, Token::T_COLON, queue_);
-      break;
-    case (UChar)'(': {
-      parseConstToken(pos_, Token::T_LP, queue_);
-      return;
-    } break;
-    case (UChar)')': {
-      parseConstToken(pos_, Token::T_RP, queue_);
-      return;
-    } break;
-    case (UChar)'[':
-      parseConstToken(pos_, Token::T_LBRACKET, queue_);
-      break;
-    case (UChar)']':
-      parseConstToken(pos_, Token::T_RBRACKET, queue_);
-      break;
-    case (UChar)'{':
-      parseConstToken(pos_, Token::T_LBRACE, queue_);
-      break;
-    case (UChar)'}':
-      parseConstToken(pos_, Token::T_RBRACE, queue_);
-      break;
-    default:
-      F_CHECK(false, "unknown token at text_[{}]: {}", pos_,
-              F_SUB_STRING(text_, pos_, _1));
-      F_THROW(ScriptException, "unknown token at text_[{}]: {}", pos_,
-              F_SUB_STRING(text_, pos_, _1));
+    return;
+  } break;
+  case (UChar)'*': {
+    if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+      // *=
+      parseConstToken(Token::TMULASSIGN, 2);
+    } else {
+      // *
+      parseConstToken(Token::TMUL);
     }
+    return;
+  } break;
+  case (UChar)'/': {
+    if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+      // /=
+      parseConstToken(Token::TDIVASSIGN, 2);
+    } else if (pos_ + 1 < text_.length() &&
+               (text_.charAt(pos_ + 1) == (UChar)'/' ||
+                text_.charAt(pos_ + 1) == (UChar)'*')) {
+      // comment start /* or //
+      parseComment();
+    } else {
+      // /
+      parseConstToken(Token::TDIV);
+    }
+    return;
+  } break;
+  case (UChar)'%': {
+    if (pos_ + 1 < text_.length() && text_.charAt(pos_ + 1) == (UChar)'=') {
+      // %=
+      parseConstToken(Token::TMODASSIGN, 2);
+    } else {
+      // %
+      parseConstToken(Token::TMOD);
+    }
+    return;
+  } break;
+  case (UChar)'0': // number
+  case (UChar)'1':
+  case (UChar)'2':
+  case (UChar)'3':
+  case (UChar)'4':
+  case (UChar)'5':
+  case (UChar)'6':
+  case (UChar)'7':
+  case (UChar)'8':
+  case (UChar)'9': {
+    parseNumber();
+    return;
+  } break;
+  case (UChar)'"': // string or char
+    parseString();
+    break;
+  case (UChar)'=':
+    if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("==")) {
+      // ==
+      parseConstToken(Token::TEQ, 2);
+    } else {
+      // =
+      parseConstToken(Token::TASSIGN);
+    }
+    break;
+  case (UChar)'!':
+    if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("!=")) {
+      // !
+      parseConstToken(Token::TNEQ, 2);
+    } else {
+      // !=
+      parseConstToken(Token::TNOT);
+    }
+    break;
+  case (UChar)'<':
+    if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE("<=")) {
+      // <
+      parseConstToken(Token::TLE, 2);
+    } else {
+      // <=
+      parseConstToken(Token::TLT);
+    }
+    break;
+  case (UChar)'>':
+    if (text_.tempSubString(pos_, 2) == UNICODE_STRING_SIMPLE(">=")) {
+      // >
+      parseConstToken(Token::TGE, 2);
+    } else {
+      // >=
+      parseConstToken(Token::TGT);
+    }
+    break;
+  case (UChar)',':
+    parseConstToken(Token::TCOMMA);
+    break;
+  case (UChar)';':
+    parseConstToken(Token::TSEMI);
+    break;
+  case (UChar)'?':
+    parseConstToken(Token::TQUESTION);
+    break;
+  case (UChar)':':
+    parseConstToken(Token::TCOLON);
+    break;
+  case (UChar)'(': {
+    parseConstToken(Token::TLPAREN);
+    return;
+  } break;
+  case (UChar)')': {
+    parseConstToken(Token::TRPAREN);
+    return;
+  } break;
+  case (UChar)'[':
+    parseConstToken(Token::TLBRACKET);
+    break;
+  case (UChar)']':
+    parseConstToken(Token::TRBRACKET);
+    break;
+  case (UChar)'{':
+    parseConstToken(Token::TLBRACE);
+    break;
+  case (UChar)'}':
+    parseConstToken(Token::TRBRACE);
+    break;
+  default:
+    FCHECK(false, "unknown token at text_[{}]: {}", pos_,
+           FSUBSTR(text_, pos_, _1));
+    FTHROW("invalid token at text_[{}]: {}", pos_, FSUBSTR(text_, pos_, _1));
   }
 }
 
-} // namespace fastype
+bool Lexer::hasMore() {
+  if (pos_ >= text_.length() && textList_.size() > 0) {
+    text_ = textList_.front();
+    textList_.pop_front();
+  }
+  return text_.size() > 0 && pos_ < text_.length();
+}
 
-#undef F_SUB_STRING
+} // namespace dsl
+
+#undef FSUBSTR

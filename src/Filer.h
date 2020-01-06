@@ -6,31 +6,38 @@
 #include <string>
 #include <vector>
 
-namespace fastype {
-
 class Filer {
 public:
   // read all into one string
-  static icu::UnicodeString readAll(const icu::UnicodeString &fileName,
-                                    const char *locale = nullptr,
-                                    const char *codepage = "UTF-8");
+  static icu::UnicodeString read(const icu::UnicodeString &fileName,
+                                 const char *locale = nullptr,
+                                 const char *codepage = "UTF-8");
 
   // read all to line by line
   static std::vector<icu::UnicodeString>
-  readLines(const icu::UnicodeString &fileName, const char *locale = nullptr,
-            const char *codepage = "UTF-8");
+  readline(const icu::UnicodeString &fileName, const char *locale = nullptr,
+           const char *codepage = "UTF-8");
 
   // write all into one file
-  static int writeAll(const icu::UnicodeString &fileName,
-                      const icu::UnicodeString &text,
-                      const char *locale = nullptr,
-                      const char *codepage = "UTF-8");
+  static int write(const icu::UnicodeString &fileName,
+                   const icu::UnicodeString &text, const char *locale = nullptr,
+                   const char *codepage = "UTF-8");
 
-  // write all into one file
-  static int appendAll(const icu::UnicodeString &fileName,
-                       const icu::UnicodeString &text,
+  // write all lines into one file
+  static int writeline(const icu::UnicodeString &fileName,
+                       const std::vector<icu::UnicodeString> &lines,
                        const char *locale = nullptr,
                        const char *codepage = "UTF-8");
-};
 
-} // namespace fastype
+  // write all into one file
+  static int append(const icu::UnicodeString &fileName,
+                    const icu::UnicodeString &text,
+                    const char *locale = nullptr,
+                    const char *codepage = "UTF-8");
+
+  // write all lines into one file
+  static int appendline(const icu::UnicodeString &fileName,
+                        const std::vector<icu::UnicodeString> &lines,
+                        const char *locale = nullptr,
+                        const char *codepage = "UTF-8");
+};

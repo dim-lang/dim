@@ -12,13 +12,11 @@
 // integer number
 #define FDSL_INTEGER 2
 // floating number
-#define FDSL_FLOATING 3
-// operator: + - * / % ++ --
+#define FDSL_REAL 3
+// operator: + - * / % ++ -- = += -= *= /= %=
 #define FDSL_OPERATOR 4
 // comparator: == != < <= > >=
 #define FDSL_COMPARATOR 5
-// assignment: =
-#define FDSL_ASSIGNMENT 6
 // boolean: True False
 #define FDSL_BOOLEAN 7
 // identifier
@@ -61,7 +59,8 @@ namespace dsl {
 
 class Type {
 public:
-  static std::string name(int value);
+  static std::string utf8Name(int value);
+  static icu::UnicodeString name(int value);
   static int value(const std::string &name);
 };
 

@@ -15,8 +15,6 @@ set(FCORE
     Random.cpp
     Approximate.cpp
     CursesTerm.cpp
-    Token.cpp
-    Parser.cpp
 
     graph/Dot.cpp
 
@@ -35,38 +33,27 @@ set(FCORE
     event/poll/Select.cpp
     event/poll/MswinSelect.cpp
 
-    #script/Token.cpp
-    #script/Lexer.cpp
-    #script/Parser.cpp
-    #script/Interpreter.cpp
-    #script/Util.cpp
-    #script/Type.cpp
-    #script/ast/BinaryOp.cpp
-    #script/ast/UnaryOp.cpp
-    #script/ast/IntegerConstant.cpp
-    #script/ast/FloatingConstant.cpp
-    #script/ast/StringConstant.cpp
-    #script/ast/BooleanConstant.cpp
-    #script/ast/IdentifierConstant.cpp
-    #script/ast/AssignmentStatement.cpp
-    #script/ast/CompoundStatement.cpp
-    #script/ast/EmptyStatement.cpp
-    #script/ast/StatementList.cpp
-    #script/ast/VariableDeclaration.cpp
-    #script/ast/FunctionDeclaration.cpp
-    #script/ast/Variable.cpp
-    #script/ast/Program.cpp
-    #script/token/AssignmentToken.cpp
-    #script/token/BooleanToken.cpp
-    #script/token/ComparatorToken.cpp
-    #script/token/EofToken.cpp
-    #script/token/FloatingToken.cpp
-    #script/token/IdentifierToken.cpp
-    #script/token/IntegerToken.cpp
-    #script/token/OperatorToken.cpp
-    #script/token/PunctuationToken.cpp
-    #script/token/KeywordToken.cpp
-    #script/token/StringToken.cpp
+    dsl/Type.cpp
+    dsl/Token.cpp
+    dsl/Lexer.cpp
+    #dsl/Parser.cpp
+    #dsl/Interpreter.cpp
+    #dsl/Util.cpp
+    #dsl/ast/BinaryOp.cpp
+    #dsl/ast/UnaryOp.cpp
+    #dsl/ast/IntegerConstant.cpp
+    #dsl/ast/FloatingConstant.cpp
+    #dsl/ast/StringConstant.cpp
+    #dsl/ast/BooleanConstant.cpp
+    #dsl/ast/IdentifierConstant.cpp
+    #dsl/ast/AssignmentStatement.cpp
+    #dsl/ast/CompoundStatement.cpp
+    #dsl/ast/EmptyStatement.cpp
+    #dsl/ast/StatementList.cpp
+    #dsl/ast/VariableDeclaration.cpp
+    #dsl/ast/FunctionDeclaration.cpp
+    #dsl/ast/Variable.cpp
+    #dsl/ast/Program.cpp
     )
 
 if (WIN32) 

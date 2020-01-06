@@ -4,27 +4,42 @@
 #pragma once
 #include "Stringify.h"
 #include "config/Header.h"
-#include "script/Token.h"
+#include "dsl/Token.h"
 #include <deque>
 #include <memory>
 
-namespace fastype {
+namespace dsl {
 
 class Lexer : public Stringify {
 public:
+  Lexer();
   Lexer(const icu::UnicodeString &text);
+  Lexer(const std::vector<icu::UnicodeString> &textList);
   virtual ~Lexer();
+
+  void append(const icu::UnicodeString &text);
+  void append(const std::vector<icu::UnicodeString> &textList);
   std::shared_ptr<Token> read();
   std::shared_ptr<Token> peek(int pos);
   virtual std::string toString() const;
 
 private:
-  void readImpl();
+  void lex();
+  bool hasMore();
+
+  bool parseWhitespace();
+  void parseConstToken(std::shared_ptr<Token> t, int count = 1);
+  void parseNumber();
+  void parseComment();
+  void parseString();
+  bool parseIdentifier();
+  bool parseKeyword();
 
   int pos_;
+  UChar ch_;
   icu::UnicodeString text_;
-  icu::UnicodeString currentChar_;
+  std::deque<icu::UnicodeString> textList_;
   std::deque<std::shared_ptr<Token>> queue_;
 };
 
-} // namespace fastype
+} // namespace dsl
