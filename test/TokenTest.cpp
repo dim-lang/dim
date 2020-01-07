@@ -6,12 +6,13 @@
 #include <cstdio>
 
 extern FILE *yyin;
+extern YYSTYPE yylval;
 
 static void parseToken(FILE *fp) {
   yyin = fp;
   int t;
   while ((t = yylex()) != FT_EOF) {
-    printf("token:%d, literal:%s\n", t, yytext);
+    printf("token:%d, literal:%s\n", yylval.token, yylval.literal.c_str());
   }
 }
 
