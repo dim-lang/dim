@@ -43,8 +43,6 @@
 "|"                               return FT_TOKEN(FT_BITOR);
 "~"                               return FT_TOKEN(FT_BITCOMPLEMENT);
 "^"                               return FT_TOKEN(FT_BITXOR);
-"++"                              return FT_TOKEN(FT_INC);
-"--"                              return FT_TOKEN(FT_DEC);
 "="                               return FT_TOKEN(FT_ASSIGN);
 "+="                              return FT_TOKEN(FT_ADDASSIGN);
 "-="                              return FT_TOKEN(FT_SUBASSIGN);

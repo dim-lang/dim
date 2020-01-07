@@ -27,7 +27,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %token <literal> FT_IDENTIFIER FT_INTEGER FT_REAL FT_STRING
 
 /* union.token: operator, comparator, punctuation */
-%token <token> FT_ADD FT_SUB FT_MUL FT_DIV FT_MOD FT_BITNOT FT_BITAND FT_BITOR FT_BITCOMPLEMENT FT_BITXOR FT_INC FT_DEC
+%token <token> FT_ADD FT_SUB FT_MUL FT_DIV FT_MOD FT_BITNOT FT_BITAND FT_BITOR FT_BITCOMPLEMENT FT_BITXOR
 %token <token> FT_ASSIGN FT_ADDASSIGN FT_SUBASSIGN FT_MULASSIGN FT_DIVASSIGN FT_MODASSIGN FT_EQ FT_NEQ FT_LT FT_LE FT_GT FT_GE
 %token <token> FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET FT_LBRACE FT_RBRACE FT_COMMA FT_SEMI FT_QUESTION FT_COLON FT_DOT
 
@@ -41,7 +41,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %type <token> comparison
 
 /* operator/comparator precedence */
-%left FT_INC FT_DEC FT_DOT FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET
+%left FT_DOT FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET
 %left FT_MUL FT_DIV FT_MOD
 %left FT_ADD FT_SUB
 %left FT_LT FT_LE FT_GT FT_GE FT_EQ FT_NEQ
