@@ -170,7 +170,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 9 "Parser.y"
+#line 7 "Parser.y"
 {
     Node *node;
     NBlock *block;
@@ -185,7 +185,7 @@ typedef union YYSTYPE
     int token;
 }
 /* Line 1529 of yacc.c.  */
-#line 189 "Parser.hpp"
+#line 189 "Parser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

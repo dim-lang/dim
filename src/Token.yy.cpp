@@ -1,6 +1,6 @@
-#line 2 "Token.cpp"
+#line 2 "Token.yy.cpp"
 
-#line 4 "Token.cpp"
+#line 4 "Token.yy.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -546,12 +546,11 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "Token.l"
 #line 2 "Token.l"
-#include <memory>
 #include <string>
 #include "Parser.hpp"
 #define FT_SAVE_TOKEN yylval.literal = std::string(yytext, yyleng)
 #define FT_TOKEN(t) (yylval.token = t)
-#line 555 "Token.cpp"
+#line 554 "Token.yy.cpp"
 
 #define INITIAL 0
 
@@ -733,10 +732,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 9 "Token.l"
+#line 8 "Token.l"
 
 
-#line 740 "Token.cpp"
+#line 739 "Token.yy.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -821,322 +820,322 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "Token.l"
+#line 10 "Token.l"
 return FT_TRUE;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 12 "Token.l"
+#line 11 "Token.l"
 return FT_FALSE;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 13 "Token.l"
+#line 12 "Token.l"
 return FT_LET;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 14 "Token.l"
+#line 13 "Token.l"
 return FT_NIL;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 15 "Token.l"
+#line 14 "Token.l"
 return FT_IF;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 16 "Token.l"
+#line 15 "Token.l"
 return FT_ELSEIF;
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 17 "Token.l"
+#line 16 "Token.l"
 return FT_ELSE;
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 18 "Token.l"
+#line 17 "Token.l"
 return FT_FOR;
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 19 "Token.l"
+#line 18 "Token.l"
 return FT_WHILE;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 20 "Token.l"
+#line 19 "Token.l"
 return FT_BREAK;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 21 "Token.l"
+#line 20 "Token.l"
 return FT_CONTINUE;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 22 "Token.l"
+#line 21 "Token.l"
 return FT_FUNC;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 23 "Token.l"
+#line 22 "Token.l"
 return FT_CLASS;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 24 "Token.l"
+#line 23 "Token.l"
 return FT_TYPE;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 25 "Token.l"
+#line 24 "Token.l"
 return FT_ISINSTANCE;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 26 "Token.l"
+#line 25 "Token.l"
 return FT_IMPORT;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 27 "Token.l"
+#line 26 "Token.l"
 return FT_RETURN;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 28 "Token.l"
+#line 27 "Token.l"
 return FT_VOID;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 29 "Token.l"
+#line 28 "Token.l"
 return FT_LOGICALAND;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 30 "Token.l"
+#line 29 "Token.l"
 return FT_LOGICALOR;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 31 "Token.l"
+#line 30 "Token.l"
 return FT_LOGICALNOT;
 	YY_BREAK
 case 22:
 /* rule 22 can match eol */
 YY_RULE_SETUP
-#line 32 "Token.l"
+#line 31 "Token.l"
 ;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 33 "Token.l"
+#line 32 "Token.l"
 FT_SAVE_TOKEN; return FT_IDENTIFIER;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 34 "Token.l"
+#line 33 "Token.l"
 FT_SAVE_TOKEN; return FT_REAL;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 35 "Token.l"
+#line 34 "Token.l"
 FT_SAVE_TOKEN; return FT_INTEGER;
 	YY_BREAK
 case 26:
 /* rule 26 can match eol */
 YY_RULE_SETUP
-#line 36 "Token.l"
+#line 35 "Token.l"
 FT_SAVE_TOKEN; return FT_STRING;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 37 "Token.l"
+#line 36 "Token.l"
 return FT_TOKEN(FT_ADD);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 38 "Token.l"
+#line 37 "Token.l"
 return FT_TOKEN(FT_SUB);
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 39 "Token.l"
+#line 38 "Token.l"
 return FT_TOKEN(FT_MUL);
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 40 "Token.l"
+#line 39 "Token.l"
 return FT_TOKEN(FT_DIV);
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 41 "Token.l"
+#line 40 "Token.l"
 return FT_TOKEN(FT_MOD);
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 42 "Token.l"
+#line 41 "Token.l"
 return FT_TOKEN(FT_BITNOT);
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 43 "Token.l"
+#line 42 "Token.l"
 return FT_TOKEN(FT_BITAND);
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 44 "Token.l"
+#line 43 "Token.l"
 return FT_TOKEN(FT_BITOR);
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 45 "Token.l"
+#line 44 "Token.l"
 return FT_TOKEN(FT_BITCOMPLEMENT);
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 46 "Token.l"
+#line 45 "Token.l"
 return FT_TOKEN(FT_BITXOR);
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 47 "Token.l"
+#line 46 "Token.l"
 return FT_TOKEN(FT_INC);
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 48 "Token.l"
+#line 47 "Token.l"
 return FT_TOKEN(FT_DEC);
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 49 "Token.l"
+#line 48 "Token.l"
 return FT_TOKEN(FT_ASSIGN);
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 50 "Token.l"
+#line 49 "Token.l"
 return FT_TOKEN(FT_ADDASSIGN);
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 51 "Token.l"
+#line 50 "Token.l"
 return FT_TOKEN(FT_SUBASSIGN);
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 52 "Token.l"
+#line 51 "Token.l"
 return FT_TOKEN(FT_MULASSIGN);
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 53 "Token.l"
+#line 52 "Token.l"
 return FT_TOKEN(FT_DIVASSIGN);
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 54 "Token.l"
+#line 53 "Token.l"
 return FT_TOKEN(FT_MODASSIGN);
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 55 "Token.l"
+#line 54 "Token.l"
 return FT_TOKEN(FT_EQ);
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 56 "Token.l"
+#line 55 "Token.l"
 return FT_TOKEN(FT_NEQ);
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 57 "Token.l"
+#line 56 "Token.l"
 return FT_TOKEN(FT_LT);
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 58 "Token.l"
+#line 57 "Token.l"
 return FT_TOKEN(FT_LE);
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 59 "Token.l"
+#line 58 "Token.l"
 return FT_TOKEN(FT_GT);
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 60 "Token.l"
+#line 59 "Token.l"
 return FT_TOKEN(FT_GE);
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 61 "Token.l"
+#line 60 "Token.l"
 return FT_TOKEN(FT_LPAREN);
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 62 "Token.l"
+#line 61 "Token.l"
 return FT_TOKEN(FT_RPAREN);
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 63 "Token.l"
+#line 62 "Token.l"
 return FT_TOKEN(FT_LBRACKET);
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 64 "Token.l"
+#line 63 "Token.l"
 return FT_TOKEN(FT_RBRACKET);
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 65 "Token.l"
+#line 64 "Token.l"
 return FT_TOKEN(FT_LBRACE);
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 66 "Token.l"
+#line 65 "Token.l"
 return FT_TOKEN(FT_RBRACE);
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 67 "Token.l"
+#line 66 "Token.l"
 return FT_TOKEN(FT_COMMA);
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 68 "Token.l"
+#line 67 "Token.l"
 return FT_TOKEN(FT_SEMI);
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 69 "Token.l"
+#line 68 "Token.l"
 return FT_TOKEN(FT_QUESTION);
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 70 "Token.l"
+#line 69 "Token.l"
 return FT_TOKEN(FT_COLON);
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 71 "Token.l"
+#line 70 "Token.l"
 return FT_TOKEN(FT_DOT);
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 72 "Token.l"
+#line 71 "Token.l"
 printf("Unknown token!n"); yyterminate();
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 74 "Token.l"
+#line 73 "Token.l"
 ECHO;
 	YY_BREAK
-#line 1140 "Token.cpp"
+#line 1139 "Token.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2133,7 +2132,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 74 "Token.l"
+#line 73 "Token.l"
 
 
 
