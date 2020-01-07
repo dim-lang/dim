@@ -15,6 +15,7 @@ set(FCORE
     Random.cpp
     Approximate.cpp
     CursesTerm.cpp
+    Token.cpp
 
     graph/Dot.cpp
 
@@ -33,9 +34,9 @@ set(FCORE
     event/poll/Select.cpp
     event/poll/MswinSelect.cpp
 
-    dsl/Type.cpp
-    dsl/Token.cpp
-    dsl/Lexer.cpp
+    #dsl/Type.cpp
+    #dsl/Token.cpp
+    #dsl/Lexer.cpp
     #dsl/Parser.cpp
     #dsl/Interpreter.cpp
     #dsl/Util.cpp

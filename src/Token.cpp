@@ -548,9 +548,9 @@ char *yytext;
 #line 2 "Token.l"
 #include <memory>
 #include <string>
-#include "Token.h"
+#include "Parser.hpp"
 #define FT_SAVE_TOKEN yylval.literal = std::string(yytext, yyleng)
-#define FT_TOKEN(t) (yylval.token   = t)
+#define FT_TOKEN(t) (yylval.token = t)
 #line 555 "Token.cpp"
 
 #define INITIAL 0

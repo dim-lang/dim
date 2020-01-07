@@ -18,7 +18,12 @@ static void parseToken(FILE *fp) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    FILE *fp = std::fopen("test/DslTest1.fast", "r");
-    FILE *fp = std::fopen("");
+    FILE *fp;
+    fp = std::fopen("test/DslTest1.fast", "r");
+    parseToken(fp);
+    fclose(fp);
+    fp = std::fopen("test/DslTest2.fast", "r");
+    parseToken(fp);
+    fclose(fp);
   }
 }
