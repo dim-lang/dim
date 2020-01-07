@@ -28,12 +28,12 @@
 "and"                             return FT_LOGICALAND;
 "or"                              return FT_LOGICALOR;
 "not"                             return FT_LOGICALNOT;
-"int"                             return FT_LOGICALNOT;
-"double"                          return FT_LOGICALNOT;
-"unsigned"                        return FT_LOGICALNOT;
+"int"                             return FT_INTEGER_KEYWORD;
+"uint"                            return FT_UNSIGNED_INTEGER_KEYWORD;
+"double"                          return FT_DOUBLE_KEYWORD;
 [ \t\v\n\f\r]                     ;
 [a-zA-Z_][a-zA-Z0-9_]*            FT_SAVE_TOKEN; return FT_IDENTIFIER;
-[0-9]+"."[0-9]+([Ee][+-]?[0-9]+)? FT_SAVE_TOKEN; return FT_REAL;
+[0-9]+"."[0-9]+([Ee][+-]?[0-9]+)? FT_SAVE_TOKEN; return FT_DOUBLE;
 [0-9]+([Ee][+-]?[0-9]+)?          FT_SAVE_TOKEN; return FT_INTEGER;
 \"(\\.|[^\\"])*\"                 FT_SAVE_TOKEN; return FT_STRING;
 "+"                               return FT_TOKEN(FT_ADD);

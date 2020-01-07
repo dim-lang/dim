@@ -23,8 +23,8 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %token <token> FT_TRUE FT_FALSE FT_LET FT_NIL FT_IF FT_ELSEIF FT_ELSE FT_FOR FT_WHILE FT_BREAK FT_CONTINUE FT_FUNC FT_CLASS
 %token <token> FT_TYPE FT_ISINSTANCE FT_IMPORT FT_RETURN FT_VOID FT_LOGICALAND FT_LOGICALOR FT_LOGICALNOT
 
-/* union.literal, identifier, integer, real number, string */
-%token <literal> FT_IDENTIFIER FT_INTEGER FT_REAL FT_STRING
+/* union.literal, identifier, integer, double number, string */
+%token <literal> FT_IDENTIFIER FT_INTEGER FT_DOUBLE FT_STRING
 
 /* union.token: operator, comparator, punctuation */
 %token <token> FT_ADD FT_SUB FT_MUL FT_DIV FT_MOD FT_BITNOT FT_BITAND FT_BITOR FT_BITCOMPLEMENT FT_BITXOR
