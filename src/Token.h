@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <string>
 
 // eof
 #define FT_EOF 0
@@ -75,3 +76,9 @@
 #define FT_REAL 502       // real number
 #define FT_STRING 503     // string literal
 #define FT_IDENTIFIER 504 // identifier
+
+#define YYSTYPE                                                                \
+  struct FT_YYLVAL {                                                           \
+    std::string literal;                                                       \
+    int token;                                                                 \
+  }

@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include "Token.h"
-#define FT_SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
+#define FT_SAVE_TOKEN yylval.literal = std::string(yytext, yyleng)
 #define FT_TOKEN(t) (yylval.token   = t)
 %}
 

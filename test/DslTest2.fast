@@ -1,0 +1,16 @@
+{
+    number = 1 + 6e+4 / (-3) * (4 + 3 % -2) + 2;
+    a = number;
+    b = 10 * a + 10 * number / 4;
+    c = a - -b;
+    ;
+    ;
+}
+func World(x, y) {
+    x = 1;
+    y = 2;
+    z = x + y;
+    return z + 10 / 4;
+}
+u = 11;
+
