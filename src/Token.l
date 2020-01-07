@@ -28,6 +28,9 @@
 "and"                             return FT_LOGICALAND;
 "or"                              return FT_LOGICALOR;
 "not"                             return FT_LOGICALNOT;
+"int"                             return FT_LOGICALNOT;
+"double"                          return FT_LOGICALNOT;
+"unsigned"                        return FT_LOGICALNOT;
 [ \t\v\n\f\r]                     ;
 [a-zA-Z_][a-zA-Z0-9_]*            FT_SAVE_TOKEN; return FT_IDENTIFIER;
 [0-9]+"."[0-9]+([Ee][+-]?[0-9]+)? FT_SAVE_TOKEN; return FT_REAL;

@@ -53,6 +53,41 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
 %%
 
+primary_expression : FT_IDENTIFIER
+                   | FT_INTEGER
+                   | FT_REAL
+                   | FT_STRING
+                   | '(' expression ')'
+                   ;
+
+postfix_expression : primary_expression
+                   /*| postfix_expression '[' expression ']'*/
+                   | postfix_expression '(' ')'
+                   | postfix_expression '(' argument_expression_list ')'
+                   /*| postfix_expression '.' IDENTIFIER*/
+                   ;
+
+argument_expression_list : assignment_expression
+                         | argument_expression_list ',' assignment_expression
+                         ;
+
+unary_expression : postfix_expression
+                 | unary_operator cast_expression
+                 ;
+
+unary_operator : FT_BITAND
+               | FT_BITOR
+               | FT_BITNOT
+               | FT_BITCOMPLEMENT
+               | FT_BITXOR
+               | FT_ADD
+               | FT_SUB
+               ;
+
+cast_expression : unary_expression
+                | '(' type_name ')' cast_expression
+                ;
+
 program : stmts { programBlock = $1; }
         ;
 
@@ -104,5 +139,6 @@ call_args : /*blank*/  { $$ = new ExpressionList(); }
 comparison : FT_EQ | FT_NEQ | FT_LT | FT_LE | FT_GT | FT_GE
            | FT_ADD | FT_SUB | FT_MUL | FT_DIV
            ;
+
 
 %%
