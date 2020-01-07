@@ -1,5 +1,4 @@
 %{
-#include <memory>
 #include <string>
 #include "Parser.hpp"
 #define FT_SAVE_TOKEN yylval.literal = std::string(yytext, yyleng)

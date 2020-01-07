@@ -39,32 +39,32 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     FT_INTEGER = 258,
-     FT_REAL = 259,
-     FT_STRING = 260,
-     FT_IDENTIFIER = 261,
-     FT_EOF = 262,
-     FT_TRUE = 263,
-     FT_FALSE = 264,
-     FT_LET = 265,
-     FT_NIL = 266,
-     FT_IF = 267,
-     FT_ELSEIF = 268,
-     FT_ELSE = 269,
-     FT_FOR = 270,
-     FT_WHILE = 271,
-     FT_BREAK = 272,
-     FT_CONTINUE = 273,
-     FT_FUNC = 274,
-     FT_CLASS = 275,
-     FT_TYPE = 276,
-     FT_ISINSTANCE = 277,
-     FT_IMPORT = 278,
-     FT_RETURN = 279,
-     FT_VOID = 280,
-     FT_LOGICALAND = 281,
-     FT_LOGICALOR = 282,
-     FT_LOGICALNOT = 283,
+     FT_EOF = 258,
+     FT_TRUE = 259,
+     FT_FALSE = 260,
+     FT_LET = 261,
+     FT_NIL = 262,
+     FT_IF = 263,
+     FT_ELSEIF = 264,
+     FT_ELSE = 265,
+     FT_FOR = 266,
+     FT_WHILE = 267,
+     FT_BREAK = 268,
+     FT_CONTINUE = 269,
+     FT_FUNC = 270,
+     FT_CLASS = 271,
+     FT_TYPE = 272,
+     FT_ISINSTANCE = 273,
+     FT_IMPORT = 274,
+     FT_RETURN = 275,
+     FT_VOID = 276,
+     FT_LOGICALAND = 277,
+     FT_LOGICALOR = 278,
+     FT_LOGICALNOT = 279,
+     FT_IDENTIFIER = 280,
+     FT_INTEGER = 281,
+     FT_REAL = 282,
+     FT_STRING = 283,
      FT_ADD = 284,
      FT_SUB = 285,
      FT_MUL = 286,
@@ -99,40 +99,36 @@
      FT_SEMI = 315,
      FT_QUESTION = 316,
      FT_COLON = 317,
-     FT_DOT = 318,
-     TMINUS = 319,
-     TPLUS = 320,
-     TDIV = 321,
-     TMUL = 322
+     FT_DOT = 318
    };
 #endif
 /* Tokens.  */
-#define FT_INTEGER 258
-#define FT_REAL 259
-#define FT_STRING 260
-#define FT_IDENTIFIER 261
-#define FT_EOF 262
-#define FT_TRUE 263
-#define FT_FALSE 264
-#define FT_LET 265
-#define FT_NIL 266
-#define FT_IF 267
-#define FT_ELSEIF 268
-#define FT_ELSE 269
-#define FT_FOR 270
-#define FT_WHILE 271
-#define FT_BREAK 272
-#define FT_CONTINUE 273
-#define FT_FUNC 274
-#define FT_CLASS 275
-#define FT_TYPE 276
-#define FT_ISINSTANCE 277
-#define FT_IMPORT 278
-#define FT_RETURN 279
-#define FT_VOID 280
-#define FT_LOGICALAND 281
-#define FT_LOGICALOR 282
-#define FT_LOGICALNOT 283
+#define FT_EOF 258
+#define FT_TRUE 259
+#define FT_FALSE 260
+#define FT_LET 261
+#define FT_NIL 262
+#define FT_IF 263
+#define FT_ELSEIF 264
+#define FT_ELSE 265
+#define FT_FOR 266
+#define FT_WHILE 267
+#define FT_BREAK 268
+#define FT_CONTINUE 269
+#define FT_FUNC 270
+#define FT_CLASS 271
+#define FT_TYPE 272
+#define FT_ISINSTANCE 273
+#define FT_IMPORT 274
+#define FT_RETURN 275
+#define FT_VOID 276
+#define FT_LOGICALAND 277
+#define FT_LOGICALOR 278
+#define FT_LOGICALNOT 279
+#define FT_IDENTIFIER 280
+#define FT_INTEGER 281
+#define FT_REAL 282
+#define FT_STRING 283
 #define FT_ADD 284
 #define FT_SUB 285
 #define FT_MUL 286
@@ -168,10 +164,6 @@
 #define FT_QUESTION 316
 #define FT_COLON 317
 #define FT_DOT 318
-#define TMINUS 319
-#define TPLUS 320
-#define TDIV 321
-#define TMUL 322
 
 
 
@@ -193,7 +185,7 @@ typedef union YYSTYPE
     int token;
 }
 /* Line 1529 of yacc.c.  */
-#line 197 "Parser.hpp"
+#line 189 "Parser.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

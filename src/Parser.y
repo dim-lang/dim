@@ -1,6 +1,4 @@
 %{
-#include "Ast.h"
-#include "Token.h"
 extern int yylex();
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %}
@@ -42,9 +40,14 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %type <stmt> stmt var_decl func_decl
 %type <token> comparison
 
-/* Operator precedence for mathematical operators */
-%left FT_ADD FT_SUB
+/* operator/comparator precedence */
+%left FT_INC FT_DEC FT_DOT FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET
 %left FT_MUL FT_DIV FT_MOD
+%left FT_ADD FT_SUB
+%left FT_LT FT_LE FT_GT FT_GE FT_EQ FT_NEQ
+%left FT_BITNOT FT_BITAND FT_BITOR FT_BITXOR FT_BITCOMPLEMENT
+%left FT_LOGICALNOT FT_LOGICALAND FT_LOGICALOR
+%left FT_ASSIGN FT_ADDASSIGN FT_SUBASSIGN FT_MULASSIGN FT_DIVASSIGN FT_MODASSIGN
 
 %start program
 
