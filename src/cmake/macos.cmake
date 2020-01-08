@@ -32,7 +32,7 @@ set(FLIB
     icudata
     icui18n
     tcmalloc
-    fl
+    #fl
     )
 
 set(FLIB_DIR
@@ -43,7 +43,7 @@ set(FLIB_DIR
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib
-    /usr/local/opt/flex/lib
+    #/usr/local/opt/flex/lib
     )
 
 include_directories(${FINC})
