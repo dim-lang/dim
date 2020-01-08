@@ -42,7 +42,9 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %left FT_LOGICALNOT FT_LOGICALAND FT_LOGICALOR
 %left FT_ASSIGN FT_ADDASSIGN FT_SUBASSIGN FT_MULASSIGN FT_DIVASSIGN FT_MODASSIGN
 
+/*
 %start program
+*/
 
 %%
 
@@ -65,7 +67,7 @@ argument_expression_list : assignment_expression
                          ;
 
 unary_expression : postfix_expression
-                 | unary_operator cast_expression
+                 | unary_operator postfix_expression
                  ;
 
 unary_operator : FT_BITAND
@@ -181,6 +183,9 @@ function_declaration : FT_FUNC FT_IDENTIFIER FT_LPAREN function_arg_list FT_RPAR
 function_arg_list : function_arg
                   | function_arg_list FT_COMMA function_arg
                   ;
+
+function_arg : FT_IDENTIFIER
+             ;
 
 compound_statement : FT_LBRACE FT_RBRACE
                    | FT_LBRACE statement_list FT_RBRACE
