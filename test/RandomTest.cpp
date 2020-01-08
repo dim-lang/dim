@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Random.h"
-#include "Logging.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
 #include <cctype>
@@ -26,6 +25,18 @@
     REQUIRE(c >= std::min(a, b));                                              \
     REQUIRE(c < std::max(a, b));                                               \
   } while (0)
+
+#define assertLiteral(U, V, P)                                                 \
+  {                                                                            \
+    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {                \
+      UChar c = U();                                                           \
+      icu::UnicodeString s = V(i + 1);                                         \
+      REQUIRE(P(c));                                                           \
+      for (int j = 0; j < s.length(); j++) {                                   \
+        REQUIRE(P((char)s.charAt(j)));                                         \
+      }                                                                        \
+    }                                                                          \
+  }
 
 TEST_CASE("Random", "[Random]") {
   Random::initialize();
@@ -73,72 +84,22 @@ TEST_CASE("Random", "[Random]") {
   }
 
   SECTION("alpha") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextAlphaChar();
-      std::string s = Random::nextAlpha(i + 1);
-      REQUIRE(std::isalpha(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isalpha(t)); });
-    }
-  }
-
-  SECTION("digit") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextDigitChar();
-      std::string s = Random::nextDigit(i + 1);
-      REQUIRE(std::isdigit(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isdigit(t)); });
-    }
-  }
-
-  SECTION("hex") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextHexChar();
-      std::string s = Random::nextHex(i + 1);
-      REQUIRE(std::isxdigit(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isxdigit(t)); });
-    }
-  }
-
-  SECTION("alpha numeric") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextAlphaNumericChar();
-      std::string s = Random::nextAlphaNumeric(i + 1);
-      REQUIRE(std::isalnum(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isalnum(t)); });
-    }
-  }
-
-  SECTION("punctuation") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextPunctuationChar();
-      std::string s = Random::nextPunctuation(i + 1);
-      REQUIRE(std::ispunct(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::ispunct(t)); });
-    }
-  }
-
-  SECTION("printable") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextPrintableChar();
-      std::string s = Random::nextPrintable(i + 1);
-      REQUIRE(std::isprint(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::isprint(t)); });
-    }
-  }
-
-  SECTION("control") {
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      char c = Random::nextControlChar();
-      std::string s = Random::nextControl(i + 1);
-      REQUIRE(std::iscntrl(c));
-      std::for_each(s.begin(), s.end(),
-                    [](const char &t) { REQUIRE(std::iscntrl(t)); });
-    }
+    // alpha
+    assertLiteral(Random::nextAlphaChar, Random::nextAlpha, std::isalpha);
+    // digit
+    assertLiteral(Random::nextDigitChar, Random::nextDigit, std::isdigit);
+    // hex
+    assertLiteral(Random::nextHexChar, Random::nextHex, std::isxdigit);
+    // alpha numeric
+    assertLiteral(Random::nextAlphaNumericChar, Random::nextAlphaNumeric,
+                  std::isalnum);
+    // punctuation
+    assertLiteral(Random::nextPunctuationChar, Random::nextPunctuation,
+                  std::ispunct);
+    // printable
+    assertLiteral(Random::nextPrintableChar, Random::nextPrintable,
+                  std::isprint);
+    // control
+    assertLiteral(Random::nextControlChar, Random::nextControl, std::iscntrl);
   }
 }
