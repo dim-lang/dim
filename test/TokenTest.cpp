@@ -10,7 +10,7 @@ static void parseToken(const char *fileName) {
   FILE *fp = std::fopen(fileName, "r");
   yyin = fp;
   int t;
-  while ((t = yylex()) != FT_EOF) {
+  while ((t = yylex()) != EOF) {
     printf("token:%d, literal:%s\n", yylval.token, yylval.literal);
   }
   fclose(fp);
