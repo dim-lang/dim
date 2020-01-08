@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Token.h"
+#include "Logging.h"
 #include "Parser.tab.hpp"
 #include "catch2/catch.hpp"
 #include <cstdio>
@@ -10,8 +11,13 @@ static void parseToken(const char *fileName) {
   FILE *fp = std::fopen(fileName, "r");
   yyin = fp;
   int t;
-  while ((t = yylex()) != EOF) {
-    printf("token:%d, literal:%s\n", yylval.token, yylval.literal);
+  while ((t = yylex()) != 0) {
+    if (t == FT_IDENTIFIER || t == FT_INTEGER || t == FT_DOUBLE ||
+        t == FT_STRING) {
+      FINFO("token:{}, literal:{}", t, yylval.literal);
+    } else {
+      FINFO("token:{}", t);
+    }
   }
   fclose(fp);
 }
