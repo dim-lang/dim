@@ -16,6 +16,9 @@
 "if"                              return FT_IF;
 "elseif"                          return FT_ELSEIF;
 "else"                            return FT_ELSE;
+"switch"                          return FT_SWITCH;
+"case"                            return FT_CASE;
+"otherwise"                       return FT_OTHERWISE;
 "for"                             return FT_FOR;
 "while"                           return FT_WHILE;
 "break"                           return FT_BREAK;
