@@ -16,6 +16,7 @@ set(FCORE
     Approximate.cpp
     CursesTerm.cpp
     Token.yy.cpp
+    Parser.tab.cpp
 
     graph/Dot.cpp
 

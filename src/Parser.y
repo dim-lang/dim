@@ -1,11 +1,15 @@
 %{
+#include <string>
+#include <cstring>
+#include <cstdio>
+extern FILE *yyin;
 extern int yylex();
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %}
 
 /* Represents the many different ways we can access our data */
 %union {
-    std::string literal;
+    char *literal;
     int token;
 }
 
