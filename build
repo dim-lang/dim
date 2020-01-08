@@ -122,11 +122,11 @@ function purge_all() {
 
 function build_debug() {
     cd $ROOT/src
-    if [ -f Token.yy.cpp ]; then echo "remove Token.yy.cpp" && rm Token.yy.cpp; fi
-    if [ -f Parser.tab.hpp ]; then echo "remove Parser.tab.hpp" && rm Parser.tab.hpp; fi
-    if [ -f Parser.tab.cpp ]; then echo "remove Parser.tab.cpp" && rm Parser.tab.cpp; fi
     flex -o Token.yy.cpp Token.l
     bison -d -o Parser.tab.cpp Parser.y
+    cd $ROOT/example
+    flex -o flex.yy.cpp flex.l
+    bison -d -o bison.tab.cpp bison.y
 
     cd $ROOT
     DEBUG=debug
@@ -148,11 +148,11 @@ function build_debug() {
 
 function build_release() {
     cd $ROOT/src
-    if [ -f Token.yy.cpp ]; then echo "remove Token.yy.cpp" && rm Token.yy.cpp; fi
-    if [ -f Parser.tab.hpp ]; then echo "remove Parser.tab.hpp" && rm Parser.tab.hpp; fi
-    if [ -f Parser.tab.cpp ]; then echo "remove Parser.tab.cpp" && rm Parser.tab.cpp; fi
     flex -o Token.yy.cpp Token.l
     bison -d -o Parser.tab.cpp Parser.y
+    cd $ROOT/example
+    flex -o flex.yy.cpp flex.l
+    bison -d -o bison.tab.cpp bison.y
 
     cd $ROOT
     RELEASE=release

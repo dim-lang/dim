@@ -52,3 +52,8 @@ add_executable(fastype-icu_ustdio icu_ustdio.cpp)
 target_include_directories(fastype-icu_ustdio PRIVATE ${FINC})
 target_link_libraries(fastype-icu_ustdio ${FLIB})
 set_target_properties(fastype-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+
+add_executable(fastype-flex_bison flex_bison.cpp flex.yy.cpp bison.tab.cpp)
+target_include_directories(fastype-flex_bison PRIVATE ${FINC})
+target_link_libraries(fastype-flex_bison ${FLIB})
+set_target_properties(fastype-flex_bison PROPERTIES VERSION ${PROJECT_VERSION})
