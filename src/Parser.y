@@ -21,7 +21,8 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 /* union.token: eof, keyword */
 %token <token> FT_EOF
 %token <token> FT_TRUE FT_FALSE FT_LET FT_NIL FT_IF FT_ELSEIF FT_ELSE FT_FOR FT_WHILE FT_BREAK FT_CONTINUE FT_FUNC FT_CLASS
-%token <token> FT_TYPE FT_ISINSTANCE FT_IMPORT FT_RETURN FT_VOID FT_LOGICALAND FT_LOGICALOR FT_LOGICALNOT
+%token <token> FT_TYPE FT_ISINSTANCE FT_IMPORT FT_RETURN FT_VOID FT_LOGICALAND FT_LOGICALOR FT_LOGICALNOT 
+%token <token> FT_INTEGER_KEYWORD FT_UNSIGNED_INTEGER_KEYWORD FT_DOUBLE_KEYWORD
 
 /* union.literal, identifier, integer, double number, string */
 %token <literal> FT_IDENTIFIER FT_INTEGER FT_DOUBLE FT_STRING
@@ -55,7 +56,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
 primary_expression : FT_IDENTIFIER
                    | FT_INTEGER
-                   | FT_REAL
+                   | FT_DOUBLE
                    | FT_STRING
                    | '(' expression ')'
                    ;
@@ -84,9 +85,40 @@ unary_operator : FT_BITAND
                | FT_SUB
                ;
 
+/*
 cast_expression : unary_expression
                 | '(' type_name ')' cast_expression
                 ;
+*/
+
+multiplicative_expression : unary_expression
+                          | multiplicative_expression FT_MUL unary_expression
+                          | multiplicative_expression FT_DIV unary_expression
+                          | multiplicative_expression FT_MOD unary_expression
+                          ;
+additive_expression : multiplicative_expression
+                    | additive_expression FT_ADD multiplicative_expression
+                    | additive_expression FT_SUB multiplicative_expression
+                    ;
+
+/*
+shift_expression : additive_expression
+                 | shift_expression '<<' additive_expression
+                 | shift_expression '>>' additive_expression
+                 ;
+*/
+
+relational_expression : additive_expression
+                      | relational_expression FT_LT additive_expression
+                      | relational_expression FT_GT additive_expression
+                      | relational_expression FT_LE additive_expression
+                      | relational_expression FT_GE additive_expression
+                      ;
+
+type_name : FT_INTEGER_KEYWORD
+          | FT_DOUBLE_KEYWORD
+          | FT_UNSIGNED_INTEGER_KEYWORD
+          ;
 
 program : stmts { programBlock = $1; }
         ;
@@ -120,7 +152,7 @@ ident : FT_IDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
       ;
 
 numeric : FT_INTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
-        | FT_REAL { $$ = new NDouble(atof($1->c_str())); delete $1; }
+        | FT_DOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
         ;
 
 expr : ident FT_ASSIGN expr { $$ = new NAssignment(*$<ident>1, *$3); }

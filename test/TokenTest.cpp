@@ -8,22 +8,19 @@
 extern FILE *yyin;
 extern YYSTYPE yylval;
 
-static void parseToken(FILE *fp) {
+static void parseToken(const char *fileName) {
+  FILE *fp = std::fopen(fileName, "r");
   yyin = fp;
   int t;
   while ((t = yylex()) != FT_EOF) {
     printf("token:%d, literal:%s\n", yylval.token, yylval.literal.c_str());
   }
+  fclose(fp);
 }
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    FILE *fp;
-    fp = std::fopen("test/DslTest1.fast", "r");
-    parseToken(fp);
-    fclose(fp);
-    fp = std::fopen("test/DslTest2.fast", "r");
-    parseToken(fp);
-    fclose(fp);
+    parseToken("test/DslTest1.fast");
+    parseToken("test/DslTest2.fast");
   }
 }
