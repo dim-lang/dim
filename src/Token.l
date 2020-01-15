@@ -1,7 +1,6 @@
 %option noyywrap
 
 %{
-#include <string>
 #include <cstring>
 #include "Parser.tab.hpp"
 #define FT_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)

@@ -1,6 +1,4 @@
 %{
-#include <string>
-#include <cstring>
 #include <cstdio>
 extern FILE *yyin;
 extern int yylex();
