@@ -198,7 +198,6 @@ int tokenPopFile() {
 
 static std::string tokenModuleToFile(const std::string &name) {
     std::string r(name);
-    FINFO("step-1 r:{}, name:{}", r, name);
     char replace;
 #if FPLATFORM_WINDOWS
     replace = '\\';
@@ -206,9 +205,7 @@ static std::string tokenModuleToFile(const std::string &name) {
     replace = '/';
 #endif
     std::for_each(r.begin(), r.end(), [&replace](char &c) { if (c == '.') {c = replace;} });
-    FINFO("step-2 r:{}, name:{}", r, name);
     r.append(".fast");
-    FINFO("step-3 r:{}, name:{}", r, name);
     return r;
 }
 
@@ -219,7 +216,6 @@ static std::string tokenFileToModule(const std::string &name) {
 }
 
 TokenBuffer::TokenBuffer(const char *module, int lineno) : yyBufferState(nullptr), fileName(tokenModuleToFile(module)), lineNo(1), fp(nullptr) {
-    FINFO("after translation the fileName is: {}", fileName);
     FCHECK(fileName.length() > 5, "{}:{} error! fileName {} invalid!", TokenCurrentFile, lineno, fileName);
     fp = std::fopen(fileName.c_str(), "r");
     if (!fp) {

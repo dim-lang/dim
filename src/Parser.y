@@ -1,5 +1,6 @@
 %{
 #include <cstdio>
+#include "Ast.h"
 extern FILE *yyin;
 extern int yylex();
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }

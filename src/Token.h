@@ -14,6 +14,6 @@ extern FILE *yyin;
 
 extern char *TokenCurrentFile;
 extern std::stack<TokenBuffer *> TokenBufferStack;
-extern int tokenImportFile(const char *fileName);
-extern int tokenImportFile(const std::string &fileName);
+extern int tokenImportFile(const char *module);
+extern int tokenImportFile(const std::string &module);
 extern int tokenPopFile();
