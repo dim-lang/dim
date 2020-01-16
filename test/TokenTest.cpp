@@ -8,8 +8,10 @@
 #include <cstdio>
 
 static void parseToken(const char *fileName) {
-  FILE *fp = std::fopen(fileName, "r");
-  yyin = fp;
+  if (!tokenImportFile(fileName)) {
+    FCHECK(false, "tokenImportFile {} fail", fileName);
+    return;
+  }
   int t;
   while ((t = yylex()) != 0) {
     if (t == FT_IDENTIFIER || t == FT_INTEGER || t == FT_DOUBLE ||
@@ -19,7 +21,7 @@ static void parseToken(const char *fileName) {
       FINFO("token:{}", t);
     }
   }
-  fclose(fp);
+  tokenPopFile();
 }
 
 TEST_CASE("Token", "[Token]") {

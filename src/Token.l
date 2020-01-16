@@ -155,11 +155,11 @@ int tokenPopFile();
 [ \t\v\n\f\r]
 
  /* import module */
-^[ \t]*import[ \t]      { BEGIN IMPORT; }
-<IMPORT>\;[ \t\r]*\n    {
+^[ \t]*import[ \t]*     { BEGIN IMPORT; }
+<IMPORT>[^ \t\n]+       {
                             {
                                 int c;
-                                while((c = yyinput()) && c != '\n') 
+                                while((c = yyinput()) && c != ';') 
                                     ;
                             }
                             tokenImportFile(yytext);
