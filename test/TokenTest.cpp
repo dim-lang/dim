@@ -1,9 +1,9 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Token.h"
 #include "Logging.h"
 #include "Parser.tab.hpp"
+#include "Token.yy.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 

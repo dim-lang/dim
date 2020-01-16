@@ -6,13 +6,67 @@
 EXP ([Ee][-+]?[0-9]+)
 
 %{
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <list>
+#include <memory>
+#include <string>
+#include <stack>
+#include "Logging.h"
+#include "Hasher.h"
 #include "Parser.tab.hpp"
 #define FT_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
 #define FT_TOKEN(t) (yylval.token = t)
 
-static int importModule(char *moduleName);
-static char *currentFileName;
+char *TokenCurrentFile;
+
+class TokenBuffer {
+public:
+ /* methods */
+    TokenBuffer(const char *fileName_, int lineNo_) : yyBufferState(nullptr), fileName(nullptr), lineNo(1), fp(nullptr) {
+        fileName = strdup(fileName_);
+        FCHECK(fileName, "{}:{} error! file {} not found!", TokenCurrentFile, lineNo_, fileName_);
+        fp = std::fopen(fileName, "r");
+        if (!fp) {
+            release();
+            FCHECK(fp, "{}:{} error! file {} cannot open!", TokenCurrentFile, lineNo_, fileName);
+        }
+        yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
+        if (!yyBufferState) {
+            release();
+            FCHECK(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", TokenCurrentFile, lineNo_, fileName);
+        }
+    }
+    virtual ~TokenBuffer() {
+        release();
+    }
+    void release() {
+        if (fileName) {
+            std::free(fileName);
+            fileName = nullptr;
+        }
+        if (fp) {
+            std::fclose(fp);
+            fp = nullptr;
+        }
+        if (yyBufferState) {
+            yy_delete_buffer(yyBufferState);
+            yyBufferState = nullptr;
+        }
+    }
+
+ /* members */
+    YY_BUFFER_STATE yyBufferState;
+    char *fileName;
+    int lineNo;
+    FILE *fp;
+};
+
+ /* global variable */
+std::stack<TokenBuffer*> TokenBufferStack;
+int tokenImportFile(const char *fileName);
+int tokenPopFile();
 
 %}
 
@@ -102,26 +156,62 @@ static char *currentFileName;
 
  /* import module */
 ^[ \t]*import[ \t]      { BEGIN IMPORT; }
-<IMPORT>\;[ \t\r]*\n    { 
+<IMPORT>\;[ \t\r]*\n    {
                             {
                                 int c;
-                                while((c = input()) && c != '\n') 
+                                while((c = yyinput()) && c != '\n') 
                                     ;
                             }
-                            importModule(strndup(yytext, yyleng));
+                            tokenImportFile(yytext);
                             BEGIN INITIAL;
                         }
 <IFILE>.|\n             {
-                            fprintf(stderr, "%s:%d error! bad import!\n", currentFileName, yylineno);
+                            fprintf(stderr, "%s:%d error! bad import!\n", TokenCurrentFile, yylineno);
                             BEGIN INITIAL;
                         }
 <<EOF>>                 {
-                            if (!popModule())
+                            if (!tokenPopFile())
                                 yyterminate();
                         }
 
  /* invalid token */
-.                       { fprintf(stderr, "%s:%d error! invalid token!\n", currentFileName, yylineno); }
+.                       { fprintf(stderr, "%s:%d error! invalid token!\n", TokenCurrentFile, yylineno); }
 
 
 %%
+
+int tokenImportFile(const char *fileName) {
+    TokenBuffer *fb = new TokenBuffer(fileName, yylineno);
+
+    /* remember state */
+    if (!TokenBufferStack.empty()) {
+        TokenBufferStack.top()->lineNo = yylineno;
+    }
+
+    /* switch to new file */
+    TokenBufferStack.push(fb);
+    yy_switch_to_buffer(fb->yyBufferState);
+    yylineno = 1;
+    TokenCurrentFile = fb->fileName;
+    return 1;
+}
+
+int tokenPopFile() {
+    if (TokenBufferStack.empty()) {
+        return 0;
+    }
+    TokenBuffer *fb;
+
+    fb = TokenBufferStack.top();
+    TokenBufferStack.pop();
+    delete fb;
+    if (TokenBufferStack.empty()) {
+        return 0;
+    }
+
+    fb = TokenBufferStack.top();
+    yy_switch_to_buffer(fb->yyBufferState);
+    yylineno = fb->lineNo;
+    TokenCurrentFile = fb->fileName;
+    return 1;
+}
