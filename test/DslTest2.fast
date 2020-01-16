@@ -6,11 +6,19 @@
     ;
     ;
 }
+
 func World(x, y) {
     x = 1;
     y = 2;
     z = x + y;
     return z + 10 / 4;
 }
+
 u = 11;
 
+import test/DslTest1.fast;
+
+{
+    print("This is the very end of DslTest2.fast");
+    print("Goodbye World!");
+}

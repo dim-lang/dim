@@ -156,10 +156,10 @@ int tokenPopFile();
 
  /* import module */
 ^[ \t]*import[ \t]*     { BEGIN IMPORT; }
-<IMPORT>[^ \t\n]+       {
+<IMPORT>[^ \t\n\;]+     {
                             {
                                 int c;
-                                while((c = yyinput()) && c != ';') 
+                                while ((c = yyinput()) && c != ';')
                                     ;
                             }
                             tokenImportFile(yytext);
