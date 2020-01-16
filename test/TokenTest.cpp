@@ -7,12 +7,12 @@
 #include "catch2/catch.hpp"
 #include <cstdio>
 
-static void parseToken(const char *fileName) {
-  if (!tokenImportFile(fileName)) {
-    FCHECK(false, "tokenImportFile {} fail", fileName);
+static void parseToken(const char *module) {
+  if (!tokenImportFile(module)) {
+    FCHECK(false, "tokenImportFile {} fail", module);
     return;
   }
-  FINFO("parseToken {} starting...", fileName);
+  FINFO("parseToken {} starting...", module);
   int t;
   while ((t = yylex()) != 0) {
     if (t == FT_IDENTIFIER || t == FT_INTEGER || t == FT_DOUBLE ||
@@ -23,12 +23,12 @@ static void parseToken(const char *fileName) {
     }
   }
   tokenPopFile();
-  FINFO("parseToken {} ending...", fileName);
+  FINFO("parseToken {} ending...", module);
 }
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    parseToken("test/DslTest1.fast");
-    parseToken("test/DslTest2.fast");
+    parseToken("test.DslTest1");
+    parseToken("test.DslTest2");
   }
 }

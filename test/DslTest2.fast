@@ -16,7 +16,7 @@ func World(x, y) {
 
 u = 11;
 
-import test/DslTest1.fast;
+import test.DslTest1;
 
 {
     print("This is the very end of DslTest2.fast");
