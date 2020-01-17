@@ -60,14 +60,17 @@ primary_expression : FT_IDENTIFIER
 
 postfix_expression : primary_expression
                    /*| postfix_expression '[' expression ']'*/
-                   | postfix_expression '(' ')'
-                   | postfix_expression '(' argument_expression_list ')'
+                   | FT_IDENTIFIER '(' ')'
+                   | FT_IDENTIFIER '(' argument_expression_list ')'
                    /*| postfix_expression '.' IDENTIFIER*/
                    ;
 
-argument_expression_list : assignment_expression
-                         | argument_expression_list ',' assignment_expression
+argument_expression_list : argument_expression
+                         | argument_expression_list ',' argument_expression
                          ;
+
+argument_expression : logical_or_expression
+                    ;
 
 unary_expression : postfix_expression
                  | unary_operator postfix_expression
@@ -161,23 +164,23 @@ constant_expression : logical_or_expression
 expression : assignment_expression
            ;
 
-unit : external_declaration
-     | unit external_declaration
+unit : declaration
+     | unit declaration
      ;
 
-external_declaration : function_declaration
-                     | declaration
-                     ;
-
-declaration : FT_LET declaration_init_list FT_SEMI
+declaration : function_declaration
+            | variable_declaration
             ;
 
-declaration_init_list : declaration_init
-                      | declaration_init_list declaration_init
-                      ;
+variable_declaration : FT_LET variable_declaration_init_list FT_SEMI
+                     ;
 
-declaration_init : FT_IDENTIFIER FT_ASSIGN constant_expression
-                 ;
+variable_declaration_init_list : variable_declaration_init
+                               | variable_declaration_init_list variable_declaration_init
+                               ;
+
+variable_declaration_init : FT_IDENTIFIER FT_ASSIGN constant_expression
+                          ;
 
 function_declaration : FT_FUNC FT_IDENTIFIER FT_LPAREN function_arg_list FT_RPAREN compound_statement
                      | FT_FUNC FT_IDENTIFIER FT_LPAREN FT_RPAREN compound_statement
@@ -192,16 +195,16 @@ function_arg : FT_IDENTIFIER
 
 compound_statement : FT_LBRACE FT_RBRACE
                    | FT_LBRACE statement_list FT_RBRACE
-                   | FT_LBRACE declaration_list FT_RBRACE
+                   | FT_LBRACE variable_declaration_list FT_RBRACE
                    ;
 
 statement_list : statement
                | statement_list statement
                ;
 
-declaration_list : declaration
-                 | declaration_list declaration
-                 ;
+variable_declaration_list : variable_declaration
+                          | variable_declaration_list variable_declaration
+                          ;
 
 statement : compound_statement
           | expression_statement
@@ -216,7 +219,7 @@ expression_statement : FT_SEMI
 
 selection_statement : FT_IF FT_LPAREN expression FT_RPAREN statement
                     | FT_IF FT_LPAREN expression FT_RPAREN statement FT_ELSE statement
-                    | FT_SWITCH FT_LPAREN expression FT_RPAREN statement
+                    /*| FT_SWITCH FT_LPAREN expression FT_RPAREN statement*/
                     ;
 
 iteration_statement : FT_WHILE FT_LPAREN expression FT_RPAREN statement

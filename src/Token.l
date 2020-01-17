@@ -177,7 +177,7 @@ int tokenImportFile(const std::string &module) {
 }
 
 int tokenPopFile() {
-    FCHECK(!TokenBufferStack.empty(), "TokenBufferStack must not empty!");
+    FCHECK_MSG(!TokenBufferStack.empty(), "TokenBufferStack must not empty!");
     TokenBuffer *fb;
 
     fb = TokenBufferStack.top();
