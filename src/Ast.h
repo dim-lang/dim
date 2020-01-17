@@ -183,19 +183,19 @@ private:
 /* ternary conditional expression */
 class AstConditionalExpression : public AstExpression {
 public:
-  AstConditionalExpression(AstExpression *condition,
+  AstConditionalExpression(AstExpression *conditionExpression,
                            AstExpression *ifExpression,
                            AstExpression *elseExpression);
   virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *condition() const;
+  virtual AstExpression *conditionExpression() const;
   virtual AstExpression *ifExpression() const;
   virtual AstExpression *elseExpression() const;
 
 private:
-  AstExpression *condition_;
+  AstExpression *conditionExpression_;
   AstExpression *ifExpression_;
   AstExpression *elseExpression_;
 };
@@ -338,7 +338,7 @@ public:
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual const std::string &identifierList() const;
+  virtual const std::string &identifier() const;
   virtual AstExpression *expression() const;
 
 private:

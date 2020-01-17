@@ -8,6 +8,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
 /* Represents the many different ways we can access our data */
 %union {
+    Ast *ast;
     char *literal;
     int token;
 }

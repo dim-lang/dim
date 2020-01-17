@@ -139,14 +139,14 @@ int AstBinaryOperationExpression::token() const { return token_; }
 AstExpression *AstBinaryOperationExpression::right() const { return right_; }
 
 AstConditionalExpression::AstConditionalExpression(
-    AstExpression *condition, AstExpression *ifExpression,
+    AstExpression *conditionExpression, AstExpression *ifExpression,
     AstExpression *elseExpression)
-    : condition_(condition), ifExpression_(ifExpression),
+    : conditionExpression_(conditionExpression), ifExpression_(ifExpression),
       elseExpression_(elseExpression) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
-  delete condition;
-  condition = nullptr;
+  delete conditionExpression_;
+  conditionExpression_ = nullptr;
   delete ifExpression_;
   ifExpression_ = nullptr;
   delete elseExpression_;
@@ -156,16 +156,17 @@ AstConditionalExpression::~AstConditionalExpression() {
 int AstConditionalExpression::type() const { return FA_CONDITIONAL_EXPRESSION; }
 
 std::string AstConditionalExpression::toString() const {
-  std::string condStr = condition_ ? condition_->toString() : "null";
+  std::string condStr =
+      conditionExpression_ ? conditionExpression_->toString() : "null";
   std::string ifStr = ifExpression_ ? ifExpression_->toString() : "null";
   std::string elseStr = elseExpression_ ? elseExpression_->toString() : "null";
-  return fmt::format("[ @AstConditionalExpression condition_:{}, "
+  return fmt::format("[ @AstConditionalExpression conditionExpression_:{}, "
                      "ifExpression_:{}, elseExpression_:{} ]",
                      condStr, ifStr, elseStr);
 }
 
-AstExpression *AstConditionalExpression::condition() const {
-  return condition_;
+AstExpression *AstConditionalExpression::conditionExpression() const {
+  return conditionExpression_;
 }
 
 AstExpression *AstConditionalExpression::ifExpression() const {
@@ -400,7 +401,7 @@ const std::string &AstVariableDeclaration::identifier() const {
   return identifier_;
 }
 
-const AstExpression *AstVariableDeclaration::expression() const {
+AstExpression *AstVariableDeclaration::expression() const {
   return expression_;
 }
 
@@ -411,10 +412,6 @@ AstFunctionDeclaration::AstFunctionDeclaration(
       compoundStatement_(compoundStatement) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
-  for (int i = 0; i < argumentList_.size(); i++) {
-    delete argumentList_[i];
-    argumentList_[i] = nullptr;
-  }
   delete compoundStatement_;
   compoundStatement_ = nullptr;
 }
