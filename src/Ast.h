@@ -127,10 +127,11 @@ private:
 };
 
 /* function call expression */
-class AstFunctionCallExpresion : public AstExpression {
+class AstFunctionCallExpression : public AstExpression {
 public:
-  AstFunctionCallExpresion(const std::string &value);
-  virtual ~AstFunctionCallExpresion() = default;
+  AstFunctionCallExpression(const std::string &identifier,
+                            const AstExpressionList &expressionList);
+  virtual ~AstFunctionCallExpression() = default;
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -215,7 +216,7 @@ private:
 /* compound statement - { ... } */
 class AstCompoundStatement : public AstStatement {
 public:
-  AstCompoundStatement(std::shared_ptr<AstExpression> expression);
+  AstCompoundStatement(const AstStatementList &statementList);
   virtual ~AstCompoundStatement() = default;
   virtual int type() const;
   virtual std::string toString() const;

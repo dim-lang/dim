@@ -22,7 +22,8 @@ static void parseToken(const char *module) {
       FINFO("token:{}", t);
     }
   }
-  tokenPopFile();
+  // we don't need pop file manually here
+  // tokenPopFile();
   FINFO("parseToken {} ending...", module);
 }
 

@@ -122,7 +122,7 @@ function purge_all() {
 
 function build_debug() {
     cd $ROOT/src
-    flex -d -o Token.yy.cpp Token.l
+    flex -o Token.yy.cpp Token.l
     bison -d -o Parser.tab.cpp Parser.y
     cd $ROOT/example
     flex -o flex.yy.cpp flex.l
