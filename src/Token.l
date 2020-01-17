@@ -25,7 +25,7 @@ std::string TokenCurrentFile;
 class TokenBuffer {
 public:
  /* methods */
-    TokenBuffer(const char *module, int ln);
+    TokenBuffer(const char *module);
     virtual ~TokenBuffer();
     void release();
 
@@ -77,9 +77,9 @@ static std::string tokenFileToModule(const std::string &name);
  /* "import"                 return FT_IMPORT; */
 "return"                 return FT_RETURN;
 "void"                   return FT_VOID;
-"and"                    return FT_LOGICALAND;
-"or"                     return FT_LOGICALOR;
-"not"                    return FT_LOGICALNOT;
+"and"                    return FT_LOGIC_AND;
+"or"                     return FT_LOGIC_OR;
+"not"                    return FT_LOGIC_NOT;
 "int"                    return FT_INTEGER_KEYWORD;
 "uint"                   return FT_UNSIGNED_INTEGER_KEYWORD;
 "double"                 return FT_DOUBLE_KEYWORD;
@@ -90,17 +90,26 @@ static std::string tokenFileToModule(const std::string &name);
 "*"                      return FT_TOKEN(FT_MUL);
 "/"                      return FT_TOKEN(FT_DIV);
 "%"                      return FT_TOKEN(FT_MOD);
-"!"                      return FT_TOKEN(FT_BITNOT);
-"&"                      return FT_TOKEN(FT_BITAND);
-"|"                      return FT_TOKEN(FT_BITOR);
-"~"                      return FT_TOKEN(FT_BITCOMPLEMENT);
-"^"                      return FT_TOKEN(FT_BITXOR);
+"!"                      return FT_TOKEN(FT_BIT_NOT);
+"&"                      return FT_TOKEN(FT_BIT_AND);
+"|"                      return FT_TOKEN(FT_BIT_OR);
+"~"                      return FT_TOKEN(FT_BIT_COMPLEMENT);
+"^"                      return FT_TOKEN(FT_BIT_XOR);
+"<<"                     return FT_TOKEN(FT_BIT_LSHIFT);
+">>"                     return FT_TOKEN(FT_BIT_RSHIFT);
+">>>"                    return FT_TOKEN(FT_BIT_ZERORSHIFT);
 "="                      return FT_TOKEN(FT_ASSIGN);
-"+="                     return FT_TOKEN(FT_ADDASSIGN);
-"-="                     return FT_TOKEN(FT_SUBASSIGN);
-"*="                     return FT_TOKEN(FT_MULASSIGN);
-"/="                     return FT_TOKEN(FT_DIVASSIGN);
-"%="                     return FT_TOKEN(FT_MODASSIGN);
+"+="                     return FT_TOKEN(FT_ADD_ASSIGN);
+"-="                     return FT_TOKEN(FT_SUB_ASSIGN);
+"*="                     return FT_TOKEN(FT_MUL_ASSIGN);
+"/="                     return FT_TOKEN(FT_DIV_ASSIGN);
+"%="                     return FT_TOKEN(FT_MOD_ASSIGN);
+"&="                     return FT_TOKEN(FT_BIT_AND_ASSIGN);
+"|="                     return FT_TOKEN(FT_BIT_OR_ASSIGN);
+"^="                     return FT_TOKEN(FT_BIT_XOR_ASSIGN);
+"<<="                    return FT_TOKEN(FT_BIT_LSHIFT_ASSIGN);
+">>="                    return FT_TOKEN(FT_BIT_RSHIFT_ASSIGN);
+">>>="                   return FT_TOKEN(FT_BIT_ZERORSHIFT_ASSIGN);
 "=="                     return FT_TOKEN(FT_EQ);
 "!="                     return FT_TOKEN(FT_NEQ);
 "<"                      return FT_TOKEN(FT_LT);
@@ -141,7 +150,7 @@ static std::string tokenFileToModule(const std::string &name);
                             tokenImportFile(yytext);
                             BEGIN INITIAL;
                         }
-<IFILE>.|\n             {
+<IMPORT>.|\n             {
                             fprintf(stderr, "%s:%d error! bad import!\n", TokenCurrentFile.c_str(), yylineno);
                             BEGIN INITIAL;
                         }
@@ -157,7 +166,7 @@ static std::string tokenFileToModule(const std::string &name);
 %%
 
 int tokenImportFile(const char *module) {
-    TokenBuffer *fb = new TokenBuffer(module, yylineno);
+    TokenBuffer *fb = new TokenBuffer(module);
 
     /* remember state */
     if (!TokenBufferStack.empty()) {
@@ -177,7 +186,7 @@ int tokenImportFile(const std::string &module) {
 }
 
 int tokenPopFile() {
-    FCHECK_MSG(!TokenBufferStack.empty(), "TokenBufferStack must not empty!");
+    FCHECK(!TokenBufferStack.empty(), "TokenBufferStack must not empty! TokenCurrentFile:{} yylineno:{}", TokenCurrentFile, yylineno);
     TokenBuffer *fb;
 
     fb = TokenBufferStack.top();
@@ -185,6 +194,7 @@ int tokenPopFile() {
     delete fb;
     fb = nullptr;
     if (TokenBufferStack.empty()) {
+        TokenCurrentFile = "";
         return 0;
     }
 
@@ -214,17 +224,17 @@ static std::string tokenFileToModule(const std::string &name) {
     return r;
 }
 
-TokenBuffer::TokenBuffer(const char *module, int ln) : yyBufferState(nullptr), fileName(tokenModuleToFile(module)), lineNo(1), fp(nullptr) {
-    FCHECK(fileName.length() > 5, "{}:{} error! fileName {} invalid!", TokenCurrentFile, ln, fileName);
+TokenBuffer::TokenBuffer(const char *module) : yyBufferState(nullptr), fileName(tokenModuleToFile(module)), lineNo(1), fp(nullptr) {
+    FCHECK(fileName.length() > 5, "{}:{} error! fileName {} invalid!", TokenCurrentFile, yylineno, fileName);
     fp = std::fopen(fileName.c_str(), "r");
     if (!fp) {
         release();
-        FCHECK(fp, "{}:{} error! file {} cannot open!", TokenCurrentFile, ln, fileName);
+        FCHECK(fp, "{}:{} error! file {} cannot open!", TokenCurrentFile, yylineno, fileName);
     }
     yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
     if (!yyBufferState) {
         release();
-        FCHECK(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", TokenCurrentFile, ln, fileName);
+        FCHECK(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", TokenCurrentFile, yylineno, fileName);
     }
 }
 

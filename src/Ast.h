@@ -10,6 +10,29 @@
 #include <string>
 #include <vector>
 
+/* Ast::type */
+
+#define FA_IDENTIFIER_CONSTANT 101
+#define FA_INTEGER_CONSTANT 102
+#define FA_DOUBLE_CONSTANT 103
+#define FA_STRING_CONSTANT 104
+#define FA_FUNCTION_CALL_EXPRESSION 105
+#define FA_UNARY_OPERATION_EXPRESSION 106
+#define FA_BINARY_OPERATION_EXPRESSION 107
+#define FA_CONDITIONAL_EXPRESSION 108
+
+#define FA_EXPRESSION_STATEMENT 201
+#define FA_COMPOUND_STATEMENT 202
+#define FA_IF_STATEMENT 203
+#define FA_WHILE_STATEMENT 204
+#define FA_FOR_STATEMENT 205
+#define FA_CONTINUE_STATEMENT 206
+#define FA_BREAK_STATEMENT 207
+#define FA_RETURN_STATEMENT 207
+
+#define FA_VARIABLE_DECLARATION 301
+#define FA_FUNCTION_DECLARATION 302
+
 class AstExpression;
 class AstStatement;
 using AstExpressionList = std::vector<std::shared_ptr<AstExpression>>;
@@ -47,7 +70,7 @@ public:
   virtual std::string toString() const = 0;
 };
 
-/* primary expression - FT_IDENTIFIER */
+/* constant expression - FT_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {
 public:
   AstIdentifierConstant(const std::string &value);
@@ -61,7 +84,7 @@ private:
   std::string value_;
 };
 
-/* primary expression - FT_INTEGER */
+/* constant expression - FT_INTEGER */
 class AstIntegerConstant : public AstExpression {
 public:
   AstIntegerConstant(const int64_t &value);
@@ -75,7 +98,7 @@ private:
   int64_t value_;
 };
 
-/* primary expression - FT_DOUBLE */
+/* constant expression - FT_DOUBLE */
 class AstDoubleConstant : public AstExpression {
 public:
   AstDoubleConstant(const double &value);
@@ -89,7 +112,7 @@ private:
   double value_;
 };
 
-/* primary expression - FT_STRING */
+/* constant expression - FT_STRING */
 class AstStringConstant : public AstExpression {
 public:
   AstStringConstant(const std::string &value);
@@ -103,11 +126,11 @@ private:
   std::string value_;
 };
 
-/* function call */
-class AstFunctionCall : public AstExpression {
+/* function call expression */
+class AstFunctionCallExpresion : public AstExpression {
 public:
-  AstFunctionCall(const std::string &value);
-  virtual ~AstFunctionCall() = default;
+  AstFunctionCallExpresion(const std::string &value);
+  virtual ~AstFunctionCallExpresion() = default;
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -120,10 +143,11 @@ private:
 };
 
 /* unary operation expression */
-class AstUnaryExpression : public AstExpression {
+class AstUnaryOperationExpression : public AstExpression {
 public:
-  AstUnaryExpression(int token, std::shared_ptr<AstExpression> expression);
-  virtual ~AstUnaryExpression() = default;
+  AstUnaryOperationExpression(int token,
+                              std::shared_ptr<AstExpression> expression);
+  virtual ~AstUnaryOperationExpression() = default;
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -136,11 +160,11 @@ private:
 };
 
 /* binary operation expression */
-class AstBinaryExpression : public AstExpression {
+class AstBinaryOperationExpression : public AstExpression {
 public:
-  AstBinaryExpression(std::shared_ptr<AstExpression> left, int token,
-                      std::shared_ptr<AstExpression> right);
-  virtual ~AstBinaryExpression() = default;
+  AstBinaryOperationExpression(std::shared_ptr<AstExpression> left, int token,
+                               std::shared_ptr<AstExpression> right);
+  virtual ~AstBinaryOperationExpression() = default;
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -152,6 +176,26 @@ private:
   std::shared_ptr<AstExpression> left_;
   int token_;
   std::shared_ptr<AstExpression> right_;
+};
+
+/* ternary conditional expression */
+class AstConditionalExpression : public AstExpression {
+public:
+  AstConditionalExpression(std::shared_ptr<AstExpression> condition,
+                           std::shared_ptr<AstExpression> ifExpression,
+                           std::shared_ptr<AstExpression> elseExpression);
+  virtual ~AstConditionalExpression() = default;
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual std::shared_ptr<AstExpression> condition() const;
+  virtual std::shared_ptr<AstExpression> ifExpression() const;
+  virtual std::shared_ptr<AstExpression> elseExpression() const;
+
+private:
+  std::shared_ptr<AstExpression> condition_;
+  std::shared_ptr<AstExpression> ifExpression_;
+  std::shared_ptr<AstExpression> elseExpression_;
 };
 
 /* expression statement */
