@@ -8,9 +8,9 @@
 core
 
 # cmake
-/release
-/debug
-/msvc
+release
+debug
+msvc
 
 # log
 *.log
@@ -32,3 +32,7 @@ PDCurses
 *.yy.cpp
 *.tab.hpp
 *.tab.cpp
+
+# clion
+.idea
+cmake-build-debug
