@@ -150,7 +150,7 @@ static std::string tokenFileToModule(const std::string &name);
                             tokenImportFile(yytext);
                             BEGIN INITIAL;
                         }
-<IMPORT>.|\n             {
+<IMPORT>.|\n            {
                             fprintf(stderr, "%s:%d error! bad import!\n", TokenCurrentFile.c_str(), yylineno);
                             BEGIN INITIAL;
                         }
