@@ -351,17 +351,17 @@ class AstFunctionDeclaration : public AstDeclaration {
 public:
   AstFunctionDeclaration(const char *identifier,
                          AstExpressionList *argumentList,
-                         AstCompoundStatement *compoundStatement);
+                         AstStatement *compoundStatement);
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
   virtual AstExpressionList *argumentList() const;
-  virtual AstCompoundStatement *compoundStatement() const;
+  virtual AstStatement *compoundStatement() const;
 
 private:
   std::string identifier_;
   AstExpressionList *argumentList_;
-  AstCompoundStatement *compoundStatement_;
+  AstStatement *compoundStatement_;
 };

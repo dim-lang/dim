@@ -402,9 +402,9 @@ AstExpressionList *AstVariableDeclaration::expressionList() const {
   return expressionList_;
 }
 
-AstFunctionDeclaration::AstFunctionDeclaration(
-    const char *identifier, AstExpressionList *argumentList,
-    AstCompoundStatement *compoundStatement)
+AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
+                                               AstExpressionList *argumentList,
+                                               AstStatement *compoundStatement)
     : identifier_(identifier), argumentList_(argumentList),
       compoundStatement_(compoundStatement) {}
 
@@ -434,6 +434,6 @@ AstExpressionList *AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 
-AstCompoundStatement *AstFunctionDeclaration::compoundStatement() const {
+AstStatement *AstFunctionDeclaration::compoundStatement() const {
   return compoundStatement_;
 }

@@ -1,4 +1,5 @@
 %{
+#include "config/Header.h"
 #include "config/Platform.h"
 #include "Log.h"
 #include "Ast.h"
@@ -89,21 +90,21 @@ postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '.' IDENTIFIER*/
                    ;
 
-argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back((AstExpression*)$1); }
-                         | argument_expression_list ',' argument_expression { $$->push_back((AstExpression*)$3); }
+argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back($1); }
+                         | argument_expression_list ',' argument_expression { $$->push_back($3); }
                          ;
 
 argument_expression : constant_expression { $$ = $1; }
                     ;
 
 unary_expression : postfix_expression { $$ = $1; }
-                 | FT_BIT_AND postfix_expression { $$ = new AstUnaryExpression(FT_BIT_AND, (AstExpression*)$2); }
-                 | FT_BIT_OR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_OR, (AstExpression*)$2); }
-                 | FT_BIT_NOT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_NOT, (AstExpression*)$2); }
-                 | FT_BIT_COMPLEMENT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_COMPLEMENT, (AstExpression*)$2); }
-                 | FT_BIT_XOR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_XOR, (AstExpression*)$2); }
-                 | FT_ADD postfix_expression { $$ = new AstUnaryExpression(FT_ADD, (AstExpression*)$2); }
-                 | FT_SUB postfix_expression { $$ = new AstUnaryExpression(FT_SUB, (AstExpression*)$2); }
+                 | FT_BIT_AND postfix_expression { $$ = new AstUnaryExpression(FT_BIT_AND, $2); }
+                 | FT_BIT_OR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_OR, $2); }
+                 | FT_BIT_NOT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_NOT, $2); }
+                 | FT_BIT_COMPLEMENT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_COMPLEMENT, $2); }
+                 | FT_BIT_XOR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_XOR, $2); }
+                 | FT_ADD postfix_expression { $$ = new AstUnaryExpression(FT_ADD, $2); }
+                 | FT_SUB postfix_expression { $$ = new AstUnaryExpression(FT_SUB, $2); }
                  ;
 
 /*
@@ -113,9 +114,9 @@ cast_expression : unary_expression
 */
 
 multiplicative_expression : unary_expression { $$ = $1; }
-                          | multiplicative_expression FT_MUL unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_MUL, (AstExpression*)$3); }
-                          | multiplicative_expression FT_DIV unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_DIV, (AstExpression*)$3); }
-                          | multiplicative_expression FT_MOD unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_MOD, (AstExpression*)$3); }
+                          | multiplicative_expression FT_MUL unary_expression { $$ = new AstBinaryExpression($1, FT_MUL, $3); }
+                          | multiplicative_expression FT_DIV unary_expression { $$ = new AstBinaryExpression($1, FT_DIV, $3); }
+                          | multiplicative_expression FT_MOD unary_expression { $$ = new AstBinaryExpression($1, FT_MOD, $3); }
                           ;
 
 additive_expression : multiplicative_expression { $$ = $1; }
@@ -187,7 +188,7 @@ assignment_expression : constant_expression { $$ = $1; }
                       | unary_expression FT_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_AND_ASSIGN, $3); }
                       | unary_expression FT_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_OR_ASSIGN, $3); }
                       | unary_expression FT_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_LSHIFT_ASSIGN, $3); }
-                      | unary_expression FT_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_RSHIFT__ASSIGN, $3); }
+                      | unary_expression FT_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_RSHIFT_ASSIGN, $3); }
                       | unary_expression FT_BIT_ZERORSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_ZERORSHIFT_ASSIGN, $3); }
                       ;
 
@@ -211,7 +212,7 @@ variable_declaration : FT_LET variable_declaration_name_list FT_ASSIGN variable_
 
  /* variable_declaration left hand */
 variable_declaration_name_list : variable_declaration_name { $$ = new AstExpressionList(); $$->push_back($1); }
-                               | variable_declaration_name_list FT_COMMA variable_declaration_name { $$->push_back($2); }
+                               | variable_declaration_name_list FT_COMMA variable_declaration_name { $$->push_back($3); }
                                ;
 
 variable_declaration_name : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
@@ -231,10 +232,22 @@ variable_declaration_expression : constant_expression { $$ = $1; }
   * let abs(x) = return x > 0 ? x : -x; 
   * let abs(x) = { if (x > 0) { return x; } else { return -x; } }
   */
-function_declaration : FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN statement { $$ = new AstFunctionDeclaration($2, $4, new AstStatementList$7); std::free($2); }
-                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); } 
-                     | FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $6); std::free($2); }
-                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); }
+function_declaration : FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN statement {
+                            AstStatementList *sl = new AstStatementList();
+                            sl->push_back($7);
+                            AstCompoundStatement *cs = new AstCompoundStatement(sl);
+                            $$ = new AstFunctionDeclaration($2, $4, cs); 
+                            std::free($2);
+                        }
+                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN statement {
+                            AstStatementList *sl = new AstStatementList();
+                            sl->push_back($6);
+                            AstCompoundStatement *cs = new AstCompoundStatement(sl);
+                            $$ = new AstFunctionDeclaration($2, nullptr, cs);
+                            std::free($2);
+                        }
+                     | FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $7); std::free($2); }
+                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $6); std::free($2); }
                      ;
 
 function_argument_list : function_argument { $$ = new AstExpressionList(); $$->push_back($1); }
@@ -258,6 +271,7 @@ statement : compound_statement { $$ = $1; }
           | iteration_statement { $$ = $1; }
           | jump_statement { $$ = $1; }
           | variable_declaration { $$ = $1; }
+          | function_declaration { $$ = $1; }
           ;
 
 expression_statement : FT_SEMI { $$ = nullptr; }
