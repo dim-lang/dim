@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Token.h"
-#include "Logging.h"
+#include "Log.h"
 #include "Parser.tab.hpp"
 #include "catch2/catch.hpp"
 #include <cstdio>

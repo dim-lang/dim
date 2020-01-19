@@ -1,15 +1,8 @@
 # fastype
 
-fastype - a modern text editor for speed.
+fastype - a modern, object oriented, high performance and user friendly programming language.
 
-## What's fastype?
-
-* Friendly: out of box, minimum to learn in easy mode.
-* Effective: minimum time cost with maximum job done.
-* Performance: fast
-* Distributed: split editor to server-client model, server for data, client for rendering.
-* Programmable: configurations, extensions, plugins and jobs done via scripts.
-* Cross Platform: mainstream system such as windows, macOS, linux, bsd, etc.
+## Why fastype?
 
 ## How to install?
 

@@ -15,7 +15,7 @@ EXP ([Ee][-+]?[0-9]+)
 #include <stack>
 #include <algorithm>
 #include "config/Platform.h"
-#include "Logging.h"
+#include "Log.h"
 #include "Ast.h"
 #include "Scope.h"
 #include "Parser.tab.hpp"

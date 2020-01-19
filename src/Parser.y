@@ -1,6 +1,6 @@
 %{
 #include "config/Platform.h"
-#include "Logging.h"
+#include "Log.h"
 #include "Ast.h"
 #include "Scope.h"
 #include "Token.h"

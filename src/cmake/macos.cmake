@@ -12,7 +12,6 @@ find_package(Threads REQUIRED)
 set(FINC
     .
     Threads::Threads
-    /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
@@ -22,7 +21,6 @@ set(FINC
 
 set(FLIB
     Threads::Threads
-    ncurses
     panel
     fmt
     boost_program_options-mt
@@ -36,7 +34,6 @@ set(FLIB
 
 set(FLIB_DIR
     .
-    /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
@@ -52,12 +49,7 @@ target_include_directories(fastypecore PRIVATE ${FINC})
 target_link_libraries(fastypecore ${FLIB})
 set_target_properties(fastypecore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(fastype ${FCLI})
+add_executable(fastype ${FT})
 target_include_directories(fastype PRIVATE ${FINC})
 target_link_libraries(fastype ${FLIB} fastypecore)
 set_target_properties(fastype PROPERTIES VERSION ${PROJECT_VERSION})
-
-add_executable(fastyped ${FSRV})
-target_include_directories(fastyped PRIVATE ${FINC})
-target_link_libraries(fastyped ${FLIB} fastypecore)
-set_target_properties(fastyped PROPERTIES VERSION ${PROJECT_VERSION})

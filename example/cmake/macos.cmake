@@ -10,7 +10,6 @@ find_package(Threads REQUIRED)
 
 set(FINC
     Threads::Threads
-    /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
@@ -19,8 +18,6 @@ set(FINC
     )
 set(FLIB
     Threads::Threads
-    ncurses
-    panel
     fmt
     boost_program_options-mt
     boost_system-mt
@@ -32,7 +29,6 @@ set(FLIB
     )
 set(FLIB_DIR
     .
-    /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
@@ -42,16 +38,6 @@ set(FLIB_DIR
 
 include_directories(${FINC})
 link_directories(${FLIB_DIR})
-
-add_executable(fastype-ncurses_Panel ncurses_Panel.cpp)
-target_include_directories(fastype-ncurses_Panel PRIVATE ${FINC})
-target_link_libraries(fastype-ncurses_Panel ${FLIB})
-set_target_properties(fastype-ncurses_Panel PROPERTIES VERSION ${PROJECT_VERSION})
-
-add_executable(fastype-ncurses_Term ncurses_Term.cpp)
-target_include_directories(fastype-ncurses_Term PRIVATE ${FINC})
-target_link_libraries(fastype-ncurses_Term ${FLIB})
-set_target_properties(fastype-ncurses_Term PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(fastype-icu_ustdio icu_ustdio.cpp)
 target_include_directories(fastype-icu_ustdio PRIVATE ${FINC})

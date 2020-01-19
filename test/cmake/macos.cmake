@@ -13,7 +13,6 @@ set(FINC
     .
     ../src
     Threads::Threads
-    /usr/local/opt/ncurses/include
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
@@ -24,8 +23,6 @@ set(FINC
 
 set(FLIB
     Threads::Threads
-    ncurses
-    panel
     fmt
     boost_program_options-mt
     boost_system-mt
@@ -39,7 +36,6 @@ set(FLIB
 set(FLIB_DIR
     .
     ../src
-    /usr/local/opt/ncurses/lib
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib

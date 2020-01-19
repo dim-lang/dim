@@ -4,7 +4,7 @@
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-include(cmake/test.cmake)
+include(cmake/src.cmake)
 
 if (WIN32)
     include(cmake/msvc.cmake)

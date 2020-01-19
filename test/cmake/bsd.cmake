@@ -8,13 +8,11 @@ configure_file(../src/Configure.h.in ../src/Configure.h)
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
-find_package(Curses REQUIRED)
 
 set(FINC
     .
     ../src
     Threads::Threads
-    ${CURSES_INCLUDE_DIR}
     /usr/include
     /usr/local/include
     ../src/spdlog/include
@@ -24,8 +22,6 @@ set(FINC
 
 set(FLIB
     Threads::Threads
-    ${CURSES_LIBRARIES}
-    panel
     boost_program_options
     boost_system
     icuuc
@@ -37,7 +33,6 @@ set(FLIB
 set(FLIB_DIR
     .
     ../src
-    ${CURSES_LIBRARY_DIRS}
     /usr/lib
     /usr/local/lib
     )

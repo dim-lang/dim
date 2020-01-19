@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Timer.h"
-#include "Logging.h"
+#include "Log.h"
 #include "config/Header.h"
 
 Timer::Timer()

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Buffer.h"
-#include "Logging.h"
+#include "Log.h"
 #include "Option.h"
 #include "Term.h"
 #include <exception>
@@ -16,7 +16,7 @@
 namespace boost_po = boost::program_options;
 
 int main(int argc, char **argv) {
-  Logging::initialize(".", "fastype");
+  Log::initialize(".", "fastype");
   Option conf(argc, argv);
   FINFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 

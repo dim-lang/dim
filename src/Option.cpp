@@ -3,7 +3,7 @@
 
 #include "Option.h"
 #include "Configure.h"
-#include "Logging.h"
+#include "Log.h"
 #include <boost/program_options/parsers.hpp>
 #include <fstream>
 

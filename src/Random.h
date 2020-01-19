@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Logging.h"
+#include "Log.h"
 #include "config/Header.h"
 #include <cstdint>
 #include <cstring>

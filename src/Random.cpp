@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Random.h"
-#include "Logging.h"
+#include "Log.h"
 #include <algorithm>
 #include <cstring>
 #include <functional>
