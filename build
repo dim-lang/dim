@@ -121,7 +121,7 @@ function build_debug() {
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
     flex -d -o Token.yy.cpp Token.l
-    bison -d -v -o Parser.tab.cpp Parser.y
+    bison --debug -d -v -o Parser.tab.cpp Parser.y
 
     cd $ROOT
     DEBUG=debug

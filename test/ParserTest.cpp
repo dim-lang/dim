@@ -20,6 +20,9 @@ static void parserGo(const char *module) {
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
+#ifdef YYDEBUG
+    yydebug = 1;
+#endif
     parserGo("test.DslTest1");
     parserGo("test.DslTest2");
   }

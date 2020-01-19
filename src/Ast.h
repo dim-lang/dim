@@ -43,6 +43,9 @@ public:
   virtual ~Ast() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
+
+  static std::string dump(const AstExpressionList *expressionList);
+  static std::string dump(const AstStatementList *statementList);
 };
 
 /* expression */

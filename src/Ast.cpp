@@ -2,7 +2,43 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
+#include "Log.h"
 #include "config/Header.h"
+#include <sstream>
+
+std::string Ast::dump(const AstExpressionList *expressionList) {
+  if (!expressionList) {
+    return "expressionList: nullptr";
+  }
+  std::stringstream ss;
+  ss << "expressionList, size:" << expressionList->size() << ", ";
+  for (int i = 0; i < expressionList->size(); i++) {
+    AstExpression *ae = (*expressionList)[i];
+    std::string s = ae ? ae->toString() : "null";
+    ss << fmt::format("{}:{}", i, s);
+    if (i < expressionList->size() - 1) {
+      ss << ", ";
+    }
+  }
+  return ss.str();
+}
+
+std::string Ast::dump(const AstStatementList *statementList) {
+  if (!statementList) {
+    return "statementList: nullptr";
+  }
+  std::stringstream ss;
+  ss << "statementList, size:" << statementList->size() << ", ";
+  for (int i = 0; i < statementList->size(); i++) {
+    AstStatement *ae = (*statementList)[i];
+    std::string s = ae ? ae->toString() : "null";
+    ss << fmt::format("{}:{}", i, s);
+    if (i < statementList->size() - 1) {
+      ss << ", ";
+    }
+  }
+  return ss.str();
+}
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}

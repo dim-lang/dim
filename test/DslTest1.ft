@@ -7,6 +7,14 @@ func Hello() {
     b = 2;
     a = a + b;
     return a;
+
+    if (a < b)
+        print(a);
+    else
+        print(b);
+
+    while (a < b)
+        print(a);
 }
 
 // this is a line comment */ is for testing block comment ending
