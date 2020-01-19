@@ -90,21 +90,21 @@ postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '.' IDENTIFIER*/
                    ;
 
-argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back($1); }
-                         | argument_expression_list ',' argument_expression { $$->push_back($3); }
+argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back((AstExpression*)$1); }
+                         | argument_expression_list ',' argument_expression { $$->push_back((AstExpression*)$3); }
                          ;
 
 argument_expression : conditional_expression { $$ = $1; }
                     ;
 
 unary_expression : postfix_expression { $$ = $1; }
-                 | FT_BIT_AND postfix_expression { $$ = new AstUnaryExpression(FT_BIT_AND, $2); }
-                 | FT_BIT_OR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_OR, $2); }
-                 | FT_BIT_NOT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_NOT, $2); }
-                 | FT_BIT_COMPLEMENT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_COMPLEMENT, $2); }
-                 | FT_BIT_XOR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_XOR, $2); }
-                 | FT_ADD postfix_expression { $$ = new AstUnaryExpression(FT_ADD, $2); }
-                 | FT_SUB postfix_expression { $$ = new AstUnaryExpression(FT_SUB, $2); }
+                 | FT_BIT_AND postfix_expression { $$ = new AstUnaryExpression(FT_BIT_AND, (AstExpression*)$2); }
+                 | FT_BIT_OR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_OR, (AstExpression*)$2); }
+                 | FT_BIT_NOT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_NOT, (AstExpression*)$2); }
+                 | FT_BIT_COMPLEMENT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_COMPLEMENT, (AstExpression*)$2); }
+                 | FT_BIT_XOR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_XOR, (AstExpression*)$2); }
+                 | FT_ADD postfix_expression { $$ = new AstUnaryExpression(FT_ADD, (AstExpression*)$2); }
+                 | FT_SUB postfix_expression { $$ = new AstUnaryExpression(FT_SUB, (AstExpression*)$2); }
                  ;
 
 /*
@@ -114,9 +114,9 @@ cast_expression : unary_expression
 */
 
 multiplicative_expression : unary_expression { $$ = $1; }
-                          | multiplicative_expression FT_MUL unary_expression { $$ = new AstBinaryExpression($1, FT_MUL, $3); }
-                          | multiplicative_expression FT_DIV unary_expression { $$ = new AstBinaryExpression($1, FT_DIV, $3); }
-                          | multiplicative_expression FT_MOD unary_expression { $$ = new AstBinaryExpression($1, FT_MOD, $3); }
+                          | multiplicative_expression FT_MUL unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_MUL, (AstExpression*)$3); }
+                          | multiplicative_expression FT_DIV unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_DIV, (AstExpression*)$3); }
+                          | multiplicative_expression FT_MOD unary_expression { $$ = new AstBinaryExpression((AstExpression*)$1, FT_MOD, (AstExpression*)$3); }
                           ;
 
 additive_expression : multiplicative_expression { $$ = $1; }
