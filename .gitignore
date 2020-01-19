@@ -6,6 +6,7 @@
 *.so
 *.e
 *.out
+*.output
 core
 
 # cmake
