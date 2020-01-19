@@ -15,8 +15,11 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 /* Represents the many different ways we can access our data */
 %union {
     Ast *ast;
-    AstExpressionList *expressions;
-    AstStatementList *statements;
+    AstExpression *expression;
+    AstStatement *statement;
+    AstDeclaration *declaration;
+    AstExpressionList *expressionList;
+    AstStatementList *statementList;
     char *literal;
     int token;
 }
@@ -37,29 +40,31 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %token <token> FT_EQ FT_NEQ FT_LT FT_LE FT_GT FT_GE
 %token <token> FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET FT_LBRACE FT_RBRACE FT_COMMA FT_SEMI FT_QUESTION FT_COLON FT_DOT
 
-/*
-%type <expr> numeric expr
-%type <varvec> func_decl_args
-%type <exprvec> call_args
-%type <block> program stmts block
-%type <stmt> stmt var_decl func_decl
-%type <token> comparison
-*/
-
-%type <ast> primary_expression postfix_expression unary_expression multiplicative_expression additive_expression relational_expression 
-%type <ast> equality_expression logical_and_expression logical_or_expression logical_not_expression
-%type <ast> argument_expression conditional_expression assignment_expression constant_expression function_argument
+/* union.ast */
 %type <ast> variable_declaration function_declaration
 %type <ast> expression
 %type <ast> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <ast> statement
 %type <ast> unit declaration
 
-%type <expressions> argument_expression_list function_argument_list
-%type <statements> statement_list
+/* union.expression */
+%type <expression> argument_expression postfix_expression primary_expression unary_expression multiplicative_expression additive_expression relational_expression
+%type <expression> equality_expression logical_and_expression logical_or_expression logical_not_expression conditional_expression assignment_expression
+%type <expression> constant_expression function_argument
+
+/* union.statement */
+%type <statement>
+
+/* union.declaration */
+%type <declaration>
+
+/* union.expressionList */
+%type <expressionList> argument_expression_list function_argument_list
+
+/* union.statementList */
+%type <statementList> statement_list
 
 /* operator/comparator precedence */
-
 %left FT_ASSIGN FT_ADD_ASSIGN FT_SUB_ASSIGN FT_MUL_ASSIGN FT_DIV_ASSIGN FT_MOD_ASSIGN
 %left FT_LOGIC_NOT FT_LOGIC_AND FT_LOGIC_OR
 %left FT_BIT_NOT FT_BIT_AND FT_BIT_OR FT_BIT_XOR FT_BIT_COMPLEMENT
@@ -69,10 +74,6 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %left FT_DOT FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET
 
 %start unit
-
-/*
-%start program
-*/
 
 %%
 
