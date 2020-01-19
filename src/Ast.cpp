@@ -59,10 +59,6 @@ AstFunctionCallExpression::AstFunctionCallExpression(
 
 AstFunctionCallExpression::~AstFunctionCallExpression() {
   if (argumentList_) {
-    for (int i = 0; i < argumentList_->size(); i++) {
-      delete (*argumentList_)[i];
-      (*argumentList_)[i] = nullptr;
-    }
     delete argumentList_;
     argumentList_ = nullptr;
   }
@@ -219,14 +215,13 @@ AstExpression *AstExpressionStatement::expression() const {
   return expression_;
 }
 
-AstCompoundStatement::AstCompoundStatement(
-    const AstStatementList &statementList)
+AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList)
     : statementList_(statementList) {}
 
 AstCompoundStatement::~AstCompoundStatement() {
-  for (int i = 0; i < statementList_.size(); i++) {
-    delete statementList_[i];
-    statementList_[i] = nullptr;
+  if (statementList_) {
+    delete statementList_;
+    statementList_ = nullptr;
   }
 }
 
@@ -234,10 +229,10 @@ int AstCompoundStatement::type() const { return FA_COMPOUND_STATEMENT; }
 
 std::string AstCompoundStatement::toString() const {
   return fmt::format("[ @AstCompoundStatement statementList_#size:{} ]",
-                     statementList_.size());
+                     statementList_ ? statementList_->size() : 0);
 }
 
-const AstStatementList &AstCompoundStatement::statementList() const {
+AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
@@ -406,12 +401,14 @@ AstExpression *AstVariableDeclaration::expression() const {
 }
 
 AstFunctionDeclaration::AstFunctionDeclaration(
-    const std::string &identifier, const AstStringList &argumentList,
+    const char *identifier, AstExpressionList *argumentList,
     AstCompoundStatement *compoundStatement)
     : identifier_(identifier), argumentList_(argumentList),
       compoundStatement_(compoundStatement) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
+  delete argumentList_;
+  argumentList_ = nullptr;
   delete compoundStatement_;
   compoundStatement_ = nullptr;
 }
@@ -423,14 +420,15 @@ std::string AstFunctionDeclaration::toString() const {
       compoundStatement_ ? compoundStatement_->toString() : "null";
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
                      "argumentList_#size:{}, compoundStatement_:{} ]",
-                     identifier_, argumentList_.size(), compStr);
+                     identifier_,
+                     argumentList_ ? (int)argumentList_->size() : 0, compStr);
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
   return identifier_;
 }
 
-const AstStringList &AstFunctionDeclaration::argumentList() const {
+AstExpressionList *AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 

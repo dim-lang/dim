@@ -1,15 +1,14 @@
 %{
+#include "config/Platform.h"
+#include "Logging.h"
+#include "Ast.h"
+#include "Scope.h"
+#include "Token.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <cstdint>
 #include <cctype>
-#include "Ast.h"
-#include "Scope.h"
-#include "Logging.h"
-#include "config/Header.h"
-extern FILE *yyin;
-extern int yylex();
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %}
 
@@ -18,7 +17,6 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
     Ast *ast;
     AstExpressionList *expressions;
     AstStatementList *statements;
-    AstStringList *stringList;
     char *literal;
     int token;
 }
@@ -55,6 +53,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %type <ast> expression
 %type <ast> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <ast> statement
+%type <ast> unit declaration
 
 %type <expressions> argument_expression_list function_argument_list
 %type <statements> statement_list
@@ -91,7 +90,7 @@ postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '.' IDENTIFIER*/
                    ;
 
-argument_expression_list : argument_expression { $$ = new AstExpressionList(); ss->push_back($1); }
+argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back($1); }
                          | argument_expression_list ',' argument_expression { $$->push_back($3); }
                          ;
 
@@ -172,7 +171,7 @@ logical_or_expression : logical_and_expression { $$ = $1; }
 
 /* conditional_expression is the expression entry */
 conditional_expression : logical_or_expression { $$ = $1; }
-                       | logical_or_expression '?' expression ':' conditional_expression { $$ = new AstConditionalExpression($1, $2, $3); }
+                       | logical_or_expression '?' expression ':' conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
 assignment_expression : conditional_expression { $$ = $1; }
@@ -206,55 +205,51 @@ declaration : function_declaration { $$ = $1; }
 variable_declaration : FT_LET FT_IDENTIFIER FT_ASSIGN constant_expression FT_SEMI { $$ = new AstVariableDeclarations($2, $4); std::free($2); }
                      ;
 
-function_declaration : FT_FUNC FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN compound_statement
-                     | FT_FUNC FT_IDENTIFIER FT_LPAREN FT_RPAREN compound_statement
+function_declaration : FT_FUNC FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $6); std::free($2); }
+                     | FT_FUNC FT_IDENTIFIER FT_LPAREN FT_RPAREN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); }
                      ;
 
-function_argument_list : function_argument
-                       | function_argument_list FT_COMMA function_argument
+function_argument_list : function_argument { $$ = new AstExpressionList(); $$->push_back($1); }
+                       | function_argument_list FT_COMMA function_argument { $$->push_back($3); }
                        ;
 
-function_argument : FT_IDENTIFIER
+function_argument : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
                   ;
 
-compound_statement : FT_LBRACE FT_RBRACE
-                   | FT_LBRACE statement_list FT_RBRACE
-                   | FT_LBRACE variable_declaration_list FT_RBRACE
+compound_statement : FT_LBRACE FT_RBRACE { $$ = new AstCompoundStatement(nullptr); }
+                   | FT_LBRACE statement_list FT_RBRACE { $$ = new AstCompoundStatement($2); }
                    ;
 
-statement_list : statement
-               | statement_list statement
+statement_list : statement { $$ = new AstStatementList(); $$->push_back($1); }
+               | statement_list statement { $$->push_back($2); }
                ;
 
-variable_declaration_list : variable_declaration
-                          | variable_declaration_list variable_declaration
-                          ;
-
-statement : compound_statement
-          | expression_statement
-          | selection_statement
-          | iteration_statement
-          | jump_statement
+statement : compound_statement { $$ = $1; }
+          | expression_statement { $$ = $1; }
+          | selection_statement { $$ = $1; }
+          | iteration_statement { $$ = $1; }
+          | jump_statement { $$ = $1; }
+          | variable_declaration { $$ = $1; }
           ;
 
-expression_statement : FT_SEMI
-                     | expression FT_SEMI
+expression_statement : FT_SEMI { $$ = nullptr; }
+                     | expression FT_SEMI { $$ = new AstExpressionStatement($2); }
                      ;
 
-selection_statement : FT_IF FT_LPAREN expression FT_RPAREN statement
-                    | FT_IF FT_LPAREN expression FT_RPAREN statement FT_ELSE statement
+selection_statement : FT_IF FT_LPAREN expression FT_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); }
+                    | FT_IF FT_LPAREN expression FT_RPAREN statement FT_ELSE statement { $$ = new AstIfStatement($3, $5, $7); }
                     /*| FT_SWITCH FT_LPAREN expression FT_RPAREN statement*/
                     ;
 
-iteration_statement : FT_WHILE FT_LPAREN expression FT_RPAREN statement
-                    | FT_FOR FT_LPAREN expression_statement expression_statement FT_RPAREN statement
-                    | FT_FOR FT_LPAREN expression_statement expression_statement expression FT_RPAREN statement
+iteration_statement : FT_WHILE FT_LPAREN expression FT_RPAREN statement { $$ = new AstWhileStatement($3, $5); }
+                    | FT_FOR FT_LPAREN expression_statement expression_statement FT_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); }
+                    | FT_FOR FT_LPAREN expression_statement expression_statement expression FT_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); }
                     ;
 
-jump_statement : FT_CONTINUE FT_SEMI
-               | FT_BREAK FT_SEMI
-               | FT_RETURN FT_SEMI
-               | FT_RETURN expression FT_SEMI
+jump_statement : FT_CONTINUE FT_SEMI { $$ = new AstContinueStatement(); }
+               | FT_BREAK FT_SEMI { $$ = new AstBreakStatement(); }
+               | FT_RETURN FT_SEMI { $$ = new AstReturnStatement(nullptr); }
+               | FT_RETURN expression FT_SEMI { $$ = new AstReturnStatement($2); }
                ;
 
 %%

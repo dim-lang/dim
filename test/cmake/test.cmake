@@ -11,6 +11,7 @@ set(FTEST
     FilerTest.cpp
     ApproximateTest.cpp
     TokenTest.cpp
+    ParserTest.cpp
 
     #dsl/TokenTest.cpp
     #dsl/LexerTest.cpp

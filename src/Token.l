@@ -16,6 +16,8 @@ EXP ([Ee][-+]?[0-9]+)
 #include <algorithm>
 #include "config/Platform.h"
 #include "Logging.h"
+#include "Ast.h"
+#include "Scope.h"
 #include "Parser.tab.hpp"
 #define FT_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
 #define FT_TOKEN(t) (yylval.token = t)

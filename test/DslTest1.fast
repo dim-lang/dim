@@ -9,6 +9,14 @@ func Hello() {
     return a;
 }
 
+// this is a line comment */ is for testing block comment ending
+
+/**
+ * This is a block comment
+ * Which contains a string "hello world"
+ * integer: 10243+e31
+ */
+
 func testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing fastype DSL language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.

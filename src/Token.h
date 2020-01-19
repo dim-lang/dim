@@ -11,6 +11,7 @@ class TokenBuffer;
 
 extern int yylex(void);
 extern FILE *yyin;
+extern int yyparse(void);
 
 extern std::string TokenCurrentFile;
 extern std::stack<TokenBuffer *> TokenBufferStack;

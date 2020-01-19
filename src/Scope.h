@@ -9,13 +9,13 @@
 
 class Scope {
 public:
-  Scope(std::shared_ptr<Scope> father = std::shared_ptr<Scope>(nullptr));
-  virtual ~Scope();
+  // Scope(std::shared_ptr<Scope> father = std::shared_ptr<Scope>(nullptr));
+  // virtual ~Scope();
 
-  virtual void define(const std::string &name, std::shared_ptr<Ast> node);
-  virtual std::shared_ptr<Ast> lookup(const std::string &name);
+  static void define(const std::string &name, std::shared_ptr<Ast> node);
+  static std::shared_ptr<Ast> lookup(const std::string &name);
 
 protected:
-  std::unordered_map<std::string, std::shared_ptr<Ast>> symtab_;
-  std::shared_ptr<Scope> father_;
+  static std::unordered_map<std::string, std::shared_ptr<Ast>> symtab_;
+  // std::shared_ptr<Scope> father_;
 };

@@ -35,11 +35,8 @@
 
 class AstExpression;
 class AstStatement;
-class AstVariableDeclaration;
 using AstExpressionList = std::vector<AstExpression *>;
 using AstStatementList = std::vector<AstStatement *>;
-using AstVariableDeclarationList = std::vector<AstVariableDeclaration *>;
-using AstStringList = std::vector<std::string>;
 
 class Ast : public Stringify {
 public:
@@ -234,15 +231,15 @@ private:
 /* compound statement - { ... } */
 class AstCompoundStatement : public AstStatement {
 public:
-  AstCompoundStatement(const AstStatementList &statementList);
+  AstCompoundStatement(AstStatementList *statementList);
   virtual ~AstCompoundStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual const AstStatementList &statementList() const;
+  virtual AstStatementList *statementList() const;
 
 private:
-  AstStatementList statementList_;
+  AstStatementList *statementList_;
 };
 
 /* selection statement - if else */
@@ -351,19 +348,19 @@ private:
 /* function declaration */
 class AstFunctionDeclaration : public AstDeclaration {
 public:
-  AstFunctionDeclaration(const std::string &identifier,
-                         const AstStringList &argumentList,
+  AstFunctionDeclaration(const char *identifier,
+                         AstExpressionList *argumentList,
                          AstCompoundStatement *compoundStatement);
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual const AstStringList &argumentList() const;
+  virtual AstExpressionList *argumentList() const;
   virtual AstCompoundStatement *compoundStatement() const;
 
 private:
   std::string identifier_;
-  AstStringList argumentList_;
+  AstExpressionList *argumentList_;
   AstCompoundStatement *compoundStatement_;
 };

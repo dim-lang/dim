@@ -124,9 +124,6 @@ function build_debug() {
     cd $ROOT/src
     flex -o Token.yy.cpp Token.l
     bison -d -o Parser.tab.cpp Parser.y
-    cd $ROOT/example
-    flex -o flex.yy.cpp flex.l
-    bison -d -o bison.tab.cpp bison.y
 
     cd $ROOT
     DEBUG=debug
@@ -150,9 +147,6 @@ function build_release() {
     cd $ROOT/src
     flex -o Token.yy.cpp Token.l
     bison -d -o Parser.tab.cpp Parser.y
-    cd $ROOT/example
-    flex -o flex.yy.cpp flex.l
-    bison -d -o bison.tab.cpp bison.y
 
     cd $ROOT
     RELEASE=release
