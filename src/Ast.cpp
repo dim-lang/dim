@@ -367,6 +367,8 @@ std::string AstReturnStatement::toString() const {
   return fmt::format("[ @AstReturnStatement expression_:{} ]", exprStr);
 }
 
+AstExpression *AstReturnStatement::expression() const { return expression_; }
+
 AstVariableDeclaration::AstVariableDeclaration(
     AstExpressionList *identifierList, AstExpressionList *expressionList)
     : identifierList_(identifierList), expressionList_(expressionList) {}
