@@ -21,7 +21,7 @@ EXP ([Ee][-+]?[0-9]+)
 #include "Parser.tab.hpp"
 #define FT_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
 #define FT_TOKEN(t) (yylval.token = t)
-#define FT_FILE_POSTFIX ".ft"
+#define FT_FILE_EXT ".ft"
 
 std::string TokenCurrentFile;
 
@@ -217,7 +217,7 @@ static std::string tokenModuleToFile(const std::string &name) {
     replace = '/';
 #endif
     std::for_each(r.begin(), r.end(), [&replace](char &c) { if (c == '.') {c = replace;} });
-    r.append(FT_FILE_POSTFIX);
+    r.append(FT_FILE_EXT);
     return r;
 }
 
