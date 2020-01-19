@@ -61,8 +61,8 @@ public:
   virtual std::string toString() const = 0;
 };
 
-/* declaration */
-class AstDeclaration : public Ast {
+/* declaration is statement */
+class AstDeclaration : public AstStatement {
 public:
   virtual ~AstDeclaration() = default;
   virtual int type() const = 0;
@@ -330,19 +330,20 @@ private:
   AstExpression *expression_;
 };
 
-/* single variable declaration */
+/* variable declaration */
 class AstVariableDeclaration : public AstDeclaration {
 public:
-  AstVariableDeclaration(const char *identifier, AstExpression *expression);
+  AstVariableDeclaration(AstExpressionList *identifierList,
+                         AstExpressionList *expressionList);
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual const std::string &identifier() const;
-  virtual AstExpression *expression() const;
+  virtual AstExpressionList *identifierList();
+  virtual AstExpressionList *expressionList();
 
 private:
-  std::string identifier_;
-  AstExpression *expression_;
+  AstExpressionList *identifierList_;
+  AstExpressionList *expressionList_;
 };
 
 /* function declaration */

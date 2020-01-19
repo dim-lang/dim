@@ -11,6 +11,7 @@ class TokenBuffer;
 
 extern int yylex(void);
 extern FILE *yyin;
+extern int yylineno;
 extern int yyparse(void);
 
 extern std::string TokenCurrentFile;

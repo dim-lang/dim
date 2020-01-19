@@ -195,19 +195,47 @@ constant_expression : conditional_expression { $$ = $1; }
 expression : assignment_expression { $$ = $1; }
            ;
 
-unit : declaration { Scope::define(std::shared_ptr<Ast>($1)); }
-     | unit declaration { Scope::define(std::shared_ptr<Ast>($2)); }
+unit : declaration {}
+     | unit declaration {}
      ;
 
 declaration : function_declaration { $$ = $1; }
             | variable_declaration { $$ = $1; }
             ;
 
-variable_declaration : FT_LET FT_IDENTIFIER FT_ASSIGN constant_expression FT_SEMI { $$ = new AstVariableDeclarations($2, $4); std::free($2); }
+ /**
+  * let x = 1; 
+  * let x, y, z = 1, "hello world", 2.3; 
+  */
+variable_declaration : FT_LET variable_declaration_name_list FT_ASSIGN variable_declaration_expression_list FT_SEMI { $$ = new AstVariableDeclaration($2, $4); }
                      ;
 
-function_declaration : FT_FUNC FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $6); std::free($2); }
-                     | FT_FUNC FT_IDENTIFIER FT_LPAREN FT_RPAREN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); }
+ /* variable_declaration left hand */
+variable_declaration_name_list : variable_declaration_name { $$ = new AstExpressionList(); $$->push_back($1); }
+                               | variable_declaration_name_list FT_COMMA variable_declaration_name { $$->push_back($2); }
+                               ;
+
+variable_declaration_name : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
+                          ;
+
+ /* variable_declaration right hand */
+variable_declaration_expression_list : variable_declaration_expression { $$ = new AstExpressionList(); $$->push_back($1); }
+                                     | variable_declaration_expression_list FT_COMMA variable_declaration_expression { $$->push_back($3); }
+                                     ;
+
+variable_declaration_expression : conditional_expression { $$ = $1; }
+                                ;
+
+ /**
+  * let min() = return 0;
+  * let max() = { return 100 }
+  * let abs(x) = return x > 0 ? x : -x; 
+  * let abs(x) = { if (x > 0) { return x; } else { return -x; } }
+  */
+function_declaration : FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN statement { $$ = new AstFunctionDeclaration($2, $4, new AstStatementList$7); std::free($2); }
+                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); } 
+                     | FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $6); std::free($2); }
+                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $5); std::free($2); }
                      ;
 
 function_argument_list : function_argument { $$ = new AstExpressionList(); $$->push_back($1); }
