@@ -1,10 +1,8 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Buffer.h"
 #include "Log.h"
 #include "Option.h"
-#include "Term.h"
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -35,8 +33,6 @@ int main(int argc, char **argv) {
     std::string firstFileName = inputFileList[0];
     icu::UnicodeString firstFileNameUnicode =
         icu::UnicodeString::fromUTF8(firstFileName);
-    std::shared_ptr<Term> term = Term::open(firstFileNameUnicode);
-    term->show(firstFileNameUnicode);
   }
 
   return 0;

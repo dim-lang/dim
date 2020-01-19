@@ -10,7 +10,7 @@
 
 // Scope::~Scope() { symtab_.clear(); }
 
-void Scope::insert(const std::string &name, std::shared_ptr<Ast> node) {
+void Scope::define(const std::string &name, std::shared_ptr<Ast> node) {
   FCHECK(symtab_.find(name) == symtab_.end(), "symbol name: {} already exist",
          name);
   symtab_.insert(std::make_pair(name, node));

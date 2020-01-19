@@ -280,21 +280,20 @@ private:
 /* iteration statement - for */
 class AstForStatement : public AstStatement {
 public:
-  AstForStatement(AstExpression *initExpression,
-                  AstExpression *conditionExpression,
+  AstForStatement(AstStatement *initStatement, AstStatement *condStatement,
                   AstExpression *postExpression, AstStatement *statement);
   virtual ~AstForStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *initExpression() const;
-  virtual AstExpression *conditionExpression() const;
+  virtual AstStatement *initStatement() const;
+  virtual AstStatement *condStatement() const;
   virtual AstExpression *postExpression() const;
   virtual AstStatement *statement() const;
 
 private:
-  AstExpression *initExpression_;
-  AstExpression *conditionExpression_;
+  AstStatement *initStatement_;
+  AstStatement *condStatement_;
   AstExpression *postExpression_;
   AstStatement *statement_;
 };
@@ -338,8 +337,8 @@ public:
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual AstExpressionList *identifierList();
-  virtual AstExpressionList *expressionList();
+  virtual AstExpressionList *identifierList() const;
+  virtual AstExpressionList *expressionList() const;
 
 private:
   AstExpressionList *identifierList_;

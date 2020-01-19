@@ -275,7 +275,7 @@ statement : compound_statement { $$ = $1; }
           ;
 
 expression_statement : FT_SEMI { $$ = nullptr; }
-                     | expression FT_SEMI { $$ = new AstExpressionStatement($2); }
+                     | expression FT_SEMI { $$ = new AstExpressionStatement($1); }
                      ;
 
 selection_statement : FT_IF FT_LPAREN expression FT_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); }

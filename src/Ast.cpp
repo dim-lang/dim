@@ -292,19 +292,18 @@ AstExpression *AstWhileStatement::expression() const { return expression_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
-AstForStatement::AstForStatement(AstExpression *initExpression,
-                                 AstExpression *conditionExpression,
+AstForStatement::AstForStatement(AstStatement *initStatement,
+                                 AstStatement *condStatement,
                                  AstExpression *postExpression,
                                  AstStatement *statement)
-    : initExpression_(initExpression),
-      conditionExpression_(conditionExpression),
+    : initStatement_(initStatement), condStatement_(condStatement),
       postExpression_(postExpression), statement_(statement) {}
 
 AstForStatement::~AstForStatement() {
-  delete initExpression_;
-  initExpression_ = nullptr;
-  delete conditionExpression_;
-  conditionExpression_ = nullptr;
+  delete initStatement_;
+  initStatement_ = nullptr;
+  delete condStatement_;
+  condStatement_ = nullptr;
   delete postExpression_;
   postExpression_ = nullptr;
   delete statement_;
@@ -314,24 +313,18 @@ AstForStatement::~AstForStatement() {
 int AstForStatement::type() const { return FA_FOR_STATEMENT; }
 
 std::string AstForStatement::toString() const {
-  std::string initStr = initExpression_ ? initExpression_->toString() : "null";
-  std::string condStr =
-      conditionExpression_ ? conditionExpression_->toString() : "null";
+  std::string initStr = initStatement_ ? initStatement_->toString() : "null";
+  std::string condStr = condStatement_ ? condStatement_->toString() : "null";
   std::string postStr = postExpression_ ? postExpression_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format(
-      "[ @AstForStatement initExpression_:{}, conditionExpression_:{}, "
-      "postExpression_:{}, statement_:{} ]",
-      initStr, condStr, postStr, stmtStr);
+  return fmt::format("[ @AstForStatement initStatement_:{}, condStatement_:{}, "
+                     "postExpression_:{}, statement_:{} ]",
+                     initStr, condStr, postStr, stmtStr);
 }
 
-AstExpression *AstForStatement::initExpression() const {
-  return initExpression_;
-}
+AstStatement *AstForStatement::initStatement() const { return initStatement_; }
 
-AstExpression *AstForStatement::conditionExpression() const {
-  return conditionExpression_;
-}
+AstStatement *AstForStatement::condStatement() const { return condStatement_; }
 
 AstExpression *AstForStatement::postExpression() const {
   return postExpression_;
