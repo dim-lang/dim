@@ -41,25 +41,23 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %token <token> FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET FT_LBRACE FT_RBRACE FT_COMMA FT_SEMI FT_QUESTION FT_COLON FT_DOT
 
 /* union.ast */
-%type <ast> variable_declaration function_declaration
-%type <ast> expression
-%type <ast> compound_statement expression_statement selection_statement iteration_statement jump_statement
-%type <ast> statement
-%type <ast> unit declaration
+%type <ast> unit
 
 /* union.expression */
 %type <expression> argument_expression postfix_expression primary_expression unary_expression multiplicative_expression additive_expression relational_expression
 %type <expression> equality_expression logical_and_expression logical_or_expression logical_not_expression conditional_expression assignment_expression
-%type <expression> constant_expression function_argument
+%type <expression> constant_expression function_argument variable_declaration_name variable_declaration_expression
+%type <expression> expression
 
 /* union.statement */
-%type <statement>
+%type <statement> compound_statement expression_statement selection_statement iteration_statement jump_statement 
+%type <statement> statement
 
 /* union.declaration */
-%type <declaration>
+%type <declaration> declaration variable_declaration function_declaration
 
 /* union.expressionList */
-%type <expressionList> argument_expression_list function_argument_list
+%type <expressionList> argument_expression_list function_argument_list variable_declaration_name_list variable_declaration_expression_list
 
 /* union.statementList */
 %type <statementList> statement_list
@@ -95,7 +93,7 @@ argument_expression_list : argument_expression { $$ = new AstExpressionList(); $
                          | argument_expression_list ',' argument_expression { $$->push_back((AstExpression*)$3); }
                          ;
 
-argument_expression : conditional_expression { $$ = $1; }
+argument_expression : constant_expression { $$ = $1; }
                     ;
 
 unary_expression : postfix_expression { $$ = $1; }
@@ -170,12 +168,16 @@ logical_or_expression : logical_and_expression { $$ = $1; }
                       | logical_or_expression FT_LOGIC_OR logical_and_expression { $$ = new AstBinaryExpression($1, FT_LOGIC_OR, $3); }
                       ;
 
-/* conditional_expression is the expression entry */
 conditional_expression : logical_or_expression { $$ = $1; }
                        | logical_or_expression '?' expression ':' conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
-assignment_expression : conditional_expression { $$ = $1; }
+ /* constant_expression is the expression entry */
+constant_expression : conditional_expression { $$ = $1; }
+                    ;
+
+
+assignment_expression : constant_expression { $$ = $1; }
                       | unary_expression FT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_ASSIGN, $3); }
                       | unary_expression FT_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_MUL_ASSIGN, $3); }
                       | unary_expression FT_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_DIV_ASSIGN, $3); }
@@ -188,9 +190,6 @@ assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression FT_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_RSHIFT__ASSIGN, $3); }
                       | unary_expression FT_BIT_ZERORSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, FT_BIT_ZERORSHIFT_ASSIGN, $3); }
                       ;
-
-constant_expression : conditional_expression { $$ = $1; }
-                    ;
 
 expression : assignment_expression { $$ = $1; }
            ;
@@ -223,7 +222,7 @@ variable_declaration_expression_list : variable_declaration_expression { $$ = ne
                                      | variable_declaration_expression_list FT_COMMA variable_declaration_expression { $$->push_back($3); }
                                      ;
 
-variable_declaration_expression : conditional_expression { $$ = $1; }
+variable_declaration_expression : constant_expression { $$ = $1; }
                                 ;
 
  /**
