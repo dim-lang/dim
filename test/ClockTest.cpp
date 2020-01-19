@@ -1,7 +1,7 @@
 // Copyright 2019- <fastype.org>
 // Apache License Version 2.0
 
-#include "Timer.h"
+#include "Clock.h"
 #include "catch2/catch.hpp"
 #include <chrono>
 #include <cstdio>
@@ -9,20 +9,20 @@
 
 #define TEST_UNIT 300
 
-TEST_CASE("Timer", "[Timer]") {
+TEST_CASE("Clock", "[Clock]") {
 
-  SECTION("Timer Start/Stop") {
-    INFO("Timer Start/Stop");
-    Timer t;
+  SECTION("Clock Start/Stop") {
+    INFO("Clock Start/Stop");
+    Clock t;
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
     REQUIRE(t.elapse() >= TEST_UNIT);
     REQUIRE(t.elapse() <= TEST_UNIT + 100);
   }
 
-  SECTION("Timer Resume") {
-    INFO("Timer Resume");
-    Timer t;
+  SECTION("Clock Resume") {
+    INFO("Clock Resume");
+    Clock t;
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.stop();
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
@@ -37,9 +37,9 @@ TEST_CASE("Timer", "[Timer]") {
     REQUIRE(t.elapse() <= 3 * TEST_UNIT + 100);
   }
 
-  SECTION("Timer Always Stopped") {
-    INFO("Timer Always Stopped");
-    Timer t;
+  SECTION("Clock Always Stopped") {
+    INFO("Clock Always Stopped");
+    Clock t;
     t.stop();
     std::this_thread::sleep_for(std::chrono::milliseconds(TEST_UNIT));
     t.resume();

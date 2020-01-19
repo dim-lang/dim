@@ -4,9 +4,8 @@
 set(FTEST
     MainTest.cpp
     LogTest.cpp
-    LineTest.cpp
     ConfigureTest.cpp
-    TimerTest.cpp
+    ClockTest.cpp
     RandomTest.cpp
     FileTest.cpp
     ApproximateTest.cpp

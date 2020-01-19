@@ -5,15 +5,15 @@
 #include <chrono>
 #include <string>
 
-class Timer {
+class Clock {
 public:
   // auto start in constructor
-  Timer();
-  Timer(const Timer &) = default;
-  Timer &operator=(const Timer &) = default;
-  Timer(Timer &&) = default;
-  Timer &operator=(Timer &&) = default;
-  virtual ~Timer() = default;
+  Clock();
+  Clock(const Clock &) = default;
+  Clock &operator=(const Clock &) = default;
+  Clock(Clock &&) = default;
+  Clock &operator=(Clock &&) = default;
+  virtual ~Clock() = default;
   int elapse();
   void stop();
   void resume();

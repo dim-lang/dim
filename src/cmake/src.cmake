@@ -4,10 +4,10 @@
 set(FCORE
     Log.cpp
     Option.cpp
-    Timer.cpp
+    Clock.cpp
     DateTime.cpp
     File.cpp
-    Hash.cpp
+    Hasher.cpp
     Random.cpp
     Approximate.cpp
     Token.yy.cpp
