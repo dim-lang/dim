@@ -75,7 +75,7 @@ public:
 /* constant expression - FT_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {
 public:
-  AstIdentifierConstant(const std::string &value);
+  AstIdentifierConstant(const char *value);
   virtual ~AstIdentifierConstant();
   virtual int type() const;
   virtual std::string toString() const;
@@ -117,7 +117,7 @@ private:
 /* constant expression - FT_STRING */
 class AstStringConstant : public AstExpression {
 public:
-  AstStringConstant(const std::string &value);
+  AstStringConstant(const char *value);
   virtual ~AstStringConstant();
   virtual int type() const;
   virtual std::string toString() const;
@@ -131,25 +131,25 @@ private:
 /* function call expression */
 class AstFunctionCallExpression : public AstExpression {
 public:
-  AstFunctionCallExpression(const std::string &identifier,
-                            const AstExpressionList &expressionList);
+  AstFunctionCallExpression(const char *identifier,
+                            AstExpressionList *expressionList);
   virtual ~AstFunctionCallExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual const AstExpressionList &argumentList() const;
+  virtual AstExpressionList *argumentList() const;
 
 private:
   std::string identifier_;
-  AstExpressionList argumentList_;
+  AstExpressionList *argumentList_;
 };
 
 /* unary operation expression */
-class AstUnaryOperationExpression : public AstExpression {
+class AstUnaryExpression : public AstExpression {
 public:
-  AstUnaryOperationExpression(int token, AstExpression *expression);
-  virtual ~AstUnaryOperationExpression();
+  AstUnaryExpression(int token, AstExpression *expression);
+  virtual ~AstUnaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -162,11 +162,10 @@ private:
 };
 
 /* binary operation expression */
-class AstBinaryOperationExpression : public AstExpression {
+class AstBinaryExpression : public AstExpression {
 public:
-  AstBinaryOperationExpression(AstExpression *left, int token,
-                               AstExpression *right);
-  virtual ~AstBinaryOperationExpression();
+  AstBinaryExpression(AstExpression *left, int token, AstExpression *right);
+  virtual ~AstBinaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -198,6 +197,24 @@ private:
   AstExpression *conditionExpression_;
   AstExpression *ifExpression_;
   AstExpression *elseExpression_;
+};
+
+/* assignment expression */
+class AstAssignmentExpression : public AstExpression {
+public:
+  AstAssignmentExpression(AstExpression *left, int token, AstExpression *right);
+  virtual ~AstAssignmentExpression();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual AstExpression *left() const;
+  virtual int token() const;
+  virtual AstExpression *right() const;
+
+private:
+  AstExpression *left_;
+  int token_;
+  AstExpression *right_;
 };
 
 /* expression statement */
@@ -316,25 +333,10 @@ private:
   AstExpression *expression_;
 };
 
-/* multiple variable declarations */
-class AstVariableDeclarations : public AstDeclaration {
-public:
-  AstVariableDeclarations(const AstVariableDeclarationList &declarationList);
-  virtual ~AstVariableDeclarations();
-  virtual int type() const;
-  virtual std::string toString() const;
-
-  virtual const AstVariableDeclarationList &declarationList() const;
-
-private:
-  AstVariableDeclarationList declarationList_;
-};
-
 /* single variable declaration */
 class AstVariableDeclaration : public AstDeclaration {
 public:
-  AstVariableDeclaration(const std::string &identifier,
-                         AstExpression *expression);
+  AstVariableDeclaration(const char *identifier, AstExpression *expression);
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;

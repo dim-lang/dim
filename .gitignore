@@ -5,6 +5,7 @@
 *.dylib
 *.so
 *.e
+*.out
 core
 
 # cmake

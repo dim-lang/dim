@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "config/Header.h"
 
-AstIdentifierConstant::AstIdentifierConstant(const std::string &value)
+AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
 
 AstIdentifierConstant::~AstIdentifierConstant() {}
@@ -41,8 +41,7 @@ std::string AstDoubleConstant::toString() const {
 
 const double &AstDoubleConstant::value() const { return value_; }
 
-AstStringConstant::AstStringConstant(const std::string &value)
-    : value_(value) {}
+AstStringConstant::AstStringConstant(const char *value) : value_(value) {}
 
 AstStringConstant::~AstStringConstant() {}
 
@@ -55,13 +54,17 @@ std::string AstStringConstant::toString() const {
 const std::string &AstStringConstant::value() const { return value_; }
 
 AstFunctionCallExpression::AstFunctionCallExpression(
-    const std::string &identifier, const AstExpressionList &argumentList)
+    const char *identifier, AstExpressionList *argumentList)
     : identifier_(identifier), argumentList_(argumentList) {}
 
 AstFunctionCallExpression::~AstFunctionCallExpression() {
-  for (int i = 0; i < argumentList_.size(); i++) {
-    delete argumentList_[i];
-    argumentList_[i] = nullptr;
+  if (argumentList_) {
+    for (int i = 0; i < argumentList_->size(); i++) {
+      delete (*argumentList_)[i];
+      (*argumentList_)[i] = nullptr;
+    }
+    delete argumentList_;
+    argumentList_ = nullptr;
   }
 }
 
@@ -70,73 +73,64 @@ int AstFunctionCallExpression::type() const {
 }
 
 std::string AstFunctionCallExpression::toString() const {
-  return fmt::format("[ @AstFunctionCallExpression identifier_:{} ]",
-                     identifier_);
+  return fmt::format(
+      "[ @AstFunctionCallExpression identifier_:{}, argumentList_#size:{} ]",
+      identifier_, argumentList_ ? (int)argumentList_->size() : 0);
 }
 
 const std::string &AstFunctionCallExpression::identifier() const {
   return identifier_;
 }
 
-const AstExpressionList &AstFunctionCallExpression::argumentList() const {
+AstExpressionList *AstFunctionCallExpression::argumentList() const {
   return argumentList_;
 }
 
-AstUnaryOperationExpression::AstUnaryOperationExpression(
-    int token, AstExpression *expression)
+AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression)
     : token_(token), expression_(expression) {}
 
-AstUnaryOperationExpression::~AstUnaryOperationExpression() {
+AstUnaryExpression::~AstUnaryExpression() {
   delete expression_;
   expression_ = nullptr;
 }
 
-int AstUnaryOperationExpression::type() const {
-  return FA_UNARY_OPERATION_EXPRESSION;
-}
+int AstUnaryExpression::type() const { return FA_UNARY_OPERATION_EXPRESSION; }
 
-std::string AstUnaryOperationExpression::toString() const {
+std::string AstUnaryExpression::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format(
-      "[ @AstUnaryOperationExpression token_:{}, expression_:{} ]", token_,
-      exprStr);
+  return fmt::format("[ @AstUnaryExpression token_:{}, expression_:{} ]",
+                     token_, exprStr);
 }
 
-int AstUnaryOperationExpression::token() const { return token_; }
+int AstUnaryExpression::token() const { return token_; }
 
-AstExpression *AstUnaryOperationExpression::expression() const {
-  return expression_;
-}
+AstExpression *AstUnaryExpression::expression() const { return expression_; }
 
-AstBinaryOperationExpression::AstBinaryOperationExpression(AstExpression *left,
-                                                           int token,
-                                                           AstExpression *right)
+AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
+                                         AstExpression *right)
     : left_(left), token_(token), right_(right) {}
 
-AstBinaryOperationExpression::~AstBinaryOperationExpression() {
+AstBinaryExpression::~AstBinaryExpression() {
   delete left_;
   left_ = nullptr;
   delete right_;
   right_ = nullptr;
 }
 
-int AstBinaryOperationExpression::type() const {
-  return FA_BINARY_OPERATION_EXPRESSION;
-}
+int AstBinaryExpression::type() const { return FA_BINARY_OPERATION_EXPRESSION; }
 
-std::string AstBinaryOperationExpression::toString() const {
+std::string AstBinaryExpression::toString() const {
   std::string leftStr = left_ ? left_->toString() : "null";
   std::string rightStr = right_ ? right_->toString() : "null";
-  return fmt::format(
-      "[ @AstBinaryOperationExpression left_:{}, token_:{}, right_:{} ]",
-      leftStr, token_, rightStr);
+  return fmt::format("[ @AstBinaryExpression left_:{}, token_:{}, right_:{} ]",
+                     leftStr, token_, rightStr);
 }
 
-AstExpression *AstBinaryOperationExpression::left() const { return left_; }
+AstExpression *AstBinaryExpression::left() const { return left_; }
 
-int AstBinaryOperationExpression::token() const { return token_; }
+int AstBinaryExpression::token() const { return token_; }
 
-AstExpression *AstBinaryOperationExpression::right() const { return right_; }
+AstExpression *AstBinaryExpression::right() const { return right_; }
 
 AstConditionalExpression::AstConditionalExpression(
     AstExpression *conditionExpression, AstExpression *ifExpression,
@@ -176,6 +170,35 @@ AstExpression *AstConditionalExpression::ifExpression() const {
 AstExpression *AstConditionalExpression::elseExpression() const {
   return elseExpression_;
 }
+
+AstAssignmentExpression::AstAssignmentExpression(AstExpression *left, int token,
+                                                 AstExpression *right)
+    : left_(left), token_(token), right_(right) {}
+
+AstAssignmentExpression::~AstAssignmentExpression() {
+  delete left_;
+  left_ = nullptr;
+  delete right_;
+  right_ = nullptr;
+}
+
+int AstAssignmentExpression::type() const {
+  return FA_BINARY_OPERATION_EXPRESSION;
+}
+
+std::string AstAssignmentExpression::toString() const {
+  std::string leftStr = left_ ? left_->toString() : "null";
+  std::string rightStr = right_ ? right_->toString() : "null";
+  return fmt::format(
+      "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]", leftStr,
+      token_, rightStr);
+}
+
+AstExpression *AstAssignmentExpression::left() const { return left_; }
+
+int AstAssignmentExpression::token() const { return token_; }
+
+AstExpression *AstAssignmentExpression::right() const { return right_; }
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(expression) {}
@@ -356,30 +379,7 @@ std::string AstReturnStatement::toString() const {
   return fmt::format("[ @AstReturnStatement expression_:{} ]", exprStr);
 }
 
-AstVariableDeclarations::AstVariableDeclarations(
-    const AstVariableDeclarationList &declarationList)
-    : declarationList_(declarationList) {}
-
-AstVariableDeclarations::~AstVariableDeclarations() {
-  for (int i = 0; i < declarationList_.size(); i++) {
-    delete declarationList_[i];
-    declarationList_[i] = nullptr;
-  }
-}
-
-int AstVariableDeclarations::type() const { return FA_VARIABLE_DECLARATION; }
-
-std::string AstVariableDeclarations::toString() const {
-  return fmt::format("[ @AstVariableDeclarations declarationList_#size:{} ]",
-                     declarationList_.size());
-}
-
-const AstVariableDeclarationList &
-AstVariableDeclarations::declarationList() const {
-  return declarationList_;
-}
-
-AstVariableDeclaration::AstVariableDeclaration(const std::string &identifier,
+AstVariableDeclaration::AstVariableDeclaration(const char *identifier,
                                                AstExpression *expression)
     : identifier_(identifier), expression_(expression) {}
 
