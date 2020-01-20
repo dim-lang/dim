@@ -19,9 +19,9 @@ EXP ([Ee][-+]?[0-9]+)
 #include "Ast.h"
 #include "Scope.h"
 #include "Parser.tab.hpp"
-#define FT_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
-#define FT_TOKEN(t) (yylval.token = t)
-#define FT_FILE_EXT ".ft"
+#define T_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
+#define T_TOKEN(t) (yylval.token = t)
+#define T_FILE_EXT ".co"
 
 std::string TokenCurrentFile;
 
@@ -59,85 +59,85 @@ static std::string tokenFileToModule(const std::string &name);
 "//".*\n
 
  /* keywords */
-"True"                   return FT_TRUE;
-"False"                  return FT_FALSE;
-"let"                    return FT_LET;
-"Nil"                    return FT_NIL;
-"if"                     return FT_IF;
-"elseif"                 return FT_ELSEIF;
-"else"                   return FT_ELSE;
-"switch"                 return FT_SWITCH;
-"case"                   return FT_CASE;
-"otherwise"              return FT_OTHERWISE;
-"for"                    return FT_FOR;
-"while"                  return FT_WHILE;
-"break"                  return FT_BREAK;
-"continue"               return FT_CONTINUE;
-"func"                   return FT_FUNC;
-"class"                  return FT_CLASS;
-"type"                   return FT_TYPE;
-"isinstance"             return FT_ISINSTANCE;
- /* "import"                 return FT_IMPORT; */
-"return"                 return FT_RETURN;
-"void"                   return FT_VOID;
-"and"                    return FT_LOGIC_AND;
-"or"                     return FT_LOGIC_OR;
-"not"                    return FT_LOGIC_NOT;
-"int"                    return FT_INTEGER_KEYWORD;
-"uint"                   return FT_UNSIGNED_INTEGER_KEYWORD;
-"double"                 return FT_DOUBLE_KEYWORD;
+"True"                   return T_TRUE;
+"False"                  return T_FALSE;
+"let"                    return T_LET;
+"Nil"                    return T_NIL;
+"if"                     return T_IF;
+"elseif"                 return T_ELSEIF;
+"else"                   return T_ELSE;
+"switch"                 return T_SWITCH;
+"case"                   return T_CASE;
+"otherwise"              return T_OTHERWISE;
+"for"                    return T_FOR;
+"while"                  return T_WHILE;
+"break"                  return T_BREAK;
+"continue"               return T_CONTINUE;
+"func"                   return T_FUNC;
+"class"                  return T_CLASS;
+"type"                   return T_TYPE;
+"isinstance"             return T_ISINSTANCE;
+ /* "import"                 return T_IMPORT; */
+"return"                 return T_RETURN;
+"void"                   return T_VOID;
+"and"                    return T_LOGIC_AND;
+"or"                     return T_LOGIC_OR;
+"not"                    return T_LOGIC_NOT;
+"int"                    return T_INTEGER_KEYWORD;
+"uint"                   return T_UNSIGNED_INTEGER_KEYWORD;
+"double"                 return T_DOUBLE_KEYWORD;
 
  /* punctuators */
-"+"                      return FT_TOKEN(FT_ADD);
-"-"                      return FT_TOKEN(FT_SUB);
-"*"                      return FT_TOKEN(FT_MUL);
-"/"                      return FT_TOKEN(FT_DIV);
-"%"                      return FT_TOKEN(FT_MOD);
-"!"                      return FT_TOKEN(FT_BIT_NOT);
-"&"                      return FT_TOKEN(FT_BIT_AND);
-"|"                      return FT_TOKEN(FT_BIT_OR);
-"~"                      return FT_TOKEN(FT_BIT_COMPLEMENT);
-"^"                      return FT_TOKEN(FT_BIT_XOR);
-"<<"                     return FT_TOKEN(FT_BIT_LSHIFT);
-">>"                     return FT_TOKEN(FT_BIT_RSHIFT);
-">>>"                    return FT_TOKEN(FT_BIT_ZERORSHIFT);
-"="                      return FT_TOKEN(FT_ASSIGN);
-"+="                     return FT_TOKEN(FT_ADD_ASSIGN);
-"-="                     return FT_TOKEN(FT_SUB_ASSIGN);
-"*="                     return FT_TOKEN(FT_MUL_ASSIGN);
-"/="                     return FT_TOKEN(FT_DIV_ASSIGN);
-"%="                     return FT_TOKEN(FT_MOD_ASSIGN);
-"&="                     return FT_TOKEN(FT_BIT_AND_ASSIGN);
-"|="                     return FT_TOKEN(FT_BIT_OR_ASSIGN);
-"^="                     return FT_TOKEN(FT_BIT_XOR_ASSIGN);
-"<<="                    return FT_TOKEN(FT_BIT_LSHIFT_ASSIGN);
-">>="                    return FT_TOKEN(FT_BIT_RSHIFT_ASSIGN);
-">>>="                   return FT_TOKEN(FT_BIT_ZERORSHIFT_ASSIGN);
-"=="                     return FT_TOKEN(FT_EQ);
-"!="                     return FT_TOKEN(FT_NEQ);
-"<"                      return FT_TOKEN(FT_LT);
-"<="                     return FT_TOKEN(FT_LE);
-">"                      return FT_TOKEN(FT_GT);
-">="                     return FT_TOKEN(FT_GE);
-"("                      return FT_TOKEN(FT_LPAREN);
-")"                      return FT_TOKEN(FT_RPAREN);
-"["                      return FT_TOKEN(FT_LBRACKET);
-"]"                      return FT_TOKEN(FT_RBRACKET);
-"{"                      return FT_TOKEN(FT_LBRACE);
-"}"                      return FT_TOKEN(FT_RBRACE);
-","                      return FT_TOKEN(FT_COMMA);
-";"                      return FT_TOKEN(FT_SEMI);
-"?"                      return FT_TOKEN(FT_QUESTION);
-":"                      return FT_TOKEN(FT_COLON);
-"."                      return FT_TOKEN(FT_DOT);
+"+"                      return T_TOKEN(T_ADD);
+"-"                      return T_TOKEN(T_SUB);
+"*"                      return T_TOKEN(T_MUL);
+"/"                      return T_TOKEN(T_DIV);
+"%"                      return T_TOKEN(T_MOD);
+"!"                      return T_TOKEN(T_BIT_NOT);
+"&"                      return T_TOKEN(T_BIT_AND);
+"|"                      return T_TOKEN(T_BIT_OR);
+"~"                      return T_TOKEN(T_BIT_COMPLEMENT);
+"^"                      return T_TOKEN(T_BIT_XOR);
+"<<"                     return T_TOKEN(T_BIT_LSHIFT);
+">>"                     return T_TOKEN(T_BIT_RSHIFT);
+">>>"                    return T_TOKEN(T_BIT_ZERORSHIFT);
+"="                      return T_TOKEN(T_ASSIGN);
+"+="                     return T_TOKEN(T_ADD_ASSIGN);
+"-="                     return T_TOKEN(T_SUB_ASSIGN);
+"*="                     return T_TOKEN(T_MUL_ASSIGN);
+"/="                     return T_TOKEN(T_DIV_ASSIGN);
+"%="                     return T_TOKEN(T_MOD_ASSIGN);
+"&="                     return T_TOKEN(T_BIT_AND_ASSIGN);
+"|="                     return T_TOKEN(T_BIT_OR_ASSIGN);
+"^="                     return T_TOKEN(T_BIT_XOR_ASSIGN);
+"<<="                    return T_TOKEN(T_BIT_LSHIT_ASSIGN);
+">>="                    return T_TOKEN(T_BIT_RSHIT_ASSIGN);
+">>>="                   return T_TOKEN(T_BIT_ZERORSHIT_ASSIGN);
+"=="                     return T_TOKEN(T_EQ);
+"!="                     return T_TOKEN(T_NEQ);
+"<"                      return T_TOKEN(T_LT);
+"<="                     return T_TOKEN(T_LE);
+">"                      return T_TOKEN(T_GT);
+">="                     return T_TOKEN(T_GE);
+"("                      return T_TOKEN(T_LPAREN);
+")"                      return T_TOKEN(T_RPAREN);
+"["                      return T_TOKEN(T_LBRACKET);
+"]"                      return T_TOKEN(T_RBRACKET);
+"{"                      return T_TOKEN(T_LBRACE);
+"}"                      return T_TOKEN(T_RBRACE);
+","                      return T_TOKEN(T_COMMA);
+";"                      return T_TOKEN(T_SEMI);
+"?"                      return T_TOKEN(T_QUESTION);
+":"                      return T_TOKEN(T_COLON);
+"."                      return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?     FT_SAVE_TOKEN; return FT_DOUBLE;
-[0-9]+{EXP}?             FT_SAVE_TOKEN; return FT_INTEGER;
-\"(\\.|[^\\"])*\"        FT_SAVE_TOKEN; return FT_STRING;
+[0-9]+\.[0-9]+{EXP}?     T_SAVE_TOKEN; return T_DOUBLE;
+[0-9]+{EXP}?             T_SAVE_TOKEN; return T_INTEGER;
+\"(\\.|[^\\"])*\"        T_SAVE_TOKEN; return T_STRING;
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*   FT_SAVE_TOKEN; return FT_IDENTIFIER;
+[a-zA-Z_][a-zA-Z0-9_]*   T_SAVE_TOKEN; return T_IDENTIFIER;
 
  /* whitespace */
 [ \t\v\n\f\r]
@@ -217,7 +217,7 @@ static std::string tokenModuleToFile(const std::string &name) {
     replace = '/';
 #endif
     std::for_each(r.begin(), r.end(), [&replace](char &c) { if (c == '.') {c = replace;} });
-    r.append(FT_FILE_EXT);
+    r.append(T_FILE_EXT);
     return r;
 }
 

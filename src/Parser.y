@@ -26,20 +26,20 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 }
 
 /* union.token: eof, keyword */
-%token <token> FT_EOF
-%token <token> FT_TRUE FT_FALSE FT_LET FT_NIL FT_IF FT_ELSEIF FT_ELSE FT_FOR FT_WHILE FT_BREAK FT_CONTINUE FT_SWITCH FT_CASE FT_OTHERWISE
-%token <token> FT_FUNC FT_CLASS FT_TYPE FT_ISINSTANCE FT_IMPORT FT_RETURN FT_VOID FT_LOGIC_AND FT_LOGIC_OR FT_LOGIC_NOT
-%token <token> FT_INTEGER_KEYWORD FT_UNSIGNED_INTEGER_KEYWORD FT_DOUBLE_KEYWORD
+%token <token> T_EOF
+%token <token> T_TRUE T_FALSE T_LET T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_OTHERWISE
+%token <token> T_FUNC T_CLASS T_TYPE T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
+%token <token> T_INTEGER_KEYWORD T_UNSIGNED_INTEGER_KEYWORD T_DOUBLE_KEYWORD
 
 /* union.literal, identifier, integer, double number, string */
-%token <literal> FT_IDENTIFIER FT_INTEGER FT_DOUBLE FT_STRING
+%token <literal> T_IDENTIFIER T_INTEGER T_DOUBLE T_STRING
 
 /* union.token: operator, comparator, punctuation */
-%token <token> FT_ADD FT_SUB FT_MUL FT_DIV FT_MOD FT_BIT_NOT FT_BIT_AND FT_BIT_OR FT_BIT_COMPLEMENT FT_BIT_XOR FT_BIT_LSHIFT FT_BIT_RSHIFT FT_BIT_ZERORSHIFT
-%token <token> FT_ASSIGN FT_ADD_ASSIGN FT_SUB_ASSIGN FT_MUL_ASSIGN FT_DIV_ASSIGN FT_MOD_ASSIGN
-%token <token> FT_BIT_AND_ASSIGN FT_BIT_OR_ASSIGN FT_BIT_XOR_ASSIGN FT_BIT_LSHIFT_ASSIGN FT_BIT_RSHIFT_ASSIGN FT_BIT_ZERORSHIFT_ASSIGN
-%token <token> FT_EQ FT_NEQ FT_LT FT_LE FT_GT FT_GE
-%token <token> FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET FT_LBRACE FT_RBRACE FT_COMMA FT_SEMI FT_QUESTION FT_COLON FT_DOT
+%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_COMPLEMENT T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
+%token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
+%token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
+%token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
+%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT
 
 /* union.ast */
 %type <ast> unit
@@ -65,65 +65,65 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
 /* operator/comparator precedence */
 /* assignment */
-%left FT_COMMA
-%right FT_BIT_AND_ASSIGN FT_BIT_OR_ASSIGN FT_BIT_XOR_ASSIGN
-%right FT_BIT_LSHIFT_ASSIGN FT_BIT_RSHIFT_ASSIGN FT_BIT_ZERORSHIFT_ASSIGN
-%right FT_MUL_ASSIGN FT_DIV_ASSIGN FT_MOD_ASSIGN
-%right FT_ADD_ASSIGN FT_SUB_ASSIGN
-%right FT_ASSIGN
+%left T_COMMA
+%right T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN
+%right T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
+%right T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
+%right T_ADD_ASSIGN T_SUB_ASSIGN
+%right T_ASSIGN
 /* conditional */
-%right FT_QUESTION FT_COLON
+%right T_QUESTION T_COLON
 /* comparison */
-%left FT_LOGIC_OR
-%left FT_LOGIC_AND
-%left FT_BIT_OR
-%left FT_BIT_XOR
-%left FT_BIT_AND
-%left FT_EQ FT_NEQ
-%left FT_LT FT_LE FT_GT FT_GE
+%left T_LOGIC_OR
+%left T_LOGIC_AND
+%left T_BIT_OR
+%left T_BIT_XOR
+%left T_BIT_AND
+%left T_EQ T_NEQ
+%left T_LT T_LE T_GT T_GE
 /* calculator */
-%left FT_BIT_LSHIFT FT_BIT_RSHIFT FT_BIT_ZERORSHIFT
-%left FT_ADD FT_SUB
-%left FT_MUL FT_DIV FT_MOD
+%left T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
+%left T_ADD T_SUB
+%left T_MUL T_DIV T_MOD
 /* other */
-%left FT_LOGIC_NOT FT_BIT_NOT FT_BIT_COMPLEMENT
-%left FT_DOT
-%left FT_LPAREN FT_RPAREN FT_LBRACKET FT_RBRACKET
+%left T_LOGIC_NOT T_BIT_NOT T_BIT_COMPLEMENT
+%left T_DOT
+%left T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET
 
 %start unit
 
 %%
 
-primary_expression : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | FT_INTEGER { $$ = new AstIntegerConstant(std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | FT_DOUBLE { $$ = new AstDoubleConstant(std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | FT_STRING { $$ = new AstStringConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | '(' expression ')' { $$ = $2; FINFO("primary_expression: {}", $$->toString()); }
+primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_INTEGER { $$ = new AstIntegerConstant(std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_DOUBLE { $$ = new AstDoubleConstant(std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_STRING { $$ = new AstStringConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_LPAREN expression T_RPAREN { $$ = $2; FINFO("primary_expression: {}", $$->toString()); }
                    ;
 
 postfix_expression : primary_expression { $$ = $1; FINFO("postfix_expression: {}", $$->toString()); }
                    /*| postfix_expression '[' expression ']'*/
-                   | FT_IDENTIFIER '(' ')' { $$ = new AstFunctionCallExpression($1, nullptr); std::free($1); FINFO("postfix_expression: {}", $$->toString()); }
-                   | FT_IDENTIFIER '(' argument_expression_list ')' { $$ = new AstFunctionCallExpression($1, $3); std::free($1); FINFO("postfix_expression: {}", $$->toString()); }
-                   /*| postfix_expression '.' IDENTIFIER*/
+                   | postfix_expression T_LPAREN T_RPAREN { $$ = new AstFunctionCallExpression($1, nullptr); std::free($1); FINFO("postfix_expression: {}", $$->toString()); }
+                   | postfix_expression T_LPAREN argument_expression_list T_RPAREN { $$ = new AstFunctionCallExpression($1, $3); std::free($1); FINFO("postfix_expression: {}", $$->toString()); }
+                   /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : argument_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("argument_expression_list: {}", Ast::dump($$)); }
-                         | argument_expression_list ',' argument_expression { $$->push_back($3); FINFO("argument_expression_list: {}", Ast::dump($$)); }
+argument_expression_list : constant_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("argument_expression_list: {}", Ast::dump($$)); }
+                         | argument_expression_list T_COMMA constant_expression { $$->push_back($3); FINFO("argument_expression_list: {}", Ast::dump($$)); }
                          ;
 
-argument_expression : constant_expression { $$ = $1; FINFO("argument_expression: {}", $$ ? $$->toString() : "null"); }
-                    ;
-
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | FT_BIT_AND postfix_expression { $$ = new AstUnaryExpression(FT_BIT_AND, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_BIT_OR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_OR, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_BIT_NOT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_NOT, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_BIT_COMPLEMENT postfix_expression { $$ = new AstUnaryExpression(FT_BIT_COMPLEMENT, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_BIT_XOR postfix_expression { $$ = new AstUnaryExpression(FT_BIT_XOR, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_ADD postfix_expression { $$ = new AstUnaryExpression(FT_ADD, $2); FINFO("unary_expression: {}", $$->toString()); }
-                 | FT_SUB postfix_expression { $$ = new AstUnaryExpression(FT_SUB, $2); FINFO("unary_expression: {}", $$->toString()); }
+                 | unary_operator unary_expression { $$ = new AstUnaryExpression(T_ADD, $2); FINFO("unary_expression: {}", $$->toString()); }
                  ;
+
+unary_operator : T_MUL
+               | T_DIV
+               | T_MOD
+               | T_ADD
+               | T_SUB
+               | T_BIT_NOT
+               | T_BIT_COMPLEMENT
+               ;
 
 /*
 cast_expression : unary_expression
@@ -131,53 +131,83 @@ cast_expression : unary_expression
                 ;
 */
 
-binary_expression : unary_expression
-                  | binary_expression FT_ADD unary_expression
-                  | binary_expression FT_SUB unary_expression
-                  | binary_expression FT_MUL unary_expression
-                  | binary_expression FT_DIV unary_expression
-                  | binary_expression FT_MOD unary_expression
-                  | binary_expression FT_BIT_NOT unary_expression
-                  | binary_expression FT_BIT_AND unary_expression
-                  | binary_expression FT_BIT_OR unary_expression
-                  | binary_expression FT_BIT_XOR unary_expression
-                  | binary_expression FT_BIT_COMPLEMENT unary_expression
-                  | binary_expression FT_BIT_LSHIFT unary_expression
-                  | binary_expression FT_BIT_RSHIFT unary_expression
-                  | binary_expression FT_BIT_ZERORSHIFT unary_expression
-                  | binary_expression FT_LT unary_expression
-                  | binary_expression FT_LE unary_expression
-                  | binary_expression FT_GT unary_expression
-                  | binary_expression FT_GE unary_expression
-                  | binary_expression FT_EQ unary_expression
-                  | binary_expression FT_NEQ unary_expression
-                  | binary_expression FT_LOGIC_AND unary_expression
-                  | binary_expression FT_LOGIC_OR unary_expression
-                  | binary_expression FT_LOGIC_NOT unary_expression
+multiplicative_expression : unary_expression
+                          | multiplicative_expression T_MUL unary_expression
+                          | multiplicative_expression T_DIV unary_expression
+                          | multiplicative_expression T_MOD unary_expression
+                          ;
+
+additive_expression : multiplicative_expression
+                    | additive_expression T_ADD multiplicative_expression
+                    | additive_expression T_SUB multiplicative_expression
+                    ;
+
+shift_expression : additive_expression
+                 | shift_expression T_BIT_LSHIFT additive_expression
+                 | shift_expression T_BIT_RSHIFT additive_expression
+                 | shift_expression T_BIT_ZERORSHIFT additive_expression
+                 ;
+
+relational_expression : shift_expression
+                      | relational_expression T_LT shift_expression
+                      | relational_expression T_LE shift_expression
+                      | relational_expression T_GT shift_expression
+                      | relational_expression T_GE shift_expression
+                      ;
+
+equality_expression : relational_expression
+                    | equality_expression T_EQ relational_expression
+                    | equality_expression T_NEQ relational_expression
+                    ;
+
+bit_and_expression : equality_expression
+                   | bit_and_expression T_BIT_AND equality_expression
+                   ;
+
+bit_xor_expression : bit_and_expression
+                   | bit_xor_expression T_BIT_XOR bit_and_expression
+                   ;
+
+bit_or_expression : bit_xor_expression
+                  | bit_or_expression T_BIT_OR bit_xor_expression
                   ;
 
-conditional_expression : binary_expression { $$ = $1; }
-                       | binary_expression FT_QUESTION binary_expression FT_COLON binary_expression { $$ = new AstConditionalExpression($1, $3, $5); }
+logical_and_expression : bit_or_expression
+                       | logical_and_expression T_LOGIC_AND bit_or_expression
+                       ;
+
+logical_or_expression : logical_and_expression
+                      | logical_or_expression T_LOGIC_OR logical_and_expression
+                      ;
+
+logical_or_expression : logical_and_expression
+                      | logical_or_expression T_LOGIC_OR logical_and_expression
+                      ;
+
+conditional_expression : logical_or_expression { $$ = $1; }
+                       | logical_or_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
  /* constant_expression is the expression entry */
 constant_expression : conditional_expression { $$ = $1; }
                     ;
 
-
 assignment_expression : conditional_expression { $$ = $1; }
-                      | unary_expression FT_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_ASSIGN, $3); }
-                      | unary_expression FT_MUL_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_MUL_ASSIGN, $3); }
-                      | unary_expression FT_DIV_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_DIV_ASSIGN, $3); }
-                      | unary_expression FT_MOD_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_MOD_ASSIGN, $3); }
-                      | unary_expression FT_ADD_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_ADD_ASSIGN, $3); }
-                      | unary_expression FT_SUB_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_SUB_ASSIGN, $3); }
-                      | unary_expression FT_BIT_AND_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_BIT_AND_ASSIGN, $3); }
-                      | unary_expression FT_BIT_OR_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_BIT_OR_ASSIGN, $3); }
-                      | unary_expression FT_BIT_LSHIFT_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_BIT_LSHIFT_ASSIGN, $3); }
-                      | unary_expression FT_BIT_RSHIFT_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_BIT_RSHIFT_ASSIGN, $3); }
-                      | unary_expression FT_BIT_ZERORSHIFT_ASSIGN conditional_expression { $$ = new AstAssignmentExpression($1, FT_BIT_ZERORSHIFT_ASSIGN, $3); }
+                      | unary_expression assignment_operator assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
                       ;
+
+assignment_operator : T_ASSIGN
+                    | T_MUL_ASSIGN
+                    | T_DIV_ASSIGN
+                    | T_MOD_ASSIGN
+                    | T_ADD_ASSIGN
+                    | T_SUB_ASSIGN
+                    | T_BIT_AND_ASSIGN
+                    | T_BIT_OR_ASSIGN
+                    | T_BIT_LSHIT_ASSIGN
+                    | T_BIT_RSHIT_ASSIGN
+                    | T_BIT_ZERORSHIT_ASSIGN
+                    ;
 
 expression : /* nothing */ { $$ = nullptr; }
            | assignment_expression { $$ = $1; }
@@ -195,20 +225,20 @@ declaration : function_declaration { $$ = $1; }
   * let x = 1; 
   * let x, y, z = 1, "hello world", 2.3; 
   */
-variable_declaration : FT_LET variable_declaration_name_list FT_ASSIGN variable_declaration_expression_list FT_SEMI { $$ = new AstVariableDeclaration($2, $4); }
+variable_declaration : T_LET variable_declaration_name_list T_ASSIGN variable_declaration_expression_list T_SEMI { $$ = new AstVariableDeclaration($2, $4); }
                      ;
 
  /* variable_declaration left hand */
 variable_declaration_name_list : variable_declaration_name { $$ = new AstExpressionList(); $$->push_back($1); }
-                               | variable_declaration_name_list FT_COMMA variable_declaration_name { $$->push_back($3); }
+                               | variable_declaration_name_list T_COMMA variable_declaration_name { $$->push_back($3); }
                                ;
 
-variable_declaration_name : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
+variable_declaration_name : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
                           ;
 
  /* variable_declaration right hand */
 variable_declaration_expression_list : variable_declaration_expression { $$ = new AstExpressionList(); $$->push_back($1); }
-                                     | variable_declaration_expression_list FT_COMMA variable_declaration_expression { $$->push_back($3); }
+                                     | variable_declaration_expression_list T_COMMA variable_declaration_expression { $$->push_back($3); }
                                      ;
 
 variable_declaration_expression : constant_expression { $$ = $1; }
@@ -220,33 +250,33 @@ variable_declaration_expression : constant_expression { $$ = $1; }
   * let abs(x) = return x > 0 ? x : -x; 
   * let abs(x) = { if (x > 0) { return x; } else { return -x; } }
   */
-function_declaration : FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN statement {
+function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {
                             AstStatementList *sl = new AstStatementList();
                             sl->push_back($7);
                             AstCompoundStatement *cs = new AstCompoundStatement(sl);
                             $$ = new AstFunctionDeclaration($2, $4, cs); 
                             std::free($2);
                         }
-                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN statement {
+                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN statement {
                             AstStatementList *sl = new AstStatementList();
                             sl->push_back($6);
                             AstCompoundStatement *cs = new AstCompoundStatement(sl);
                             $$ = new AstFunctionDeclaration($2, nullptr, cs);
                             std::free($2);
                         }
-                     | FT_LET FT_IDENTIFIER FT_LPAREN function_argument_list FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $7); std::free($2); }
-                     | FT_LET FT_IDENTIFIER FT_LPAREN FT_RPAREN FT_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $6); std::free($2); }
+                     | T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, $4, $7); std::free($2); }
+                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN compound_statement { $$ = new AstFunctionDeclaration($2, nullptr, $6); std::free($2); }
                      ;
 
 function_argument_list : function_argument { $$ = new AstExpressionList(); $$->push_back($1); }
-                       | function_argument_list FT_COMMA function_argument { $$->push_back($3); }
+                       | function_argument_list T_COMMA function_argument { $$->push_back($3); }
                        ;
 
-function_argument : FT_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
+function_argument : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
                   ;
 
-compound_statement : FT_LBRACE FT_RBRACE { $$ = new AstCompoundStatement(nullptr); }
-                   | FT_LBRACE statement_list FT_RBRACE { $$ = new AstCompoundStatement($2); }
+compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); }
+                   | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); }
                    ;
 
 statement_list : statement { $$ = new AstStatementList(); $$->push_back($1); }
@@ -262,24 +292,24 @@ statement : compound_statement { $$ = $1; }
           | function_declaration { $$ = $1; }
           ;
 
-expression_statement : FT_SEMI { $$ = nullptr; }
-                     | expression FT_SEMI { $$ = new AstExpressionStatement($1); }
+expression_statement : T_SEMI { $$ = nullptr; }
+                     | expression T_SEMI { $$ = new AstExpressionStatement($1); }
                      ;
 
-selection_statement : FT_IF FT_LPAREN expression FT_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); }
-                    | FT_IF FT_LPAREN expression FT_RPAREN statement FT_ELSE statement { $$ = new AstIfStatement($3, $5, $7); }
-                    /*| FT_SWITCH FT_LPAREN expression FT_RPAREN statement*/
+selection_statement : T_IF T_LPAREN expression T_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); }
+                    | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7); }
+                    /*| T_SWITCH T_LPAREN expression T_RPAREN statement*/
                     ;
 
-iteration_statement : FT_WHILE FT_LPAREN expression FT_RPAREN statement { $$ = new AstWhileStatement($3, $5); }
-                    /*| FT_FOR FT_LPAREN expression_statement expression_statement FT_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); }*/
-                    | FT_FOR FT_LPAREN expression_statement expression_statement expression FT_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); }
+iteration_statement : T_WHILE T_LPAREN expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5); }
+                    /*| T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); }*/
+                    | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); }
                     ;
 
-jump_statement : FT_CONTINUE FT_SEMI { $$ = new AstContinueStatement(); }
-               | FT_BREAK FT_SEMI { $$ = new AstBreakStatement(); }
-               | FT_RETURN FT_SEMI { $$ = new AstReturnStatement(nullptr); }
-               | FT_RETURN expression FT_SEMI { $$ = new AstReturnStatement($2); }
+jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
+               | T_BREAK T_SEMI { $$ = new AstBreakStatement(); }
+               | T_RETURN T_SEMI { $$ = new AstReturnStatement(nullptr); }
+               | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); }
                ;
 
 %%

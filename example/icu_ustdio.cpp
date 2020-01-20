@@ -1,12 +1,10 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
+#include "config/Header.h"
 #include <cassert>
 #include <cstdio>
 #include <string>
-#include <unicode/unistr.h>
-#include <unicode/ustdio.h>
-#include <unicode/ustring.h>
 #include <vector>
 
 #define SZ1 10
