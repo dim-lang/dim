@@ -24,11 +24,9 @@ msvc
 # dependencies
 spdlog
 fmt
-json
 boost
 icu
 Catch2
-PDCurses
 
 # auto generate source code
 *.yy.cpp

@@ -1,8 +1,8 @@
-# Copyright 2019- <fastype.org>
+# Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
-project(fastype VERSION 0.1.0 LANGUAGES CXX)
+project(coli-test VERSION 0.1.0 LANGUAGES CXX)
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
@@ -49,8 +49,8 @@ add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 include_directories(${FINC})
 link_directories(${FLIB_DIR})
 
-add_executable(fastype-test ${FTEST})
-target_include_directories(fastype-test PRIVATE ${FINC})
-#target_link_libraries(fastype-test debug ${FLIBD} fastypecore)
-target_link_libraries(fastype-test ${FLIB} fastypecore)
-set_target_properties(fastype-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(coli-test ${FTEST})
+target_include_directories(coli-test PRIVATE ${FINC})
+#target_link_libraries(coli-test debug ${FLIBD} colicore)
+target_link_libraries(coli-test ${FLIB} colicore)
+set_target_properties(coli-test PROPERTIES VERSION ${PROJECT_VERSION})

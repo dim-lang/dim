@@ -1,12 +1,12 @@
-# fastype
+# coli
 
-fastype - a modern, object oriented, high performance and user friendly programming language.
+coli - a modern, object oriented, high performance and user friendly programming language.
 
-## Why fastype?
+## Why coli?
 
 ## How to install?
 
-Download fastype source code from github and build mannually.
+Download coli source code from github and build mannually.
 
 #### Dependencies
 
@@ -24,5 +24,5 @@ Download fastype source code from github and build mannually.
 
 |  Platform      |  Build                                                                          |
 |----------------|---------------------------------------------------------------------------------|
-|  Linux & UNIX  | `git clone https://github.com/fastype/fastype.git && cd fastype && ./build`     |
-|  Windows       | `git clone https://github.com/fastype/fastype.git && cd fastype && .\build.bat` |
+|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build`     |
+|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat` |

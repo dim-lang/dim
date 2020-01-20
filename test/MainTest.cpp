@@ -1,4 +1,4 @@
-// Copyright 2019- <fastype.org>
+// Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
 #define CATCH_CONFIG_MAIN
@@ -7,7 +7,7 @@
 
 TEST_CASE("Main", "[Main]") {
   SECTION("Main Initialize") {
-    Log::initialize(".", "fastype-test");
-    FINFO_MSG("fastype-test starting...");
+    Log::initialize(".", "coli-test");
+    FINFO_MSG("coli-test starting...");
   }
 }
