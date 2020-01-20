@@ -165,13 +165,13 @@ int AstBinaryExpression::token() const { return token_; }
 AstExpression *AstBinaryExpression::right() const { return right_; }
 
 AstConditionalExpression::AstConditionalExpression(
-    AstExpression *conditionExpression, AstExpression *ifExpression,
+    AstExpression *condExpression, AstExpression *ifExpression,
     AstExpression *elseExpression)
-    : conditionExpression_(conditionExpression), ifExpression_(ifExpression),
+    : condExpression_(condExpression), ifExpression_(ifExpression),
       elseExpression_(elseExpression) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
-  delete conditionExpression_;
+  delete condExpression_;
   conditionExpression_ = nullptr;
   delete ifExpression_;
   ifExpression_ = nullptr;
@@ -182,17 +182,16 @@ AstConditionalExpression::~AstConditionalExpression() {
 int AstConditionalExpression::type() const { return FA_CONDITIONAL_EXPRESSION; }
 
 std::string AstConditionalExpression::toString() const {
-  std::string condStr =
-      conditionExpression_ ? conditionExpression_->toString() : "null";
+  std::string condStr = condExpression_ ? condExpression_->toString() : "null";
   std::string ifStr = ifExpression_ ? ifExpression_->toString() : "null";
   std::string elseStr = elseExpression_ ? elseExpression_->toString() : "null";
-  return fmt::format("[ @AstConditionalExpression conditionExpression_:{}, "
+  return fmt::format("[ @AstConditionalExpression condExpression_:{}, "
                      "ifExpression_:{}, elseExpression_:{} ]",
                      condStr, ifStr, elseStr);
 }
 
-AstExpression *AstConditionalExpression::conditionExpression() const {
-  return conditionExpression_;
+AstExpression *AstConditionalExpression::condExpression() const {
+  return condExpression_;
 }
 
 AstExpression *AstConditionalExpression::ifExpression() const {
@@ -203,8 +202,9 @@ AstExpression *AstConditionalExpression::elseExpression() const {
   return elseExpression_;
 }
 
-AstAssignmentExpression::AstAssignmentExpression(AstExpression *left, int token,
-                                                 AstExpression *right)
+AstAssignmentExpression::AstAssignmentExpression(AstExpressionList *left,
+                                                 int token,
+                                                 AstExpressionList *right)
     : left_(left), token_(token), right_(right) {}
 
 AstAssignmentExpression::~AstAssignmentExpression() {
@@ -219,18 +219,16 @@ int AstAssignmentExpression::type() const {
 }
 
 std::string AstAssignmentExpression::toString() const {
-  std::string leftStr = left_ ? left_->toString() : "null";
-  std::string rightStr = right_ ? right_->toString() : "null";
   return fmt::format(
-      "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]", leftStr,
-      token_, rightStr);
+      "[ @AstAssignmentExpression left_#size:{}, token_:{}, right_#size:{} ]",
+      left_ ? left_->size() : 0, token_, right_ ? right_->size() : 0);
 }
 
-AstExpression *AstAssignmentExpression::left() const { return left_; }
+AstExpressionList *AstAssignmentExpression::left() const { return left_; }
 
 int AstAssignmentExpression::token() const { return token_; }
 
-AstExpression *AstAssignmentExpression::right() const { return right_; }
+AstExpressionList *AstAssignmentExpression::right() const { return right_; }
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(expression) {}
@@ -435,26 +433,24 @@ AstExpressionList *AstVariableDeclaration::expressionList() const {
 
 AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
                                                AstExpressionList *argumentList,
-                                               AstStatement *compoundStatement)
+                                               AstStatementList *statementList)
     : identifier_(identifier), argumentList_(argumentList),
-      compoundStatement_(compoundStatement) {}
+      statementList_(statementList) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
   delete argumentList_;
   argumentList_ = nullptr;
-  delete compoundStatement_;
-  compoundStatement_ = nullptr;
+  delete statementList_;
+  statementList_ = nullptr;
 }
 
 int AstFunctionDeclaration::type() const { return FA_FUNCTION_DECLARATION; }
 
 std::string AstFunctionDeclaration::toString() const {
-  std::string compStr =
-      compoundStatement_ ? compoundStatement_->toString() : "null";
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
-                     "argumentList_#size:{}, compoundStatement_:{} ]",
-                     identifier_,
-                     argumentList_ ? (int)argumentList_->size() : 0, compStr);
+                     "argumentList_#size:{}, statementList_#size:{} ]",
+                     identifier_, argumentList_ ? argumentList_->size() : 0,
+                     statementList_ ? statementList_->size() : 0);
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
@@ -465,6 +461,6 @@ AstExpressionList *AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 
-AstStatement *AstFunctionDeclaration::compoundStatement() const {
-  return compoundStatement_;
+AstStatementList *AstFunctionDeclaration::statementList() const {
+  return statementList_;
 }

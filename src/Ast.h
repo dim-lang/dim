@@ -182,19 +182,19 @@ private:
 /* ternary conditional expression */
 class AstConditionalExpression : public AstExpression {
 public:
-  AstConditionalExpression(AstExpression *conditionExpression,
+  AstConditionalExpression(AstExpression *condExpression,
                            AstExpression *ifExpression,
                            AstExpression *elseExpression);
   virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *conditionExpression() const;
+  virtual AstExpression *condExpression() const;
   virtual AstExpression *ifExpression() const;
   virtual AstExpression *elseExpression() const;
 
 private:
-  AstExpression *conditionExpression_;
+  AstExpression *condExpression_;
   AstExpression *ifExpression_;
   AstExpression *elseExpression_;
 };
@@ -202,19 +202,20 @@ private:
 /* assignment expression */
 class AstAssignmentExpression : public AstExpression {
 public:
-  AstAssignmentExpression(AstExpression *left, int token, AstExpression *right);
+  AstAssignmentExpression(AstExpressionList *left, int token,
+                          AstExpressionList *right);
   virtual ~AstAssignmentExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *left() const;
+  virtual AstExpressionList *left() const;
   virtual int token() const;
-  virtual AstExpression *right() const;
+  virtual AstExpressionList *right() const;
 
 private:
-  AstExpression *left_;
+  AstExpressionList *left_;
   int token_;
-  AstExpression *right_;
+  AstExpressionList *right_;
 };
 
 /* expression statement */
@@ -353,17 +354,17 @@ class AstFunctionDeclaration : public AstDeclaration {
 public:
   AstFunctionDeclaration(const char *identifier,
                          AstExpressionList *argumentList,
-                         AstStatement *compoundStatement);
+                         AstStatementList *statementList);
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
   virtual AstExpressionList *argumentList() const;
-  virtual AstStatement *compoundStatement() const;
+  virtual AstStatementList *statementList() const;
 
 private:
   std::string identifier_;
   AstExpressionList *argumentList_;
-  AstStatement *compoundStatement_;
+  AstStatementList *statementList_;
 };
