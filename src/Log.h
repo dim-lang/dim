@@ -9,7 +9,7 @@
 class Log {
 public:
   static void initialize(const std::string &logPath = ".",
-                         const std::string &logName = "fastype",
+                         const std::string &logName = "coli",
                          bool debug = false);
 };
 

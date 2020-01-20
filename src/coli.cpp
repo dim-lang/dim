@@ -14,7 +14,7 @@
 namespace boost_po = boost::program_options;
 
 int main(int argc, char **argv) {
-  Log::initialize(".", "fastype");
+  Log::initialize(".", "coli");
   Option conf(argc, argv);
   FINFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 

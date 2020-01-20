@@ -26,7 +26,7 @@ func Hello() {
  */
 
 func testOnTokenLexer() {
-    print("This is going to be a very long string, which is used for testing fastype DSL language");
+    print("This is going to be a very long string, which is used for testing coli DSL language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.
 Maybe we need more troubleshooting while testing.");

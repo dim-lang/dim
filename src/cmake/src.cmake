@@ -17,5 +17,5 @@ set(FCORE
 )
 
 set(FT
-    fastype.cpp
+    coli.cpp
 )

@@ -2,7 +2,7 @@
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
-project(fastype VERSION 0.1.0 LANGUAGES CXX)
+project(coli VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
@@ -39,7 +39,7 @@ set(FLIB_DIR
 include_directories(${FINC})
 link_directories(${FLIB_DIR})
 
-add_executable(fastype-icu_ustdio icu_ustdio.cpp)
-target_include_directories(fastype-icu_ustdio PRIVATE ${FINC})
-target_link_libraries(fastype-icu_ustdio ${FLIB})
-set_target_properties(fastype-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(coli-icu_ustdio icu_ustdio.cpp)
+target_include_directories(coli-icu_ustdio PRIVATE ${FINC})
+target_link_libraries(coli-icu_ustdio ${FLIB})
+set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

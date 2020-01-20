@@ -2,7 +2,7 @@
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
-project(fastype VERSION 0.1.0 LANGUAGES CXX)
+project(coli VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
@@ -43,8 +43,8 @@ add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 include_directories(${FINC})
 link_directories(${LIB_DIR})
 
-add_executable(fastype-icu_ustdio icu_ustdio.cpp)
-target_include_directories(fastype-icu_ustdio PRIVATE ${FINC})
-target_link_libraries(fastype-icu_ustdio debug ${FLIBD})
-#target_link_libraries(fastype-icu_ustdio ${FLIB})
-set_target_properties(fastype-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(coli-icu_ustdio icu_ustdio.cpp)
+target_include_directories(coli-icu_ustdio PRIVATE ${FINC})
+target_link_libraries(coli-icu_ustdio debug ${FLIBD})
+#target_link_libraries(coli-icu_ustdio ${FLIB})
+set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
