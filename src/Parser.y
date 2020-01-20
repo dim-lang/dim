@@ -191,7 +191,7 @@ conditional_expression : logical_or_expression { $$ = $1; }
                        ;
 
 assignment_expression : conditional_expression { $$ = $1; }
-                      | unary_expression assignment_operator assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression assignment_operator conditional_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
                       ;
 
 assignment_operator : T_ASSIGN
@@ -207,9 +207,10 @@ assignment_operator : T_ASSIGN
                     | T_BIT_ZERORSHIT_ASSIGN
                     ;
 
+/* disbale expression with T_COMMA: x=1, y=2, z=3 */
 expression : /* nothing */ { $$ = nullptr; }
            | assignment_expression { $$ = $1; }
-           | expression T_COMMA assignment_expression
+           /*| expression T_COMMA assignment_expression*/
            ;
 
 constant_expression : conditional_expression { $$ = $1; }
