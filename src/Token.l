@@ -93,10 +93,10 @@ static std::string tokenFileToModule(const std::string &name);
 "*"                      return T_TOKEN(T_MUL);
 "/"                      return T_TOKEN(T_DIV);
 "%"                      return T_TOKEN(T_MOD);
-"!"                      return T_TOKEN(T_BIT_NOT);
+ /*"!"                      return T_TOKEN(T_BIT_PLACEHOLDER);*/
 "&"                      return T_TOKEN(T_BIT_AND);
 "|"                      return T_TOKEN(T_BIT_OR);
-"~"                      return T_TOKEN(T_BIT_COMPLEMENT);
+"~"                      return T_TOKEN(T_BIT_NOT);
 "^"                      return T_TOKEN(T_BIT_XOR);
 "<<"                     return T_TOKEN(T_BIT_LSHIFT);
 ">>"                     return T_TOKEN(T_BIT_RSHIFT);

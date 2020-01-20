@@ -35,7 +35,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %token <token> T_INTEGER_KEYWORD T_UNSIGNED_INTEGER_KEYWORD T_DOUBLE_KEYWORD
 
  /* union.token: operator, comparator, punctuation */
-%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_COMPLEMENT T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
+%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
@@ -48,7 +48,6 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %type <expression> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expression> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
 %type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
-%type <expression> assignment_operator unary_operator
 %type <expression> expression
 
  /* union.statement */
@@ -88,7 +87,7 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %left T_ADD T_SUB
 %left T_MUL T_DIV T_MOD
  /* other */
-%left T_LOGIC_NOT T_BIT_NOT T_BIT_COMPLEMENT
+%left T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
 %left T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET
 
@@ -117,17 +116,11 @@ argument_expression_list : assignment_expression { $$ = new AstExpressionList();
                          ;
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | unary_operator unary_expression { $$ = new AstUnaryExpression(T_ADD, $2); FINFO("unary_expression: {}", $$->toString()); }
+                 | T_ADD unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$->toString()); }
+                 | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$->toString()); }
+                 | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$->toString()); }
+                 | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$->toString()); }
                  ;
-
-unary_operator : T_MUL { $$ = new AstIntegerConstant($1); }
-               | T_DIV { $$ = new AstIntegerConstant($1); }
-               | T_MOD { $$ = new AstIntegerConstant($1); }
-               | T_ADD { $$ = new AstIntegerConstant($1); }
-               | T_SUB { $$ = new AstIntegerConstant($1); }
-               | T_BIT_NOT { $$ = new AstIntegerConstant($1); }
-               | T_BIT_COMPLEMENT { $$ = new AstIntegerConstant($1); }
-               ;
 
  /*
 cast_expression : unary_expression
@@ -188,35 +181,34 @@ conditional_expression : logical_or_expression { $$ = $1; }
                        | logical_or_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
- /*
-  * allow multiple assignment in one expression
+ /**
+  * 1. allow multiple assignment in an expression
   * x, y, z = 1, "hello", 2.3
+  * 2. allow multiple assignment as a chain
+  * x,y = u,v = 1,"hello"
   */
-assignment_expression : conditional_expression { $$ = $1; }
-                      /*| unary_expression assignment_operator conditional_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }*/
-                      | unary_expression_list assignment_operator conditional_expression_list { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+assignment_expression : conditional_expression_list { $$ = $1; }
+                      | unary_expression_list T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_MOD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_ADD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_SUB_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_LSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_RSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
+                      | unary_expression_list T_BIT_ZERORSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
                       ;
 
 unary_expression_list : unary_expression
-                      | unary_expression_list unary_expression
+                      | unary_expression_list T_COMMA unary_expression
                       ;
 
 conditional_expression_list : conditional_expression
-                            | conditional_expression_list conditional_expression
+                            | conditional_expression_list T_COMMA conditional_expression
                             ;
-
-assignment_operator : T_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_MUL_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_DIV_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_MOD_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_ADD_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_SUB_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_BIT_AND_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_BIT_OR_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_BIT_LSHIT_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_BIT_RSHIT_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    | T_BIT_ZERORSHIT_ASSIGN { $$ = new AstIntegerConstant($1); }
-                    ;
 
 expression : /* nothing */ { $$ = nullptr; }
            | assignment_expression { $$ = $1; }
