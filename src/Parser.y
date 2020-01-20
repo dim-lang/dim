@@ -90,9 +90,11 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 %left T_DOT
 %left T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET
 
-%start unit
+%start translation_unit
 
 %%
+
+/* part-1 expression */
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_INTEGER { $$ = new AstIntegerConstant(std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
@@ -108,8 +110,8 @@ postfix_expression : primary_expression { $$ = $1; FINFO("postfix_expression: {}
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : constant_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("argument_expression_list: {}", Ast::dump($$)); }
-                         | argument_expression_list T_COMMA constant_expression { $$->push_back($3); FINFO("argument_expression_list: {}", Ast::dump($$)); }
+argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("argument_expression_list: {}", Ast::dump($$)); }
+                         | argument_expression_list T_COMMA assignment_expression { $$->push_back($3); FINFO("argument_expression_list: {}", Ast::dump($$)); }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
@@ -188,10 +190,6 @@ conditional_expression : logical_or_expression { $$ = $1; }
                        | logical_or_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
- /* constant_expression is the expression entry */
-constant_expression : conditional_expression { $$ = $1; }
-                    ;
-
 assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression assignment_operator assignment_expression { $$ = new AstAssignmentExpression($1, T_ASSIGN, $3); }
                       ;
@@ -211,11 +209,13 @@ assignment_operator : T_ASSIGN
 
 expression : /* nothing */ { $$ = nullptr; }
            | assignment_expression { $$ = $1; }
+           | expression T_COMMA assignment_expression
            ;
 
-unit : declaration {}
-     | unit declaration {}
-     ;
+constant_expression : conditional_expression { $$ = $1; }
+                    ;
+
+/* part-2 declaration */
 
 declaration : function_declaration { $$ = $1; }
             | variable_declaration { $$ = $1; }
@@ -311,5 +311,9 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
                | T_RETURN T_SEMI { $$ = new AstReturnStatement(nullptr); }
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); }
                ;
+
+translation_unit : declaration {}
+                 | translation_unit declaration {}
+                 ;
 
 %%
