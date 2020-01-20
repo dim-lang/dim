@@ -1,4 +1,4 @@
-# Copyright 2019- <fastype.org>
+# Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
