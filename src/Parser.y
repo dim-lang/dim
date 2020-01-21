@@ -278,8 +278,17 @@ function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAR
                         }
                      ;
 
-function_argument_list : T_IDENTIFIER { $$ = new AstExpressionList(); $$->push_back($1); FINFO("function_argument_list: {}", Ast::dump($$)); }
-                       | function_argument_list T_COMMA T_IDENTIFIER { $$->push_back($3); FINFO("function_argument_list: {}", Ast::dump($$)); }
+function_argument_list : T_IDENTIFIER { 
+                            $$ = new AstExpressionList(); 
+                            $$->push_back(new AstIdentifierConstant($1)); 
+                            std::free($1); 
+                            FINFO("function_argument_list: {}", Ast::dump($$)); 
+                        }
+                       | function_argument_list T_COMMA T_IDENTIFIER { 
+                            $$->push_back(new AstIdentifierConstant($3)); 
+                            std::free($3);
+                            FINFO("function_argument_list: {}", Ast::dump($$)); 
+                        }
                        ;
 
  /* part-3 statement */
