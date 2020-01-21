@@ -172,7 +172,7 @@ AstConditionalExpression::AstConditionalExpression(
 
 AstConditionalExpression::~AstConditionalExpression() {
   delete condExpression_;
-  conditionExpression_ = nullptr;
+  condExpression_ = nullptr;
   delete ifExpression_;
   ifExpression_ = nullptr;
   delete elseExpression_;
