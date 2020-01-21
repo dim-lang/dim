@@ -9,6 +9,8 @@ set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
 
 set(FINC
+    .
+    ../src
     Threads::Threads
     /usr/local/opt/spdlog/include
     /usr/local/opt/fmt/include

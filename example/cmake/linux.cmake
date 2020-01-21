@@ -9,8 +9,9 @@ set(CMAKE_CXX_COMPILER g++)
 find_package(Threads REQUIRED)
 
 set(FINC
+    .
+    ../src
     Threads::Threads
-    ${CURSES_INCLUDE_DIR}
     /usr/include
     /usr/include/x86_64-linux-gnu
     ../src/spdlog/include
@@ -18,7 +19,6 @@ set(FINC
     )
 set(FLIB
     Threads::Threads
-    ${CURSES_LIBRARIES}
     boost_program_options
     boost_system
     icuuc
@@ -28,7 +28,6 @@ set(FLIB
     tcmalloc
     )
 set(FLIB_DIR
-    ${CURSES_LIBRARY_DIRS}
     /usr/lib
     /usr/lib/x86_64-linux-gnu
     )

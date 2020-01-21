@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Hash.h"
+#include "Log.h"
 #include "catch2/catch.hpp"
 
 TEST_CASE("Hash", "[Hash]") {
