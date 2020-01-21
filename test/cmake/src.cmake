@@ -9,6 +9,7 @@ set(FTEST
     RandomTest.cpp
     FileTest.cpp
     ApproximateTest.cpp
+    HashTest.cpp
     TokenTest.cpp
     ParserTest.cpp
 )

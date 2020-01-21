@@ -270,6 +270,12 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
+AstStatementList *AstCompoundStatement::releaseStatementList() {
+  AstStatementList *save = statementList_;
+  statementList_ = nullptr;
+  return save;
+}
+
 AstIfStatement::AstIfStatement(AstExpression *expression,
                                AstStatement *ifStatement,
                                AstStatement *elseStatement)

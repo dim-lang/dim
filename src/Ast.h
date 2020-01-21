@@ -241,6 +241,7 @@ public:
   virtual std::string toString() const;
 
   virtual AstStatementList *statementList() const;
+  virtual AstStatementList *releaseStatementList();
 
 private:
   AstStatementList *statementList_;

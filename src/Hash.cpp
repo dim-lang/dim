@@ -1,7 +1,7 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "Hasher.h"
+#include "Hash.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -49,7 +49,7 @@ static inline uint64_t fmix64(uint64_t k) {
 
 //-----------------------------------------------------------------------------
 
-uint32_t Hasher::hash32(const void *key, const int len, uint32_t seed) {
+uint32_t Hash::hash32(const void *key, const int len, uint32_t seed) {
   const uint8_t *data = (const uint8_t *)key;
   const int nblocks = len / 4;
 
@@ -105,7 +105,7 @@ uint32_t Hasher::hash32(const void *key, const int len, uint32_t seed) {
   return h1;
 }
 
-uint64_t Hasher::hash64(const void *key, const int len, uint64_t seed) {
+uint64_t Hash::hash64(const void *key, const int len, uint64_t seed) {
   const uint64_t m = BIG_CONSTANT(0xc6a4a7935bd1e995);
   const int r = 47;
 

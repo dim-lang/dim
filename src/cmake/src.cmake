@@ -7,7 +7,7 @@ set(FCORE
     Clock.cpp
     DateTime.cpp
     File.cpp
-    Hasher.cpp
+    Hash.cpp
     Random.cpp
     Approximate.cpp
     Token.yy.cpp
