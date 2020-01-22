@@ -83,9 +83,18 @@ static std::string tokenFileToModule(const std::string &name);
 "and"                    return T_LOGIC_AND;
 "or"                     return T_LOGIC_OR;
 "not"                    return T_LOGIC_NOT;
-"int"                    return T_INTEGER_KEYWORD;
-"uint"                   return T_UNSIGNED_INTEGER_KEYWORD;
-"double"                 return T_DOUBLE_KEYWORD;
+"ubyte"                  return T_UBYTE;
+"byte"                   return T_BYTE;
+"short"                  return T_SHORT;
+"ushort"                 return T_USHORT;
+"int"                    return T_INT;
+"uint"                   return T_UINT;
+"long"                   return T_LONG;
+"ulong"                  return T_ULONG;
+"float"                  return T_FLOAT;
+"double"                 return T_DOUBLE;
+"string"                 return T_STRING;
+"boolean"                return T_BOOLEAN;
 
  /* punctuators */
 "+"                      return T_TOKEN(T_ADD);
@@ -132,9 +141,17 @@ static std::string tokenFileToModule(const std::string &name);
 "."                      return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?     T_SAVE_TOKEN; return T_DOUBLE;
-[0-9]+{EXP}?             T_SAVE_TOKEN; return T_INTEGER;
-\"(\\.|[^\\"])*\"        T_SAVE_TOKEN; return T_STRING;
+[0-9]+\.[0-9]+{EXP}?[Ff]? T_SAVE_TOKEN; return T_FLOAT_CONSTANT;
+[0-9]+\.[0-9]+{EXP}?[Dd]  T_SAVE_TOKEN; return T_DOUBLE_CONSTANT;
+[0-9]+{EXP}?[Uu][Bb]      T_SAVE_TOKEN; return T_UBYTE_CONSTANT;
+[0-9]+{EXP}?[Bb]          T_SAVE_TOKEN; return T_BYTE_CONSTANT;
+[0-9]+{EXP}?[Ss]          T_SAVE_TOKEN; return T_SHORT_CONSTANT;
+[0-9]+{EXP}?[Uu][Ss]      T_SAVE_TOKEN; return T_USHORT_CONSTANT;
+[0-9]+{EXP}?              T_SAVE_TOKEN; return T_INT_CONSTANT;
+[0-9]+{EXP}?[Uu]          T_SAVE_TOKEN; return T_UINT_CONSTANT;
+[0-9]+{EXP}?[Ll]          T_SAVE_TOKEN; return T_LONG_CONSTANT;
+[0-9]+{EXP}?[Uu][Ll]      T_SAVE_TOKEN; return T_ULONG_CONSTANT;
+\"(\\.|[^\\"])*\"         T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*   T_SAVE_TOKEN; return T_IDENTIFIER;

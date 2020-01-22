@@ -11,27 +11,36 @@
 
 /* Ast::type */
 
-#define FA_IDENTIFIER_CONSTANT 101
-#define FA_INTEGER_CONSTANT 102
-#define FA_DOUBLE_CONSTANT 103
-#define FA_STRING_CONSTANT 104
-#define FA_FUNCTION_CALL_EXPRESSION 105
-#define FA_UNARY_OPERATION_EXPRESSION 106
-#define FA_BINARY_OPERATION_EXPRESSION 107
-#define FA_CONDITIONAL_EXPRESSION 108
+#define A_IDENTIFIER_CONSTANT 101
+#define A_FLOAT_CONSTANT 102
+#define A_DOUBLE_CONSTANT 103
+#define A_STRING_CONSTANT 104
+#define A_FUNCTION_CALL_EXPRESSION 105
+#define A_UNARY_OPERATION_EXPRESSION 106
+#define A_BINARY_OPERATION_EXPRESSION 107
+#define A_CONDITIONAL_EXPRESSION 108
+#define A_BYTE_CONSTANT 109
+#define A_UBYTE_CONSTANT 110
+#define A_SHORT_CONSTANT 111
+#define A_USHORT_CONSTANT 112
+#define A_INT_CONSTANT 113
+#define A_UINT_CONSTANT 114
+#define A_LONG_CONSTANT 115
+#define A_ULONG_CONSTANT 116
+#define A_BOOLEAN_CONSTANT 117
 
-#define FA_EXPRESSION_STATEMENT 201
-#define FA_COMPOUND_STATEMENT 202
-#define FA_IF_STATEMENT 203
-#define FA_WHILE_STATEMENT 204
-#define FA_FOR_STATEMENT 205
-#define FA_CONTINUE_STATEMENT 206
-#define FA_BREAK_STATEMENT 207
-#define FA_RETURN_STATEMENT 207
+#define A_EXPRESSION_STATEMENT 201
+#define A_COMPOUND_STATEMENT 202
+#define A_IF_STATEMENT 203
+#define A_WHILE_STATEMENT 204
+#define A_FOR_STATEMENT 205
+#define A_CONTINUE_STATEMENT 206
+#define A_BREAK_STATEMENT 207
+#define A_RETURN_STATEMENT 207
 
-#define FA_VARIABLE_DECLARATIONS 301
-#define FA_VARIABLE_DECLARATION 302
-#define FA_FUNCTION_DECLARATION 303
+#define A_VARIABLE_DECLARATIONS 301
+#define A_VARIABLE_DECLARATION 302
+#define A_FUNCTION_DECLARATION 303
 
 class AstExpression;
 class AstStatement;
@@ -72,7 +81,7 @@ public:
   virtual std::string toString() const = 0;
 };
 
-/* constant expression - FT_IDENTIFIER */
+/* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {
 public:
   AstIdentifierConstant(const char *value);
@@ -86,11 +95,95 @@ private:
   std::string value_;
 };
 
-/* constant expression - FT_INTEGER */
-class AstIntegerConstant : public AstExpression {
+/* constant expression - T_BYTE_CONSTANT */
+class AstByteConstant : public AstExpression {
 public:
-  AstIntegerConstant(const int64_t &value);
-  virtual ~AstIntegerConstant();
+  AstByteConstant(const int8_t &value);
+  virtual ~AstByteConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const int8_t &value() const;
+
+private:
+  int8_t value_;
+};
+
+/* constant expression - T_UBYTE_CONSTANT */
+class AstUByteConstant : public AstExpression {
+public:
+  AstUByteConstant(const uint8_t &value);
+  virtual ~AstUByteConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const uint8_t &value() const;
+
+private:
+  uint8_t value_;
+};
+
+/* constant expression - T_SHORT_CONSTANT */
+class AstShortConstant : public AstExpression {
+public:
+  AstShortConstant(const int16_t &value);
+  virtual ~AstShortConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const int16_t &value() const;
+
+private:
+  int16_t value_;
+};
+
+/* constant expression - T_USHORT_CONSTANT */
+class AstUShortConstant : public AstExpression {
+public:
+  AstUShortConstant(const uint16_t &value);
+  virtual ~AstUShortConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const uint16_t &value() const;
+
+private:
+  uint16_t value_;
+};
+
+/* constant expression - T_INT_CONSTANT */
+class AstIntConstant : public AstExpression {
+public:
+  AstIntConstant(const int32_t &value);
+  virtual ~AstIntConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const int32_t &value() const;
+
+private:
+  int32_t value_;
+};
+
+/* constant expression - T_UINT_CONSTANT */
+class AstUIntConstant : public AstExpression {
+public:
+  AstUIntConstant(const uint32_t &value);
+  virtual ~AstUIntConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const uint32_t &value() const;
+
+private:
+  uint32_t value_;
+};
+
+/* constant expression - T_LONG_CONSTANT */
+class AstLongConstant : public AstExpression {
+public:
+  AstLongConstant(const int64_t &value);
+  virtual ~AstLongConstant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -100,7 +193,35 @@ private:
   int64_t value_;
 };
 
-/* constant expression - FT_DOUBLE */
+/* constant expression - T_ULONG_CONSTANT */
+class AstULongConstant : public AstExpression {
+public:
+  AstULongConstant(const uint64_t &value);
+  virtual ~AstULongConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const uint64_t &value() const;
+
+private:
+  uint64_t value_;
+};
+
+/* constant expression - T_FLOAT_CONSTANT */
+class AstFloatConstant : public AstExpression {
+public:
+  AstFloatConstant(const float &value);
+  virtual ~AstFloatConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const float &value() const;
+
+private:
+  float value_;
+};
+
+/* constant expression - T_DOUBLE_CONSTANT */
 class AstDoubleConstant : public AstExpression {
 public:
   AstDoubleConstant(const double &value);
@@ -114,7 +235,7 @@ private:
   double value_;
 };
 
-/* constant expression - FT_STRING */
+/* constant expression - T_STRING_CONSTANT */
 class AstStringConstant : public AstExpression {
 public:
   AstStringConstant(const char *value);
@@ -126,6 +247,20 @@ public:
 
 private:
   std::string value_;
+};
+
+/* constant expression - T_TRUE T_FALSE */
+class AstBooleanConstant : public AstExpression {
+public:
+  AstBooleanConstant(const bool &value);
+  virtual ~AstBooleanConstant();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const bool &value() const;
+
+private:
+  bool value_;
 };
 
 /* function call expression */
