@@ -15,7 +15,7 @@ static void parserGo(const char *module) {
   }
   FINFO("parserGo {} starting...", module);
   REQUIRE(yyparse() == 0);
-  FINFO("parserGo {} ending with {} ...", module);
+  FINFO("parserGo {} ending ...", module);
 }
 
 TEST_CASE("Parser", "[Parser]") {
