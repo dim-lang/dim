@@ -2,7 +2,7 @@ let x = 1 + 6 / (-3) * (4 + 3 % -2);
 let y = 0;
 let z = x + y;
 
-func Hello() {
+let Hello() = {
     a = 1;
     b = 2;
     a = a + b;
@@ -25,7 +25,8 @@ func Hello() {
  * integer: 10243+e31
  */
 
-func testOnTokenLexer() {
+let ok() = return 0;
+let testOnTokenLexer() = {
     print("This is going to be a very long string, which is used for testing coli DSL language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.

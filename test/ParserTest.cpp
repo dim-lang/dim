@@ -14,15 +14,12 @@ static void parserGo(const char *module) {
     return;
   }
   FINFO("parserGo {} starting...", module);
-  int r = yyparse();
-  FINFO("parserGo {} ending with {} ...", module, r);
+  REQUIRE(yyparse() == 0);
+  FINFO("parserGo {} ending with {} ...", module);
 }
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
-#ifdef YYDEBUG
-    yydebug = 1;
-#endif
     parserGo("test.DslTest1");
     parserGo("test.DslTest2");
   }

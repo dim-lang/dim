@@ -11,7 +11,6 @@ class TokenBuffer;
 
 extern FILE *yyin;
 extern int yylineno;
-extern int yydebug;
 
 extern int yylex(void);
 extern int yyparse(void);

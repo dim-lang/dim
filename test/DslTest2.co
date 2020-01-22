@@ -7,7 +7,7 @@
     ;
 }
 
-func World(x, y) {
+let World(x, y) = {
     x = 1;
     y = 2;
     z = x + y;
