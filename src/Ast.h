@@ -103,6 +103,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const int8_t &value);
   virtual const int8_t &value() const;
 
 private:
@@ -117,6 +118,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const uint8_t &value);
   virtual const uint8_t &value() const;
 
 private:
@@ -131,6 +133,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const int16_t &value);
   virtual const int16_t &value() const;
 
 private:
@@ -145,6 +148,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const uint16_t &value);
   virtual const uint16_t &value() const;
 
 private:
@@ -159,6 +163,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const int32_t &value);
   virtual const int32_t &value() const;
 
 private:
@@ -173,6 +178,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const uint32_t &value);
   virtual const uint32_t &value() const;
 
 private:
@@ -187,6 +193,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const int64_t &value);
   virtual const int64_t &value() const;
 
 private:
@@ -201,6 +208,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const uint64_t &value);
   virtual const uint64_t &value() const;
 
 private:
@@ -215,6 +223,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const float &value);
   virtual const float &value() const;
 
 private:
@@ -229,6 +238,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const double &value);
   virtual const double &value() const;
 
 private:
@@ -243,6 +253,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const std::string &value);
   virtual const std::string &value() const;
 
 private:
@@ -257,6 +268,7 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
+  virtual void reset(const bool &value);
   virtual const bool &value() const;
 
 private:

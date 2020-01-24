@@ -63,6 +63,8 @@ std::string AstI8Constant::toString() const {
   return fmt::format("[ @AstI8Constant value_:{} ]", (int)value_);
 }
 
+void AstI8Constant::reset(const int8_t &value) { value_ = value; }
+
 const int8_t &AstI8Constant::value() const { return value_; }
 
 AstUI8Constant::AstUI8Constant(const uint8_t &value) : value_(value) {}
@@ -74,6 +76,8 @@ int AstUI8Constant::type() const { return A_UI8_CONSTANT; }
 std::string AstUI8Constant::toString() const {
   return fmt::format("[ @AstUI8Constant value_:{} ]", (int)value_);
 }
+
+void AstUI8Constant::reset(const uint8_t &value) { value_ = value; }
 
 const uint8_t &AstUI8Constant::value() const { return value_; }
 
@@ -87,6 +91,8 @@ std::string AstI16Constant::toString() const {
   return fmt::format("[ @AstI16Constant value_:{} ]", value_);
 }
 
+void AstI16Constant::reset(const int16_t &value) { value_ = value; }
+
 const int16_t &AstI16Constant::value() const { return value_; }
 
 AstUI16Constant::AstUI16Constant(const uint16_t &value) : value_(value) {}
@@ -98,6 +104,8 @@ int AstUI16Constant::type() const { return A_UI16_CONSTANT; }
 std::string AstUI16Constant::toString() const {
   return fmt::format("[ @AstUI16Constant value_:{} ]", value_);
 }
+
+void AstUI16Constant::reset(const uint16_t &value) { value_ = value; }
 
 const uint16_t &AstUI16Constant::value() const { return value_; }
 
@@ -111,6 +119,8 @@ std::string AstI32Constant::toString() const {
   return fmt::format("[ @AstI32Constant value_:{} ]", value_);
 }
 
+void AstI32Constant::reset(const int32_t &value) { value_ = value; }
+
 const int32_t &AstI32Constant::value() const { return value_; }
 
 AstUI32Constant::AstUI32Constant(const uint32_t &value) : value_(value) {}
@@ -122,6 +132,8 @@ int AstUI32Constant::type() const { return A_UI32_CONSTANT; }
 std::string AstUI32Constant::toString() const {
   return fmt::format("[ @AstUI32Constant value_:{} ]", value_);
 }
+
+void AstUI32Constant::reset(const uint32_t &value) { value_ = value; }
 
 const uint32_t &AstUI32Constant::value() const { return value_; }
 
@@ -135,6 +147,8 @@ std::string AstI64Constant::toString() const {
   return fmt::format("[ @AstI64Constant value_:{} ]", value_);
 }
 
+void AstI64Constant::reset(const int64_t &value) { value_ = value; }
+
 const int64_t &AstI64Constant::value() const { return value_; }
 
 AstUI64Constant::AstUI64Constant(const uint64_t &value) : value_(value) {}
@@ -146,6 +160,8 @@ int AstUI64Constant::type() const { return A_UI64_CONSTANT; }
 std::string AstUI64Constant::toString() const {
   return fmt::format("[ @AstUI64Constant value_:{} ]", value_);
 }
+
+void AstUI64Constant::reset(const uint64_t &value) { value_ = value; }
 
 const uint64_t &AstUI64Constant::value() const { return value_; }
 
@@ -159,6 +175,8 @@ std::string AstF32Constant::toString() const {
   return fmt::format("[ @AstF32Constant value_:{} ]", value_);
 }
 
+void AstF32Constant::reset(const float &value) { value_ = value; }
+
 const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value) : value_(value) {}
@@ -170,6 +188,8 @@ int AstF64Constant::type() const { return A_F64_CONSTANT; }
 std::string AstF64Constant::toString() const {
   return fmt::format("[ @AstF64Constant value_:{} ]", value_);
 }
+
+void AstF64Constant::reset(const double &value) { value_ = value; }
 
 const double &AstF64Constant::value() const { return value_; }
 
@@ -183,6 +203,8 @@ std::string AstStringConstant::toString() const {
   return fmt::format("[ @AstStringConstant value_:{} ]", value_);
 }
 
+void AstStringConstant::reset(const std::string &value) { value_ = value; }
+
 const std::string &AstStringConstant::value() const { return value_; }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value) : value_(value) {}
@@ -194,6 +216,8 @@ int AstBooleanConstant::type() const { return A_BOOLEAN_CONSTANT; }
 std::string AstBooleanConstant::toString() const {
   return fmt::format("[ @AstBooleanConstant value_:{} ]", value_);
 }
+
+void AstBooleanConstant::reset(const bool &value) { value_ = value; }
 
 const bool &AstBooleanConstant::value() const { return value_; }
 

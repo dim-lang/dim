@@ -13,13 +13,13 @@
 #include <unordered_set>
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
-static std::unordered_set<int> I32egerConstants = {
+static std::unordered_set<int> IntConstants = {
     A_I8_CONSTANT,  A_UI8_CONSTANT,
     A_I16_CONSTANT, A_UI16_CONSTANT,
     A_I32_CONSTANT,   A_UI32_CONSTANT,
     A_I64_CONSTANT,  A_UI64_CONSTANT,
 };
-static std::unordered_set<int> F64Constants = {
+static std::unordered_set<int> FloatConstants = {
     A_F32_CONSTANT,  A_F64_CONSTANT,
 };
 static std::unordered_set<int> NumberConstants = {
@@ -29,6 +29,20 @@ static std::unordered_set<int> NumberConstants = {
     A_I64_CONSTANT,  A_UI64_CONSTANT,
     A_F32_CONSTANT,  A_F64_CONSTANT,
 };
+using I8P = AstI8Constant*;
+using UI8P = AstUI8Constant*;
+using I16P = AstI16Constant*;
+using UI16P = AstUI16Constant*;
+using I32P = AstI32Constant*;
+using UI32P = AstUI32Constant*;
+using I64P = AstI64Constant*;
+using UI64P = AstUI64Constant*;
+using F32P = AstF32Constant*;
+using F64P = AstF64Constant*;
+using STRP = AstStringConstant*;
+using BP = AstBooleanConstant*;
+
+#define DC(x, y) dynamic_cast<x>(y)
 
 %}
 
@@ -145,16 +159,16 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_ADD unary_expression {
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_I8_CONSTANT: { $$ = new AstI8Constant(dynamic_cast<AstI8Constant*>($2)->value()); delete $2; break; }
-                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(dynamic_cast<AstUI8Constant*>($2)->value()); delete $2; break; }
-                            case A_I16_CONSTANT: { $$ = new AstI16Constant(dynamic_cast<AstI16Constant*>($2)->value()); delete $2; break; }
-                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(dynamic_cast<AstUI16Constant*>($2)->value()); delete $2; break; }
-                            case A_I32_CONSTANT: { $$ = new AstI32Constant(dynamic_cast<AstI32Constant*>($2)->value()); delete $2; break; }
-                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(dynamic_cast<AstUI32Constant*>($2)->value()); delete $2; break; }
-                            case A_I64_CONSTANT: { $$ = new AstI64Constant(dynamic_cast<AstI64Constant*>($2)->value()); delete $2; break; }
-                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(dynamic_cast<AstUI64Constant*>($2)->value()); delete $2; break; }
-                            case A_F32_CONSTANT: { $$ = new AstF32Constant(dynamic_cast<AstF32Constant*>($2)->value()); delete $2; break; }
-                            case A_F64_CONSTANT: { $$ = new AstF64Constant(dynamic_cast<AstF64Constant*>($2)->value()); delete $2; break; }
+                            case A_I8_CONSTANT: { $$ = $2; break; }
+                            case A_UI8_CONSTANT: { $$ = $2; break; }
+                            case A_I16_CONSTANT: { $$ = $2; break; }
+                            case A_UI16_CONSTANT: { $$ = $2; break; }
+                            case A_I32_CONSTANT: { $$ = $2; break; }
+                            case A_UI32_CONSTANT: { $$ = $2; break; }
+                            case A_I64_CONSTANT: { $$ = $2; break; }
+                            case A_UI64_CONSTANT: { $$ = $2; break; }
+                            case A_F32_CONSTANT: { $$ = $2; break; }
+                            case A_F64_CONSTANT: { $$ = $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
@@ -162,16 +176,16 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_SUB unary_expression { 
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_I8_CONSTANT: { $$ = new AstI8Constant(-(dynamic_cast<AstI8Constant*>($2)->value())); delete $2; break; }
-                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(-(dynamic_cast<AstUI8Constant*>($2)->value())); delete $2; break; }
-                            case A_I16_CONSTANT: { $$ = new AstI16Constant(-(dynamic_cast<AstI16Constant*>($2)->value())); delete $2; break; }
-                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(-(dynamic_cast<AstUI16Constant*>($2)->value())); delete $2; break; }
-                            case A_I32_CONSTANT: { $$ = new AstI32Constant(-(dynamic_cast<AstI32Constant*>($2)->value())); delete $2; break; }
-                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(-(dynamic_cast<AstUI32Constant*>($2)->value())); delete $2; break; }
-                            case A_I64_CONSTANT: { $$ = new AstI64Constant(-(dynamic_cast<AstI64Constant*>($2)->value())); delete $2; break; }
-                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(-(dynamic_cast<AstUI64Constant*>($2)->value())); delete $2; break; }
-                            case A_F32_CONSTANT: { $$ = new AstF32Constant(-(dynamic_cast<AstF32Constant*>($2)->value())); delete $2; break; }
-                            case A_F64_CONSTANT: { $$ = new AstF64Constant(-(dynamic_cast<AstF64Constant*>($2)->value())); delete $2; break; }
+                            case A_I8_CONSTANT: { DC(I8P, $2)->reset(-(DC(I8P, $2)->value())); $$ = $2; break; }
+                            case A_UI8_CONSTANT: { DC(UI8P, $2)->reset(-(DC(UI8P, $2)->value())); $$ = $2; break; }
+                            case A_I16_CONSTANT: { DC(I16P, $2)->reset(-(DC(I16P, $2)->value())); $$ = $2; break; }
+                            case A_UI16_CONSTANT: { DC(UI16P, $2)->reset(-(DC(UI16P, $2)->value())); $$ = $2; break; }
+                            case A_I32_CONSTANT: { DC(I32P, $2)->reset(-(DC(I32P, $2)->value())); $$ = $2; break; }
+                            case A_UI32_CONSTANT: { DC(UI32P, $2)->reset(-(DC(UI32P, $2)->value())); $$ = $2; break; }
+                            case A_I64_CONSTANT: { DC(I64P, $2)->reset(-(DC(I64P, $2)->value())); $$ = $2; break; }
+                            case A_UI64_CONSTANT: { DC(UI64P, $2)->reset(-(DC(UI64P, $2)->value())); $$ = $2; break; }
+                            case A_F32_CONSTANT: { DC(F32P, $2)->reset(-(DC(F32P, $2)->value())); $$ = $2; break; }
+                            case A_F64_CONSTANT: { DC(F64P, $2)->reset(-(DC(F64P, $2)->value())); $$ = $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
@@ -179,14 +193,14 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_BIT_NOT unary_expression { 
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_I8_CONSTANT: { $$ = new AstI8Constant(~(dynamic_cast<AstI8Constant*>($2)->value())); delete $2; break; }
-                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(~(dynamic_cast<AstUI8Constant*>($2)->value())); delete $2; break; }
-                            case A_I16_CONSTANT: { $$ = new AstI16Constant(~(dynamic_cast<AstI16Constant*>($2)->value())); delete $2; break; }
-                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(~(dynamic_cast<AstUI16Constant*>($2)->value())); delete $2; break; }
-                            case A_I32_CONSTANT: { $$ = new AstI32Constant(~(dynamic_cast<AstI32Constant*>($2)->value())); delete $2; break; }
-                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(~(dynamic_cast<AstUI32Constant*>($2)->value())); delete $2; break; }
-                            case A_I64_CONSTANT: { $$ = new AstI64Constant(~(dynamic_cast<AstI64Constant*>($2)->value())); delete $2; break; }
-                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(~(dynamic_cast<AstUI64Constant*>($2)->value())); delete $2; break; }
+                            case A_I8_CONSTANT: { DC(I8P, $2)->reset(~(DC(I8P, $2)->value())); $$ = $2; break; }
+                            case A_UI8_CONSTANT: { DC(UI8P, $2)->reset(~(DC(UI8P, $2)->value())); $$ = $2; break; }
+                            case A_I16_CONSTANT: { DC(I16P, $2)->reset(~(DC(I16P, $2)->value())); $$ = $2; break; }
+                            case A_UI16_CONSTANT: { DC(UI16P, $2)->reset(~(DC(UI16P, $2)->value())); $$ = $2; break; }
+                            case A_I32_CONSTANT: { DC(I32P, $2)->reset(~(DC(I32P, $2)->value())); $$ = $2; break; }
+                            case A_UI32_CONSTANT: { DC(UI32P, $2)->reset(~(DC(UI32P, $2)->value())); $$ = $2; break; }
+                            case A_I64_CONSTANT: { DC(I64P, $2)->reset(~(DC(I64P, $2)->value())); $$ = $2; break; }
+                            case A_UI64_CONSTANT: { DC(UI64P, $2)->reset(~(DC(UI64P, $2)->value())); $$ = $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
@@ -194,7 +208,7 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_LOGIC_NOT unary_expression { 
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_BOOLEAN_CONSTANT: { $$ = new AstBooleanConstant(!dynamic_cast<AstBooleanConstant*>($2)->value()); delete $2; break; }
+                            case A_BOOLEAN_CONSTANT: { DC(BP, $2)->reset(!(DC(BP, $2)->value())); $$ = $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$->toString()); 
