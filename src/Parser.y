@@ -29,6 +29,18 @@ static std::unordered_set<int> NumberConstants = {
     A_I64_CONSTANT,  A_UI64_CONSTANT,
     A_F32_CONSTANT,  A_F64_CONSTANT,
 };
+static std::unordered_map<int, int> ConversionRank = {
+    {A_F64_CONSTANT, 1},
+    {A_F32_CONSTANT, 2},
+    {A_UI64_CONSTANT, 3},
+    {A_I64_CONSTANT, 4},
+    {A_UI32_CONSTANT, 5},
+    {A_I32_CONSTANT, 6},
+    {A_UI16_CONSTANT, 7},
+    {A_I16_CONSTANT, 8},
+    {A_UI8_CONSTANT, 9},
+    {A_I8_CONSTANT, 10},
+};
 using I8P = AstI8Constant*;
 using UI8P = AstUI8Constant*;
 using I16P = AstI16Constant*;
@@ -42,6 +54,7 @@ using F64P = AstF64Constant*;
 using STRP = AstStringConstant*;
 using BP = AstBooleanConstant*;
 
+#define HAS(x, y) ((x).find(y) != (x).end())
 #define DC(x, y) dynamic_cast<x>(y)
 
 %}
@@ -157,7 +170,6 @@ argument_expression_list : conditional_expression { $$ = new AstExpressionList()
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
                  | T_ADD unary_expression {
-                        /* memory allocation optimization */
                         switch ($2->type()) {
                             case A_I8_CONSTANT: { $$ = $2; break; }
                             case A_UI8_CONSTANT: { $$ = $2; break; }
@@ -174,7 +186,7 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
                     }
                  | T_SUB unary_expression { 
-                        /* memory allocation optimization */
+                         /*memory allocation optimization */
                         switch ($2->type()) {
                             case A_I8_CONSTANT: { DC(I8P, $2)->reset(-(DC(I8P, $2)->value())); $$ = $2; break; }
                             case A_UI8_CONSTANT: { DC(UI8P, $2)->reset(-(DC(UI8P, $2)->value())); $$ = $2; break; }
@@ -204,8 +216,8 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
-                 }
-                 | T_LOGIC_NOT unary_expression { 
+                    }
+                 | T_LOGIC_NOT unary_expression {
                         /* memory allocation optimization */
                         switch ($2->type()) {
                             case A_BOOLEAN_CONSTANT: { DC(BP, $2)->reset(!(DC(BP, $2)->value())); $$ = $2; break; }
@@ -255,7 +267,7 @@ bit_and_expression : equality_expression { $$ = $1; FINFO("bit_and_expression: {
                    ;
 
 bit_xor_expression : bit_and_expression { $$ = $1; FINFO("bit_xor_expression: {}", $$ ? $$->toString() : "null"); }
-                   | bit_xor_expression T_BIT_XOR bit_and_expression { $$ = new AstBinaryExpression($1, $2, $3); FINFO("bit_xor_expression: {}", $$->toString()); }
+                   | bit_xor_expression T_BIT_XOR bit_and_expression { $$ = new AstBinaryExpression($1, $2, $3); break; FINFO("bit_xor_expression: {}", $$->toString()); }
                    ;
 
 bit_or_expression : bit_xor_expression { $$ = $1; FINFO("bit_or_expression: {}", $$ ? $$->toString() : "null"); }
