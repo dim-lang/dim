@@ -16,9 +16,10 @@ static void parseToken(const char *module) {
   FINFO("parseToken {} starting...", module);
   int t;
   while ((t = yylex()) != 0) {
-    if (t == T_IDENTIFIER || t == T_INT || t == T_BYTE || t == T_UBYTE ||
-        t == T_SHORT || t == T_USHORT || t == T_UINT || t == T_LONG ||
-        t == T_ULONG || t == T_FLOAT || t == T_DOUBLE || t == T_STRING) {
+    if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
+        t == T_UI8_CONSTANT || t == T_I16_CONSTANT || t == T_UI16_CONSTANT ||
+        t == T_UI32_CONSTANT || t == T_I64_CONSTANT || t == T_UI64_CONSTANT ||
+        t == T_F32_CONSTANT || t == T_F64_CONSTANT || t == T_STRING) {
       FINFO("token:{}, literal:{}", t, yylval.literal);
     } else {
       FINFO("token:{}", t);

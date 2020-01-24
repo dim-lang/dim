@@ -57,7 +57,7 @@ AstI8Constant::AstI8Constant(const int8_t &value) : value_(value) {}
 
 AstI8Constant::~AstI8Constant() {}
 
-int AstI8Constant::type() const { return A_BYTE_CONSTANT; }
+int AstI8Constant::type() const { return A_I8_CONSTANT; }
 
 std::string AstI8Constant::toString() const {
   return fmt::format("[ @AstI8Constant value_:{} ]", (int)value_);
@@ -69,7 +69,7 @@ AstUI8Constant::AstUI8Constant(const uint8_t &value) : value_(value) {}
 
 AstUI8Constant::~AstUI8Constant() {}
 
-int AstUI8Constant::type() const { return A_UBYTE_CONSTANT; }
+int AstUI8Constant::type() const { return A_UI8_CONSTANT; }
 
 std::string AstUI8Constant::toString() const {
   return fmt::format("[ @AstUI8Constant value_:{} ]", (int)value_);
@@ -81,7 +81,7 @@ AstI16Constant::AstI16Constant(const int16_t &value) : value_(value) {}
 
 AstI16Constant::~AstI16Constant() {}
 
-int AstI16Constant::type() const { return A_SHORT_CONSTANT; }
+int AstI16Constant::type() const { return A_I16_CONSTANT; }
 
 std::string AstI16Constant::toString() const {
   return fmt::format("[ @AstI16Constant value_:{} ]", value_);
@@ -93,7 +93,7 @@ AstUI16Constant::AstUI16Constant(const uint16_t &value) : value_(value) {}
 
 AstUI16Constant::~AstUI16Constant() {}
 
-int AstUI16Constant::type() const { return A_USHORT_CONSTANT; }
+int AstUI16Constant::type() const { return A_UI16_CONSTANT; }
 
 std::string AstUI16Constant::toString() const {
   return fmt::format("[ @AstUI16Constant value_:{} ]", value_);
@@ -105,7 +105,7 @@ AstI32Constant::AstI32Constant(const int32_t &value) : value_(value) {}
 
 AstI32Constant::~AstI32Constant() {}
 
-int AstI32Constant::type() const { return A_INT_CONSTANT; }
+int AstI32Constant::type() const { return A_I32_CONSTANT; }
 
 std::string AstI32Constant::toString() const {
   return fmt::format("[ @AstI32Constant value_:{} ]", value_);
@@ -117,7 +117,7 @@ AstUI32Constant::AstUI32Constant(const uint32_t &value) : value_(value) {}
 
 AstUI32Constant::~AstUI32Constant() {}
 
-int AstUI32Constant::type() const { return A_UINT_CONSTANT; }
+int AstUI32Constant::type() const { return A_UI32_CONSTANT; }
 
 std::string AstUI32Constant::toString() const {
   return fmt::format("[ @AstUI32Constant value_:{} ]", value_);
@@ -129,7 +129,7 @@ AstI64Constant::AstI64Constant(const int64_t &value) : value_(value) {}
 
 AstI64Constant::~AstI64Constant() {}
 
-int AstI64Constant::type() const { return A_LONG_CONSTANT; }
+int AstI64Constant::type() const { return A_I64_CONSTANT; }
 
 std::string AstI64Constant::toString() const {
   return fmt::format("[ @AstI64Constant value_:{} ]", value_);
@@ -141,7 +141,7 @@ AstUI64Constant::AstUI64Constant(const uint64_t &value) : value_(value) {}
 
 AstUI64Constant::~AstUI64Constant() {}
 
-int AstUI64Constant::type() const { return A_ULONG_CONSTANT; }
+int AstUI64Constant::type() const { return A_UI64_CONSTANT; }
 
 std::string AstUI64Constant::toString() const {
   return fmt::format("[ @AstUI64Constant value_:{} ]", value_);
@@ -153,7 +153,7 @@ AstF32Constant::AstF32Constant(const float &value) : value_(value) {}
 
 AstF32Constant::~AstF32Constant() {}
 
-int AstF32Constant::type() const { return A_FLOAT_CONSTANT; }
+int AstF32Constant::type() const { return A_F32_CONSTANT; }
 
 std::string AstF32Constant::toString() const {
   return fmt::format("[ @AstF32Constant value_:{} ]", value_);
@@ -165,7 +165,7 @@ AstF64Constant::AstF64Constant(const double &value) : value_(value) {}
 
 AstF64Constant::~AstF64Constant() {}
 
-int AstF64Constant::type() const { return A_DOUBLE_CONSTANT; }
+int AstF64Constant::type() const { return A_F64_CONSTANT; }
 
 std::string AstF64Constant::toString() const {
   return fmt::format("[ @AstF64Constant value_:{} ]", value_);
