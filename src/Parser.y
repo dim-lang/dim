@@ -13,21 +13,21 @@
 #include <unordered_set>
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
-static std::unordered_set<int> IntegerConstants = {
-    A_BYTE_CONSTANT,  A_UBYTE_CONSTANT,
-    A_SHORT_CONSTANT, A_USHORT_CONSTANT,
-    A_INT_CONSTANT,   A_UINT_CONSTANT,
-    A_LONG_CONSTANT,  A_ULONG_CONSTANT,
+static std::unordered_set<int> I32egerConstants = {
+    A_I8_CONSTANT,  A_UI8_CONSTANT,
+    A_I16_CONSTANT, A_UI16_CONSTANT,
+    A_I32_CONSTANT,   A_UI32_CONSTANT,
+    A_I64_CONSTANT,  A_UI64_CONSTANT,
 };
-static std::unordered_set<int> DoubleConstants = {
-    A_FLOAT_CONSTANT,  A_DOUBLE_CONSTANT,
+static std::unordered_set<int> F64Constants = {
+    A_F32_CONSTANT,  A_F64_CONSTANT,
 };
 static std::unordered_set<int> NumberConstants = {
-    A_BYTE_CONSTANT,  A_UBYTE_CONSTANT,
-    A_SHORT_CONSTANT, A_USHORT_CONSTANT,
-    A_INT_CONSTANT,   A_UINT_CONSTANT,
-    A_LONG_CONSTANT,  A_ULONG_CONSTANT,
-    A_FLOAT_CONSTANT,  A_DOUBLE_CONSTANT,
+    A_I8_CONSTANT,  A_UI8_CONSTANT,
+    A_I16_CONSTANT, A_UI16_CONSTANT,
+    A_I32_CONSTANT,   A_UI32_CONSTANT,
+    A_I64_CONSTANT,  A_UI64_CONSTANT,
+    A_F32_CONSTANT,  A_F64_CONSTANT,
 };
 
 %}
@@ -50,15 +50,15 @@ static std::unordered_set<int> NumberConstants = {
 %token <token> T_EOF
 %token <token> T_TRUE T_FALSE T_LET T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_OTHERWISE
 %token <token> T_FUNC T_CLASS T_TYPE T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
-%token <token> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_FLOAT T_DOUBLE T_STRING T_BOOLEAN
+%token <token> T_I8 T_UI8 T_I16 T_UI16 T_I32 T_UI32 T_I64 T_UI64 T_F32 T_F64 T_STRING T_BOOLEAN
 %token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT
 
-%token <literal> T_IDENTIFIER T_BYTE_CONSTANT T_UBYTE_CONSTANT T_SHORT_CONSTANT T_USHORT_CONSTANT T_INT_CONSTANT T_UINT_CONSTANT
-%token <literal> T_LONG_CONSTANT T_ULONG_CONSTANT T_FLOAT_CONSTANT T_DOUBLE_CONSTANT T_STRING_CONSTANT
+%token <literal> T_IDENTIFIER T_I8_CONSTANT T_UI8_CONSTANT T_I16_CONSTANT T_UI16_CONSTANT T_I32_CONSTANT T_UI32_CONSTANT
+%token <literal> T_I64_CONSTANT T_UI64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
 
 %type <expression> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expression> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
@@ -114,16 +114,16 @@ static std::unordered_set<int> NumberConstants = {
  /* part-1 expression */
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_BYTE_CONSTANT { $$ = new AstByteConstant((int8_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UBYTE_CONSTANT { $$ = new AstUByteConstant((uint8_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_SHORT_CONSTANT { $$ = new AstShortConstant((int16_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_USHORT_CONSTANT { $$ = new AstUShortConstant((uint16_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_INT_CONSTANT { $$ = new AstIntConstant((int32_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UINT_CONSTANT { $$ = new AstUIntConstant((uint32_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_LONG_CONSTANT { $$ = new AstLongConstant((int64_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_ULONG_CONSTANT { $$ = new AstULongConstant((uint64_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_FLOAT_CONSTANT { $$ = new AstFloatConstant((float)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_DOUBLE_CONSTANT { $$ = new AstDoubleConstant((double)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UI8_CONSTANT { $$ = new AstUI8Constant((uint8_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UI16_CONSTANT { $$ = new AstUI16Constant((uint16_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UI32_CONSTANT { $$ = new AstUI32Constant((uint32_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UI64_CONSTANT { $$ = new AstUI64Constant((uint64_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_TRUE { $$ = new AstBooleanConstant(true); FINFO("primary_expression: {}", $$->toString()); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); FINFO("primary_expression: {}", $$->toString()); }
@@ -145,16 +145,16 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_ADD unary_expression {
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_BYTE_CONSTANT: { $$ = new AstByteConstant(dynamic_cast<AstByteConstant*>($2)->value()); delete $2; break; }
-                            case A_UBYTE_CONSTANT: { $$ = new AstUByteConstant(dynamic_cast<AstUByteConstant*>($2)->value()); delete $2; break; }
-                            case A_SHORT_CONSTANT: { $$ = new AstShortConstant(dynamic_cast<AstShortConstant*>($2)->value()); delete $2; break; }
-                            case A_USHORT_CONSTANT: { $$ = new AstUShortConstant(dynamic_cast<AstUShortConstant*>($2)->value()); delete $2; break; }
-                            case A_INT_CONSTANT: { $$ = new AstIntConstant(dynamic_cast<AstIntConstant*>($2)->value()); delete $2; break; }
-                            case A_UINT_CONSTANT: { $$ = new AstUIntConstant(dynamic_cast<AstUIntConstant*>($2)->value()); delete $2; break; }
-                            case A_LONG_CONSTANT: { $$ = new AstLongConstant(dynamic_cast<AstLongConstant*>($2)->value()); delete $2; break; }
-                            case A_ULONG_CONSTANT: { $$ = new AstULongConstant(dynamic_cast<AstULongConstant*>($2)->value()); delete $2; break; }
-                            case A_FLOAT_CONSTANT: { $$ = new AstFloatConstant(dynamic_cast<AstFloatConstant*>($2)->value()); delete $2; break; }
-                            case A_DOUBLE_CONSTANT: { $$ = new AstDoubleConstant(dynamic_cast<AstDoubleConstant*>($2)->value()); delete $2; break; }
+                            case A_I8_CONSTANT: { $$ = new AstI8Constant(dynamic_cast<AstI8Constant*>($2)->value()); delete $2; break; }
+                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(dynamic_cast<AstUI8Constant*>($2)->value()); delete $2; break; }
+                            case A_I16_CONSTANT: { $$ = new AstI16Constant(dynamic_cast<AstI16Constant*>($2)->value()); delete $2; break; }
+                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(dynamic_cast<AstUI16Constant*>($2)->value()); delete $2; break; }
+                            case A_I32_CONSTANT: { $$ = new AstI32Constant(dynamic_cast<AstI32Constant*>($2)->value()); delete $2; break; }
+                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(dynamic_cast<AstUI32Constant*>($2)->value()); delete $2; break; }
+                            case A_I64_CONSTANT: { $$ = new AstI64Constant(dynamic_cast<AstI64Constant*>($2)->value()); delete $2; break; }
+                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(dynamic_cast<AstUI64Constant*>($2)->value()); delete $2; break; }
+                            case A_F32_CONSTANT: { $$ = new AstF32Constant(dynamic_cast<AstF32Constant*>($2)->value()); delete $2; break; }
+                            case A_F64_CONSTANT: { $$ = new AstF64Constant(dynamic_cast<AstF64Constant*>($2)->value()); delete $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
@@ -162,16 +162,16 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_SUB unary_expression { 
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_BYTE_CONSTANT: { $$ = new AstByteConstant(-(dynamic_cast<AstByteConstant*>($2)->value())); delete $2; break; }
-                            case A_UBYTE_CONSTANT: { $$ = new AstUByteConstant(-(dynamic_cast<AstUByteConstant*>($2)->value())); delete $2; break; }
-                            case A_SHORT_CONSTANT: { $$ = new AstShortConstant(-(dynamic_cast<AstShortConstant*>($2)->value())); delete $2; break; }
-                            case A_USHORT_CONSTANT: { $$ = new AstUShortConstant(-(dynamic_cast<AstUShortConstant*>($2)->value())); delete $2; break; }
-                            case A_INT_CONSTANT: { $$ = new AstIntConstant(-($2->value())); delete $2; break; }
-                            case A_UINT_CONSTANT: { $$ = new AstUIntConstant(-($2->value())); delete $2; break; }
-                            case A_LONG_CONSTANT: { $$ = new AstLongConstant(-($2->value())); delete $2; break; }
-                            case A_ULONG_CONSTANT: { $$ = new AstULongConstant(-($2->value())); delete $2; break; }
-                            case A_FLOAT_CONSTANT: { $$ = new AstFloatConstant(-($2->value())); delete $2; break; }
-                            case A_DOUBLE_CONSTANT: { $$ = new AstDoubleConstant(-($2->value())); delete $2; break; }
+                            case A_I8_CONSTANT: { $$ = new AstI8Constant(-(dynamic_cast<AstI8Constant*>($2)->value())); delete $2; break; }
+                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(-(dynamic_cast<AstUI8Constant*>($2)->value())); delete $2; break; }
+                            case A_I16_CONSTANT: { $$ = new AstI16Constant(-(dynamic_cast<AstI16Constant*>($2)->value())); delete $2; break; }
+                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(-(dynamic_cast<AstUI16Constant*>($2)->value())); delete $2; break; }
+                            case A_I32_CONSTANT: { $$ = new AstI32Constant(-($2->value())); delete $2; break; }
+                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(-($2->value())); delete $2; break; }
+                            case A_I64_CONSTANT: { $$ = new AstI64Constant(-($2->value())); delete $2; break; }
+                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(-($2->value())); delete $2; break; }
+                            case A_F32_CONSTANT: { $$ = new AstF32Constant(-($2->value())); delete $2; break; }
+                            case A_F64_CONSTANT: { $$ = new AstF64Constant(-($2->value())); delete $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
@@ -179,14 +179,14 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                  | T_BIT_NOT unary_expression { 
                         /* memory allocation optimization */
                         switch ($2->type()) {
-                            case A_BYTE_CONSTANT: { $$ = new AstByteConstant(~($2->value())); delete $2; break; }
-                            case A_UBYTE_CONSTANT: { $$ = new AstUByteConstant(~($2->value())); delete $2; break; }
-                            case A_SHORT_CONSTANT: { $$ = new AstShortConstant(~($2->value())); delete $2; break; }
-                            case A_USHORT_CONSTANT: { $$ = new AstUShortConstant(~($2->value())); delete $2; break; }
-                            case A_INT_CONSTANT: { $$ = new AstIntConstant(~($2->value())); delete $2; break; }
-                            case A_UINT_CONSTANT: { $$ = new AstUIntConstant(~($2->value())); delete $2; break; }
-                            case A_LONG_CONSTANT: { $$ = new AstLongConstant(~($2->value())); delete $2; break; }
-                            case A_ULONG_CONSTANT: { $$ = new AstULongConstant(~($2->value())); delete $2; break; }
+                            case A_I8_CONSTANT: { $$ = new AstI8Constant(~($2->value())); delete $2; break; }
+                            case A_UI8_CONSTANT: { $$ = new AstUI8Constant(~($2->value())); delete $2; break; }
+                            case A_I16_CONSTANT: { $$ = new AstI16Constant(~($2->value())); delete $2; break; }
+                            case A_UI16_CONSTANT: { $$ = new AstUI16Constant(~($2->value())); delete $2; break; }
+                            case A_I32_CONSTANT: { $$ = new AstI32Constant(~($2->value())); delete $2; break; }
+                            case A_UI32_CONSTANT: { $$ = new AstUI32Constant(~($2->value())); delete $2; break; }
+                            case A_I64_CONSTANT: { $$ = new AstI64Constant(~($2->value())); delete $2; break; }
+                            case A_UI64_CONSTANT: { $$ = new AstUI64Constant(~($2->value())); delete $2; break; }
                             default: { $$ = new AstUnaryExpression($1, $2); break; }
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 

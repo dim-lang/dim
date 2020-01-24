@@ -60,42 +60,42 @@ static std::string tokenFileToModule(const std::string &name);
 "//".*\n
 
  /* keywords */
-"True"                   return T_TRUE;
-"False"                  return T_FALSE;
-"let"                    return T_LET;
-"Nil"                    return T_NIL;
-"if"                     return T_IF;
-"elseif"                 return T_ELSEIF;
-"else"                   return T_ELSE;
-"switch"                 return T_SWITCH;
-"case"                   return T_CASE;
-"otherwise"              return T_OTHERWISE;
-"for"                    return T_FOR;
-"while"                  return T_WHILE;
-"break"                  return T_BREAK;
-"continue"               return T_CONTINUE;
-"func"                   return T_FUNC;
-"class"                  return T_CLASS;
-"type"                   return T_TYPE;
-"isinstance"             return T_ISINSTANCE;
+"true"       return T_TRUE;
+"false"      return T_FALSE;
+"let"        return T_LET;
+"Nil"        return T_NIL;
+"if"         return T_IF;
+"elseif"     return T_ELSEIF;
+"else"       return T_ELSE;
+"switch"     return T_SWITCH;
+"case"       return T_CASE;
+"otherwise"  return T_OTHERWISE;
+"for"        return T_FOR;
+"while"      return T_WHILE;
+"break"      return T_BREAK;
+"continue"   return T_CONTINUE;
+"func"       return T_FUNC;
+"class"      return T_CLASS;
+"type"       return T_TYPE;
+"isinstance" return T_ISINSTANCE;
  /* "import"                 return T_IMPORT; */
-"return"                 return T_RETURN;
-"void"                   return T_VOID;
-"and"                    return T_LOGIC_AND;
-"or"                     return T_LOGIC_OR;
-"not"                    return T_LOGIC_NOT;
-"ubyte"                  return T_UBYTE;
-"byte"                   return T_BYTE;
-"short"                  return T_SHORT;
-"ushort"                 return T_USHORT;
-"int"                    return T_INT;
-"uint"                   return T_UINT;
-"long"                   return T_LONG;
-"ulong"                  return T_ULONG;
-"float"                  return T_FLOAT;
-"double"                 return T_DOUBLE;
-"string"                 return T_STRING;
-"boolean"                return T_BOOLEAN;
+"return"     return T_RETURN;
+"void"       return T_VOID;
+"and"        return T_LOGIC_AND;
+"or"         return T_LOGIC_OR;
+"not"        return T_LOGIC_NOT;
+"i8"         return T_I8;
+"ui8"        return T_UI8;
+"i16"        return T_I16;
+"ui16"       return T_UI16;
+"i32"        return T_I32;
+"ui32"       return T_UI32;
+"i64"        return T_I64;
+"ui64"       return T_UI64;
+"f32"        return T_F32;
+"f64"        return T_F64;
+"string"     return T_STRING;
+"boolean"    return T_BOOLEAN;
 
  /* punctuators */
 "+"                      return T_TOKEN(T_ADD);
@@ -142,16 +142,16 @@ static std::string tokenFileToModule(const std::string &name);
 "."                      return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_FLOAT_CONSTANT; 
-[0-9]+\.[0-9]+{EXP}?[Dd]    T_SAVE_TOKEN(1); return T_DOUBLE_CONSTANT; 
-[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UBYTE_CONSTANT; 
-[0-9]+{EXP}?[Bb]            T_SAVE_TOKEN_N(1); return T_BYTE_CONSTANT;
-[0-9]+{EXP}?[Ss]            T_SAVE_TOKEN_N(1); return T_SHORT_CONSTANT;
-[0-9]+{EXP}?[Uu][Ss]        T_SAVE_TOKEN_N(2); return T_USHORT_CONSTANT;
-[0-9]+{EXP}?                T_SAVE_TOKEN; return T_INT_CONSTANT;
-[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UINT_CONSTANT;
-[0-9]+{EXP}?[Ll]            T_SAVE_TOKEN_N(1); return T_LONG_CONSTANT;
-[0-9]+{EXP}?[Uu][Ll]        T_SAVE_TOKEN_N(2); return T_ULONG_CONSTANT;
+[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F32_CONSTANT; 
+[0-9]+\.[0-9]+{EXP}?[Dd]    T_SAVE_TOKEN_N(1); return T_F64_CONSTANT; 
+[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UI8_CONSTANT; 
+[0-9]+{EXP}?[Bb]            T_SAVE_TOKEN_N(1); return T_I8_CONSTANT;
+[0-9]+{EXP}?[Ss]            T_SAVE_TOKEN_N(1); return T_I16_CONSTANT;
+[0-9]+{EXP}?[Uu][Ss]        T_SAVE_TOKEN_N(2); return T_UI16_CONSTANT;
+[0-9]+{EXP}?                T_SAVE_TOKEN; return T_I32_CONSTANT;
+[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI32_CONSTANT;
+[0-9]+{EXP}?[Ll]            T_SAVE_TOKEN_N(1); return T_I64_CONSTANT;
+[0-9]+{EXP}?[Uu][Ll]        T_SAVE_TOKEN_N(2); return T_UI64_CONSTANT;
 \"(\\.|[^\\"])*\"           T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */
