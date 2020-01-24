@@ -115,13 +115,13 @@ static std::unordered_set<int> NumberConstants = {
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_BYTE_CONSTANT { $$ = new AstByteConstant((int8_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UBYTE_CONSTANT { $$ = new AstUByteConstant((uint8_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UBYTE_CONSTANT { $$ = new AstUByteConstant((uint8_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_SHORT_CONSTANT { $$ = new AstShortConstant((int16_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_USHORT_CONSTANT { $$ = new AstUShortConstant((uint16_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_USHORT_CONSTANT { $$ = new AstUShortConstant((uint16_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_INT_CONSTANT { $$ = new AstIntConstant((int32_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UINT_CONSTANT { $$ = new AstUIntConstant((uint32_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_UINT_CONSTANT { $$ = new AstUIntConstant((uint32_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_LONG_CONSTANT { $$ = new AstLongConstant((int64_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_ULONG_CONSTANT { $$ = new AstULongConstant((uint64_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   | T_ULONG_CONSTANT { $$ = new AstULongConstant((uint64_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_FLOAT_CONSTANT { $$ = new AstFloatConstant((float)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_DOUBLE_CONSTANT { $$ = new AstDoubleConstant((double)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }

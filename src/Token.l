@@ -10,7 +10,7 @@ EXP ([Ee][-+]?[0-9]+)
 #include <cstdlib>
 #include <cstring>
 #include <list>
-#include <memory>
+#include <cctype>
 #include <string>
 #include <stack>
 #include <algorithm>
@@ -20,6 +20,7 @@ EXP ([Ee][-+]?[0-9]+)
 #include "Scope.h"
 #include "Parser.tab.hpp"
 #define T_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
+#define T_SAVE_TOKEN_N(c) yylval.literal = strndup(yytext, yyleng-(c))
 #define T_TOKEN(t) (yylval.token = t)
 #define T_FILE_EXT ".co"
 
@@ -141,20 +142,20 @@ static std::string tokenFileToModule(const std::string &name);
 "."                      return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?[Ff]? T_SAVE_TOKEN; return T_FLOAT_CONSTANT;
-[0-9]+\.[0-9]+{EXP}?[Dd]  T_SAVE_TOKEN; return T_DOUBLE_CONSTANT;
-[0-9]+{EXP}?[Uu][Bb]      T_SAVE_TOKEN; return T_UBYTE_CONSTANT;
-[0-9]+{EXP}?[Bb]          T_SAVE_TOKEN; return T_BYTE_CONSTANT;
-[0-9]+{EXP}?[Ss]          T_SAVE_TOKEN; return T_SHORT_CONSTANT;
-[0-9]+{EXP}?[Uu][Ss]      T_SAVE_TOKEN; return T_USHORT_CONSTANT;
-[0-9]+{EXP}?              T_SAVE_TOKEN; return T_INT_CONSTANT;
-[0-9]+{EXP}?[Uu]          T_SAVE_TOKEN; return T_UINT_CONSTANT;
-[0-9]+{EXP}?[Ll]          T_SAVE_TOKEN; return T_LONG_CONSTANT;
-[0-9]+{EXP}?[Uu][Ll]      T_SAVE_TOKEN; return T_ULONG_CONSTANT;
-\"(\\.|[^\\"])*\"         T_SAVE_TOKEN; return T_STRING_CONSTANT;
+[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_FLOAT_CONSTANT; 
+[0-9]+\.[0-9]+{EXP}?[Dd]    T_SAVE_TOKEN(1); return T_DOUBLE_CONSTANT; 
+[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UBYTE_CONSTANT; 
+[0-9]+{EXP}?[Bb]            T_SAVE_TOKEN_N(1); return T_BYTE_CONSTANT;
+[0-9]+{EXP}?[Ss]            T_SAVE_TOKEN_N(1); return T_SHORT_CONSTANT;
+[0-9]+{EXP}?[Uu][Ss]        T_SAVE_TOKEN_N(2); return T_USHORT_CONSTANT;
+[0-9]+{EXP}?                T_SAVE_TOKEN; return T_INT_CONSTANT;
+[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UINT_CONSTANT;
+[0-9]+{EXP}?[Ll]            T_SAVE_TOKEN_N(1); return T_LONG_CONSTANT;
+[0-9]+{EXP}?[Uu][Ll]        T_SAVE_TOKEN_N(2); return T_ULONG_CONSTANT;
+\"(\\.|[^\\"])*\"           T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*   T_SAVE_TOKEN; return T_IDENTIFIER;
+[a-zA-Z_][a-zA-Z0-9_]*      T_SAVE_TOKEN; return T_IDENTIFIER;
 
  /* whitespace */
 [ \t\v\n\f\r]
