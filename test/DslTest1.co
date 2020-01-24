@@ -1,6 +1,24 @@
 let x = 1 + 6 / (-3) * (4 + 3 % -2);
 let y = 0;
 let z = x + y;
+let a1 = 8b;
+let a2 = 8B;
+let a3 = 8ub;
+let a4 = 8UB;
+let a5 = 228s;
+let a6 = 228S;
+let a7 = 228us;
+let a8 = 228US;
+let a9 = 228;
+let a10 = 22890u;
+let a11 = 22890U;
+let a12 = 12322890l;
+let a13 = 35222890L;
+let a14 = 12322890ul;
+let a15 = 35222890UL;
+let a16 = 123.901;
+let a17 = 123.901d;
+let a18 = 123.901D;
 
 let Hello() = {
     a = 1;

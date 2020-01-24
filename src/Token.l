@@ -144,8 +144,8 @@ static std::string tokenFileToModule(const std::string &name);
  /* constants */
 [0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F32_CONSTANT; 
 [0-9]+\.[0-9]+{EXP}?[Dd]    T_SAVE_TOKEN_N(1); return T_F64_CONSTANT; 
-[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UI8_CONSTANT; 
 [0-9]+{EXP}?[Bb]            T_SAVE_TOKEN_N(1); return T_I8_CONSTANT;
+[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UI8_CONSTANT; 
 [0-9]+{EXP}?[Ss]            T_SAVE_TOKEN_N(1); return T_I16_CONSTANT;
 [0-9]+{EXP}?[Uu][Ss]        T_SAVE_TOKEN_N(2); return T_UI16_CONSTANT;
 [0-9]+{EXP}?                T_SAVE_TOKEN; return T_I32_CONSTANT;
