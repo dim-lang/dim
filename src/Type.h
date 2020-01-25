@@ -2,12 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Stringify.h"
 #include <string>
 
-class Symbol : public Stringify {
+class Type {
 public:
-  virtual ~Symbol() = default;
   virtual std::string name() const = 0;
-  virtual std::string toString() const = 0;
 };
