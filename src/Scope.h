@@ -2,20 +2,16 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ast.h"
+#include "Stringify.h"
+#include "Symbol.h"
 #include <memory>
 #include <string>
-#include <unordered_map>
 
-class Scope {
+class Scope : public Stringify {
 public:
-  Scope(std::shared_ptr<Scope> father = std::shared_ptr<Scope>(nullptr));
-  virtual ~Scope();
-
-  static void define(const std::string &name, std::shared_ptr<Ast> node);
-  static std::shared_ptr<Ast> lookup(const std::string &name);
-
-protected:
-  static std::unordered_map<std::string, std::shared_ptr<Ast>> symtab_;
-  std::shared_ptr<Scope> father_;
+  virtual const std::string &name() const = 0;
+  virtual std::shared_ptr<Scope> enclosing() const = 0;
+  virtual void define(std::shared_ptr<Symbol> symbol) = 0;
+  virtual std::shared_ptr<Symbol> resolve(const std::string &name) = 0;
+  virtual std::string toString() const = 0;
 };

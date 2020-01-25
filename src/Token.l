@@ -84,6 +84,7 @@ static std::string tokenFileToModule(const std::string &name);
 "and"        return T_LOGIC_AND;
 "or"         return T_LOGIC_OR;
 "not"        return T_LOGIC_NOT;
+"bit"        return T_BIT;
 "i8"         return T_I8;
 "ui8"        return T_UI8;
 "i16"        return T_I16;
@@ -142,16 +143,9 @@ static std::string tokenFileToModule(const std::string &name);
 "."                      return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F32_CONSTANT; 
-[0-9]+\.[0-9]+{EXP}?[Dd]    T_SAVE_TOKEN_N(1); return T_F64_CONSTANT; 
-[0-9]+{EXP}?[Bb]            T_SAVE_TOKEN_N(1); return T_I8_CONSTANT;
-[0-9]+{EXP}?[Uu][Bb]        T_SAVE_TOKEN_N(2); return T_UI8_CONSTANT; 
-[0-9]+{EXP}?[Ss]            T_SAVE_TOKEN_N(1); return T_I16_CONSTANT;
-[0-9]+{EXP}?[Uu][Ss]        T_SAVE_TOKEN_N(2); return T_UI16_CONSTANT;
-[0-9]+{EXP}?                T_SAVE_TOKEN; return T_I32_CONSTANT;
-[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI32_CONSTANT;
-[0-9]+{EXP}?[Ll]            T_SAVE_TOKEN_N(1); return T_I64_CONSTANT;
-[0-9]+{EXP}?[Uu][Ll]        T_SAVE_TOKEN_N(2); return T_UI64_CONSTANT;
+[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F64_CONSTANT; 
+[0-9]+{EXP}?                T_SAVE_TOKEN; return T_I64_CONSTANT;
+[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT;
 \"(\\.|[^\\"])*\"           T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */

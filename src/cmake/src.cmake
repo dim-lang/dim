@@ -13,7 +13,6 @@ set(FCORE
     Token.yy.cpp
     Parser.tab.cpp
     Ast.cpp
-    Scope.cpp
 )
 
 set(FT

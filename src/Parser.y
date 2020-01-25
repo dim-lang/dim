@@ -202,7 +202,7 @@ unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $
                         }
                         FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
                     }
-                 | T_BIT_NOT unary_expression { 
+                 | T_BIT_NOT unary_expression {
                         /* memory allocation optimization */
                         switch ($2->type()) {
                             case A_I8_CONSTANT: { DC(I8P, $2)->reset(~(DC(I8P, $2)->value())); $$ = $2; break; }
