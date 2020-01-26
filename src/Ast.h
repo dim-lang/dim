@@ -46,10 +46,51 @@
 #define A_EXPRESSION_LIST 401
 #define A_STATEMENT_LIST 402
 
+/* ================================== */
+
+/* interface */
+class Ast;
+
+/* derived interface */
 class AstExpression;
 class AstStatement;
+class AstDeclaration;
+
+/* interface list */
 class AstExpressionList;
 class AstStatementList;
+
+/* node */
+class AstIdentifierConstant;
+class AstI8Constant;
+class AstUI8Constant;
+class AstI16Constant;
+class AstUI16Constant;
+class AstI32Constant;
+class AstUI32Constant;
+class AstI64Constant;
+class AstUI64Constant;
+class AstF32Constant;
+class AstF64Constant;
+class AstStringConstant;
+class AstBooleanConstant;
+class AstFunctionCallExpression;
+class AstUnaryExpression;
+class AstBinaryExpression;
+class AstConditionalExpression;
+class AstAssignmentExpression;
+class AstExpressionStatement;
+class AstCompoundStatement;
+class AstIfStatement;
+class AstWhileStatement;
+class AstForStatement;
+class AstContinueStatement;
+class AstBreakStatement;
+class AstReturnStatement;
+class AstVariableDeclaration;
+class AstFunctionDeclaration;
+
+/* ================================== */
 
 class Ast : public Stringify {
 public:

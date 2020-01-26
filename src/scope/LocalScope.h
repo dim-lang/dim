@@ -6,7 +6,9 @@
 
 class LocalScope : public Scope {
 public:
-  LocalScope(const std::string &scopeName);
+  LocalScope(
+      const std::string &scopeName,
+      std::shared_ptr<Scope> enclosingScope = std::shared_ptr<Scope>(nullptr));
   virtual ~LocalScope() = default;
 
   virtual std::string name() const;
