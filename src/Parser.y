@@ -164,8 +164,15 @@ postfix_expression : primary_expression { $$ = $1; FINFO("postfix_expression: {}
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : conditional_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("argument_expression_list: {}", Ast::dump($$)); }
-                         | argument_expression_list T_COMMA conditional_expression { $$->push_back($3); FINFO("argument_expression_list: {}", Ast::dump($$)); }
+argument_expression_list : conditional_expression { 
+                                $$ = new AstExpressionList(); 
+                                $$->push_back(std::shared_ptr<AstExpression>($1)); 
+                                FINFO("argument_expression_list: {}", Ast::dump($$)); 
+                            }
+                         | argument_expression_list T_COMMA conditional_expression { 
+                                $$->push_back(std::shared_ptr<AstExpression>($3)); 
+                                FINFO("argument_expression_list: {}", Ast::dump($$)); 
+                            }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
@@ -307,12 +314,26 @@ assignment_expression : conditional_expression { $$ = $1; FINFO("assignment_expr
                       | unary_expression_list T_BIT_ZERORSHIT_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); FINFO("assignment_expression: {}", $$->toString()); }
                       ;
 
-unary_expression_list : unary_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("unary_expression_list: {}", Ast::dump($$)); }
-                      | unary_expression_list T_COMMA unary_expression { $$->push_back($3); FINFO("unary_expression_list: {}", Ast::dump($$)); }
+unary_expression_list : unary_expression { 
+                            $$ = new AstExpressionList(); 
+                            $$->push_back(std::shared_ptr<AstExpression>($1)); 
+                            FINFO("unary_expression_list: {}", Ast::dump($$)); 
+                        }
+                      | unary_expression_list T_COMMA unary_expression { 
+                            $$->push_back(std::shared_ptr<AstExpression>($3)); 
+                            FINFO("unary_expression_list: {}", Ast::dump($$)); 
+                        }
                       ;
 
-conditional_expression_list : conditional_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("conditional_expression_list: {}", Ast::dump($$)); }
-                            | conditional_expression_list T_COMMA conditional_expression { $$->push_back($3); FINFO("conditional_expression_list: {}", Ast::dump($$)); }
+conditional_expression_list : conditional_expression { 
+                                    $$ = new AstExpressionList(); 
+                                    $$->push_back(std::shared_ptr<AstExpression>($1)); 
+                                    FINFO("conditional_expression_list: {}", Ast::dump($$)); 
+                                }
+                            | conditional_expression_list T_COMMA conditional_expression { 
+                                    $$->push_back(std::shared_ptr<AstExpression>($3)); 
+                                    FINFO("conditional_expression_list: {}", Ast::dump($$)); 
+                                }
                             ;
 
 expression : /* nothing */ { $$ = nullptr; FINFO_MSG("expression: null"); }
@@ -336,19 +357,26 @@ variable_declaration : T_LET variable_declaration_name_list T_ASSIGN variable_de
 
 variable_declaration_name_list : T_IDENTIFIER { 
                                         $$ = new AstExpressionList(); 
-                                        $$->push_back(new AstIdentifierConstant($1)); 
+                                        $$->push_back(std::shared_ptr<AstExpression>(new AstIdentifierConstant($1)));
                                         std::free($1); 
                                         FINFO("variable_declaration_name_list: {}", Ast::dump($$)); 
                                     }
                                | variable_declaration_name_list T_COMMA T_IDENTIFIER { 
-                                        $$->push_back(new AstIdentifierConstant($3)); 
+                                        $$->push_back(std::shared_ptr<AstExpression>(new AstIdentifierConstant($3))); 
                                         std::free($3); 
                                         FINFO("variable_declaration_name_list: {}", Ast::dump($$)); 
                                     }
                                ;
 
-variable_declaration_expression_list : constant_expression { $$ = new AstExpressionList(); $$->push_back($1); FINFO("variable_declaration_expression_list: {}", Ast::dump($$)); }
-                                     | variable_declaration_expression_list T_COMMA constant_expression { $$->push_back($3); FINFO("variable_declaration_expression_list: {}", Ast::dump($$)); }
+variable_declaration_expression_list : constant_expression { 
+                                            $$ = new AstExpressionList();
+                                            $$->push_back(std::shared_ptr<AstExpression>($1));
+                                            FINFO("variable_declaration_expression_list: {}", Ast::dump($$));
+                                        }
+                                     | variable_declaration_expression_list T_COMMA constant_expression {
+                                            $$->push_back(std::shared_ptr<AstExpression>($3));
+                                            FINFO("variable_declaration_expression_list: {}", Ast::dump($$));
+                                        }
                                      ;
 
  /**
@@ -359,7 +387,7 @@ variable_declaration_expression_list : constant_expression { $$ = new AstExpress
   */
 function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {
                             AstStatementList *statementList = new AstStatementList();
-                            statementList->push_back($7);
+                            statementList->push_back(std::shared_ptr<AstStatement>($7));
                             $$ = new AstFunctionDeclaration($2, $4, statementList);
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
