@@ -6,52 +6,72 @@
 #include "config/Header.h"
 #include <sstream>
 
-std::string Ast::dump(const AstExpressionList *expressionList) {
-  if (!expressionList) {
-    return "expressionList: nullptr";
-  }
+AstExpressionList::AstExpressionList() {}
+
+int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
+
+std::string AstExpressionList::toString() const {
   std::stringstream ss;
-  ss << "expressionList, size:" << expressionList->size() << ", ";
-  for (int i = 0; i < expressionList->size(); i++) {
-    AstExpression *ae = (*expressionList)[i];
-    std::string s = ae ? ae->toString() : "null";
-    ss << fmt::format("{}:{}", i, s);
-    if (i < expressionList->size() - 1) {
+  ss << "[ @AstExpressionList size:" << expressions_.size();
+  if (expressions_.empty()) {
+    ss << " ]";
+    return ss.str();
+  }
+  for (int i = 0; i < (int)expressions_.size(); i++) {
+    std::shared_ptr<AstExpression> expr = expressions_[i];
+    ss << fmt::format("{}:{}", i, expr->toString());
+    if (i < (int)expressions_.size() - 1) {
       ss << ", ";
     }
   }
+  ss << " ]";
   return ss.str();
 }
 
-std::string Ast::dump(std::shared_ptr<AstExpressionList> expressionList) {
-  return dump(expressionList.get());
+int AstExpressionList::size() const { return expressions_.size(); }
+
+std::shared_ptr<AstExpression> AstExpressionList::get(int pos) const {
+  return expressions_[pos];
 }
 
-std::string Ast::dump(const AstStatementList *statementList) {
-  if (!statementList) {
-    return "statementList: nullptr";
-  }
+void AstExpressionList::pushBack(AstExpression *expression) {
+  expressions_.push_back(std::shared_ptr<AstExpression>(expression));
+}
+
+AstStatementList::AstStatementList() {}
+
+int AstStatementList::type() const { return A_STATEMENT_LIST; }
+
+std::string AstStatementList::toString() const {
   std::stringstream ss;
-  ss << "statementList, size:" << statementList->size() << ", ";
-  for (int i = 0; i < statementList->size(); i++) {
-    AstStatement *ae = (*statementList)[i];
-    std::string s = ae ? ae->toString() : "null";
-    ss << fmt::format("{}:{}", i, s);
-    if (i < statementList->size() - 1) {
+  ss << "[ @AstStatementList size:" << statements_.size();
+  if (statements_.empty()) {
+    ss << " ]";
+    return ss.str();
+  }
+  for (int i = 0; i < (int)statements_.size(); i++) {
+    std::shared_ptr<AstStatement> stmt = statements_[i];
+    ss << fmt::format("{}:{}", i, stmt->toString());
+    if (i < (int)statements_.size() - 1) {
       ss << ", ";
     }
   }
+  ss << " ]";
   return ss.str();
 }
 
-std::string Ast::dump(std::shared_ptr<AstStatementList> statementList) {
-  return dump(statementList.get());
+int AstStatementList::size() const { return statements_.size(); }
+
+std::shared_ptr<AstStatement> AstStatementList::get(int pos) const {
+  return statements_[pos];
+}
+
+void AstStatementList::pushBack(AstStatement *statement) {
+  statements_.push_back(std::shared_ptr<AstStatement>(statement));
 }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
-
-AstIdentifierConstant::~AstIdentifierConstant() {}
 
 int AstIdentifierConstant::type() const { return A_IDENTIFIER_CONSTANT; }
 
@@ -62,8 +82,6 @@ std::string AstIdentifierConstant::toString() const {
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
 AstI8Constant::AstI8Constant(const int8_t &value) : value_(value) {}
-
-AstI8Constant::~AstI8Constant() {}
 
 int AstI8Constant::type() const { return A_I8_CONSTANT; }
 
@@ -77,8 +95,6 @@ const int8_t &AstI8Constant::value() const { return value_; }
 
 AstUI8Constant::AstUI8Constant(const uint8_t &value) : value_(value) {}
 
-AstUI8Constant::~AstUI8Constant() {}
-
 int AstUI8Constant::type() const { return A_UI8_CONSTANT; }
 
 std::string AstUI8Constant::toString() const {
@@ -90,8 +106,6 @@ void AstUI8Constant::reset(const uint8_t &value) { value_ = value; }
 const uint8_t &AstUI8Constant::value() const { return value_; }
 
 AstI16Constant::AstI16Constant(const int16_t &value) : value_(value) {}
-
-AstI16Constant::~AstI16Constant() {}
 
 int AstI16Constant::type() const { return A_I16_CONSTANT; }
 
@@ -105,8 +119,6 @@ const int16_t &AstI16Constant::value() const { return value_; }
 
 AstUI16Constant::AstUI16Constant(const uint16_t &value) : value_(value) {}
 
-AstUI16Constant::~AstUI16Constant() {}
-
 int AstUI16Constant::type() const { return A_UI16_CONSTANT; }
 
 std::string AstUI16Constant::toString() const {
@@ -118,8 +130,6 @@ void AstUI16Constant::reset(const uint16_t &value) { value_ = value; }
 const uint16_t &AstUI16Constant::value() const { return value_; }
 
 AstI32Constant::AstI32Constant(const int32_t &value) : value_(value) {}
-
-AstI32Constant::~AstI32Constant() {}
 
 int AstI32Constant::type() const { return A_I32_CONSTANT; }
 
@@ -133,8 +143,6 @@ const int32_t &AstI32Constant::value() const { return value_; }
 
 AstUI32Constant::AstUI32Constant(const uint32_t &value) : value_(value) {}
 
-AstUI32Constant::~AstUI32Constant() {}
-
 int AstUI32Constant::type() const { return A_UI32_CONSTANT; }
 
 std::string AstUI32Constant::toString() const {
@@ -146,8 +154,6 @@ void AstUI32Constant::reset(const uint32_t &value) { value_ = value; }
 const uint32_t &AstUI32Constant::value() const { return value_; }
 
 AstI64Constant::AstI64Constant(const int64_t &value) : value_(value) {}
-
-AstI64Constant::~AstI64Constant() {}
 
 int AstI64Constant::type() const { return A_I64_CONSTANT; }
 
@@ -161,8 +167,6 @@ const int64_t &AstI64Constant::value() const { return value_; }
 
 AstUI64Constant::AstUI64Constant(const uint64_t &value) : value_(value) {}
 
-AstUI64Constant::~AstUI64Constant() {}
-
 int AstUI64Constant::type() const { return A_UI64_CONSTANT; }
 
 std::string AstUI64Constant::toString() const {
@@ -174,8 +178,6 @@ void AstUI64Constant::reset(const uint64_t &value) { value_ = value; }
 const uint64_t &AstUI64Constant::value() const { return value_; }
 
 AstF32Constant::AstF32Constant(const float &value) : value_(value) {}
-
-AstF32Constant::~AstF32Constant() {}
 
 int AstF32Constant::type() const { return A_F32_CONSTANT; }
 
@@ -189,8 +191,6 @@ const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value) : value_(value) {}
 
-AstF64Constant::~AstF64Constant() {}
-
 int AstF64Constant::type() const { return A_F64_CONSTANT; }
 
 std::string AstF64Constant::toString() const {
@@ -203,8 +203,6 @@ const double &AstF64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value) : value_(value) {}
 
-AstStringConstant::~AstStringConstant() {}
-
 int AstStringConstant::type() const { return A_STRING_CONSTANT; }
 
 std::string AstStringConstant::toString() const {
@@ -216,8 +214,6 @@ void AstStringConstant::reset(const std::string &value) { value_ = value; }
 const std::string &AstStringConstant::value() const { return value_; }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value) : value_(value) {}
-
-AstBooleanConstant::~AstBooleanConstant() {}
 
 int AstBooleanConstant::type() const { return A_BOOLEAN_CONSTANT; }
 
@@ -233,8 +229,6 @@ AstFunctionCallExpression::AstFunctionCallExpression(
     const char *identifier, AstExpressionList *argumentList)
     : identifier_(identifier),
       argumentList_(std::shared_ptr<AstExpressionList>(argumentList)) {}
-
-AstFunctionCallExpression::~AstFunctionCallExpression() {}
 
 int AstFunctionCallExpression::type() const {
   return A_FUNCTION_CALL_EXPRESSION;
@@ -258,8 +252,6 @@ AstFunctionCallExpression::argumentList() const {
 AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression)
     : token_(token), expression_(std::shared_ptr<AstExpression>(expression)) {}
 
-AstUnaryExpression::~AstUnaryExpression() {}
-
 int AstUnaryExpression::type() const { return A_UNARY_OPERATION_EXPRESSION; }
 
 std::string AstUnaryExpression::toString() const {
@@ -278,8 +270,6 @@ AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
                                          AstExpression *right)
     : left_(std::shared_ptr<AstExpression>(left)), token_(token),
       right_(std::shared_ptr<AstExpression>(right)) {}
-
-AstBinaryExpression::~AstBinaryExpression() {}
 
 int AstBinaryExpression::type() const { return A_BINARY_OPERATION_EXPRESSION; }
 
@@ -302,8 +292,6 @@ AstConditionalExpression::AstConditionalExpression(
     : condExpression_(std::shared_ptr<AstExpression>(condExpression)),
       ifExpression_(std::shared_ptr<AstExpression>(ifExpression)),
       elseExpression_(std::shared_ptr<AstExpression>(elseExpression)) {}
-
-AstConditionalExpression::~AstConditionalExpression() {}
 
 int AstConditionalExpression::type() const { return A_CONDITIONAL_EXPRESSION; }
 
@@ -336,8 +324,6 @@ AstAssignmentExpression::AstAssignmentExpression(AstExpressionList *left,
     : left_(std::shared_ptr<AstExpressionList>(left)), token_(token),
       right_(std::shared_ptr<AstExpressionList>(right)) {}
 
-AstAssignmentExpression::~AstAssignmentExpression() {}
-
 int AstAssignmentExpression::type() const {
   return A_BINARY_OPERATION_EXPRESSION;
 }
@@ -345,7 +331,7 @@ int AstAssignmentExpression::type() const {
 std::string AstAssignmentExpression::toString() const {
   return fmt::format(
       "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]",
-      Ast::dump(left_), token_, Ast::dump(right_));
+      left_->toString(), token_, right_->toString());
 }
 
 std::shared_ptr<AstExpressionList> AstAssignmentExpression::left() const {
@@ -361,8 +347,6 @@ std::shared_ptr<AstExpressionList> AstAssignmentExpression::right() const {
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(std::shared_ptr<AstExpression>(expression)) {}
 
-AstExpressionStatement::~AstExpressionStatement() {}
-
 int AstExpressionStatement::type() const { return A_EXPRESSION_STATEMENT; }
 
 std::string AstExpressionStatement::toString() const {
@@ -377,8 +361,6 @@ std::shared_ptr<AstExpression> AstExpressionStatement::expression() const {
 AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList)
     : statementList_(std::shared_ptr<AstStatementList>(statementList)) {}
 
-AstCompoundStatement::~AstCompoundStatement() {}
-
 int AstCompoundStatement::type() const { return A_COMPOUND_STATEMENT; }
 
 std::string AstCompoundStatement::toString() const {
@@ -390,20 +372,12 @@ std::shared_ptr<AstStatementList> AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-std::shared_ptr<AstStatementList> AstCompoundStatement::releaseStatementList() {
-  std::shared_ptr<AstStatementList> save = statementList_;
-  statementList_.reset();
-  return save;
-}
-
 AstIfStatement::AstIfStatement(AstExpression *condExpression,
                                AstStatement *ifStatement,
                                AstStatement *elseStatement)
     : condExpression_(std::shared_ptr<AstExpression>(condExpression)),
       ifStatement_(std::shared_ptr<AstStatement>(ifStatement)),
       elseStatement_(std::shared_ptr<AstStatement>(elseStatement)) {}
-
-AstIfStatement::~AstIfStatement() {}
 
 int AstIfStatement::type() const { return A_IF_STATEMENT; }
 
@@ -433,8 +407,6 @@ AstWhileStatement::AstWhileStatement(AstExpression *condExpression,
     : condExpression_(std::shared_ptr<AstExpression>(condExpression)),
       statement_(std::shared_ptr<AstStatement>(statement)) {}
 
-AstWhileStatement::~AstWhileStatement() {}
-
 int AstWhileStatement::type() const { return A_WHILE_STATEMENT; }
 
 std::string AstWhileStatement::toString() const {
@@ -460,8 +432,6 @@ AstForStatement::AstForStatement(AstStatement *initStatement,
       condStatement_(std::shared_ptr<AstStatement>(condStatement)),
       postExpression_(std::shared_ptr<AstExpression>(postExpression)),
       statement_(std::shared_ptr<AstStatement>(statement)) {}
-
-AstForStatement::~AstForStatement() {}
 
 int AstForStatement::type() const { return A_FOR_STATEMENT; }
 
@@ -493,8 +463,6 @@ std::shared_ptr<AstStatement> AstForStatement::statement() const {
 
 AstContinueStatement::AstContinueStatement() {}
 
-AstContinueStatement::~AstContinueStatement() {}
-
 int AstContinueStatement::type() const { return A_CONTINUE_STATEMENT; }
 
 std::string AstContinueStatement::toString() const {
@@ -502,8 +470,6 @@ std::string AstContinueStatement::toString() const {
 }
 
 AstBreakStatement::AstBreakStatement() {}
-
-AstBreakStatement::~AstBreakStatement() {}
 
 int AstBreakStatement::type() const { return A_BREAK_STATEMENT; }
 
@@ -513,8 +479,6 @@ std::string AstBreakStatement::toString() const {
 
 AstReturnStatement::AstReturnStatement(AstExpression *expression)
     : expression_(std::shared_ptr<AstExpression>(expression)) {}
-
-AstReturnStatement::~AstReturnStatement() {}
 
 int AstReturnStatement::type() const { return A_RETURN_STATEMENT; }
 
@@ -532,14 +496,12 @@ AstVariableDeclaration::AstVariableDeclaration(
     : identifierList_(std::shared_ptr<AstExpressionList>(identifierList)),
       expressionList_(std::shared_ptr<AstExpressionList>(expressionList)) {}
 
-AstVariableDeclaration::~AstVariableDeclaration() {}
-
 int AstVariableDeclaration::type() const { return A_VARIABLE_DECLARATION; }
 
 std::string AstVariableDeclaration::toString() const {
   return fmt::format(
       "[ @AstVariableDeclaration identifierList_:{}, expressionList_:{} ]",
-      Ast::dump(identifierList_), Ast::dump(expressionList_));
+      identifierList_->toString(), expressionList_->toString());
 }
 
 std::shared_ptr<AstExpressionList>
@@ -559,7 +521,12 @@ AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
       argumentList_(std::shared_ptr<AstExpressionList>(argumentList)),
       statementList_(std::shared_ptr<AstStatementList>(statementList)) {}
 
-AstFunctionDeclaration::~AstFunctionDeclaration() {}
+AstFunctionDeclaration::AstFunctionDeclaration(
+    const char *identifier, AstExpressionList *argumentList,
+    std::shared_ptr<AstStatementList> statementList)
+    : identifier_(identifier),
+      argumentList_(std::shared_ptr<AstExpressionList>(argumentList)),
+      statementList_(statementList) {}
 
 int AstFunctionDeclaration::type() const { return A_FUNCTION_DECLARATION; }
 
@@ -567,7 +534,7 @@ std::string AstFunctionDeclaration::toString() const {
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
                      "argumentList_:{}, statementList_:{} ]",
                      identifier_,
-                     Ast::dump(argumentList_) Ast::dump(statementList_));
+                     argumentList_->toString() statementList_->toString());
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
