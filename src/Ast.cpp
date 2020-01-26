@@ -537,8 +537,8 @@ int AstFunctionDeclaration::type() const { return A_FUNCTION_DECLARATION; }
 std::string AstFunctionDeclaration::toString() const {
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
                      "argumentList_:{}, statementList_:{} ]",
-                     identifier_,
-                     argumentList_->toString() statementList_->toString());
+                     identifier_, argumentList_->toString(),
+                     statementList_->toString());
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
