@@ -236,8 +236,8 @@ int AstFunctionCallExpression::type() const {
 
 std::string AstFunctionCallExpression::toString() const {
   return fmt::format(
-      "[ @AstFunctionCallExpression identifier_:{}, argumentList_#size:{} ]",
-      identifier_, Ast::dump(argumentList_));
+      "[ @AstFunctionCallExpression identifier_:{}, argumentList_:{} ]",
+      identifier_, argumentList_->toString());
 }
 
 const std::string &AstFunctionCallExpression::identifier() const {
@@ -280,11 +280,15 @@ std::string AstBinaryExpression::toString() const {
                      leftStr, token_, rightStr);
 }
 
-AstExpression *AstBinaryExpression::left() const { return left_; }
+std::shared_ptr<AstExpression> AstBinaryExpression::left() const {
+  return left_;
+}
 
 int AstBinaryExpression::token() const { return token_; }
 
-AstExpression *AstBinaryExpression::right() const { return right_; }
+std::shared_ptr<AstExpression> AstBinaryExpression::right() const {
+  return right_;
+}
 
 AstConditionalExpression::AstConditionalExpression(
     AstExpression *condExpression, AstExpression *ifExpression,
