@@ -19,7 +19,7 @@ std::string AstExpressionList::toString() const {
   }
   for (int i = 0; i < (int)expressions_.size(); i++) {
     std::shared_ptr<AstExpression> expr = expressions_[i];
-    ss << fmt::format("{}:{}", i, expr->toString());
+    ss << fmt::format("{}:{}", i, expr ? expr->toString() : "null");
     if (i < (int)expressions_.size() - 1) {
       ss << ", ";
     }
@@ -51,7 +51,7 @@ std::string AstStatementList::toString() const {
   }
   for (int i = 0; i < (int)statements_.size(); i++) {
     std::shared_ptr<AstStatement> stmt = statements_[i];
-    ss << fmt::format("{}:{}", i, stmt->toString());
+    ss << fmt::format("{}:{}", i, stmt ? stmt->toString() : "null");
     if (i < (int)statements_.size() - 1) {
       ss << ", ";
     }
