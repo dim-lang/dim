@@ -369,7 +369,7 @@ int AstCompoundStatement::type() const { return A_COMPOUND_STATEMENT; }
 
 std::string AstCompoundStatement::toString() const {
   return fmt::format("[ @AstCompoundStatement statementList_:{} ]",
-                     Ast::dump(statementList_));
+                     statementList_->toString());
 }
 
 std::shared_ptr<AstStatementList> AstCompoundStatement::statementList() const {
