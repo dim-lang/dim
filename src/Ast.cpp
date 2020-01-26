@@ -17,6 +17,7 @@ std::string AstExpressionList::toString() const {
     ss << " ]";
     return ss.str();
   }
+  ss << ", ";
   for (int i = 0; i < (int)expressions_.size(); i++) {
     std::shared_ptr<AstExpression> expr = expressions_[i];
     ss << fmt::format("{}:{}", i, expr ? expr->toString() : "null");
@@ -49,6 +50,7 @@ std::string AstStatementList::toString() const {
     ss << " ]";
     return ss.str();
   }
+  ss << ", ";
   for (int i = 0; i < (int)statements_.size(); i++) {
     std::shared_ptr<AstStatement> stmt = statements_[i];
     ss << fmt::format("{}:{}", i, stmt ? stmt->toString() : "null");
@@ -237,7 +239,7 @@ int AstFunctionCallExpression::type() const {
 std::string AstFunctionCallExpression::toString() const {
   return fmt::format(
       "[ @AstFunctionCallExpression identifier_:{}, argumentList_:{} ]",
-      identifier_, argumentList_->toString());
+      identifier_, argumentList_ ? argumentList_->toString() : "null");
 }
 
 const std::string &AstFunctionCallExpression::identifier() const {
@@ -369,7 +371,7 @@ int AstCompoundStatement::type() const { return A_COMPOUND_STATEMENT; }
 
 std::string AstCompoundStatement::toString() const {
   return fmt::format("[ @AstCompoundStatement statementList_:{} ]",
-                     statementList_->toString());
+                     statementList_ ? statementList_->toString() : "null");
 }
 
 std::shared_ptr<AstStatementList> AstCompoundStatement::statementList() const {
@@ -505,7 +507,8 @@ int AstVariableDeclaration::type() const { return A_VARIABLE_DECLARATION; }
 std::string AstVariableDeclaration::toString() const {
   return fmt::format(
       "[ @AstVariableDeclaration identifierList_:{}, expressionList_:{} ]",
-      identifierList_->toString(), expressionList_->toString());
+      identifierList_ ? identifierList_->toString() : "null",
+      expressionList_ ? expressionList_->toString() : "null");
 }
 
 std::shared_ptr<AstExpressionList>
@@ -537,8 +540,9 @@ int AstFunctionDeclaration::type() const { return A_FUNCTION_DECLARATION; }
 std::string AstFunctionDeclaration::toString() const {
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
                      "argumentList_:{}, statementList_:{} ]",
-                     identifier_, argumentList_->toString(),
-                     statementList_->toString());
+                     identifier_,
+                     argumentList_ ? argumentList_->toString() : "null",
+                     statementList_ ? statementList_->toString() : "null");
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {

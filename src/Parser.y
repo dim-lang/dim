@@ -54,7 +54,6 @@ using F64P = AstF64Constant*;
 using STRP = AstStringConstant*;
 using BP = AstBooleanConstant*;
 
-#define HAS(x, y) ((x).find(y) != (x).end())
 #define DC(x, y) dynamic_cast<x>(y)
 
 %}
@@ -164,74 +163,15 @@ postfix_expression : primary_expression { $$ = $1; FINFO("postfix_expression: {}
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : conditional_expression { 
-                                $$ = new AstExpressionList(); 
-                                $$->pushBack($1); 
-                                FINFO("argument_expression_list: {}", $$->toString()); 
-                            }
-                         | argument_expression_list T_COMMA conditional_expression { 
-                                $$->pushBack($3); 
-                                FINFO("argument_expression_list: {}", $$->toString()); 
-                            }
+argument_expression_list : conditional_expression { $$ = new AstExpressionList(); $$->pushBack($1); FINFO("argument_expression_list: {}", $$->toString()); }
+                         | argument_expression_list T_COMMA conditional_expression { $$->pushBack($3); FINFO("argument_expression_list: {}", $$->toString()); }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | T_ADD unary_expression {
-                        switch ($2->type()) {
-                            case A_I8_CONSTANT: { $$ = $2; break; }
-                            case A_UI8_CONSTANT: { $$ = $2; break; }
-                            case A_I16_CONSTANT: { $$ = $2; break; }
-                            case A_UI16_CONSTANT: { $$ = $2; break; }
-                            case A_I32_CONSTANT: { $$ = $2; break; }
-                            case A_UI32_CONSTANT: { $$ = $2; break; }
-                            case A_I64_CONSTANT: { $$ = $2; break; }
-                            case A_UI64_CONSTANT: { $$ = $2; break; }
-                            case A_F32_CONSTANT: { $$ = $2; break; }
-                            case A_F64_CONSTANT: { $$ = $2; break; }
-                            default: { $$ = new AstUnaryExpression($1, $2); break; }
-                        }
-                        FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
-                    }
-                 | T_SUB unary_expression { 
-                         /*memory allocation optimization */
-                        switch ($2->type()) {
-                            case A_I8_CONSTANT: { DC(I8P, $2)->reset(-(DC(I8P, $2)->value())); $$ = $2; break; }
-                            case A_UI8_CONSTANT: { DC(UI8P, $2)->reset(-(DC(UI8P, $2)->value())); $$ = $2; break; }
-                            case A_I16_CONSTANT: { DC(I16P, $2)->reset(-(DC(I16P, $2)->value())); $$ = $2; break; }
-                            case A_UI16_CONSTANT: { DC(UI16P, $2)->reset(-(DC(UI16P, $2)->value())); $$ = $2; break; }
-                            case A_I32_CONSTANT: { DC(I32P, $2)->reset(-(DC(I32P, $2)->value())); $$ = $2; break; }
-                            case A_UI32_CONSTANT: { DC(UI32P, $2)->reset(-(DC(UI32P, $2)->value())); $$ = $2; break; }
-                            case A_I64_CONSTANT: { DC(I64P, $2)->reset(-(DC(I64P, $2)->value())); $$ = $2; break; }
-                            case A_UI64_CONSTANT: { DC(UI64P, $2)->reset(-(DC(UI64P, $2)->value())); $$ = $2; break; }
-                            case A_F32_CONSTANT: { DC(F32P, $2)->reset(-(DC(F32P, $2)->value())); $$ = $2; break; }
-                            case A_F64_CONSTANT: { DC(F64P, $2)->reset(-(DC(F64P, $2)->value())); $$ = $2; break; }
-                            default: { $$ = new AstUnaryExpression($1, $2); break; }
-                        }
-                        FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
-                    }
-                 | T_BIT_NOT unary_expression {
-                        /* memory allocation optimization */
-                        switch ($2->type()) {
-                            case A_I8_CONSTANT: { DC(I8P, $2)->reset(~(DC(I8P, $2)->value())); $$ = $2; break; }
-                            case A_UI8_CONSTANT: { DC(UI8P, $2)->reset(~(DC(UI8P, $2)->value())); $$ = $2; break; }
-                            case A_I16_CONSTANT: { DC(I16P, $2)->reset(~(DC(I16P, $2)->value())); $$ = $2; break; }
-                            case A_UI16_CONSTANT: { DC(UI16P, $2)->reset(~(DC(UI16P, $2)->value())); $$ = $2; break; }
-                            case A_I32_CONSTANT: { DC(I32P, $2)->reset(~(DC(I32P, $2)->value())); $$ = $2; break; }
-                            case A_UI32_CONSTANT: { DC(UI32P, $2)->reset(~(DC(UI32P, $2)->value())); $$ = $2; break; }
-                            case A_I64_CONSTANT: { DC(I64P, $2)->reset(~(DC(I64P, $2)->value())); $$ = $2; break; }
-                            case A_UI64_CONSTANT: { DC(UI64P, $2)->reset(~(DC(UI64P, $2)->value())); $$ = $2; break; }
-                            default: { $$ = new AstUnaryExpression($1, $2); break; }
-                        }
-                        FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); 
-                    }
-                 | T_LOGIC_NOT unary_expression {
-                        /* memory allocation optimization */
-                        switch ($2->type()) {
-                            case A_BOOLEAN_CONSTANT: { DC(BP, $2)->reset(!(DC(BP, $2)->value())); $$ = $2; break; }
-                            default: { $$ = new AstUnaryExpression($1, $2); break; }
-                        }
-                        FINFO("unary_expression: {}", $$->toString()); 
-                    }
+                 | T_ADD unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
+                 | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
+                 | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
+                 | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); FINFO("unary_expression: {}", $$->toString()); }
                  ;
 
  /*
