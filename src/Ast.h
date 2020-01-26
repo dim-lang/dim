@@ -91,7 +91,7 @@ public:
 
   virtual int size() const;
   virtual std::shared_ptr<AstExpression> get(int pos) const;
-  virtual void pushBack(AstExpression *expression);
+  virtual void add(AstExpression *expression);
 
 private:
   std::vector<std::shared_ptr<AstExpression>> expressions_;
@@ -106,7 +106,7 @@ public:
 
   virtual int size() const;
   virtual std::shared_ptr<AstStatement> get(int pos) const;
-  virtual void pushBack(AstStatement *statement);
+  virtual void add(AstStatement *statement);
 
 private:
   std::vector<std::shared_ptr<AstStatement>> statements_;

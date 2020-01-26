@@ -35,7 +35,7 @@ std::shared_ptr<AstExpression> AstExpressionList::get(int pos) const {
   return expressions_[pos];
 }
 
-void AstExpressionList::pushBack(AstExpression *expression) {
+void AstExpressionList::add(AstExpression *expression) {
   expressions_.push_back(std::shared_ptr<AstExpression>(expression));
 }
 
@@ -68,7 +68,7 @@ std::shared_ptr<AstStatement> AstStatementList::get(int pos) const {
   return statements_[pos];
 }
 
-void AstStatementList::pushBack(AstStatement *statement) {
+void AstStatementList::add(AstStatement *statement) {
   statements_.push_back(std::shared_ptr<AstStatement>(statement));
 }
 
