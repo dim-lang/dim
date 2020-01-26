@@ -4,10 +4,10 @@
 #pragma once
 #include "Scope.h"
 
-class AnonymousScope : public Scope {
+class LocalScope : public Scope {
 public:
-  AnonymousScope(const std::string &scopeName);
-  virtual ~AnonymousScope() = default;
+  LocalScope(const std::string &scopeName);
+  virtual ~LocalScope() = default;
 
   virtual std::string name() const;
   virtual std::string toString() const;
