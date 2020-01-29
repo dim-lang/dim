@@ -3,8 +3,21 @@
 
 #include "Scope.h"
 #include "Log.h"
+#include "config/Header.h"
 #include <algorithm>
 #include <utility>
+
+Scope::Scope(const std::string &name, std::shared_ptr<Scope> enclosingScope)
+    : scopeName_(name), enclosingScope_(enclosingScope) {}
+
+const std::string &Scope::name() const { return scopeName_; }
+
+std::string Scope::toString() const {
+  return fmt::format(
+      "[ @Scope scopeName_:{}, symbolTable_#size:{}, enclosingScope_:{} ]",
+      scopeName_, symbolTable_.size(),
+      enclosingScope_ ? enclosingScope_->toString() : "null");
+}
 
 void Scope::define(std::shared_ptr<Symbol> symbol) {
   FCHECK(symbol, "symbol {} already exist", symbol->toString());
@@ -17,21 +30,14 @@ std::shared_ptr<Symbol> Scope::resolve(const std::string &name) {
   return symbolTable_[name];
 }
 
-void Scope::setEnclosingScope(std::shared_ptr<Scope> scope) {
-  enclosingScope_ = scope;
-}
-
 std::shared_ptr<Scope> Scope::enclosingScope() const { return enclosingScope_; }
 
 void Scope::initialize() { currentScope_ = GlobalScope::instance(); }
 
 std::shared_ptr<Scope> Scope::currentScope() { return currentScope_; }
 
-void Scope::pushScope(std::shared_ptr<Scope> scope) {
-  scope->setEnclosingScope(currentScope_);
-  currentScope_ = scope;
-}
+void Scope::push(std::shared_ptr<Scope> scope) { currentScope_ = scope; }
 
-void Scope::popScope(std::shared_ptr<Scope> scope) {
+void Scope::pop(std::shared_ptr<Scope> scope) {
   currentScope_ = scope->enclosingScope();
 }

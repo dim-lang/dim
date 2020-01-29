@@ -573,20 +573,17 @@ class AstFunctionDeclaration : public AstDeclaration {
 public:
   AstFunctionDeclaration(const char *identifier,
                          AstExpressionList *argumentList,
-                         AstStatementList *statementList);
-  AstFunctionDeclaration(const char *identifier,
-                         AstExpressionList *argumentList,
-                         std::shared_ptr<AstStatementList> statementList);
+                         AstCompoundStatement *compoundStatement);
   virtual ~AstFunctionDeclaration() = default;
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
   virtual std::shared_ptr<AstExpressionList> argumentList() const;
-  virtual std::shared_ptr<AstStatementList> statementList() const;
+  virtual std::shared_ptr<AstCompoundStatement> compoundStatement() const;
 
 private:
   std::string identifier_;
   std::shared_ptr<AstExpressionList> argumentList_;
-  std::shared_ptr<AstStatementList> statementList_;
+  std::shared_ptr<AstCompoundStatement> compoundStatement_;
 };

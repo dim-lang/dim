@@ -7,10 +7,6 @@
 class GlobalScope : public Scope {
 public:
   virtual ~GlobalScope() = default;
-
-  virtual std::string name() const;
-  virtual std::string toString() const;
-
   static std::shared_ptr<Scope> instance();
 
 private:

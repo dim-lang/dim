@@ -2,17 +2,19 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Scope.h"
 #include "Symbol.h"
+#include "scope/GlobalScope.h"
+#include "scope/LocalScope.h"
 
-class FunctionSymbol : public Symbol, Scope {
+class FunctionSymbol : public Symbol, LocalScope {
 public:
-  FunctionSymbol(const std::string &functionName);
+  FunctionSymbol(
+      const std::string &name, const std::string &type,
+      std::shared_ptr<Scope> enclosingScope = GlobalScope::instance());
   virtual ~FunctionSymbol() = default;
-  virtual std::string name() const;
+  virtual const std::string &type() const;
   virtual std::string toString() const;
 
 private:
-  std::string functionName_;
   std::string functionType_;
 };

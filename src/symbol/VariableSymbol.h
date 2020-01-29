@@ -6,9 +6,10 @@
 
 class VariableSymbol : public Symbol {
 public:
-  VariableSymbol(const std::string &name);
+  VariableSymbol(const std::string &name, const std::string &type);
   virtual ~VariableSymbol() = default;
-  virtual std::string name() const;
+  virtual const std::string &name() const;
+  virtual const std::string &type() const;
   virtual std::string toString() const;
 
 private:

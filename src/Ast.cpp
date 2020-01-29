@@ -521,28 +521,23 @@ AstVariableDeclaration::expressionList() const {
   return expressionList_;
 }
 
-AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
-                                               AstExpressionList *argumentList,
-                                               AstStatementList *statementList)
-    : identifier_(identifier),
-      argumentList_(std::shared_ptr<AstExpressionList>(argumentList)),
-      statementList_(std::shared_ptr<AstStatementList>(statementList)) {}
-
 AstFunctionDeclaration::AstFunctionDeclaration(
     const char *identifier, AstExpressionList *argumentList,
-    std::shared_ptr<AstStatementList> statementList)
+    AstCompoundStatement *compoundStatement)
     : identifier_(identifier),
       argumentList_(std::shared_ptr<AstExpressionList>(argumentList)),
-      statementList_(statementList) {}
+      compoundStatement_(
+          std::shared_ptr<AstCompoundStatement>(compoundStatement)) {}
 
 int AstFunctionDeclaration::type() const { return A_FUNCTION_DECLARATION; }
 
 std::string AstFunctionDeclaration::toString() const {
+  std::string arguStr = argumentList_ ? argumentList_->toString() : "null";
+  std::string compStr =
+      compoundStatement_ ? compoundStatement_->toString() : "null";
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
-                     "argumentList_:{}, statementList_:{} ]",
-                     identifier_,
-                     argumentList_ ? argumentList_->toString() : "null",
-                     statementList_ ? statementList_->toString() : "null");
+                     "argumentList_:{}, compoundStatement_:{} ]",
+                     identifier_, arguStr, compStr);
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
@@ -554,7 +549,7 @@ AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 
-std::shared_ptr<AstStatementList>
-AstFunctionDeclaration::statementList() const {
-  return statementList_;
+std::shared_ptr<AstCompoundStatement>
+AstFunctionDeclaration::compoundStatement() const {
+  return compoundStatement_;
 }

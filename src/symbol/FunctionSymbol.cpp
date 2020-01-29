@@ -4,11 +4,15 @@
 #include "symbol/FunctionSymbol.h"
 #include "config/Header.h"
 
-FunctionSymbol::FunctionSymbol(const std::string &functionName)
-    : functionName_(functionName) {}
+FunctionSymbol::FunctionSymbol(const std::string &name, const std::string &type,
+                               std::shared_ptr<Scope> enclosingScope)
+    : LocalScope(name, enclosingScope), functionType_(type) {}
 
-std::string FunctionSymbol::name() const { return functionName_; }
+const std::string &FunctionSymbol::type() const { return functionType_; }
 
 std::string FunctionSymbol::toString() const {
-  return fmt::format("[ @FunctionSymbol functionName_:{} ]", functionName_);
+  return fmt::format("[ @FunctionSymbol functionName_:{}, functionType_:{}, "
+                     "enclosingScope_:{} ]",
+                     name(), type(),
+                     enclosingScope_ ? enclosingScope_->toString() : "null");
 }

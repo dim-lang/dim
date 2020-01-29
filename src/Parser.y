@@ -327,25 +327,27 @@ variable_declaration_expression_list : constant_expression {
 function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {
                             AstStatementList *statementList = new AstStatementList();
                             statementList->add($7);
-                            $$ = new AstFunctionDeclaration($2, $4, statementList);
+                            AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);
+                            $$ = new AstFunctionDeclaration($2, $4, compoundStatement);
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
                      | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN statement {
                             AstStatementList *statementList = new AstStatementList();
                             statementList->add($6);
-                            $$ = new AstFunctionDeclaration($2, nullptr, statementList);
+                            AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);
+                            $$ = new AstFunctionDeclaration($2, nullptr, compoundStatement);
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
-                     | T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN compound_statement { 
-                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<CSP>($7)->statementList());
-                            delete $7;
+                     | T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN compound_statement {
+                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<CSP>($7));
+                            std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
-                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN compound_statement { 
-                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<CSP>($6)->statementList());
-                            delete $6;
+                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN compound_statement {
+                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<CSP>($6));
+                            std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
                      ;
