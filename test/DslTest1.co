@@ -6,7 +6,7 @@ let a10 = 22890u;
 let a11 = 22890U;
 let a18 = 123.901;
 
-let Hello() = {
+func Hello() {
     a = 1;
     b = 2;
     a = a + b;
@@ -29,8 +29,8 @@ let Hello() = {
  * integer: 10243+e31
  */
 
-let ok() = return 0;
-let testOnTokenLexer() = {
+func ok() { return 0; }
+func testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing coli DSL language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.

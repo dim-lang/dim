@@ -268,7 +268,7 @@ declaration : function_declaration { $$ = $1; FINFO("declaration: {}", $$ ? $$->
             ;
 
  /**
-  * let x, y, z = 1, "hello world", 2.3; 
+  * let x:i64, y:string, z:f64 = 1, "hello world", 2.3;
   */
 variable_declaration : T_LET variable_declaration_name_list T_ASSIGN variable_declaration_expression_list T_SEMI { $$ = new AstVariableDeclaration($2, $4); FINFO("variable_declaration: {}", $$->toString()); }
                      ;
@@ -298,37 +298,39 @@ variable_declaration_expression_list : constant_expression {
                                      ;
 
  /**
-  * let min() = return 0;
-  * let max() = { return 100; }
-  * let abs(x) = return x > 0 ? x : -x; 
-  * let abs(x) = { if (x > 0) { return x; } else { return -x; } }
+  * func hello() { print("world"); }
+  * func min(a: i64, b: i64): i64 { return a < b ? a : b; }
+  * func max(a: i64, b: i64): i64 { return a > b ? a : b; }
+  * func abs(x: i64): i64 { if (x > 0) { return x; } else { return -x; } }
+  * let x = func() { print("hello world"); };
+  * let y = func(x: i64, y: i64): i64 { return x + y; };
   */
-function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {
-                            AstStatementList *statementList = new AstStatementList();
-                            statementList->add($7);
-                            AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);
-                            $$ = new AstFunctionDeclaration($2, $4, compoundStatement);
+function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN compound_statement {
+                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<AstCompoundStatement*>($6));
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
-                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN statement {
-                            AstStatementList *statementList = new AstStatementList();
-                            statementList->add($6);
-                            AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);
-                            $$ = new AstFunctionDeclaration($2, nullptr, compoundStatement);
+                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN compound_statement {
+                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<AstCompoundStatement*>($5));
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
-                     | T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<AstCompoundStatement*>($7));
-                            std::free($2);
-                            FINFO("function_declaration: {}", $$->toString());
-                        }
-                     | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<AstCompoundStatement*>($6));
-                            std::free($2);
-                            FINFO("function_declaration: {}", $$->toString());
-                        }
+                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {*/
+                            /*AstStatementList *statementList = new AstStatementList();*/
+                            /*statementList->add($7);*/
+                            /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
+                            /*$$ = new AstFunctionDeclaration($2, $4, compoundStatement);*/
+                            /*std::free($2);*/
+                            /*FINFO("function_declaration: {}", $$->toString());*/
+                        /*}*/
+                     /*| T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN statement {*/
+                            /*AstStatementList *statementList = new AstStatementList();*/
+                            /*statementList->add($6);*/
+                            /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
+                            /*$$ = new AstFunctionDeclaration($2, nullptr, compoundStatement);*/
+                            /*std::free($2);*/
+                            /*FINFO("function_declaration: {}", $$->toString());*/
+                        /*}*/
                      ;
 
 function_argument_list : T_IDENTIFIER { $$ = new AstExpressionList(); $$->add(new AstIdentifierConstant($1)); std::free($1); FINFO("function_argument_list: {}", $$->toString()); }

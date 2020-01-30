@@ -6,7 +6,6 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,6 +28,7 @@
 #define A_I64_CONSTANT 115
 #define A_UI64_CONSTANT 116
 #define A_BOOLEAN_CONSTANT 117
+#define A_ASSIGNMENT_EXPRESSION 118
 
 #define A_EXPRESSION_STATEMENT 201
 #define A_COMPOUND_STATEMENT 202
@@ -126,38 +126,38 @@ public:
 class AstExpressionList : public Ast {
 public:
   AstExpressionList();
-  virtual ~AstExpressionList() = default;
+  virtual ~AstExpressionList();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual int size() const;
-  virtual std::shared_ptr<AstExpression> get(int pos) const;
+  virtual AstExpression *get(int pos) const;
   virtual void add(AstExpression *expression);
 
 private:
-  std::vector<std::shared_ptr<AstExpression>> expressions_;
+  std::vector<AstExpression *> expressions_;
 };
 
 class AstStatementList : public Ast {
 public:
   AstStatementList();
-  virtual ~AstStatementList() = default;
+  virtual ~AstStatementList();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual int size() const;
-  virtual std::shared_ptr<AstStatement> get(int pos) const;
+  virtual AstStatement *get(int pos) const;
   virtual void add(AstStatement *statement);
 
 private:
-  std::vector<std::shared_ptr<AstStatement>> statements_;
+  std::vector<AstStatement *> statements_;
 };
 
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {
 public:
   AstIdentifierConstant(const char *value);
-  virtual ~AstIdentifierConstant() = default;
+  virtual ~AstIdentifierConstant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -171,7 +171,7 @@ private:
 class AstI8Constant : public AstExpression {
 public:
   AstI8Constant(const int8_t &value);
-  virtual ~AstI8Constant() = default;
+  virtual ~AstI8Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -186,7 +186,7 @@ private:
 class AstUI8Constant : public AstExpression {
 public:
   AstUI8Constant(const uint8_t &value);
-  virtual ~AstUI8Constant() = default;
+  virtual ~AstUI8Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -201,7 +201,7 @@ private:
 class AstI16Constant : public AstExpression {
 public:
   AstI16Constant(const int16_t &value);
-  virtual ~AstI16Constant() = default;
+  virtual ~AstI16Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -216,7 +216,7 @@ private:
 class AstUI16Constant : public AstExpression {
 public:
   AstUI16Constant(const uint16_t &value);
-  virtual ~AstUI16Constant() = default;
+  virtual ~AstUI16Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -231,7 +231,7 @@ private:
 class AstI32Constant : public AstExpression {
 public:
   AstI32Constant(const int32_t &value);
-  virtual ~AstI32Constant() = default;
+  virtual ~AstI32Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -246,7 +246,7 @@ private:
 class AstUI32Constant : public AstExpression {
 public:
   AstUI32Constant(const uint32_t &value);
-  virtual ~AstUI32Constant() = default;
+  virtual ~AstUI32Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -261,7 +261,7 @@ private:
 class AstI64Constant : public AstExpression {
 public:
   AstI64Constant(const int64_t &value);
-  virtual ~AstI64Constant() = default;
+  virtual ~AstI64Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -276,7 +276,7 @@ private:
 class AstUI64Constant : public AstExpression {
 public:
   AstUI64Constant(const uint64_t &value);
-  virtual ~AstUI64Constant() = default;
+  virtual ~AstUI64Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -291,7 +291,7 @@ private:
 class AstF32Constant : public AstExpression {
 public:
   AstF32Constant(const float &value);
-  virtual ~AstF32Constant() = default;
+  virtual ~AstF32Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -306,7 +306,7 @@ private:
 class AstF64Constant : public AstExpression {
 public:
   AstF64Constant(const double &value);
-  virtual ~AstF64Constant() = default;
+  virtual ~AstF64Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -321,7 +321,7 @@ private:
 class AstStringConstant : public AstExpression {
 public:
   AstStringConstant(const char *value);
-  virtual ~AstStringConstant() = default;
+  virtual ~AstStringConstant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -336,7 +336,7 @@ private:
 class AstBooleanConstant : public AstExpression {
 public:
   AstBooleanConstant(const bool &value);
-  virtual ~AstBooleanConstant() = default;
+  virtual ~AstBooleanConstant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -352,50 +352,50 @@ class AstFunctionCallExpression : public AstExpression {
 public:
   AstFunctionCallExpression(const char *identifier,
                             AstExpressionList *expressionList);
-  virtual ~AstFunctionCallExpression() = default;
+  virtual ~AstFunctionCallExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual std::shared_ptr<AstExpressionList> argumentList() const;
+  virtual AstExpressionList *argumentList() const;
 
 private:
   std::string identifier_;
-  std::shared_ptr<AstExpressionList> argumentList_;
+  AstExpressionList *argumentList_;
 };
 
 /* unary operation expression */
 class AstUnaryExpression : public AstExpression {
 public:
   AstUnaryExpression(int token, AstExpression *expression);
-  virtual ~AstUnaryExpression() = default;
+  virtual ~AstUnaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual int token() const;
-  virtual std::shared_ptr<AstExpression> expression() const;
+  virtual AstExpression *expression() const;
 
 private:
   int token_;
-  std::shared_ptr<AstExpression> expression_;
+  AstExpression *expression_;
 };
 
 /* binary operation expression */
 class AstBinaryExpression : public AstExpression {
 public:
   AstBinaryExpression(AstExpression *left, int token, AstExpression *right);
-  virtual ~AstBinaryExpression() = default;
+  virtual ~AstBinaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpression> left() const;
+  virtual AstExpression *left() const;
   virtual int token() const;
-  virtual std::shared_ptr<AstExpression> right() const;
+  virtual AstExpression *right() const;
 
 private:
-  std::shared_ptr<AstExpression> left_;
+  AstExpression *left_;
   int token_;
-  std::shared_ptr<AstExpression> right_;
+  AstExpression *right_;
 };
 
 /* ternary conditional expression */
@@ -404,18 +404,18 @@ public:
   AstConditionalExpression(AstExpression *condExpression,
                            AstExpression *ifExpression,
                            AstExpression *elseExpression);
-  virtual ~AstConditionalExpression() = default;
+  virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpression> condExpression() const;
-  virtual std::shared_ptr<AstExpression> ifExpression() const;
-  virtual std::shared_ptr<AstExpression> elseExpression() const;
+  virtual AstExpression *condExpression() const;
+  virtual AstExpression *ifExpression() const;
+  virtual AstExpression *elseExpression() const;
 
 private:
-  std::shared_ptr<AstExpression> condExpression_;
-  std::shared_ptr<AstExpression> ifExpression_;
-  std::shared_ptr<AstExpression> elseExpression_;
+  AstExpression *condExpression_;
+  AstExpression *ifExpression_;
+  AstExpression *elseExpression_;
 };
 
 /* assignment expression */
@@ -423,46 +423,46 @@ class AstAssignmentExpression : public AstExpression {
 public:
   AstAssignmentExpression(AstExpressionList *left, int token,
                           AstExpressionList *right);
-  virtual ~AstAssignmentExpression() = default;
+  virtual ~AstAssignmentExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpressionList> left() const;
+  virtual AstExpressionList *left() const;
   virtual int token() const;
-  virtual std::shared_ptr<AstExpressionList> right() const;
+  virtual AstExpressionList *right() const;
 
 private:
-  std::shared_ptr<AstExpressionList> left_;
+  AstExpressionList *left_;
   int token_;
-  std::shared_ptr<AstExpressionList> right_;
+  AstExpressionList *right_;
 };
 
 /* expression statement */
 class AstExpressionStatement : public AstStatement {
 public:
   AstExpressionStatement(AstExpression *expression);
-  virtual ~AstExpressionStatement() = default;
+  virtual ~AstExpressionStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpression> expression() const;
+  virtual AstExpression *expression() const;
 
 private:
-  std::shared_ptr<AstExpression> expression_;
+  AstExpression *expression_;
 };
 
 /* compound statement - { ... } */
 class AstCompoundStatement : public AstStatement {
 public:
   AstCompoundStatement(AstStatementList *statementList);
-  virtual ~AstCompoundStatement() = default;
+  virtual ~AstCompoundStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstStatementList> statementList() const;
+  virtual AstStatementList *statementList() const;
 
 private:
-  std::shared_ptr<AstStatementList> statementList_;
+  AstStatementList *statementList_;
 };
 
 /* selection statement - if else */
@@ -470,34 +470,34 @@ class AstIfStatement : public AstStatement {
 public:
   AstIfStatement(AstExpression *condExpression, AstStatement *ifStatement,
                  AstStatement *elseStatement);
-  virtual ~AstIfStatement() = default;
+  virtual ~AstIfStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpression> condExpression() const;
-  virtual std::shared_ptr<AstStatement> ifStatement() const;
-  virtual std::shared_ptr<AstStatement> elseStatement() const;
+  virtual AstExpression *condExpression() const;
+  virtual AstStatement *ifStatement() const;
+  virtual AstStatement *elseStatement() const;
 
 private:
-  std::shared_ptr<AstExpression> condExpression_;
-  std::shared_ptr<AstStatement> ifStatement_;
-  std::shared_ptr<AstStatement> elseStatement_;
+  AstExpression *condExpression_;
+  AstStatement *ifStatement_;
+  AstStatement *elseStatement_;
 };
 
 /* iteration statement - while */
 class AstWhileStatement : public AstStatement {
 public:
   AstWhileStatement(AstExpression *condExpression, AstStatement *statement);
-  virtual ~AstWhileStatement() = default;
+  virtual ~AstWhileStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstExpression> condExpression() const;
-  virtual std::shared_ptr<AstStatement> statement() const;
+  virtual AstExpression *condExpression() const;
+  virtual AstStatement *statement() const;
 
 private:
-  std::shared_ptr<AstExpression> condExpression_;
-  std::shared_ptr<AstStatement> statement_;
+  AstExpression *condExpression_;
+  AstStatement *statement_;
 };
 
 /* iteration statement - for */
@@ -505,27 +505,27 @@ class AstForStatement : public AstStatement {
 public:
   AstForStatement(AstStatement *initStatement, AstStatement *condStatement,
                   AstExpression *postExpression, AstStatement *statement);
-  virtual ~AstForStatement() = default;
+  virtual ~AstForStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual std::shared_ptr<AstStatement> initStatement() const;
-  virtual std::shared_ptr<AstStatement> condStatement() const;
-  virtual std::shared_ptr<AstExpression> postExpression() const;
-  virtual std::shared_ptr<AstStatement> statement() const;
+  virtual AstStatement *initStatement() const;
+  virtual AstStatement *condStatement() const;
+  virtual AstExpression *postExpression() const;
+  virtual AstStatement *statement() const;
 
 private:
-  std::shared_ptr<AstStatement> initStatement_;
-  std::shared_ptr<AstStatement> condStatement_;
-  std::shared_ptr<AstExpression> postExpression_;
-  std::shared_ptr<AstStatement> statement_;
+  AstStatement *initStatement_;
+  AstStatement *condStatement_;
+  AstExpression *postExpression_;
+  AstStatement *statement_;
 };
 
 /* jump statement - continue */
 class AstContinueStatement : public AstStatement {
 public:
   AstContinueStatement();
-  virtual ~AstContinueStatement() = default;
+  virtual ~AstContinueStatement();
   virtual int type() const;
   virtual std::string toString() const;
 };
@@ -534,7 +534,7 @@ public:
 class AstBreakStatement : public AstStatement {
 public:
   AstBreakStatement();
-  virtual ~AstBreakStatement() = default;
+  virtual ~AstBreakStatement();
   virtual int type() const;
   virtual std::string toString() const;
 };
@@ -543,13 +543,13 @@ public:
 class AstReturnStatement : public AstStatement {
 public:
   AstReturnStatement(AstExpression *expression);
-  virtual ~AstReturnStatement() = default;
+  virtual ~AstReturnStatement();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual std::shared_ptr<AstExpression> expression() const;
+  virtual AstExpression *expression() const;
 
 private:
-  std::shared_ptr<AstExpression> expression_;
+  AstExpression *expression_;
 };
 
 /* variable declaration */
@@ -557,15 +557,15 @@ class AstVariableDeclaration : public AstDeclaration {
 public:
   AstVariableDeclaration(AstExpressionList *identifierList,
                          AstExpressionList *expressionList);
-  virtual ~AstVariableDeclaration() = default;
+  virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual std::shared_ptr<AstExpressionList> identifierList() const;
-  virtual std::shared_ptr<AstExpressionList> expressionList() const;
+  virtual AstExpressionList *identifierList() const;
+  virtual AstExpressionList *expressionList() const;
 
 private:
-  std::shared_ptr<AstExpressionList> identifierList_;
-  std::shared_ptr<AstExpressionList> expressionList_;
+  AstExpressionList *identifierList_;
+  AstExpressionList *expressionList_;
 };
 
 /* function declaration */
@@ -574,16 +574,16 @@ public:
   AstFunctionDeclaration(const char *identifier,
                          AstExpressionList *argumentList,
                          AstCompoundStatement *compoundStatement);
-  virtual ~AstFunctionDeclaration() = default;
+  virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual std::shared_ptr<AstExpressionList> argumentList() const;
-  virtual std::shared_ptr<AstCompoundStatement> compoundStatement() const;
+  virtual AstExpressionList *argumentList() const;
+  virtual AstCompoundStatement *compoundStatement() const;
 
 private:
   std::string identifier_;
-  std::shared_ptr<AstExpressionList> argumentList_;
-  std::shared_ptr<AstCompoundStatement> compoundStatement_;
+  AstExpressionList *argumentList_;
+  AstCompoundStatement *compoundStatement_;
 };
