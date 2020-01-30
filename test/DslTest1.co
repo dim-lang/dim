@@ -2,8 +2,6 @@ let x = 1 + 6 / (-3) * (4 + 3 % -2);
 let y = 0;
 let z = x + y;
 let a9 = 228;
-let a10 = 22890u;
-let a11 = 22890U;
 let a18 = 123.901;
 
 func Hello() {
