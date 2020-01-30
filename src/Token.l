@@ -69,7 +69,7 @@ static std::string tokenFileToModule(const std::string &name);
 "else"       return T_ELSE;
 "switch"     return T_SWITCH;
 "case"       return T_CASE;
-"otherwise"  return T_OTHERWISE;
+"default"    return T_DEFAULT;
 "for"        return T_FOR;
 "while"      return T_WHILE;
 "break"      return T_BREAK;
@@ -145,7 +145,7 @@ static std::string tokenFileToModule(const std::string &name);
  /* constants */
 [0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F64_CONSTANT; 
 [0-9]+{EXP}?                T_SAVE_TOKEN; return T_I64_CONSTANT;
-[0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT;
+ /* [0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT; */
 \"(\\.|[^\\"])*\"           T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */

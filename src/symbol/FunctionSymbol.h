@@ -6,7 +6,7 @@
 #include "scope/GlobalScope.h"
 #include "scope/LocalScope.h"
 
-class FunctionSymbol : public Symbol, LocalScope {
+class FunctionSymbol : public Symbol, Scope {
 public:
   FunctionSymbol(
       const std::string &name, const std::string &type,

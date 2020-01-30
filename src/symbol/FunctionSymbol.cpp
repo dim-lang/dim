@@ -6,7 +6,7 @@
 
 FunctionSymbol::FunctionSymbol(const std::string &name, const std::string &type,
                                std::shared_ptr<Scope> enclosingScope)
-    : LocalScope(name, enclosingScope), functionType_(type) {}
+    : Scope(name, enclosingScope), functionType_(type) {}
 
 const std::string &FunctionSymbol::type() const { return functionType_; }
 

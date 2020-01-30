@@ -3,8 +3,12 @@
 #include "config/Platform.h"
 #include "Log.h"
 #include "Ast.h"
-#include "Scope.h"
 #include "Token.h"
+#include "Scope.h"
+#include "scope/LocalScope.h"
+#include "scope/GlobalScope.h"
+#include "symbol/VariableSymbol.h"
+#include "symbol/FunctionSymbol.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -16,8 +20,8 @@ void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 static std::unordered_set<int> IntConstants = {
     A_I8_CONSTANT,  A_UI8_CONSTANT,
     A_I16_CONSTANT, A_UI16_CONSTANT,
-    A_I32_CONSTANT,   A_UI32_CONSTANT,
-    A_I64_CONSTANT,  A_UI64_CONSTANT,
+    A_I32_CONSTANT, A_UI32_CONSTANT,
+    A_I64_CONSTANT, A_UI64_CONSTANT,
 };
 static std::unordered_set<int> FloatConstants = {
     A_F32_CONSTANT,  A_F64_CONSTANT,
@@ -25,35 +29,10 @@ static std::unordered_set<int> FloatConstants = {
 static std::unordered_set<int> NumberConstants = {
     A_I8_CONSTANT,  A_UI8_CONSTANT,
     A_I16_CONSTANT, A_UI16_CONSTANT,
-    A_I32_CONSTANT,   A_UI32_CONSTANT,
-    A_I64_CONSTANT,  A_UI64_CONSTANT,
-    A_F32_CONSTANT,  A_F64_CONSTANT,
+    A_I32_CONSTANT, A_UI32_CONSTANT,
+    A_I64_CONSTANT, A_UI64_CONSTANT,
+    A_F32_CONSTANT, A_F64_CONSTANT,
 };
-static std::unordered_map<int, int> ConversionRank = {
-    {A_F64_CONSTANT, 1},
-    {A_F32_CONSTANT, 2},
-    {A_UI64_CONSTANT, 3},
-    {A_I64_CONSTANT, 4},
-    {A_UI32_CONSTANT, 5},
-    {A_I32_CONSTANT, 6},
-    {A_UI16_CONSTANT, 7},
-    {A_I16_CONSTANT, 8},
-    {A_UI8_CONSTANT, 9},
-    {A_I8_CONSTANT, 10},
-};
-using I8P = AstI8Constant*;
-using UI8P = AstUI8Constant*;
-using I16P = AstI16Constant*;
-using UI16P = AstUI16Constant*;
-using I32P = AstI32Constant*;
-using UI32P = AstUI32Constant*;
-using I64P = AstI64Constant*;
-using UI64P = AstUI64Constant*;
-using F32P = AstF32Constant*;
-using F64P = AstF64Constant*;
-using STRP = AstStringConstant*;
-using BP = AstBooleanConstant*;
-using CSP = AstCompoundStatement*;
 
 %}
 
@@ -73,7 +52,7 @@ using CSP = AstCompoundStatement*;
   * union
   */
 %token <token> T_EOF
-%token <token> T_TRUE T_FALSE T_LET T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_OTHERWISE T_BIT
+%token <token> T_TRUE T_FALSE T_LET T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_DEFAULT T_BIT
 %token <token> T_FUNC T_CLASS T_TYPE T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_I8 T_UI8 T_I16 T_UI16 T_I32 T_UI32 T_I64 T_UI64 T_F32 T_F64 T_STRING T_BOOLEAN
 %token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
@@ -139,15 +118,15 @@ using CSP = AstCompoundStatement*;
  /* part-1 expression */
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UI8_CONSTANT { $$ = new AstUI8Constant((uint8_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UI16_CONSTANT { $$ = new AstUI16Constant((uint16_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UI32_CONSTANT { $$ = new AstUI32Constant((uint32_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_UI8_CONSTANT { $$ = new AstUI8Constant((uint8_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_UI16_CONSTANT { $$ = new AstUI16Constant((uint16_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_UI32_CONSTANT { $$ = new AstUI32Constant((uint32_t)std::stoul($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
                    | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_UI64_CONSTANT { $$ = new AstUI64Constant((uint64_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
-                   | T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
+                   /*| T_UI64_CONSTANT { $$ = new AstUI64Constant((uint64_t)std::stoull($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }*/
                    | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); FINFO("primary_expression: {}", $$->toString()); }
                    | T_TRUE { $$ = new AstBooleanConstant(true); FINFO("primary_expression: {}", $$->toString()); }
@@ -163,7 +142,7 @@ postfix_expression : primary_expression { $$ = $1; FINFO("postfix_expression: {}
                    ;
 
 argument_expression_list : conditional_expression { $$ = new AstExpressionList(); $$->add($1); FINFO("argument_expression_list: {}", $$->toString()); }
-                        | argument_expression_list T_COMMA conditional_expression { $$->add($3); FINFO("argument_expression_list: {}", $$->toString()); }
+                         | argument_expression_list T_COMMA conditional_expression { $$->add($3); FINFO("argument_expression_list: {}", $$->toString()); }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; FINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
@@ -294,10 +273,10 @@ declaration : function_declaration { $$ = $1; FINFO("declaration: {}", $$ ? $$->
 variable_declaration : T_LET variable_declaration_name_list T_ASSIGN variable_declaration_expression_list T_SEMI { $$ = new AstVariableDeclaration($2, $4); FINFO("variable_declaration: {}", $$->toString()); }
                      ;
 
-variable_declaration_name_list : T_IDENTIFIER { 
+variable_declaration_name_list : T_IDENTIFIER {
                                         $$ = new AstExpressionList(); 
                                         $$->add(new AstIdentifierConstant($1));
-                                        std::free($1); 
+                                        std::free($1);
                                         FINFO("variable_declaration_name_list: {}", $$->toString()); 
                                     }
                                | variable_declaration_name_list T_COMMA T_IDENTIFIER { 
@@ -341,12 +320,12 @@ function_declaration : T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAR
                             FINFO("function_declaration: {}", $$->toString());
                         }
                      | T_LET T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<CSP>($7));
+                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<AstCompoundStatement*>($7));
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
                      | T_LET T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<CSP>($6));
+                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<AstCompoundStatement*>($6));
                             std::free($2);
                             FINFO("function_declaration: {}", $$->toString());
                         }
