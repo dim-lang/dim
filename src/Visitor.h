@@ -7,5 +7,5 @@
 class Visitor {
 public:
   virtual ~Visitor() = default;
-  virtual Ast *visit(Ast *node) = 0;
+  virtual Ast *visit(Ast *node) const = 0;
 };

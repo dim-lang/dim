@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ast.h"
 #include "Stringify.h"
 #include <string>
 

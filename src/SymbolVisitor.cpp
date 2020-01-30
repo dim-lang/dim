@@ -1,23 +1,21 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "CheckVisitor.h"
+#include "SymbolVisitor.h"
 #include "Log.h"
 #include "symbol/VariableSymbol.h"
 #include <algorithm>
 
-std::shared_ptr<NodeVisitor> ExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> expressionVisitor(
-      new ExpressionVisitor());
+Visitor *ExpressionVisitor::instance() {
+  static Visitor *expressionVisitor = new ExpressionVisitor();
   return expressionVisitor;
 }
 
-std::shared_ptr<Ast> ExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *ExpressionVisitor::visit(Ast *node) const {
   FTHROW("not implement for node:{}", node ? node->toString() : "null");
 }
 
-std::shared_ptr<Ast>
-PrimaryExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *PrimaryExpressionVisitor::visit(Ast *node) const {
   switch (node->type()) {
   case A_I64_CONSTANT:
   case A_F64_CONSTANT:
@@ -39,29 +37,27 @@ primary_expression_error:
   FTHROW("invalid node:{}", node ? node->toString() : "null");
 }
 
-std::shared_ptr<NodeVisitor> PrimaryExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> primaryExpressionVisitor(
-      new PrimaryExpressionVisitor());
+Visitor *PrimaryExpressionVisitor::instance() {
+  static Visitor *primaryExpressionVisitor = new PrimaryExpressionVisitor();
   return primaryExpressionVisitor;
 }
 
-std::shared_ptr<Ast>
-FunctionCallExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *FunctionCallExpressionVisitor::visit(Ast *node) const {
   FTHROW("not implement for node:{}", node ? node->toString() : "null");
   // FINFO("node:{}", node ? node->toString() : "null");
   // return node;
 }
 
-std::shared_ptr<NodeVisitor> FunctionCallExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> functionCallExpressionVisitor(
-      new FunctionCallExpressionVisitor());
+Visitor *FunctionCallExpressionVisitor::instance() {
+  static Visitor *functionCallExpressionVisitor =
+      new FunctionCallExpressionVisitor();
   return functionCallExpressionVisitor;
 }
 
 #define UNARY_OP(x, y, op)                                                     \
-  return std::shared_ptr<Ast>(new x(op std::static_pointer_cast<x>(y)->value()))
+  return Ast * (new x(op std::static_pointer_cast<x>(y)->value()))
 
-std::shared_ptr<Ast> UnaryExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *UnaryExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstExpression> expr = std::static_pointer_cast<AstExpression>(
       ExpressionVisitor::instance()->visit(node->expression()));
   switch (node->token()) {
@@ -115,19 +111,17 @@ unary_expression_error:
 
 #undef UNARY_OP
 
-std::shared_ptr<NodeVisitor> UnaryExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> unaryExpressionVisitor(
-      new UnaryExpressionVisitor());
+Visitor *UnaryExpressionVisitor::instance() {
+  static Visitor *unaryExpressionVisitor = new UnaryExpressionVisitor();
   return unaryExpressionVisitor;
 }
 
 #define BINARY_OP(x, u, a, v, b, op)                                           \
-  return std::shared_ptr<Ast>(new x(std::static_pointer_cast<u>(a)             \
-                                        ->value()                              \
-                                            op std::static_pointer_cast<v>(b)  \
-                                        ->value()))
+  return Ast * (new x(std::static_pointer_cast<u>(a)                           \
+                          ->value() op std::static_pointer_cast<v>(b)          \
+                          ->value()))
 
-std::shared_ptr<Ast> BinaryExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *BinaryExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstBinaryExpression> e =
       std::static_pointer_cast<AstBinaryExpression>(node);
   std::shared_ptr<AstExpression> left = std::static_pointer_cast<AstExpression>(
@@ -629,40 +623,35 @@ binary_expression_error:
 
 #undef BINARY_OP
 
-std::shared_ptr<NodeVisitor> BinaryExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> binaryExpressionVisitor(
-      new BinaryExpressionVisitor());
+Visitor *BinaryExpressionVisitor::instance() {
+  static Visitor *binaryExpressionVisitor = new BinaryExpressionVisitor();
   return binaryExpressionVisitor;
 }
 
-std::shared_ptr<Ast>
-ConditionalExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *ConditionalExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstConditionalExpression> e =
       std::static_pointer_cast<AstConditionalExpression>(node);
   std::shared_ptr<AstBooleanConstant> cond =
       std::static_pointer_cast<AstBooleanConstant>(
           ExpressionVisitor::instance()->visit(e->condExpression()));
-  std::shared_ptr<Ast> ifExpr =
-      ExpressionVisitor::instance()->visit(e->ifExpression());
-  std::shared_ptr<Ast> elseExpr =
-      ExpressionVisitor::instance()->visit(e->elseExpression());
+  Ast *ifExpr = ExpressionVisitor::instance()->visit(e->ifExpression());
+  Ast *elseExpr = ExpressionVisitor::instance()->visit(e->elseExpression());
   return cond->value() ? ifExpr : elseExpr;
 }
 
-std::shared_ptr<NodeVisitor> ConditionalExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> conditionalExpressionVisitor(
-      new ConditionalExpressionVisitor());
+Visitor *ConditionalExpressionVisitor::instance() {
+  static Visitor *conditionalExpressionVisitor =
+      new ConditionalExpressionVisitor();
   return conditionalExpressionVisitor;
 }
 
-std::shared_ptr<Ast>
-AssignmentExpressionVisitor::visit(std::shared_ptr<Ast> node) {
+Ast *AssignmentExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstAssignmentExpression> e =
       std::static_pointer_cast<AstAssignmentExpression>(node);
   std::shared_ptr<AstIdentifierConstant> var =
       std::static_pointer_cast<AstIdentifierConstant>(
           ExpressionVisitor::instance()->visit(e->left()));
-  std::shared_ptr<Ast> val = ExpressionVisitor::instance()->visit(e->right());
+  Ast *val = ExpressionVisitor::instance()->visit(e->right());
   std::shared_ptr<VariableSymbol> sym =
       std::static_pointer_cast<VariableSymbol>(
           Scope::currentScope()->resolve(var->value()));
@@ -687,8 +676,8 @@ assignment_expression_error:
   FTHROW("invalid node:{}", node ? node->toString() : "null");
 }
 
-std::shared_ptr<NodeVisitor> AssignmentExpressionVisitor::instance() {
-  static std::shared_ptr<NodeVisitor> assignmentExpressionVisitor(
-      new AssignmentExpressionVisitor());
+Visitor *AssignmentExpressionVisitor::instance() {
+  static Visitor *assignmentExpressionVisitor =
+      new AssignmentExpressionVisitor();
   return assignmentExpressionVisitor;
 }
