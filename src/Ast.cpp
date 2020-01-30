@@ -86,6 +86,43 @@ void AstStatementList::add(AstStatement *statement) {
   statements_.push_back(statement);
 }
 
+AstProgram::AstProgram() {}
+
+AstProgram::~AstProgram() {
+  for (int i = 0; i < (int)nodes_.size(); i++) {
+    delete nodes_[i];
+    nodes_[i] = nullptr;
+  }
+  nodes_.clear();
+}
+
+int AstProgram::type() const { return A_PROGRAM; }
+
+std::string AstProgram::toString() const {
+  std::stringstream ss;
+  ss << "[ @AstProgram size:" << nodes_.size();
+  if (nodes_.empty()) {
+    ss << " ]";
+    return ss.str();
+  }
+  ss << ", ";
+  for (int i = 0; i < (int)nodes_.size(); i++) {
+    Ast *e = nodes_[i];
+    ss << fmt::format("{}:{}", i, e ? e->toString() : "null");
+    if (i < (int)nodes_.size() - 1) {
+      ss << ", ";
+    }
+  }
+  ss << " ]";
+  return ss.str();
+}
+
+int AstProgram::size() const { return (int)nodes_.size(); }
+
+Ast *AstProgram::get(int pos) const { return nodes_[i]; }
+
+void AstProgram::add(Ast *node) { nodes_.push_back(node); }
+
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
 

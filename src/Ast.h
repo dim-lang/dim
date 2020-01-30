@@ -46,6 +46,8 @@
 #define A_EXPRESSION_LIST 401
 #define A_STATEMENT_LIST 402
 
+#define A_PROGRAM 501
+
 /* ================================== */
 
 /* interface */
@@ -61,6 +63,7 @@ class AstExpressionList;
 class AstStatementList;
 
 /* node */
+class AstProgram;
 class AstIdentifierConstant;
 class AstI8Constant;
 class AstUI8Constant;
@@ -151,6 +154,20 @@ public:
 
 private:
   std::vector<AstStatement *> statements_;
+};
+
+class AstProgram : public Ast {
+public:
+  AstProgram();
+  virtual ~AstProgram();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual int size() const;
+  virtual Ast *get(int pos) const;
+  virtual void add(Ast *node);
+
+private:
+  std::vector<Ast *> nodes_;
 };
 
 /* constant expression - T_IDENTIFIER */
