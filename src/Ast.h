@@ -102,6 +102,25 @@ public:
   virtual std::string toString() const = 0;
 };
 
+class AstProgram : public Ast {
+public:
+  AstProgram();
+  virtual ~AstProgram();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual int size() const;
+  virtual Ast *get(int pos) const;
+  virtual void add(Ast *node);
+
+  static AstProgram *instance();
+  static AstProgram *setInstance(AstProgram *prog);
+
+private:
+  std::vector<Ast *> nodes_;
+
+  static AstProgram *instance_;
+};
+
 /* expression */
 class AstExpression : public Ast {
 public:
@@ -154,20 +173,6 @@ public:
 
 private:
   std::vector<AstStatement *> statements_;
-};
-
-class AstProgram : public Ast {
-public:
-  AstProgram();
-  virtual ~AstProgram();
-  virtual int type() const;
-  virtual std::string toString() const;
-  virtual int size() const;
-  virtual Ast *get(int pos) const;
-  virtual void add(Ast *node);
-
-private:
-  std::vector<Ast *> nodes_;
 };
 
 /* constant expression - T_IDENTIFIER */

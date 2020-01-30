@@ -376,8 +376,13 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); FINFO("jum
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); FINFO("jump_statement: {}", $$->toString()); }
                ;
 
-translation_unit : declaration { $$ = new AstProgram(); $$->add($1); FINFO("translation_unit: {}", $$ ? $$->toString() : "null"); }
-                 | translation_unit declaration { $$->add($2); FINFO("translation_unit: {}", $$ ? $$->toString() : "null"); }
+translation_unit : declaration {
+                        AstProgram *save = AstProgram::setInstance(new AstProgram());
+                        AstProgram::instance()->add($1);
+                        FINFO("translation_unit: {}, save: {}", AstProgram::instance()->toString(), save ? save->toString() : "null");
+                        if (save) delete save;
+                    }
+                 | translation_unit declaration { AstProgram::instance()->add($2); FINFO("translation_unit: {}", AstProgram::instance()->toString()); }
                  ;
 
 %%
