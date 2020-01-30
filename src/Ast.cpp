@@ -119,7 +119,7 @@ std::string AstProgram::toString() const {
 
 int AstProgram::size() const { return (int)nodes_.size(); }
 
-Ast *AstProgram::get(int pos) const { return nodes_[i]; }
+Ast *AstProgram::get(int pos) const { return nodes_[pos]; }
 
 void AstProgram::add(Ast *node) { nodes_.push_back(node); }
 

@@ -38,12 +38,12 @@ static std::unordered_set<int> NumberConstants = {
 
  /* Represents the many different ways we can access our data */
 %union {
-    Ast *ast;
     AstExpression *expression;
     AstStatement *statement;
     AstDeclaration *declaration;
     AstExpressionList *expressionList;
     AstStatementList *statementList;
+    AstProgram *program;
     char *literal;
     int token;
 }
@@ -79,7 +79,7 @@ static std::unordered_set<int> NumberConstants = {
 
 %type <statementList> statement_or_declaration_list
 
-%type <ast> translation_unit
+%type <program> translation_unit
 
  /**
   * operator precedence
