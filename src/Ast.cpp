@@ -44,7 +44,7 @@ AstExpression *AstExpressionList::get(int pos) const {
 }
 
 void AstExpressionList::add(AstExpression *expression) {
-  expressions_.push_back(AstExpression * (expression));
+  expressions_.push_back(expression);
 }
 
 AstStatementList::AstStatementList() {}
@@ -83,7 +83,7 @@ int AstStatementList::size() const { return statements_.size(); }
 AstStatement *AstStatementList::get(int pos) const { return statements_[pos]; }
 
 void AstStatementList::add(AstStatement *statement) {
-  statements_.push_back(AstStatement * (statement));
+  statements_.push_back(statement);
 }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
