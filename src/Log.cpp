@@ -19,9 +19,9 @@ void Log::initialize(const std::string &logPath, const std::string &logName,
 
   std::time_t timestamp = std::time(nullptr);
   std::tm dt = *std::localtime(&timestamp);
-  std::string fullFileName =
+  std::string fileName =
       fmt::format("{}/{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log",
                   logPath, logName, dt.tm_year + 1900, dt.tm_mon + 1,
                   dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec);
-  spdlog::set_default_logger(spdlog::basic_logger_mt(logName, fullFileName));
+  spdlog::set_default_logger(spdlog::basic_logger_mt(logName, fileName));
 }
