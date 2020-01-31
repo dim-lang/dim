@@ -10,24 +10,24 @@
 
 static void parseToken(const char *module) {
   if (!tokenImportFile(module)) {
-    FCHECK(false, "tokenImportFile {} fail", module);
+    LOG_CHECK(false, "tokenImportFile {} fail", module);
     return;
   }
-  FINFO("parseToken {} starting...", module);
+  LOG_INFO("parseToken {} starting...", module);
   int t;
   while ((t = yylex()) != 0) {
     if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
         t == T_UI8_CONSTANT || t == T_I16_CONSTANT || t == T_UI16_CONSTANT ||
         t == T_UI32_CONSTANT || t == T_I64_CONSTANT || t == T_UI64_CONSTANT ||
         t == T_F32_CONSTANT || t == T_F64_CONSTANT || t == T_STRING) {
-      FINFO("token:{}, literal:{}", t, yylval.literal);
+      LOG_INFO("token:{}, literal:{}", t, yylval.literal);
     } else {
-      FINFO("token:{}", t);
+      LOG_INFO("token:{}", t);
     }
   }
   // we don't need pop file manually here
   // tokenPopFile();
-  FINFO("parseToken {} ending...", module);
+  LOG_INFO("parseToken {} ending...", module);
 }
 
 TEST_CASE("Token", "[Token]") {

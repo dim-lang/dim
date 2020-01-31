@@ -15,11 +15,11 @@ public:
 
 #ifdef NDEBUG
 
-#define FDEBUG_MSG(msg)
-#define FDEBUG(msg, ...)
-#define FINFO_MSG(msg)
-#define FINFO(msg, ...)
-#define FCHECK_MSG(cond, msg)                                                  \
+#define LOG_DEBUG_MSG(msg)
+#define LOG_DEBUG(msg, ...)
+#define LOG_INFO_MSG(msg)
+#define LOG_INFO(msg, ...)
+#define LOG_CHECK_MSG(cond, msg)                                                  \
   do {                                                                         \
     if (!(cond)) {                                                             \
       throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
@@ -28,7 +28,7 @@ public:
     }                                                                          \
   } while (0)
 
-#define FCHECK(cond, msg, ...)                                                 \
+#define LOG_CHECK(cond, msg, ...)                                                 \
   do {                                                                         \
     if (!(cond)) {                                                             \
       throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
@@ -40,11 +40,11 @@ public:
 
 #else
 
-#define FDEBUG_MSG(msg) SPDLOG_DEBUG(msg)
-#define FDEBUG(msg, ...) SPDLOG_DEBUG(msg, __VA_ARGS__)
-#define FINFO_MSG(msg) SPDLOG_INFO(msg)
-#define FINFO(msg, ...) SPDLOG_INFO(msg, __VA_ARGS__)
-#define FCHECK_MSG(cond, msg)                                                  \
+#define LOG_DEBUG_MSG(msg) SPDLOG_DEBUG(msg)
+#define LOG_DEBUG(msg, ...) SPDLOG_DEBUG(msg, __VA_ARGS__)
+#define LOG_INFO_MSG(msg) SPDLOG_INFO(msg)
+#define LOG_INFO(msg, ...) SPDLOG_INFO(msg, __VA_ARGS__)
+#define LOG_CHECK_MSG(cond, msg)                                                  \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::fprintf(                                                            \
@@ -53,7 +53,7 @@ public:
     }                                                                          \
     BOOST_ASSERT(cond);                                                        \
   } while (0)
-#define FCHECK(cond, msg, ...)                                                 \
+#define LOG_CHECK(cond, msg, ...)                                                 \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::fprintf(stderr,                                                     \
@@ -66,5 +66,5 @@ public:
 
 #endif // #ifdef NDEBUG
 
-#define FERROR_MSG(msg) SPDLOG_ERROR(msg)
-#define FERROR(msg, ...) SPDLOG_ERROR(msg, __VA_ARGS__)
+#define LOG_ERROR_MSG(msg) SPDLOG_ERROR(msg)
+#define LOG_ERROR(msg, ...) SPDLOG_ERROR(msg, __VA_ARGS__)

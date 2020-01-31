@@ -44,7 +44,7 @@ Visitor *PrimaryExpressionVisitor::instance() {
 
 Ast *FunctionCallExpressionVisitor::visit(Ast *node) const {
   FTHROW("not implement for node:{}", node ? node->toString() : "null");
-  // FINFO("node:{}", node ? node->toString() : "null");
+  // LOG_INFO("node:{}", node ? node->toString() : "null");
   // return node;
 }
 

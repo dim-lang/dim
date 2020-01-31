@@ -16,7 +16,7 @@ namespace boost_po = boost::program_options;
 int main(int argc, char **argv) {
   Log::initialize(".", "coli");
   Option conf(argc, argv);
-  FINFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
+  LOG_INFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;

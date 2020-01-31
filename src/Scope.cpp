@@ -20,13 +20,13 @@ std::string Scope::toString() const {
 }
 
 void Scope::define(Symbol *symbol) {
-  FCHECK(symbol, "symbol {} already exist",
+  LOG_CHECK(symbol, "symbol {} already exist",
          symbol ? symbol->toString() : "null");
   symbolTable_.insert(std::make_pair(symbol->name(), symbol));
 }
 
 Symbol *Scope::resolve(const std::string &name) {
-  FCHECK(symbolTable_.find(name) != symbolTable_.end(), "symbol {} not exist",
+  LOG_CHECK(symbolTable_.find(name) != symbolTable_.end(), "symbol {} not exist",
          name);
   return symbolTable_[name];
 }
