@@ -1,7 +1,7 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "SymbolVisitor.h"
+#include "Visitor.h"
 #include "Log.h"
 #include "symbol/VariableSymbol.h"
 #include <algorithm>
@@ -12,7 +12,7 @@ Visitor *ExpressionVisitor::instance() {
 }
 
 Ast *ExpressionVisitor::visit(Ast *node) const {
-  FTHROW("not implement for node:{}", node ? node->toString() : "null");
+  EX_THROW("not implement for node:{}", node ? node->toString() : "null");
 }
 
 Ast *PrimaryExpressionVisitor::visit(Ast *node) const {
@@ -28,13 +28,12 @@ Ast *PrimaryExpressionVisitor::visit(Ast *node) const {
     /* get reference value and return */
     break;
   }
-  default: {
+  default:
     goto primary_expression_error;
-  }
   }
 
 primary_expression_error:
-  FTHROW("invalid node:{}", node ? node->toString() : "null");
+  EX_THROW("invalid node:{}", node ? node->toString() : "null");
 }
 
 Visitor *PrimaryExpressionVisitor::instance() {
@@ -43,7 +42,7 @@ Visitor *PrimaryExpressionVisitor::instance() {
 }
 
 Ast *FunctionCallExpressionVisitor::visit(Ast *node) const {
-  FTHROW("not implement for node:{}", node ? node->toString() : "null");
+  EX_THROW("not implement for node:{}", node ? node->toString() : "null");
   // LOG_INFO("node:{}", node ? node->toString() : "null");
   // return node;
 }
@@ -55,10 +54,10 @@ Visitor *FunctionCallExpressionVisitor::instance() {
 }
 
 #define UNARY_OP(x, y, op)                                                     \
-  return Ast * (new x(op std::static_pointer_cast<x>(y)->value()))
+  return Ast * (new x(op dynamic_cast<x *>(y)->value()))
 
 Ast *UnaryExpressionVisitor::visit(Ast *node) const {
-  std::shared_ptr<AstExpression> expr = std::static_pointer_cast<AstExpression>(
+  AstExpression *expr = dynamic_cast<AstExpression *>(
       ExpressionVisitor::instance()->visit(node->expression()));
   switch (node->token()) {
   case T_ADD: {
@@ -106,7 +105,7 @@ Ast *UnaryExpressionVisitor::visit(Ast *node) const {
   }
 
 unary_expression_error:
-  FTHROW("invalid node:{}", node ? node->toString() : "null");
+  EX_THROW("invalid node:{}", node ? node->toString() : "null");
 }
 
 #undef UNARY_OP
@@ -117,18 +116,16 @@ Visitor *UnaryExpressionVisitor::instance() {
 }
 
 #define BINARY_OP(x, u, a, v, b, op)                                           \
-  return Ast * (new x(std::static_pointer_cast<u>(a)                           \
-                          ->value() op std::static_pointer_cast<v>(b)          \
-                          ->value()))
+  return Ast *                                                                 \
+         (new x(                                                               \
+             dynamic_cast<u *>(a)->value() op dynamic_cast<v *>(b)->value()))
 
 Ast *BinaryExpressionVisitor::visit(Ast *node) const {
-  std::shared_ptr<AstBinaryExpression> e =
-      std::static_pointer_cast<AstBinaryExpression>(node);
-  std::shared_ptr<AstExpression> left = std::static_pointer_cast<AstExpression>(
+  AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
+  AstExpression *left = dynamic_cast<AstExpression *>(
       ExpressionVisitor::instance()->visit(e->left()));
-  std::shared_ptr<AstExpression> right =
-      std::static_pointer_cast<AstExpression>(
-          ExpressionVisitor::instance()->visit(e->right()));
+  AstExpression *right = dynamic_cast<AstExpression *>(
+      ExpressionVisitor::instance()->visit(e->right()));
   switch (e->token()) {
   case T_ADD: {
     switch (left->type()) {
@@ -618,7 +615,7 @@ Ast *BinaryExpressionVisitor::visit(Ast *node) const {
   }
 
 binary_expression_error:
-  FTHROW("invalid node:{}", node ? node->toString() : "null");
+  EX_THROW("invalid node:{}", node ? node->toString() : "null");
 }
 
 #undef BINARY_OP
@@ -630,10 +627,9 @@ Visitor *BinaryExpressionVisitor::instance() {
 
 Ast *ConditionalExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstConditionalExpression> e =
-      std::static_pointer_cast<AstConditionalExpression>(node);
-  std::shared_ptr<AstBooleanConstant> cond =
-      std::static_pointer_cast<AstBooleanConstant>(
-          ExpressionVisitor::instance()->visit(e->condExpression()));
+      dynamic_cast<AstConditionalExpression *>(node);
+  std::shared_ptr<AstBooleanConstant> cond = dynamic_cast<AstBooleanConstant *>(
+      ExpressionVisitor::instance()->visit(e->condExpression()));
   Ast *ifExpr = ExpressionVisitor::instance()->visit(e->ifExpression());
   Ast *elseExpr = ExpressionVisitor::instance()->visit(e->elseExpression());
   return cond->value() ? ifExpr : elseExpr;
@@ -647,14 +643,13 @@ Visitor *ConditionalExpressionVisitor::instance() {
 
 Ast *AssignmentExpressionVisitor::visit(Ast *node) const {
   std::shared_ptr<AstAssignmentExpression> e =
-      std::static_pointer_cast<AstAssignmentExpression>(node);
+      dynamic_cast<AstAssignmentExpression *>(node);
   std::shared_ptr<AstIdentifierConstant> var =
-      std::static_pointer_cast<AstIdentifierConstant>(
+      dynamic_cast<AstIdentifierConstant *>(
           ExpressionVisitor::instance()->visit(e->left()));
   Ast *val = ExpressionVisitor::instance()->visit(e->right());
-  std::shared_ptr<VariableSymbol> sym =
-      std::static_pointer_cast<VariableSymbol>(
-          Scope::currentScope()->resolve(var->value()));
+  std::shared_ptr<VariableSymbol> sym = dynamic_cast<VariableSymbol *>(
+      Scope::currentScope()->resolve(var->value()));
   switch (e->token()) {
   case T_ASSIGN:
   case T_ADD_ASSIGN:
@@ -673,7 +668,7 @@ Ast *AssignmentExpressionVisitor::visit(Ast *node) const {
   }
 
 assignment_expression_error:
-  FTHROW("invalid node:{}", node ? node->toString() : "null");
+  EX_THROW("invalid node:{}", node ? node->toString() : "null");
 }
 
 Visitor *AssignmentExpressionVisitor::instance() {

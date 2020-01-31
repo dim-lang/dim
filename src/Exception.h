@@ -26,8 +26,8 @@ protected:
   std::string functionName_;
 };
 
-#ifndef FEXCEPT
-#define FEXCEPT(x)                                                             \
+#ifndef EXCEPT
+#define EXCEPT(x)                                                              \
   class x : public Exception {                                                 \
   public:                                                                      \
     x(const char *fileName, int lineNumber, const char *functionName,          \
@@ -37,13 +37,13 @@ protected:
   }
 #endif
 
-#ifndef FTHROW
-#define FTHROW(msg, ...)                                                       \
+#ifndef EX_THROW
+#define EX_THROW(msg, ...)                                                     \
   throw fmt::format("{}:{} {} - {}", __FILE__, __LINE__, __FUNCTION__,         \
                     fmt::format(msg, __VA_ARGS__))
 #endif
 
-#ifndef FTHROW_MSG
-#define FTHROW_MSG(msg)                                                        \
+#ifndef EX_THROW_MSG
+#define EX_THROW_MSG(msg)                                                      \
   throw fmt::format("{}:{} {} - {}", __FILE__, __LINE__, __FUNCTION__, msg)
 #endif
