@@ -48,7 +48,7 @@ AstProgram *AstProgram::instance_ = nullptr;
 
 AstProgram *AstProgram::instance() { return instance_; }
 
-AstProgram *AstProgram::setInstance(AstProgram *prog) {
+AstProgram *AstProgram::resetInstance(AstProgram *prog) {
   return std::exchange(instance_, prog);
 }
 

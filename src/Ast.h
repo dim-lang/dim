@@ -113,7 +113,7 @@ public:
   virtual void add(Ast *node);
 
   static AstProgram *instance();
-  static AstProgram *setInstance(AstProgram *prog);
+  static AstProgram *resetInstance(AstProgram *prog);
 
 private:
   std::vector<Ast *> nodes_;

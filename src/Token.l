@@ -201,7 +201,7 @@ int tokenImportFile(const std::string &module) {
 }
 
 int tokenPopFile() {
-    FCHECK(!TokenBufferStack.empty(), "TokenBufferStack must not empty! TokenCurrentFile:{} yylineno:{}", TokenCurrentFile, yylineno);
+    LOG_CHECK(!TokenBufferStack.empty(), "TokenBufferStack must not empty! TokenCurrentFile:{} yylineno:{}", TokenCurrentFile, yylineno);
     TokenBuffer *fb;
 
     fb = TokenBufferStack.top();
@@ -240,16 +240,16 @@ static std::string tokenFileToModule(const std::string &name) {
 }
 
 TokenBuffer::TokenBuffer(const char *module) : yyBufferState(nullptr), fileName(tokenModuleToFile(module)), lineNo(1), fp(nullptr) {
-    FCHECK(fileName.length() > 5, "{}:{} error! fileName {} invalid!", TokenCurrentFile, yylineno, fileName);
+    LOG_CHECK(fileName.length() > 5, "{}:{} error! fileName {} invalid!", TokenCurrentFile, yylineno, fileName);
     fp = std::fopen(fileName.c_str(), "r");
     if (!fp) {
         release();
-        FCHECK(fp, "{}:{} error! file {} cannot open!", TokenCurrentFile, yylineno, fileName);
+        LOG_CHECK(fp, "{}:{} error! file {} cannot open!", TokenCurrentFile, yylineno, fileName);
     }
     yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
     if (!yyBufferState) {
         release();
-        FCHECK(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", TokenCurrentFile, yylineno, fileName);
+        LOG_CHECK(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", TokenCurrentFile, yylineno, fileName);
     }
 }
 
