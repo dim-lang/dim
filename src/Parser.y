@@ -4,11 +4,6 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
-#include "Scope.h"
-#include "scope/LocalScope.h"
-#include "scope/GlobalScope.h"
-#include "symbol/VariableSymbol.h"
-#include "symbol/FunctionSymbol.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>

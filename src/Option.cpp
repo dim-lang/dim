@@ -4,36 +4,27 @@
 #include "Option.h"
 #include "Configure.h"
 #include "Log.h"
-#include <boost/program_options/parsers.hpp>
 #include <fstream>
 
-#define F_OPT "Fastype Options"
-#define F_OPT_HELP "help"
-#define F_OPT_H "h"
-#define F_OPT_VERSION "version"
-#define F_OPT_V "v"
-#define F_OPT_INPUT_FILE "inputfile"
-#define F_OPT_I "i"
-#define F_OPT_HOST "host"
-#define F_OPT_PORT "port"
-#define F_OPT_P "p"
-#define F_OPT_PORT_DEFAULT 10001
-#define F_OPT_THREAD "thread"
-#define F_OPT_T "t"
-#define F_OPT_THREAD_DEFAULT 4
-#define F_OPT_DEBUG "debug"
-#define F_OPT_D "d"
+#define C_OPT "Options"
+#define C_OPT_HELP "help"
+#define C_OPT_H "h"
+#define C_OPT_VERSION "version"
+#define C_OPT_V "v"
+#define C_OPT_FILE_NAMES "file-name"
+#define C_OPT_F "f"
+#define C_OPT_JOB "job"
+#define C_OPT_J "j"
+#define C_OPT_DEBUG "debug"
+#define C_OPT_D "d"
 
-Option::Option() : optDesc_(F_OPT) {
-  optDesc_.add_options()(F_OPT_HELP "," F_OPT_H, "help message")(
-      F_OPT_VERSION "," F_OPT_V, "version information")(
-      F_OPT_INPUT_FILE "," F_OPT_I, boost_po::value<std::vector<std::string>>(),
-      "input file names")(F_OPT_HOST, boost_po::value<std::string>(),
-                          "service host")(
-      F_OPT_PORT "," F_OPT_P, boost_po::value<int>(),
-      "service port")(F_OPT_THREAD "," F_OPT_T, boost_po::value<int>(),
-                      "thread number")(F_OPT_DEBUG "," F_OPT_D, "debug mode");
-  posOptDesc_.add(F_OPT_INPUT_FILE, -1);
+Option::Option() : optDesc_(C_OPT) {
+  optDesc_.add_options()(C_OPT_HELP "," C_OPT_H, "help message")(
+      C_OPT_VERSION "," C_OPT_V, "version information")(
+      C_OPT_FILE_NAMES "," C_OPT_F, boost_po::value<std::vector<std::string>>(),
+      "file names")(C_OPT_JOB "," C_OPT_J, "concurrent job count")(
+      C_OPT_DEBUG "," C_OPT_D, "debug mode");
+  posOptDesc_.add(C_OPT_FILE_NAMES, -1);
 }
 
 Option::Option(int argCount, char **argList) : Option() {
@@ -53,7 +44,7 @@ Option::Option(const std::vector<std::string> &fileNames) : Option() {
   boost_po::notify(varMap_);
 }
 
-bool Option::hasHelp() const { return varMap_.count(F_OPT_HELP); }
+bool Option::hasHelp() const { return varMap_.count(C_OPT_HELP); }
 
 std::string Option::help() const {
   std::stringstream ss;
@@ -61,52 +52,30 @@ std::string Option::help() const {
   return ss.str();
 }
 
-bool Option::hasVersion() const { return varMap_.count(F_OPT_VERSION); }
+bool Option::hasVersion() const { return varMap_.count(C_OPT_VERSION); }
 
-std::string Option::version() const { return "Fastype-" PROJECT_VERSION; }
+std::string Option::version() const { return "coli-" PROJECT_VERSION; }
 
-bool Option::hasInputFile() const { return varMap_.count(F_OPT_INPUT_FILE); }
+bool Option::hasFileNames() const { return varMap_.count(C_OPT_FILE_NAMES); }
 
-std::vector<std::string> Option::inputFileList() const {
-  return varMap_[F_OPT_INPUT_FILE].as<std::vector<std::string>>();
+std::vector<std::string> Option::fileNames() const {
+  return varMap_[C_OPT_FILE_NAMES].as<std::vector<std::string>>();
 }
 
-int Option::port() const {
-  if (varMap_.count(F_OPT_PORT)) {
-    return varMap_[F_OPT_PORT].as<int>();
-  }
-  return F_OPT_PORT_DEFAULT;
+int Option::job() const {
+  return varMap_.count(C_OPT_JOB) ? varMap_[C_OPT_JOB].as<int>() : 1;
 }
 
-std::string Option::host() const {
-  if (varMap_.count(F_OPT_HOST)) {
-    return varMap_[F_OPT_HOST].as<std::string>();
-  }
-  return "127.0.0.1";
-}
+bool Option::debug() const { return varMap_.count(C_OPT_DEBUG); }
 
-int Option::threadSize() const {
-  if (varMap_.count(F_OPT_THREAD)) {
-    return varMap_[F_OPT_THREAD].as<int>();
-  }
-  return F_OPT_THREAD_DEFAULT;
-}
-
-bool Option::debug() const { return varMap_.count(F_OPT_DEBUG); }
-
-#undef F_OPT
-#undef F_OPT_HELP
-#undef F_OPT_H
-#undef F_OPT_VERSION
-#undef F_OPT_V
-#undef F_OPT_INPUT_FILE
-#undef F_OPT_I
-#undef F_OPT_HOST
-#undef F_OPT_PORT
-#undef F_OPT_P
-#undef F_OPT_PORT_DEFAULT
-#undef F_OPT_THREAD
-#undef F_OPT_T
-#undef F_OPT_THREAD_DEFAULT
-#undef F_OPT_DEBUG
-#undef F_OPT_D
+#undef C_OPT
+#undef C_OPT_HELP
+#undef C_OPT_H
+#undef C_OPT_VERSION
+#undef C_OPT_V
+#undef C_OPT_FILE_NAMES
+#undef C_OPT_F
+#undef C_OPT_JOB
+#undef C_OPT_J
+#undef C_OPT_DEBUG
+#undef C_OPT_D

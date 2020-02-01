@@ -1,7 +1,7 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
-set(FTEST
+set(CTEST
     MainTest.cpp
     LogTest.cpp
     ConfigureTest.cpp

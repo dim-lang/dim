@@ -8,7 +8,7 @@ set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
 
-set(FINC
+set(CINC
     .
     ../src
     Threads::Threads
@@ -18,7 +18,7 @@ set(FINC
     /usr/local/opt/icu4c/include
     /usr/local/opt/catch2/include
     )
-set(FLIB
+set(CLIB
     Threads::Threads
     fmt
     boost_program_options-mt
@@ -29,7 +29,7 @@ set(FLIB
     icui18n
     tcmalloc
     )
-set(FLIB_DIR
+set(CLIB_DIR
     .
     /usr/local/opt/spdlog/lib
     /usr/local/opt/fmt/lib
@@ -38,10 +38,10 @@ set(FLIB_DIR
     /usr/local/opt/gperftools/lib
     )
 
-include_directories(${FINC})
-link_directories(${FLIB_DIR})
+include_directories(${CINC})
+link_directories(${CLIB_DIR})
 
 add_executable(coli-icu_ustdio icu_ustdio.cpp)
-target_include_directories(coli-icu_ustdio PRIVATE ${FINC})
-target_link_libraries(coli-icu_ustdio ${FLIB})
+target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
+target_link_libraries(coli-icu_ustdio ${CLIB})
 set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

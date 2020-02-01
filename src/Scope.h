@@ -21,7 +21,6 @@ public:
 
   /* scope instance */
   static Scope *globalScope();
-  static void resetGlobalScope(Scope *scope = nullptr);
   static Scope *currentScope();
   static void push(Scope *scope);
   static void pop();

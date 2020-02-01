@@ -78,7 +78,7 @@ static std::string tokenFileToModule(const std::string &name);
 "class"      return T_CLASS;
 "type"       return T_TYPE;
 "isinstance" return T_ISINSTANCE;
- /* "import"                 return T_IMPORT; */
+"import"     return T_IMPORT;
 "return"     return T_RETURN;
 "void"       return T_VOID;
 "and"        return T_LOGIC_AND;
@@ -104,7 +104,7 @@ static std::string tokenFileToModule(const std::string &name);
 "*"                      return T_TOKEN(T_MUL);
 "/"                      return T_TOKEN(T_DIV);
 "%"                      return T_TOKEN(T_MOD);
- /*"!"                      return T_TOKEN(T_BIT_PLACEHOLDER);*/
+"!"                      return T_TOKEN(T_LOGIC_NOT);
 "&"                      return T_TOKEN(T_BIT_AND);
 "|"                      return T_TOKEN(T_BIT_OR);
 "~"                      return T_TOKEN(T_BIT_NOT);

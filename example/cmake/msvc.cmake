@@ -6,7 +6,7 @@ project(coli VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
-set(FINC
+set(CINC
     .
     ../src
     ../src/spdlog/include
@@ -15,7 +15,7 @@ set(FINC
     ../src/icu/icu4c/include
     )
 
-set(FLIB
+set(CLIB
     libboost_program_options-vc141-mt-x32-1_70.lib
     libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
@@ -25,7 +25,7 @@ set(FLIB
     icuuc.lib
     )
 
-set(FLIBD
+set(CLIBD
     libboost_program_options-vc141-mt-gd-x32-1_70.lib
     libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
@@ -42,11 +42,11 @@ set(LIB_DIR
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-include_directories(${FINC})
+include_directories(${CINC})
 link_directories(${LIB_DIR})
 
 add_executable(coli-icu_ustdio icu_ustdio.cpp)
-target_include_directories(coli-icu_ustdio PRIVATE ${FINC})
-target_link_libraries(coli-icu_ustdio debug ${FLIBD})
-#target_link_libraries(coli-icu_ustdio ${FLIB})
+target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
+target_link_libraries(coli-icu_ustdio debug ${CLIBD})
+#target_link_libraries(coli-icu_ustdio ${CLIB})
 set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

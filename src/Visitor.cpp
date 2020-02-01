@@ -3,7 +3,8 @@
 
 #include "Visitor.h"
 #include "Log.h"
-#include "symbol/VariableSymbol.h"
+#include "Scope.h"
+#include "Symbol.h"
 #include <algorithm>
 
 Ast *ProgramVisitor::visit(Ast *node) const {
@@ -13,10 +14,8 @@ Ast *ProgramVisitor::visit(Ast *node) const {
 
   AstProgram *e = dynamic_cast<AstProgram *>(node);
 
-  // create global scope and current scope
-  Scope *globalScope = new Scope("GlobalScope");
-  Scope::resetGlobalScope(globalScope);
-  Scope::push(globalScope);
+  // create global scope
+  Scope::push(new GlobalScope());
 
   for (int i = 0; i < e->size(); i++) {
     Ast *p = e->get(i);
@@ -63,9 +62,37 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
     AstIdentifierConstant *id =
         dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
     AstExpression *expr = expressionList->get(i);
-    Scope *cs = Scope::currentScope();
-    LOG_CHECK(cs, "cs is null:{}", (void *)cs);
-    cs->define(new VariableSymbol(id->value()));
+    Type *t = nullptr;
+    LOG_CHECK(Scope::currentScope(), "Scope#currentScope is null:{}",
+              (void *)Scope::currentScope());
+    switch (expr->type()) {
+    case A_I64_CONSTANT: {
+      Scope::currentScope()->define(
+          new VariableSymbol(id->value(), BuiltinTypeSymbol::i64Instance()));
+      break;
+    }
+    case A_F64_CONSTANT: {
+      Scope::currentScope()->define(
+          new VariableSymbol(id->value(), BuiltinTypeSymbol::f64Instance()));
+      break;
+    }
+    case A_STRING_CONSTANT: {
+      Scope::currentScope()->define(
+          new VariableSymbol(id->value(), BuiltinTypeSymbol::stringInstance()));
+      break;
+    }
+    case A_BOOLEAN_CONSTANT: {
+      Scope::currentScope()->define(new VariableSymbol(
+          id->value(), BuiltinTypeSymbol::booleanInstance()));
+      break;
+    }
+    case A_IDENTIFIER_CONSTANT: {
+      break;
+    }
+    default:
+      LOG_CHECK(false, "invalid expression type, {}:{}", i,
+                expr ? expr->toString() : "null");
+    }
   }
 }
 
@@ -75,7 +102,29 @@ Visitor *VariableDeclarationVisitor::instance() {
   return variableDeclarationVisitor;
 }
 
-Ast *FunctionDeclarationVisitor::visit(Ast *node) const {}
+Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
+  LOG_CHECK(node, "node is null:{}", (void *)node);
+
+  AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
+  FunctionSymbol *funcSymbol =
+      new FunctionSymbol(e->identifier(), BuiltinTypeSymbol::funcInstance(),
+                         Scope::currentScope());
+  Scope::push(funcSymbol);
+
+  AstExpressionList *argumentList = e->argumentList();
+  for (int i = 0; i < argumentList->size(); i++) {
+    AstIdentifierConstant *argId =
+        dynamic_cast<AstIdentifierConstant *>(argumentList->get(i));
+    Scope::currentScope()->define(
+        new VariableSymbol(id->value(), BuiltinTypeSymbol::i64Instance()));
+  }
+
+  AstCompoundStatement *compoundStatement = e->compoundStatement();
+  AstStatementList *statementList = compoundStatement->statementList();
+  LOG_CHECK(compoundStatement, "compoundStatement is null: {}",
+            (void *)compoundStatement);
+  LOG_CHECK(statementList, "statementList is null: {}", (void *)statementList);
+}
 
 Visitor *FunctionDeclarationVisitor::instance() {
   static FunctionDeclarationVisitor *functionDeclarationVisitor =

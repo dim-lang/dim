@@ -7,7 +7,7 @@ configure_file(Configure.h.in Configure.h)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
 
-set(FINC
+set(CINC
     .
     spdlog/include
     fmt/include
@@ -15,7 +15,7 @@ set(FINC
     icu/icu4c/include
     )
 
-set(FLIB
+set(CLIB
     libboost_program_options-vc141-mt-x32-1_70.lib
     libboost_system-vc141-mt-x32-1_70.lib
     icudt.lib
@@ -25,7 +25,7 @@ set(FLIB
     icuuc.lib
     )
 
-set(FLIBD
+set(CLIBD
     libboost_program_options-vc141-mt-gd-x32-1_70.lib
     libboost_system-vc141-mt-gd-x32-1_70.lib
     icudt.lib
@@ -35,24 +35,24 @@ set(FLIBD
     icuucd.lib
     )
 
-set(FLIB_DIR
+set(CLIB_DIR
     boost/stage/lib
     icu/icu4c/lib
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-include_directories(${FINC})
-link_directories(${FLIB_DIR})
+include_directories(${CINC})
+link_directories(${CLIB_DIR})
 
-add_library(colicore STATIC ${FCORE})
-target_include_directories(colicore PRIVATE ${FINC})
-#target_link_libraries(colicore debug ${FLIBD})
-target_link_libraries(colicore ${FLIB})
+add_library(colicore STATIC ${CCORE})
+target_include_directories(colicore PRIVATE ${CINC})
+#target_link_libraries(colicore debug ${CLIBD})
+target_link_libraries(colicore ${CLIB})
 set_target_properties(colicore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(coli ${FT})
-target_include_directories(coli PRIVATE ${FINC})
-#target_link_libraries(coli debug ${FLIBD} colicore)
-target_link_libraries(coli ${FLIB} colicore)
+add_executable(coli ${CSRC})
+target_include_directories(coli PRIVATE ${CINC})
+#target_link_libraries(coli debug ${CLIBD} colicore)
+target_link_libraries(coli ${CLIB} colicore)
 set_target_properties(coli PROPERTIES VERSION ${PROJECT_VERSION})

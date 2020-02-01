@@ -9,7 +9,7 @@ set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
 
-set(FINC
+set(CINC
     .
     ../src
     Threads::Threads
@@ -20,7 +20,7 @@ set(FINC
     Catch2/single_include
     )
 
-set(FLIB
+set(CLIB
     Threads::Threads
     boost_program_options
     boost_system
@@ -30,7 +30,7 @@ set(FLIB
     icui18n
     )
 
-set(FLIB_DIR
+set(CLIB_DIR
     .
     ../src
     /usr/lib
@@ -38,10 +38,10 @@ set(FLIB_DIR
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
-include_directories(${FINC})
-link_directories(${FLIB_DIR})
+include_directories(${CINC})
+link_directories(${CLIB_DIR})
 
-add_executable(coli-test ${FTEST})
-target_include_directories(coli-test PRIVATE ${FINC})
-target_link_libraries(coli-test ${FLIB} colicore)
+add_executable(coli-test ${CTEST})
+target_include_directories(coli-test PRIVATE ${CINC})
+target_link_libraries(coli-test ${CLIB} colicore)
 set_target_properties(coli-test PROPERTIES VERSION ${PROJECT_VERSION})

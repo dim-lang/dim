@@ -22,20 +22,13 @@ public:
   bool hasVersion() const;
   std::string version() const;
 
-  // --input-file, -i
-  bool hasInputFile() const;
-  std::vector<std::string> inputFileList() const;
+  // --file-name, -f
+  bool hasFileNames() const;
+  std::vector<std::string> fileNames() const;
 
-  // --host
-  std::string host() const;
-
-  // --port, -p
-  // by default: 10001
-  int port() const;
-
-  // --thread, -t
-  // by default: 4
-  int threadSize() const;
+  // --job , -j
+  // by default: system thread size
+  int job() const;
 
   // --debug, -d
   // by default: false

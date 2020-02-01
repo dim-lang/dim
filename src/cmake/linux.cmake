@@ -9,7 +9,7 @@ set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 find_package(Threads REQUIRED)
 
-set(FINC
+set(CINC
     .
     Threads::Threads
     spdlog/include
@@ -17,7 +17,7 @@ set(FINC
     /usr/include
     /usr/include/x86_64-linux-gnu
     )
-set(FLIB
+set(CLIB
     Threads::Threads
     panel
     boost_program_options
@@ -28,21 +28,21 @@ set(FLIB
     icui18n
     tcmalloc
     )
-set(FLIB_DIR
+set(CLIB_DIR
     /usr/lib
     /usr/lib/x86_64-linux-gnu
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
-include_directories(${FINC})
-link_directories(${FLIB_DIR})
+include_directories(${CINC})
+link_directories(${CLIB_DIR})
 
-add_library(colicore STATIC ${FCORE})
-target_include_directories(colicore PRIVATE ${FINC})
-target_link_libraries(colicore ${FLIB})
+add_library(colicore STATIC ${CCORE})
+target_include_directories(colicore PRIVATE ${CINC})
+target_link_libraries(colicore ${CLIB})
 set_target_properties(colicore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(coli ${FT})
-target_include_directories(coli PRIVATE ${FINC})
-target_link_libraries(coli ${FLIB} colicore)
+add_executable(coli ${CSRC})
+target_include_directories(coli PRIVATE ${CINC})
+target_link_libraries(coli ${CLIB} colicore)
 set_target_properties(coli PROPERTIES VERSION ${PROJECT_VERSION})

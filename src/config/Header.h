@@ -12,6 +12,7 @@
 #include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
 #include "boost/program_options.hpp"
+#include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
 #include "spdlog/spdlog.h"
 #include "unicode/uchar.h"
@@ -28,6 +29,7 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/program_options.hpp>
+#include <boost/program_options/parsers.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <unicode/uchar.h>
