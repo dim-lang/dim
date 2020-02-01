@@ -19,16 +19,30 @@ public:
   virtual Symbol *resolve(const std::string &name);
   virtual Scope *enclosingScope() const;
 
-  /* global scope instance */
-  static void initialize();
+  /* scope instance */
+  static Scope *globalScope();
+  static void resetGlobalScope(Scope *scope = nullptr);
   static Scope *currentScope();
   static void push(Scope *scope);
   static void pop();
 
 protected:
   static Scope *currentScope_;
+  static Scope *globalScope_;
 
   std::string scopeName_;
   Scope *enclosingScope_;
   std::unordered_map<std::string, Symbol *> symbolTable_;
+};
+
+class GlobalScope : public Scope {
+public:
+  GlobalScope(const std::string &scopeName);
+  virtual ~GlobalScope();
+};
+
+class LocalScope : public Scope {
+public:
+  LocalScope(const std::string &scopeName, Scope *enclosingScope);
+  virtual ~LocalScope();
 };

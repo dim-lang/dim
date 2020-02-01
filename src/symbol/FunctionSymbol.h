@@ -8,9 +8,8 @@
 
 class FunctionSymbol : public Symbol, Scope {
 public:
-  FunctionSymbol(
-      const std::string &name, const std::string &type,
-      std::shared_ptr<Scope> enclosingScope = GlobalScope::instance());
+  FunctionSymbol(const std::string &name, const std::string &type,
+                 Scope *enclosingScope = Scope::currentScope());
   virtual ~FunctionSymbol() = default;
   virtual const std::string &type() const;
   virtual std::string toString() const;

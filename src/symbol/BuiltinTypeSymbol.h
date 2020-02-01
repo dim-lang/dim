@@ -4,13 +4,16 @@
 #pragma once
 #include "Symbol.h"
 
-class VariableSymbol : public Symbol {
+class BuiltinTypeSymbol : public Symbol {
 public:
-  VariableSymbol(const std::string &name, const std::string &type);
-  virtual ~VariableSymbol() = default;
+  BuiltinTypeSymbol(const std::string &name, const std::string &type);
+  virtual ~BuiltinTypeSymbol() = default;
   virtual const std::string &name() const;
   virtual const std::string &type() const;
   virtual std::string toString() const;
+
+  static BuiltinTypeSymbol *i64Instance();
+  static BuiltinTypeSymbol *stringInstance();
 
 private:
   std::string variableName_;

@@ -6,673 +6,79 @@
 #include "symbol/VariableSymbol.h"
 #include <algorithm>
 
-Visitor *ExpressionVisitor::instance() {
-  static Visitor *expressionVisitor = new ExpressionVisitor();
-  return expressionVisitor;
+Ast *ProgramVisitor::visit(Ast *node) const {
+  LOG_CHECK(node, "node is null:{}", (void *)node);
+  LOG_CHECK(node->type() == A_PROGRAM, "invalid node type:{}",
+            node->toString());
+
+  AstProgram *e = dynamic_cast<AstProgram *>(node);
+
+  // create global scope and current scope
+  Scope *globalScope = new Scope("GlobalScope");
+  Scope::resetGlobalScope(globalScope);
+  Scope::push(globalScope);
+
+  for (int i = 0; i < e->size(); i++) {
+    Ast *p = e->get(i);
+    if (!p)
+      continue;
+    switch (p->type()) {
+    case A_VARIABLE_DECLARATION:
+      VariableDeclarationVisitor::instance()->visit(p);
+      break;
+    case A_FUNCTION_DECLARATION:
+      FunctionDeclarationVisitor::instance()->visit(p);
+      break;
+    default:
+      LOG_CHECK(false, "invalid node type:{}", p->toString());
+    }
+  }
 }
 
-Ast *ExpressionVisitor::visit(Ast *node) const {
-  EX_THROW("not implement for node:{}", node ? node->toString() : "null");
+Visitor *ProgramVisitor::instance() {
+  static ProgramVisitor *programVisitor = new ProgramVisitor();
+  return programVisitor;
 }
 
-Ast *PrimaryExpressionVisitor::visit(Ast *node) const {
-  switch (node->type()) {
-  case A_I64_CONSTANT:
-  case A_F64_CONSTANT:
-  case A_STRING_CONSTANT:
-  case A_BOOLEAN_CONSTANT: {
-    return node;
-    break;
-  }
-  case A_IDENTIFIER_CONSTANT: {
-    /* get reference value and return */
-    break;
-  }
-  default:
-    goto primary_expression_error;
-  }
+Ast *VariableDeclarationVisitor::visit(Ast *node) const {
+  LOG_CHECK(node, "node is null:{}", (void *)node);
 
-primary_expression_error:
-  EX_THROW("invalid node:{}", node ? node->toString() : "null");
+  AstVariableDeclaration *e = dynamic_cast<AstVariableDeclaration *>(node);
+  AstExpressionList *identifierList = e->identifierList();
+  AstExpressionList *expressionList = e->expressionList();
+
+  LOG_CHECK(identifierList, "identifierList is null:{}",
+            (void *)identifierList);
+  LOG_CHECK(expressionList, "expressionList is null:{}",
+            (void *)expressionList);
+  LOG_CHECK(identifierList->size() == expressionList->size(),
+            "identifierList expressionList same size, 1:{}, 2:{}",
+            identifierList->size(), expressionList->size());
+  LOG_CHECK(identifierList->size() > 0, "identifierList#size > 0:{}",
+            identifierList->size());
+  LOG_CHECK(expressionList->size() > 0, "expressionList#size > 0:{}",
+            expressionList->size());
+
+  for (int i = 0; i < identifierList->size(); i++) {
+    AstIdentifierConstant *id =
+        dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
+    AstExpression *expr = expressionList->get(i);
+    Scope *cs = Scope::currentScope();
+    LOG_CHECK(cs, "cs is null:{}", (void *)cs);
+    cs->define(new VariableSymbol(id->value()));
+  }
 }
 
-Visitor *PrimaryExpressionVisitor::instance() {
-  static Visitor *primaryExpressionVisitor = new PrimaryExpressionVisitor();
-  return primaryExpressionVisitor;
+Visitor *VariableDeclarationVisitor::instance() {
+  static VariableDeclarationVisitor *variableDeclarationVisitor =
+      new VariableDeclarationVisitor();
+  return variableDeclarationVisitor;
 }
 
-Ast *FunctionCallExpressionVisitor::visit(Ast *node) const {
-  EX_THROW("not implement for node:{}", node ? node->toString() : "null");
-  // LOG_INFO("node:{}", node ? node->toString() : "null");
-  // return node;
-}
+Ast *FunctionDeclarationVisitor::visit(Ast *node) const {}
 
-Visitor *FunctionCallExpressionVisitor::instance() {
-  static Visitor *functionCallExpressionVisitor =
-      new FunctionCallExpressionVisitor();
-  return functionCallExpressionVisitor;
-}
-
-#define UNARY_OP(x, y, op)                                                     \
-  return Ast * (new x(op dynamic_cast<x *>(y)->value()))
-
-Ast *UnaryExpressionVisitor::visit(Ast *node) const {
-  AstExpression *expr = dynamic_cast<AstExpression *>(
-      ExpressionVisitor::instance()->visit(node->expression()));
-  switch (node->token()) {
-  case T_ADD: {
-    switch (expr->type()) {
-    case A_I64_CONSTANT:
-      return expr;
-    case A_F64_CONSTANT:
-      return expr;
-    default:
-      goto unary_expression_error;
-    }
-    break;
-  }
-  case T_SUB: {
-    switch (expr->type()) {
-    case A_I64_CONSTANT:
-      UNARY_OP(AstI64Constant, expr, -);
-    case A_F64_CONSTANT:
-      UNARY_OP(AstF64Constant, expr, -);
-    default:
-      goto unary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_NOT: {
-    switch (expr->type()) {
-    case A_I64_CONSTANT:
-      UNARY_OP(AstI64Constant, expr, ~);
-    default:
-      goto unary_expression_error;
-    }
-    break;
-  }
-  case T_LOGIC_NOT: {
-    switch (expr->type()) {
-    case A_BOOLEAN_CONSTANT:
-      UNARY_OP(AstBooleanConstant, expr, !);
-    default:
-      goto unary_expression_error;
-    }
-    break;
-  }
-  default:
-    goto unary_expression_error;
-  }
-
-unary_expression_error:
-  EX_THROW("invalid node:{}", node ? node->toString() : "null");
-}
-
-#undef UNARY_OP
-
-Visitor *UnaryExpressionVisitor::instance() {
-  static Visitor *unaryExpressionVisitor = new UnaryExpressionVisitor();
-  return unaryExpressionVisitor;
-}
-
-#define BINARY_OP(x, u, a, v, b, op)                                           \
-  return Ast *                                                                 \
-         (new x(                                                               \
-             dynamic_cast<u *>(a)->value() op dynamic_cast<v *>(b)->value()))
-
-Ast *BinaryExpressionVisitor::visit(Ast *node) const {
-  AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
-  AstExpression *left = dynamic_cast<AstExpression *>(
-      ExpressionVisitor::instance()->visit(e->left()));
-  AstExpression *right = dynamic_cast<AstExpression *>(
-      ExpressionVisitor::instance()->visit(e->right()));
-  switch (e->token()) {
-  case T_ADD: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  +);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstI64Constant, left, AstF64Constant, right,
-                  +);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstI64Constant, right,
-                  +);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstF64Constant, right,
-                  +);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_SUB: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  -);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstI64Constant, left, AstF64Constant, right,
-                  -);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstI64Constant, right,
-                  -);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstF64Constant, right,
-                  -);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_MUL: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant,
-                  right, *);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstI64Constant, left, AstF64Constant,
-                  right, *);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstI64Constant,
-                  right, *);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstF64Constant,
-                  right, *);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_DIV: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  /);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstI64Constant, left, AstF64Constant, right,
-                  /);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstI64Constant, right,
-                  /);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstF64Constant, AstF64Constant, left, AstF64Constant, right,
-                  /);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_MOD: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  %);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_LSHIFT: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  <<);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_RSHIFT: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  >>);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_RZEROSHIFT: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  >>);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_LT: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, <);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, <);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, <);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, <);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_LE: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, <=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, <=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, <=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, <=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_GT: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, >);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, >);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, >);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, >);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_GE: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, >=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, >=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, >=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, >=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_EQ: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, ==);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, ==);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, ==);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, ==);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_NEQ: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstI64Constant,
-                  right, !=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstI64Constant, left, AstF64Constant,
-                  right, !=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    case A_F64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstI64Constant,
-                  right, !=);
-      case A_F64_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstF64Constant, left, AstF64Constant,
-                  right, !=);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_AND: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant,
-                  right, &);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_OR: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  |);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_BIT_XOR: {
-    switch (left->type()) {
-    case A_I64_CONSTANT: {
-      switch (right->type()) {
-      case A_I64_CONSTANT:
-        BINARY_OP(AstI64Constant, AstI64Constant, left, AstI64Constant, right,
-                  ^);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_LOGIC_AND: {
-    switch (left->type()) {
-    case A_BOOLEAN_CONSTANT: {
-      switch (right->type()) {
-      case A_BOOLEAN_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstBooleanConstant, left,
-                  AstBooleanConstant, right, &&);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  case T_LOGIC_OR: {
-    switch (left->type()) {
-    case A_BOOLEAN_CONSTANT: {
-      switch (right->type()) {
-      case A_BOOLEAN_CONSTANT:
-        BINARY_OP(AstBooleanConstant, AstBooleanConstant, left,
-                  AstBooleanConstant, right, ||);
-      default:
-        goto binary_expression_error;
-      }
-      break;
-    }
-    default:
-      goto binary_expression_error;
-    }
-    break;
-  }
-  default:
-    goto binary_expression_error;
-  }
-
-binary_expression_error:
-  EX_THROW("invalid node:{}", node ? node->toString() : "null");
-}
-
-#undef BINARY_OP
-
-Visitor *BinaryExpressionVisitor::instance() {
-  static Visitor *binaryExpressionVisitor = new BinaryExpressionVisitor();
-  return binaryExpressionVisitor;
-}
-
-Ast *ConditionalExpressionVisitor::visit(Ast *node) const {
-  std::shared_ptr<AstConditionalExpression> e =
-      dynamic_cast<AstConditionalExpression *>(node);
-  std::shared_ptr<AstBooleanConstant> cond = dynamic_cast<AstBooleanConstant *>(
-      ExpressionVisitor::instance()->visit(e->condExpression()));
-  Ast *ifExpr = ExpressionVisitor::instance()->visit(e->ifExpression());
-  Ast *elseExpr = ExpressionVisitor::instance()->visit(e->elseExpression());
-  return cond->value() ? ifExpr : elseExpr;
-}
-
-Visitor *ConditionalExpressionVisitor::instance() {
-  static Visitor *conditionalExpressionVisitor =
-      new ConditionalExpressionVisitor();
-  return conditionalExpressionVisitor;
-}
-
-Ast *AssignmentExpressionVisitor::visit(Ast *node) const {
-  std::shared_ptr<AstAssignmentExpression> e =
-      dynamic_cast<AstAssignmentExpression *>(node);
-  std::shared_ptr<AstIdentifierConstant> var =
-      dynamic_cast<AstIdentifierConstant *>(
-          ExpressionVisitor::instance()->visit(e->left()));
-  Ast *val = ExpressionVisitor::instance()->visit(e->right());
-  std::shared_ptr<VariableSymbol> sym = dynamic_cast<VariableSymbol *>(
-      Scope::currentScope()->resolve(var->value()));
-  switch (e->token()) {
-  case T_ASSIGN:
-  case T_ADD_ASSIGN:
-  case T_SUB_ASSIGN:
-  case T_MUL_ASSIGN:
-  case T_DIV_ASSIGN:
-  case T_MOD_ASSIGN:
-  case T_BIT_AND_ASSIGN:
-  case T_BIT_OR_ASSIGN:
-  case T_BIT_XOR_ASSIGN:
-  case T_BIT_LSHIFT_ASSIGN:
-  case T_BIT_RSHIFT_ASSIGN:
-  case T_BIT_ZERORSHIFT_ASSIGN:
-  default:
-    goto assignment_expression_error;
-  }
-
-assignment_expression_error:
-  EX_THROW("invalid node:{}", node ? node->toString() : "null");
-}
-
-Visitor *AssignmentExpressionVisitor::instance() {
-  static Visitor *assignmentExpressionVisitor =
-      new AssignmentExpressionVisitor();
-  return assignmentExpressionVisitor;
+Visitor *FunctionDeclarationVisitor::instance() {
+  static FunctionDeclarationVisitor *functionDeclarationVisitor =
+      new FunctionDeclarationVisitor();
+  return FunctionDeclarationVisitor;
 }

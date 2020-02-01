@@ -3,6 +3,7 @@ let y = 0;
 let z = x + y;
 let a9 = 228;
 let a18 = 123.901;
+let a, b, c = 10, "hello world", 2.34;
 
 func Hello() {
     a = 1;
