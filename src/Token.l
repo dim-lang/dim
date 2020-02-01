@@ -45,8 +45,8 @@ std::stack<TokenBuffer*> TokenBufferStack;
 int tokenImportFile(const char *module);
 int tokenImportFile(const std::string &module);
 int tokenPopFile();
-static std::string tokenModuleToFile(const std::string &name);
-static std::string tokenFileToModule(const std::string &name);
+std::string tokenModuleToFile(const std::string &name);
+std::string tokenFileToModule(const std::string &name);
 
 %}
 
@@ -220,7 +220,7 @@ int tokenPopFile() {
     return 1;
 }
 
-static std::string tokenModuleToFile(const std::string &name) {
+std::string tokenModuleToFile(const std::string &name) {
     std::string r(name);
     char replace;
 #if FPLATFORM_WINDOWS
@@ -233,7 +233,7 @@ static std::string tokenModuleToFile(const std::string &name) {
     return r;
 }
 
-static std::string tokenFileToModule(const std::string &name) {
+std::string tokenFileToModule(const std::string &name) {
     std::string r(name.substr(0, name.length() - 5));
     std::for_each(r.begin(), r.end(), [](char &c) { if (c == '/' || c == '\\') {c = '.';} });
     return r;
