@@ -32,14 +32,16 @@ int main(int argc, char **argv) {
   if (conf.hasFileNames()) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
-      std::string fn = fileNameList[i];
-      if (!tokenImportFile(fn)) {
-        LOG_CHECK(false, "tokenImportFile {} fail", fn);
+      std::string fileName = fileNameList[i];
+      std::string moduleName = tokenFileToModule(fileName);
+      LOG_INFO("fileName:{} moduleName:{}", fileName, moduleName);
+      if (!tokenImportFile(moduleName)) {
+        LOG_CHECK(false, "tokenImportFile {} fail", moduleName);
         return 0;
       }
-      LOG_INFO("{} starting...", fn);
+      LOG_INFO("{} starting...", moduleName);
       int yp = yyparse();
-      LOG_INFO("{} ending ...", fn);
+      LOG_INFO("{} ending ...", moduleName);
       LOG_CHECK(yp == 0, "yyparse fail:{}", yp);
       ProgramVisitor::instance()->visit(AstProgram::instance());
     }
