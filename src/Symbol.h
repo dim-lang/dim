@@ -70,22 +70,5 @@ public:
   virtual std::string toString() const;
 
 private:
-  std::string functionName_;
   Type *functionType_;
-};
-
-class ClassSymbol : public Symbol, public Scope, public Type {
-public:
-  /**
-   * <System>
-   */
-  ClassSymbol(const std::string &name, Type *type);
-  virtual ~ClassSymbol() = default;
-  virtual const std::string &name() const;
-  virtual Type *type() const;
-  virtual std::string toString() const;
-
-private:
-  std::string className_;
-  Type *classType_;
 };

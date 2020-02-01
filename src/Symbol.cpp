@@ -38,6 +38,18 @@ BuiltinTypeSymbol *BuiltinTypeSymbol::booleanInstance() {
   return booleanBuiltinTypeSymbol;
 }
 
+BuiltinTypeSymbol *BuiltinTypeSymbol::classInstance() {
+  static BuiltinTypeSymbol *classBuiltinTypeSymbol =
+      new BuiltinTypeSymbol("class");
+  return classBuiltinTypeSymbol;
+}
+
+BuiltinTypeSymbol *BuiltinTypeSymbol::funcInstance() {
+  static BuiltinTypeSymbol *funcBuiltinTypeSymbol =
+      new BuiltinTypeSymbol("func");
+  return funcBuiltinTypeSymbol;
+}
+
 VariableSymbol::VariableSymbol(const std::string &name, Type *type)
     : variableName_(name), variableType_(type) {}
 
@@ -55,7 +67,9 @@ FunctionSymbol::FunctionSymbol(const std::string &name, Type *type,
                                Scope *enclosingScope)
     : Scope(name, enclosingScope), functionType_(type) {}
 
-const std::string &FunctionSymbol::type() const { return functionType_; }
+const std::string &FunctionSymbol::name() const { return scopeName_; }
+
+Type *FunctionSymbol::type() const { return functionType_; }
 
 std::string FunctionSymbol::toString() const {
   return fmt::format("[ @FunctionSymbol functionName_:{}, functionType_:{}, "
