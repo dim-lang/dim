@@ -36,7 +36,7 @@ protected:
 
 class GlobalScope : public Scope {
 public:
-  GlobalScope(const std::string &scopeName);
+  GlobalScope();
   virtual ~GlobalScope();
 };
 

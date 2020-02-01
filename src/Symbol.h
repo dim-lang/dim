@@ -15,7 +15,7 @@ public:
   virtual std::string toString() const = 0;
 };
 
-class BuiltinTypeSymbol : public Symbol, Type {
+class BuiltinTypeSymbol : public Symbol, public Type {
 public:
   virtual ~BuiltinTypeSymbol() = default;
   virtual const std::string &name() const;
@@ -55,7 +55,7 @@ private:
   Type *variableType_;
 };
 
-class FunctionSymbol : public Symbol, Scope {
+class FunctionSymbol : public Symbol, public Scope {
 public:
   FunctionSymbol(const std::string &name, Type *type,
                  Scope *enclosingScope = Scope::currentScope());
@@ -74,7 +74,7 @@ private:
   Type *functionType_;
 };
 
-class ClassSymbol : public Symbol, Scope, Type {
+class ClassSymbol : public Symbol, public Scope, public Type {
 public:
   /**
    * <System>

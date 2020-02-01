@@ -32,6 +32,7 @@ Ast *ProgramVisitor::visit(Ast *node) const {
       LOG_CHECK(false, "invalid node type:{}", p->toString());
     }
   }
+  return nullptr;
 }
 
 Visitor *ProgramVisitor::instance() {
@@ -62,7 +63,6 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
     AstIdentifierConstant *id =
         dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
     AstExpression *expr = expressionList->get(i);
-    Type *t = nullptr;
     LOG_CHECK(Scope::currentScope(), "Scope#currentScope is null:{}",
               (void *)Scope::currentScope());
     switch (expr->type()) {
@@ -94,6 +94,7 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
                 expr ? expr->toString() : "null");
     }
   }
+  return nullptr;
 }
 
 Visitor *VariableDeclarationVisitor::instance() {
@@ -116,7 +117,7 @@ Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
     AstIdentifierConstant *argId =
         dynamic_cast<AstIdentifierConstant *>(argumentList->get(i));
     Scope::currentScope()->define(
-        new VariableSymbol(id->value(), BuiltinTypeSymbol::i64Instance()));
+        new VariableSymbol(argId->value(), BuiltinTypeSymbol::i64Instance()));
   }
 
   AstCompoundStatement *compoundStatement = e->compoundStatement();
@@ -124,10 +125,11 @@ Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
   LOG_CHECK(compoundStatement, "compoundStatement is null: {}",
             (void *)compoundStatement);
   LOG_CHECK(statementList, "statementList is null: {}", (void *)statementList);
+  return nullptr;
 }
 
 Visitor *FunctionDeclarationVisitor::instance() {
   static FunctionDeclarationVisitor *functionDeclarationVisitor =
       new FunctionDeclarationVisitor();
-  return FunctionDeclarationVisitor;
+  return functionDeclarationVisitor;
 }
