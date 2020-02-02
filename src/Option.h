@@ -26,7 +26,7 @@ public:
   bool hasFileNames() const;
   std::vector<std::string> fileNames() const;
 
-  // --job , -j
+  // --job, -j
   // by default: system thread size
   int job() const;
 

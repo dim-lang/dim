@@ -18,7 +18,7 @@
 #define OPT_DEBUG "debug"
 #define OPT_D "d"
 
-Option::Option() : optDesc_(C_OPT) {
+Option::Option() : optDesc_(OPT) {
   optDesc_.add_options()(OPT_HELP "," OPT_H, "help message")(
       OPT_VERSION "," OPT_V, "version information")(
       OPT_FILE_NAMES "," OPT_F, boost_po::value<std::vector<std::string>>(),

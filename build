@@ -120,8 +120,13 @@ function build_debug() {
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
-    flex -d -o Token.yy.cpp Token.l
-    bison --debug -d -v -o Parser.tab.cpp Parser.y
+    if [ "$1" = "-d" ]; then
+        flex -d -o Token.yy.cpp Token.l
+        bison --debug -d -v -o Parser.tab.cpp Parser.y
+    else
+        flex -o Token.yy.cpp Token.l
+        bison -d -v -o Parser.tab.cpp Parser.y
+    fi
 
     cd $ROOT
     DEBUG=debug
@@ -217,7 +222,11 @@ if [ "$1" = "test" ]; then
 fi
 
 if [ "$1" = "debug" ]; then
-    build_debug
+    if [ "$2" = "-d" ]; then
+        build_debug -d
+    else
+        build_debug
+    fi
     exit 0
 fi
 
