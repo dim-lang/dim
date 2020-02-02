@@ -6,12 +6,20 @@
 #include <string>
 #include <unordered_map>
 
+//==============================
+
+class Scope;
+class GlobalScope;
+class LocalScope;
+
+//==============================
+
 class Symbol;
 
 class Scope : public Stringify {
 public:
   Scope(const std::string &scopeName, Scope *enclosingScope = nullptr);
-  virtual ~Scope();
+  virtual ~Scope() = default;
   virtual const std::string &name() const;
   virtual std::string toString() const;
 
@@ -37,11 +45,11 @@ protected:
 class GlobalScope : public Scope {
 public:
   GlobalScope();
-  virtual ~GlobalScope();
+  virtual ~GlobalScope() = default;
 };
 
 class LocalScope : public Scope {
 public:
   LocalScope(const std::string &scopeName, Scope *enclosingScope);
-  virtual ~LocalScope();
+  virtual ~LocalScope() = default;
 };

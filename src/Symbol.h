@@ -7,6 +7,15 @@
 #include "Type.h"
 #include <string>
 
+//==============================
+
+class Symbol;
+class BuiltinTypeSymbol;
+class VariableSymbol;
+class FunctionSymbol;
+
+//==============================
+
 class Symbol : public Stringify {
 public:
   virtual ~Symbol() = default;

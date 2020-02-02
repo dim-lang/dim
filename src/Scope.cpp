@@ -19,11 +19,6 @@ Scope::Scope(const std::string &name, Scope *enclosingScope)
   define(BuiltinTypeSymbol::classInstance());
 }
 
-Scope::~Scope() {
-  enclosingScope_ = nullptr;
-  symbolTable_.clear();
-}
-
 const std::string &Scope::name() const { return scopeName_; }
 
 std::string Scope::toString() const {
@@ -44,13 +39,13 @@ std::string Scope::toString() const {
 
 void Scope::define(Symbol *symbol) {
   CASSERT(symbol, "symbol {} already exist",
-            symbol ? symbol->toString() : "null");
+          symbol ? symbol->toString() : "null");
   symbolTable_.insert(std::make_pair(symbol->name(), symbol));
 }
 
 Symbol *Scope::resolve(const std::string &name) {
-  CASSERT(symbolTable_.find(name) != symbolTable_.end(),
-            "symbol {} not exist", name);
+  CASSERT(symbolTable_.find(name) != symbolTable_.end(), "symbol {} not exist",
+          name);
   return symbolTable_[name];
 }
 
@@ -90,9 +85,5 @@ void Scope::pop() {
 
 GlobalScope::GlobalScope() : Scope("GlobalScope") {}
 
-GlobalScope::~GlobalScope() {}
-
 LocalScope::LocalScope(const std::string &scopeName, Scope *enclosingScope)
     : Scope(scopeName, enclosingScope) {}
-
-LocalScope::~LocalScope() {}
