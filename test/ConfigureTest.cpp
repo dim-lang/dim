@@ -8,7 +8,6 @@
 
 TEST_CASE("Configure", "[Configure]") {
   SECTION("Project Version Info") {
-    CINFO_MSG("Project Version Info");
     REQUIRE(std::strlen(PROJECT_NAME) > 0);
     REQUIRE(std::strlen(PROJECT_VERSION) > 0);
     REQUIRE(std::strlen(PROJECT_VERSION_MAJOR) > 0);
