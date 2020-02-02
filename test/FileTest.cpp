@@ -52,25 +52,33 @@ TEST_CASE("File", "[File]") {
     icu::UnicodeString l3 =
         UNICODE_STRING_SIMPLE("Let's go to KFC and have a good meal!\n");
     icu::UnicodeString l4 = UNICODE_STRING_SIMPLE("I cannot wait anymore!\n");
+    icu::UnicodeString l5 =
+        UNICODE_STRING_SIMPLE("Test a very long string in one line!");
+    for (int i = 0; i < 1024; i++) {
+      l5 += l5;
+    }
     int n1 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l1);
     int n2 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l2);
     int n3 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l3);
     int n4 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l4);
+    int n5 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l5);
     REQUIRE(n1 == l1.length());
     REQUIRE(n2 == l2.length());
     REQUIRE(n3 == l3.length());
     REQUIRE(n4 == l4.length());
+    REQUIRE(n5 == l5.length());
 
     std::vector<icu::UnicodeString> lines =
         File::readline(UNICODE_STRING_SIMPLE("FileTest3.log"));
     REQUIRE(std::accumulate(lines.begin(), lines.end(), 0,
                             [](int a, const icu::UnicodeString &b) {
                               return a + (int)b.length();
-                            }) ==
-            l1.length() + l2.length() + l3.length() + l4.length());
+                            }) == l1.length() + l2.length() + l3.length() +
+                                      l4.length() + l5.length());
     REQUIRE(lines[0] == l1);
     REQUIRE(lines[1] == l2);
     REQUIRE(lines[2] == l3);
     REQUIRE(lines[3] == l4);
+    REQUIRE(lines[4] == l5);
   }
 }
