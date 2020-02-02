@@ -44,7 +44,7 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
     int pos = 0;
     int32_t dataLen;
     while (true) {
-      UChar *r = u_fgets(data + pos, len, fp);
+      UChar *r = u_fgets(data + pos, len - pos, fp);
       if (!r) {
         goto end_of_readline;
       }
@@ -58,7 +58,7 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
         len *= 2;
         data = (UChar *)realloc(data, sizeof(UChar) * len);
         CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
-        pos = dataLen - 1;
+        pos = dataLen;
       }
     }
   }

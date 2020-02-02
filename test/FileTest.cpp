@@ -27,7 +27,7 @@ TEST_CASE("File", "[File]") {
     icu::UnicodeString result1 =
         File::read(UNICODE_STRING_SIMPLE("FileTest1.log"));
     REQUIRE(text1.length() == result1.length());
-    REQUIRE((int)result1.tempSubString(0, text1.length()).compare(text1) == 0);
+    REQUIRE(text1 == result1);
 
     icu::UnicodeString text2 = UNICODE_STRING_SIMPLE(
         "This is a simple string for testing File::append and File::readline "
@@ -40,8 +40,7 @@ TEST_CASE("File", "[File]") {
     REQUIRE(n2 == text2.length());
     icu::UnicodeString result2 =
         File::read(UNICODE_STRING_SIMPLE("FileTest2.log"));
-    REQUIRE(text2.length() == result2.length());
-    REQUIRE((int)result2.tempSubString(0, text2.length()).compare(text2) == 0);
+    REQUIRE(result2 == text2);
   }
 
   SECTION("append/readline") {
