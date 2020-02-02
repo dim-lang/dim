@@ -8,6 +8,7 @@
 
 #include "boost/align/align_up.hpp"
 #include "boost/core/noncopyable.hpp"
+#include "boost/filesystem.hpp"
 #include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
 #include "boost/program_options.hpp"
@@ -24,6 +25,7 @@
 
 #include <boost/align/align_up.hpp>
 #include <boost/core/noncopyable.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/program_options.hpp>

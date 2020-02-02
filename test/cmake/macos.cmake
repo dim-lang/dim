@@ -26,6 +26,7 @@ set(CLIB
     fmt
     boost_program_options-mt
     boost_system-mt
+    boost_filesystem-mt
     icuuc
     icuio
     icudata

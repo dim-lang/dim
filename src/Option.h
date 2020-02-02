@@ -6,7 +6,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-namespace boost_po = boost::program_options;
 
 class Option {
 public:
@@ -37,7 +36,7 @@ public:
 private:
   Option();
 
-  boost_po::options_description optDesc_;
-  boost_po::positional_options_description posOptDesc_;
-  boost_po::variables_map varMap_;
+  boost::program_options::options_description optDesc_;
+  boost::program_options::positional_options_description posOptDesc_;
+  boost::program_options::variables_map varMap_;
 };

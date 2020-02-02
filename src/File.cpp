@@ -10,16 +10,16 @@ icu::UnicodeString File::read(const icu::UnicodeString &fileName,
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
   CASSERT(fp != nullptr, "fp {} != nullptr", (void *)fp);
   UChar *data = nullptr;
-  int l = 1024, n = 0, tot = 0;
+  int len = 1024, n = 0, tot = 0;
 
   do {
-    if (data == nullptr || tot >= l) {
-      l *= 2;
-      data = (UChar *)realloc(data, l * sizeof(UChar));
+    if (data == nullptr || tot >= len) {
+      len *= 2;
+      data = (UChar *)realloc(data, len * sizeof(UChar));
       CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
     }
 
-    n = u_file_read(data + tot, l - tot, fp);
+    n = u_file_read(data + tot, len - tot, fp);
     tot += n;
   } while (n > 0);
 
@@ -35,8 +35,8 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
                const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
   CASSERT(fp != nullptr, "fp {} != nullptr", (void *)fp);
-  int l = 1024;
-  UChar *data = (UChar *)malloc(l * sizeof(UChar));
+  int len = 1024;
+  UChar *data = (UChar *)malloc(len * sizeof(UChar));
   CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
   std::vector<icu::UnicodeString> ret;
 
@@ -44,22 +44,22 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
     int pos = 0;
     int32_t dataLen;
     do {
-      UChar *r = u_fgets(data + pos, l, fp);
+      UChar *r = u_fgets(data + pos, len, fp);
       if (!r) {
         goto end_of_readline;
       }
       dataLen = u_strlen(data);
       CASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
-      CASSERT(dataLen < l, "dataLen {} < l {}", dataLen, l);
-      if (dataLen < l - 1) {
+      CASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
+      if (dataLen < len - 1) {
         ret.push_back(icu::UnicodeString(data, dataLen));
       } else {
-        l *= 2;
-        data = (UChar *)realloc(data, sizeof(UChar) * l);
+        len *= 2;
+        data = (UChar *)realloc(data, sizeof(UChar) * len);
         CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
         pos = dataLen - 1;
       }
-    } while (dataLen >= l - 1);
+    } while (dataLen >= len - 1);
   }
 
 end_of_readline:

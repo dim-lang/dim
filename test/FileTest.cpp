@@ -3,12 +3,16 @@
 
 #include "File.h"
 #include "catch2/catch.hpp"
+#include "config/Header.h"
 #include <algorithm>
 #include <cstring>
 #include <functional>
 
 TEST_CASE("File", "[File]") {
+
   SECTION("read/write") {
+    boost::filesystem::remove("FileTest1.log");
+    boost::filesystem::remove("FileTest2.log");
     icu::UnicodeString text1 = UNICODE_STRING_SIMPLE(
         "This is a long string for testing File::write and File::read "
         "static methods.\n"
@@ -41,6 +45,7 @@ TEST_CASE("File", "[File]") {
   }
 
   SECTION("append/readline") {
+    boost::filesystem::remove("FileTest3.log");
     icu::UnicodeString l1 = UNICODE_STRING_SIMPLE("Hello World\n");
     icu::UnicodeString l2 = UNICODE_STRING_SIMPLE(
         "What a greate morning! What a lovely weather!\n");

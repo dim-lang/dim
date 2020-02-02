@@ -22,6 +22,7 @@ set(CLIB
     panel
     boost_program_options
     boost_system
+    boost_filesystem
     icuuc
     icuio
     icudata

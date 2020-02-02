@@ -12,7 +12,6 @@ find_package(Threads REQUIRED)
 set(CINC
     .
     Threads::Threads
-    ${CURSES_INCLUDE_DIR}
     spdlog/include
     fmt/include
     /usr/include
@@ -21,9 +20,9 @@ set(CINC
 
 set(CLIB
     Threads::Threads
-    ${CURSES_LIBRARIES}
     boost_program_options
     boost_system
+    boost_filesystem
     icuuc
     icuio
     icudata
@@ -31,7 +30,6 @@ set(CLIB
     )
 
 set(CLIB_DIR
-    ${CURSES_LIBRARY_DIRS}
     /usr/lib
     /usr/local/lib
     )

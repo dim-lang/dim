@@ -24,6 +24,7 @@ set(CLIB
     Threads::Threads
     boost_program_options
     boost_system
+    boost_filesystem
     icuuc
     icuio
     icudata

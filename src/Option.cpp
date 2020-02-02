@@ -6,6 +6,8 @@
 #include "Log.h"
 #include <fstream>
 
+namespace boost_po = boost::program_options;
+
 #define OPT "Options"
 #define OPT_HELP "help"
 #define OPT_H "h"
