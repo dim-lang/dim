@@ -12,4 +12,5 @@ set(CTEST
     HashTest.cpp
     TokenTest.cpp
     ParserTest.cpp
+    ExceptionTest.cpp
 )
