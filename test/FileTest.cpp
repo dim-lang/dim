@@ -52,11 +52,12 @@ TEST_CASE("File", "[File]") {
     icu::UnicodeString l3 =
         UNICODE_STRING_SIMPLE("Let's go to KFC and have a good meal!\n");
     icu::UnicodeString l4 = UNICODE_STRING_SIMPLE("I cannot wait anymore!\n");
-    icu::UnicodeString l5 =
-        UNICODE_STRING_SIMPLE("Test a very long string in one line!");
-    for (int i = 0; i < 1024; i++) {
-      l5 += l5;
+    icu::UnicodeString l5, l6;
+    l5 = l6 = UNICODE_STRING_SIMPLE("Test a very long string in one line!");
+    for (int i = 0; i < 256; i++) {
+      l5 += l6;
     }
+    l5 += UNICODE_STRING_SIMPLE("\n");
     int n1 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l1);
     int n2 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l2);
     int n3 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l3);

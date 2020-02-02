@@ -43,7 +43,7 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
   while (true) {
     int pos = 0;
     int32_t dataLen;
-    do {
+    while (true) {
       UChar *r = u_fgets(data + pos, len, fp);
       if (!r) {
         goto end_of_readline;
@@ -53,13 +53,14 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
       CASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
       if (dataLen < len - 1) {
         ret.push_back(icu::UnicodeString(data, dataLen));
+        break;
       } else {
         len *= 2;
         data = (UChar *)realloc(data, sizeof(UChar) * len);
         CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
         pos = dataLen - 1;
       }
-    } while (dataLen >= len - 1);
+    }
   }
 
 end_of_readline:
