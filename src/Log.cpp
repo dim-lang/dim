@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-void Log::initialize(const std::string &logPath, const std::string &logName,
+void Log::initialize(const std::string &logName, const std::string &logPath,
                      bool debug) {
 #ifndef NDEBUG
   debug = true;

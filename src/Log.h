@@ -9,9 +9,8 @@
 
 class Log {
 public:
-  static void initialize(const std::string &logPath = ".",
-                         const std::string &logName = "coli",
-                         bool debug = false);
+  static void initialize(const std::string &logName = "coli",
+                         const std::string &logPath = ".", bool debug = false);
 };
 
 #ifdef NDEBUG
