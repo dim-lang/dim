@@ -7,9 +7,9 @@
 TEST_CASE("Log", "[Log]") {
   SECTION("logging operations") {
     INFO("Log Operations");
-    LOG_DEBUG_MSG("debug test");
-    LOG_DEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
-    LOG_INFO_MSG("info test");
-    LOG_INFO("info test with args:{} {} {}", "hello", 1, 4.281);
+    CDEBUG_MSG("debug test");
+    CDEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
+    CINFO_MSG("info test");
+    CINFO("info test with args:{} {} {}", "hello", 1, 4.281);
   }
 }

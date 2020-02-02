@@ -3,6 +3,7 @@
 
 #pragma once
 #include "config/Header.h"
+#include <cassert>
 #include <cstdio>
 #include <string>
 
@@ -15,56 +16,35 @@ public:
 
 #ifdef NDEBUG
 
-#define LOG_DEBUG_MSG(msg)
-#define LOG_DEBUG(msg, ...)
-#define LOG_INFO_MSG(msg)
-#define LOG_INFO(msg, ...)
-#define LOG_CHECK_MSG(cond, msg)                                                  \
+#define CTRACE(...)
+#define CDEBUG(...)
+#define CINFO(...)
+#define CASSERT(cond, ...)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
       throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
                         __FILE__, __LINE__, __FUNCTION__,                      \
-                        BOOST_PP_STRINGIZE(cond), msg)                         \
-    }                                                                          \
-  } while (0)
-
-#define LOG_CHECK(cond, msg, ...)                                                 \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
-                        __FILE__, __LINE__, __FUNCTION__,                      \
-                        BOOST_PP_STRINGIZE(cond),                              \
-                        fmt::format(msg, __VA_ARGS__))                         \
+                        BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));   \
     }                                                                          \
   } while (0)
 
 #else
 
-#define LOG_DEBUG_MSG(msg) SPDLOG_DEBUG(msg)
-#define LOG_DEBUG(msg, ...) SPDLOG_DEBUG(msg, __VA_ARGS__)
-#define LOG_INFO_MSG(msg) SPDLOG_INFO(msg)
-#define LOG_INFO(msg, ...) SPDLOG_INFO(msg, __VA_ARGS__)
-#define LOG_CHECK_MSG(cond, msg)                                                  \
+#define CTRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define CDEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
+#define CINFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define CASSERT(cond, ...)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      std::fprintf(                                                            \
-          stderr, "Check Fail! %s:%d %s - Condition: %s, Result: %s\n",        \
-          __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg);    \
+      std::string msg =                                                        \
+          fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}\n",    \
+                      __FILE__, __LINE__, __FUNCTION__,                        \
+                      BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
+      std::fprintf(stderr, "%s", msg.c_str());                                 \
+      throw msg;                                                               \
     }                                                                          \
-    BOOST_ASSERT(cond);                                                        \
-  } while (0)
-#define LOG_CHECK(cond, msg, ...)                                                 \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::fprintf(stderr,                                                     \
-                   "Check Fail! %s:%d %s - Condition: %s, Result: %s\n",       \
-                   __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), \
-                   fmt::format(msg, __VA_ARGS__).data());                      \
-    }                                                                          \
-    BOOST_ASSERT(cond);                                                        \
   } while (0)
 
 #endif // #ifdef NDEBUG
 
-#define LOG_ERROR_MSG(msg) SPDLOG_ERROR(msg)
-#define LOG_ERROR(msg, ...) SPDLOG_ERROR(msg, __VA_ARGS__)
+#define CERROR(...) SPDLOG_ERROR(__VA_ARGS__)

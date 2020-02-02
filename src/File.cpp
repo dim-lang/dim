@@ -8,15 +8,15 @@
 icu::UnicodeString File::read(const icu::UnicodeString &fileName,
                               const char *locale, const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
-  LOG_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
+  CASSERT(fp != nullptr, "fp {} != nullptr", (void *)fp);
   UChar *data = nullptr;
   int l = 1024, n = 0, tot = 0;
 
   do {
     if (data == nullptr || tot >= l) {
       l *= 2;
-      data = (UChar *)realloc(data, l);
-      LOG_CHECK(data, "realloc error! data {} != nullptr", (void *)data);
+      data = (UChar *)realloc(data, l * sizeof(UChar));
+      CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
     }
 
     n = u_file_read(data + tot, l - tot, fp);
@@ -34,10 +34,10 @@ std::vector<icu::UnicodeString>
 File::readline(const icu::UnicodeString &fileName, const char *locale,
                const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
-  LOG_CHECK(fp != nullptr, "fp {} != nullptr", (void *)fp);
+  CASSERT(fp != nullptr, "fp {} != nullptr", (void *)fp);
   int l = 1024;
-  UChar *data = (UChar *)malloc(l);
-  LOG_CHECK(data, "realloc error! data {} != nullptr", (void *)data);
+  UChar *data = (UChar *)malloc(l * sizeof(UChar));
+  CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
   std::vector<icu::UnicodeString> ret;
 
   while (true) {
@@ -46,23 +46,23 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
     do {
       UChar *r = u_fgets(data + pos, l, fp);
       if (!r) {
-        goto end_of_lines;
+        goto end_of_readline;
       }
       dataLen = u_strlen(data);
-      LOG_CHECK(dataLen > 0, "dataLen {} > 0", dataLen);
-      LOG_CHECK(dataLen < l, "dataLen {} < l {}", dataLen, l);
+      CASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
+      CASSERT(dataLen < l, "dataLen {} < l {}", dataLen, l);
       if (dataLen < l - 1) {
         ret.push_back(icu::UnicodeString(data, dataLen));
       } else {
         l *= 2;
-        data = (UChar *)realloc(data, l);
-        LOG_CHECK(data, "realloc error! data {} != nullptr", (void *)data);
+        data = (UChar *)realloc(data, sizeof(UChar) * l);
+        CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
         pos = dataLen - 1;
       }
     } while (dataLen >= l - 1);
   }
 
-end_of_lines:
+end_of_readline:
   u_fclose(fp);
   free(data);
   return ret;
@@ -72,7 +72,7 @@ static int writeImpl(const icu::UnicodeString &fileName,
                      const icu::UnicodeString &text, const char *perm,
                      const char *locale, const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
-  LOG_CHECK(fp, "open file error! fp {} != nullptr", (void *)fp);
+  CASSERT(fp, "open file error! fp {} != nullptr", (void *)fp);
   int n = (int)u_file_write(text.getBuffer(), text.length(), fp);
   u_fclose(fp);
   return n;
@@ -83,7 +83,7 @@ static int writelineImpl(const icu::UnicodeString &fileName,
                          const char *perm, const char *locale,
                          const char *codepage) {
   UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
-  LOG_CHECK(fp, "open file error! fp {} != nullptr", (void *)fp);
+  CASSERT(fp, "open file error! fp {} != nullptr", (void *)fp);
   int n = 0;
   for (int i = 0; i < (int)lines.size(); i++) {
     n += (int)u_file_write(lines[i].getBuffer(), lines[i].length(), fp);

@@ -62,7 +62,7 @@ Random::ullongDistribution() {
 short Random::nextShort(short right) { return nextShort(0, right); }
 
 short Random::nextShort(short left, short right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -73,7 +73,7 @@ unsigned short Random::nextUShort(unsigned short right) {
 }
 
 unsigned short Random::nextUShort(unsigned short left, unsigned short right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -82,7 +82,7 @@ unsigned short Random::nextUShort(unsigned short left, unsigned short right) {
 int Random::nextInt(int right) { return nextInt(0, right); }
 
 int Random::nextInt(int left, int right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -91,7 +91,7 @@ int Random::nextInt(int left, int right) {
 unsigned int Random::nextUInt(unsigned int right) { return nextUInt(0, right); }
 
 unsigned int Random::nextUInt(unsigned int left, unsigned int right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ulongDistribution()(engine()) % (right - left)) + left);
@@ -100,7 +100,7 @@ unsigned int Random::nextUInt(unsigned int left, unsigned int right) {
 long Random::nextLong(long right) { return nextLong(0, right); }
 
 long Random::nextLong(long left, long right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((longDistribution()(engine()) % (right - left)) + left);
@@ -111,7 +111,7 @@ unsigned long Random::nextULong(unsigned long right) {
 }
 
 unsigned long Random::nextULong(unsigned long left, unsigned long right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ulongDistribution()(engine()) % (right - left)) + left);
@@ -120,7 +120,7 @@ unsigned long Random::nextULong(unsigned long left, unsigned long right) {
 long long Random::nextLLong(long long right) { return nextULong(0, right); }
 
 long long Random::nextLLong(long long left, long long right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((llongDistribution()(engine()) % (right - left)) + left);
@@ -132,7 +132,7 @@ unsigned long long Random::nextULLong(unsigned long long right) {
 
 unsigned long long Random::nextULLong(unsigned long long left,
                                       unsigned long long right) {
-  LOG_CHECK(right >= left, "right {} >= left {}", right, left);
+  CASSERT(right >= left, "right {} >= left {}", right, left);
   return left == right
              ? left
              : ((ullongDistribution()(engine()) % (right - left)) + left);
@@ -189,16 +189,16 @@ UChar Random::nextCharImpl(const std::vector<std::pair<int, int>> &range,
     int p = range[i].second - range[i].first;
     if (c + p > pos) {
       int r = pos - c + range[i].first;
-      LOG_CHECK(r >= range[0].first, "r {} >= range[0].first {}", r,
+      CASSERT(r >= range[0].first, "r {} >= range[0].first {}", r,
              range[0].first);
-      LOG_CHECK(r < range[range.size() - 1].second,
+      CASSERT(r < range[range.size() - 1].second,
              "r {} < range[range.size()-1].second {}", r,
              range[range.size() - 1].second);
       return (UChar)r;
     }
     c += p;
   }
-  LOG_CHECK(false, "must not come here, pos:{} c:{}", pos, c);
+  CASSERT(false, "must not come here, pos:{} c:{}", pos, c);
   return (UChar)0;
 }
 
@@ -206,43 +206,43 @@ UChar Random::nextAlphaChar() { return nextCharImpl(AlphaRange, AlphaLength); }
 
 UChar Random::nextAlphaNumericChar() {
   UChar c = nextCharImpl(AlphaNumericRange, AlphaNumericLength);
-  LOG_CHECK(std::isalnum(c), "c {} isalnum", (int)c);
+  CASSERT(std::isalnum(c), "c {} isalnum", (int)c);
   return c;
 }
 
 UChar Random::nextDigitChar() {
   UChar c = nextCharImpl(DigitRange, DigitLength);
-  LOG_CHECK(std::isdigit(c), "c {} isdigit", (int)c);
+  CASSERT(std::isdigit(c), "c {} isdigit", (int)c);
   return c;
 }
 
 UChar Random::nextHexChar() {
   UChar c = nextCharImpl(HexRange, HexLength);
-  LOG_CHECK(std::isxdigit(c), "c {} isxdigit", (int)c);
+  CASSERT(std::isxdigit(c), "c {} isxdigit", (int)c);
   return c;
 }
 
 UChar Random::nextPunctuationChar() {
   UChar c = nextCharImpl(PunctuationRange, PunctuationLength);
-  LOG_CHECK(std::ispunct(c), "c {} ispunct", (int)c);
+  CASSERT(std::ispunct(c), "c {} ispunct", (int)c);
   return c;
 }
 
 UChar Random::nextControlChar() {
   UChar c = nextCharImpl(ControlRange, ControlLength);
-  LOG_CHECK(std::iscntrl(c), "c {} is cntrl", (int)c);
+  CASSERT(std::iscntrl(c), "c {} is cntrl", (int)c);
   return c;
 }
 
 UChar Random::nextPrintableChar() {
   UChar c = nextCharImpl(PrintableRange, PrintableLength);
-  LOG_CHECK(std::isprint(c), "c {} isprint", (int)c);
+  CASSERT(std::isprint(c), "c {} isprint", (int)c);
   return c;
 }
 
 UChar Random::nextWhitespaceChar() {
   UChar c = nextCharImpl(WhitespaceRange, WhitespaceLength);
-  LOG_CHECK(std::isspace(c), "c {} isspace", (int)c);
+  CASSERT(std::isspace(c), "c {} isspace", (int)c);
   return c;
 }
 

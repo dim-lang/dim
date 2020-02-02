@@ -43,13 +43,13 @@ std::string Scope::toString() const {
 }
 
 void Scope::define(Symbol *symbol) {
-  LOG_CHECK(symbol, "symbol {} already exist",
+  CASSERT(symbol, "symbol {} already exist",
             symbol ? symbol->toString() : "null");
   symbolTable_.insert(std::make_pair(symbol->name(), symbol));
 }
 
 Symbol *Scope::resolve(const std::string &name) {
-  LOG_CHECK(symbolTable_.find(name) != symbolTable_.end(),
+  CASSERT(symbolTable_.find(name) != symbolTable_.end(),
             "symbol {} not exist", name);
   return symbolTable_[name];
 }
@@ -74,7 +74,7 @@ void Scope::push(Scope *scope) {
 }
 
 void Scope::pop() {
-  LOG_CHECK(currentScope_, "currentScope_ is null: {}", (void *)currentScope_);
+  CASSERT(currentScope_, "currentScope_ is null: {}", (void *)currentScope_);
   if (currentScope_) {
     Scope *save = currentScope_;
     currentScope_ = currentScope_->enclosingScope();

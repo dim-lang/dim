@@ -8,8 +8,8 @@
 #include <algorithm>
 
 Ast *ProgramVisitor::visit(Ast *node) const {
-  LOG_CHECK(node, "node is null:{}", (void *)node);
-  LOG_CHECK(node->type() == A_PROGRAM, "invalid node type:{}",
+  CASSERT(node, "node is null:{}", (void *)node);
+  CASSERT(node->type() == A_PROGRAM, "invalid node type:{}",
             node->toString());
 
   AstProgram *e = dynamic_cast<AstProgram *>(node);
@@ -29,7 +29,7 @@ Ast *ProgramVisitor::visit(Ast *node) const {
       FunctionDeclarationVisitor::instance()->visit(p);
       break;
     default:
-      LOG_CHECK(false, "invalid node type:{}", p->toString());
+      CASSERT(false, "invalid node type:{}", p->toString());
     }
   }
   return nullptr;
@@ -41,29 +41,29 @@ Visitor *ProgramVisitor::instance() {
 }
 
 Ast *VariableDeclarationVisitor::visit(Ast *node) const {
-  LOG_CHECK(node, "node is null:{}", (void *)node);
+  CASSERT(node, "node is null:{}", (void *)node);
 
   AstVariableDeclaration *e = dynamic_cast<AstVariableDeclaration *>(node);
   AstExpressionList *identifierList = e->identifierList();
   AstExpressionList *expressionList = e->expressionList();
 
-  LOG_CHECK(identifierList, "identifierList is null:{}",
+  CASSERT(identifierList, "identifierList is null:{}",
             (void *)identifierList);
-  LOG_CHECK(expressionList, "expressionList is null:{}",
+  CASSERT(expressionList, "expressionList is null:{}",
             (void *)expressionList);
-  LOG_CHECK(identifierList->size() == expressionList->size(),
+  CASSERT(identifierList->size() == expressionList->size(),
             "identifierList expressionList same size, 1:{}, 2:{}",
             identifierList->size(), expressionList->size());
-  LOG_CHECK(identifierList->size() > 0, "identifierList#size > 0:{}",
+  CASSERT(identifierList->size() > 0, "identifierList#size > 0:{}",
             identifierList->size());
-  LOG_CHECK(expressionList->size() > 0, "expressionList#size > 0:{}",
+  CASSERT(expressionList->size() > 0, "expressionList#size > 0:{}",
             expressionList->size());
 
   for (int i = 0; i < identifierList->size(); i++) {
     AstIdentifierConstant *id =
         dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
     AstExpression *expr = expressionList->get(i);
-    LOG_CHECK(Scope::currentScope(), "Scope#currentScope is null:{}",
+    CASSERT(Scope::currentScope(), "Scope#currentScope is null:{}",
               (void *)Scope::currentScope());
     switch (expr->type()) {
     case A_I64_CONSTANT: {
@@ -90,7 +90,7 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
       break;
     }
     default:
-      LOG_CHECK(false, "invalid expression type, {}:{}", i,
+      CASSERT(false, "invalid expression type, {}:{}", i,
                 expr ? expr->toString() : "null");
     }
   }
@@ -104,7 +104,7 @@ Visitor *VariableDeclarationVisitor::instance() {
 }
 
 Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
-  LOG_CHECK(node, "node is null:{}", (void *)node);
+  CASSERT(node, "node is null:{}", (void *)node);
 
   AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
   FunctionSymbol *funcSymbol =
@@ -122,9 +122,9 @@ Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
 
   AstCompoundStatement *compoundStatement = e->compoundStatement();
   AstStatementList *statementList = compoundStatement->statementList();
-  LOG_CHECK(compoundStatement, "compoundStatement is null: {}",
+  CASSERT(compoundStatement, "compoundStatement is null: {}",
             (void *)compoundStatement);
-  LOG_CHECK(statementList, "statementList is null: {}", (void *)statementList);
+  CASSERT(statementList, "statementList is null: {}", (void *)statementList);
   return nullptr;
 }
 

@@ -8,6 +8,6 @@
 TEST_CASE("Main", "[Main]") {
   SECTION("Main Initialize") {
     Log::initialize(".", "coli-test");
-    LOG_INFO_MSG("coli-test starting...");
+    CINFO_MSG("coli-test starting...");
   }
 }

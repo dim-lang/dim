@@ -15,9 +15,9 @@
 #include <vector>
 
 int main(int argc, char **argv) {
-  Log::initialize(".", "coli");
+  Log::initialize();
   Option conf(argc, argv);
-  LOG_INFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
+  CINFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
 
   if (conf.hasHelp()) {
     std::cout << conf.help() << std::endl;
@@ -34,15 +34,15 @@ int main(int argc, char **argv) {
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
       std::string moduleName = tokenFileToModule(fileName);
-      LOG_INFO("fileName:{} moduleName:{}", fileName, moduleName);
+      CINFO("fileName:{} moduleName:{}", fileName, moduleName);
       if (!tokenImportFile(moduleName)) {
-        LOG_CHECK(false, "tokenImportFile {} fail", moduleName);
+        CASSERT(false, "tokenImportFile {} fail", moduleName);
         return 0;
       }
-      LOG_INFO("{} starting...", moduleName);
+      CINFO("{} starting...", moduleName);
       int yp = yyparse();
-      LOG_INFO("{} ending ...", moduleName);
-      LOG_CHECK(yp == 0, "yyparse fail:{}", yp);
+      CINFO("{} ending ...", moduleName);
+      CASSERT(yp == 0, "yyparse fail:{}", yp);
       ProgramVisitor::instance()->visit(AstProgram::instance());
     }
   }

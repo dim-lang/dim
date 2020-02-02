@@ -10,12 +10,12 @@
 
 static void parserGo(const char *module) {
   if (!tokenImportFile(module)) {
-    LOG_CHECK(false, "tokenImportFile {} fail", module);
+    CASSERT(false, "tokenImportFile {} fail", module);
     return;
   }
-  LOG_INFO("parserGo {} starting...", module);
+  CINFO("parserGo {} starting...", module);
   REQUIRE(yyparse() == 0);
-  LOG_INFO("parserGo {} ending ...", module);
+  CINFO("parserGo {} ending ...", module);
 }
 
 TEST_CASE("Parser", "[Parser]") {
