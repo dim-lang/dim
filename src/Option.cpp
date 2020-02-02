@@ -6,25 +6,25 @@
 #include "Log.h"
 #include <fstream>
 
-#define C_OPT "Options"
-#define C_OPT_HELP "help"
-#define C_OPT_H "h"
-#define C_OPT_VERSION "version"
-#define C_OPT_V "v"
-#define C_OPT_FILE_NAMES "file-name"
-#define C_OPT_F "f"
-#define C_OPT_JOB "job"
-#define C_OPT_J "j"
-#define C_OPT_DEBUG "debug"
-#define C_OPT_D "d"
+#define OPT "Options"
+#define OPT_HELP "help"
+#define OPT_H "h"
+#define OPT_VERSION "version"
+#define OPT_V "v"
+#define OPT_FILE_NAMES "file-name"
+#define OPT_F "f"
+#define OPT_JOB "job"
+#define OPT_J "j"
+#define OPT_DEBUG "debug"
+#define OPT_D "d"
 
 Option::Option() : optDesc_(C_OPT) {
-  optDesc_.add_options()(C_OPT_HELP "," C_OPT_H, "help message")(
-      C_OPT_VERSION "," C_OPT_V, "version information")(
-      C_OPT_FILE_NAMES "," C_OPT_F, boost_po::value<std::vector<std::string>>(),
-      "file names")(C_OPT_JOB "," C_OPT_J, "concurrent job count")(
-      C_OPT_DEBUG "," C_OPT_D, "debug mode");
-  posOptDesc_.add(C_OPT_FILE_NAMES, -1);
+  optDesc_.add_options()(OPT_HELP "," OPT_H, "help message")(
+      OPT_VERSION "," OPT_V, "version information")(
+      OPT_FILE_NAMES "," OPT_F, boost_po::value<std::vector<std::string>>(),
+      "file names")(OPT_JOB "," OPT_J,
+                    "concurrent job count")(OPT_DEBUG "," OPT_D, "debug mode");
+  posOptDesc_.add(OPT_FILE_NAMES, -1);
 }
 
 Option::Option(int argCount, char **argList) : Option() {
@@ -44,7 +44,7 @@ Option::Option(const std::vector<std::string> &fileNames) : Option() {
   boost_po::notify(varMap_);
 }
 
-bool Option::hasHelp() const { return varMap_.count(C_OPT_HELP); }
+bool Option::hasHelp() const { return varMap_.count(OPT_HELP); }
 
 std::string Option::help() const {
   std::stringstream ss;
@@ -52,30 +52,30 @@ std::string Option::help() const {
   return ss.str();
 }
 
-bool Option::hasVersion() const { return varMap_.count(C_OPT_VERSION); }
+bool Option::hasVersion() const { return varMap_.count(OPT_VERSION); }
 
 std::string Option::version() const { return "coli-" PROJECT_VERSION; }
 
-bool Option::hasFileNames() const { return varMap_.count(C_OPT_FILE_NAMES); }
+bool Option::hasFileNames() const { return varMap_.count(OPT_FILE_NAMES); }
 
 std::vector<std::string> Option::fileNames() const {
-  return varMap_[C_OPT_FILE_NAMES].as<std::vector<std::string>>();
+  return varMap_[OPT_FILE_NAMES].as<std::vector<std::string>>();
 }
 
 int Option::job() const {
-  return varMap_.count(C_OPT_JOB) ? varMap_[C_OPT_JOB].as<int>() : 1;
+  return varMap_.count(OPT_JOB) ? varMap_[OPT_JOB].as<int>() : 1;
 }
 
-bool Option::debug() const { return varMap_.count(C_OPT_DEBUG); }
+bool Option::debug() const { return varMap_.count(OPT_DEBUG); }
 
-#undef C_OPT
-#undef C_OPT_HELP
-#undef C_OPT_H
-#undef C_OPT_VERSION
-#undef C_OPT_V
-#undef C_OPT_FILE_NAMES
-#undef C_OPT_F
-#undef C_OPT_JOB
-#undef C_OPT_J
-#undef C_OPT_DEBUG
-#undef C_OPT_D
+#undef OPT
+#undef OPT_HELP
+#undef OPT_H
+#undef OPT_VERSION
+#undef OPT_V
+#undef OPT_FILE_NAMES
+#undef OPT_F
+#undef OPT_JOB
+#undef OPT_J
+#undef OPT_DEBUG
+#undef OPT_D
