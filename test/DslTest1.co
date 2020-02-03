@@ -3,7 +3,6 @@ var y = 0;
 var z = x + y;
 var a9 = 228;
 var a18 = 123.901;
-var a, b, c = 10, "hello world", 2.34;
 
 func Hello() {
     a = 1;
@@ -37,6 +36,7 @@ Maybe we need more troubleshooting while testing.");
     print("Try punctuations like if \"'\" will stop this string literals.");
 }
 
+/*
 interface People {
     func age(): i64;
     func name(): string;
@@ -79,3 +79,4 @@ func main():i64 {
     selection(s, func(a, b) => a > b);
     return 0;
 }
+*/
