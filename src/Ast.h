@@ -3,9 +3,11 @@
 
 #pragma once
 #include "Stringify.h"
+#include "config/Header.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -39,12 +41,13 @@
 #define A_BREAK_STATEMENT 207
 #define A_RETURN_STATEMENT 207
 
-#define A_VARIABLE_DECLARATIONS 301
-#define A_VARIABLE_DECLARATION 302
+#define A_VARIABLE_DECLARATION 301
+#define A_VARIABLE_DECLARATION_ASSIGNMENT 302
 #define A_FUNCTION_DECLARATION 303
 
 #define A_EXPRESSION_LIST 401
 #define A_STATEMENT_LIST 402
+#define A_DECLARATION_LIST 403
 
 #define A_PROGRAM 501
 
@@ -59,9 +62,9 @@ class AstStatement;
 class AstDeclaration;
 
 /* interface list */
-class AstExpressionList;
-class AstStatementList;
-class AstDeclarationList;
+// class AstExpressionList;
+// class AstStatementList;
+// class AstDeclarationList;
 
 /* node */
 class AstProgram;
@@ -146,6 +149,66 @@ public:
   virtual std::string toString() const = 0;
 };
 
+namespace detail {
+
+template <class T> class AstList : public Ast {
+public:
+  AstList() {}
+  virtual ~AstList() {
+    for (int i = 0; i < (int)items_.size(); i++) {
+      delete items_[i];
+      items_[i] = nullptr;
+    }
+    items_.clear();
+  }
+  virtual int type() const = 0;
+  virtual std::string toString() const {
+    std::stringstream ss;
+    ss << "[ @AstList size:" << items_.size();
+    if (items_.empty()) {
+      ss << " ]";
+      return ss.str();
+    }
+    ss << ", ";
+    for (int i = 0; i < (int)items_.size(); i++) {
+      Ast *item = dynamic_cast<Ast *>(items_[i]);
+      ss << fmt::format("{}:{}", i, item ? item->toString() : "null");
+      if (i < (int)items_.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << " ]";
+    return ss.str();
+  }
+  virtual int size() const { return items_.size(); }
+  virtual T *get(int pos) const { return items_[pos]; }
+  virtual void add(T *item) { items_.push_back(item); }
+
+protected:
+  std::vector<T *> items_;
+};
+
+} // namespace detail
+
+class AstExpressionList : public detail::AstList<AstExpression> {
+public:
+  virtual ~AstExpressionList() = default;
+  virtual int type() const;
+};
+
+class AstStatementList : public detail::AstList<AstStatement> {
+public:
+  virtual ~AstStatementList() = default;
+  virtual int type() const;
+};
+
+class AstDeclarationList : public detail::AstList<AstDeclaration> {
+public:
+  virtual ~AstDeclarationList() = default;
+  virtual int type() const;
+};
+
+#if 0
 class AstExpressionList : public Ast {
 public:
   AstExpressionList();
@@ -190,6 +253,7 @@ public:
 private:
   std::vector<AstDeclaration *> declarations_;
 };
+#endif
 
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {

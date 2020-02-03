@@ -13,7 +13,7 @@ set(CCORE
     Token.yy.cpp
     Parser.tab.cpp
     Ast.cpp
-    Visitor.cpp
+    # Visitor.cpp
     Symbol.cpp
     Scope.cpp
 )

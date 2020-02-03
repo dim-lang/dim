@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
       int yp = yyparse();
       CINFO("{} ending ...", moduleName);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
-      ProgramVisitor::instance()->visit(AstProgram::instance());
+      // ProgramVisitor::instance()->visit(AstProgram::instance());
     }
   }
 

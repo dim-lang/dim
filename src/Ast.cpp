@@ -52,6 +52,7 @@ AstProgram *AstProgram::resetInstance(AstProgram *prog) {
   return std::exchange(instance_, prog);
 }
 
+#if 0
 AstExpressionList::AstExpressionList() {}
 
 AstExpressionList::~AstExpressionList() {
@@ -61,9 +62,11 @@ AstExpressionList::~AstExpressionList() {
   }
   expressions_.clear();
 }
+#endif
 
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
+#if 0
 std::string AstExpressionList::toString() const {
   std::stringstream ss;
   ss << "[ @AstExpressionList size:" << expressions_.size();
@@ -102,9 +105,11 @@ AstStatementList::~AstStatementList() {
   }
   statements_.clear();
 }
+#endif
 
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
 
+#if 0
 std::string AstStatementList::toString() const {
   std::stringstream ss;
   ss << "[ @AstStatementList size:" << statements_.size();
@@ -141,9 +146,11 @@ AstDeclarationList::~AstDeclarationList() {
   }
   declarations_.clear();
 }
+#endif
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
+#if 0
 std::string AstDeclarationList::toString() const {
   std::stringstream ss;
   ss << "[ @AstDeclarationList size:" << declarations_.size();
@@ -172,6 +179,7 @@ AstDeclaration *AstDeclarationList::get(int pos) const {
 void AstDeclarationList::add(AstDeclaration *declaration) {
   return declarations_.push_back(declaration);
 }
+#endif
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
@@ -669,7 +677,7 @@ AstExpression *AstReturnStatement::expression() const { return expression_; }
 
 AstVariableDeclaration::AstVariableDeclaration(
     AstDeclarationList *declarationList)
-    : declarationList(declarationList) {}
+    : declarationList_(declarationList) {}
 
 AstVariableDeclaration::~AstVariableDeclaration() {
   delete declarationList_;

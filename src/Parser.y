@@ -38,6 +38,7 @@ static std::unordered_set<int> NumberConstants = {
     AstDeclaration *declaration;
     AstExpressionList *expressionList;
     AstStatementList *statementList;
+    AstDeclarationList *declarationList;
     AstProgram *program;
     char *literal;
     int token;
@@ -61,18 +62,19 @@ static std::unordered_set<int> NumberConstants = {
 
 %type <expression> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expression> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
-%type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression variable_declaration_assignment
+%type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression 
 %type <expression> expression
 
 %type <statement> compound_statement expression_statement selection_statement iteration_statement jump_statement
-%type <statement> statement statement_or_declaration 
+%type <statement> statement statement_or_declaration
 
-%type <declaration> declaration variable_declaration function_declaration 
+%type <declaration> declaration variable_declaration function_declaration variable_declaration_assignment
 
-%type <expressionList> argument_expression_list
-%type <expressionList> function_argument_list variable_declaration_assignment_list
+%type <expressionList> argument_expression_list function_argument_list
 
-%type <statementList> statement_or_declaration_list 
+%type <statementList> statement_or_declaration_list
+
+%type <declarationList> variable_declaration_assignment_list
 
 %type <program> translation_unit
 
