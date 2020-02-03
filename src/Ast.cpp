@@ -132,6 +132,47 @@ void AstStatementList::add(AstStatement *statement) {
   statements_.push_back(statement);
 }
 
+AstDeclarationList::AstDeclarationList() {}
+
+AstDeclarationList::~AstDeclarationList() {
+  for (int i = 0; i < (int)declarations_.size(); i++) {
+    delete declarations_[i];
+    declarations_[i] = nullptr;
+  }
+  declarations_.clear();
+}
+
+int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
+
+std::string AstDeclarationList::toString() const {
+  std::stringstream ss;
+  ss << "[ @AstDeclarationList size:" << declarations_.size();
+  if (declarations_.empty()) {
+    ss << " ]";
+    return ss.str();
+  }
+  ss << ", ";
+  for (int i = 0; i < (int)declarations_.size(); i++) {
+    AstDeclaration *decl = declarations_[i];
+    ss << fmt::format("{}:{}", i, decl ? decl->toString() : "null");
+    if (i < (int)declarations_.size() - 1) {
+      ss << ", ";
+    }
+  }
+  ss << " ]";
+  return ss.str();
+}
+
+int AstDeclarationList::size() const { return (int)declarations_.size(); }
+
+AstDeclaration *AstDeclarationList::get(int pos) const {
+  return declarations_[pos];
+}
+
+void AstDeclarationList::add(AstDeclaration *declaration) {
+  return declarations_.push_back(declaration);
+}
+
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
 
@@ -424,9 +465,8 @@ AstExpression *AstConditionalExpression::elseExpression() const {
   return elseExpression_;
 }
 
-AstAssignmentExpression::AstAssignmentExpression(AstExpressionList *left,
-                                                 int token,
-                                                 AstExpressionList *right)
+AstAssignmentExpression::AstAssignmentExpression(AstExpression *left, int token,
+                                                 AstExpression *right)
     : left_(left), token_(token), right_(right) {}
 
 AstAssignmentExpression::~AstAssignmentExpression() {
@@ -439,16 +479,18 @@ AstAssignmentExpression::~AstAssignmentExpression() {
 int AstAssignmentExpression::type() const { return A_ASSIGNMENT_EXPRESSION; }
 
 std::string AstAssignmentExpression::toString() const {
+  std::string lstr = left_ ? left_->toString() : "null";
+  std::string rstr = right_ ? right_->toString() : "null";
   return fmt::format(
-      "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]",
-      left_->toString(), token_, right_->toString());
+      "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]", lstr,
+      token_, rstr);
 }
 
-AstExpressionList *AstAssignmentExpression::left() const { return left_; }
+AstExpression *AstAssignmentExpression::left() const { return left_; }
 
 int AstAssignmentExpression::token() const { return token_; }
 
-AstExpressionList *AstAssignmentExpression::right() const { return right_; }
+AstExpression *AstAssignmentExpression::right() const { return right_; }
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(expression) {}
@@ -626,31 +668,50 @@ std::string AstReturnStatement::toString() const {
 AstExpression *AstReturnStatement::expression() const { return expression_; }
 
 AstVariableDeclaration::AstVariableDeclaration(
-    AstExpressionList *identifierList, AstExpressionList *expressionList)
-    : identifierList_(identifierList), expressionList_(expressionList) {}
+    AstDeclarationList *declarationList)
+    : declarationList(declarationList) {}
 
 AstVariableDeclaration::~AstVariableDeclaration() {
-  delete identifierList_;
-  identifierList_ = nullptr;
-  delete expressionList_;
-  expressionList_ = nullptr;
+  delete declarationList_;
+  declarationList_ = nullptr;
 }
 
 int AstVariableDeclaration::type() const { return A_VARIABLE_DECLARATION; }
 
 std::string AstVariableDeclaration::toString() const {
+  return fmt::format("[ @AstVariableDeclaration declarationList_:{} ]",
+                     declarationList_ ? declarationList_->toString() : "null");
+}
+
+AstDeclarationList *AstVariableDeclaration::declarationList() const {
+  return declarationList_;
+}
+
+AstVariableDeclarationAssignment::AstVariableDeclarationAssignment(
+    const char *identifier, AstExpression *expression)
+    : identifier_(identifier), expression_(expression) {}
+AstVariableDeclarationAssignment::~AstVariableDeclarationAssignment() {
+  delete expression_;
+  expression_ = nullptr;
+}
+
+int AstVariableDeclarationAssignment::type() const {
+  return A_VARIABLE_DECLARATION_ASSIGNMENT;
+}
+
+std::string AstVariableDeclarationAssignment::toString() const {
+  std::string expr = expression_ ? expression_->toString() : "null";
   return fmt::format(
-      "[ @AstVariableDeclaration identifierList_:{}, expressionList_:{} ]",
-      identifierList_ ? identifierList_->toString() : "null",
-      expressionList_ ? expressionList_->toString() : "null");
+      "[ @AstVariableDeclarationAssignment identifier_:{}, expression_:{} ]",
+      identifier_, expr);
 }
 
-AstExpressionList *AstVariableDeclaration::identifierList() const {
-  return identifierList_;
+const std::string &AstVariableDeclarationAssignment::identifier() const {
+  return identifier_;
 }
 
-AstExpressionList *AstVariableDeclaration::expressionList() const {
-  return expressionList_;
+AstExpression *AstVariableDeclarationAssignment::expression() const {
+  return expression_;
 }
 
 AstFunctionDeclaration::AstFunctionDeclaration(

@@ -1,9 +1,9 @@
-let x = 1 + 6 / (-3) * (4 + 3 % -2);
-let y = 0;
-let z = x + y;
-let a9 = 228;
-let a18 = 123.901;
-let a, b, c = 10, "hello world", 2.34;
+var x = 1 + 6 / (-3) * (4 + 3 % -2);
+var y = 0;
+var z = x + y;
+var a9 = 228;
+var a18 = 123.901;
+var a, b, c = 10, "hello world", 2.34;
 
 func Hello() {
     a = 1;
@@ -35,4 +35,47 @@ func testOnTokenLexer() {
 Let's see if it works as we expect.
 Maybe we need more troubleshooting while testing.");
     print("Try punctuations like if \"'\" will stop this string literals.");
+}
+
+interface People {
+    func age(): i64;
+    func name(): string;
+}
+
+type Student implement People {
+    var age:i64;
+    var name:string;
+
+    func Student() { age = 0; name = "student"; }
+    func Student(age:i64, name:string) { this.age = age; this.name = name; }
+    func age(): i64 { return age; }
+    func name(): string { return name; }
+}
+
+func selection(s:i64[], compare:func(i64, i64):boolean):i64 => {
+    var r:i64 = 0;
+    for (var i = 0; i < s.length()-1; i++) {
+        r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
+    }
+    return r;
+}
+
+func minmax(a:i64, b:i64):i64 => a > b ? a : b;
+func maxmin(a:i64, b:i64):i64 => return a < b ? a : b;
+func maxmax(a:i64, b:i64):i64 => { return a < b ? a : b; }
+
+func main():i64 {
+    var s1:ref Student = ref Student(16, "Jack");
+    var s2:Student = Student(17, "Lucy");
+    s1.age = 10;
+    s2.age = 9;
+
+    val max:func(i64, i64):i64 = func(a:i64, b:i64):i64 => a > b ? a : b;
+    val min = func(a:i64, b:i64):i64 => { if (a < b) { return a; } else { return b; } };
+    val avg = func(a, b) => (a + b) / 2;
+    val myminmax = minmax;
+    val mymaxmin = maxmin;
+    val mymaxmax = maxmax;
+    selection(s, func(a, b) => a > b);
+    return 0;
 }

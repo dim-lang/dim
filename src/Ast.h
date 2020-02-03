@@ -61,6 +61,7 @@ class AstDeclaration;
 /* interface list */
 class AstExpressionList;
 class AstStatementList;
+class AstDeclarationList;
 
 /* node */
 class AstProgram;
@@ -173,6 +174,21 @@ public:
 
 private:
   std::vector<AstStatement *> statements_;
+};
+
+class AstDeclarationList : public Ast {
+public:
+  AstDeclarationList();
+  virtual ~AstDeclarationList();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual int size() const;
+  virtual AstDeclaration *get(int pos) const;
+  virtual void add(AstDeclaration *declaration);
+
+private:
+  std::vector<AstDeclaration *> declarations_;
 };
 
 /* constant expression - T_IDENTIFIER */
@@ -443,20 +459,19 @@ private:
 /* assignment expression */
 class AstAssignmentExpression : public AstExpression {
 public:
-  AstAssignmentExpression(AstExpressionList *left, int token,
-                          AstExpressionList *right);
+  AstAssignmentExpression(AstExpression *left, int token, AstExpression *right);
   virtual ~AstAssignmentExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpressionList *left() const;
+  virtual AstExpression *left() const;
   virtual int token() const;
-  virtual AstExpressionList *right() const;
+  virtual AstExpression *right() const;
 
 private:
-  AstExpressionList *left_;
+  AstExpression *left_;
   int token_;
-  AstExpressionList *right_;
+  AstExpression *right_;
 };
 
 /* expression statement */
@@ -577,17 +592,30 @@ private:
 /* variable declaration */
 class AstVariableDeclaration : public AstDeclaration {
 public:
-  AstVariableDeclaration(AstExpressionList *identifierList,
-                         AstExpressionList *expressionList);
+  AstVariableDeclaration(AstDeclarationList *declarationList);
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
-  virtual AstExpressionList *identifierList() const;
-  virtual AstExpressionList *expressionList() const;
+  virtual AstDeclarationList *declarationList() const;
 
 private:
-  AstExpressionList *identifierList_;
-  AstExpressionList *expressionList_;
+  AstDeclarationList *declarationList_;
+};
+
+/* variable declaration assignment */
+class AstVariableDeclarationAssignment : public AstDeclaration {
+public:
+  AstVariableDeclarationAssignment(const char *identifier,
+                                   AstExpression *expression);
+  virtual ~AstVariableDeclarationAssignment();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual const std::string &identifier() const;
+  virtual AstExpression *expression() const;
+
+private:
+  std::string identifier_;
+  AstExpression *expression_;
 };
 
 /* function declaration */

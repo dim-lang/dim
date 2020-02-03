@@ -47,7 +47,7 @@ static std::unordered_set<int> NumberConstants = {
   * union
   */
 %token <token> T_EOF
-%token <token> T_TRUE T_FALSE T_LET T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_DEFAULT T_BIT
+%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_DEFAULT T_BIT
 %token <token> T_FUNC T_CLASS T_TYPE T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_I8 T_UI8 T_I16 T_UI16 T_I32 T_UI32 T_I64 T_UI64 T_F32 T_F64 T_STRING T_BOOLEAN
 %token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
@@ -61,18 +61,18 @@ static std::unordered_set<int> NumberConstants = {
 
 %type <expression> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expression> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
-%type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
+%type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression variable_declaration_assignment
 %type <expression> expression
 
 %type <statement> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <statement> statement statement_or_declaration 
 
-%type <declaration> declaration variable_declaration function_declaration
+%type <declaration> declaration variable_declaration function_declaration 
 
-%type <expressionList> argument_expression_list conditional_expression_list unary_expression_list
-%type <expressionList> function_argument_list variable_declaration_name_list variable_declaration_expression_list
+%type <expressionList> argument_expression_list
+%type <expressionList> function_argument_list variable_declaration_assignment_list
 
-%type <statementList> statement_or_declaration_list
+%type <statementList> statement_or_declaration_list 
 
 %type <program> translation_unit
 
@@ -136,8 +136,8 @@ postfix_expression : primary_expression { $$ = $1; CINFO("postfix_expression: {}
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : conditional_expression { $$ = new AstExpressionList(); $$->add($1); CINFO("argument_expression_list: {}", $$->toString()); }
-                         | argument_expression_list T_COMMA conditional_expression { $$->add($3); CINFO("argument_expression_list: {}", $$->toString()); }
+argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); CINFO("argument_expression_list: {}", $$->toString()); }
+                         | argument_expression_list T_COMMA assignment_expression { $$->add($3); CINFO("argument_expression_list: {}", $$->toString()); }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; CINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
@@ -213,44 +213,23 @@ conditional_expression : logical_or_expression { $$ = $1; CINFO("conditional_exp
   * 2. disallow multiple assignment as a chain: x = y = z = 1
   */
 assignment_expression : conditional_expression { $$ = $1; CINFO("assignment_expression: {}", $$ ? $$->toString() : "null"); }
-                      | unary_expression_list T_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_MUL_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_DIV_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_MOD_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_ADD_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_SUB_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_AND_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_OR_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_XOR_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_LSHIT_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_RSHIT_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression_list T_BIT_ZERORSHIT_ASSIGN conditional_expression_list { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_MOD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_ADD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_SUB_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_LSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_RSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_ZERORSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
                       ;
-
-unary_expression_list : unary_expression { 
-                            $$ = new AstExpressionList(); 
-                            $$->add($1); 
-                            CINFO("unary_expression_list: {}", $$->toString()); 
-                        }
-                      | unary_expression_list T_COMMA unary_expression { 
-                            $$->add($3); 
-                            CINFO("unary_expression_list: {}", $$->toString()); 
-                        }
-                      ;
-
-conditional_expression_list : conditional_expression { 
-                                    $$ = new AstExpressionList(); 
-                                    $$->add($1); 
-                                    CINFO("conditional_expression_list: {}", $$->toString()); 
-                                }
-                            | conditional_expression_list T_COMMA conditional_expression { 
-                                    $$->add($3); 
-                                    CINFO("conditional_expression_list: {}", $$->toString()); 
-                                }
-                            ;
 
 expression : /* nothing */ { $$ = nullptr; CINFO("expression: null"); }
            | assignment_expression { $$ = $1; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
+           | expression T_COMMA assignment_expression { $$ = $3; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
            ;
 
 constant_expression : conditional_expression { $$ = $1; CINFO("constant_expression: {}", $$ ? $$->toString() : "null"); }
@@ -263,42 +242,29 @@ declaration : function_declaration { $$ = $1; CINFO("declaration: {}", $$ ? $$->
             ;
 
  /**
-  * let x:i64, y:string, z:f64 = 1, "hello world", 2.3;
+  * var x = 1;
+  * var x:i64 = 100;
+  * var x:i64 = 100, y = 1, z:string = "hello";
   */
-variable_declaration : T_LET variable_declaration_name_list T_ASSIGN variable_declaration_expression_list T_SEMI { $$ = new AstVariableDeclaration($2, $4); CINFO("variable_declaration: {}", $$->toString()); }
+variable_declaration : T_VAR variable_declaration_assignment_list T_SEMI { $$ = new AstVariableDeclaration($2); CINFO("variable_declaration: {}", $$->toString()); }
                      ;
 
-variable_declaration_name_list : T_IDENTIFIER {
-                                        $$ = new AstExpressionList(); 
-                                        $$->add(new AstIdentifierConstant($1));
-                                        std::free($1);
-                                        CINFO("variable_declaration_name_list: {}", $$->toString()); 
-                                    }
-                               | variable_declaration_name_list T_COMMA T_IDENTIFIER { 
-                                        $$->add(new AstIdentifierConstant($3)); 
-                                        std::free($3); 
-                                        CINFO("variable_declaration_name_list: {}", $$->toString()); 
-                                    }
-                               ;
-
-variable_declaration_expression_list : constant_expression { 
-                                            $$ = new AstExpressionList();
-                                            $$->add($1);
-                                            CINFO("variable_declaration_expression_list: {}", $$->toString());
-                                        }
-                                     | variable_declaration_expression_list T_COMMA constant_expression {
-                                            $$->add($3);
-                                            CINFO("variable_declaration_expression_list: {}", $$->toString());
-                                        }
+variable_declaration_assignment_list : variable_declaration_assignment { $$ = new AstDeclarationList(); $$->add($1); CINFO("variable_declaration_assignment_list: {}", $$->toString()); }
+                                     | variable_declaration_assignment_list T_COMMA variable_declaration_assignment { $$->add($3); CINFO("variable_declaration_assignment_list: {}", $$->toString()); }
                                      ;
+
+variable_declaration_assignment : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableDeclarationAssignment($1, $3); CINFO("variable_declaration_assignment: {}", $$->toString()); }
+                                ;
 
  /**
   * func hello() { print("world"); }
+  * func hello2() => { print("world"); }
+  * func hello3() => print("world");
   * func min(a: i64, b: i64): i64 { return a < b ? a : b; }
-  * func max(a: i64, b: i64): i64 { return a > b ? a : b; }
-  * func abs(x: i64): i64 { if (x > 0) { return x; } else { return -x; } }
-  * let x = func() { print("hello world"); };
-  * let y = func(x: i64, y: i64): i64 { return x + y; };
+  * func max(a: i64, b: i64): i64 => a > b ? a : b;
+  * func abs(x: i64): i64 => { if (x > 0) { return x; } else { return -x; } }
+  * val x = func() => { print("hello world"); };
+  * val y = func(x:i64, y:i64):i64 => { return x + y; };
   */
 function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN compound_statement {
                             $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<AstCompoundStatement*>($6));
