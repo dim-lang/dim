@@ -65,7 +65,7 @@ func maxmin(a:i64, b:i64):i64 => return a < b ? a : b;
 func maxmax(a:i64, b:i64):i64 => { return a < b ? a : b; }
 
 func main():i64 {
-    var s1:ref Student = ref Student(16, "Jack");
+    var s1:ref Student = new Student(16, "Jack");
     var s2:Student = Student(17, "Lucy");
     s1.age = 10;
     s2.age = 9;

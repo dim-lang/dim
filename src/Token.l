@@ -65,7 +65,7 @@ std::string tokenFileToModule(const std::string &name);
 "let"        return T_TOKEN(T_LET);
 "var"        return T_TOKEN(T_VAR);
 "val"        return T_TOKEN(T_VAL);
-"Nil"        return T_TOKEN(T_NIL);
+"nil"        return T_TOKEN(T_NIL);
 "if"         return T_TOKEN(T_IF);
 "elseif"     return T_TOKEN(T_ELSEIF);
 "else"       return T_TOKEN(T_ELSE);
@@ -86,7 +86,6 @@ std::string tokenFileToModule(const std::string &name);
 "and"        return T_TOKEN(T_LOGIC_AND);
 "or"         return T_TOKEN(T_LOGIC_OR);
 "not"        return T_TOKEN(T_LOGIC_NOT);
-"bit"        return T_TOKEN(T_BIT);
 "i8"         return T_TOKEN(T_I8);
 "ui8"        return T_TOKEN(T_UI8);
 "i16"        return T_TOKEN(T_I16);
@@ -101,57 +100,59 @@ std::string tokenFileToModule(const std::string &name);
 "boolean"    return T_TOKEN(T_BOOLEAN);
 
  /* punctuators */
-"+"                      return T_TOKEN(T_ADD);
-"-"                      return T_TOKEN(T_SUB);
-"*"                      return T_TOKEN(T_MUL);
-"/"                      return T_TOKEN(T_DIV);
-"%"                      return T_TOKEN(T_MOD);
-"!"                      return T_TOKEN(T_LOGIC_NOT);
-"&"                      return T_TOKEN(T_BIT_AND);
-"|"                      return T_TOKEN(T_BIT_OR);
-"~"                      return T_TOKEN(T_BIT_NOT);
-"^"                      return T_TOKEN(T_BIT_XOR);
-"<<"                     return T_TOKEN(T_BIT_LSHIFT);
-">>"                     return T_TOKEN(T_BIT_RSHIFT);
-">>>"                    return T_TOKEN(T_BIT_ZERORSHIFT);
-"="                      return T_TOKEN(T_ASSIGN);
-"+="                     return T_TOKEN(T_ADD_ASSIGN);
-"-="                     return T_TOKEN(T_SUB_ASSIGN);
-"*="                     return T_TOKEN(T_MUL_ASSIGN);
-"/="                     return T_TOKEN(T_DIV_ASSIGN);
-"%="                     return T_TOKEN(T_MOD_ASSIGN);
-"&="                     return T_TOKEN(T_BIT_AND_ASSIGN);
-"|="                     return T_TOKEN(T_BIT_OR_ASSIGN);
-"^="                     return T_TOKEN(T_BIT_XOR_ASSIGN);
-"<<="                    return T_TOKEN(T_BIT_LSHIT_ASSIGN);
-">>="                    return T_TOKEN(T_BIT_RSHIT_ASSIGN);
-">>>="                   return T_TOKEN(T_BIT_ZERORSHIT_ASSIGN);
-"=="                     return T_TOKEN(T_EQ);
-"!="                     return T_TOKEN(T_NEQ);
-"<"                      return T_TOKEN(T_LT);
-"<="                     return T_TOKEN(T_LE);
-">"                      return T_TOKEN(T_GT);
-">="                     return T_TOKEN(T_GE);
-"("                      return T_TOKEN(T_LPAREN);
-")"                      return T_TOKEN(T_RPAREN);
-"["                      return T_TOKEN(T_LBRACKET);
-"]"                      return T_TOKEN(T_RBRACKET);
-"{"                      return T_TOKEN(T_LBRACE);
-"}"                      return T_TOKEN(T_RBRACE);
-","                      return T_TOKEN(T_COMMA);
-";"                      return T_TOKEN(T_SEMI);
-"?"                      return T_TOKEN(T_QUESTION);
-":"                      return T_TOKEN(T_COLON);
-"."                      return T_TOKEN(T_DOT);
+"+"    return T_TOKEN(T_ADD);
+"-"    return T_TOKEN(T_SUB);
+"*"    return T_TOKEN(T_MUL);
+"/"    return T_TOKEN(T_DIV);
+"%"    return T_TOKEN(T_MOD);
+"&&"   return T_TOKEN(T_LOGIC_AND);
+"||"   return T_TOKEN(T_LOGIC_OR);
+"!"    return T_TOKEN(T_LOGIC_NOT);
+"&"    return T_TOKEN(T_BIT_AND);
+"|"    return T_TOKEN(T_BIT_OR);
+"~"    return T_TOKEN(T_BIT_NOT);
+"^"    return T_TOKEN(T_BIT_XOR);
+"<<"   return T_TOKEN(T_BIT_LSHIFT);
+">>"   return T_TOKEN(T_BIT_RSHIFT);
+">>>"  return T_TOKEN(T_BIT_ZERORSHIFT);
+"="    return T_TOKEN(T_ASSIGN);
+"+="   return T_TOKEN(T_ADD_ASSIGN);
+"-="   return T_TOKEN(T_SUB_ASSIGN);
+"*="   return T_TOKEN(T_MUL_ASSIGN);
+"/="   return T_TOKEN(T_DIV_ASSIGN);
+"%="   return T_TOKEN(T_MOD_ASSIGN);
+"&="   return T_TOKEN(T_BIT_AND_ASSIGN);
+"|="   return T_TOKEN(T_BIT_OR_ASSIGN);
+"^="   return T_TOKEN(T_BIT_XOR_ASSIGN);
+"<<="  return T_TOKEN(T_BIT_LSHIT_ASSIGN);
+">>="  return T_TOKEN(T_BIT_RSHIT_ASSIGN);
+">>>=" return T_TOKEN(T_BIT_ZERORSHIT_ASSIGN);
+"=="   return T_TOKEN(T_EQ);
+"!="   return T_TOKEN(T_NEQ);
+"<"    return T_TOKEN(T_LT);
+"<="   return T_TOKEN(T_LE);
+">"    return T_TOKEN(T_GT);
+">="   return T_TOKEN(T_GE);
+"("    return T_TOKEN(T_LPAREN);
+")"    return T_TOKEN(T_RPAREN);
+"["    return T_TOKEN(T_LBRACKET);
+"]"    return T_TOKEN(T_RBRACKET);
+"{"    return T_TOKEN(T_LBRACE);
+"}"    return T_TOKEN(T_RBRACE);
+","    return T_TOKEN(T_COMMA);
+";"    return T_TOKEN(T_SEMI);
+"?"    return T_TOKEN(T_QUESTION);
+":"    return T_TOKEN(T_COLON);
+"."    return T_TOKEN(T_DOT);
 
  /* constants */
-[0-9]+\.[0-9]+{EXP}?        T_SAVE_TOKEN; return T_F64_CONSTANT; 
-[0-9]+{EXP}?                T_SAVE_TOKEN; return T_I64_CONSTANT;
- /* [0-9]+{EXP}?[Uu]            T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT; */
-\"(\\.|[^\\"])*\"           T_SAVE_TOKEN; return T_STRING_CONSTANT;
+[0-9]+\.[0-9]+{EXP}?    T_SAVE_TOKEN; return T_F64_CONSTANT;
+[0-9]+{EXP}?            T_SAVE_TOKEN; return T_I64_CONSTANT;
+ /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT; */
+\"(\\.|[^\\"])*\"       T_SAVE_TOKEN; return T_STRING_CONSTANT;
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*      T_SAVE_TOKEN; return T_IDENTIFIER;
+[a-zA-Z_][a-zA-Z0-9_]*  T_SAVE_TOKEN; return T_IDENTIFIER;
 
  /* whitespace */
 [ \t\v\n\f\r]
@@ -177,7 +178,7 @@ std::string tokenFileToModule(const std::string &name);
                         }
 
  /* invalid token */
-.                       { fprintf(stderr, "%s:%d error! invalid token!\n", TokenCurrentFile.c_str(), yylineno); }
+.                       { fprintf(stderr, "%s:%d error! invalid token:%s, %d!\n", TokenCurrentFile.c_str(), yylineno, yytext, yyleng); }
 
 
 %%
