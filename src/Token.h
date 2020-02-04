@@ -7,7 +7,7 @@
 #include <cstring>
 #include <stack>
 
-class TokenBuffer;
+class TkFileBuffer;
 
 extern FILE *yyin;
 extern int yylineno;
@@ -15,10 +15,10 @@ extern int yylineno;
 extern int yylex(void);
 extern int yyparse(void);
 
-extern std::string TokenCurrentFile;
-extern std::stack<TokenBuffer *> TokenBufferStack;
-extern int tokenImportFile(const char *module);
-extern int tokenImportFile(const std::string &module);
-extern int tokenPopFile();
-extern std::string tokenModuleToFile(const std::string &name);
-extern std::string tokenFileToModule(const std::string &name);
+extern std::string TkCurrentFile;
+extern std::stack<TkFileBuffer *> TkFileBufferStack;
+extern int tkImportFile(const char *module);
+extern int tkImportFile(const std::string &module);
+extern int tkPopFile();
+extern std::string tkModuleToFile(const std::string &name);
+extern std::string tkFileToModule(const std::string &name);

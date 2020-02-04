@@ -9,8 +9,8 @@
 #include <cstdio>
 
 static void parserGo(const char *module) {
-  if (!tokenImportFile(module)) {
-    CASSERT(false, "tokenImportFile {} fail", module);
+  if (!tkImportFile(module)) {
+    CASSERT(false, "tkImportFile {} fail", module);
     return;
   }
   CINFO("parserGo {} starting...", module);

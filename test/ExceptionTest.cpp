@@ -8,9 +8,9 @@
 TEST_CASE("Exception", "[Exception]") {
   SECTION("exception") {
     try {
-      CTHROW("throw exception with args: {}", "hello world");
+      CTHROW("throw: {}", "hello world");
     } catch (const std::string &ex) {
-      CERROR("throw exception: {}", ex);
+      CERROR("catch: {}", ex);
     }
   }
 }

@@ -33,10 +33,10 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
-      std::string moduleName = tokenFileToModule(fileName);
+      std::string moduleName = tkFileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      if (!tokenImportFile(moduleName)) {
-        CASSERT(false, "tokenImportFile {} fail", moduleName);
+      if (!tkImportFile(moduleName)) {
+        CASSERT(false, "tkImportFile {} fail", moduleName);
         return 0;
       }
       CINFO("{} starting...", moduleName);
