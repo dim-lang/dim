@@ -4,7 +4,7 @@
 #pragma once
 #include "config/Platform.h"
 
-#if FPLATFORM_WINDOWS
+#if PLATFORM_WINDOWS
 
 #include "boost/align/align_up.hpp"
 #include "boost/core/noncopyable.hpp"

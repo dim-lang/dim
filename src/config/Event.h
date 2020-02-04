@@ -5,22 +5,22 @@
 
 #include "config/Platform.h"
 
-#if defined(FPLATFORM_BSD) || defined(FPLATFORM_MACOS)
+#if defined(PLATFORM_BSD) || defined(PLATFORM_MACOS)
 // kqueue, select
-#define FEVENT_HAVE_KQUEUE 1
-#define FEVENT_HAVE_SELECT 1
+#define EVENT_HAVE_KQUEUE 1
+#define EVENT_HAVE_SELECT 1
 
-#elif defined(FPLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX)
 // epoll, select
-#define FEVENT_HAVE_EPOLL 1
-#define FEVENT_HAVE_SELECT 1
+#define EVENT_HAVE_EPOLL 1
+#define EVENT_HAVE_SELECT 1
 
-#elif defined(FPLATFORM_WINDOWS)
+#elif defined(PLATFORM_WINDOWS)
 // winselect api
-#define FEVENT_HAVE_WINSELECT 1
+#define EVENT_HAVE_WINSELECT 1
 
-#elif defined(FPLATFORM_UNIX)
+#elif defined(PLATFORM_UNIX)
 // select
-#define FEVENT_HAVE_SELECT 1
+#define EVENT_HAVE_SELECT 1
 
 #endif

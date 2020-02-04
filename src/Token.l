@@ -67,12 +67,12 @@ std::string tokenFileToModule(const std::string &name);
 "val"        return T_TOKEN(T_VAL);
 "nil"        return T_TOKEN(T_NIL);
 "if"         return T_TOKEN(T_IF);
-"elseif"     return T_TOKEN(T_ELSEIF);
 "else"       return T_TOKEN(T_ELSE);
 "switch"     return T_TOKEN(T_SWITCH);
 "case"       return T_TOKEN(T_CASE);
 "default"    return T_TOKEN(T_DEFAULT);
 "for"        return T_TOKEN(T_FOR);
+"foreach"    return T_TOKEN(T_FOREACH);
 "while"      return T_TOKEN(T_WHILE);
 "break"      return T_TOKEN(T_BREAK);
 "continue"   return T_TOKEN(T_CONTINUE);
@@ -98,6 +98,8 @@ std::string tokenFileToModule(const std::string &name);
 "f64"        return T_TOKEN(T_F64);
 "string"     return T_TOKEN(T_STRING);
 "boolean"    return T_TOKEN(T_BOOLEAN);
+"async"      return T_TOKEN(T_ASYNC);
+"await"      return T_TOKEN(T_AWAIT);
 
  /* punctuators */
 "+"    return T_TOKEN(T_ADD);
@@ -144,6 +146,7 @@ std::string tokenFileToModule(const std::string &name);
 "?"    return T_TOKEN(T_QUESTION);
 ":"    return T_TOKEN(T_COLON);
 "."    return T_TOKEN(T_DOT);
+"=>"   return T_TOKEN(T_POINT_AT);
 
  /* constants */
 [0-9]+\.[0-9]+{EXP}?    T_SAVE_TOKEN; return T_F64_CONSTANT;
