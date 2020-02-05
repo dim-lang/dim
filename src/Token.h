@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <stack>
+#include <string>
 
 class TkFileBuffer;
 
