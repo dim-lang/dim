@@ -32,9 +32,6 @@ static void parseToken(const char *module) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-#ifdef YYDEBUG
-    yydebug = 1;
-#endif
     parseToken("test.DslTest1");
     parseToken("test.DslTest2");
   }
