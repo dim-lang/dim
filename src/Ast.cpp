@@ -52,142 +52,19 @@ AstProgram *AstProgram::resetInstance(AstProgram *prog) {
   return std::exchange(instance_, prog);
 }
 
-#if 0
-AstExpressionList::AstExpressionList() {}
-
-AstExpressionList::~AstExpressionList() {
-  for (int i = 0; i < (int)expressions_.size(); i++) {
-    delete expressions_[i];
-    expressions_[i] = nullptr;
-  }
-  expressions_.clear();
-}
-#endif
-
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
-#if 0
-std::string AstExpressionList::toString() const {
-  std::stringstream ss;
-  ss << "[ @AstExpressionList size:" << expressions_.size();
-  if (expressions_.empty()) {
-    ss << " ]";
-    return ss.str();
-  }
-  ss << ", ";
-  for (int i = 0; i < (int)expressions_.size(); i++) {
-    AstExpression *expr = expressions_[i];
-    ss << fmt::format("{}:{}", i, expr ? expr->toString() : "null");
-    if (i < (int)expressions_.size() - 1) {
-      ss << ", ";
-    }
-  }
-  ss << " ]";
-  return ss.str();
-}
-
-int AstExpressionList::size() const { return expressions_.size(); }
-
-AstExpression *AstExpressionList::get(int pos) const {
-  return expressions_[pos];
-}
-
-void AstExpressionList::add(AstExpression *expression) {
-  expressions_.push_back(expression);
-}
-
-AstStatementList::AstStatementList() {}
-
-AstStatementList::~AstStatementList() {
-  for (int i = 0; i < (int)statements_.size(); i++) {
-    delete statements_[i];
-    statements_[i] = nullptr;
-  }
-  statements_.clear();
-}
-#endif
-
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
-
-#if 0
-std::string AstStatementList::toString() const {
-  std::stringstream ss;
-  ss << "[ @AstStatementList size:" << statements_.size();
-  if (statements_.empty()) {
-    ss << " ]";
-    return ss.str();
-  }
-  ss << ", ";
-  for (int i = 0; i < (int)statements_.size(); i++) {
-    AstStatement *stmt = statements_[i];
-    ss << fmt::format("{}:{}", i, stmt ? stmt->toString() : "null");
-    if (i < (int)statements_.size() - 1) {
-      ss << ", ";
-    }
-  }
-  ss << " ]";
-  return ss.str();
-}
-
-int AstStatementList::size() const { return statements_.size(); }
-
-AstStatement *AstStatementList::get(int pos) const { return statements_[pos]; }
-
-void AstStatementList::add(AstStatement *statement) {
-  statements_.push_back(statement);
-}
-
-AstDeclarationList::AstDeclarationList() {}
-
-AstDeclarationList::~AstDeclarationList() {
-  for (int i = 0; i < (int)declarations_.size(); i++) {
-    delete declarations_[i];
-    declarations_[i] = nullptr;
-  }
-  declarations_.clear();
-}
-#endif
 
 std::string AstDeclarationList::stringify() const {
   return "AstDeclarationList";
 }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
-
-#if 0
-std::string AstDeclarationList::toString() const {
-  std::stringstream ss;
-  ss << "[ @AstDeclarationList size:" << declarations_.size();
-  if (declarations_.empty()) {
-    ss << " ]";
-    return ss.str();
-  }
-  ss << ", ";
-  for (int i = 0; i < (int)declarations_.size(); i++) {
-    AstDeclaration *decl = declarations_[i];
-    ss << fmt::format("{}:{}", i, decl ? decl->toString() : "null");
-    if (i < (int)declarations_.size() - 1) {
-      ss << ", ";
-    }
-  }
-  ss << " ]";
-  return ss.str();
-}
-
-int AstDeclarationList::size() const { return (int)declarations_.size(); }
-
-AstDeclaration *AstDeclarationList::get(int pos) const {
-  return declarations_[pos];
-}
-
-void AstDeclarationList::add(AstDeclaration *declaration) {
-  return declarations_.push_back(declaration);
-}
-#endif
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}

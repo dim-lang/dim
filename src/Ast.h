@@ -62,9 +62,9 @@ class AstStatement;
 class AstDeclaration;
 
 /* interface list */
-// class AstExpressionList;
-// class AstStatementList;
-// class AstDeclarationList;
+class AstExpressionList;
+class AstStatementList;
+class AstDeclarationList;
 
 /* node */
 class AstProgram;
@@ -221,53 +221,6 @@ public:
 private:
   virtual std::string stringify() const;
 };
-
-#if 0
-class AstExpressionList : public Ast {
-public:
-  AstExpressionList();
-  virtual ~AstExpressionList();
-  virtual int type() const;
-  virtual std::string toString() const;
-
-  virtual int size() const;
-  virtual AstExpression *get(int pos) const;
-  virtual void add(AstExpression *expression);
-
-private:
-  std::vector<AstExpression *> expressions_;
-};
-
-class AstStatementList : public Ast {
-public:
-  AstStatementList();
-  virtual ~AstStatementList();
-  virtual int type() const;
-  virtual std::string toString() const;
-
-  virtual int size() const;
-  virtual AstStatement *get(int pos) const;
-  virtual void add(AstStatement *statement);
-
-private:
-  std::vector<AstStatement *> statements_;
-};
-
-class AstDeclarationList : public Ast {
-public:
-  AstDeclarationList();
-  virtual ~AstDeclarationList();
-  virtual int type() const;
-  virtual std::string toString() const;
-
-  virtual int size() const;
-  virtual AstDeclaration *get(int pos) const;
-  virtual void add(AstDeclaration *declaration);
-
-private:
-  std::vector<AstDeclaration *> declarations_;
-};
-#endif
 
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstExpression {
