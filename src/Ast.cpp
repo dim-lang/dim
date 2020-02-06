@@ -64,6 +64,10 @@ AstExpressionList::~AstExpressionList() {
 }
 #endif
 
+AstExpressionList::AstExpressionList() : detail::AstList<AstExpression>() {}
+
+std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
+
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
 #if 0
@@ -107,6 +111,10 @@ AstStatementList::~AstStatementList() {
 }
 #endif
 
+AstStatementList::AstStatementList() : detail::AstList<AstStatement>() {}
+
+std::string AstStatementList::stringify() const { return "AstStatementList"; }
+
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
 
 #if 0
@@ -147,6 +155,12 @@ AstDeclarationList::~AstDeclarationList() {
   declarations_.clear();
 }
 #endif
+
+AstDeclarationList::AstDeclarationList() : detail::AstList<AstDeclaration>() {}
+
+std::string AstDeclarationList::stringify() const {
+  return "AstDeclarationList";
+}
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 

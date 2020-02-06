@@ -164,7 +164,7 @@ public:
   virtual int type() const = 0;
   virtual std::string toString() const {
     std::stringstream ss;
-    ss << "[ @AstList size:" << items_.size();
+    ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
     if (items_.empty()) {
       ss << " ]";
       return ss.str();
@@ -185,6 +185,8 @@ public:
   virtual void add(T *item) { items_.push_back(item); }
 
 protected:
+  virtual std::string stringify() const = 0;
+
   std::vector<T *> items_;
 };
 
@@ -192,20 +194,32 @@ protected:
 
 class AstExpressionList : public detail::AstList<AstExpression> {
 public:
+  AstExpressionList();
   virtual ~AstExpressionList() = default;
   virtual int type() const;
+
+private:
+  virtual std::string stringify() const;
 };
 
 class AstStatementList : public detail::AstList<AstStatement> {
 public:
+  AstStatementList();
   virtual ~AstStatementList() = default;
   virtual int type() const;
+
+private:
+  virtual std::string stringify() const;
 };
 
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
 public:
+  AstDeclarationList();
   virtual ~AstDeclarationList() = default;
   virtual int type() const;
+
+private:
+  virtual std::string stringify() const;
 };
 
 #if 0
