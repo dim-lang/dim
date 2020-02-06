@@ -194,7 +194,7 @@ protected:
 
 class AstExpressionList : public detail::AstList<AstExpression> {
 public:
-  AstExpressionList();
+  AstExpressionList() = default;
   virtual ~AstExpressionList() = default;
   virtual int type() const;
 
@@ -204,7 +204,7 @@ private:
 
 class AstStatementList : public detail::AstList<AstStatement> {
 public:
-  AstStatementList();
+  AstStatementList() = default;
   virtual ~AstStatementList() = default;
   virtual int type() const;
 
@@ -214,7 +214,7 @@ private:
 
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
 public:
-  AstDeclarationList();
+  AstDeclarationList() = default;
   virtual ~AstDeclarationList() = default;
   virtual int type() const;
 
