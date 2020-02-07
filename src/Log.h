@@ -10,7 +10,7 @@
 class Log {
 public:
   static void initialize(const std::string &logName = "coli",
-                         const std::string &logPath = ".", bool debug = false);
+                         const std::string &logPath = ".");
 };
 
 #ifdef NDEBUG
@@ -21,7 +21,7 @@ public:
 #define CASSERT(cond, ...)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      throw fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}",    \
+      throw fmt::format("Assert Fail! {}:{} {} - Condition: {}, Result: {}",   \
                         __FILE__, __LINE__, __FUNCTION__,                      \
                         BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));   \
     }                                                                          \
@@ -36,10 +36,10 @@ public:
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg =                                                        \
-          fmt::format("Check Fail! {}:{} {} - Condition: {}, Result: {}\n",    \
+          fmt::format("Assert Fail! {}:{} {} - Condition: {}, Result: {}",     \
                       __FILE__, __LINE__, __FUNCTION__,                        \
                       BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
-      std::fprintf(stderr, "%s", msg.c_str());                                 \
+      std::fprintf(stderr, "%s\n", msg.c_str());                               \
       throw msg;                                                               \
     }                                                                          \
   } while (0)

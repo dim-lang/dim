@@ -4,53 +4,9 @@
 #include "Ast.h"
 #include "Log.h"
 #include "config/Header.h"
+#include <algorithm>
 #include <sstream>
 #include <utility>
-
-AstProgram::AstProgram() {}
-
-AstProgram::~AstProgram() {
-  for (int i = 0; i < (int)nodes_.size(); i++) {
-    delete nodes_[i];
-    nodes_[i] = nullptr;
-  }
-  nodes_.clear();
-}
-
-int AstProgram::type() const { return A_PROGRAM; }
-
-std::string AstProgram::toString() const {
-  std::stringstream ss;
-  ss << "[ @AstProgram size:" << nodes_.size();
-  if (nodes_.empty()) {
-    ss << " ]";
-    return ss.str();
-  }
-  ss << ", ";
-  for (int i = 0; i < (int)nodes_.size(); i++) {
-    Ast *e = nodes_[i];
-    ss << fmt::format("{}:{}", i, e ? e->toString() : "null");
-    if (i < (int)nodes_.size() - 1) {
-      ss << ", ";
-    }
-  }
-  ss << " ]";
-  return ss.str();
-}
-
-int AstProgram::size() const { return (int)nodes_.size(); }
-
-Ast *AstProgram::get(int pos) const { return nodes_[pos]; }
-
-void AstProgram::add(Ast *node) { nodes_.push_back(node); }
-
-AstProgram *AstProgram::instance_ = nullptr;
-
-AstProgram *AstProgram::instance() { return instance_; }
-
-AstProgram *AstProgram::resetInstance(AstProgram *prog) {
-  return std::exchange(instance_, prog);
-}
 
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
@@ -65,6 +21,15 @@ std::string AstDeclarationList::stringify() const {
 }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
+
+AstDeclarationList *AstDeclarationList::program() { return program_; }
+
+AstDeclarationList *
+AstDeclarationList::resetProgram(AstDeclarationList *program) {
+  return std::exchange(program_, program);
+}
+
+AstDeclarationList *AstDeclarationList::program_ = nullptr;
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
@@ -89,8 +54,6 @@ std::string AstI8Constant::toString() const {
   return fmt::format("[ @AstI8Constant value_:{} ]", (int)value_);
 }
 
-void AstI8Constant::reset(const int8_t &value) { value_ = value; }
-
 const int8_t &AstI8Constant::value() const { return value_; }
 
 AstUI8Constant::AstUI8Constant(const uint8_t &value) : value_(value) {}
@@ -102,8 +65,6 @@ int AstUI8Constant::type() const { return A_UI8_CONSTANT; }
 std::string AstUI8Constant::toString() const {
   return fmt::format("[ @AstUI8Constant value_:{} ]", (int)value_);
 }
-
-void AstUI8Constant::reset(const uint8_t &value) { value_ = value; }
 
 const uint8_t &AstUI8Constant::value() const { return value_; }
 
@@ -117,8 +78,6 @@ std::string AstI16Constant::toString() const {
   return fmt::format("[ @AstI16Constant value_:{} ]", value_);
 }
 
-void AstI16Constant::reset(const int16_t &value) { value_ = value; }
-
 const int16_t &AstI16Constant::value() const { return value_; }
 
 AstUI16Constant::AstUI16Constant(const uint16_t &value) : value_(value) {}
@@ -130,8 +89,6 @@ int AstUI16Constant::type() const { return A_UI16_CONSTANT; }
 std::string AstUI16Constant::toString() const {
   return fmt::format("[ @AstUI16Constant value_:{} ]", value_);
 }
-
-void AstUI16Constant::reset(const uint16_t &value) { value_ = value; }
 
 const uint16_t &AstUI16Constant::value() const { return value_; }
 
@@ -145,8 +102,6 @@ std::string AstI32Constant::toString() const {
   return fmt::format("[ @AstI32Constant value_:{} ]", value_);
 }
 
-void AstI32Constant::reset(const int32_t &value) { value_ = value; }
-
 const int32_t &AstI32Constant::value() const { return value_; }
 
 AstUI32Constant::AstUI32Constant(const uint32_t &value) : value_(value) {}
@@ -158,8 +113,6 @@ int AstUI32Constant::type() const { return A_UI32_CONSTANT; }
 std::string AstUI32Constant::toString() const {
   return fmt::format("[ @AstUI32Constant value_:{} ]", value_);
 }
-
-void AstUI32Constant::reset(const uint32_t &value) { value_ = value; }
 
 const uint32_t &AstUI32Constant::value() const { return value_; }
 
@@ -173,8 +126,6 @@ std::string AstI64Constant::toString() const {
   return fmt::format("[ @AstI64Constant value_:{} ]", value_);
 }
 
-void AstI64Constant::reset(const int64_t &value) { value_ = value; }
-
 const int64_t &AstI64Constant::value() const { return value_; }
 
 AstUI64Constant::AstUI64Constant(const uint64_t &value) : value_(value) {}
@@ -186,8 +137,6 @@ int AstUI64Constant::type() const { return A_UI64_CONSTANT; }
 std::string AstUI64Constant::toString() const {
   return fmt::format("[ @AstUI64Constant value_:{} ]", value_);
 }
-
-void AstUI64Constant::reset(const uint64_t &value) { value_ = value; }
 
 const uint64_t &AstUI64Constant::value() const { return value_; }
 
@@ -201,8 +150,6 @@ std::string AstF32Constant::toString() const {
   return fmt::format("[ @AstF32Constant value_:{} ]", value_);
 }
 
-void AstF32Constant::reset(const float &value) { value_ = value; }
-
 const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value) : value_(value) {}
@@ -214,8 +161,6 @@ int AstF64Constant::type() const { return A_F64_CONSTANT; }
 std::string AstF64Constant::toString() const {
   return fmt::format("[ @AstF64Constant value_:{} ]", value_);
 }
-
-void AstF64Constant::reset(const double &value) { value_ = value; }
 
 const double &AstF64Constant::value() const { return value_; }
 
@@ -229,8 +174,6 @@ std::string AstStringConstant::toString() const {
   return fmt::format("[ @AstStringConstant value_:{} ]", value_);
 }
 
-void AstStringConstant::reset(const std::string &value) { value_ = value; }
-
 const std::string &AstStringConstant::value() const { return value_; }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value) : value_(value) {}
@@ -243,34 +186,28 @@ std::string AstBooleanConstant::toString() const {
   return fmt::format("[ @AstBooleanConstant value_:{} ]", value_);
 }
 
-void AstBooleanConstant::reset(const bool &value) { value_ = value; }
-
 const bool &AstBooleanConstant::value() const { return value_; }
 
-AstFunctionCallExpression::AstFunctionCallExpression(
-    const char *identifier, AstExpressionList *argumentList)
+AstCallExpression::AstCallExpression(const char *identifier,
+                                     AstExpressionList *argumentList)
     : identifier_(identifier), argumentList_(argumentList) {}
 
-AstFunctionCallExpression::~AstFunctionCallExpression() {
+AstCallExpression::~AstCallExpression() {
   delete argumentList_;
   argumentList_ = nullptr;
 }
 
-int AstFunctionCallExpression::type() const {
-  return A_FUNCTION_CALL_EXPRESSION;
+int AstCallExpression::type() const { return A_FUNCTION_CALL_EXPRESSION; }
+
+std::string AstCallExpression::toString() const {
+  return fmt::format("[ @AstCallExpression identifier_:{}, argumentList_:{} ]",
+                     identifier_,
+                     argumentList_ ? argumentList_->toString() : "null");
 }
 
-std::string AstFunctionCallExpression::toString() const {
-  return fmt::format(
-      "[ @AstFunctionCallExpression identifier_:{}, argumentList_:{} ]",
-      identifier_, argumentList_ ? argumentList_->toString() : "null");
-}
+const std::string &AstCallExpression::identifier() const { return identifier_; }
 
-const std::string &AstFunctionCallExpression::identifier() const {
-  return identifier_;
-}
-
-AstExpressionList *AstFunctionCallExpression::argumentList() const {
+AstExpressionList *AstCallExpression::argumentList() const {
   return argumentList_;
 }
 
@@ -320,43 +257,38 @@ int AstBinaryExpression::token() const { return token_; }
 
 AstExpression *AstBinaryExpression::right() const { return right_; }
 
-AstConditionalExpression::AstConditionalExpression(
-    AstExpression *condExpression, AstExpression *ifExpression,
-    AstExpression *elseExpression)
-    : condExpression_(condExpression), ifExpression_(ifExpression),
-      elseExpression_(elseExpression) {}
+AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
+                                                   AstExpression *left,
+                                                   AstExpression *right)
+    : condition_(condition), left_(left), right_(right) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
-  delete condExpression_;
-  condExpression_ = nullptr;
-  delete ifExpression_;
-  ifExpression_ = nullptr;
-  delete elseExpression_;
-  elseExpression_ = nullptr;
+  delete condition_;
+  condition_ = nullptr;
+  delete left_;
+  left_ = nullptr;
+  delete right_;
+  right_ = nullptr;
 }
 
 int AstConditionalExpression::type() const { return A_CONDITIONAL_EXPRESSION; }
 
 std::string AstConditionalExpression::toString() const {
-  std::string condStr = condExpression_ ? condExpression_->toString() : "null";
-  std::string ifStr = ifExpression_ ? ifExpression_->toString() : "null";
-  std::string elseStr = elseExpression_ ? elseExpression_->toString() : "null";
-  return fmt::format("[ @AstConditionalExpression condExpression_:{}, "
-                     "ifExpression_:{}, elseExpression_:{} ]",
-                     condStr, ifStr, elseStr);
+  std::string condStr = condition_ ? condition_->toString() : "null";
+  std::string lStr = left_ ? left_->toString() : "null";
+  std::string rStr = right_ ? right_->toString() : "null";
+  return fmt::format(
+      "[ @AstConditionalExpression condition_:{}, left_:{}, right_:{} ]",
+      condStr, lStr, rStr);
 }
 
-AstExpression *AstConditionalExpression::condExpression() const {
-  return condExpression_;
+AstExpression *AstConditionalExpression::condition() const {
+  return condition_;
 }
 
-AstExpression *AstConditionalExpression::ifExpression() const {
-  return ifExpression_;
-}
+AstExpression *AstConditionalExpression::left() const { return left_; }
 
-AstExpression *AstConditionalExpression::elseExpression() const {
-  return elseExpression_;
-}
+AstExpression *AstConditionalExpression::right() const { return right_; }
 
 AstAssignmentExpression::AstAssignmentExpression(AstExpression *left, int token,
                                                  AstExpression *right)
@@ -423,47 +355,42 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-AstIfStatement::AstIfStatement(AstExpression *condExpression,
-                               AstStatement *ifStatement,
-                               AstStatement *elseStatement)
-    : condExpression_(condExpression), ifStatement_(ifStatement),
-      elseStatement_(elseStatement) {}
+AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *left,
+                               AstStatement *right)
+    : condition_(condition), left_(left), right_(right) {}
 
 AstIfStatement::~AstIfStatement() {
-  delete condExpression_;
-  condExpression_ = nullptr;
-  delete ifStatement_;
-  ifStatement_ = nullptr;
-  delete elseStatement_;
-  elseStatement_ = nullptr;
+  delete condition_;
+  condition_ = nullptr;
+  delete left_;
+  left_ = nullptr;
+  delete right_;
+  right_ = nullptr;
 }
 
 int AstIfStatement::type() const { return A_IF_STATEMENT; }
 
 std::string AstIfStatement::toString() const {
-  std::string condStr = condExpression_ ? condExpression_->toString() : "null";
-  std::string ifStr = ifStatement_ ? ifStatement_->toString() : "null";
-  std::string elseStr = elseStatement_ ? elseStatement_->toString() : "null";
-  return fmt::format("[ @AstIfStatement condExpression_:{}, ifStatement_:{}, "
-                     "elseStatement_:{} ]",
-                     condStr, ifStr, elseStr);
+  std::string condStr = condition_ ? condition_->toString() : "null";
+  std::string lStr = left_ ? left_->toString() : "null";
+  std::string rStr = right_ ? right_->toString() : "null";
+  return fmt::format("[ @AstIfStatement condition_:{}, left_:{}, right_:{} ]",
+                     condStr, lStr, rStr);
 }
 
-AstExpression *AstIfStatement::condExpression() const {
-  return condExpression_;
-}
+AstExpression *AstIfStatement::condition() const { return condition_; }
 
-AstStatement *AstIfStatement::ifStatement() const { return ifStatement_; }
+AstStatement *AstIfStatement::left() const { return left_; }
 
-AstStatement *AstIfStatement::elseStatement() const { return elseStatement_; }
+AstStatement *AstIfStatement::right() const { return right_; }
 
-AstWhileStatement::AstWhileStatement(AstExpression *condExpression,
+AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement)
-    : condExpression_(condExpression), statement_(statement) {}
+    : condition_(condition), statement_(statement) {}
 
 AstWhileStatement::~AstWhileStatement() {
-  delete condExpression_;
-  condExpression_ = nullptr;
+  delete condition_;
+  condition_ = nullptr;
   delete statement_;
   statement_ = nullptr;
 }
@@ -471,32 +398,29 @@ AstWhileStatement::~AstWhileStatement() {
 int AstWhileStatement::type() const { return A_WHILE_STATEMENT; }
 
 std::string AstWhileStatement::toString() const {
-  std::string condStr = condExpression_ ? condExpression_->toString() : "null";
+  std::string condStr = condition_ ? condition_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstWhileStatement condExpression_:{}, statement_:{} ]",
+  return fmt::format("[ @AstWhileStatement condition_:{}, statement_:{} ]",
                      condStr, stmtStr);
 }
 
-AstExpression *AstWhileStatement::condExpression() const {
-  return condExpression_;
-}
+AstExpression *AstWhileStatement::condition() const { return condition_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
-AstForStatement::AstForStatement(AstStatement *initStatement,
-                                 AstStatement *condStatement,
-                                 AstExpression *postExpression,
+AstForStatement::AstForStatement(AstStatement *initialize,
+                                 AstStatement *condition, AstExpression *post,
                                  AstStatement *statement)
-    : initStatement_(initStatement), condStatement_(condStatement),
-      postExpression_(postExpression), statement_(statement) {}
+    : initialize_(initialize), condition_(condition), post_(post),
+      statement_(statement) {}
 
 AstForStatement::~AstForStatement() {
-  delete initStatement_;
-  initStatement_ = nullptr;
-  delete condStatement_;
-  condStatement_ = nullptr;
-  delete postExpression_;
-  postExpression_ = nullptr;
+  delete initialize_;
+  initialize_ = nullptr;
+  delete condition_;
+  condition_ = nullptr;
+  delete post_;
+  post_ = nullptr;
   delete statement_;
   statement_ = nullptr;
 }
@@ -504,22 +428,20 @@ AstForStatement::~AstForStatement() {
 int AstForStatement::type() const { return A_FOR_STATEMENT; }
 
 std::string AstForStatement::toString() const {
-  std::string initStr = initStatement_ ? initStatement_->toString() : "null";
-  std::string condStr = condStatement_ ? condStatement_->toString() : "null";
-  std::string postStr = postExpression_ ? postExpression_->toString() : "null";
+  std::string initStr = initialize_ ? initialize_->toString() : "null";
+  std::string condStr = condition_ ? condition_->toString() : "null";
+  std::string postStr = post_ ? post_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstForStatement initStatement_:{}, condStatement_:{}, "
-                     "postExpression_:{}, statement_:{} ]",
+  return fmt::format("[ @AstForStatement initialize_:{}, condition_:{}, "
+                     "post_:{}, statement_:{} ]",
                      initStr, condStr, postStr, stmtStr);
 }
 
-AstStatement *AstForStatement::initStatement() const { return initStatement_; }
+AstStatement *AstForStatement::initialize() const { return initialize_; }
 
-AstStatement *AstForStatement::condStatement() const { return condStatement_; }
+AstStatement *AstForStatement::condition() const { return condition_; }
 
-AstExpression *AstForStatement::postExpression() const {
-  return postExpression_;
-}
+AstExpression *AstForStatement::post() const { return post_; }
 
 AstStatement *AstForStatement::statement() const { return statement_; }
 
@@ -607,28 +529,31 @@ AstExpression *AstVariableDeclarationAssignment::expression() const {
   return expression_;
 }
 
-AstFunctionDeclaration::AstFunctionDeclaration(
-    const char *identifier, AstExpressionList *argumentList,
-    AstCompoundStatement *compoundStatement)
-    : identifier_(identifier), argumentList_(argumentList),
-      compoundStatement_(compoundStatement) {}
+AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
+                                               AstExpressionList *argumentList,
+                                               AstExpression *result,
+                                               AstStatement *statement)
+    : identifier_(identifier), argumentList_(argumentList), result_(result),
+      statement_(statement) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
   delete argumentList_;
   argumentList_ = nullptr;
-  delete compoundStatement_;
-  compoundStatement_ = nullptr;
+  delete result_;
+  result_ = nullptr;
+  delete statement_;
+  statement_ = nullptr;
 }
 
 int AstFunctionDeclaration::type() const { return A_FUNCTION_DECLARATION; }
 
 std::string AstFunctionDeclaration::toString() const {
   std::string arguStr = argumentList_ ? argumentList_->toString() : "null";
-  std::string compStr =
-      compoundStatement_ ? compoundStatement_->toString() : "null";
+  std::string rStr = result_ ? result_->toString() : "null";
+  std::string stmtStr = statement_ ? statement_->toString() : "null";
   return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
-                     "argumentList_:{}, compoundStatement_:{} ]",
-                     identifier_, arguStr, compStr);
+                     "argumentList_:{}, result_:{}, statement_:{} ]",
+                     identifier_, arguStr, rStr, stmtStr);
 }
 
 const std::string &AstFunctionDeclaration::identifier() const {
@@ -639,6 +564,6 @@ AstExpressionList *AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 
-AstCompoundStatement *AstFunctionDeclaration::compoundStatement() const {
-  return compoundStatement_;
-}
+AstExpression *AstFunctionDeclaration::result() const { return result_; }
+
+AstStatement *AstFunctionDeclaration::statement() const { return statement_; }

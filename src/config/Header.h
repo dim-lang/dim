@@ -14,6 +14,8 @@
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
 #include "unicode/uchar.h"
 #include "unicode/unistr.h"
@@ -31,6 +33,8 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <fmt/format.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 #include <unicode/uchar.h>
 #include <unicode/unistr.h>

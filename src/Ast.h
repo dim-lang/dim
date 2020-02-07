@@ -49,25 +49,18 @@
 #define A_STATEMENT_LIST 402
 #define A_DECLARATION_LIST 403
 
-#define A_PROGRAM 501
-
 /* ================================== */
 
 /* interface */
 class Ast;
 
-/* derived interface */
-class AstExpression;
-class AstStatement;
-class AstDeclaration;
-
-/* interface list */
+/* list */
 class AstExpressionList;
 class AstStatementList;
 class AstDeclarationList;
 
-/* node */
-class AstProgram;
+/* expression */
+class AstExpression;
 class AstIdentifierConstant;
 class AstI8Constant;
 class AstUI8Constant;
@@ -81,11 +74,14 @@ class AstF32Constant;
 class AstF64Constant;
 class AstStringConstant;
 class AstBooleanConstant;
-class AstFunctionCallExpression;
+class AstCallExpression;
 class AstUnaryExpression;
 class AstBinaryExpression;
 class AstConditionalExpression;
 class AstAssignmentExpression;
+
+/* statement */
+class AstStatement;
 class AstExpressionStatement;
 class AstCompoundStatement;
 class AstIfStatement;
@@ -94,6 +90,9 @@ class AstForStatement;
 class AstContinueStatement;
 class AstBreakStatement;
 class AstReturnStatement;
+
+/* declaration */
+class AstDeclaration;
 class AstVariableDeclaration;
 class AstFunctionDeclaration;
 
@@ -104,25 +103,6 @@ public:
   virtual ~Ast() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
-};
-
-class AstProgram : public Ast {
-public:
-  AstProgram();
-  virtual ~AstProgram();
-  virtual int type() const;
-  virtual std::string toString() const;
-  virtual int size() const;
-  virtual Ast *get(int pos) const;
-  virtual void add(Ast *node);
-
-  static AstProgram *instance();
-  static AstProgram *resetInstance(AstProgram *prog);
-
-private:
-  std::vector<Ast *> nodes_;
-
-  static AstProgram *instance_;
 };
 
 /* expression */
@@ -218,7 +198,13 @@ public:
   virtual ~AstDeclarationList() = default;
   virtual int type() const;
 
+  static AstDeclarationList *program();
+  static AstDeclarationList *
+  resetProgram(AstDeclarationList *program = nullptr);
+
 private:
+  static AstDeclarationList *program_;
+
   virtual std::string stringify() const;
 };
 
@@ -244,7 +230,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const int8_t &value);
   virtual const int8_t &value() const;
 
 private:
@@ -259,7 +244,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const uint8_t &value);
   virtual const uint8_t &value() const;
 
 private:
@@ -274,7 +258,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const int16_t &value);
   virtual const int16_t &value() const;
 
 private:
@@ -289,7 +272,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const uint16_t &value);
   virtual const uint16_t &value() const;
 
 private:
@@ -304,7 +286,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const int32_t &value);
   virtual const int32_t &value() const;
 
 private:
@@ -319,7 +300,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const uint32_t &value);
   virtual const uint32_t &value() const;
 
 private:
@@ -334,7 +314,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const int64_t &value);
   virtual const int64_t &value() const;
 
 private:
@@ -349,7 +328,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const uint64_t &value);
   virtual const uint64_t &value() const;
 
 private:
@@ -364,7 +342,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const float &value);
   virtual const float &value() const;
 
 private:
@@ -379,7 +356,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const double &value);
   virtual const double &value() const;
 
 private:
@@ -394,7 +370,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const std::string &value);
   virtual const std::string &value() const;
 
 private:
@@ -409,7 +384,6 @@ public:
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual void reset(const bool &value);
   virtual const bool &value() const;
 
 private:
@@ -417,11 +391,10 @@ private:
 };
 
 /* function call expression */
-class AstFunctionCallExpression : public AstExpression {
+class AstCallExpression : public AstExpression {
 public:
-  AstFunctionCallExpression(const char *identifier,
-                            AstExpressionList *expressionList);
-  virtual ~AstFunctionCallExpression();
+  AstCallExpression(const char *identifier, AstExpressionList *expressionList);
+  virtual ~AstCallExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -470,21 +443,20 @@ private:
 /* ternary conditional expression */
 class AstConditionalExpression : public AstExpression {
 public:
-  AstConditionalExpression(AstExpression *condExpression,
-                           AstExpression *ifExpression,
-                           AstExpression *elseExpression);
+  AstConditionalExpression(AstExpression *condition, AstExpression *left,
+                           AstExpression *right);
   virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *condExpression() const;
-  virtual AstExpression *ifExpression() const;
-  virtual AstExpression *elseExpression() const;
+  virtual AstExpression *condition() const;
+  virtual AstExpression *left() const;
+  virtual AstExpression *right() const;
 
 private:
-  AstExpression *condExpression_;
-  AstExpression *ifExpression_;
-  AstExpression *elseExpression_;
+  AstExpression *condition_;
+  AstExpression *left_;
+  AstExpression *right_;
 };
 
 /* assignment expression */
@@ -536,56 +508,56 @@ private:
 /* selection statement - if else */
 class AstIfStatement : public AstStatement {
 public:
-  AstIfStatement(AstExpression *condExpression, AstStatement *ifStatement,
-                 AstStatement *elseStatement);
+  AstIfStatement(AstExpression *condition, AstStatement *left,
+                 AstStatement *right);
   virtual ~AstIfStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *condExpression() const;
-  virtual AstStatement *ifStatement() const;
-  virtual AstStatement *elseStatement() const;
+  virtual AstExpression *condition() const;
+  virtual AstStatement *left() const;
+  virtual AstStatement *right() const;
 
 private:
-  AstExpression *condExpression_;
-  AstStatement *ifStatement_;
-  AstStatement *elseStatement_;
+  AstExpression *condition_;
+  AstStatement *left_;
+  AstStatement *right_;
 };
 
 /* iteration statement - while */
 class AstWhileStatement : public AstStatement {
 public:
-  AstWhileStatement(AstExpression *condExpression, AstStatement *statement);
+  AstWhileStatement(AstExpression *condition, AstStatement *statement);
   virtual ~AstWhileStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstExpression *condExpression() const;
+  virtual AstExpression *condition() const;
   virtual AstStatement *statement() const;
 
 private:
-  AstExpression *condExpression_;
+  AstExpression *condition_;
   AstStatement *statement_;
 };
 
 /* iteration statement - for */
 class AstForStatement : public AstStatement {
 public:
-  AstForStatement(AstStatement *initStatement, AstStatement *condStatement,
-                  AstExpression *postExpression, AstStatement *statement);
+  AstForStatement(AstStatement *initialize, AstStatement *condition,
+                  AstExpression *post, AstStatement *statement);
   virtual ~AstForStatement();
   virtual int type() const;
   virtual std::string toString() const;
 
-  virtual AstStatement *initStatement() const;
-  virtual AstStatement *condStatement() const;
-  virtual AstExpression *postExpression() const;
+  virtual AstStatement *initialize() const;
+  virtual AstStatement *condition() const;
+  virtual AstExpression *post() const;
   virtual AstStatement *statement() const;
 
 private:
-  AstStatement *initStatement_;
-  AstStatement *condStatement_;
-  AstExpression *postExpression_;
+  AstStatement *initialize_;
+  AstStatement *condition_;
+  AstExpression *post_;
   AstStatement *statement_;
 };
 
@@ -653,18 +625,20 @@ private:
 class AstFunctionDeclaration : public AstDeclaration {
 public:
   AstFunctionDeclaration(const char *identifier,
-                         AstExpressionList *argumentList,
-                         AstCompoundStatement *compoundStatement);
+                         AstExpressionList *argumentList, AstExpression *result,
+                         AstStatement *statement);
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
   virtual AstExpressionList *argumentList() const;
-  virtual AstCompoundStatement *compoundStatement() const;
+  virtual AstExpression *result() const;
+  virtual AstStatement *statement() const;
 
 private:
   std::string identifier_;
   AstExpressionList *argumentList_;
-  AstCompoundStatement *compoundStatement_;
+  AstExpression *result_;
+  AstStatement *statement_;
 };

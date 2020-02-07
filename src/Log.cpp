@@ -2,18 +2,17 @@
 // Apache License Version 2.0
 
 #include "Log.h"
+#include "config/Header.h"
 #include <ctime>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/spdlog.h>
 #include <string>
 
-void Log::initialize(const std::string &logName, const std::string &logPath,
-                     bool debug) {
+void Log::initialize(const std::string &logName, const std::string &logPath) {
 #ifndef NDEBUG
-  debug = true;
+  spdlog::set_level(spdlog::level::debug);
+#else
+  spdlog::set_level(spdlog::level::err);
 #endif
 
-  spdlog::set_level(debug ? spdlog::level::debug : spdlog::level::err);
   spdlog::set_pattern(
       "%Y-%m-%d %H:%M:%S.%e [%n] %l process-%P thread-%t [%@ %!] %v");
 
@@ -23,5 +22,6 @@ void Log::initialize(const std::string &logName, const std::string &logPath,
       fmt::format("{}/{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log",
                   logPath, logName, dt.tm_year + 1900, dt.tm_mon + 1,
                   dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec);
+
   spdlog::set_default_logger(spdlog::basic_logger_mt(logName, fileName));
 }

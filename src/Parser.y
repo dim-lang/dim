@@ -33,13 +33,12 @@ static std::unordered_set<int> NumberConstants = {
 
  /* Represents the many different ways we can access our data */
 %union {
-    AstExpression *expression;
-    AstStatement *statement;
-    AstDeclaration *declaration;
-    AstExpressionList *expressionList;
-    AstStatementList *statementList;
-    AstDeclarationList *declarationList;
-    AstProgram *program;
+    AstExpressionList *exprList;
+    AstStatementList *stmtList;
+    AstDeclarationList *declList;
+    AstExpression *expr;
+    AstStatement *stmt;
+    AstDeclaration *decl;
     char *literal;
     int token;
 }
@@ -60,23 +59,19 @@ static std::unordered_set<int> NumberConstants = {
 %token <literal> T_IDENTIFIER T_I8_CONSTANT T_UI8_CONSTANT T_I16_CONSTANT T_UI16_CONSTANT T_I32_CONSTANT T_UI32_CONSTANT
 %token <literal> T_I64_CONSTANT T_UI64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
 
-%type <expression> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
-%type <expression> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
-%type <expression> equality_expression relational_expression shift_expression additive_expression multiplicative_expression 
-%type <expression> expression
+%type <expr> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
+%type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
+%type <expr> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
+%type <expr> expression
+%type <exprList> argument_expression_list function_argument_list
 
-%type <statement> compound_statement expression_statement selection_statement iteration_statement jump_statement
-%type <statement> statement statement_or_declaration
+%type <stmt> compound_statement expression_statement selection_statement iteration_statement jump_statement
+%type <stmt> statement
+%type <stmtList> statement_list
 
-%type <declaration> declaration variable_declaration function_declaration variable_declaration_assignment
-
-%type <expressionList> argument_expression_list function_argument_list
-
-%type <statementList> statement_or_declaration_list
-
-%type <declarationList> variable_declaration_assignment_list
-
-%type <program> translation_unit
+%type <decl> variable_declaration function_declaration variable_declaration_assignment
+%type <decl> declaration
+%type <declList> variable_declaration_assignment_list translation_unit
 
  /**
   * operator precedence
@@ -133,8 +128,8 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
 
 postfix_expression : primary_expression { $$ = $1; CINFO("postfix_expression: {}", $$ ? $$->toString() : "null"); }
                    /*| postfix_expression '[' expression ']'*/
-                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstFunctionCallExpression($1, nullptr); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
-                   | T_IDENTIFIER T_LPAREN argument_expression_list T_RPAREN { $$ = new AstFunctionCallExpression($1, $3); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
+                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, nullptr); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
+                   | T_IDENTIFIER T_LPAREN argument_expression_list T_RPAREN { $$ = new AstCallExpression($1, $3); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
@@ -269,12 +264,12 @@ variable_declaration_assignment : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * val y = func(x:i64, y:i64):i64 => { return x + y; };
   */
 function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, $4, dynamic_cast<AstCompoundStatement*>($6));
+                            $$ = new AstFunctionDeclaration($2, $4, nullptr, $6);
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
                         }
                      | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, nullptr, dynamic_cast<AstCompoundStatement*>($5));
+                            $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $5);
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
                         }
@@ -302,22 +297,19 @@ function_argument_list : T_IDENTIFIER { $$ = new AstExpressionList(); $$->add(ne
 
  /* part-3 statement */
 compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); CINFO("compound_statement: {}", $$->toString()); }
-                   | T_LBRACE statement_or_declaration_list T_RBRACE { $$ = new AstCompoundStatement($2); CINFO("compound_statement: {}", $$->toString()); }
+                   | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); CINFO("compound_statement: {}", $$->toString()); }
                    ;
 
-statement_or_declaration_list : statement_or_declaration { $$ = new AstStatementList(); $$->add($1); CINFO("statement_or_declaration_list: {}", $$->toString()); }
-                              | statement_or_declaration_list statement_or_declaration { $$->add($2); CINFO("statement_or_declaration_list: {}", $$->toString()); }
-                              ;
-
-statement_or_declaration : statement { $$ = $1; CINFO("statement_or_declaration: {}", $$ ? $$->toString() : "null"); }
-                         | declaration { $$ = $1; CINFO("statement_or_declaration: {}", $$ ? $$->toString() : "null"); }
-                         ;
+statement_list : statement { $$ = new AstStatementList(); $$->add($1); CINFO("statement_list: {}", $$->toString()); }
+               | statement_list statement { $$->add($2); CINFO("statement_list: {}", $$->toString()); }
+               ;
 
 statement : compound_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
           | expression_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
           | selection_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
           | iteration_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
           | jump_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
+          | declaration { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
           ;
 
 expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1); CINFO("expression_statement: {}", $$ ? $$->toString() : "null"); }
@@ -340,12 +332,11 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); CINFO("jum
                ;
 
 translation_unit : declaration {
-                        AstProgram *save = AstProgram::resetInstance(new AstProgram());
-                        AstProgram::instance()->add($1);
-                        CINFO("translation_unit: {}, save: {}", AstProgram::instance()->toString(), save ? save->toString() : "null");
-                        if (save) delete save;
+                        AstDeclarationList *save = AstDeclarationList::resetProgram(new AstDeclarationList());
+                        AstDeclarationList::program()->add($1);
+                        CINFO("translation_unit: {}, save: {}", AstDeclarationList::program()->toString(), save ? save->toString() : "null");
                     }
-                 | translation_unit declaration { AstProgram::instance()->add($2); CINFO("translation_unit: {}", AstProgram::instance()->toString()); }
+                 | translation_unit declaration { AstDeclarationList::program()->add($2); CINFO("translation_unit: {}", AstDeclarationList::program()->toString()); }
                  ;
 
 %%

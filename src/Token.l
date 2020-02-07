@@ -42,9 +42,9 @@ public:
 
  /* global variable */
 std::stack<TkFileBuffer*> TkFileBufferStack;
-int tkImportFile(const char *module);
-int tkImportFile(const std::string &module);
-int tkPopFile();
+int tkPushImport(const char *module);
+int tkPushImport(const std::string &module);
+int tkPopImport();
 std::string tkModuleToFile(const std::string &name);
 std::string tkFileToModule(const std::string &name);
 
@@ -170,7 +170,7 @@ std::string tkFileToModule(const std::string &name);
                                 while ((c = yyinput()) && c != ';')
                                     ;
                             }
-                            tkImportFile(yytext);
+                            tkPushImport(yytext);
                             BEGIN INITIAL;
                         }
 <IMPORT>.|\n            {
@@ -178,7 +178,7 @@ std::string tkFileToModule(const std::string &name);
                             BEGIN INITIAL;
                         }
 <<EOF>>                 {
-                            if (!tkPopFile())
+                            if (!tkPopImport())
                                 yyterminate();
                         }
 
@@ -188,7 +188,7 @@ std::string tkFileToModule(const std::string &name);
 
 %%
 
-int tkImportFile(const char *module) {
+int tkPushImport(const char *module) {
     TkFileBuffer *fb = new TkFileBuffer(module);
 
     /* remember state */
@@ -204,11 +204,11 @@ int tkImportFile(const char *module) {
     return 1;
 }
 
-int tkImportFile(const std::string &module) {
-    return tkImportFile(module.c_str());
+int tkPushImport(const std::string &module) {
+    return tkPushImport(module.c_str());
 }
 
-int tkPopFile() {
+int tkPopImport() {
     CASSERT(!TkFileBufferStack.empty(), "TkFileBufferStack must not empty! TkCurrentFile:{} yylineno:{}", TkCurrentFile, yylineno);
     TkFileBuffer *fb;
 
@@ -231,7 +231,7 @@ int tkPopFile() {
 std::string tkModuleToFile(const std::string &name) {
     std::string r(name);
     char replace;
-#if FPLATFORM_WINDOWS
+#if PLATFORM_WINDOWS
     replace = '\\';
 #else
     replace = '/';

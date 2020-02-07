@@ -18,8 +18,8 @@ extern int yyparse(void);
 
 extern std::string TkCurrentFile;
 extern std::stack<TkFileBuffer *> TkFileBufferStack;
-extern int tkImportFile(const char *module);
-extern int tkImportFile(const std::string &module);
-extern int tkPopFile();
+extern int tkPushImport(const char *module);
+extern int tkPushImport(const std::string &module);
+extern int tkPopImport();
 extern std::string tkModuleToFile(const std::string &name);
 extern std::string tkFileToModule(const std::string &name);

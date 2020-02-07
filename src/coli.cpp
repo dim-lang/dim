@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
       std::string fileName = fileNameList[i];
       std::string moduleName = tkFileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      if (!tkImportFile(moduleName)) {
-        CASSERT(false, "tkImportFile {} fail", moduleName);
+      if (!tkPushImport(moduleName)) {
+        CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }
       CINFO("{} starting...", moduleName);
