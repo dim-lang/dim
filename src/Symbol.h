@@ -2,82 +2,110 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Scope.h"
 #include "Stringify.h"
-#include "Type.h"
 #include <string>
+#include <unordered_map>
 
-//==============================
-
-class Symbol;
-class BuiltinTypeSymbol;
-class VariableSymbol;
-class FunctionSymbol;
-
-//==============================
-
-class Symbol : public Stringify {
+class Symbol {
 public:
   virtual ~Symbol() = default;
   virtual const std::string &name() const = 0;
-  virtual Type *type() const = 0;
-  virtual std::string toString() const = 0;
 };
 
-class BuiltinTypeSymbol : public Symbol, public Type {
+class Symtab : public Stringify {
 public:
-  virtual ~BuiltinTypeSymbol() = default;
-  virtual const std::string &name() const;
-  virtual Type *type() const;
+  Symtab(Symtab *enclosingScope);
+  virtual ~Symtab() = default;
+  virtual const std::string &name() const = 0;
+  virtual void define(Symbol *sym);
+  virtual Symbol *resolve(const std::string &name);
+  virtual Symtab *enclosingScope();
   virtual std::string toString() const;
-  /**
-   * instance:
-   * <i64> <f64> <string> <boolean> <class> <func>
-   */
-  static BuiltinTypeSymbol *i64Instance();
-  static BuiltinTypeSymbol *f64Instance();
-  static BuiltinTypeSymbol *stringInstance();
-  static BuiltinTypeSymbol *booleanInstance();
-  static BuiltinTypeSymbol *classInstance();
-  static BuiltinTypeSymbol *funcInstance();
 
-private:
-  BuiltinTypeSymbol(const std::string &name);
+protected:
+  virtual std::string stringify() const = 0;
 
-  std::string builtinTypeName_;
+  Symtab *enclosingScope_;
+  std::unordered_map<std::string, Symbol *> hashtab_;
 };
 
 class VariableSymbol : public Symbol {
 public:
-  /**
-   * <x:i64>
-   * <y:boolean>
-   */
-  VariableSymbol(const std::string &name, Type *type);
+  VariableSymbol(const std::string &variableName);
   virtual ~VariableSymbol() = default;
   virtual const std::string &name() const;
-  virtual Type *type() const;
-  virtual std::string toString() const;
 
 private:
   std::string variableName_;
-  Type *variableType_;
 };
 
-class FunctionSymbol : public Symbol, public Scope {
+class FunctionSymbol : public Symbol, public Symtab {
 public:
-  FunctionSymbol(const std::string &name, Type *type,
-                 Scope *enclosingScope = Scope::currentScope());
+  FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
   virtual ~FunctionSymbol() = default;
-  /**
-   * <func():void>
-   * <func(i64, boolean):void>
-   * <func(string):i64>
-   */
   virtual const std::string &name() const;
-  virtual Type *type() const;
-  virtual std::string toString() const;
+  // virtual void define(Symbol *sym);
+  // virtual Symbol *resolve(const std::string &name);
+  // virtual Symtab *enclosingScope();
+  // virtual std::string toString() const;
 
 private:
-  Type *functionType_;
+  virtual std::string stringify() const;
+  std::string functionName_;
+};
+
+class ClassSymbol : public Symbol, public Symtab {
+public:
+  ClassSymbol(const std::string &className, Symtab *enclosingScope);
+  virtual ~ClassSymbol() = default;
+  virtual const std::string &name() const;
+  // virtual void define(Symbol *sym);
+  // virtual Symbol *resolve(const std::string &name);
+  // virtual Symtab *enclosingScope();
+  // virtual std::string toString() const;
+
+private:
+  virtual std::string stringify() const;
+  std::string className_;
+};
+
+class GlobalSymtab : public Symtab {
+public:
+  GlobalSymtab();
+  virtual ~GlobalSymtab() = default;
+  virtual const std::string &name() const;
+  // virtual void define(Symbol *sym);
+  // virtual Symbol *resolve(const std::string &name);
+  // virtual Symtab *enclosingScope();
+  // virtual std::string toString() const;
+
+private:
+  virtual std::string stringify() const;
+};
+
+class LocalSymtab : public Symtab {
+public:
+  LocalSymtab(const std::string &localSymtabName, Symtab *enclosingScope);
+  virtual ~LocalSymtab() = default;
+  virtual const std::string &name() const;
+  // virtual void define(Symbol *sym);
+  // virtual Symbol *resolve(const std::string &name);
+  // virtual Symtab *enclosingScope();
+  // virtual std::string toString() const;
+
+private:
+  virtual std::string stringify() const;
+  std::string localSymtabName_;
+};
+
+class SymbolManager {
+public:
+  static Symtab *globalScope();
+  static Symtab *currentScope();
+  static void pushScope(Symtab *scope);
+  static void popScope();
+
+private:
+  Symtab *globalScope_;
+  Symtab *currentScope_;
 };

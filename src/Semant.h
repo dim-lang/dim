@@ -3,39 +3,52 @@
 
 #pragma once
 #include "Ast.h"
+#include "Symbol.h"
 
-class Visitor {
+class AstVisitor {
 public:
-  virtual ~Visitor() = default;
+  virtual ~AstVisitor() = default;
   virtual Ast *visit(Ast *node) const = 0;
 };
 
-class ProgramVisitor : public Visitor {
+class ProgramVisitor : public AstVisitor {
 public:
   virtual ~ProgramVisitor() = default;
   virtual Ast *visit(Ast *node) const;
-  static Visitor *instance();
+  static AstVisitor *instance();
 
 private:
   ProgramVisitor() = default;
 };
 
-class VariableDeclarationVisitor : public Visitor {
+class VariableDeclarationVisitor : public AstVisitor {
 public:
   virtual ~VariableDeclarationVisitor() = default;
   virtual Ast *visit(Ast *node) const;
-  static Visitor *instance();
+  static AstVisitor *instance();
 
 private:
   VariableDeclarationVisitor() = default;
 };
 
-class FunctionDeclarationVisitor : public Visitor {
+class FunctionDeclarationVisitor : public AstVisitor {
 public:
   virtual ~FunctionDeclarationVisitor() = default;
   virtual Ast *visit(Ast *node) const;
-  static Visitor *instance();
+  static AstVisitor *instance();
 
 private:
   FunctionDeclarationVisitor() = default;
+};
+
+class Semant {
+public:
+  Semant();
+  virtual ~Semant();
+  virtual void build(Ast *node);
+  virtual void check(Ast *node);
+
+private:
+  Symtab *global_;
+  Symtab *current_;
 };

@@ -2,78 +2,62 @@
 // Apache License Version 2.0
 
 #include "Symbol.h"
+#include "Log.h"
 #include "config/Header.h"
+#include <cctype>
+#include <numeric>
+#include <utility>
 
-BuiltinTypeSymbol::BuiltinTypeSymbol(const std::string &name)
-    : builtinTypeName_(name) {}
+Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
-const std::string &BuiltinTypeSymbol::name() const { return builtinTypeName_; }
-
-Type *BuiltinTypeSymbol::type() const { return nullptr; }
-
-std::string BuiltinTypeSymbol::toString() const {
-  return fmt::format("[ @BuiltinTypeSymbol builtinTypeName_:{} ]",
-                     builtinTypeName_);
+void Symtab::define(Symbol *sym) {
+  CASSERT(sym, "symbol is null");
+  CASSERT(hashtab_.find(sym->name()) == hashtab_.end(),
+          "symbol {} already exist", sym->name());
+  hashtab_.insert(std::make_pair(sym->name(), sym));
 }
 
-BuiltinTypeSymbol *BuiltinTypeSymbol::i64Instance() {
-  static BuiltinTypeSymbol *i64BuiltinTypeSymbol = new BuiltinTypeSymbol("i64");
-  return i64BuiltinTypeSymbol;
+Symbol *Symtab::resolve(const std::string &name) {
+  CASSERT(name.length() > 0, "name#length <= 0");
+  CASSERT(hashtab_.find(name) != hashtab_.end(), "symbol {} not exist",
+          sym->name());
+  return hashtab_[name];
 }
 
-BuiltinTypeSymbol *BuiltinTypeSymbol::f64Instance() {
-  static BuiltinTypeSymbol *f64BuiltinTypeSymbol = new BuiltinTypeSymbol("f64");
-  return f64BuiltinTypeSymbol;
+Symtab *Symtab::enclosingScope() { return enclosingScope_; }
+
+std::string Symtab::toString() const {
+  return fmt::format("[ @{} name_:{}, enclosingScope_:{}, hashtab_#size:{} ]",
+                     stringify(), name(), enclosingScope_->name(),
+                     hashtab_.size());
 }
 
-BuiltinTypeSymbol *BuiltinTypeSymbol::stringInstance() {
-  static BuiltinTypeSymbol *stringBuiltinTypeSymbol =
-      new BuiltinTypeSymbol("string");
-  return stringBuiltinTypeSymbol;
-}
-
-BuiltinTypeSymbol *BuiltinTypeSymbol::booleanInstance() {
-  static BuiltinTypeSymbol *booleanBuiltinTypeSymbol =
-      new BuiltinTypeSymbol("boolean");
-  return booleanBuiltinTypeSymbol;
-}
-
-BuiltinTypeSymbol *BuiltinTypeSymbol::classInstance() {
-  static BuiltinTypeSymbol *classBuiltinTypeSymbol =
-      new BuiltinTypeSymbol("class");
-  return classBuiltinTypeSymbol;
-}
-
-BuiltinTypeSymbol *BuiltinTypeSymbol::funcInstance() {
-  static BuiltinTypeSymbol *funcBuiltinTypeSymbol =
-      new BuiltinTypeSymbol("func");
-  return funcBuiltinTypeSymbol;
-}
-
-VariableSymbol::VariableSymbol(const std::string &name, Type *type)
-    : variableName_(name), variableType_(type) {}
+VariableSymbol::VariableSymbol(const std::string &variableName)
+    : variableName_(variableName) {}
 
 const std::string &VariableSymbol::name() const { return variableName_; }
 
-Type *VariableSymbol::type() const { return variableType_; }
+FunctionSymbol::FunctionSymbol(const std::string &functionName,
+                               Symtab *enclosingScope)
+    : functionName_(functionName), Symtab(enclosingScope) {}
 
-std::string VariableSymbol::toString() const {
-  return fmt::format("[ @VariableSymbol variableName_:{}, variableType_:{} ]",
-                     variableName_,
-                     variableType_ ? variableType_->name() : "null");
-}
+const std::string &FunctionSymbol::name() const { return functionName_; }
 
-FunctionSymbol::FunctionSymbol(const std::string &name, Type *type,
-                               Scope *enclosingScope)
-    : Scope(name, enclosingScope), functionType_(type) {}
+std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
-const std::string &FunctionSymbol::name() const { return scopeName_; }
+ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
+    : className_(className), Symtab(enclosingScope) {}
 
-Type *FunctionSymbol::type() const { return functionType_; }
+const std::string &ClassSymbol::name() const { return className_; }
 
-std::string FunctionSymbol::toString() const {
-  return fmt::format("[ @FunctionSymbol functionName_:{}, functionType_:{}, "
-                     "enclosingScope_:{} ]",
-                     name(), functionType_ ? functionType_->name() : "null",
-                     enclosingScope_ ? enclosingScope_->toString() : "null");
-}
+std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
+
+GlobalSymtab::GlobalSymtab() {}
+
+const std::string &GlobalSymtab::name() const { return "GlobalSymtab"; }
+
+LocalSymtab::LocalSymtab(const std::string &localSymtabName,
+                         Symtab *enclosingScope)
+    : localSymtabName_(localSymtabName), Symtab(enclosingScope) {}
+
+const std::string &LocalSymtab::name() const { return localSymtabName_; }

@@ -1,7 +1,7 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "Visitor.h"
+#include "Semant.h"
 #include "Log.h"
 #include "Scope.h"
 #include "Symbol.h"
@@ -9,8 +9,7 @@
 
 Ast *ProgramVisitor::visit(Ast *node) const {
   CASSERT(node, "node is null:{}", (void *)node);
-  CASSERT(node->type() == A_PROGRAM, "invalid node type:{}",
-            node->toString());
+  CASSERT(node->type() == A_PROGRAM, "invalid node type:{}", node->toString());
 
   AstProgram *e = dynamic_cast<AstProgram *>(node);
 
@@ -35,7 +34,7 @@ Ast *ProgramVisitor::visit(Ast *node) const {
   return nullptr;
 }
 
-Visitor *ProgramVisitor::instance() {
+AstVisitor *ProgramVisitor::instance() {
   static ProgramVisitor *programVisitor = new ProgramVisitor();
   return programVisitor;
 }
@@ -47,24 +46,22 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
   AstExpressionList *identifierList = e->identifierList();
   AstExpressionList *expressionList = e->expressionList();
 
-  CASSERT(identifierList, "identifierList is null:{}",
-            (void *)identifierList);
-  CASSERT(expressionList, "expressionList is null:{}",
-            (void *)expressionList);
+  CASSERT(identifierList, "identifierList is null:{}", (void *)identifierList);
+  CASSERT(expressionList, "expressionList is null:{}", (void *)expressionList);
   CASSERT(identifierList->size() == expressionList->size(),
-            "identifierList expressionList same size, 1:{}, 2:{}",
-            identifierList->size(), expressionList->size());
+          "identifierList expressionList same size, 1:{}, 2:{}",
+          identifierList->size(), expressionList->size());
   CASSERT(identifierList->size() > 0, "identifierList#size > 0:{}",
-            identifierList->size());
+          identifierList->size());
   CASSERT(expressionList->size() > 0, "expressionList#size > 0:{}",
-            expressionList->size());
+          expressionList->size());
 
   for (int i = 0; i < identifierList->size(); i++) {
     AstIdentifierConstant *id =
         dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
     AstExpression *expr = expressionList->get(i);
     CASSERT(Scope::currentScope(), "Scope#currentScope is null:{}",
-              (void *)Scope::currentScope());
+            (void *)Scope::currentScope());
     switch (expr->type()) {
     case A_I64_CONSTANT: {
       Scope::currentScope()->define(
@@ -91,13 +88,13 @@ Ast *VariableDeclarationVisitor::visit(Ast *node) const {
     }
     default:
       CASSERT(false, "invalid expression type, {}:{}", i,
-                expr ? expr->toString() : "null");
+              expr ? expr->toString() : "null");
     }
   }
   return nullptr;
 }
 
-Visitor *VariableDeclarationVisitor::instance() {
+AstVisitor *VariableDeclarationVisitor::instance() {
   static VariableDeclarationVisitor *variableDeclarationVisitor =
       new VariableDeclarationVisitor();
   return variableDeclarationVisitor;
@@ -123,12 +120,12 @@ Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
   AstCompoundStatement *compoundStatement = e->compoundStatement();
   AstStatementList *statementList = compoundStatement->statementList();
   CASSERT(compoundStatement, "compoundStatement is null: {}",
-            (void *)compoundStatement);
+          (void *)compoundStatement);
   CASSERT(statementList, "statementList is null: {}", (void *)statementList);
   return nullptr;
 }
 
-Visitor *FunctionDeclarationVisitor::instance() {
+AstVisitor *FunctionDeclarationVisitor::instance() {
   static FunctionDeclarationVisitor *functionDeclarationVisitor =
       new FunctionDeclarationVisitor();
   return functionDeclarationVisitor;
