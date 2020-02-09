@@ -76,7 +76,7 @@ protected:
 
 class GlobalSymtab : public Symtab {
 public:
-  GlobalSymtab() = default;
+  GlobalSymtab();
   virtual ~GlobalSymtab() = default;
   virtual const std::string &name() const;
   // virtual void define(Symbol *sym);
