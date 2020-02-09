@@ -69,8 +69,12 @@ const std::string &GlobalSymtab::name() const {
   return globalSymtabName;
 }
 
+std::string GlobalSymtab::stringify() const { return "GlobalSymtab"; }
+
 LocalSymtab::LocalSymtab(const std::string &localSymtabName,
                          Symtab *enclosingScope)
     : Symtab(enclosingScope), localSymtabName_(localSymtabName) {}
 
 const std::string &LocalSymtab::name() const { return localSymtabName_; }
+
+std::string LocalSymtab::stringify() const { return "LocalSymtab"; }
