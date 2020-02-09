@@ -4,6 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Symbol.h"
+#include "Type.h"
 
 class Semant {
 public:
