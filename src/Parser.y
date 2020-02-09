@@ -54,7 +54,7 @@ static std::unordered_set<int> NumberConstants = {
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
-%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_POINT_AT
+%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
 %token <literal> T_IDENTIFIER T_I8_CONSTANT T_UI8_CONSTANT T_I16_CONSTANT T_UI16_CONSTANT T_I32_CONSTANT T_UI32_CONSTANT
 %token <literal> T_I64_CONSTANT T_UI64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
@@ -63,15 +63,15 @@ static std::unordered_set<int> NumberConstants = {
 %type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
 %type <expr> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
 %type <expr> expression
-%type <exprList> argument_expression_list function_argument_declaration_list
+%type <exprList> argument_expression_list 
 
 %type <stmt> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <stmt> statement
 %type <stmtList> statement_list
 
-%type <decl> variable_declaration function_declaration variable_declaration_assignment
+%type <decl> variable_declaration function_declaration variable_assignment_declaration function_argument_declaration
 %type <decl> declaration
-%type <declList> variable_declaration_assignment_list translation_unit
+%type <declList> variable_assignment_declaration_list translation_unit function_argument_declaration_list
 
  /**
   * operator precedence
@@ -243,14 +243,14 @@ declaration : function_declaration { $$ = $1; CINFO("declaration: {}", $$ ? $$->
   * var x:i64 = 100;
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
-variable_declaration : T_VAR variable_declaration_assignment_list T_SEMI { $$ = new AstVariableDeclaration($2); CINFO("variable_declaration: {}", $$->toString()); }
+variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = new AstVariableDeclaration($2); CINFO("variable_declaration: {}", $$->toString()); }
                      ;
 
-variable_declaration_assignment_list : variable_declaration_assignment { $$ = new AstDeclarationList(); $$->add($1); CINFO("variable_declaration_assignment_list: {}", $$->toString()); }
-                                     | variable_declaration_assignment_list T_COMMA variable_declaration_assignment { $$->add($3); CINFO("variable_declaration_assignment_list: {}", $$->toString()); }
+variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); CINFO("variable_assignment_declaration_list: {}", $$->toString()); }
+                                     | variable_assignment_declaration_list T_COMMA variable_assignment_declaration { $$->add($3); CINFO("variable_assignment_declaration_list: {}", $$->toString()); }
                                      ;
 
-variable_declaration_assignment : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableDeclarationAssignment($1, $3); CINFO("variable_declaration_assignment: {}", $$->toString()); }
+variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); CINFO("variable_assignment_declaration: {}", $$->toString()); }
                                 ;
 
  /**
@@ -263,17 +263,17 @@ variable_declaration_assignment : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * val x = func() => { print("hello world"); };
   * val y = func(x:i64, y:i64):i64 => { return x + y; };
   */
-function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, $4, nullptr, $6);
+function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {
+                            $$ = new AstFunctionDeclaration($2, $4, nullptr, $7);
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
                         }
-                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN compound_statement {
-                            $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $5);
+                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {
+                            $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $6);
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
                         }
-                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN T_ASSIGN statement {*/
+                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {*/
                             /*AstStatementList *statementList = new AstStatementList();*/
                             /*statementList->add($7);*/
                             /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
@@ -281,7 +281,7 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                             /*std::free($2);*/
                             /*CINFO("function_declaration: {}", $$->toString());*/
                         /*}*/
-                     /*| T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN T_ASSIGN statement {*/
+                     /*| T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {*/
                             /*AstStatementList *statementList = new AstStatementList();*/
                             /*statementList->add($6);*/
                             /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
@@ -291,18 +291,23 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                         /*}*/
                      ;
 
-function_argument_declaration_list : T_IDENTIFIER { 
-                                        $$ = new AstExpressionList(); 
-                                        $$->add(new AstIdentifierConstant($1)); 
-                                        std::free($1); 
-                                        CINFO("function_argument_declaration_list: {}", $$->toString()); 
+function_argument_declaration_list : function_argument_declaration {
+                                        $$ = new AstDeclarationList(); 
+                                        $$->add($1); 
+                                        CINFO("function_argument_declaration_list: {}", $$->toString());
                                     }
-                                   | function_argument_declaration_list T_COMMA T_IDENTIFIER { 
-                                        $$->add(new AstIdentifierConstant($3)); 
-                                        std::free($3); 
+                                   | function_argument_declaration_list T_COMMA function_argument_declaration { 
+                                        $$->add($3); 
                                         CINFO("function_argument_declaration_list: {}", $$->toString()); 
                                     }
                                    ;
+
+function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); CINFO("function_argument_declaration: {}", $$->toString()); }
+                              ;
+
+function_declaration_arrow : /* nothing */
+                           | T_BIG_ARROW
+                           ;
 
  /* part-3 statement */
 compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); CINFO("compound_statement: {}", $$->toString()); }

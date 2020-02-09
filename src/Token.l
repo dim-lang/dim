@@ -147,7 +147,7 @@ std::string tkFileToModule(const std::string &name);
 "?"    return T_TOKEN(T_QUESTION);
 ":"    return T_TOKEN(T_COLON);
 "."    return T_TOKEN(T_DOT);
-"=>"   return T_TOKEN(T_POINT_AT);
+"=>"   return T_TOKEN(T_BIG_ARROW);
 
  /* constants */
 [0-9]+"."[0-9]+{EXP}?   T_SAVE_TOKEN; return T_F64_CONSTANT;

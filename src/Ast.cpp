@@ -502,30 +502,30 @@ AstDeclarationList *AstVariableDeclaration::declarationList() const {
   return declarationList_;
 }
 
-AstVariableDeclarationAssignment::AstVariableDeclarationAssignment(
+AstVariableAssignmentDeclaration::AstVariableAssignmentDeclaration(
     const char *identifier, AstExpression *expression)
     : identifier_(identifier), expression_(expression) {}
-AstVariableDeclarationAssignment::~AstVariableDeclarationAssignment() {
+AstVariableAssignmentDeclaration::~AstVariableAssignmentDeclaration() {
   delete expression_;
   expression_ = nullptr;
 }
 
-int AstVariableDeclarationAssignment::type() const {
-  return A_VARIABLE_DECLARATION_ASSIGNMENT;
+int AstVariableAssignmentDeclaration::type() const {
+  return A_VARIABLE_ASSIGNMENT_DECLARATION;
 }
 
-std::string AstVariableDeclarationAssignment::toString() const {
+std::string AstVariableAssignmentDeclaration::toString() const {
   std::string expr = expression_ ? expression_->toString() : "null";
   return fmt::format(
-      "[ @AstVariableDeclarationAssignment identifier_:{}, expression_:{} ]",
+      "[ @AstVariableAssignmentDeclaration identifier_:{}, expression_:{} ]",
       identifier_, expr);
 }
 
-const std::string &AstVariableDeclarationAssignment::identifier() const {
+const std::string &AstVariableAssignmentDeclaration::identifier() const {
   return identifier_;
 }
 
-AstExpression *AstVariableDeclarationAssignment::expression() const {
+AstExpression *AstVariableAssignmentDeclaration::expression() const {
   return expression_;
 }
 

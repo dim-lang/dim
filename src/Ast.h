@@ -42,7 +42,7 @@
 #define A_RETURN_STATEMENT 207
 
 #define A_VARIABLE_DECLARATION 301
-#define A_VARIABLE_DECLARATION_ASSIGNMENT 302
+#define A_VARIABLE_ASSIGNMENT_DECLARATION 302
 #define A_FUNCTION_DECLARATION 303
 #define A_FUNCTION_ARGUMENT_DECLARATION 304
 
@@ -97,7 +97,9 @@ class AstReturnStatement;
 /* declaration */
 class AstDeclaration;
 class AstVariableDeclaration;
+class AstVariableAssignmentDeclaration;
 class AstFunctionDeclaration;
+class AstFunctionArgumentDeclaration;
 
 /* ================================== */
 
@@ -620,12 +622,12 @@ private:
   AstDeclarationList *declarationList_;
 };
 
-/* variable declaration assignment */
-class AstVariableDeclarationAssignment : public AstDeclaration {
+/* variable assignment declaration */
+class AstVariableAssignmentDeclaration : public AstDeclaration {
 public:
-  AstVariableDeclarationAssignment(const char *identifier,
+  AstVariableAssignmentDeclaration(const char *identifier,
                                    AstExpression *expression);
-  virtual ~AstVariableDeclarationAssignment();
+  virtual ~AstVariableAssignmentDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
   virtual const std::string &identifier() const;

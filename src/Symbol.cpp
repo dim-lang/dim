@@ -9,14 +9,14 @@
 #include <utility>
 
 void Symbol::push(Symtab *&global, Symtab *&current, Symtab *s) {
-  current_ = s;
+  current = s;
   if (!global_) {
-    global_ = s;
+    global = s;
   }
 }
 
 void Symbol::pop(Symtab *&global, Symtab *&current) {
-  current_ = current_->enclosingScope_();
+  current = current->enclosingScope_();
 }
 
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
