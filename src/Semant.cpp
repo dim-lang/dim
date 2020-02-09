@@ -94,12 +94,12 @@ void Semant::buildImpl(Ast *node) {
 }
 
 void Semant::build() {
-  // handle program routine
   CASSERT(!gsym_, "gsym_ is not null: {}", gsym_->toString());
   CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
+  CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
+  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
   AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
-  Symtab *scope = new GlobalSymtab();
-  Symbol::push(gsym_, csym_, scope);
+  Symbol::push(gsym_, csym_, new GlobalSymtab());
   for (int i = 0; i < e->size(); i++) {
     buildImpl(e->get(i));
   }
@@ -119,17 +119,8 @@ void Semant::checkImpl(Ast *node) {
 }
 
 void Semant::check() {
-  // handle program routine
-  CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
-  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
-  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
-  Symtab *scope = new GlobalSymtab();
-  Type::push(gty_, cty_, scope);
-  for (int i = 0; i < e->size(); i++) {
-    buildImpl(e->get(i));
-  }
-  Type::pop();
-  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(gsym_, "gsym_ is null");
   CASSERT(gty_, "gty_ is null");
-  checkImpl(program_);
+  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
+  (void)e;
 }

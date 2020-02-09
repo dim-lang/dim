@@ -5,10 +5,8 @@
 #include "Log.h"
 #include "Option.h"
 #include "Parser.tab.hpp"
-#include "Scope.h"
-#include "Symbol.h"
+#include "Semant.h"
 #include "Token.h"
-#include "Visitor.h"
 #include "config/Header.h"
 #include <iostream>
 #include <string>
@@ -43,7 +41,9 @@ int main(int argc, char **argv) {
       int yp = yyparse();
       CINFO("{} ending ...", moduleName);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
-      // ProgramVisitor::instance()->visit(AstProgram::instance());
+      Semant *semant = new Semant(AstDeclarationList::program());
+      semant->build();
+      semant->check();
     }
   }
 
