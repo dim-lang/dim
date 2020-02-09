@@ -45,7 +45,7 @@ void Semant::buildImpl(Ast *node) {
     Symbol::push(gsym_, csym_, fs);
     buildImpl(e->argumentList());
     buildImpl(e->statement());
-    Symbol::pop();
+    Symbol::pop(gsym_, csym_);
   } break;
   case A_DECLARATION_LIST: {
     AstDeclarationList *declList = dynamic_cast<AstDeclarationList *>(node);
@@ -68,7 +68,7 @@ void Semant::buildImpl(Ast *node) {
         buildImpl(stmtList->get(i));
       }
     }
-    Symbol::pop();
+    Symbol::pop(gsym_, csym_);
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
@@ -85,10 +85,11 @@ void Semant::buildImpl(Ast *node) {
     Symbol::push(gsym_, csym_, ls);
     buildImpl(e->initialize());
     buildImpl(e->statement());
-    Symbol::pop();
+    Symbol::pop(gsym_, csym_);
   } break;
   default:
     // do nothing
+    break;
   }
 }
 
@@ -102,7 +103,7 @@ void Semant::build() {
   for (int i = 0; i < e->size(); i++) {
     buildImpl(e->get(i));
   }
-  Symbol::pop();
+  Symbol::pop(gsym_, csym_);
   CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
   CASSERT(gsym_, "gsym_ is null");
 }
@@ -112,7 +113,8 @@ void Semant::checkImpl(Ast *node) {
   switch (node->type()) {
   case A_DECLARATION_LIST:
   default:
-    CASSERT(false, "invalid node: {}", node->toString());
+    // do nothing
+    break;
   }
 }
 
