@@ -10,11 +10,15 @@
 #include <vector>
 
 class Symbol;
+class Tytab;
 
 class Type {
 public:
   virtual ~Type() = default;
   virtual const std::string &name() const = 0;
+
+  static void push(Tytab *&global, Tytab *&current, Tytab *scope);
+  static void pop(Tytab *&global, Tytab *&current);
 };
 
 class Tytab : public Stringify {
@@ -34,20 +38,20 @@ public:
   virtual ~BuiltinType() = default;
   virtual const std::string &name() const;
 
-  static const BuiltinType *tyI8();
-  static const BuiltinType *tyUI8();
-  static const BuiltinType *tyI16();
-  static const BuiltinType *tyUI16();
-  static const BuiltinType *tyI32();
-  static const BuiltinType *tyUI32();
-  static const BuiltinType *tyI64();
-  static const BuiltinType *tyUI64();
-  static const BuiltinType *tyF32();
-  static const BuiltinType *tyF64();
-  static const BuiltinType *tyBoolean();
-  static const BuiltinType *tyString();
-  static const BuiltinType *tyNil();
-  static const BuiltinType *tyVoid();
+  static const BuiltinType *ty_i8();
+  static const BuiltinType *ty_ui8();
+  static const BuiltinType *ty_i16();
+  static const BuiltinType *ty_ui16();
+  static const BuiltinType *ty_i32();
+  static const BuiltinType *ty_ui32();
+  static const BuiltinType *ty_i64();
+  static const BuiltinType *ty_ui64();
+  static const BuiltinType *ty_f32();
+  static const BuiltinType *ty_f64();
+  static const BuiltinType *ty_boolean();
+  static const BuiltinType *ty_string();
+  static const BuiltinType *ty_nil();
+  static const BuiltinType *ty_void();
 
 private:
   BuiltinType(const std::string &name);

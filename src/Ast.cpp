@@ -197,7 +197,7 @@ AstCallExpression::~AstCallExpression() {
   argumentList_ = nullptr;
 }
 
-int AstCallExpression::type() const { return A_FUNCTION_CALL_EXPRESSION; }
+int AstCallExpression::type() const { return A_CALL_EXPRESSION; }
 
 std::string AstCallExpression::toString() const {
   return fmt::format("[ @AstCallExpression identifier_:{}, argumentList_:{} ]",
@@ -530,7 +530,7 @@ AstExpression *AstVariableDeclarationAssignment::expression() const {
 }
 
 AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
-                                               AstExpressionList *argumentList,
+                                               AstDeclarationList *argumentList,
                                                AstExpression *result,
                                                AstStatement *statement)
     : identifier_(identifier), argumentList_(argumentList), result_(result),
@@ -560,10 +560,28 @@ const std::string &AstFunctionDeclaration::identifier() const {
   return identifier_;
 }
 
-AstExpressionList *AstFunctionDeclaration::argumentList() const {
+AstDeclarationList *AstFunctionDeclaration::argumentList() const {
   return argumentList_;
 }
 
 AstExpression *AstFunctionDeclaration::result() const { return result_; }
 
 AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
+
+AstFunctionArgumentDeclaration::AstFunctionArgumentDeclaration(
+    const char *value)
+    : value_(value) {}
+
+AstFunctionArgumentDeclaration::~AstFunctionArgumentDeclaration() {}
+
+int AstFunctionArgumentDeclaration::type() const {
+  return A_FUNCTION_ARGUMENT_DECLARATION;
+}
+
+std::string AstFunctionArgumentDeclaration::toString() const {
+  return fmt::format("[ @AstFunctionArgumentDeclaration value_:{} ]", value_);
+}
+
+const std::string &AstFunctionArgumentDeclaration::value() const {
+  return value_;
+}

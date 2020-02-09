@@ -63,7 +63,7 @@ static std::unordered_set<int> NumberConstants = {
 %type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
 %type <expr> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
 %type <expr> expression
-%type <exprList> argument_expression_list function_argument_list
+%type <exprList> argument_expression_list function_argument_declaration_list
 
 %type <stmt> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <stmt> statement
@@ -263,7 +263,7 @@ variable_declaration_assignment : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * val x = func() => { print("hello world"); };
   * val y = func(x:i64, y:i64):i64 => { return x + y; };
   */
-function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN compound_statement {
+function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN compound_statement {
                             $$ = new AstFunctionDeclaration($2, $4, nullptr, $6);
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
@@ -273,7 +273,7 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPA
                             std::free($2);
                             CINFO("function_declaration: {}", $$->toString());
                         }
-                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPAREN T_ASSIGN statement {*/
+                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN T_ASSIGN statement {*/
                             /*AstStatementList *statementList = new AstStatementList();*/
                             /*statementList->add($7);*/
                             /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
@@ -291,9 +291,18 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_list T_RPA
                         /*}*/
                      ;
 
-function_argument_list : T_IDENTIFIER { $$ = new AstExpressionList(); $$->add(new AstIdentifierConstant($1)); std::free($1); CINFO("function_argument_list: {}", $$->toString()); }
-                       | function_argument_list T_COMMA T_IDENTIFIER { $$->add(new AstIdentifierConstant($3)); std::free($3); CINFO("function_argument_list: {}", $$->toString()); }
-                       ;
+function_argument_declaration_list : T_IDENTIFIER { 
+                                        $$ = new AstExpressionList(); 
+                                        $$->add(new AstIdentifierConstant($1)); 
+                                        std::free($1); 
+                                        CINFO("function_argument_declaration_list: {}", $$->toString()); 
+                                    }
+                                   | function_argument_declaration_list T_COMMA T_IDENTIFIER { 
+                                        $$->add(new AstIdentifierConstant($3)); 
+                                        std::free($3); 
+                                        CINFO("function_argument_declaration_list: {}", $$->toString()); 
+                                    }
+                                   ;
 
  /* part-3 statement */
 compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); CINFO("compound_statement: {}", $$->toString()); }

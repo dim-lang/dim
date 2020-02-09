@@ -8,6 +8,17 @@
 #include <numeric>
 #include <utility>
 
+void Symbol::push(Symtab *&global, Symtab *&current, Symtab *s) {
+  current_ = s;
+  if (!global_) {
+    global_ = s;
+  }
+}
+
+void Symbol::pop(Symtab *&global, Symtab *&current) {
+  current_ = current_->enclosingScope_();
+}
+
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
 void Symtab::define(Symbol *sym) {

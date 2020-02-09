@@ -17,7 +17,7 @@
 #define A_F32_CONSTANT 102
 #define A_F64_CONSTANT 103
 #define A_STRING_CONSTANT 104
-#define A_FUNCTION_CALL_EXPRESSION 105
+#define A_CALL_EXPRESSION 105
 #define A_UNARY_OPERATION_EXPRESSION 106
 #define A_BINARY_OPERATION_EXPRESSION 107
 #define A_CONDITIONAL_EXPRESSION 108
@@ -44,10 +44,13 @@
 #define A_VARIABLE_DECLARATION 301
 #define A_VARIABLE_DECLARATION_ASSIGNMENT 302
 #define A_FUNCTION_DECLARATION 303
+#define A_FUNCTION_ARGUMENT_DECLARATION 304
 
 #define A_EXPRESSION_LIST 401
 #define A_STATEMENT_LIST 402
 #define A_DECLARATION_LIST 403
+
+#define A_PROGRAM 501
 
 /* ================================== */
 
@@ -177,6 +180,10 @@ public:
   AstExpressionList() = default;
   virtual ~AstExpressionList() = default;
   virtual int type() const;
+  // virtual std::string toString() const;
+  // virtual int size() const;
+  // virtual T *get(int pos) const;
+  // virtual void add(T *item);
 
 private:
   virtual std::string stringify() const;
@@ -187,6 +194,10 @@ public:
   AstStatementList() = default;
   virtual ~AstStatementList() = default;
   virtual int type() const;
+  // virtual std::string toString() const;
+  // virtual int size() const;
+  // virtual T *get(int pos) const;
+  // virtual void add(T *item);
 
 private:
   virtual std::string stringify() const;
@@ -197,6 +208,10 @@ public:
   AstDeclarationList() = default;
   virtual ~AstDeclarationList() = default;
   virtual int type() const;
+  // virtual std::string toString() const;
+  // virtual int size() const;
+  // virtual T *get(int pos) const;
+  // virtual void add(T *item);
 
   static AstDeclarationList *program();
   static AstDeclarationList *
@@ -625,20 +640,34 @@ private:
 class AstFunctionDeclaration : public AstDeclaration {
 public:
   AstFunctionDeclaration(const char *identifier,
-                         AstExpressionList *argumentList, AstExpression *result,
-                         AstStatement *statement);
+                         AstDeclarationList *argumentList,
+                         AstExpression *result, AstStatement *statement);
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual AstExpressionList *argumentList() const;
+  virtual AstDeclarationList *argumentList() const;
   virtual AstExpression *result() const;
   virtual AstStatement *statement() const;
 
 private:
   std::string identifier_;
-  AstExpressionList *argumentList_;
+  AstDeclarationList *argumentList_;
   AstExpression *result_;
   AstStatement *statement_;
+};
+
+/* function argument declaration */
+class AstFunctionArgumentDeclaration : public AstDeclaration {
+public:
+  AstFunctionArgumentDeclaration(const char *value);
+  virtual ~AstFunctionArgumentDeclaration();
+  virtual int type() const;
+  virtual std::string toString() const;
+
+  virtual const std::string &value() const;
+
+private:
+  std::string value_;
 };

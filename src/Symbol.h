@@ -6,10 +6,15 @@
 #include <string>
 #include <unordered_map>
 
+class Symtab;
+
 class Symbol {
 public:
   virtual ~Symbol() = default;
   virtual const std::string &name() const = 0;
+
+  static void push(Symtab *&global, Symtab *&current, Symtab *scope);
+  static void pop(Symtab *&global, Symtab *&current);
 };
 
 class Symtab : public Stringify {
@@ -96,16 +101,4 @@ public:
 private:
   virtual std::string stringify() const;
   std::string localSymtabName_;
-};
-
-class SymbolManager {
-public:
-  static Symtab *globalScope();
-  static Symtab *currentScope();
-  static void pushScope(Symtab *scope);
-  static void popScope();
-
-private:
-  Symtab *globalScope_;
-  Symtab *currentScope_;
 };

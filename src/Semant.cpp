@@ -3,130 +3,131 @@
 
 #include "Semant.h"
 #include "Log.h"
-#include "Scope.h"
 #include "Symbol.h"
-#include <algorithm>
+#include "Type.h"
 
-Ast *ProgramVisitor::visit(Ast *node) const {
-  CASSERT(node, "node is null:{}", (void *)node);
-  CASSERT(node->type() == A_PROGRAM, "invalid node type:{}", node->toString());
+Semant::Semant(Ast *program)
+    : program_(program), gsym_(nullptr), csym_(nullptr), gty_(nullptr),
+      cty_(nullptr) {
+  CASSERT(program_, "program_ is null");
+  CASSERT(program_->type() == A_DECLARATION_LIST, "invalid program_#type: {}",
+          program_->toString());
+}
 
-  AstProgram *e = dynamic_cast<AstProgram *>(node);
+Semant::~Semant() {
+  program_ = nullptr;
+  gsym_ = nullptr;
+  csym_ = nullptr;
+  gty_ = nullptr;
+  cty_ = nullptr;
+}
 
-  // create global scope
-  Scope::push(new GlobalScope());
+void Semant::buildImpl(Ast *node) {
+  CASSERT(node, "node is null");
+  switch (node->type()) {
+  case A_VARIABLE_DECLARATION: {
+    AstVariableDeclaration *e = dynamic_cast<AstVariableDeclaration *>(node);
+    AstDeclarationList *declList = e->declarationList();
+    CASSERT(declList, "declList is null");
+    for (int i = 0; i < declList->size(); i++) {
+      buildImpl(declList->get(i));
+    }
+  } break;
+  case A_VARIABLE_DECLARATION_ASSIGNMENT: {
+    AstVariableDeclarationAssignment *e =
+        dynamic_cast<AstVariableDeclarationAssignment *>(node);
+    csym_->define(new VariableSymbol(e->identifier()));
+  } break;
+  case A_FUNCTION_DECLARATION: {
+    AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
+    FunctionSymbol *fs = new FunctionSymbol(e->identifier(), csym_);
+    csym_->define(fs);
+    Symbol::push(gsym_, csym_, fs);
+    buildImpl(e->argumentList());
+    buildImpl(e->statement());
+    Symbol::pop();
+  } break;
+  case A_DECLARATION_LIST: {
+    AstDeclarationList *declList = dynamic_cast<AstDeclarationList *>(node);
+    for (int i = 0; i < declList->size(); i++) {
+      buildImpl(declList->get(i));
+    }
+  } break;
+  case A_FUNCTION_ASSIGNMENT_DECLARATION: {
+    AstFunctionArgumentDeclaration *e =
+        dynamic_cast<AstFunctionArgumentDeclaration *>(node);
+    csym_->define(new VariableSymbol(e->value()));
+  } break;
+  case A_COMPOUND_STATEMENT: {
+    AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
+    LocalSymtab *ls = new LocalSymtab("AnonymousLocalSymtab", csym_);
+    Symbol::push(gsym_, csym_, ls);
+    AstStatementList *stmtList = e->statementList();
+    if (stmtList) {
+      for (int i = 0; i < stmtList->size(); i++) {
+        buildImpl(stmtList->get(i));
+      }
+    }
+    Symbol::pop();
+  } break;
+  case A_IF_STATEMENT: {
+    AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
+    buildImpl(e->left());
+    buildImpl(e->right());
+  } break;
+  case A_WHILE_STATEMENT: {
+    AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
+    buildImpl(e->statement());
+  } break;
+  case A_FOR_STATEMENT: {
+    AstForStatement *e = dynamic_cast<AstForStatement *>(node);
+    LocalSymtab *ls = new LocalSymtab("ForLoopLocalSymtab", csym_);
+    Symbol::push(gsym_, csym_, ls);
+    buildImpl(e->initialize());
+    buildImpl(e->statement());
+    Symbol::pop();
+  } break;
+  default:
+    // do nothing
+  }
+}
 
+void Semant::build() {
+  // handle program routine
+  CASSERT(!gsym_, "gsym_ is not null: {}", gsym_->toString());
+  CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
+  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
+  Symtab *scope = new GlobalSymtab();
+  Symbol::push(gsym_, csym_, scope);
   for (int i = 0; i < e->size(); i++) {
-    Ast *p = e->get(i);
-    if (!p)
-      continue;
-    switch (p->type()) {
-    case A_VARIABLE_DECLARATION:
-      VariableDeclarationVisitor::instance()->visit(p);
-      break;
-    case A_FUNCTION_DECLARATION:
-      FunctionDeclarationVisitor::instance()->visit(p);
-      break;
-    default:
-      CASSERT(false, "invalid node type:{}", p->toString());
-    }
+    buildImpl(e->get(i));
   }
-  return nullptr;
+  Symbol::pop();
+  CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
+  CASSERT(gsym_, "gsym_ is null");
 }
 
-AstVisitor *ProgramVisitor::instance() {
-  static ProgramVisitor *programVisitor = new ProgramVisitor();
-  return programVisitor;
-}
-
-Ast *VariableDeclarationVisitor::visit(Ast *node) const {
-  CASSERT(node, "node is null:{}", (void *)node);
-
-  AstVariableDeclaration *e = dynamic_cast<AstVariableDeclaration *>(node);
-  AstExpressionList *identifierList = e->identifierList();
-  AstExpressionList *expressionList = e->expressionList();
-
-  CASSERT(identifierList, "identifierList is null:{}", (void *)identifierList);
-  CASSERT(expressionList, "expressionList is null:{}", (void *)expressionList);
-  CASSERT(identifierList->size() == expressionList->size(),
-          "identifierList expressionList same size, 1:{}, 2:{}",
-          identifierList->size(), expressionList->size());
-  CASSERT(identifierList->size() > 0, "identifierList#size > 0:{}",
-          identifierList->size());
-  CASSERT(expressionList->size() > 0, "expressionList#size > 0:{}",
-          expressionList->size());
-
-  for (int i = 0; i < identifierList->size(); i++) {
-    AstIdentifierConstant *id =
-        dynamic_cast<AstIdentifierConstant *>(identifierList->get(i));
-    AstExpression *expr = expressionList->get(i);
-    CASSERT(Scope::currentScope(), "Scope#currentScope is null:{}",
-            (void *)Scope::currentScope());
-    switch (expr->type()) {
-    case A_I64_CONSTANT: {
-      Scope::currentScope()->define(
-          new VariableSymbol(id->value(), BuiltinTypeSymbol::i64Instance()));
-      break;
-    }
-    case A_F64_CONSTANT: {
-      Scope::currentScope()->define(
-          new VariableSymbol(id->value(), BuiltinTypeSymbol::f64Instance()));
-      break;
-    }
-    case A_STRING_CONSTANT: {
-      Scope::currentScope()->define(
-          new VariableSymbol(id->value(), BuiltinTypeSymbol::stringInstance()));
-      break;
-    }
-    case A_BOOLEAN_CONSTANT: {
-      Scope::currentScope()->define(new VariableSymbol(
-          id->value(), BuiltinTypeSymbol::booleanInstance()));
-      break;
-    }
-    case A_IDENTIFIER_CONSTANT: {
-      break;
-    }
-    default:
-      CASSERT(false, "invalid expression type, {}:{}", i,
-              expr ? expr->toString() : "null");
-    }
+void Semant::checkImpl(Ast *node) {
+  CASSERT(node, "node is null");
+  switch (node->type()) {
+  case A_DECLARATION_LIST:
+  default:
+    CASSERT(false, "invalid node: {}", node->toString());
   }
-  return nullptr;
 }
 
-AstVisitor *VariableDeclarationVisitor::instance() {
-  static VariableDeclarationVisitor *variableDeclarationVisitor =
-      new VariableDeclarationVisitor();
-  return variableDeclarationVisitor;
-}
-
-Ast *FunctionDeclarationVisitor::visit(Ast *node) const {
-  CASSERT(node, "node is null:{}", (void *)node);
-
-  AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
-  FunctionSymbol *funcSymbol =
-      new FunctionSymbol(e->identifier(), BuiltinTypeSymbol::funcInstance(),
-                         Scope::currentScope());
-  Scope::push(funcSymbol);
-
-  AstExpressionList *argumentList = e->argumentList();
-  for (int i = 0; i < argumentList->size(); i++) {
-    AstIdentifierConstant *argId =
-        dynamic_cast<AstIdentifierConstant *>(argumentList->get(i));
-    Scope::currentScope()->define(
-        new VariableSymbol(argId->value(), BuiltinTypeSymbol::i64Instance()));
+void Semant::check() {
+  // handle program routine
+  CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
+  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
+  Symtab *scope = new GlobalSymtab();
+  Type::push(gty_, cty_, scope);
+  for (int i = 0; i < e->size(); i++) {
+    buildImpl(e->get(i));
   }
-
-  AstCompoundStatement *compoundStatement = e->compoundStatement();
-  AstStatementList *statementList = compoundStatement->statementList();
-  CASSERT(compoundStatement, "compoundStatement is null: {}",
-          (void *)compoundStatement);
-  CASSERT(statementList, "statementList is null: {}", (void *)statementList);
-  return nullptr;
-}
-
-AstVisitor *FunctionDeclarationVisitor::instance() {
-  static FunctionDeclarationVisitor *functionDeclarationVisitor =
-      new FunctionDeclarationVisitor();
-  return functionDeclarationVisitor;
+  Type::pop();
+  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(gty_, "gty_ is null");
+  checkImpl(program_);
 }
