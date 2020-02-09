@@ -34,8 +34,8 @@ void Semant::buildImpl(Ast *node) {
     }
   } break;
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
-    AstVariableDeclarationAssignment *e =
-        dynamic_cast<AstVariableDeclarationAssignment *>(node);
+    AstVariableAssignmentDeclaration *e =
+        dynamic_cast<AstVariableAssignmentDeclaration *>(node);
     csym_->define(new VariableSymbol(e->identifier()));
   } break;
   case A_FUNCTION_DECLARATION: {
