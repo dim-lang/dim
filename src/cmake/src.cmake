@@ -13,9 +13,9 @@ set(CCORE
     Token.yy.cpp
     Parser.tab.cpp
     Ast.cpp
-    # Visitor.cpp
     Symbol.cpp
-    Scope.cpp
+    Type.cpp
+    Semant.cpp
 )
 
 set(CSRC

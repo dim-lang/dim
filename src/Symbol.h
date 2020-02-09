@@ -54,7 +54,7 @@ public:
   // virtual Symtab *enclosingScope();
   // virtual std::string toString() const;
 
-private:
+protected:
   virtual std::string stringify() const;
   std::string functionName_;
 };
@@ -69,7 +69,7 @@ public:
   // virtual Symtab *enclosingScope();
   // virtual std::string toString() const;
 
-private:
+protected:
   virtual std::string stringify() const;
   std::string className_;
 };
@@ -84,7 +84,7 @@ public:
   // virtual Symtab *enclosingScope();
   // virtual std::string toString() const;
 
-private:
+protected:
   virtual std::string stringify() const;
 };
 
@@ -98,7 +98,7 @@ public:
   // virtual Symtab *enclosingScope();
   // virtual std::string toString() const;
 
-private:
+protected:
   virtual std::string stringify() const;
   std::string localSymtabName_;
 };

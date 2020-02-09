@@ -9,7 +9,6 @@
 #include <utility>
 #include <vector>
 
-class Symbol;
 class Tytab;
 
 class Type {
@@ -23,14 +22,19 @@ public:
 
 class Tytab : public Stringify {
 public:
+  Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
   virtual const std::string &name() const = 0;
-  virtual void define(Symbol *sym, Type *ty) = 0;
-  virtual Type *resolve(Symbol *sym) = 0;
-  virtual Tytab *enclosingScope() = 0;
-  virtual std::string toString() const = 0;
+  virtual void define(Symbol *sym, Type *ty);
+  virtual Type *resolve(Symbol *sym);
+  virtual Tytab *enclosingScope();
+  virtual std::string toString() const;
 
 protected:
+  virtual std::string stringify() const = 0;
+
+  Tytab *enclosingScope_;
+  std::unordered_map<Symbol *, Type *> hashtab_;
 };
 
 class BuiltinType : public Type {
@@ -60,76 +64,34 @@ private:
 
 class ClassType : public Type, public Tytab {
 public:
-  ClassType(const std::vector<std::pair<Symbol *, Type *>> &memberList,
-            const std::vector<std::pair<Symbol *, Type *>> &meothodList,
+  ClassType(const std::string &className,
+            const std::vector<std::pair<Symbol *, Type *>> &memberList,
+            const std::vector<std::pair<Symbol *, Type *>> &methodList,
             Tytab *enclosingScope);
   virtual ~ClassType() = default;
   virtual const std::string &name() const;
-  virtual void define(Type *ty);
-  virtual Type *resolve(const std::string &name);
-  virtual Tytab *enclosingScope();
-  virtual std::string toString() const;
+  // virtual void define(Symbol *sym, Type *ty);
+  // virtual Type *resolve(Symbol *sym);
+  // virtual Tytab *enclosingScope();
+  // virtual std::string toString() const;
 
-private:
-  std::vector<std::pair<Symbol *, Type *>> memberList_;
-  std::vector<std::pair<Symbol *, Type *>> methodList_;
-  Tytab *enclosingScope_;
-  std::unordered_map<std::string, Type *> hashtab_;
+protected:
+  virtual std::string stringify() const;
+  std::string classType_;
 };
 
 class FunctionType : public Type, public Tytab {
 public:
-  FunctionType(const std::vector<std::pair<Symbol *, Type *>> &argumentList,
-               const std::pair<Symbol *, Type *> &result,
+  FunctionType(const std::vector<Type *> &argumentList, Type *result,
                Tytab *enclosingScope);
   virtual ~FunctionType() = default;
   virtual const std::string &name() const;
-  virtual void define(Type *ty);
-  virtual Type *resolve(const std::string &name);
-  virtual Tytab *enclosingScope();
-  virtual std::string toString() const;
+  // virtual void define(Symbol *sym, Type *ty);
+  // virtual Type *resolve(Symbol *sym);
+  // virtual Tytab *enclosingScope();
+  // virtual std::string toString() const;
 
-private:
-  std::vector<std::pair<Symbol *, Type *>> argumentList_;
-  std::pair<Symbol *, Type *> result_;
-  Tytab *enclosingScope_;
-  std::unordered_map<std::string, Type *> hashtab_;
-};
-
-class GlobalTytab : public Tytab {
-public:
-  GlobalTytab();
-  virtual ~GlobalTytab() = default;
-  virtual const std::string &name() const;
-  virtual void define(Type *ty);
-  virtual Type *resolve(const std::string &name);
-  virtual Tytab *enclosingScope();
-  virtual std::string toString() const;
-};
-
-class LocalTytab : public Tytab {
-public:
-  LocalTytab(const std::string &name, Tytab *enclosingScope);
-  virtual ~LocalTytab() = default;
-  virtual const std::string &name() const;
-  virtual void define(Type *ty);
-  virtual Type *resolve(const std::string &name);
-  virtual Tytab *enclosingScope();
-  virtual std::string toString() const;
-
-private:
-  std::string localName_;
-  Tytab *enclosingScope_;
-};
-
-class TypeManager {
-public:
-  static Tytab *globalScope();
-  static Tytab *currentScope();
-  static void pushScope(Tytab *scope);
-  static void popScope();
-
-private:
-  static Tytab *globalScope_;
-  static Tytab *currentScope_;
+protected:
+  virtual std::string stringify() const;
+  std::string functionType_;
 };
