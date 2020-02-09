@@ -10,13 +10,13 @@
 
 void Symbol::push(Symtab *&global, Symtab *&current, Symtab *s) {
   current = s;
-  if (!global_) {
+  if (!global) {
     global = s;
   }
 }
 
 void Symbol::pop(Symtab *&global, Symtab *&current) {
-  current = current->enclosingScope_();
+  current = current->enclosingScope();
 }
 
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
@@ -30,8 +30,7 @@ void Symtab::define(Symbol *sym) {
 
 Symbol *Symtab::resolve(const std::string &name) {
   CASSERT(name.length() > 0, "name#length <= 0");
-  CASSERT(hashtab_.find(name) != hashtab_.end(), "symbol {} not exist",
-          sym->name());
+  CASSERT(hashtab_.find(name) != hashtab_.end(), "symbol {} not exist", name);
   return hashtab_[name];
 }
 
