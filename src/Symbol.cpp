@@ -62,12 +62,13 @@ const std::string &ClassSymbol::name() const { return className_; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
-GlobalSymtab::GlobalSymtab() {}
-
-const std::string &GlobalSymtab::name() const { return "GlobalSymtab"; }
+const std::string &GlobalSymtab::name() const {
+  static std::string globalSymtabName = "GlobalSymtab";
+  return globalSymtabName;
+}
 
 LocalSymtab::LocalSymtab(const std::string &localSymtabName,
                          Symtab *enclosingScope)
-    : localSymtabName_(localSymtabName), Symtab(enclosingScope) {}
+    : Symtab(enclosingScope), localSymtabName_(localSymtabName) {}
 
 const std::string &LocalSymtab::name() const { return localSymtabName_; }
