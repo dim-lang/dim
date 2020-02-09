@@ -17,7 +17,6 @@ EXP ([Ee][-+]?[0-9]+)
 #include "config/Platform.h"
 #include "Log.h"
 #include "Ast.h"
-#include "Scope.h"
 #include "Parser.tab.hpp"
 #define T_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
 #define T_SAVE_TOKEN_N(c) yylval.literal = strndup(yytext, yyleng-(c))

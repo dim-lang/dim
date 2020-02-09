@@ -32,7 +32,7 @@ public:
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::fprintf(stderr,                                                     \
-                   "Assert Fail! {}:{} {} - Condition: {}, Result: {}\n",      \
+                   "Assert Fail! %s:%d %s - Condition: %s, Result: %s\n",      \
                    __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), \
                    fmt::format(__VA_ARGS__).c_str());                          \
       throw fmt::format("Assert Fail! {}:{} {} - Condition: {}, Result: {}",   \
