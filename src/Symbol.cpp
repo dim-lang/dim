@@ -49,14 +49,14 @@ const std::string &VariableSymbol::name() const { return variableName_; }
 
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
                                Symtab *enclosingScope)
-    : functionName_(functionName), Symtab(enclosingScope) {}
+    : Symtab(enclosingScope), functionName_(functionName) {}
 
 const std::string &FunctionSymbol::name() const { return functionName_; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
 ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
-    : className_(className), Symtab(enclosingScope) {}
+    : Symtab(enclosingScope), className_(className) {}
 
 const std::string &ClassSymbol::name() const { return className_; }
 
