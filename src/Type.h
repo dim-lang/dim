@@ -64,7 +64,7 @@ private:
 
 class ClassType : public Type, public Tytab {
 public:
-  ClassType(const std::string &className,
+  ClassType(const std::string &classType,
             const std::vector<std::pair<Symbol *, Type *>> &memberList,
             const std::vector<std::pair<Symbol *, Type *>> &methodList,
             Tytab *enclosingScope);

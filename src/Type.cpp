@@ -105,11 +105,11 @@ const BuiltinType *BuiltinType::ty_void() {
   return type_void;
 }
 
-ClassType::ClassType(const std::string &className,
+ClassType::ClassType(const std::string &classType,
                      const std::vector<std::pair<Symbol *, Type *>> &memberList,
                      const std::vector<std::pair<Symbol *, Type *>> &methodList,
                      Tytab *enclosingScope)
-    : Tytab(enclosingScope), className_(className) {
+    : Tytab(enclosingScope), classType_(classType) {
   for (int i = 0; i < memberList.size(); i++) {
     define(memberList[i].first, memberList[i].second);
   }
