@@ -2,25 +2,9 @@
 // Apache License Version 2.0
 
 #include "Type.h"
+#include "Log.h"
 #include "config/Header.h"
 #include <sstream>
-
-class Tytab : public Stringify {
-public:
-  Tytab(Tytab *enclosingScope);
-  virtual ~Tytab() = default;
-  virtual const std::string &name() const = 0;
-  virtual void define(Symbol *sym, Type *ty);
-  virtual Type *resolve(Symbol *sym);
-  virtual Tytab *enclosingScope();
-  virtual std::string toString() const;
-
-protected:
-  virtual std::string stringify() const = 0;
-
-  Tytab *enclosingScope_;
-  std::unordered_map<Symbol *, Type *> hashtab_;
-};
 
 Tytab::Tytab(Tytab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
