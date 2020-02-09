@@ -33,7 +33,7 @@ void Semant::buildImpl(Ast *node) {
       buildImpl(declList->get(i));
     }
   } break;
-  case A_VARIABLE_DECLARATION_ASSIGNMENT: {
+  case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     AstVariableDeclarationAssignment *e =
         dynamic_cast<AstVariableDeclarationAssignment *>(node);
     csym_->define(new VariableSymbol(e->identifier()));
@@ -53,7 +53,7 @@ void Semant::buildImpl(Ast *node) {
       buildImpl(declList->get(i));
     }
   } break;
-  case A_FUNCTION_ASSIGNMENT_DECLARATION: {
+  case A_FUNCTION_ARGUMENT_DECLARATION: {
     AstFunctionArgumentDeclaration *e =
         dynamic_cast<AstFunctionArgumentDeclaration *>(node);
     csym_->define(new VariableSymbol(e->value()));

@@ -133,7 +133,7 @@ FunctionType::FunctionType(const std::vector<Type *> &argumentList,
       ss << ",";
     }
   }
-  ss << "):" << result ? result->name() : "void";
+  ss << "):" << (result ? result->name() : "void");
   functionType_ = ss.str();
 }
 
