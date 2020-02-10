@@ -42,9 +42,33 @@ func avg(a:i64, b:i64):i64 => { return (a + b) / 2; }
 // declare program routine function main
 func main():i32 {
     let s1:&Student = new Student(16, "Jack");
-    let s2:Student = Student(17, "Lucy");
+    let s2 = Student(17, "Lucy");
     s1.age = 10;
     s2.name = "Tom";
+    let x:int[] = int[100];
+    let y:&int = new int[100];
+    let ss1:Student[] = [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
+    let ss2:&Student[] = new [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
+    let ss3:&Student[] = new Student[100];
+    ss2 = ss1;
+    ss3 = ss2;
+    for (let i = 0; i < 4; i++) {
+        ss2[i].age = i;
+        ss2[i].name = "" + i;
+    }
+    let ss4:&(&Student[])[] = new (&Student[])[10];
+    for (let i = 0; i < 10; i++) {
+        ss4[i] = new Student[10];
+        for (let j = 0; j < 10; j++) {
+            ss4[i,j] = Student(i, "" + j);
+        }
+    }
+    let ss5:Student[,] = Student[10,10];
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            ss5[i,j] = Student(i, "" + j);
+        }
+    }
 
     val mymax:func(i64, i64):i64 = func(a:i64, b:i64):i64 => a > b ? a : b;
     val mymin = func(a:i64, b:i64):i64 => { if (a < b) { return a; } else { return b; } };
