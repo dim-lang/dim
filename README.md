@@ -56,11 +56,11 @@ func main():i32 {
         ss2[i].age = i;
         ss2[i].name = "" + i;
     }
-    let ss4:&(&Student[])[] = new (&Student[])[10];
+    let ss4:&(&(&Student)[])[] = new (&Student[])[10];
     for (let i = 0; i < 10; i++) {
-        ss4[i] = new Student[10];
+        ss4[i] = new (&Student)[10];
         for (let j = 0; j < 10; j++) {
-            ss4[i,j] = Student(i, "" + j);
+            ss4[i,j] = new Student(i, "" + j);
         }
     }
     let ss5:Student[,] = Student[10,10];
