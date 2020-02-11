@@ -10,18 +10,18 @@ Here is an example written in coli-lang.
 /* declare an interface */
 interface People {
     func age(): i64;
-    func name(): string;
+    func name(): String;
 }
 
 /* declare a class implement the interface above */
 class Student => People {
     age:i64;
-    name:string;
+    name:String;
 
     func Student() { age = 0; name = "student"; }
-    func Student(age:i64, name:string) { this.age = age; this.name = name; }
+    func Student(age:i64, name:String) { this.age = age; this.name = name; }
     func age(): i64 { return age; }
-    func name(): string { return name; }
+    func name(): String { return name; }
 }
 
 /* declare a function, which 2nd parameter is another function */
@@ -45,8 +45,8 @@ func main():i32 {
     let s2 = Student(17, "Lucy");
     s1.age = 10;
     s2.name = "Tom";
-    let x:int[] = int[100];
-    let y:&int = new int[100];
+    let x:i64[] = i64[100];
+    let y:&i64 = new i64[100];
     let ss1:Student[] = [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     let ss2:&Student[] = new [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     let ss3:&Student[] = new Student[100];
@@ -60,13 +60,13 @@ func main():i32 {
     for (let i = 0; i < 10; i++) {
         ss4[i] = new (&Student)[10];
         for (let j = 0; j < 10; j++) {
-            ss4[i,j] = new Student(i, "" + j);
+            ss4[i][j] = new Student(i, "" + j);
         }
     }
-    let ss5:Student[,] = Student[10,10];
+    let ss5:Student[][] = Student[10][10];
     for (let i = 0; i < 10; i++) {
         for (let j = 0; j < 10; j++) {
-            ss5[i,j] = Student(i, "" + j);
+            ss5[i][j] = Student(i, "" + j);
         }
     }
 

@@ -164,10 +164,7 @@ multiplicative_expression : unary_expression { $$ = $1; CINFO("multiplicative_ex
                           ;
 
 additive_expression : multiplicative_expression { $$ = $1; CINFO("additive_expression: {}", $$ ? $$->toString() : "null"); }
-                    | additive_expression T_ADD multiplicative_expression {
-                            $$ = new AstBinaryExpression($1, $2, $3); 
-                            CINFO("additive_expression: {}", $$->toString());
-                        }
+                    | additive_expression T_ADD multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
                     | additive_expression T_SUB multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
                     ;
 
