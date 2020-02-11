@@ -33,5 +33,10 @@ func testOnTokenLexer() {
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.
 Maybe we need more troubleshooting while testing.");
-    print("Try punctuations like if \"'\" will stop this string literals.");
+    print(
+            "Try punctuations like if \"'\" will stop this string literals."
+            "join string 2, "
+            "join string 3, "
+            "join string 4, "
+            );
 }
