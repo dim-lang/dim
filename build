@@ -181,6 +181,7 @@ function build_help() {
     echo   6. build install - build and install.
     echo   7. build test    - run unit tests.
     echo   8. build clean   - clean build objects.
+    echo   9. build purge   - purge build objects.
 }
 
 # ---- main ----
