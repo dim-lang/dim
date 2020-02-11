@@ -114,6 +114,7 @@ static std::unordered_set<int> NumberConstants = {
 
 join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("join_string_helper: {}", $$->toString()); }
                    | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); CINFO("join_string_helper: {}", $$->toString()); }
+                   | join_string_helper T_ADD T_STRING_CONSTANT { $$->append($3); std::free($3); CINFO("join_string_helper: {}", $$->toString()); }
                    ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
