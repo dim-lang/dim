@@ -51,9 +51,9 @@ static std::unordered_set<int> NumberConstants = {
 %token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_I8 T_UI8 T_I16 T_UI16 T_I32 T_UI32 T_I64 T_UI64 T_F32 T_F64 T_STRING T_BOOLEAN T_ASYNC T_AWAIT
-%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
+%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
-%token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
+%token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
@@ -83,7 +83,7 @@ static std::unordered_set<int> NumberConstants = {
  /* assignment */
 %left T_COMMA
 %right T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN
-%right T_BIT_LSHIT_ASSIGN T_BIT_RSHIT_ASSIGN T_BIT_ZERORSHIT_ASSIGN
+%right T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %right T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %right T_ADD_ASSIGN T_SUB_ASSIGN
 %right T_ASSIGN
@@ -98,7 +98,7 @@ static std::unordered_set<int> NumberConstants = {
 %left T_EQ T_NEQ
 %left T_LT T_LE T_GT T_GE
  /* calculator */
-%left T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ZERORSHIFT
+%left T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %left T_ADD T_SUB
 %left T_MUL T_DIV T_MOD
  /* other */
@@ -114,7 +114,6 @@ static std::unordered_set<int> NumberConstants = {
 
 join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("join_string_helper: {}", $$->toString()); }
                    | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); CINFO("join_string_helper: {}", $$->toString()); }
-                   | join_string_helper T_ADD T_STRING_CONSTANT { $$->append($3); std::free($3); CINFO("join_string_helper: {}", $$->toString()); }
                    ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
@@ -165,14 +164,17 @@ multiplicative_expression : unary_expression { $$ = $1; CINFO("multiplicative_ex
                           ;
 
 additive_expression : multiplicative_expression { $$ = $1; CINFO("additive_expression: {}", $$ ? $$->toString() : "null"); }
-                    | additive_expression T_ADD multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
+                    | additive_expression T_ADD multiplicative_expression {
+                            $$ = new AstBinaryExpression($1, $2, $3); 
+                            CINFO("additive_expression: {}", $$->toString());
+                        }
                     | additive_expression T_SUB multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
                     ;
 
 shift_expression : additive_expression { $$ = $1; CINFO("shift_expression: {}", $$ ? $$->toString() : "null"); }
                  | shift_expression T_BIT_LSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
                  | shift_expression T_BIT_RSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
-                 | shift_expression T_BIT_ZERORSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
+                 | shift_expression T_BIT_ARSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
                  ;
 
 relational_expression : shift_expression { $$ = $1; CINFO("relational_expression: {}", $$ ? $$->toString() : "null"); }
@@ -227,9 +229,9 @@ assignment_expression : conditional_expression { $$ = $1; CINFO("assignment_expr
                       | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
                       | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
                       | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_LSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_RSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_ZERORSHIT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+                      | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
                       ;
 
 expression : /* nothing */ { $$ = nullptr; CINFO("expression: null"); }
