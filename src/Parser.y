@@ -39,6 +39,7 @@ static std::unordered_set<int> NumberConstants = {
     AstExpression *expr;
     AstStatement *stmt;
     AstDeclaration *decl;
+    AstStringConstant *str;
     char *literal;
     int token;
 }
@@ -72,6 +73,8 @@ static std::unordered_set<int> NumberConstants = {
 %type <decl> variable_declaration function_declaration variable_assignment_declaration function_argument_declaration
 %type <decl> declaration
 %type <declList> variable_assignment_declaration_list translation_unit function_argument_declaration_list
+
+%type <str> join_string_helper
 
  /**
   * operator precedence
@@ -109,6 +112,10 @@ static std::unordered_set<int> NumberConstants = {
 
  /* part-1 expression */
 
+join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("join_string_helper: {}", $$->toString()); }
+                   | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); CINFO("join_string_helper: {}", $$->toString()); }
+                   ;
+
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
                    /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    /*| T_UI8_CONSTANT { $$ = new AstUI8Constant((uint8_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
@@ -120,7 +127,7 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
                    /*| T_UI64_CONSTANT { $$ = new AstUI64Constant((uint64_t)std::stoull($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
-                   | T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
+                   | join_string_helper { $$ = $1; CINFO("primary_expression: {}", $$->toString()); }
                    | T_TRUE { $$ = new AstBooleanConstant(true); CINFO("primary_expression: {}", $$->toString()); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); CINFO("primary_expression: {}", $$->toString()); }
                    | T_LPAREN expression T_RPAREN { $$ = $2; CINFO("primary_expression: {}", $$ ? $$->toString() : "null"); }

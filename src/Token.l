@@ -19,7 +19,7 @@ EXP ([Ee][-+]?[0-9]+)
 #include "Ast.h"
 #include "Parser.tab.hpp"
 #define T_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
-#define T_SAVE_TOKEN_N(c) yylval.literal = strndup(yytext, yyleng-(c))
+#define T_SAVE_TOKEN_X(start, length) yylval.literal = strndup(yytext+(start), yyleng-(length))
 #define T_TOKEN(t) (yylval.token = t)
 #define T_FILE_EXT ".co"
 
@@ -30,13 +30,15 @@ public:
  /* methods */
     TkFileBuffer(const char *module);
     virtual ~TkFileBuffer();
-    void release();
 
  /* members */
     YY_BUFFER_STATE yyBufferState;
     std::string fileName;
     int lineNo;
     FILE *fp;
+
+private:
+    void release();
 };
 
  /* global variable */
@@ -152,8 +154,8 @@ std::string tkFileToModule(const std::string &name);
  /* constants */
 [0-9]+"."[0-9]+{EXP}?   T_SAVE_TOKEN; return T_F64_CONSTANT;
 [0-9]+{EXP}?            T_SAVE_TOKEN; return T_I64_CONSTANT;
- /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_N(1); return T_UI64_CONSTANT; */
-\"(\\.|[^\\"])*\"       T_SAVE_TOKEN; return T_STRING_CONSTANT;
+ /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_X(0, 1); return T_UI64_CONSTANT; */
+\"(\\.|[^\\"])*\"       T_SAVE_TOKEN_X(1, 2); return T_STRING_CONSTANT;
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*  T_SAVE_TOKEN; return T_IDENTIFIER;
@@ -174,6 +176,7 @@ std::string tkFileToModule(const std::string &name);
                         }
 <IMPORT>.|\n            {
                             fprintf(stderr, "%s:%d error! bad import:%s, %d!\n", TkCurrentFile.c_str(), yylineno, yytext, yyleng);
+                            CERROR("{}:{} error! bad import:{}, {}!", TkCurrentFile, yylineno, yytext, yyleng);
                             BEGIN INITIAL;
                         }
 <<EOF>>                 {
@@ -182,7 +185,10 @@ std::string tkFileToModule(const std::string &name);
                         }
 
  /* invalid token */
-.                       { fprintf(stderr, "%s:%d error! invalid token:%s, %d!\n", TkCurrentFile.c_str(), yylineno, yytext, yyleng); }
+.                       { 
+                            fprintf(stderr, "%s:%d error! invalid token:%s, %d!\n", TkCurrentFile.c_str(), yylineno, yytext, yyleng); 
+                            CERROR("{}:{} error! invalid token:{}, {}!", TkCurrentFile, yylineno, yytext, yyleng);
+                        }
 
 
 %%

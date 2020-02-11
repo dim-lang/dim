@@ -176,6 +176,10 @@ std::string AstStringConstant::toString() const {
 
 const std::string &AstStringConstant::value() const { return value_; }
 
+void AstStringConstant::append(const char *value) {
+  value_.append(std::string(value));
+}
+
 AstBooleanConstant::AstBooleanConstant(const bool &value) : value_(value) {}
 
 AstBooleanConstant::~AstBooleanConstant() {}

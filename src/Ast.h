@@ -388,6 +388,7 @@ public:
   virtual std::string toString() const;
 
   virtual const std::string &value() const;
+  virtual void append(const char *value);
 
 private:
   std::string value_;
