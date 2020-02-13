@@ -1,10 +1,6 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
-cmake_minimum_required(VERSION 3.8)
-project(coli-test VERSION 0.1.0 LANGUAGES CXX)
-configure_file(../src/Configure.h.in ../src/Configure.h)
-
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 find_package(Threads REQUIRED)

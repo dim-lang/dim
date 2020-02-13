@@ -1,6 +1,9 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
+project(coli VERSION 0.0.2 LANGUAGES CXX)
+configure_file(Configure.h.in Configure.h)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")

@@ -1,10 +1,6 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
-cmake_minimum_required(VERSION 3.8)
-project(coli-test VERSION 0.1.0 LANGUAGES CXX)
-configure_file(../src/Configure.h.in ../src/Configure.h)
-
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
@@ -17,7 +13,7 @@ set(CINC
     /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
-    /usr/local/opt/catch2/include
+    /usr/local/opt/llvm/include
     Catch2/single_include
     )
 
@@ -32,6 +28,15 @@ set(CLIB
     icudata
     icui18n
     tcmalloc
+    LLVMAnalysis
+    LLVMCore
+    LLVMExecutionEngine
+    LLVMInstCombine
+    LLVMObject
+    LLVMOrcJIT
+    LLVMRuntimeDyld
+    LLVMScalarOpts
+    LLVMSupport
     )
 
 set(CLIB_DIR
@@ -42,6 +47,7 @@ set(CLIB_DIR
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib
+    /usr/local/opt/llvm/lib
     )
 
 include_directories(${CINC})

@@ -11,18 +11,18 @@ function init_macos() {
     echo [coli] prepare compiler and toolchain through homebrew
     brew install cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through homebrew - done
-    echo [coli] prepare spdlog, fmt, boost, icu4c, gperftools through homebrew
-    brew install spdlog fmt boost icu4c gperftools
-    echo [coli] prepare spdlog, fmt, boost, icu4c, gperftools through homebrew - done
+    echo [coli] prepare spdlog, fmt, boost, icu4c, gperftools, llvm through homebrew
+    brew install spdlog fmt boost icu4c gperftools llvm
+    echo [coli] prepare spdlog, fmt, boost, icu4c, gperftools, llvm through homebrew - done
 }
 
 function init_bsd() {
     sudo echo [coli] prepare compiler and toolchain through pkg || { echo [coli] sudo not found; exit 3; }
     sudo pkg install -y cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pkg - done
-    echo [coli] prepare spdlog, libfmt, boost-all, icu through pkg
-    sudo pkg install -y spdlog libfmt boost-all icu
-    echo [coli] prepare spdlog, libfmt, boost-all, icu through pkg - done
+    echo [coli] prepare spdlog, libfmt, boost-all, icu, llvm through pkg
+    sudo pkg install -y spdlog libfmt boost-all icu llvm
+    echo [coli] prepare spdlog, libfmt, boost-all, icu, llvm through pkg - done
 }
 
 function init_apt() {

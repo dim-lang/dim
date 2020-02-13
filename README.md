@@ -25,7 +25,7 @@ class Student => People {
 }
 
 /* declare a function, which 2nd parameter is another function */
-func select(s:i64[], compare:func(i64, i64):boolean):i64 => {
+func select(s:&i64[], compare:func(i64, i64):boolean):i64 => {
     let r:i64 = 0;
     for (let i = 0; i < s.length()-1; i++) {
         r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
@@ -46,7 +46,7 @@ func main():i32 {
     s1.age = 10;
     s2.name = "Tom";
     let x:i64[] = i64[100];
-    let y:&i64 = new i64[100];
+    let y:&i64[] = new i64[100];
     let ss1:Student[] = [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     let ss2:&Student[] = new [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     let ss3:&Student[] = new Student[100];
@@ -73,7 +73,7 @@ func main():i32 {
     val mymax:func(i64, i64):i64 = func(a:i64, b:i64):i64 => a > b ? a : b;
     val mymin = func(a:i64, b:i64):i64 => { if (a < b) { return a; } else { return b; } };
     val myavg = func(a:i64, b:i64):i64 => (a + b) / 2;
-    let r = select(s, func(a, b) => a > b);
+    let r = select(y, func(a, b) => a > b);
     print("select max: {}", r);
     return 0;
 }
@@ -93,7 +93,7 @@ Download coli source code from github and build mannually.
 |  Fedora    | git                                                               |
 |  Ubuntu    | git                                                               |
 |  OpenSUSE  | git                                                               |
-|  Windows   | Visual Studio 2017, cmake, git, python3                           |
+|  Windows   | Visual Studio 2017, cmake, git, python3, LLVM                     |
 
 #### Build
 
