@@ -1,6 +1,6 @@
 # coli
 
-coli - a modern, object oriented, high performance and user friendly programming language.
+coli - a modern and friendly programming language.
 
 ## Why coli?
 
@@ -17,32 +17,39 @@ interface People {
 class Student => People {
     age:i64;
     name:String;
+    score:&i64[];
 
-    func Student() { age = 0; name = "student"; }
-    func Student(age:i64, name:String) { this.age = age; this.name = name; }
+    func Student() {
+        age = 0; name = "student"; 
+        score = new i64[10];
+        for (let i = 0; i < 10; i++) {
+            score[i] = 100 - i;
+        }
+    }
+    func Student(age:i64, name:String, score:&i64[]) { this.age = age; this.name = name; this.score = score; }
     func age(): i64 { return age; }
     func name(): String { return name; }
+    func score(): &i64[] { return score; }
 }
 
 /* declare a function, which 2nd parameter is another function */
-func select(s:&i64[], compare:func(i64, i64):boolean):i64 => {
-    let r:i64 = 0;
-    for (let i = 0; i < s.length()-1; i++) {
+func select(s:&i64[], len:i64, compare:func(i64, i64):boolean):i64 => {
+    let r = 0;
+    for (let i = 0; i < len; i++) {
         r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
     }
     return r;
 }
 
 // declare 3 functions, all returns 64 bit signed integers
-
-func max(a:i64, b:i64):i64 => a > b ? a : b;
-func min(a:i64, b:i64):i64 => return a < b ? a : b;
-func avg(a:i64, b:i64):i64 => { return (a + b) / 2; }
+func max(a:i32, b:i32):i32 => a > b ? a : b;
+func min(a:i32, b:i32):i32 => return a < b ? a : b;
+func avg(a:i32, b:i32):i32 => { return (a + b) / 2; }
 
 // declare program routine function main
 func main():i32 {
     let s1:&Student = new Student(16, "Jack");
-    let s2 = Student(17, "Lucy");
+    let s2:Student = Student(17, "Lucy");
     s1.age = 10;
     s2.name = "Tom";
     let x:i64[] = i64[100];
