@@ -31,9 +31,9 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
-      std::string moduleName = tkFileToModule(fileName);
+      std::string moduleName = tokenFileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      if (!tkPushImport(moduleName)) {
+      if (!tokenPushImport(moduleName)) {
         CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }

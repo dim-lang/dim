@@ -9,8 +9,8 @@
 #include <cstdio>
 
 static void parseToken(const char *module) {
-  if (!tkPushImport(module)) {
-    CASSERT(false, "tkPushImport {} fail", module);
+  if (!tokenPushImport(module)) {
+    CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
   CINFO("parseToken {} starting...", module);
@@ -26,7 +26,7 @@ static void parseToken(const char *module) {
     }
   }
   // we don't need pop file manually here
-  // tkPopFile();
+  // tokenPopImport();
   CINFO("parseToken {} ending...", module);
 }
 
