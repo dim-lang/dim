@@ -1,9 +1,6 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
-cmake_minimum_required(VERSION 3.8)
-project(coli VERSION 0.1.0 LANGUAGES CXX)
-
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 find_package(Threads REQUIRED)
