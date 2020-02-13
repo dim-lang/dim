@@ -40,9 +40,9 @@ const BuiltinType *BuiltinType::ty_i8() {
   return type_i8;
 }
 
-const BuiltinType *BuiltinType::ty_ui8() {
-  static BuiltinType *type_ui8 = new BuiltinType("ui8");
-  return type_ui8;
+const BuiltinType *BuiltinType::ty_u8() {
+  static BuiltinType *type_u8 = new BuiltinType("u8");
+  return type_u8;
 }
 
 const BuiltinType *BuiltinType::ty_i16() {
@@ -50,9 +50,9 @@ const BuiltinType *BuiltinType::ty_i16() {
   return type_i16;
 }
 
-const BuiltinType *BuiltinType::ty_ui16() {
-  static BuiltinType *type_ui16 = new BuiltinType("ui16");
-  return type_ui16;
+const BuiltinType *BuiltinType::ty_u16() {
+  static BuiltinType *type_u16 = new BuiltinType("u16");
+  return type_u16;
 }
 
 const BuiltinType *BuiltinType::ty_i32() {
@@ -60,9 +60,9 @@ const BuiltinType *BuiltinType::ty_i32() {
   return type_i32;
 }
 
-const BuiltinType *BuiltinType::ty_ui32() {
-  static BuiltinType *type_ui32 = new BuiltinType("ui32");
-  return type_ui32;
+const BuiltinType *BuiltinType::ty_u32() {
+  static BuiltinType *type_u32 = new BuiltinType("u32");
+  return type_u32;
 }
 
 const BuiltinType *BuiltinType::ty_i64() {
@@ -70,9 +70,9 @@ const BuiltinType *BuiltinType::ty_i64() {
   return type_i64;
 }
 
-const BuiltinType *BuiltinType::ty_ui64() {
-  static BuiltinType *type_ui64 = new BuiltinType("ui64");
-  return type_ui64;
+const BuiltinType *BuiltinType::ty_u64() {
+  static BuiltinType *type_u64 = new BuiltinType("u64");
+  return type_u64;
 }
 
 const BuiltinType *BuiltinType::ty_f32() {

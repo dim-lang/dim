@@ -43,13 +43,13 @@ public:
   virtual const std::string &name() const;
 
   static const BuiltinType *ty_i8();
-  static const BuiltinType *ty_ui8();
+  static const BuiltinType *ty_u8();
   static const BuiltinType *ty_i16();
-  static const BuiltinType *ty_ui16();
+  static const BuiltinType *ty_u16();
   static const BuiltinType *ty_i32();
-  static const BuiltinType *ty_ui32();
+  static const BuiltinType *ty_u32();
   static const BuiltinType *ty_i64();
-  static const BuiltinType *ty_ui64();
+  static const BuiltinType *ty_u64();
   static const BuiltinType *ty_f32();
   static const BuiltinType *ty_f64();
   static const BuiltinType *ty_boolean();

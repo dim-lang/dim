@@ -22,13 +22,13 @@
 #define A_BINARY_OPERATION_EXPRESSION 107
 #define A_CONDITIONAL_EXPRESSION 108
 #define A_I8_CONSTANT 109
-#define A_UI8_CONSTANT 110
+#define A_U8_CONSTANT 110
 #define A_I16_CONSTANT 111
-#define A_UI16_CONSTANT 112
+#define A_U16_CONSTANT 112
 #define A_I32_CONSTANT 113
-#define A_UI32_CONSTANT 114
+#define A_U32_CONSTANT 114
 #define A_I64_CONSTANT 115
-#define A_UI64_CONSTANT 116
+#define A_U64_CONSTANT 116
 #define A_BOOLEAN_CONSTANT 117
 #define A_ASSIGNMENT_EXPRESSION 118
 
@@ -66,13 +66,13 @@ class AstDeclarationList;
 class AstExpression;
 class AstIdentifierConstant;
 class AstI8Constant;
-class AstUI8Constant;
+class AstU8Constant;
 class AstI16Constant;
-class AstUI16Constant;
+class AstU16Constant;
 class AstI32Constant;
-class AstUI32Constant;
+class AstU32Constant;
 class AstI64Constant;
-class AstUI64Constant;
+class AstU64Constant;
 class AstF32Constant;
 class AstF64Constant;
 class AstStringConstant;
@@ -253,11 +253,11 @@ private:
   int8_t value_;
 };
 
-/* constant expression - T_UI8_CONSTANT */
-class AstUI8Constant : public AstExpression {
+/* constant expression - T_U8_CONSTANT */
+class AstU8Constant : public AstExpression {
 public:
-  AstUI8Constant(const uint8_t &value);
-  virtual ~AstUI8Constant();
+  AstU8Constant(const uint8_t &value);
+  virtual ~AstU8Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -281,11 +281,11 @@ private:
   int16_t value_;
 };
 
-/* constant expression - T_UI16_CONSTANT */
-class AstUI16Constant : public AstExpression {
+/* constant expression - T_U16_CONSTANT */
+class AstU16Constant : public AstExpression {
 public:
-  AstUI16Constant(const uint16_t &value);
-  virtual ~AstUI16Constant();
+  AstU16Constant(const uint16_t &value);
+  virtual ~AstU16Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -309,11 +309,11 @@ private:
   int32_t value_;
 };
 
-/* constant expression - T_UI32_CONSTANT */
-class AstUI32Constant : public AstExpression {
+/* constant expression - T_U32_CONSTANT */
+class AstU32Constant : public AstExpression {
 public:
-  AstUI32Constant(const uint32_t &value);
-  virtual ~AstUI32Constant();
+  AstU32Constant(const uint32_t &value);
+  virtual ~AstU32Constant();
   virtual int type() const;
   virtual std::string toString() const;
 
@@ -337,11 +337,11 @@ private:
   int64_t value_;
 };
 
-/* constant expression - T_UI64_CONSTANT */
-class AstUI64Constant : public AstExpression {
+/* constant expression - T_U64_CONSTANT */
+class AstU64Constant : public AstExpression {
 public:
-  AstUI64Constant(const uint64_t &value);
-  virtual ~AstUI64Constant();
+  AstU64Constant(const uint64_t &value);
+  virtual ~AstU64Constant();
   virtual int type() const;
   virtual std::string toString() const;
 

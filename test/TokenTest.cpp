@@ -17,8 +17,8 @@ static void parseToken(const char *module) {
   int t;
   while ((t = yylex()) != 0) {
     if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
-        t == T_UI8_CONSTANT || t == T_I16_CONSTANT || t == T_UI16_CONSTANT ||
-        t == T_UI32_CONSTANT || t == T_I64_CONSTANT || t == T_UI64_CONSTANT ||
+        t == T_U8_CONSTANT || t == T_I16_CONSTANT || t == T_U16_CONSTANT ||
+        t == T_U32_CONSTANT || t == T_I64_CONSTANT || t == T_U64_CONSTANT ||
         t == T_F32_CONSTANT || t == T_F64_CONSTANT || t == T_STRING) {
       CINFO("token:{}, literal:{}", t, yylval.literal);
     } else {
