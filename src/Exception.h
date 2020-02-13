@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Stringify.h"
+#include "boost/preprocessor/cat.hpp"
 #include <exception>
 #include <stdexcept>
 #include <string>
@@ -19,6 +20,8 @@ public:
   virtual std::string toString() const;
 
 protected:
+  virtual std::string stringify() const = 0;
+
   std::string message_;
   std::string fileName_;
   int lineNumber_;
@@ -33,6 +36,9 @@ protected:
       const std::string &message)                                              \
         : Exception(fileName, lineNumber, functionName, message) {}            \
     virtual ~x() = default;                                                    \
+                                                                               \
+  protected:                                                                   \
+    virtual std::string stringify() const { return BOOST_PP_STRINGIZE(x); }    \
   }
 #endif
 
