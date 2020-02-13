@@ -5,7 +5,7 @@ set(CTEST
     MainTest.cpp
     LogTest.cpp
     ConfigureTest.cpp
-    ClockTest.cpp
+    TimerTest.cpp
     RandomTest.cpp
     FileTest.cpp
     ApproximateTest.cpp

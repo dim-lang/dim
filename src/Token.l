@@ -90,13 +90,13 @@ std::string tkFileToModule(const std::string &name);
 "or"         return T_TOKEN(T_LOGIC_OR);
 "not"        return T_TOKEN(T_LOGIC_NOT);
 "i8"         return T_TOKEN(T_I8);
-"ui8"        return T_TOKEN(T_UI8);
+"ui8"        return T_TOKEN(T_U8);
 "i16"        return T_TOKEN(T_I16);
-"ui16"       return T_TOKEN(T_UI16);
+"ui16"       return T_TOKEN(T_U16);
 "i32"        return T_TOKEN(T_I32);
-"ui32"       return T_TOKEN(T_UI32);
+"ui32"       return T_TOKEN(T_U32);
 "i64"        return T_TOKEN(T_I64);
-"ui64"       return T_TOKEN(T_UI64);
+"ui64"       return T_TOKEN(T_U64);
 "f32"        return T_TOKEN(T_F32);
 "f64"        return T_TOKEN(T_F64);
 "string"     return T_TOKEN(T_STRING);
@@ -154,7 +154,7 @@ std::string tkFileToModule(const std::string &name);
  /* constants */
 [0-9]+"."[0-9]+{EXP}?   T_SAVE_TOKEN; return T_F64_CONSTANT;
 [0-9]+{EXP}?            T_SAVE_TOKEN; return T_I64_CONSTANT;
- /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_X(0, 1); return T_UI64_CONSTANT; */
+ /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_X(0, 1); return T_U64_CONSTANT; */
 \"(\\.|[^\\"])*\"       T_SAVE_TOKEN_X(1, 2); return T_STRING_CONSTANT;
 
  /* identifier */

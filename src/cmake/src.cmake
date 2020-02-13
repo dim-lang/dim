@@ -4,7 +4,7 @@
 set(CCORE
     Log.cpp
     Option.cpp
-    Clock.cpp
+    Timer.cpp
     DateTime.cpp
     File.cpp
     Hash.cpp

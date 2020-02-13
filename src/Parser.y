@@ -13,19 +13,19 @@
 void yyerror(const char *s) { printf("yyerror: %s\n", s); }
 
 static std::unordered_set<int> IntConstants = {
-    A_I8_CONSTANT,  A_UI8_CONSTANT,
-    A_I16_CONSTANT, A_UI16_CONSTANT,
-    A_I32_CONSTANT, A_UI32_CONSTANT,
-    A_I64_CONSTANT, A_UI64_CONSTANT,
+    A_I8_CONSTANT,  A_U8_CONSTANT,
+    A_I16_CONSTANT, A_U16_CONSTANT,
+    A_I32_CONSTANT, A_U32_CONSTANT,
+    A_I64_CONSTANT, A_U64_CONSTANT,
 };
 static std::unordered_set<int> FloatConstants = {
     A_F32_CONSTANT,  A_F64_CONSTANT,
 };
 static std::unordered_set<int> NumberConstants = {
-    A_I8_CONSTANT,  A_UI8_CONSTANT,
-    A_I16_CONSTANT, A_UI16_CONSTANT,
-    A_I32_CONSTANT, A_UI32_CONSTANT,
-    A_I64_CONSTANT, A_UI64_CONSTANT,
+    A_I8_CONSTANT,  A_U8_CONSTANT,
+    A_I16_CONSTANT, A_U16_CONSTANT,
+    A_I32_CONSTANT, A_U32_CONSTANT,
+    A_I64_CONSTANT, A_U64_CONSTANT,
     A_F32_CONSTANT, A_F64_CONSTANT,
 };
 
@@ -50,15 +50,15 @@ static std::unordered_set<int> NumberConstants = {
 %token <token> T_EOF
 %token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
-%token <token> T_I8 T_UI8 T_I16 T_UI16 T_I32 T_UI32 T_I64 T_UI64 T_F32 T_F64 T_STRING T_BOOLEAN T_ASYNC T_AWAIT
+%token <token> T_I8 T_U8 T_I16 T_U16 T_I32 T_U32 T_I64 T_U64 T_F32 T_F64 T_STRING T_BOOLEAN T_ASYNC T_AWAIT
 %token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
-%token <literal> T_IDENTIFIER T_I8_CONSTANT T_UI8_CONSTANT T_I16_CONSTANT T_UI16_CONSTANT T_I32_CONSTANT T_UI32_CONSTANT
-%token <literal> T_I64_CONSTANT T_UI64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
+%token <literal> T_IDENTIFIER T_I8_CONSTANT T_U8_CONSTANT T_I16_CONSTANT T_U16_CONSTANT T_I32_CONSTANT T_U32_CONSTANT
+%token <literal> T_I64_CONSTANT T_U64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
 
 %type <expr> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
@@ -118,13 +118,13 @@ join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::fr
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
                    /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_UI8_CONSTANT { $$ = new AstUI8Constant((uint8_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_U8_CONSTANT { $$ = new AstU8Constant((uint8_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    /*| T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_UI16_CONSTANT { $$ = new AstUI16Constant((uint16_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_U16_CONSTANT { $$ = new AstU16Constant((uint16_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    /*| T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_UI32_CONSTANT { $$ = new AstUI32Constant((uint32_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_U32_CONSTANT { $$ = new AstU32Constant((uint32_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
-                   /*| T_UI64_CONSTANT { $$ = new AstUI64Constant((uint64_t)std::stoull($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
+                   /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
                    | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
                    | join_string_helper { $$ = $1; CINFO("primary_expression: {}", $$->toString()); }
