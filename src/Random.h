@@ -3,7 +3,12 @@
 
 #pragma once
 #include "Log.h"
-#include "config/Header.h"
+#include "boost/preprocessor/cat.hpp"
+#include "unicode/uchar.h"
+#include "unicode/unistr.h"
+#include "unicode/ustdio.h"
+#include "unicode/ustring.h"
+#include "unicode/utypes.h"
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -37,6 +42,7 @@ public:
   FDECL_RAND(unsigned long, ULong);
   FDECL_RAND(long long, LLong);
   FDECL_RAND(unsigned long long, ULLong);
+
 #undef FDECL_RAND
 
   static icu::UnicodeString nextAlpha(int len = 1);

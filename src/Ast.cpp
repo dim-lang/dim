@@ -3,7 +3,6 @@
 
 #include "Ast.h"
 #include "Log.h"
-#include "config/Header.h"
 #include <algorithm>
 #include <sstream>
 #include <utility>

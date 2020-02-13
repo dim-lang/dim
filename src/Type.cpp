@@ -3,7 +3,6 @@
 
 #include "Type.h"
 #include "Log.h"
-#include "config/Header.h"
 #include <sstream>
 
 Tytab::Tytab(Tytab *enclosingScope) : enclosingScope_(enclosingScope) {}

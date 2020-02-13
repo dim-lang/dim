@@ -7,7 +7,6 @@
 #include "Parser.tab.hpp"
 #include "Semant.h"
 #include "Token.h"
-#include "config/Header.h"
 #include <iostream>
 #include <string>
 #include <vector>

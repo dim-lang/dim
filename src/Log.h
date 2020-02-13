@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "boost/preprocessor/stringize.hpp"
 #include "fmt/format.h"
 #include "spdlog/spdlog.h"
 #include <cassert>

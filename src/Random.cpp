@@ -190,10 +190,10 @@ UChar Random::nextCharImpl(const std::vector<std::pair<int, int>> &range,
     if (c + p > pos) {
       int r = pos - c + range[i].first;
       CASSERT(r >= range[0].first, "r {} >= range[0].first {}", r,
-             range[0].first);
+              range[0].first);
       CASSERT(r < range[range.size() - 1].second,
-             "r {} < range[range.size()-1].second {}", r,
-             range[range.size() - 1].second);
+              "r {} < range[range.size()-1].second {}", r,
+              range[range.size() - 1].second);
       return (UChar)r;
     }
     c += p;

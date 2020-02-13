@@ -3,7 +3,6 @@
 
 #include "Symbol.h"
 #include "Log.h"
-#include "config/Header.h"
 #include <cctype>
 #include <numeric>
 #include <utility>

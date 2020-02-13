@@ -1,5 +1,4 @@
 %{
-#include "config/Header.h"
 #include "config/Platform.h"
 #include "Log.h"
 #include "Ast.h"

@@ -3,7 +3,6 @@
 
 #include "File.h"
 #include "catch2/catch.hpp"
-#include "config/Header.h"
 #include <algorithm>
 #include <cstring>
 #include <functional>

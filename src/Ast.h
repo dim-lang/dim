@@ -3,7 +3,6 @@
 
 #pragma once
 #include "Stringify.h"
-#include "config/Header.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>

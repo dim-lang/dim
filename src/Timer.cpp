@@ -3,7 +3,6 @@
 
 #include "Timer.h"
 #include "Log.h"
-#include "config/Header.h"
 
 Timer::Timer()
     : timestamp_(std::chrono::system_clock::now()),

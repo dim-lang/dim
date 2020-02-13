@@ -2,7 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "config/Header.h"
+#include "unicode/uchar.h"
+#include "unicode/unistr.h"
+#include "unicode/ustdio.h"
+#include "unicode/ustring.h"
+#include "unicode/utypes.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
