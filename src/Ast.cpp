@@ -222,7 +222,7 @@ AstUnaryExpression::~AstUnaryExpression() {
   expression_ = nullptr;
 }
 
-int AstUnaryExpression::type() const { return A_UNARY_OPERATION_EXPRESSION; }
+int AstUnaryExpression::type() const { return A_UNARY_EXPRESSION; }
 
 std::string AstUnaryExpression::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
@@ -245,7 +245,7 @@ AstBinaryExpression::~AstBinaryExpression() {
   right_ = nullptr;
 }
 
-int AstBinaryExpression::type() const { return A_BINARY_OPERATION_EXPRESSION; }
+int AstBinaryExpression::type() const { return A_BINARY_EXPRESSION; }
 
 std::string AstBinaryExpression::toString() const {
   std::string leftStr = left_ ? left_->toString() : "null";
