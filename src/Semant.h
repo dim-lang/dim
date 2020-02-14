@@ -12,6 +12,8 @@ public:
   virtual ~Semant();
   virtual void build();
   virtual void check();
+  virtual Symtab *globalSymbolTable();
+  virtual Tytab *globalTypeTable();
 
 private:
   virtual void buildImpl(Ast *node);

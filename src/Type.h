@@ -16,7 +16,7 @@ public:
   virtual ~Type() = default;
   virtual const std::string &name() const = 0;
 
-  static void push(Tytab *&global, Tytab *&current, Tytab *scope);
+  static void push(Tytab *&global, Tytab *&current, Tytab *s);
   static void pop(Tytab *&global, Tytab *&current);
 };
 
@@ -82,8 +82,8 @@ protected:
 
 class FunctionType : public Type, public Tytab {
 public:
-  FunctionType(const std::vector<Type *> &argumentList, Type *result,
-               Tytab *enclosingScope);
+  FunctionType(const std::vector<std::pair<Symbol *, Type *>> &argumentList,
+               Type *result, Tytab *enclosingScope);
   virtual ~FunctionType() = default;
   virtual const std::string &name() const;
   // virtual void define(Symbol *sym, Type *ty);
@@ -94,4 +94,33 @@ public:
 protected:
   virtual std::string stringify() const;
   std::string functionType_;
+};
+
+class GlobalTytab : public Tytab {
+public:
+  GlobalTytab();
+  virtual ~GlobalTytab() = default;
+  virtual const std::string &name() const;
+  // virtual void define(Symbol *sym, Type *ty);
+  // virtual Type *resolve(Symbol *sym);
+  // virtual Tytab *enclosingScope();
+  // virtual std::string toString() const;
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class LocalTytab : public Tytab {
+public:
+  LocalTytab(const std::string &localTytabName, Symtab *enclosingScope);
+  virtual ~LocalTytab() = default;
+  virtual const std::string &name() const;
+  // virtual void define(Symbol *sym, Type *ty);
+  // virtual Type *resolve(Symbol *sym);
+  // virtual Tytab *enclosingScope();
+  // virtual std::string toString() const;
+
+protected:
+  virtual std::string stringify() const;
+  std::string localTytabName_;
 };

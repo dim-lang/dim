@@ -22,6 +22,10 @@ Semant::~Semant() {
   cty_ = nullptr;
 }
 
+Symtab *Semant::globalSymbolTable() { return gsym_; }
+
+Tytab *Semant::globalTypeTable() { return gty_; }
+
 void Semant::buildImpl(Ast *node) {
   CASSERT(node, "node is null");
   switch (node->type()) {
@@ -37,6 +41,16 @@ void Semant::buildImpl(Ast *node) {
     AstVariableAssignmentDeclaration *e =
         dynamic_cast<AstVariableAssignmentDeclaration *>(node);
     csym_->define(new VariableSymbol(e->identifier()));
+    switch (e->expression()->type()) {
+    case A_I64_CONSTANT: {
+    } break;
+    case A_STRING_CONSTANT: {
+    } break;
+    case A_BOOLEAN_CONSTANT: {
+    } break;
+    default:
+      break;
+    }
   } break;
   case A_FUNCTION_DECLARATION: {
     AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
@@ -100,6 +114,7 @@ void Semant::build() {
   CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
   AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
   Symbol::push(gsym_, csym_, new GlobalSymtab());
+  Type::push(gty_, cty_, new GlobalTytab());
   for (int i = 0; i < e->size(); i++) {
     buildImpl(e->get(i));
   }

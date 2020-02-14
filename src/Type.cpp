@@ -7,6 +7,17 @@
 
 Tytab::Tytab(Tytab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
+void Type::push(Tytab *&global, Tytab *&current, Tytab *s) {
+  current = s;
+  if (!global) {
+    global = s;
+  }
+}
+
+void Type::pop(Tytab *&global, Tytab *&current) {
+  current = current->enclosingScope();
+}
+
 void Tytab::define(Symbol *sym, Type *ty) {
   CASSERT(sym, "sym is null");
   CASSERT(ty, "ty is null");
@@ -121,21 +132,44 @@ const std::string &ClassType::name() const { return classType_; }
 
 std::string ClassType::stringify() const { return "ClassType"; }
 
-FunctionType::FunctionType(const std::vector<Type *> &argumentList,
-                           Type *result, Tytab *enclosingScope)
+FunctionType::FunctionType(
+    const std::vector<std::pair<Symbol *, Type *>> &argumentList, Type *result,
+    Tytab *enclosingScope)
     : Tytab(enclosingScope) {
+  CASSERT(result, "result is null");
+  CASSERT(enclosingScope, "enclosingScope is null");
   std::stringstream ss;
   ss << "func(";
   for (int i = 0; i < argumentList.size(); i++) {
-    ss << argumentList[i]->name();
+    ss << argumentList[i].second->name();
     if (i < (int)argumentList.size() - 1) {
       ss << ",";
     }
   }
-  ss << "):" << (result ? result->name() : "void");
+  ss << "):" << result->name();
   functionType_ = ss.str();
+  for (int i = 0; i < (int)argumentList.size(); i++) {
+    define(argumentList[i].first, argumentList[i].second);
+  }
 }
 
 const std::string &FunctionType::name() const { return functionType_; }
 
 std::string FunctionType::stringify() const { return "FunctionType"; }
+
+GlobalTytab::GlobalTytab() : Tytab(nullptr) {}
+
+const std::string &GlobalTytab::name() const {
+  static std::string globalTytabName = "GlobalTytab";
+  return globalTytab;
+}
+
+std::string GlobalTytab::stringify() const { return "GlobalTytab"; }
+
+LocalTytab::LocalTytab(const std::string &localTytabName,
+                       Symtab *enclosingScope)
+    : Tytab(enclosingScope), localTytabName_(localTytabName) {}
+
+const std::string &LocalTytab::name() const { return localTytabName_; }
+
+std::string LocalTytab::stringify() const { return "LocalTytab"; }
