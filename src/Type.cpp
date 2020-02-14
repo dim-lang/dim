@@ -161,13 +161,12 @@ GlobalTytab::GlobalTytab() : Tytab(nullptr) {}
 
 const std::string &GlobalTytab::name() const {
   static std::string globalTytabName = "GlobalTytab";
-  return globalTytab;
+  return globalTytabName;
 }
 
 std::string GlobalTytab::stringify() const { return "GlobalTytab"; }
 
-LocalTytab::LocalTytab(const std::string &localTytabName,
-                       Symtab *enclosingScope)
+LocalTytab::LocalTytab(const std::string &localTytabName, Tytab *enclosingScope)
     : Tytab(enclosingScope), localTytabName_(localTytabName) {}
 
 const std::string &LocalTytab::name() const { return localTytabName_; }

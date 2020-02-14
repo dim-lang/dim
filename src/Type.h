@@ -112,7 +112,7 @@ protected:
 
 class LocalTytab : public Tytab {
 public:
-  LocalTytab(const std::string &localTytabName, Symtab *enclosingScope);
+  LocalTytab(const std::string &localTytabName, Tytab *enclosingScope);
   virtual ~LocalTytab() = default;
   virtual const std::string &name() const;
   // virtual void define(Symbol *sym, Type *ty);
