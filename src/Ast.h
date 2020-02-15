@@ -100,6 +100,9 @@ class AstVariableAssignmentDeclaration;
 class AstFunctionDeclaration;
 class AstFunctionArgumentDeclaration;
 
+/* program */
+// AstDeclarationList *program;
+
 /* ================================== */
 
 class Ast : public Stringify {
@@ -158,7 +161,7 @@ public:
       Ast *item = dynamic_cast<Ast *>(items_[i]);
       ss << fmt::format("{}:{}", i, item ? item->toString() : "null");
       if (i < (int)items_.size() - 1) {
-        ss << ", ";
+        ss << ",";
       }
     }
     ss << " ]";
@@ -214,13 +217,7 @@ public:
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
 
-  static AstDeclarationList *program();
-  static AstDeclarationList *
-  resetProgram(AstDeclarationList *program = nullptr);
-
 private:
-  static AstDeclarationList *program_;
-
   virtual std::string stringify() const;
 };
 

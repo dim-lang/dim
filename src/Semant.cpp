@@ -119,8 +119,11 @@ void Semant::build() {
     buildImpl(e->get(i));
   }
   Symbol::pop(gsym_, csym_);
+  Type::pop(gty_, cty_);
   CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
   CASSERT(gsym_, "gsym_ is null");
+  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(gty_, "gty_ is null");
 }
 
 void Semant::checkImpl(Ast *node) {

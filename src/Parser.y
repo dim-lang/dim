@@ -1,5 +1,4 @@
 %{
-#include "config/Platform.h"
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
@@ -9,7 +8,7 @@
 #include <cstdint>
 #include <cctype>
 #include <unordered_set>
-void yyerror(const char *s) { printf("yyerror: %s\n", s); }
+void yyerror(AstDeclarationList **program, char **errorMsg, const char *s) { printf("yyerror: %s:%s\n", s, *errorMsg); }
 
 static std::unordered_set<int> IntConstants = {
     A_I8_CONSTANT,  A_U8_CONSTANT,
@@ -29,6 +28,9 @@ static std::unordered_set<int> NumberConstants = {
 };
 
 %}
+
+%parse-param { AstDeclarationList **program }
+%parse-param { char **errorMsg }
 
  /* Represents the many different ways we can access our data */
 %union {
@@ -351,12 +353,8 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); CINFO("jum
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); CINFO("jump_statement: {}", $$->toString()); }
                ;
 
-translation_unit : declaration {
-                        AstDeclarationList *save = AstDeclarationList::resetProgram(new AstDeclarationList());
-                        AstDeclarationList::program()->add($1);
-                        CINFO("translation_unit: {}, save: {}", AstDeclarationList::program()->toString(), save ? save->toString() : "null");
-                    }
-                 | translation_unit declaration { AstDeclarationList::program()->add($2); CINFO("translation_unit: {}", AstDeclarationList::program()->toString()); }
+translation_unit : declaration { $$ = new AstDeclarationList(); $$->add($1); CINFO("translation_unit: {}", $$->toString()); }
+                 | translation_unit declaration { $$->add($2); CINFO("translation_unit: {}", $$->toString()); }
                  ;
 
 %%

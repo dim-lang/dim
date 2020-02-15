@@ -37,10 +37,12 @@ int main(int argc, char **argv) {
         return 0;
       }
       CINFO("{} starting...", moduleName);
-      int yp = yyparse();
-      CINFO("{} ending ...", moduleName);
+      AstDeclarationList *program = nullptr;
+      char *errorMsg = nullptr;
+      int yp = yyparse(&program, &errorMsg);
+      CINFO("{} ending with: {}...", moduleName, errorMsg);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
-      Semant *semant = new Semant(AstDeclarationList::program());
+      Semant *semant = new Semant(program);
       semant->build();
       semant->check();
     }

@@ -3,6 +3,7 @@
 
 #include "Ast.h"
 #include "Log.h"
+#include "Token.h"
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -20,15 +21,6 @@ std::string AstDeclarationList::stringify() const {
 }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
-
-AstDeclarationList *AstDeclarationList::program() { return program_; }
-
-AstDeclarationList *
-AstDeclarationList::resetProgram(AstDeclarationList *program) {
-  return std::exchange(program_, program);
-}
-
-AstDeclarationList *AstDeclarationList::program_ = nullptr;
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value) {}
@@ -227,7 +219,7 @@ int AstUnaryExpression::type() const { return A_UNARY_EXPRESSION; }
 std::string AstUnaryExpression::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
   return fmt::format("[ @AstUnaryExpression token_:{}, expression_:{} ]",
-                     token_, exprStr);
+                     TokenName(token_), exprStr);
 }
 
 int AstUnaryExpression::token() const { return token_; }
@@ -251,7 +243,7 @@ std::string AstBinaryExpression::toString() const {
   std::string leftStr = left_ ? left_->toString() : "null";
   std::string rightStr = right_ ? right_->toString() : "null";
   return fmt::format("[ @AstBinaryExpression left_:{}, token_:{}, right_:{} ]",
-                     leftStr, token_, rightStr);
+                     leftStr, TokenName(token_), rightStr);
 }
 
 AstExpression *AstBinaryExpression::left() const { return left_; }
@@ -311,7 +303,7 @@ std::string AstAssignmentExpression::toString() const {
   std::string rstr = right_ ? right_->toString() : "null";
   return fmt::format(
       "[ @AstAssignmentExpression left_:{}, token_:{}, right_:{} ]", lstr,
-      token_, rstr);
+      TokenName(token_), rstr);
 }
 
 AstExpression *AstAssignmentExpression::left() const { return left_; }
