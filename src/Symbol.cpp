@@ -44,26 +44,34 @@ std::string Symtab::toString() const {
 VariableSymbol::VariableSymbol(const std::string &variableName)
     : variableName_(variableName) {}
 
-const std::string &VariableSymbol::name() const { return variableName_; }
+std::string VariableSymbol::name() const { return variableName_; }
+
+FunctionArgumentSymbol::FunctionArgumentSymbol(
+    const std::string &functionArgumentName)
+    : functionArgumentName_(functionArgumentName) {}
+
+std::string FunctionArgumentSymbol::name() const {
+  return functionArgumentName_;
+}
 
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
                                Symtab *enclosingScope)
     : Symtab(enclosingScope), functionName_(functionName) {}
 
-const std::string &FunctionSymbol::name() const { return functionName_; }
+std::string FunctionSymbol::name() const { return functionName_; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
 ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
     : Symtab(enclosingScope), className_(className) {}
 
-const std::string &ClassSymbol::name() const { return className_; }
+std::string ClassSymbol::name() const { return className_; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
 GlobalSymtab::GlobalSymtab() : Symtab(nullptr) {}
 
-const std::string &GlobalSymtab::name() const {
+std::string GlobalSymtab::name() const {
   static std::string globalSymtabName = "GlobalSymtab";
   return globalSymtabName;
 }
@@ -74,6 +82,6 @@ LocalSymtab::LocalSymtab(const std::string &localSymtabName,
                          Symtab *enclosingScope)
     : Symtab(enclosingScope), localSymtabName_(localSymtabName) {}
 
-const std::string &LocalSymtab::name() const { return localSymtabName_; }
+std::string LocalSymtab::name() const { return localSymtabName_; }
 
 std::string LocalSymtab::stringify() const { return "LocalSymtab"; }

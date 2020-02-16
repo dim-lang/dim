@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Namely.h"
 #include "Stringify.h"
 #include <cctype>
 #include <cstdint>
@@ -30,6 +31,7 @@
 #define A_U64_CONSTANT 116
 #define A_BOOLEAN_CONSTANT 117
 #define A_ASSIGNMENT_EXPRESSION 118
+#define A_EMPTY_EXPRESSION 119
 
 #define A_EXPRESSION_STATEMENT 201
 #define A_COMPOUND_STATEMENT 202
@@ -81,6 +83,7 @@ class AstUnaryExpression;
 class AstBinaryExpression;
 class AstConditionalExpression;
 class AstAssignmentExpression;
+class AstEmptyExpression;
 
 /* statement */
 class AstStatement;
@@ -110,6 +113,7 @@ public:
   virtual ~Ast() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
+  virtual std::string name() const = 0;
 };
 
 /* expression */
@@ -118,6 +122,7 @@ public:
   virtual ~AstExpression() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
+  virtual std::string name() const = 0;
 };
 
 /* statement */
@@ -126,6 +131,7 @@ public:
   virtual ~AstStatement() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
+  virtual std::string name() const = 0;
 };
 
 /* declaration is statement */
@@ -134,13 +140,14 @@ public:
   virtual ~AstDeclaration() = default;
   virtual int type() const = 0;
   virtual std::string toString() const = 0;
+  virtual std::string name() const = 0;
 };
 
 namespace detail {
 
 template <class T> class AstList : public Ast {
 public:
-  AstList() {}
+  AstList(const std::string &name) : name_(name) {}
   virtual ~AstList() {
     for (int i = 0; i < (int)items_.size(); i++) {
       delete items_[i];
@@ -167,6 +174,7 @@ public:
     ss << " ]";
     return ss.str();
   }
+  virtual std::string name() const { return name_; }
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const { return items_[pos]; }
   virtual void add(T *item) { items_.push_back(item); }
@@ -175,16 +183,18 @@ protected:
   virtual std::string stringify() const = 0;
 
   std::vector<T *> items_;
+  std::string name_;
 };
 
 } // namespace detail
 
 class AstExpressionList : public detail::AstList<AstExpression> {
 public:
-  AstExpressionList() = default;
-  virtual ~AstExpressionList() = default;
+  AstExpressionList();
+  virtual ~AstExpressionList();
   virtual int type() const;
   // virtual std::string toString() const;
+  // virtual std::string name() const;
   // virtual int size() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
@@ -195,10 +205,11 @@ private:
 
 class AstStatementList : public detail::AstList<AstStatement> {
 public:
-  AstStatementList() = default;
-  virtual ~AstStatementList() = default;
+  AstStatementList();
+  virtual ~AstStatementList();
   virtual int type() const;
   // virtual std::string toString() const;
+  // virtual std::string name() const;
   // virtual int size() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
@@ -209,10 +220,11 @@ private:
 
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
 public:
-  AstDeclarationList() = default;
-  virtual ~AstDeclarationList() = default;
+  AstDeclarationList();
+  virtual ~AstDeclarationList();
   virtual int type() const;
   // virtual std::string toString() const;
+  // virtual std::string name() const;
   // virtual int size() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
@@ -228,11 +240,13 @@ public:
   virtual ~AstIdentifierConstant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const std::string &value() const;
 
 private:
   std::string value_;
+  std::string name_;
 };
 
 /* constant expression - T_I8_CONSTANT */
@@ -242,11 +256,13 @@ public:
   virtual ~AstI8Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const int8_t &value() const;
 
 private:
   int8_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_U8_CONSTANT */
@@ -256,11 +272,13 @@ public:
   virtual ~AstU8Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const uint8_t &value() const;
 
 private:
   uint8_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_I16_CONSTANT */
@@ -270,11 +288,13 @@ public:
   virtual ~AstI16Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const int16_t &value() const;
 
 private:
   int16_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_U16_CONSTANT */
@@ -284,11 +304,13 @@ public:
   virtual ~AstU16Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const uint16_t &value() const;
 
 private:
   uint16_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_I32_CONSTANT */
@@ -298,11 +320,13 @@ public:
   virtual ~AstI32Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const int32_t &value() const;
 
 private:
   int32_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_U32_CONSTANT */
@@ -312,11 +336,13 @@ public:
   virtual ~AstU32Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const uint32_t &value() const;
 
 private:
   uint32_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_I64_CONSTANT */
@@ -326,11 +352,13 @@ public:
   virtual ~AstI64Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const int64_t &value() const;
 
 private:
   int64_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_U64_CONSTANT */
@@ -340,11 +368,13 @@ public:
   virtual ~AstU64Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const uint64_t &value() const;
 
 private:
   uint64_t value_;
+  std::string name_;
 };
 
 /* constant expression - T_F32_CONSTANT */
@@ -354,11 +384,13 @@ public:
   virtual ~AstF32Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const float &value() const;
 
 private:
   float value_;
+  std::string name_;
 };
 
 /* constant expression - T_F64_CONSTANT */
@@ -368,11 +400,13 @@ public:
   virtual ~AstF64Constant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const double &value() const;
 
 private:
   double value_;
+  std::string name_;
 };
 
 /* constant expression - T_STRING_CONSTANT */
@@ -382,12 +416,14 @@ public:
   virtual ~AstStringConstant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const std::string &value() const;
   virtual void append(const char *value);
 
 private:
   std::string value_;
+  std::string name_;
 };
 
 /* constant expression - T_TRUE T_FALSE */
@@ -397,11 +433,13 @@ public:
   virtual ~AstBooleanConstant();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const bool &value() const;
 
 private:
   bool value_;
+  std::string name_;
 };
 
 /* function call expression */
@@ -411,6 +449,7 @@ public:
   virtual ~AstCallExpression();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const std::string &identifier() const;
   virtual AstExpressionList *argumentList() const;
@@ -418,6 +457,7 @@ public:
 private:
   std::string identifier_;
   AstExpressionList *argumentList_;
+  std::string name_;
 };
 
 /* unary operation expression */
@@ -427,6 +467,7 @@ public:
   virtual ~AstUnaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual int token() const;
   virtual AstExpression *expression() const;
@@ -434,6 +475,7 @@ public:
 private:
   int token_;
   AstExpression *expression_;
+  std::string name_;
 };
 
 /* binary operation expression */
@@ -443,6 +485,7 @@ public:
   virtual ~AstBinaryExpression();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *left() const;
   virtual int token() const;
@@ -452,6 +495,7 @@ private:
   AstExpression *left_;
   int token_;
   AstExpression *right_;
+  std::string name_;
 };
 
 /* ternary conditional expression */
@@ -462,15 +506,17 @@ public:
   virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *condition() const;
-  virtual AstExpression *left() const;
-  virtual AstExpression *right() const;
+  virtual AstExpression *yes() const;
+  virtual AstExpression *no() const;
 
 private:
   AstExpression *condition_;
-  AstExpression *left_;
-  AstExpression *right_;
+  AstExpression *yes_;
+  AstExpression *no_;
+  std::string name_;
 };
 
 /* assignment expression */
@@ -480,6 +526,7 @@ public:
   virtual ~AstAssignmentExpression();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *left() const;
   virtual int token() const;
@@ -489,6 +536,20 @@ private:
   AstExpression *left_;
   int token_;
   AstExpression *right_;
+  std::string name_;
+};
+
+/* empty expression */
+class AstEmptyExpression : public AstStatement {
+public:
+  AstEmptyExpression();
+  virtual ~AstEmptyExpression();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual std::string name() const;
+
+private:
+  std::string name_;
 };
 
 /* expression statement */
@@ -498,11 +559,13 @@ public:
   virtual ~AstExpressionStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *expression() const;
 
 private:
   AstExpression *expression_;
+  std::string name_;
 };
 
 /* compound statement - { ... } */
@@ -512,11 +575,13 @@ public:
   virtual ~AstCompoundStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstStatementList *statementList() const;
 
 private:
   AstStatementList *statementList_;
+  std::string name_;
 };
 
 /* selection statement - if else */
@@ -527,15 +592,17 @@ public:
   virtual ~AstIfStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *condition() const;
-  virtual AstStatement *left() const;
-  virtual AstStatement *right() const;
+  virtual AstStatement *yes() const;
+  virtual AstStatement *no() const;
 
 private:
   AstExpression *condition_;
-  AstStatement *left_;
-  AstStatement *right_;
+  AstStatement *yes_;
+  AstStatement *no_;
+  std::string name_;
 };
 
 /* iteration statement - while */
@@ -545,6 +612,7 @@ public:
   virtual ~AstWhileStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual AstExpression *condition() const;
   virtual AstStatement *statement() const;
@@ -552,6 +620,7 @@ public:
 private:
   AstExpression *condition_;
   AstStatement *statement_;
+  std::string name_;
 };
 
 /* iteration statement - for */
@@ -562,8 +631,9 @@ public:
   virtual ~AstForStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
-  virtual AstStatement *initialize() const;
+  virtual AstStatement *initial() const;
   virtual AstStatement *condition() const;
   virtual AstExpression *post() const;
   virtual AstStatement *statement() const;
@@ -573,6 +643,7 @@ private:
   AstStatement *condition_;
   AstExpression *post_;
   AstStatement *statement_;
+  std::string name_;
 };
 
 /* jump statement - continue */
@@ -582,6 +653,10 @@ public:
   virtual ~AstContinueStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
+
+private:
+  std::string name_;
 };
 
 /* jump statement - break */
@@ -591,6 +666,10 @@ public:
   virtual ~AstBreakStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
+
+private:
+  std::string name_;
 };
 
 /* jump statement - return */
@@ -600,10 +679,12 @@ public:
   virtual ~AstReturnStatement();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
   virtual AstExpression *expression() const;
 
 private:
   AstExpression *expression_;
+  std::string name_;
 };
 
 /* variable declaration */
@@ -613,10 +694,12 @@ public:
   virtual ~AstVariableDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
   virtual AstDeclarationList *declarationList() const;
 
 private:
   AstDeclarationList *declarationList_;
+  std::string name_;
 };
 
 /* variable assignment declaration */
@@ -627,12 +710,14 @@ public:
   virtual ~AstVariableAssignmentDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
   virtual const std::string &identifier() const;
   virtual AstExpression *expression() const;
 
 private:
   std::string identifier_;
   AstExpression *expression_;
+  std::string name_;
 };
 
 /* function declaration */
@@ -644,6 +729,7 @@ public:
   virtual ~AstFunctionDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const std::string &identifier() const;
   virtual AstDeclarationList *argumentList() const;
@@ -655,6 +741,7 @@ private:
   AstDeclarationList *argumentList_;
   AstExpression *result_;
   AstStatement *statement_;
+  std::string name_;
 };
 
 /* function argument declaration */
@@ -664,9 +751,11 @@ public:
   virtual ~AstFunctionArgumentDeclaration();
   virtual int type() const;
   virtual std::string toString() const;
+  virtual std::string name() const;
 
   virtual const std::string &value() const;
 
 private:
   std::string value_;
+  std::string name_;
 };

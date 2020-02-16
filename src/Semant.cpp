@@ -40,26 +40,48 @@ void Semant::buildImpl(Ast *node) {
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     AstVariableAssignmentDeclaration *e =
         dynamic_cast<AstVariableAssignmentDeclaration *>(node);
-    csym_->define(new VariableSymbol(e->identifier()));
+    VariableSymbol *vs = new VariableSymbol(e->identifier());
+    csym_->define(vs);
     switch (e->expression()->type()) {
     case A_I64_CONSTANT: {
+      cty_->define(vs, BuiltinType::ty_i64());
+    } break;
+    case A_F64_CONSTANT: {
+      cty_->define(vs, BuiltinType::ty_f64());
     } break;
     case A_STRING_CONSTANT: {
+      cty_->define(vs, BuiltinType::ty_string());
     } break;
     case A_BOOLEAN_CONSTANT: {
+      cty_->define(vs, BuiltinType::ty_boolean());
     } break;
-    default:
-      break;
+    default: {
+      CASSERT(false, "must not reach here");
+    } break;
     }
   } break;
   case A_FUNCTION_DECLARATION: {
     AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
     FunctionSymbol *fs = new FunctionSymbol(e->identifier(), csym_);
+    std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
+    CASSERT(e->argumentList(), "argumentList is null: {}", e->toString());
+    for (int i = 0; i < e->argumentList()->size(); i++) {
+      AstFunctionArgumentDeclaration *fa =
+          dynamic_cast<AstFunctionArgumentDeclaration *>(
+              e->argumentList()->get(i));
+      argumentTypeList.push_back(std::make_pair(
+          new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_string()));
+    }
+    FunctionType *ft =
+        new FunctionType(argumentTypeList, BuiltinType::ty_void(), cty_);
     csym_->define(fs);
+    cty_->define(fs, ft);
     Symbol::push(gsym_, csym_, fs);
+    Type::push(gty_, cty_, ft);
     buildImpl(e->argumentList());
     buildImpl(e->statement());
     Symbol::pop(gsym_, csym_);
+    Type::pop(gty_, cty_);
   } break;
   case A_DECLARATION_LIST: {
     AstDeclarationList *declList = dynamic_cast<AstDeclarationList *>(node);
@@ -70,24 +92,28 @@ void Semant::buildImpl(Ast *node) {
   case A_FUNCTION_ARGUMENT_DECLARATION: {
     AstFunctionArgumentDeclaration *e =
         dynamic_cast<AstFunctionArgumentDeclaration *>(node);
-    csym_->define(new VariableSymbol(e->value()));
+    FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->value());
+    csym_->define(fa);
+    cty_->define(fa, BuiltinType::ty_string());
   } break;
   case A_COMPOUND_STATEMENT: {
     AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
     LocalSymtab *ls = new LocalSymtab("AnonymousLocalSymtab", csym_);
+    LocalTytab *lt = new LocalTytab("AnonymousLocalTytab", cty_);
     Symbol::push(gsym_, csym_, ls);
+    Type::push(gty_, cty_, lt);
     AstStatementList *stmtList = e->statementList();
-    if (stmtList) {
-      for (int i = 0; i < stmtList->size(); i++) {
-        buildImpl(stmtList->get(i));
-      }
+    CASSERT(stmtList, "stmtList is null");
+    for (int i = 0; i < stmtList->size(); i++) {
+      buildImpl(stmtList->get(i));
     }
     Symbol::pop(gsym_, csym_);
+    Type::pop(gty_, cty_);
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
-    buildImpl(e->left());
-    buildImpl(e->right());
+    buildImpl(e->yes());
+    buildImpl(e->no());
   } break;
   case A_WHILE_STATEMENT: {
     AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
@@ -96,14 +122,17 @@ void Semant::buildImpl(Ast *node) {
   case A_FOR_STATEMENT: {
     AstForStatement *e = dynamic_cast<AstForStatement *>(node);
     LocalSymtab *ls = new LocalSymtab("ForLoopLocalSymtab", csym_);
+    LocalTytab *lt = new LocalTytab("ForLoopLocalTytab", cty_);
     Symbol::push(gsym_, csym_, ls);
-    buildImpl(e->initialize());
+    Type::push(gty_, cty_, lt);
+    buildImpl(e->initial());
     buildImpl(e->statement());
     Symbol::pop(gsym_, csym_);
+    Type::pop(gty_, cty_);
   } break;
-  default:
-    // do nothing
-    break;
+  default: {
+    CINFO("do nothing for node:{}", node->toString());
+  } break;
   }
 }
 
@@ -112,6 +141,8 @@ void Semant::build() {
   CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
   CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
   CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(program_->type() == A_DECLARATION_LIST,
+          "program_ is declarationList: {}", program_->toString());
   AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
   Symbol::push(gsym_, csym_, new GlobalSymtab());
   Type::push(gty_, cty_, new GlobalTytab());
@@ -129,10 +160,56 @@ void Semant::build() {
 void Semant::checkImpl(Ast *node) {
   CASSERT(node, "node is null");
   switch (node->type()) {
-  case A_DECLARATION_LIST:
-  default:
-    // do nothing
-    break;
+  case A_IDENTIFIER_CONSTANT: {
+    AstIdentifierConstant *e = dynamic_cast<AstIdentifierConstant *>(node);
+    Symbol *sym = csym_->resolve(e->value());
+    Type *ty = cty_->resolve(sym);
+    CASSERT(sym, "sym is null");
+    CASSERT(ty, "ty is null");
+  } break;
+  case A_UNARY_EXPRESSION: {
+    AstUnaryExpression *e = dynamic_cast<AstUnaryExpression *>(node);
+    checkImpl(e->expression());
+  } break;
+  case A_BINARY_EXPRESSION: {
+    AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
+    checkImpl(e->left());
+    checkImpl(e->right());
+  } break;
+  case A_CONDITIONAL_EXPRESSION: {
+    AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
+    checkImpl(e->left());
+    checkImpl(e->right());
+  } break;
+  case A_ASSIGNMENT_EXPRESSION: {
+    AstAssignmentExpression *e = dynamic_cast<AstAssignmentExpression *>(node);
+    checkImpl(e->left());
+  } break;
+  case A_EXPRESSION_STATEMENT: {
+    AstExpressionStatement *e = dynamic_cast<AstExpressionStatement *>(node);
+    checkImpl(e->expression());
+  } break;
+  case A_COMPOUND_STATEMENT: {
+    AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
+    for (int i = 0; i < e->statementList()->size(); i++) {
+      checkImpl(e->statementList()->get(i));
+    }
+  } break;
+  case A_IF_STATEMENT: {
+    AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
+    checkImpl(e->yes());
+    checkImpl(e->no());
+  } break;
+  case A_WHILE_STATEMENT: {
+    AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
+    checkImpl(e->condition());
+    checkImpl(e->statement());
+  } break;
+  case A_FOR_STATEMENT: {
+  } break;
+  default: {
+    CINFO("do nothing for node:{}", node->toString());
+  } break;
   }
 }
 
@@ -140,5 +217,7 @@ void Semant::check() {
   CASSERT(gsym_, "gsym_ is null");
   CASSERT(gty_, "gty_ is null");
   AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
-  (void)e;
+  for (int i = 0; i < e->size(); i++) {
+    checkImpl(e->get(i));
+  }
 }

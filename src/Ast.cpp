@@ -12,6 +12,8 @@ std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
+std::string AstExpressionList::name() const { return ""; }
+
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
@@ -311,6 +313,16 @@ AstExpression *AstAssignmentExpression::left() const { return left_; }
 int AstAssignmentExpression::token() const { return token_; }
 
 AstExpression *AstAssignmentExpression::right() const { return right_; }
+
+AstEmptyExpression::AstEmptyExpression() {}
+
+AstEmptyExpression::~AstEmptyExpression() {}
+
+int AstEmptyExpression::type() const { return A_EMPTY_EXPRESSION; }
+
+std::string AstEmptyExpression::toString() const {
+  return "[ @AstEmptyExpression ]";
+}
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(expression) {}

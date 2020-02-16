@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Namely.h"
 #include "Stringify.h"
 #include <string>
 #include <unordered_map>
@@ -11,7 +12,7 @@ class Symtab;
 class Symbol {
 public:
   virtual ~Symbol() = default;
-  virtual const std::string &name() const = 0;
+  virtual std::string name() const = 0;
 
   static void push(Symtab *&global, Symtab *&current, Symtab *scope);
   static void pop(Symtab *&global, Symtab *&current);
@@ -21,7 +22,7 @@ class Symtab : public Stringify {
 public:
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
-  virtual const std::string &name() const = 0;
+  virtual std::string name() const = 0;
   virtual void define(Symbol *sym);
   virtual Symbol *resolve(const std::string &name);
   virtual Symtab *enclosingScope();
@@ -38,17 +39,27 @@ class VariableSymbol : public Symbol {
 public:
   VariableSymbol(const std::string &variableName);
   virtual ~VariableSymbol() = default;
-  virtual const std::string &name() const;
+  virtual std::string name() const;
 
 private:
   std::string variableName_;
+};
+
+class FunctionArgumentSymbol : public Symbol {
+public:
+  FunctionArgumentSymbol(const std::string &functionArgumentName);
+  virtual ~FunctionArgumentSymbol() = default;
+  virtual std::string name() const;
+
+private:
+  std::string functionArgumentName_;
 };
 
 class FunctionSymbol : public Symbol, public Symtab {
 public:
   FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
   virtual ~FunctionSymbol() = default;
-  virtual const std::string &name() const;
+  virtual std::string name() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -63,7 +74,7 @@ class ClassSymbol : public Symbol, public Symtab {
 public:
   ClassSymbol(const std::string &className, Symtab *enclosingScope);
   virtual ~ClassSymbol() = default;
-  virtual const std::string &name() const;
+  virtual std::string name() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -78,7 +89,7 @@ class GlobalSymtab : public Symtab {
 public:
   GlobalSymtab();
   virtual ~GlobalSymtab() = default;
-  virtual const std::string &name() const;
+  virtual std::string name() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -92,7 +103,7 @@ class LocalSymtab : public Symtab {
 public:
   LocalSymtab(const std::string &localSymtabName, Symtab *enclosingScope);
   virtual ~LocalSymtab() = default;
-  virtual const std::string &name() const;
+  virtual std::string name() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();

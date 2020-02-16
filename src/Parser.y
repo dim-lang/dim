@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
+#include "Counter.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -9,24 +10,7 @@
 #include <cctype>
 #include <unordered_set>
 void yyerror(AstDeclarationList **program, char **errorMsg, const char *s) { printf("yyerror: %s:%s\n", s, *errorMsg); }
-
-static std::unordered_set<int> IntConstants = {
-    A_I8_CONSTANT,  A_U8_CONSTANT,
-    A_I16_CONSTANT, A_U16_CONSTANT,
-    A_I32_CONSTANT, A_U32_CONSTANT,
-    A_I64_CONSTANT, A_U64_CONSTANT,
-};
-static std::unordered_set<int> FloatConstants = {
-    A_F32_CONSTANT,  A_F64_CONSTANT,
-};
-static std::unordered_set<int> NumberConstants = {
-    A_I8_CONSTANT,  A_U8_CONSTANT,
-    A_I16_CONSTANT, A_U16_CONSTANT,
-    A_I32_CONSTANT, A_U32_CONSTANT,
-    A_I64_CONSTANT, A_U64_CONSTANT,
-    A_F32_CONSTANT, A_F64_CONSTANT,
-};
-
+static Counter counter;
 %}
 
 %parse-param { AstDeclarationList **program }
@@ -232,7 +216,7 @@ assignment_expression : conditional_expression { $$ = $1; CINFO("assignment_expr
                       | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
                       ;
 
-expression : /* nothing */ { $$ = nullptr; CINFO("expression: null"); }
+expression : /* nothing */ { $$ = new AstEmptyExpression(); CINFO("expression: null"); }
            | assignment_expression { $$ = $1; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
            | expression T_COMMA assignment_expression { $$ = $3; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
            ;
