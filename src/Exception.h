@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Stringify.h"
 #include "boost/preprocessor/cat.hpp"
+#include "interface/Stringify.h"
 #include <exception>
 #include <stdexcept>
 #include <string>
