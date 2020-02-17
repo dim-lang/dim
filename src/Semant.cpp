@@ -216,7 +216,7 @@ void Semant::checkImpl(Ast *node) {
     Symbol *sym = csym_->resolve(e->name());
     Type *ty = cty_->resolve(sym);
     Symbol::push(gsym_, csym_, dynamic_cast<Symtab *>(sym));
-    Type::push(gty_, cty_, dynamic_cast<Symtab *>(ty));
+    Type::push(gty_, cty_, dynamic_cast<Tytab *>(ty));
     checkImpl(e->initial());
     checkImpl(e->condition());
     checkImpl(e->post());
