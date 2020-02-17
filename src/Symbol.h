@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Namely.h"
-#include "Stringify.h"
+#include "interface/Namely.h"
+#include "interface/Stringify.h"
 #include <string>
 #include <unordered_map>
 
