@@ -191,9 +191,15 @@ void Semant::checkImpl(Ast *node) {
   } break;
   case A_COMPOUND_STATEMENT: {
     AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
+    Symbol *sym = csym_->resolve(e->name());
+    Type *ty = cty_->resolve(sym);
+    Symbol::push(gsym_, csym_, dynamic_cast<Symtab *>(sym));
+    Type::push(gty_, cty_, dynamic_cast<Tytab *>(ty));
     for (int i = 0; i < e->statementList()->size(); i++) {
       checkImpl(e->statementList()->get(i));
     }
+    Symbol::pop(gsym_, csym_);
+    Type::pop(gty_, cty_);
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
@@ -207,6 +213,16 @@ void Semant::checkImpl(Ast *node) {
   } break;
   case A_FOR_STATEMENT: {
     AstForStatement *e = dynamic_cast<AstForStatement *>(node);
+    Symbol *sym = csym_->resolve(e->name());
+    Type *ty = cty_->resolve(sym);
+    Symbol::push(gsym_, csym_, dynamic_cast<Symtab *>(sym));
+    Type::push(gty_, cty_, dynamic_cast<Symtab *>(ty));
+    checkImpl(e->initial());
+    checkImpl(e->condition());
+    checkImpl(e->post());
+    checkImpl(e->statement());
+    Symbol::pop(gsym_, csym_);
+    Type::pop(gty_, cty_);
   } break;
   default: {
     CINFO("do nothing for node:{}", node->toString());
