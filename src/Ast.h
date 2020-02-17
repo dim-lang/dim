@@ -147,7 +147,7 @@ namespace detail {
 
 template <class T> class AstList : public Ast {
 public:
-  AstList(const std::string &name) : name_(name) {}
+  AstList() {}
   virtual ~AstList() {
     for (int i = 0; i < (int)items_.size(); i++) {
       delete items_[i];
@@ -174,7 +174,7 @@ public:
     ss << " ]";
     return ss.str();
   }
-  virtual std::string name() const { return name_; }
+  virtual std::string name() const = 0;
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const { return items_[pos]; }
   virtual void add(T *item) { items_.push_back(item); }
@@ -183,7 +183,6 @@ protected:
   virtual std::string stringify() const = 0;
 
   std::vector<T *> items_;
-  std::string name_;
 };
 
 } // namespace detail
@@ -193,6 +192,7 @@ public:
   AstExpressionList();
   virtual ~AstExpressionList();
   virtual int type() const;
+  virtual std::string name() const;
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
@@ -201,6 +201,7 @@ public:
 
 private:
   virtual std::string stringify() const;
+  std::string name_;
 };
 
 class AstStatementList : public detail::AstList<AstStatement> {
@@ -208,6 +209,7 @@ public:
   AstStatementList();
   virtual ~AstStatementList();
   virtual int type() const;
+  virtual std::string name() const;
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
@@ -216,6 +218,7 @@ public:
 
 private:
   virtual std::string stringify() const;
+  std::string name_;
 };
 
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
@@ -223,6 +226,7 @@ public:
   AstDeclarationList();
   virtual ~AstDeclarationList();
   virtual int type() const;
+  virtual std::string name() const;
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
@@ -231,6 +235,7 @@ public:
 
 private:
   virtual std::string stringify() const;
+  std::string name_;
 };
 
 /* constant expression - T_IDENTIFIER */
@@ -522,20 +527,21 @@ private:
 /* assignment expression */
 class AstAssignmentExpression : public AstExpression {
 public:
-  AstAssignmentExpression(AstExpression *left, int token, AstExpression *right);
+  AstAssignmentExpression(AstExpression *variable, int token,
+                          AstExpression *value);
   virtual ~AstAssignmentExpression();
   virtual int type() const;
   virtual std::string toString() const;
   virtual std::string name() const;
 
-  virtual AstExpression *left() const;
+  virtual AstExpression *variable() const;
   virtual int token() const;
-  virtual AstExpression *right() const;
+  virtual AstExpression *value() const;
 
 private:
-  AstExpression *left_;
+  AstExpression *variable_;
   int token_;
-  AstExpression *right_;
+  AstExpression *value_;
   std::string name_;
 };
 
