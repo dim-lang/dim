@@ -183,7 +183,7 @@ void Semant::checkImpl(Ast *node) {
   } break;
   case A_ASSIGNMENT_EXPRESSION: {
     AstAssignmentExpression *e = dynamic_cast<AstAssignmentExpression *>(node);
-    checkImpl(e->left());
+    checkImpl(e->variable());
   } break;
   case A_EXPRESSION_STATEMENT: {
     AstExpressionStatement *e = dynamic_cast<AstExpressionStatement *>(node);
