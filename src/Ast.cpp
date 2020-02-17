@@ -17,6 +17,8 @@ static Counter NameCounter;
 
 AstExpressionList::AstExpressionList() : name_(A_NAME("A_ExprList")) {}
 
+AstExpressionList::~AstExpressionList() {}
+
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
 std::string AstExpressionList::name() const { return name_; }
@@ -25,6 +27,8 @@ int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
 AstStatementList::AstStatementList() : name_(A_NAME("A_StmtList")) {}
 
+AstStatementList::~AstStatementList() {}
+
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
 std::string AstStatementList::name() const { return name_; }
@@ -32,6 +36,8 @@ std::string AstStatementList::name() const { return name_; }
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
 
 AstDeclarationList::AstDeclarationList() : name_(A_NAME("A_DeclList")) {}
+
+AstDeclarationList::~AstDeclarationList() {}
 
 std::string AstDeclarationList::stringify() const {
   return "AstDeclarationList";
