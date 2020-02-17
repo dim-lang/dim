@@ -17,6 +17,7 @@ set(CCORE
     Symbol.cpp
     Type.cpp
     Semant.cpp
+    Counter.cpp
 )
 
 set(CSRC
