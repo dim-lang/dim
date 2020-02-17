@@ -587,21 +587,21 @@ private:
 /* selection statement - if else */
 class AstIfStatement : public AstStatement {
 public:
-  AstIfStatement(AstExpression *condition, AstStatement *left,
-                 AstStatement *right);
+  AstIfStatement(AstExpression *condition, AstStatement *hit,
+                 AstStatement *miss);
   virtual ~AstIfStatement();
   virtual int type() const;
   virtual std::string toString() const;
   virtual std::string name() const;
 
   virtual AstExpression *condition() const;
-  virtual AstStatement *yes() const;
-  virtual AstStatement *no() const;
+  virtual AstStatement *hit() const;
+  virtual AstStatement *miss() const;
 
 private:
   AstExpression *condition_;
-  AstStatement *yes_;
-  AstStatement *no_;
+  AstStatement *hit_;
+  AstStatement *miss_;
   std::string name_;
 };
 

@@ -360,34 +360,34 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *left,
-                               AstStatement *right)
-    : condition_(condition), left_(left), right_(right) {}
+AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *hit,
+                               AstStatement *miss)
+    : condition_(condition), hit_(hit), miss_(miss) {}
 
 AstIfStatement::~AstIfStatement() {
   delete condition_;
   condition_ = nullptr;
-  delete left_;
-  left_ = nullptr;
-  delete right_;
-  right_ = nullptr;
+  delete hit_;
+  hit_ = nullptr;
+  delete miss_;
+  miss_ = nullptr;
 }
 
 int AstIfStatement::type() const { return A_IF_STATEMENT; }
 
 std::string AstIfStatement::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string lStr = left_ ? left_->toString() : "null";
-  std::string rStr = right_ ? right_->toString() : "null";
-  return fmt::format("[ @AstIfStatement condition_:{}, left_:{}, right_:{} ]",
-                     condStr, lStr, rStr);
+  std::string hStr = hit_ ? hit_->toString() : "null";
+  std::string mStr = miss_ ? miss_->toString() : "null";
+  return fmt::format("[ @AstIfStatement condition_:{}, hit_:{}, miss_:{} ]",
+                     condStr, hStr, mStr);
 }
 
 AstExpression *AstIfStatement::condition() const { return condition_; }
 
-AstStatement *AstIfStatement::left() const { return left_; }
+AstStatement *AstIfStatement::hit() const { return hit_; }
 
-AstStatement *AstIfStatement::right() const { return right_; }
+AstStatement *AstIfStatement::miss() const { return miss_; }
 
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement)
