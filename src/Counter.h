@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <atomic>
 
 class Counter {
 public:
@@ -10,5 +11,5 @@ public:
   virtual long long count();
 
 private:
-  long long value_;
+  std::atomic_llong value_;
 };

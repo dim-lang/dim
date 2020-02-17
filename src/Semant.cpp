@@ -98,8 +98,8 @@ void Semant::buildImpl(Ast *node) {
   } break;
   case A_COMPOUND_STATEMENT: {
     AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
-    LocalSymtab *ls = new LocalSymtab("AnonymousLocalSymtab", csym_);
-    LocalTytab *lt = new LocalTytab("AnonymousLocalTytab", cty_);
+    LocalSymtab *ls = new LocalSymtab(e->name(), csym_);
+    LocalTytab *lt = new LocalTytab(e->name(), cty_);
     Symbol::push(gsym_, csym_, ls);
     Type::push(gty_, cty_, lt);
     AstStatementList *stmtList = e->statementList();
@@ -121,8 +121,8 @@ void Semant::buildImpl(Ast *node) {
   } break;
   case A_FOR_STATEMENT: {
     AstForStatement *e = dynamic_cast<AstForStatement *>(node);
-    LocalSymtab *ls = new LocalSymtab("ForLoopLocalSymtab", csym_);
-    LocalTytab *lt = new LocalTytab("ForLoopLocalTytab", cty_);
+    LocalSymtab *ls = new LocalSymtab(e->name(), csym_);
+    LocalTytab *lt = new LocalTytab(e->name(), cty_);
     Symbol::push(gsym_, csym_, ls);
     Type::push(gty_, cty_, lt);
     buildImpl(e->initial());
@@ -206,6 +206,7 @@ void Semant::checkImpl(Ast *node) {
     checkImpl(e->statement());
   } break;
   case A_FOR_STATEMENT: {
+    AstForStatement *e = dynamic_cast<AstForStatement *>(node);
   } break;
   default: {
     CINFO("do nothing for node:{}", node->toString());
