@@ -540,7 +540,7 @@ private:
 };
 
 /* empty expression */
-class AstEmptyExpression : public AstStatement {
+class AstEmptyExpression : public AstExpression {
 public:
   AstEmptyExpression();
   virtual ~AstEmptyExpression();
