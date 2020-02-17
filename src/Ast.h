@@ -501,21 +501,21 @@ private:
 /* ternary conditional expression */
 class AstConditionalExpression : public AstExpression {
 public:
-  AstConditionalExpression(AstExpression *condition, AstExpression *left,
-                           AstExpression *right);
+  AstConditionalExpression(AstExpression *condition, AstExpression *hit,
+                           AstExpression *miss);
   virtual ~AstConditionalExpression();
   virtual int type() const;
   virtual std::string toString() const;
   virtual std::string name() const;
 
   virtual AstExpression *condition() const;
-  virtual AstExpression *yes() const;
-  virtual AstExpression *no() const;
+  virtual AstExpression *hit() const;
+  virtual AstExpression *miss() const;
 
 private:
   AstExpression *condition_;
-  AstExpression *yes_;
-  AstExpression *no_;
+  AstExpression *hit_;
+  AstExpression *miss_;
   std::string name_;
 };
 

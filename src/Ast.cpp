@@ -12,8 +12,6 @@ std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
-std::string AstExpressionList::name() const { return ""; }
-
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
@@ -255,37 +253,37 @@ int AstBinaryExpression::token() const { return token_; }
 AstExpression *AstBinaryExpression::right() const { return right_; }
 
 AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
-                                                   AstExpression *left,
-                                                   AstExpression *right)
-    : condition_(condition), left_(left), right_(right) {}
+                                                   AstExpression *hit,
+                                                   AstExpression *miss)
+    : condition_(condition), hit_(hit), miss_(miss) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
   delete condition_;
   condition_ = nullptr;
-  delete left_;
-  left_ = nullptr;
-  delete right_;
-  right_ = nullptr;
+  delete hit_;
+  hit_ = nullptr;
+  delete miss_;
+  miss_ = nullptr;
 }
 
 int AstConditionalExpression::type() const { return A_CONDITIONAL_EXPRESSION; }
 
 std::string AstConditionalExpression::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string lStr = left_ ? left_->toString() : "null";
-  std::string rStr = right_ ? right_->toString() : "null";
+  std::string hitStr = hit_ ? hit_->toString() : "null";
+  std::string missStr = miss_ ? miss_->toString() : "null";
   return fmt::format(
-      "[ @AstConditionalExpression condition_:{}, left_:{}, right_:{} ]",
-      condStr, lStr, rStr);
+      "[ @AstConditionalExpression condition_:{}, hit_:{}, miss_:{} ]", condStr,
+      hitStr, missStr);
 }
 
 AstExpression *AstConditionalExpression::condition() const {
   return condition_;
 }
 
-AstExpression *AstConditionalExpression::left() const { return left_; }
+AstExpression *AstConditionalExpression::hit() const { return hit_; }
 
-AstExpression *AstConditionalExpression::right() const { return right_; }
+AstExpression *AstConditionalExpression::miss() const { return miss_; }
 
 AstAssignmentExpression::AstAssignmentExpression(AstExpression *left, int token,
                                                  AstExpression *right)
