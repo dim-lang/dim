@@ -626,7 +626,7 @@ private:
 /* iteration statement - for */
 class AstForStatement : public AstStatement {
 public:
-  AstForStatement(AstStatement *initialize, AstStatement *condition,
+  AstForStatement(AstStatement *initial, AstStatement *condition,
                   AstExpression *post, AstStatement *statement);
   virtual ~AstForStatement();
   virtual int type() const;
@@ -639,7 +639,7 @@ public:
   virtual AstStatement *statement() const;
 
 private:
-  AstStatement *initialize_;
+  AstStatement *initial_;
   AstStatement *condition_;
   AstExpression *post_;
   AstStatement *statement_;

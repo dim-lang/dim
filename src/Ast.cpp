@@ -413,15 +413,14 @@ AstExpression *AstWhileStatement::condition() const { return condition_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
-AstForStatement::AstForStatement(AstStatement *initialize,
-                                 AstStatement *condition, AstExpression *post,
-                                 AstStatement *statement)
-    : initialize_(initialize), condition_(condition), post_(post),
+AstForStatement::AstForStatement(AstStatement *initial, AstStatement *condition,
+                                 AstExpression *post, AstStatement *statement)
+    : initial_(initial), condition_(condition), post_(post),
       statement_(statement) {}
 
 AstForStatement::~AstForStatement() {
-  delete initialize_;
-  initialize_ = nullptr;
+  delete initial_;
+  initial_ = nullptr;
   delete condition_;
   condition_ = nullptr;
   delete post_;
@@ -433,16 +432,16 @@ AstForStatement::~AstForStatement() {
 int AstForStatement::type() const { return A_FOR_STATEMENT; }
 
 std::string AstForStatement::toString() const {
-  std::string initStr = initialize_ ? initialize_->toString() : "null";
+  std::string initStr = initial_ ? initial_->toString() : "null";
   std::string condStr = condition_ ? condition_->toString() : "null";
   std::string postStr = post_ ? post_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstForStatement initialize_:{}, condition_:{}, "
+  return fmt::format("[ @AstForStatement initial_:{}, condition_:{}, "
                      "post_:{}, statement_:{} ]",
                      initStr, condStr, postStr, stmtStr);
 }
 
-AstStatement *AstForStatement::initialize() const { return initialize_; }
+AstStatement *AstForStatement::initial() const { return initial_; }
 
 AstStatement *AstForStatement::condition() const { return condition_; }
 
