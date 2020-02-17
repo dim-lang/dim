@@ -112,8 +112,8 @@ void Semant::buildImpl(Ast *node) {
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
-    buildImpl(e->yes());
-    buildImpl(e->no());
+    buildImpl(e->hit());
+    buildImpl(e->miss());
   } break;
   case A_WHILE_STATEMENT: {
     AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
@@ -197,8 +197,8 @@ void Semant::checkImpl(Ast *node) {
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
-    checkImpl(e->yes());
-    checkImpl(e->no());
+    checkImpl(e->hit());
+    checkImpl(e->miss());
   } break;
   case A_WHILE_STATEMENT: {
     AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
