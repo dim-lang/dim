@@ -13,8 +13,7 @@ static void go(const char *module) {
     return;
   }
   AstDeclarationList *program = nullptr;
-  char *errorMsg = nullptr;
-  REQUIRE(yyparse(&program, &errorMsg) == 0);
+  REQUIRE(yyparse(&program) == 0);
   REQUIRE(program != nullptr);
   Semant *semant = new Semant(program);
   semant->build();

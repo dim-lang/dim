@@ -38,9 +38,8 @@ int main(int argc, char **argv) {
       }
       CINFO("{} starting...", moduleName);
       AstDeclarationList *program = nullptr;
-      char *errorMsg = nullptr;
-      int yp = yyparse(&program, &errorMsg);
-      CINFO("{} ending with: {}...", moduleName, errorMsg);
+      int yp = yyparse(&program);
+      CINFO("{} ending...", moduleName);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
       Semant *semant = new Semant(program);
       semant->build();

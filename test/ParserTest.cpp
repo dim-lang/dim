@@ -14,9 +14,8 @@ static void go(const char *module) {
     return;
   }
   CINFO("go {} starting...", module);
-  char *errorMsg = nullptr;
-  REQUIRE(yyparse(nullptr, &errorMsg) == 0);
-  CINFO("go {} ending ... with error: {}", module, errorMsg);
+  REQUIRE(yyparse(nullptr) == 0);
+  CINFO("go {} ending...", module);
 }
 
 TEST_CASE("Parser", "[Parser]") {

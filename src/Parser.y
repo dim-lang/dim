@@ -9,12 +9,11 @@
 #include <cstdint>
 #include <cctype>
 #include <unordered_set>
-void yyerror(AstDeclarationList **program, char **errorMsg, const char *s) { printf("yyerror: %s:%s\n", s, *errorMsg); }
+void yyerror(AstDeclarationList **program, const char *s) { printf("yyerror: %s\n", s); }
 static Counter counter;
 %}
 
 %parse-param { AstDeclarationList **program }
-%parse-param { char **errorMsg }
 
  /* Represents the many different ways we can access our data */
 %union {
@@ -337,8 +336,23 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); CINFO("jum
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); CINFO("jump_statement: {}", $$->toString()); }
                ;
 
-translation_unit : declaration { $$ = new AstDeclarationList(); $$->add($1); CINFO("translation_unit: {}", $$->toString()); }
-                 | translation_unit declaration { $$->add($2); CINFO("translation_unit: {}", $$->toString()); }
+translation_unit : declaration {
+                        if (program) {
+                            (*program) = new AstDeclarationList();
+                            (*program)->add($1);
+                            CINFO("translation_unit: {}", (*program)->toString());
+                        } else {
+                            CINFO("translation_unit $1: {}", $1 ? $1->toString() : "null");
+                        }
+                    }
+                 | translation_unit declaration {
+                         if (program) {
+                            (*program)->add($2);
+                            CINFO("translation_unit: {}", $2 ? $2->toString() : "null");
+                        } else {
+                            CINFO("translation_unit $2: {}", $2 ? $2->toString() : "null");
+                        }
+                    }
                  ;
 
 %%

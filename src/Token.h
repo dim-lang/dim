@@ -15,7 +15,7 @@ extern FILE *yyin;
 extern int yylineno;
 
 extern int yylex(void);
-extern int yyparse(AstDeclarationList **program, char **errorMsg);
+extern int yyparse(AstDeclarationList **program);
 
 extern std::string CurrentTokenFile;
 extern std::stack<TokenBuffer *> TokenBufferStack;
