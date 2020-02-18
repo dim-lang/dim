@@ -13,4 +13,5 @@ set(CTEST
     TokenTest.cpp
     ParserTest.cpp
     ExceptionTest.cpp
+    SemantTest.cpp
 )

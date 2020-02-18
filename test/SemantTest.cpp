@@ -1,27 +1,28 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
+#include "Semant.h"
 #include "Ast.h"
 #include "Log.h"
-#include "Parser.tab.hpp"
-#include "Token.h"
 #include "catch2/catch.hpp"
-#include <cstdio>
 
 static void go(const char *module) {
   if (!tokenPushImport(module)) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
-  CINFO("go {} starting...", module);
+  AstDeclarationList *program = nullptr;
   char *errorMsg = nullptr;
-  REQUIRE(yyparse(nullptr, &errorMsg) == 0);
-  CINFO("go {} ending ... with error: {}", module, errorMsg);
+  REQUIRE(yyparse(&program, &errorMsg) == 0);
+  REQUIRE(program != nullptr);
+  Semant *semant = new Semant(program);
+  semant->build();
+  semant->check();
 }
 
-TEST_CASE("Parser", "[Parser]") {
-  SECTION("Parser") {
+TEST_CASE("Semant", "[Semant]") {
+  SECTION("build & check") {
     go("test.DslTest1");
-    go("test.DslTest2");
+    go("test.DslTest1");
   }
 }
