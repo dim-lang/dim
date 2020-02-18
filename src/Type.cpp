@@ -157,6 +157,11 @@ std::string FunctionType::name() const { return functionType_; }
 
 std::string FunctionType::stringify() const { return "FunctionType"; }
 
+GlobalTytab *GlobalTytab::instance() {
+  static GlobalTytab *gt = new GlobalTytab();
+  return gt;
+}
+
 GlobalTytab::GlobalTytab() : Tytab(nullptr) {}
 
 std::string GlobalTytab::name() const {

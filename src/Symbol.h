@@ -87,7 +87,7 @@ protected:
 
 class GlobalSymtab : public Symtab {
 public:
-  GlobalSymtab();
+  static GlobalSymtab *instance();
   virtual ~GlobalSymtab() = default;
   virtual std::string name() const;
   // virtual void define(Symbol *sym);
@@ -96,6 +96,7 @@ public:
   // virtual std::string toString() const;
 
 protected:
+  GlobalSymtab();
   virtual std::string stringify() const;
 };
 

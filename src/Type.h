@@ -99,7 +99,7 @@ protected:
 
 class GlobalTytab : public Tytab {
 public:
-  GlobalTytab();
+  static GlobalTytab *instance();
   virtual ~GlobalTytab() = default;
   virtual std::string name() const;
   // virtual void define(Symbol *sym, Type *ty);
@@ -108,6 +108,7 @@ public:
   // virtual std::string toString() const;
 
 protected:
+  GlobalTytab();
   virtual std::string stringify() const;
 };
 
