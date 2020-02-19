@@ -10,7 +10,7 @@ set(CCORE
     Hash.cpp
     Random.cpp
     Approximate.cpp
-    Token.cpp
+    TokenName.cpp
     Token.yy.cpp
     Parser.tab.cpp
     Ast.cpp

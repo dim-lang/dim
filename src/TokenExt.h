@@ -3,8 +3,6 @@
 
 #pragma once
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <stack>
 #include <string>
 
@@ -24,5 +22,3 @@ extern int tokenPushImport(const std::string &module);
 extern int tokenPopImport();
 extern std::string tokenModuleToFile(const std::string &name);
 extern std::string tokenFileToModule(const std::string &name);
-
-std::string TokenName(int token);

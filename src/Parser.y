@@ -1,7 +1,7 @@
 %{
 #include "Log.h"
 #include "Ast.h"
-#include "Token.h"
+#include "TokenExt.h"
 #include "Counter.h"
 #include <cstdio>
 #include <cstdlib>

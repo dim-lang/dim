@@ -80,9 +80,10 @@ void Semant::buildImpl(Ast *node) {
     cty_->define(fs, ft);
     Symbol::push(gsym_, csym_, fs);
     Type::push(gty_, cty_, ft);
-    CASSERT(e->argumentList(), "e#argumentList is null");
+    if (e->argumentList()) {
+      buildImpl(e->argumentList());
+    }
     CASSERT(e->statement(), "e#statement is null");
-    buildImpl(e->argumentList());
     buildImpl(e->statement());
     Symbol::pop(gsym_, csym_);
     Type::pop(gty_, cty_);

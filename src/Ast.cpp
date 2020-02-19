@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "Log.h"
-#include "Token.h"
+#include "TokenName.h"
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -14,6 +14,10 @@ static Counter NameCounter;
 
 #define A_NAME(x)                                                              \
   (std::string(x) + std::string("@") + std::to_string(NameCounter.count()))
+
+#define A_NAME2(x, y)                                                          \
+  (std::string(x) + std::string("@") + std::string(y) + std::string("@") +     \
+   std::to_string(NameCounter.count()))
 
 AstExpressionList::AstExpressionList() : name_(A_NAME("A_ExprList")) {}
 
@@ -48,7 +52,7 @@ std::string AstDeclarationList::name() const { return name_; }
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
-    : value_(value), name_(A_NAME("A_id")) {}
+    : value_(value), name_(A_NAME2("A_id", value)) {}
 
 AstIdentifierConstant::~AstIdentifierConstant() {}
 
@@ -63,7 +67,7 @@ std::string AstIdentifierConstant::name() const { return name_; }
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
 AstI8Constant::AstI8Constant(const int8_t &value)
-    : value_(value), name_(A_NAME("A_i8")) {}
+    : value_(value), name_(A_NAME2("A_i8", std::to_string(value))) {}
 
 AstI8Constant::~AstI8Constant() {}
 
@@ -78,7 +82,7 @@ std::string AstI8Constant::name() const { return name_; }
 const int8_t &AstI8Constant::value() const { return value_; }
 
 AstU8Constant::AstU8Constant(const uint8_t &value)
-    : value_(value), name_(A_NAME("A_u8")) {}
+    : value_(value), name_(A_NAME2("A_u8", std::to_string(value))) {}
 
 AstU8Constant::~AstU8Constant() {}
 
@@ -93,7 +97,7 @@ std::string AstU8Constant::name() const { return name_; }
 const uint8_t &AstU8Constant::value() const { return value_; }
 
 AstI16Constant::AstI16Constant(const int16_t &value)
-    : value_(value), name_(A_NAME("A_i16")) {}
+    : value_(value), name_(A_NAME2("A_i16", std::to_string(value))) {}
 
 AstI16Constant::~AstI16Constant() {}
 
@@ -108,7 +112,7 @@ std::string AstI16Constant::name() const { return name_; }
 const int16_t &AstI16Constant::value() const { return value_; }
 
 AstU16Constant::AstU16Constant(const uint16_t &value)
-    : value_(value), name_(A_NAME("A_u16")) {}
+    : value_(value), name_(A_NAME2("A_u16", std::to_string(value))) {}
 
 AstU16Constant::~AstU16Constant() {}
 
@@ -123,7 +127,7 @@ std::string AstU16Constant::name() const { return name_; }
 const uint16_t &AstU16Constant::value() const { return value_; }
 
 AstI32Constant::AstI32Constant(const int32_t &value)
-    : value_(value), name_(A_NAME("A_i32")) {}
+    : value_(value), name_(A_NAME2("A_i32", std::to_string(value))) {}
 
 AstI32Constant::~AstI32Constant() {}
 
@@ -138,7 +142,7 @@ std::string AstI32Constant::name() const { return name_; }
 const int32_t &AstI32Constant::value() const { return value_; }
 
 AstU32Constant::AstU32Constant(const uint32_t &value)
-    : value_(value), name_(A_NAME("A_u32")) {}
+    : value_(value), name_(A_NAME2("A_u32", std::to_string(value))) {}
 
 AstU32Constant::~AstU32Constant() {}
 
@@ -153,7 +157,7 @@ std::string AstU32Constant::name() const { return name_; }
 const uint32_t &AstU32Constant::value() const { return value_; }
 
 AstI64Constant::AstI64Constant(const int64_t &value)
-    : value_(value), name_(A_NAME("A_i64")) {}
+    : value_(value), name_(A_NAME2("A_i64", std::to_string(value))) {}
 
 AstI64Constant::~AstI64Constant() {}
 
@@ -168,7 +172,7 @@ std::string AstI64Constant::name() const { return name_; }
 const int64_t &AstI64Constant::value() const { return value_; }
 
 AstU64Constant::AstU64Constant(const uint64_t &value)
-    : value_(value), name_(A_NAME("A_u64")) {}
+    : value_(value), name_(A_NAME2("A_u64", std::to_string(value))) {}
 
 AstU64Constant::~AstU64Constant() {}
 
@@ -183,7 +187,7 @@ std::string AstU64Constant::name() const { return name_; }
 const uint64_t &AstU64Constant::value() const { return value_; }
 
 AstF32Constant::AstF32Constant(const float &value)
-    : value_(value), name_(A_NAME("A_f32")) {}
+    : value_(value), name_(A_NAME2("A_f32", std::to_string(value))) {}
 
 AstF32Constant::~AstF32Constant() {}
 
@@ -198,7 +202,7 @@ std::string AstF32Constant::name() const { return name_; }
 const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value)
-    : value_(value), name_(A_NAME("A_f64")) {}
+    : value_(value), name_(A_NAME2("A_f64", std::to_string(value))) {}
 
 AstF64Constant::~AstF64Constant() {}
 
@@ -213,7 +217,7 @@ std::string AstF64Constant::name() const { return name_; }
 const double &AstF64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
-    : value_(value), name_(A_NAME("A_string")) {}
+    : value_(value), name_(A_NAME2("A_string", value)) {}
 
 AstStringConstant::~AstStringConstant() {}
 
@@ -232,7 +236,7 @@ void AstStringConstant::append(const char *value) {
 }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value)
-    : value_(value), name_(A_NAME("A_Boolean")) {}
+    : value_(value), name_(A_NAME2("A_Boolean", (value ? "true" : "false"))) {}
 
 AstBooleanConstant::~AstBooleanConstant() {}
 
