@@ -34,6 +34,7 @@ void Semant::buildImpl(Ast *node) {
     AstDeclarationList *declList = e->declarationList();
     CASSERT(declList, "declList is null");
     for (int i = 0; i < declList->size(); i++) {
+      CASSERT(declList->get(i), "declList#get {} is null", i);
       buildImpl(declList->get(i));
     }
   } break;
@@ -56,7 +57,7 @@ void Semant::buildImpl(Ast *node) {
       cty_->define(vs, BuiltinType::ty_boolean());
     } break;
     default: {
-      CASSERT(false, "must not reach here");
+      cty_->define(vs, BuiltinType::ty_void());
     } break;
     }
   } break;
@@ -64,13 +65,14 @@ void Semant::buildImpl(Ast *node) {
     AstFunctionDeclaration *e = dynamic_cast<AstFunctionDeclaration *>(node);
     FunctionSymbol *fs = new FunctionSymbol(e->identifier(), csym_);
     std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
-    CASSERT(e->argumentList(), "argumentList is null: {}", e->toString());
-    for (int i = 0; i < e->argumentList()->size(); i++) {
-      AstFunctionArgumentDeclaration *fa =
-          dynamic_cast<AstFunctionArgumentDeclaration *>(
-              e->argumentList()->get(i));
-      argumentTypeList.push_back(std::make_pair(
-          new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_string()));
+    if (e->argumentList()) {
+      for (int i = 0; i < e->argumentList()->size(); i++) {
+        AstFunctionArgumentDeclaration *fa =
+            dynamic_cast<AstFunctionArgumentDeclaration *>(
+                e->argumentList()->get(i));
+        argumentTypeList.push_back(std::make_pair(
+            new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_void()));
+      }
     }
     FunctionType *ft =
         new FunctionType(argumentTypeList, BuiltinType::ty_void(), cty_);
@@ -78,6 +80,8 @@ void Semant::buildImpl(Ast *node) {
     cty_->define(fs, ft);
     Symbol::push(gsym_, csym_, fs);
     Type::push(gty_, cty_, ft);
+    CASSERT(e->argumentList(), "e#argumentList is null");
+    CASSERT(e->statement(), "e#statement is null");
     buildImpl(e->argumentList());
     buildImpl(e->statement());
     Symbol::pop(gsym_, csym_);
@@ -86,6 +90,7 @@ void Semant::buildImpl(Ast *node) {
   case A_DECLARATION_LIST: {
     AstDeclarationList *declList = dynamic_cast<AstDeclarationList *>(node);
     for (int i = 0; i < declList->size(); i++) {
+      CASSERT(declList->get(i), "declList#get {} is null", i);
       buildImpl(declList->get(i));
     }
   } break;
@@ -105,6 +110,7 @@ void Semant::buildImpl(Ast *node) {
     AstStatementList *stmtList = e->statementList();
     CASSERT(stmtList, "stmtList is null");
     for (int i = 0; i < stmtList->size(); i++) {
+      CASSERT(stmtList->get(i), "stmtList#get {} is null", i);
       buildImpl(stmtList->get(i));
     }
     Symbol::pop(gsym_, csym_);
@@ -112,11 +118,14 @@ void Semant::buildImpl(Ast *node) {
   } break;
   case A_IF_STATEMENT: {
     AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
+    CASSERT(e->hit(), "e#hit is null");
+    CASSERT(e->miss(), "e#miss is null");
     buildImpl(e->hit());
     buildImpl(e->miss());
   } break;
   case A_WHILE_STATEMENT: {
     AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
+    CASSERT(e->statement(), "e#statement is null");
     buildImpl(e->statement());
   } break;
   case A_FOR_STATEMENT: {
@@ -125,6 +134,8 @@ void Semant::buildImpl(Ast *node) {
     LocalTytab *lt = new LocalTytab(e->name(), cty_);
     Symbol::push(gsym_, csym_, ls);
     Type::push(gty_, cty_, lt);
+    CASSERT(e->initial(), "e#initial is null");
+    CASSERT(e->statement(), "e#statement is null");
     buildImpl(e->initial());
     buildImpl(e->statement());
     Symbol::pop(gsym_, csym_);

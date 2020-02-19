@@ -8,12 +8,12 @@
 #include "catch2/catch.hpp"
 #include <cstdio>
 
-static void parseToken(const char *module) {
+static void go(const char *module) {
   if (!tokenPushImport(module)) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
-  CINFO("parseToken {} starting...", module);
+  CINFO("go start: {}", module);
   int t;
   while ((t = yylex()) != 0) {
     if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
@@ -27,12 +27,12 @@ static void parseToken(const char *module) {
   }
   // we don't need pop file manually here
   // tokenPopImport();
-  CINFO("parseToken {} ending...", module);
+  CINFO("go end: {}", module);
 }
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    parseToken("test.DslTest1");
-    parseToken("test.DslTest2");
+    go("test.DslTest1");
+    go("test.DslTest2");
   }
 }
