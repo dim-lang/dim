@@ -13,9 +13,9 @@ static void go(const char *module) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
-  CINFO("go {} starting...", module);
-  REQUIRE(yyparse(nullptr) == 0);
-  CINFO("go {} ending...", module);
+  AstDeclarationList *program = nullptr;
+  REQUIRE(yyparse(&program) == 0);
+  CINFO("go end, program: {}", program ? program->toString() : "null");
 }
 
 TEST_CASE("Parser", "[Parser]") {

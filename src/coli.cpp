@@ -36,10 +36,10 @@ int main(int argc, char **argv) {
         CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }
-      CINFO("{} starting...", moduleName);
       AstDeclarationList *program = nullptr;
       int yp = yyparse(&program);
-      CINFO("{} ending...", moduleName);
+      CINFO("yyparse: yp:{}, program:{}", yp,
+            program ? program->toString() : "null");
       CASSERT(yp == 0, "yyparse fail:{}", yp);
       Semant *semant = new Semant(program);
       semant->build();

@@ -14,7 +14,7 @@ static void go(const char *module) {
   }
   AstDeclarationList *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  REQUIRE(program != nullptr);
+  CINFO("go end, program: {}", program ? program->toString() : "null");
   Semant *semant = new Semant(program);
   semant->build();
   semant->check();

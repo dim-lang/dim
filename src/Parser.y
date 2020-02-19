@@ -96,43 +96,43 @@ static Counter counter;
 
  /* part-1 expression */
 
-join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("join_string_helper: {}", $$->toString()); }
-                   | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); CINFO("join_string_helper: {}", $$->toString()); }
+join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
+                   | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); }
                    ;
 
-primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
-                   /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_U8_CONSTANT { $$ = new AstU8Constant((uint8_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_U16_CONSTANT { $$ = new AstU16Constant((uint16_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_U32_CONSTANT { $$ = new AstU32Constant((uint32_t)std::stoul($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
-                   /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }*/
-                   | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); CINFO("primary_expression: {}", $$->toString()); }
-                   | join_string_helper { $$ = $1; CINFO("primary_expression: {}", $$->toString()); }
-                   | T_TRUE { $$ = new AstBooleanConstant(true); CINFO("primary_expression: {}", $$->toString()); }
-                   | T_FALSE { $$ = new AstBooleanConstant(false); CINFO("primary_expression: {}", $$->toString()); }
-                   | T_LPAREN expression T_RPAREN { $$ = $2; CINFO("primary_expression: {}", $$ ? $$->toString() : "null"); }
+primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
+                   /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); }*/
+                   /*| T_U8_CONSTANT { $$ = new AstU8Constant((uint8_t)std::stoul($1)); std::free($1); }*/
+                   /*| T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); }*/
+                   /*| T_U16_CONSTANT { $$ = new AstU16Constant((uint16_t)std::stoul($1)); std::free($1); }*/
+                   /*| T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); }*/
+                   /*| T_U32_CONSTANT { $$ = new AstU32Constant((uint32_t)std::stoul($1)); std::free($1); }*/
+                   | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); }
+                   /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); }*/
+                   /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); }*/
+                   | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); }
+                   | join_string_helper { $$ = $1; }
+                   | T_TRUE { $$ = new AstBooleanConstant(true); }
+                   | T_FALSE { $$ = new AstBooleanConstant(false); }
+                   | T_LPAREN expression T_RPAREN { $$ = $2; }
                    ;
 
-postfix_expression : primary_expression { $$ = $1; CINFO("postfix_expression: {}", $$ ? $$->toString() : "null"); }
+postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '[' expression ']'*/
-                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, nullptr); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
-                   | T_IDENTIFIER T_LPAREN argument_expression_list T_RPAREN { $$ = new AstCallExpression($1, $3); std::free($1); CINFO("postfix_expression: {}", $$->toString()); }
+                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, nullptr); std::free($1); }
+                   | T_IDENTIFIER T_LPAREN argument_expression_list T_RPAREN { $$ = new AstCallExpression($1, $3); std::free($1); }
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); CINFO("argument_expression_list: {}", $$->toString()); }
-                         | argument_expression_list T_COMMA assignment_expression { $$->add($3); CINFO("argument_expression_list: {}", $$->toString()); }
+argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
+                         | argument_expression_list T_COMMA assignment_expression { $$->add($3); }
                          ;
 
-unary_expression : postfix_expression { $$ = $1; CINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | T_ADD unary_expression { $$ = new AstUnaryExpression($1, $2); CINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2); CINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); CINFO("unary_expression: {}", $$ ? $$->toString() : "null"); }
-                 | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); CINFO("unary_expression: {}", $$->toString()); }
+unary_expression : postfix_expression { $$ = $1; }
+                 | T_ADD unary_expression { $$ = new AstUnaryExpression($1, $2); }
+                 | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2); }
+                 | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); }
+                 | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2); }
                  ;
 
  /*
@@ -141,92 +141,90 @@ cast_expression : unary_expression
                 ;
  */
 
-multiplicative_expression : unary_expression { $$ = $1; CINFO("multiplicative_expression : {}", $$ ? $$->toString() : "null"); }
-                          | multiplicative_expression T_MUL unary_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("multiplicative_expression : {}", $$->toString()); }
-                          | multiplicative_expression T_DIV unary_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("multiplicative_expression : {}", $$->toString()); }
-                          | multiplicative_expression T_MOD unary_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("multiplicative_expression : {}", $$->toString()); }
+multiplicative_expression : unary_expression { $$ = $1; }
+                          | multiplicative_expression T_MUL unary_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                          | multiplicative_expression T_DIV unary_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                          | multiplicative_expression T_MOD unary_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                           ;
 
-additive_expression : multiplicative_expression { $$ = $1; CINFO("additive_expression: {}", $$ ? $$->toString() : "null"); }
-                    | additive_expression T_ADD multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
-                    | additive_expression T_SUB multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("additive_expression: {}", $$->toString()); }
+additive_expression : multiplicative_expression { $$ = $1; }
+                    | additive_expression T_ADD multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                    | additive_expression T_SUB multiplicative_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                     ;
 
-shift_expression : additive_expression { $$ = $1; CINFO("shift_expression: {}", $$ ? $$->toString() : "null"); }
-                 | shift_expression T_BIT_LSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
-                 | shift_expression T_BIT_RSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
-                 | shift_expression T_BIT_ARSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("shift_expression: {}", $$->toString()); }
+shift_expression : additive_expression { $$ = $1; }
+                 | shift_expression T_BIT_LSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                 | shift_expression T_BIT_RSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                 | shift_expression T_BIT_ARSHIFT additive_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                  ;
 
-relational_expression : shift_expression { $$ = $1; CINFO("relational_expression: {}", $$ ? $$->toString() : "null"); }
-                      | relational_expression T_LT shift_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("relational_expression: {}", $$->toString()); }
-                      | relational_expression T_LE shift_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("relational_expression: {}", $$->toString()); }
-                      | relational_expression T_GT shift_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("relational_expression: {}", $$->toString()); }
-                      | relational_expression T_GE shift_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("relational_expression: {}", $$->toString()); }
+relational_expression : shift_expression { $$ = $1; }
+                      | relational_expression T_LT shift_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                      | relational_expression T_LE shift_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                      | relational_expression T_GT shift_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                      | relational_expression T_GE shift_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                       ;
 
-equality_expression : relational_expression { $$ = $1; CINFO("equality_expression: {}", $$ ? $$->toString() : "null"); }
-                    | equality_expression T_EQ relational_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("equality_expression: {}", $$->toString()); }
-                    | equality_expression T_NEQ relational_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("equality_expression: {}", $$->toString()); }
+equality_expression : relational_expression { $$ = $1; }
+                    | equality_expression T_EQ relational_expression { $$ = new AstBinaryExpression($1, $2, $3); }
+                    | equality_expression T_NEQ relational_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                     ;
 
-bit_and_expression : equality_expression { $$ = $1; CINFO("bit_and_expression: {}", $$ ? $$->toString() : "null"); }
-                   | bit_and_expression T_BIT_AND equality_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("bit_and_expression: {}", $$->toString()); }
+bit_and_expression : equality_expression { $$ = $1; }
+                   | bit_and_expression T_BIT_AND equality_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                    ;
 
-bit_xor_expression : bit_and_expression { $$ = $1; CINFO("bit_xor_expression: {}", $$ ? $$->toString() : "null"); }
-                   | bit_xor_expression T_BIT_XOR bit_and_expression { $$ = new AstBinaryExpression($1, $2, $3); break; CINFO("bit_xor_expression: {}", $$->toString()); }
+bit_xor_expression : bit_and_expression { $$ = $1; }
+                   | bit_xor_expression T_BIT_XOR bit_and_expression { $$ = new AstBinaryExpression($1, $2, $3); break; }
                    ;
 
-bit_or_expression : bit_xor_expression { $$ = $1; CINFO("bit_or_expression: {}", $$ ? $$->toString() : "null"); }
-                  | bit_or_expression T_BIT_OR bit_xor_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("bit_or_expression: {}", $$->toString()); }
+bit_or_expression : bit_xor_expression { $$ = $1; }
+                  | bit_or_expression T_BIT_OR bit_xor_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                   ;
 
-logical_and_expression : bit_or_expression { $$ = $1; CINFO("logical_and_expression: {}", $$ ? $$->toString() : "null"); }
-                       | logical_and_expression T_LOGIC_AND bit_or_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("logical_and_expression: {}", $$->toString()); }
+logical_and_expression : bit_or_expression { $$ = $1; }
+                       | logical_and_expression T_LOGIC_AND bit_or_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                        ;
 
-logical_or_expression : logical_and_expression { $$ = $1; CINFO("logical_or_expression: {}", $$ ? $$->toString() : "null"); }
-                      | logical_or_expression T_LOGIC_OR logical_and_expression { $$ = new AstBinaryExpression($1, $2, $3); CINFO("logical_or_expression: {}", $$->toString()); }
+logical_or_expression : logical_and_expression { $$ = $1; }
+                      | logical_or_expression T_LOGIC_OR logical_and_expression { $$ = new AstBinaryExpression($1, $2, $3); }
                       ;
 
-conditional_expression : logical_or_expression { $$ = $1; CINFO("conditional_expression: {}", $$ ? $$->toString() : "null"); }
-                       | logical_or_expression T_QUESTION expression T_COLON conditional_expression {
-                                $$ = new AstConditionalExpression($1, $3, $5); CINFO("conditional_expression: {}", $$->toString());
-                            }
+conditional_expression : logical_or_expression { $$ = $1; }
+                       | logical_or_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
  /**
   * 1. allow multiple assignment in an expression: x, y, z = 1, "hello", 2.3
   * 2. disallow multiple assignment as a chain: x = y = z = 1
   */
-assignment_expression : conditional_expression { $$ = $1; CINFO("assignment_expression: {}", $$ ? $$->toString() : "null"); }
-                      | unary_expression T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_MOD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_ADD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_SUB_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
-                      | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); CINFO("assignment_expression: {}", $$->toString()); }
+assignment_expression : conditional_expression { $$ = $1; }
+                      | unary_expression T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_MOD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_ADD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_SUB_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
+                      | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
                       ;
 
-expression : /* nothing */ { $$ = new AstEmptyExpression(); CINFO("expression: null"); }
-           | assignment_expression { $$ = $1; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
-           | expression T_COMMA assignment_expression { $$ = $3; CINFO("expression: {}", $$ ? $$->toString() : "null"); }
+expression : /* nothing */ { $$ = new AstEmptyExpression(); }
+           | assignment_expression { $$ = $1; }
+           | expression T_COMMA assignment_expression { $$ = $3; }
            ;
 
-constant_expression : conditional_expression { $$ = $1; CINFO("constant_expression: {}", $$ ? $$->toString() : "null"); }
+constant_expression : conditional_expression { $$ = $1; }
                     ;
 
  /* part-2 declaration */
 
-declaration : function_declaration { $$ = $1; CINFO("declaration: {}", $$ ? $$->toString() : "null"); }
-            | variable_declaration { $$ = $1; CINFO("declaration: {}", $$ ? $$->toString() : "null"); }
+declaration : function_declaration { $$ = $1; }
+            | variable_declaration { $$ = $1; }
             ;
 
  /**
@@ -234,14 +232,14 @@ declaration : function_declaration { $$ = $1; CINFO("declaration: {}", $$ ? $$->
   * var x:i64 = 100;
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
-variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = new AstVariableDeclaration($2); CINFO("variable_declaration: {}", $$->toString()); }
+variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = new AstVariableDeclaration($2); }
                      ;
 
-variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); CINFO("variable_assignment_declaration_list: {}", $$->toString()); }
-                                     | variable_assignment_declaration_list T_COMMA variable_assignment_declaration { $$->add($3); CINFO("variable_assignment_declaration_list: {}", $$->toString()); }
+variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); }
+                                     | variable_assignment_declaration_list T_COMMA variable_assignment_declaration { $$->add($3); }
                                      ;
 
-variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); CINFO("variable_assignment_declaration: {}", $$->toString()); }
+variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); }
                                 ;
 
  /**
@@ -257,12 +255,10 @@ variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$
 function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {
                             $$ = new AstFunctionDeclaration($2, $4, nullptr, $7);
                             std::free($2);
-                            CINFO("function_declaration: {}", $$->toString());
                         }
                      | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {
                             $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $6);
                             std::free($2);
-                            CINFO("function_declaration: {}", $$->toString());
                         }
                      /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {*/
                             /*AstStatementList *statementList = new AstStatementList();*/
@@ -270,7 +266,6 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                             /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
                             /*$$ = new AstFunctionDeclaration($2, $4, compoundStatement);*/
                             /*std::free($2);*/
-                            /*CINFO("function_declaration: {}", $$->toString());*/
                         /*}*/
                      /*| T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {*/
                             /*AstStatementList *statementList = new AstStatementList();*/
@@ -278,22 +273,14 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                             /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
                             /*$$ = new AstFunctionDeclaration($2, nullptr, compoundStatement);*/
                             /*std::free($2);*/
-                            /*CINFO("function_declaration: {}", $$->toString());*/
                         /*}*/
                      ;
 
-function_argument_declaration_list : function_argument_declaration {
-                                        $$ = new AstDeclarationList(); 
-                                        $$->add($1); 
-                                        CINFO("function_argument_declaration_list: {}", $$->toString());
-                                    }
-                                   | function_argument_declaration_list T_COMMA function_argument_declaration { 
-                                        $$->add($3); 
-                                        CINFO("function_argument_declaration_list: {}", $$->toString()); 
-                                    }
+function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->add($1); }
+                                   | function_argument_declaration_list T_COMMA function_argument_declaration { $$->add($3); }
                                    ;
 
-function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); CINFO("function_argument_declaration: {}", $$->toString()); }
+function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); }
                               ;
 
 function_declaration_arrow : /* nothing */
@@ -301,58 +288,43 @@ function_declaration_arrow : /* nothing */
                            ;
 
  /* part-3 statement */
-compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); CINFO("compound_statement: {}", $$->toString()); }
-                   | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); CINFO("compound_statement: {}", $$->toString()); }
+compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); }
+                   | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); }
                    ;
 
-statement_list : statement { $$ = new AstStatementList(); $$->add($1); CINFO("statement_list: {}", $$->toString()); }
-               | statement_list statement { $$->add($2); CINFO("statement_list: {}", $$->toString()); }
+statement_list : statement { $$ = new AstStatementList(); $$->add($1); }
+               | statement_list statement { $$->add($2); }
                ;
 
-statement : compound_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
-          | expression_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
-          | selection_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
-          | iteration_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
-          | jump_statement { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
-          | declaration { $$ = $1; CINFO("statement: {}", $$ ? $$->toString() : "null"); }
+statement : compound_statement { $$ = $1; }
+          | expression_statement { $$ = $1; }
+          | selection_statement { $$ = $1; }
+          | iteration_statement { $$ = $1; }
+          | jump_statement { $$ = $1; }
+          | declaration { $$ = $1; }
           ;
 
-expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1); CINFO("expression_statement: {}", $$ ? $$->toString() : "null"); }
+expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1); }
                      ;
 
-selection_statement : T_IF T_LPAREN expression T_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); CINFO("selection_statement: {}", $$->toString()); }
-                    | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7); CINFO("selection_statement: {}", $$->toString()); }
+selection_statement : T_IF T_LPAREN expression T_RPAREN statement { $$ = new AstIfStatement($3, $5, nullptr); }
+                    | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7); }
                     /*| T_SWITCH T_LPAREN expression T_RPAREN statement*/
                     ;
 
-iteration_statement : T_WHILE T_LPAREN expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5); CINFO("iteration_statement: {}", $$->toString()); }
-                    | T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); CINFO("iteration_statement: {}", $$->toString()); }
-                    | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); CINFO("iteration_statement: {}", $$->toString()); }
+iteration_statement : T_WHILE T_LPAREN expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5); }
+                    | T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); }
+                    | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); }
                     ;
 
-jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); CINFO("jump_statement: {}", $$->toString()); }
-               | T_BREAK T_SEMI { $$ = new AstBreakStatement(); CINFO("jump_statement: {}", $$->toString()); }
-               | T_RETURN T_SEMI { $$ = new AstReturnStatement(nullptr); CINFO("jump_statement: {}", $$->toString()); }
-               | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); CINFO("jump_statement: {}", $$->toString()); }
+jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
+               | T_BREAK T_SEMI { $$ = new AstBreakStatement(); }
+               | T_RETURN T_SEMI { $$ = new AstReturnStatement(nullptr); }
+               | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); }
                ;
 
-translation_unit : declaration {
-                        if (program) {
-                            (*program) = new AstDeclarationList();
-                            (*program)->add($1);
-                            CINFO("translation_unit: {}", (*program)->toString());
-                        } else {
-                            CINFO("translation_unit $1: {}", $1 ? $1->toString() : "null");
-                        }
-                    }
-                 | translation_unit declaration {
-                         if (program) {
-                            (*program)->add($2);
-                            CINFO("translation_unit: {}", $2 ? $2->toString() : "null");
-                        } else {
-                            CINFO("translation_unit $2: {}", $2 ? $2->toString() : "null");
-                        }
-                    }
+translation_unit : declaration { if (program) { (*program) = new AstDeclarationList(); (*program)->add($1); } }
+                 | translation_unit declaration { if (program) { (*program)->add($2); } }
                  ;
 
 %%
