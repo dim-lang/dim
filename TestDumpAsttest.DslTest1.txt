@@ -1,21 +1,34 @@
-A_DeclList@392
-A_VarDecl@391x=A_i64@1@376+A_i64@6@377/-A_i64@3@378*A_i64@4@381+A_i64@3@382%-A_i64@2@383
-A_VarDecl@396y=A_i64@0@393
-A_VarDecl@402z=A_id@x@397+A_id@y@398
-A_VarDecl@406a9=A_i64@228@403
-A_VarDecl@410a18=A_f64@123.901000@407
-A_FuncDecl@Hello@449() => {
-A_id@a@411=A_i64@1@412;
-A_id@b@416=A_i64@2@417;
-A_id@a@420=A_id@a@421+A_id@b@422;
-A_return@427 A_id@a@426;
-if (A_id@a@428<A_id@b@429)  else 
-while (A_id@a@440<A_id@b@441) }
-A_FuncDecl@ok@454() => {
-A_return@451 A_i64@0@450;}
-A_FuncDecl@testOnTokenLexer@469() => {
-A_Call@print@457(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:This is going to be a very long string, which is used for testing coli DSL language ] ]);
-A_Call@print@462(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
+A_DeclList@204 {
+A_VarDecl@203x = A_i64_1@188 + A_i64_6@189 / - A_i64_3@190 * A_i64_4@193 + A_i64_3@194 % - A_i64_2@195
+A_VarDecl@208y = A_i64_0@205
+A_VarDecl@214z = A_id_x@209 + A_id_y@210
+A_VarDecl@218a9 = A_i64_228@215
+A_VarDecl@222a18 = A_f64_123.901000@219
+
+A_FuncDecl_Hello@261() => {
+	A_id_a@223=A_i64_1@224;
+	A_id_b@228=A_i64_2@229;
+	A_id_a@232=A_id_a@233 + A_id_b@234;
+	A_return@239 A_id_a@238;
+	if (A_id_a@240 < A_id_b@241) 
+	A_Call_print@245(unknown node:[ @AstExpressionList size:1, 0:[ @AstIdentifierConstant value_:a ] ]); 
+else 	A_Call_print@249(unknown node:[ @AstExpressionList size:1, 0:[ @AstIdentifierConstant value_:b ] ]);
+	while (A_id_a@252 < A_id_b@253)
+A_Call_print@257(unknown node:[ @AstExpressionList size:1, 0:[ @AstIdentifierConstant value_:a ] ]);
+}
+
+
+A_FuncDecl_ok@266() => {
+	A_return@263 A_i64_0@262;
+}
+
+
+A_FuncDecl_testOnTokenLexer@281() => {
+	A_Call_print@269(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:This is going to be a very long string, which is used for testing coli DSL language ] ]);
+	A_Call_print@274(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.
 Maybe we need more troubleshooting while testing. ] ]);
-A_Call@print@466(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Try punctuations like if \"'\" will stop this string literals.join string 2, join string 3, join string 4,  ] ]);}
+	A_Call_print@278(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Try punctuations like if \"'\" will stop this string literals.join string 2, join string 3, join string 4,  ] ]);
+}
+
+}

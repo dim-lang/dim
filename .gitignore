@@ -32,6 +32,7 @@ Catch2
 *.yy.cpp
 *.tab.hpp
 *.tab.cpp
+*.txt
 
 # clion
 .idea

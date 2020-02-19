@@ -1,17 +1,27 @@
-A_DeclList@525
-A_FuncDecl@abs@524() => {
-A_id@number@470=A_i64@3@471+-A_i64@2@472;
-A_id@number@478=A_i64@1@479+A_i64@6@480/-A_i64@3@481*A_i64@4@484+A_i64@3@485%-A_i64@2@486+A_i64@2@492;
-A_id@a@496=A_id@number@497;
-A_id@b@500=A_i64@10@501*A_id@a@502+A_i64@10@504*A_id@number@505/A_i64@4@507;
-A_id@c@512=A_id@a@513--A_id@b@514;
-A_EmptyExpr@519;
-A_EmptyExpr@521;}
-A_FuncDecl@World@551(A_FuncArgDecl@x@526,A_FuncArgDecl@y@528) => {
-A_id@x@529=A_i64@1@530;
-A_id@y@534=A_i64@2@535;
-A_id@z@538=A_id@x@539+A_id@y@540;
-A_return@549 A_id@z@544+A_i64@10@545/A_i64@4@546;}
-A_FuncDecl@fail@562() => {
-A_Call@print@554(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:This is the very end of DslTest2.fast ] ]);
-A_Call@print@559(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Goodbye World! ] ]);}
+A_DeclList@337 {
+
+A_FuncDecl_abs@336() => {
+	A_id_number@282=A_i64_3@283 + - A_i64_2@284;
+	A_id_number@290=A_i64_1@291 + A_i64_6@292 / - A_i64_3@293 * A_i64_4@296 + A_i64_3@297 % - A_i64_2@298 + A_i64_2@304;
+	A_id_a@308=A_id_number@309;
+	A_id_b@312=A_i64_10@313 * A_id_a@314 + A_i64_10@316 * A_id_number@317 / A_i64_4@319;
+	A_id_c@324=A_id_a@325 - - A_id_b@326;
+	A_EmptyExpr@331;
+	A_EmptyExpr@333;
+}
+
+
+A_FuncDecl_World@363(A_FuncArgDecl_x@338,A_FuncArgDecl_y@340) => {
+	A_id_x@341=A_i64_1@342;
+	A_id_y@346=A_i64_2@347;
+	A_id_z@350=A_id_x@351 + A_id_y@352;
+	A_return@361 A_id_z@356 + A_i64_10@357 / A_i64_4@358;
+}
+
+
+A_FuncDecl_fail@374() => {
+	A_Call_print@366(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:This is the very end of DslTest2.fast ] ]);
+	A_Call_print@371(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Goodbye World! ] ]);
+}
+
+}

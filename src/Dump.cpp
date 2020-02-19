@@ -31,11 +31,11 @@ static std::string dumpForAst(Ast *node) {
            dumpForAst(dynamic_cast<AstCallExpression *>(node)->argumentList()) +
            ")";
   case A_UNARY_EXPRESSION:
-    return tokenName(dynamic_cast<AstUnaryExpression *>(node)->token()) +
+    return tokenName(dynamic_cast<AstUnaryExpression *>(node)->token()) + " " +
            dumpForAst(dynamic_cast<AstUnaryExpression *>(node)->expression());
   case A_BINARY_EXPRESSION:
-    return dumpForAst(dynamic_cast<AstBinaryExpression *>(node)->left()) +
-           tokenName(dynamic_cast<AstBinaryExpression *>(node)->token()) +
+    return dumpForAst(dynamic_cast<AstBinaryExpression *>(node)->left()) + " " +
+           tokenName(dynamic_cast<AstBinaryExpression *>(node)->token()) + " " +
            dumpForAst(dynamic_cast<AstBinaryExpression *>(node)->right());
   case A_CONDITIONAL_EXPRESSION:
     return dumpForAst(
@@ -60,29 +60,29 @@ static std::string dumpForAst(Ast *node) {
     AstCompoundStatement *cs = dynamic_cast<AstCompoundStatement *>(node);
     if (cs->statementList() && cs->statementList()->size() > 0) {
       for (int i = 0; i < cs->statementList()->size(); i++) {
-        r += ("\n" + dumpForAst(cs->statementList()->get(i)));
+        r += ("\n\t" + dumpForAst(cs->statementList()->get(i)));
       }
     }
-    r += "}";
+    r += "\n}\n";
     return r;
   }
   case A_IF_STATEMENT: {
     std::string r = "if (";
     AstIfStatement *is = dynamic_cast<AstIfStatement *>(node);
     CASSERT(is->hit(), "is#hit is null");
-    r += dumpForAst(is->condition()) + ") ";
-    dumpForAst(is->hit());
+    r += dumpForAst(is->condition()) + ") \n";
+    r += std::string("\t") + dumpForAst(is->hit());
     if (is->miss()) {
-      r += " else ";
-      dumpForAst(is->miss());
+      r += " \nelse ";
+      r += std::string("\t") + dumpForAst(is->miss());
     }
     return r;
   }
   case A_WHILE_STATEMENT: {
     std::string r = "while (";
     AstWhileStatement *ws = dynamic_cast<AstWhileStatement *>(node);
-    r += dumpForAst(ws->condition()) + ") ";
-    dumpForAst(ws->statement());
+    r += dumpForAst(ws->condition()) + ")\n";
+    r += dumpForAst(ws->statement());
     return r;
   }
   case A_FOR_STATEMENT: {
@@ -90,8 +90,8 @@ static std::string dumpForAst(Ast *node) {
     std::string r = "for (";
     r += dumpForAst(fs->initial());
     r += dumpForAst(fs->condition());
-    r += dumpForAst(fs->post()) + ") ";
-    dumpForAst(fs->statement());
+    r += dumpForAst(fs->post()) + ")\n";
+    r += dumpForAst(fs->statement());
     return r;
   }
   case A_CONTINUE_STATEMENT:
@@ -108,7 +108,7 @@ static std::string dumpForAst(Ast *node) {
     for (int i = 0; i < vd->declarationList()->size(); i++) {
       r += dumpForAst(vd->declarationList()->get(i));
       if (i < vd->declarationList()->size() - 1) {
-        r += ",";
+        r += ", ";
       }
     }
     return r;
@@ -116,11 +116,11 @@ static std::string dumpForAst(Ast *node) {
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     AstVariableAssignmentDeclaration *vad =
         dynamic_cast<AstVariableAssignmentDeclaration *>(node);
-    return vad->identifier() + "=" + dumpForAst(vad->expression());
+    return vad->identifier() + " = " + dumpForAst(vad->expression());
   }
   case A_FUNCTION_DECLARATION: {
     AstFunctionDeclaration *fd = dynamic_cast<AstFunctionDeclaration *>(node);
-    std::string r = fd->name() + "(";
+    std::string r = "\n" + fd->name() + "(";
     if (fd->argumentList() && fd->argumentList()->size() > 0) {
       for (int i = 0; i < fd->argumentList()->size(); i++) {
         r += fd->argumentList()->get(i)->name();
@@ -134,10 +134,11 @@ static std::string dumpForAst(Ast *node) {
   }
   case A_DECLARATION_LIST: {
     AstDeclarationList *dl = dynamic_cast<AstDeclarationList *>(node);
-    std::string r = dl->name() + "\n";
+    std::string r = dl->name() + " {\n";
     for (int i = 0; i < dl->size(); i++) {
       r += dumpForAst(dl->get(i)) + "\n";
     }
+    r += "}\n";
     return r;
   }
   default:
