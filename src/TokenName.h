@@ -4,4 +4,4 @@
 #pragma once
 #include <string>
 
-std::string TokenName(int token);
+std::string tokenName(int token);

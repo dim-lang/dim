@@ -85,7 +85,7 @@ static std::unordered_map<int, std::string> TokenNameMap = {
     {T_BIG_ARROW, "=>"},
 };
 
-std::string TokenName(int token) {
+std::string tokenName(int token) {
   CASSERT(TokenNameMap.find(token) != TokenNameMap.end(), "token not exist: {}",
           token);
   return TokenNameMap[token];

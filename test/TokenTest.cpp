@@ -1,10 +1,10 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "Token.h"
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
+#include "TokenExt.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 

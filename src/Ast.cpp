@@ -253,7 +253,7 @@ const bool &AstBooleanConstant::value() const { return value_; }
 AstCallExpression::AstCallExpression(const char *identifier,
                                      AstExpressionList *argumentList)
     : identifier_(identifier), argumentList_(argumentList),
-      name_(A_NAME("A_Call")) {}
+      name_(A_NAME2("A_Call", identifier)) {}
 
 AstCallExpression::~AstCallExpression() {
   delete argumentList_;
@@ -289,7 +289,7 @@ int AstUnaryExpression::type() const { return A_UNARY_EXPRESSION; }
 std::string AstUnaryExpression::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
   return fmt::format("[ @AstUnaryExpression token_:{}, expression_:{} ]",
-                     TokenName(token_), exprStr);
+                     tokenName(token_), exprStr);
 }
 
 std::string AstUnaryExpression::name() const { return name_; }
@@ -315,7 +315,7 @@ std::string AstBinaryExpression::toString() const {
   std::string leftStr = left_ ? left_->toString() : "null";
   std::string rightStr = right_ ? right_->toString() : "null";
   return fmt::format("[ @AstBinaryExpression left_:{}, token_:{}, right_:{} ]",
-                     leftStr, TokenName(token_), rightStr);
+                     leftStr, tokenName(token_), rightStr);
 }
 
 std::string AstBinaryExpression::name() const { return name_; }
@@ -382,7 +382,7 @@ std::string AstAssignmentExpression::toString() const {
   std::string valStr = value_ ? value_->toString() : "null";
   return fmt::format(
       "[ @AstAssignmentExpression variable_:{}, token_:{}, value_:{} ]", varStr,
-      TokenName(token_), valStr);
+      tokenName(token_), valStr);
 }
 
 std::string AstAssignmentExpression::name() const { return name_; }
@@ -643,7 +643,7 @@ AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
                                                AstExpression *result,
                                                AstStatement *statement)
     : identifier_(identifier), argumentList_(argumentList), result_(result),
-      statement_(statement), name_(A_NAME("A_FuncDecl")) {}
+      statement_(statement), name_(A_NAME2("A_FuncDecl", identifier)) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
   delete argumentList_;
@@ -681,7 +681,7 @@ AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
 
 AstFunctionArgumentDeclaration::AstFunctionArgumentDeclaration(
     const char *value)
-    : value_(value), name_(A_NAME("A_FuncArgDecl")) {}
+    : value_(value), name_(A_NAME2("A_FuncArgDecl", value)) {}
 
 AstFunctionArgumentDeclaration::~AstFunctionArgumentDeclaration() {}
 
@@ -700,3 +700,4 @@ const std::string &AstFunctionArgumentDeclaration::value() const {
 }
 
 #undef A_NAME
+#undef A_NAME2

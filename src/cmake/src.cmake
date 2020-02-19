@@ -18,6 +18,7 @@ set(CCORE
     Type.cpp
     Semant.cpp
     Counter.cpp
+    Dump.cpp
 )
 
 set(CSRC
