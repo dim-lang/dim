@@ -7,12 +7,20 @@
 #include <string>
 #include <unordered_map>
 
+#define SYM_VAR 101
+#define SYM_FUNC_ARG 102
+#define SYM_FUNC 103
+#define SYM_CLASS 104
+#define SYM_GLOBAL 201
+#define SYM_LOCAL 202
+
 class Symtab;
 
 class Symbol {
 public:
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
+  virtual int type() const = 0;
 
   static void push(Symtab *&global, Symtab *&current, Symtab *scope);
   static void pop(Symtab *&global, Symtab *&current);

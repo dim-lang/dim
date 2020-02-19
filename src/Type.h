@@ -10,12 +10,17 @@
 #include <utility>
 #include <vector>
 
+#define TY_BUILTIN 101
+#define TY_CLASS 102
+#define TY_FUNCTION 102
+
 class Tytab;
 
 class Type {
 public:
   virtual ~Type() = default;
   virtual std::string name() const = 0;
+  virtual int type() const = 0;
 
   static void push(Tytab *&global, Tytab *&current, Tytab *s);
   static void pop(Tytab *&global, Tytab *&current);
