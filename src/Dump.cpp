@@ -26,10 +26,20 @@ static std::string dumpForAst(Ast *node) {
   case A_STRING_CONSTANT:
   case A_BOOLEAN_CONSTANT:
     return node->name();
-  case A_CALL_EXPRESSION:
-    return node->name() + "(" +
-           dumpForAst(dynamic_cast<AstCallExpression *>(node)->argumentList()) +
-           ")";
+  case A_CALL_EXPRESSION: {
+    AstCallExpression *ce = dynamic_cast<AstCallExpression *>(node);
+    std::string r = ce->name() + "(";
+    if (ce->argumentList()) {
+      for (int i = 0; i < ce->argumentList()->size(); i++) {
+        r += dumpForAst(ce->argumentList()->get(i));
+        if (i < ce->argumentList()->size() - 1) {
+          r += ", ";
+        }
+      }
+    }
+    r += ")";
+    return r;
+  }
   case A_UNARY_EXPRESSION:
     return tokenName(dynamic_cast<AstUnaryExpression *>(node)->token()) + " " +
            dumpForAst(dynamic_cast<AstUnaryExpression *>(node)->expression());
@@ -104,13 +114,14 @@ static std::string dumpForAst(Ast *node) {
            ";";
   case A_VARIABLE_DECLARATION: {
     AstVariableDeclaration *vd = dynamic_cast<AstVariableDeclaration *>(node);
-    std::string r = vd->name();
+    std::string r = vd->name() + ": ";
     for (int i = 0; i < vd->declarationList()->size(); i++) {
       r += dumpForAst(vd->declarationList()->get(i));
       if (i < vd->declarationList()->size() - 1) {
         r += ", ";
       }
     }
+    r += ";";
     return r;
   }
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
@@ -134,15 +145,17 @@ static std::string dumpForAst(Ast *node) {
   }
   case A_DECLARATION_LIST: {
     AstDeclarationList *dl = dynamic_cast<AstDeclarationList *>(node);
-    std::string r = dl->name() + " {\n";
+    std::string r = dl->name() + " {\n\n";
     for (int i = 0; i < dl->size(); i++) {
       r += dumpForAst(dl->get(i)) + "\n";
     }
     r += "}\n";
     return r;
   }
+  case A_EXPRESSION_LIST: {
+  }
   default:
-    return fmt::format("unknown node:{}", node->toString());
+    return fmt::format("unknown_node:{}", node->toString());
   }
 }
 

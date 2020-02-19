@@ -12,11 +12,10 @@
 
 static Counter NameCounter;
 
-#define A_NAME(x)                                                              \
-  (std::string(x) + std::string("@") + std::to_string(NameCounter.count()))
+#define A_NAME(x) (std::string(x) + std::to_string(NameCounter.count()))
 
 #define A_NAME2(x, y)                                                          \
-  (std::string(x) + std::string("_") + std::string(y) + std::string("@") +     \
+  (std::string(y) + std::string("@") + std::string(x) +                        \
    std::to_string(NameCounter.count()))
 
 AstExpressionList::AstExpressionList() : name_(A_NAME("A_ExprList")) {}
