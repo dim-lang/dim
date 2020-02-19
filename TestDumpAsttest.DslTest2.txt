@@ -1,0 +1,17 @@
+A_DeclList@525
+A_FuncDecl@abs@524() => {
+A_id@number@470=A_i64@3@471+-A_i64@2@472;
+A_id@number@478=A_i64@1@479+A_i64@6@480/-A_i64@3@481*A_i64@4@484+A_i64@3@485%-A_i64@2@486+A_i64@2@492;
+A_id@a@496=A_id@number@497;
+A_id@b@500=A_i64@10@501*A_id@a@502+A_i64@10@504*A_id@number@505/A_i64@4@507;
+A_id@c@512=A_id@a@513--A_id@b@514;
+A_EmptyExpr@519;
+A_EmptyExpr@521;}
+A_FuncDecl@World@551(A_FuncArgDecl@x@526,A_FuncArgDecl@y@528) => {
+A_id@x@529=A_i64@1@530;
+A_id@y@534=A_i64@2@535;
+A_id@z@538=A_id@x@539+A_id@y@540;
+A_return@549 A_id@z@544+A_i64@10@545/A_i64@4@546;}
+A_FuncDecl@fail@562() => {
+A_Call@print@554(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:This is the very end of DslTest2.fast ] ]);
+A_Call@print@559(unknown node:[ @AstExpressionList size:1, 0:[ @AstStringConstant value_:Goodbye World! ] ]);}

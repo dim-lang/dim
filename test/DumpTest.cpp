@@ -2,6 +2,8 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
+#include "Log.h"
+#include "TokenExt.h"
 #include "catch2/catch.hpp"
 
 static void dumpAst(const char *module) {
