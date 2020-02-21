@@ -47,6 +47,7 @@ class BuiltinType : public Type {
 public:
   virtual ~BuiltinType() = default;
   virtual std::string name() const;
+  virtual int type() const;
 
   static BuiltinType *ty_i8();
   static BuiltinType *ty_u8();
@@ -76,6 +77,7 @@ public:
             Tytab *enclosingScope);
   virtual ~ClassType() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();
@@ -92,6 +94,7 @@ public:
                Type *result, Tytab *enclosingScope);
   virtual ~FunctionType() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();

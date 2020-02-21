@@ -11,8 +11,6 @@
 #define SYM_FUNC_ARG 102
 #define SYM_FUNC 103
 #define SYM_CLASS 104
-#define SYM_GLOBAL 201
-#define SYM_LOCAL 202
 
 class Symtab;
 
@@ -48,6 +46,7 @@ public:
   VariableSymbol(const std::string &variableName);
   virtual ~VariableSymbol() = default;
   virtual std::string name() const;
+  virtual int type() const;
 
 private:
   std::string variableName_;
@@ -58,6 +57,7 @@ public:
   FunctionArgumentSymbol(const std::string &functionArgumentName);
   virtual ~FunctionArgumentSymbol() = default;
   virtual std::string name() const;
+  virtual int type() const;
 
 private:
   std::string functionArgumentName_;
@@ -68,6 +68,7 @@ public:
   FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
   virtual ~FunctionSymbol() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -83,6 +84,7 @@ public:
   ClassSymbol(const std::string &className, Symtab *enclosingScope);
   virtual ~ClassSymbol() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();

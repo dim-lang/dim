@@ -6,7 +6,7 @@
 #include "Option.h"
 #include "Parser.tab.hpp"
 #include "Semant.h"
-#include "TokenExt.h"
+#include "Token.h"
 #include <iostream>
 #include <string>
 #include <vector>

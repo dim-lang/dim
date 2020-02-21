@@ -46,6 +46,8 @@ VariableSymbol::VariableSymbol(const std::string &variableName)
 
 std::string VariableSymbol::name() const { return variableName_; }
 
+int VariableSymbol::type() const { return SYM_VAR; }
+
 FunctionArgumentSymbol::FunctionArgumentSymbol(
     const std::string &functionArgumentName)
     : functionArgumentName_(functionArgumentName) {}
@@ -54,11 +56,15 @@ std::string FunctionArgumentSymbol::name() const {
   return functionArgumentName_;
 }
 
+int FunctionArgumentSymbol::type() const { return SYM_FUNC_ARG; }
+
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
                                Symtab *enclosingScope)
     : Symtab(enclosingScope), functionName_(functionName) {}
 
 std::string FunctionSymbol::name() const { return functionName_; }
+
+int FunctionSymbol::type() const { return SYM_FUNC; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
@@ -66,6 +72,8 @@ ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
     : Symtab(enclosingScope), className_(className) {}
 
 std::string ClassSymbol::name() const { return className_; }
+
+int ClassSymbol::type() const { return SYM_CLASS; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 

@@ -7,18 +7,14 @@
 #include <string>
 
 class AstDeclarationList;
-class TokenBuffer;
 
 extern FILE *yyin;
 extern int yylineno;
-
 extern int yylex(void);
 extern int yyparse(AstDeclarationList **program);
 
-extern std::string CurrentTokenFile;
-extern std::stack<TokenBuffer *> TokenBufferStack;
-extern int tokenPushImport(const char *module);
 extern int tokenPushImport(const std::string &module);
 extern int tokenPopImport();
+
 extern std::string tokenModuleToFile(const std::string &name);
 extern std::string tokenFileToModule(const std::string &name);

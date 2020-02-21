@@ -45,6 +45,8 @@ BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
 
 std::string BuiltinType::name() const { return builtinTypeName_; }
 
+int BuiltinType::type() const { return TY_BUILTIN; }
+
 BuiltinType *BuiltinType::ty_i8() {
   static BuiltinType *type_i8 = new BuiltinType("i8");
   return type_i8;
@@ -130,6 +132,8 @@ ClassType::ClassType(const std::string &classType,
 
 std::string ClassType::name() const { return classType_; }
 
+int ClassType::type() const { return TY_CLASS; }
+
 std::string ClassType::stringify() const { return "ClassType"; }
 
 FunctionType::FunctionType(
@@ -154,6 +158,8 @@ FunctionType::FunctionType(
 }
 
 std::string FunctionType::name() const { return functionType_; }
+
+int FunctionType::type() const { return TY_FUNCTION; }
 
 std::string FunctionType::stringify() const { return "FunctionType"; }
 
