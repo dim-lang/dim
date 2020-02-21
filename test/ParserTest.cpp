@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
-#include "TokenExt.h"
+#include "Token.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 
