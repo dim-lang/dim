@@ -4,7 +4,7 @@
 #include "Semant.h"
 #include "Ast.h"
 #include "Log.h"
-#include "TokenExt.h"
+#include "Token.h"
 #include "catch2/catch.hpp"
 
 static void go(const char *module) {
