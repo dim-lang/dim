@@ -2,7 +2,6 @@
 #include "Log.h"
 #include "Ast.h"
 #include "TokenExt.h"
-#include "Counter.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -10,7 +9,6 @@
 #include <cctype>
 #include <unordered_set>
 void yyerror(AstDeclarationList **program, const char *s) { printf("yyerror: %s\n", s); }
-static Counter counter;
 %}
 
 %parse-param { AstDeclarationList **program }
