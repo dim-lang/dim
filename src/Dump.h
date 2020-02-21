@@ -7,8 +7,8 @@
 #include "Type.h"
 #include <string>
 
-void dump(const std::string &fileName, Ast *node);
+std::string dump(Ast *node);
 
-void dump(const std::string &fileName, Symtab *sym);
+std::string dump(Symtab *sym);
 
-void dump(const std::string &fileName, Tytab *ty);
+std::string dump(Tytab *ty);

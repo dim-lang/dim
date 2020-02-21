@@ -13,7 +13,7 @@ static void dumpAst(const char *module) {
   }
   AstDeclarationList *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  dump(std::string("TestDumpAst") + std::string(module) + ".log", program);
+  CINFO("dump: {}", dump(program));
 }
 
 TEST_CASE("Dump", "[Dump]") {
