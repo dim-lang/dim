@@ -3,7 +3,7 @@
 
 #include "Dump.h"
 #include "Log.h"
-#include "TokenExt.h"
+#include "Token.h"
 #include "catch2/catch.hpp"
 
 static void dumpAst(const char *module) {
