@@ -3,24 +3,7 @@
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
-%}
 
-%parse-param { AstProgram **program }
-
- /* Represents the many different ways we can access our data */
-%union {
-    AstExpressionList *exprList;
-    AstStatementList *stmtList;
-    AstDeclarationList *declList;
-    AstExpression *expr;
-    AstStatement *stmt;
-    AstDeclaration *decl;
-    AstStringConstant *str;
-    char *literal;
-    int token;
-}
-
-%code requires {
 typedef struct YYLTYPE {
     int first_line;
     int first_column;
@@ -45,6 +28,21 @@ typedef struct YYLTYPE {
         } \
     } while (0)
 
+%}
+
+%parse-param { AstProgram **program }
+
+ /* Represents the many different ways we can access our data */
+%union {
+    AstExpressionList *exprList;
+    AstStatementList *stmtList;
+    AstDeclarationList *declList;
+    AstExpression *expr;
+    AstStatement *stmt;
+    AstDeclaration *decl;
+    AstStringConstant *str;
+    char *literal;
+    int token;
 }
 
  /**

@@ -4,6 +4,7 @@
 #pragma once
 
 class AstProgram;
+struct YYLTYPE;
 
 extern int yyparse(AstProgram **program);
-void yyerror(AstProgram **program, const char *fmt, ...);
+void yyerror(YYLTYPE *t, const char *fmt, ...);

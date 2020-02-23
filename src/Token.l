@@ -20,29 +20,14 @@ HEXEXP ([pP][-+]?[0-9]+)
 #define T_SAVE_NO_TOKEN         yylval.literal = nullptr
 #define T_TOKEN(t)              (yylval.token = t)
 
-typedef struct YYLTYPE {
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
-    std::string filename;
-} YYLTYPE;
-#define YYLTYPE_IS_DECLARED 1
+int yycolumn = 1;
 
-#define YYLLOC_DEFAULT(Current, Rhs, N) \
-    do { \
-        if (N) { \
-            (Current).first_line = YYRHSLOC(Rhs, 1).first_line; \
-            (Current).first_column = YYRHSLOC(Rhs, 1).first_column; \
-            (Current).last_line = YYRHSLOC(Rhs, 1).last_line; \
-            (Current).last_column = YYRHSLOC(Rhs, 1).last_column; \
-            (Current).filename = YYRHSLOC(Rhs, 1).filename; \
-        } else { \
-            (Current).first_line = (Current).last_line = YYRHSLOC(Rhs, 0).last_line; \
-            (Current).first_column = (Current).last_column = YYRHSLOC(Rhs, 0).last_column; \
-            (Current).filename = ""; \
-        } \
-    } while (0)
+#define YY_USER_ACTION do { \
+    yylloc.filename = TokenBuffer::CurrentBuffer; \
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng; \
+} while (0);
 
 %}
 
@@ -51,15 +36,14 @@ typedef struct YYLTYPE {
  /* block comment */
 "/*"                    { BEGIN COMMENT; }
 <COMMENT>"*/"           { BEGIN INITIAL; }
-<COMMENT>[^*]+|.        { /* skip everything */ }
-<COMMENT>\n             { /* count for newline */ }
+<COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
                             CASSERT(false, "{}:{} error! unterminated comment!", TokenBuffer::CurrentBuffer, yylineno);
                             return 0;
                         }
 
  /* line comment */
-"//".*\n
+"//".*\n                { /* skip everything until end of line */ }
 
  /* keywords */
 "true"       { return T_TOKEN(T_TRUE); }
@@ -179,10 +163,8 @@ typedef struct YYLTYPE {
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*              { T_SAVE_TOKEN; return T_IDENTIFIER; }
 
- /* whitespace except newline */
-[ \t\v\f\r]             { /* skip whitespace */ }
- /* newline */
-\n                      { /* skip whitespace */ }
+ /* whitespace */
+[ \t\n\v\f\r]           { /* skip whitespace */ }
 
  /* import module */
 ^[ \t]*import[ \t]*     { BEGIN IMPORT; }
