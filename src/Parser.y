@@ -2,13 +2,7 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <cstdint>
-#include <cctype>
-#include <unordered_set>
-void yyerror(AstProgram **program, const char *s) { fprintf(stderr, "yyerror: %s\n", s); }
+#include "Parser.h"
 %}
 
 %parse-param { AstProgram **program }

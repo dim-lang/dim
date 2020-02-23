@@ -4,6 +4,7 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Option.h"
+#include "Parser.h"
 #include "Parser.tab.hpp"
 #include "Semant.h"
 #include "Token.h"

@@ -13,6 +13,7 @@ set(CCORE
     TokenName.cpp
     TokenBuffer.cpp
     Token.yy.cpp
+    Parser.cpp
     Parser.tab.cpp
     Ast.cpp
     Symbol.cpp

@@ -9,4 +9,3 @@ class AstProgram;
 extern FILE *yyin;
 extern int yylineno;
 extern int yylex(void);
-extern int yyparse(AstProgram **program);
