@@ -4,6 +4,7 @@
 #include "Semant.h"
 #include "Ast.h"
 #include "Log.h"
+#include "Parser.h"
 #include "Token.h"
 #include "TokenBuffer.h"
 #include "catch2/catch.hpp"

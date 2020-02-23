@@ -3,6 +3,7 @@
 
 #include "Dump.h"
 #include "Log.h"
+#include "Parser.h"
 #include "Token.h"
 #include "TokenBuffer.h"
 #include "catch2/catch.hpp"

@@ -20,7 +20,7 @@ extern void yy_delete_buffer(YY_BUFFER_STATE b);
 
 std::string TokenBuffer::CurrentBuffer = "";
 
-std::stack<TokenBuffer *> BufferStack;
+static std::stack<TokenBuffer *> BufferStack;
 
 int TokenBuffer::pushImport(const std::string &module) {
   TokenBuffer *fb = new TokenBuffer(module);
