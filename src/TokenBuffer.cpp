@@ -55,7 +55,7 @@ int TokenBuffer::popImport() {
   }
 
   fb = BufferStack.top();
-  yy_switch_to_buffer((yy_buffer_state *)fb->yyBufferState);
+  yy_switch_to_buffer((YY_BUFFER_STATE)fb->yyBufferState);
   yylineno = fb->lineNo;
   CurrentBuffer = fb->fileName;
   return 1;
@@ -99,7 +99,7 @@ TokenBuffer::TokenBuffer(const std::string &module)
     CASSERT(fp, "{}:{} error! file {} cannot open!", CurrentBuffer, yylineno,
             fileName);
   }
-  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
+  yyBufferState = (void*)yy_create_buffer(fp, YY_BUF_SIZE);
   if (!yyBufferState) {
     release();
     CASSERT(yyBufferState, "{}:{} error! yy_create_buffer {} failed!",
@@ -115,7 +115,7 @@ void TokenBuffer::release() {
     fp = nullptr;
   }
   if (yyBufferState) {
-    yy_delete_buffer((yy_buffer_state *)yyBufferState);
+    yy_delete_buffer((YY_BUFFER_STATE)yyBufferState);
     yyBufferState = nullptr;
   }
 }
