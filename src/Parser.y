@@ -40,7 +40,7 @@ void yyerror(AstProgram **program, const char *s) { fprintf(stderr, "yyerror: %s
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
 %token <literal> T_IDENTIFIER T_I8_CONSTANT T_U8_CONSTANT T_I16_CONSTANT T_U16_CONSTANT T_I32_CONSTANT T_U32_CONSTANT
-%token <literal> T_I64_CONSTANT T_U64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT
+%token <literal> T_I64_CONSTANT T_U64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT T_CHAR_CONSTANT
 
 %type <expr> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
