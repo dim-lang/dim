@@ -192,10 +192,6 @@ conditional_expression : logical_or_expression { $$ = $1; }
                        | logical_or_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
- /**
-  * 1. allow multiple assignment in an expression: x, y, z = 1, "hello", 2.3
-  * 2. disallow multiple assignment as a chain: x = y = z = 1
-  */
 assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
                       | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
