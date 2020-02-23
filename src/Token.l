@@ -17,7 +17,33 @@ HEXEXP ([pP][-+]?[0-9]+)
 
 #define T_SAVE_TOKEN            yylval.literal = strndup(yytext, yyleng)
 #define T_SAVE_TOKEN_X(p, q)    yylval.literal = strndup(yytext+(p), yyleng-(p)-(q))
+#define T_SAVE_NO_TOKEN         yylval.literal = nullptr
 #define T_TOKEN(t)              (yylval.token = t)
+
+typedef struct YYLTYPE {
+    int first_line;
+    int first_column;
+    int last_line;
+    int last_column;
+    std::string filename;
+} YYLTYPE;
+#define YYLTYPE_IS_DECLARED 1
+
+#define YYLLOC_DEFAULT(Current, Rhs, N) \
+    do { \
+        if (N) { \
+            (Current).first_line = YYRHSLOC(Rhs, 1).first_line; \
+            (Current).first_column = YYRHSLOC(Rhs, 1).first_column; \
+            (Current).last_line = YYRHSLOC(Rhs, 1).last_line; \
+            (Current).last_column = YYRHSLOC(Rhs, 1).last_column; \
+            (Current).filename = YYRHSLOC(Rhs, 1).filename; \
+        } else { \
+            (Current).first_line = (Current).last_line = YYRHSLOC(Rhs, 0).last_line; \
+            (Current).first_column = (Current).last_column = YYRHSLOC(Rhs, 0).last_column; \
+            (Current).filename = ""; \
+        } \
+    } while (0)
+
 %}
 
 %%
@@ -146,8 +172,9 @@ HEXEXP ([pP][-+]?[0-9]+)
 0[xX]({HEX}+"."{HEX}+){HEXEXP}?     { T_SAVE_TOKEN; return T_F64_CONSTANT; }
 
  /* string literal */
-\"([^\"\\]|\\['"?\\abfnrtv]|\\[0-7]{1,3}|\\[Xx][0-9a-fA-F]+|{UCN})+\"   { T_SAVE_TOKEN_X(1, 1); return T_STRING_CONSTANT; }
-\'([^'\\]|\\['"?\\abfnrtv]|\\[0-7]{1,3}|\\[Xx][0-9a-fA-F]+|{UCN})+\'    { T_SAVE_TOKEN_X(1, 1); return T_CHAR_CONSTANT; }
+\"\"                                    { T_SAVE_NO_TOKEN; return T_STRING_CONSTANT; }
+\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_SAVE_TOKEN_X(1, 1); return T_STRING_CONSTANT; }
+\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_SAVE_TOKEN_X(1, 1); return T_CHAR_CONSTANT; }
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*              { T_SAVE_TOKEN; return T_IDENTIFIER; }
