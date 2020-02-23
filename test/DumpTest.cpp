@@ -20,7 +20,7 @@ static void dumpAst(const char *module) {
 
 TEST_CASE("Dump", "[Dump]") {
   SECTION("dump for Ast") {
-    dumpAst("test.DslTest1");
-    dumpAst("test.DslTest2");
+    dumpAst("test.case.DslTest1");
+    dumpAst("test.case.DslTest2");
   }
 }

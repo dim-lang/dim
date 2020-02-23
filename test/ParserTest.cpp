@@ -22,7 +22,7 @@ static void go(const char *module) {
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
-    go("test.DslTest1");
-    go("test.DslTest2");
+    go("test.case.DslTest1");
+    go("test.case.DslTest2");
   }
 }
