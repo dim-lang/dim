@@ -4,6 +4,7 @@
 #pragma once
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
+#include "interface/Typely.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -58,6 +59,9 @@
 /* interface */
 class Ast;
 
+/* program */
+class AstProgram;
+
 /* list */
 class AstExpressionList;
 class AstStatementList;
@@ -103,12 +107,9 @@ class AstVariableAssignmentDeclaration;
 class AstFunctionDeclaration;
 class AstFunctionArgumentDeclaration;
 
-/* program */
-// AstDeclarationList *program;
-
 /* ================================== */
 
-class Ast : public Stringify {
+class Ast : public Namely, public Typely, public Stringify {
 public:
   virtual ~Ast() = default;
   virtual int type() const = 0;
@@ -225,6 +226,25 @@ class AstDeclarationList : public detail::AstList<AstDeclaration> {
 public:
   AstDeclarationList();
   virtual ~AstDeclarationList();
+  virtual int type() const;
+  virtual std::string name() const;
+  // virtual std::string toString() const;
+  // virtual std::string name() const;
+  // virtual int size() const;
+  // virtual T *get(int pos) const;
+  // virtual void add(T *item);
+
+private:
+  virtual std::string stringify() const;
+  std::string name_;
+};
+
+/* program is actually declaration list */
+
+class AstProgram : public detail::AstList<AstDeclaration> {
+public:
+  AstProgram();
+  virtual ~AstProgram();
   virtual int type() const;
   virtual std::string name() const;
   // virtual std::string toString() const;

@@ -6,49 +6,14 @@
 EXP ([Ee][-+]?[0-9]+)
 
 %{
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <list>
-#include <cctype>
-#include <string>
-#include <stack>
-#include <algorithm>
-#include "config/Platform.h"
 #include "Log.h"
+#include "TokenBuffer.h"
 #include "Ast.h"
 #include "Parser.tab.hpp"
+
 #define T_SAVE_TOKEN yylval.literal = strndup(yytext, yyleng)
 #define T_SAVE_TOKEN_X(start, length) yylval.literal = strndup(yytext+(start), yyleng-(length))
 #define T_TOKEN(t) (yylval.token = t)
-#define T_FILE_EXT ".co"
-
-class TokenBuffer {
-public:
-  /* methods */
-  TokenBuffer(const std::string &module);
-  virtual ~TokenBuffer();
-
-  /* members */
-  YY_BUFFER_STATE yyBufferState;
-  std::string fileName;
-  int lineNo;
-  FILE *fp;
-
-private:
-    void release();
-};
-
- /* global variable */
-static std::stack<TokenBuffer*> BufferStack;
-static std::string CurrentBuffer;
-
-int tokenPushImport(const std::string &module);
-int tokenPopImport();
-
-std::string tokenModuleToFile(const std::string &name);
-std::string tokenFileToModule(const std::string &name);
-
 %}
 
 %%
@@ -56,7 +21,13 @@ std::string tokenFileToModule(const std::string &name);
  /* block comment */
 "/*"                    { BEGIN COMMENT; }
 <COMMENT>"*/"           { BEGIN INITIAL; }
-<COMMENT>([^*]|\en)+|.
+<COMMENT>[^*]+|.
+<COMMENT>\n
+<COMMENT><<EOF>>        {
+                            CASSERT(false, "{}:{} error! unterminated comment!", TokenBuffer::CurrentBuffer, yylineno);
+                            return 0;
+                        }
+
  /* line comment */
 "//".*\n
 
@@ -152,6 +123,9 @@ std::string tokenFileToModule(const std::string &name);
 "=>"   return T_TOKEN(T_BIG_ARROW);
 
  /* constants */
+0[xX][0-9a-fA-F]+       T_SAVE_TOKEN_X(2, 0); return T_I64_CONSTANT;
+0[oO][0-7]+             T_SAVE_TOKEN_X(2, 0); return T_I64_CONSTANT;
+0[bB][01]+              T_SAVE_TOKEN_X(2, 0); return T_I64_CONSTANT;
 [0-9]+"."[0-9]+{EXP}?   T_SAVE_TOKEN; return T_F64_CONSTANT;
 [0-9]+{EXP}?            T_SAVE_TOKEN; return T_I64_CONSTANT;
  /* [0-9]+{EXP}?[Uu]    T_SAVE_TOKEN_X(0, 1); return T_U64_CONSTANT; */
@@ -171,108 +145,22 @@ std::string tokenFileToModule(const std::string &name);
                                 while ((c = yyinput()) && c != ';')
                                     ;
                             }
-                            tokenPushImport(yytext);
+                            TokenBuffer::pushImport(yytext);
                             BEGIN INITIAL;
                         }
 <IMPORT>.|\n            {
-                            fprintf(stderr, "%s:%d error! bad import:%s, %d!\n", CurrentBuffer.c_str(), yylineno, yytext, yyleng);
-                            CERROR("{}:{} error! bad import:{}, {}!", CurrentBuffer, yylineno, yytext, yyleng);
+                            CASSERT(false, "{}:{} error! bad import:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
                             BEGIN INITIAL;
                         }
 <<EOF>>                 {
-                            if (!tokenPopImport())
+                            if (!TokenBuffer::popImport())
                                 yyterminate();
                         }
 
  /* invalid token */
-.                       { 
-                            fprintf(stderr, "%s:%d error! invalid token:%s, %d!\n", CurrentBuffer.c_str(), yylineno, yytext, yyleng); 
-                            CERROR("{}:{} error! invalid token:{}, {}!", CurrentBuffer, yylineno, yytext, yyleng);
+.                       {
+                            CASSERT(false, "{}:{} error! invalid token:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
                         }
 
 
 %%
-
-int tokenPushImport(const std::string &module) {
-    TokenBuffer *fb = new TokenBuffer(module);
-
-    /* remember state */
-    if (!BufferStack.empty()) {
-        BufferStack.top()->lineNo = yylineno;
-    }
-
-    /* switch to new file */
-    BufferStack.push(fb);
-    yy_switch_to_buffer(fb->yyBufferState);
-    yylineno = 1;
-    CurrentBuffer = fb->fileName;
-    return 1;
-}
-
-int tokenPopImport() {
-    CASSERT(!BufferStack.empty(), "BufferStack must not empty! CurrentBuffer:{} yylineno:{}", CurrentBuffer, yylineno);
-    TokenBuffer *fb;
-
-    fb = BufferStack.top();
-    BufferStack.pop();
-    delete fb;
-    fb = nullptr;
-    if (BufferStack.empty()) {
-        CurrentBuffer = "";
-        return 0;
-    }
-
-    fb = BufferStack.top();
-    yy_switch_to_buffer(fb->yyBufferState);
-    yylineno = fb->lineNo;
-    CurrentBuffer = fb->fileName;
-    return 1;
-}
-
-std::string tokenModuleToFile(const std::string &name) {
-    std::string r(name);
-    char replace;
-#if PLATFORM_WINDOWS
-    replace = '\\';
-#else
-    replace = '/';
-#endif
-    std::for_each(r.begin(), r.end(), [&replace](char &c) { if (c == '.') {c = replace;} });
-    r.append(T_FILE_EXT);
-    return r;
-}
-
-std::string tokenFileToModule(const std::string &name) {
-    std::string r(name.substr(0, name.length() - 5));
-    std::for_each(r.begin(), r.end(), [](char &c) { if (c == '/' || c == '\\') {c = '.';} });
-    return r;
-}
-
-TokenBuffer::TokenBuffer(const std::string &module) : yyBufferState(nullptr), fileName(tokenModuleToFile(module)), lineNo(1), fp(nullptr) {
-    CASSERT(fileName.length() > 5, "{}:{} error! fileName {} invalid!", CurrentBuffer, yylineno, fileName);
-    fp = std::fopen(fileName.c_str(), "r");
-    if (!fp) {
-        release();
-        CASSERT(fp, "{}:{} error! file {} cannot open!", CurrentBuffer, yylineno, fileName);
-    }
-    yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
-    if (!yyBufferState) {
-        release();
-        CASSERT(yyBufferState, "{}:{} error! yy_create_buffer {} failed!", CurrentBuffer, yylineno, fileName);
-    }
-}
-
-TokenBuffer::~TokenBuffer() {
-    release();
-}
-
-void TokenBuffer::release() {
-    if (fp) {
-        std::fclose(fp);
-        fp = nullptr;
-    }
-    if (yyBufferState) {
-        yy_delete_buffer(yyBufferState);
-        yyBufferState = nullptr;
-    }
-}

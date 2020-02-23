@@ -4,6 +4,7 @@
 #pragma once
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
+#include "interface/Typely.h"
 #include <string>
 #include <unordered_map>
 
@@ -12,9 +13,12 @@
 #define SYM_FUNC 103
 #define SYM_CLASS 104
 
+#define SYM_GLOBAL 201
+#define SYM_LOCAL 202
+
 class Symtab;
 
-class Symbol {
+class Symbol : public Namely, public Typely {
 public:
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
@@ -24,11 +28,12 @@ public:
   static void pop(Symtab *&global, Symtab *&current);
 };
 
-class Symtab : public Stringify {
+class Symtab : public Namely, public Typely, public Stringify {
 public:
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
   virtual std::string name() const = 0;
+  virtual int type() const = 0;
   virtual void define(Symbol *sym);
   virtual Symbol *resolve(const std::string &name);
   virtual Symtab *enclosingScope();
@@ -100,6 +105,7 @@ public:
   static GlobalSymtab *instance();
   virtual ~GlobalSymtab() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -115,6 +121,7 @@ public:
   LocalSymtab(const std::string &localSymtabName, Symtab *enclosingScope);
   virtual ~LocalSymtab() = default;
   virtual std::string name() const;
+  virtual int type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();

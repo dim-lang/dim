@@ -159,7 +159,7 @@ FunctionType::FunctionType(
 
 std::string FunctionType::name() const { return functionType_; }
 
-int FunctionType::type() const { return TY_FUNCTION; }
+int FunctionType::type() const { return TY_FUNC; }
 
 std::string FunctionType::stringify() const { return "FunctionType"; }
 
@@ -175,11 +175,15 @@ std::string GlobalTytab::name() const {
   return globalTytabName;
 }
 
+int GlobalTytab::type() const { return TY_GLOBAL; }
+
 std::string GlobalTytab::stringify() const { return "GlobalTytab"; }
 
 LocalTytab::LocalTytab(const std::string &localTytabName, Tytab *enclosingScope)
     : Tytab(enclosingScope), localTytabName_(localTytabName) {}
 
 std::string LocalTytab::name() const { return localTytabName_; }
+
+int LocalTytab::type() const { return TY_LOCAL; }
 
 std::string LocalTytab::stringify() const { return "LocalTytab"; }

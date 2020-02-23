@@ -8,10 +8,10 @@
 #include <cstdint>
 #include <cctype>
 #include <unordered_set>
-void yyerror(AstDeclarationList **program, const char *s) { printf("yyerror: %s\n", s); }
+void yyerror(AstDeclarationList **program, const char *s, ...) { fprintf(stderr, "yyerror: %s\n", s); }
 %}
 
-%parse-param { AstDeclarationList **program }
+%parse-param { AstProgram **program }
 
  /* Represents the many different ways we can access our data */
 %union {
@@ -84,7 +84,7 @@ void yyerror(AstDeclarationList **program, const char *s) { printf("yyerror: %s\
 %left T_ADD T_SUB
 %left T_MUL T_DIV T_MOD
  /* other */
-%left T_LOGIC_NOT T_BIT_NOT
+%nonassoc T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
 %left T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET
 
@@ -321,7 +321,7 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); }
                ;
 
-translation_unit : declaration { if (program) { (*program) = new AstDeclarationList(); (*program)->add($1); } }
+translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->add($1); } }
                  | translation_unit declaration { if (program) { (*program)->add($2); } }
                  ;
 

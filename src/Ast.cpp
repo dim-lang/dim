@@ -50,6 +50,16 @@ std::string AstDeclarationList::name() const { return name_; }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
+AstProgram::AstProgram() : name_(A_NAME("A_Prog")) {}
+
+AstProgram::~AstProgram() {}
+
+int AstProgram::type() const { return A_PROGRAM; }
+
+std::string AstProgram::name() const { return name_; }
+
+std::string AstProgram::stringify() const { return "AstProgram"; }
+
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value), name_(A_NAME2("A_id", value)) {}
 

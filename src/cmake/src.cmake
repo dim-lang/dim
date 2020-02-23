@@ -11,6 +11,7 @@ set(CCORE
     Random.cpp
     Approximate.cpp
     TokenName.cpp
+    TokenBuffer.cpp
     Token.yy.cpp
     Parser.tab.cpp
     Ast.cpp
