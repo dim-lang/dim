@@ -245,33 +245,26 @@ variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * func hello2() => { print("world"); }
   * func hello3() => print("world");
   * func min(a: i64, b: i64): i64 { return a < b ? a : b; }
+  * func min2(a: i64, b: i64): i64 => { return a < b ? a : b; }
   * func max(a: i64, b: i64): i64 => a > b ? a : b;
-  * func abs(x: i64): i64 => { if (x > 0) { return x; } else { return -x; } }
-  * val x = func() => { print("hello world"); };
-  * val y = func(x:i64, y:i64):i64 => { return x + y; };
+  * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
-function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {
+function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN statement {
+                            $$ = new AstFunctionDeclaration($2, $4, nullptr, $6);
+                            std::free($2);
+                        }
+                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN statement {
+                            $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $5);
+                            std::free($2);
+                        }
+                     | T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN T_BIG_ARROW statement {
                             $$ = new AstFunctionDeclaration($2, $4, nullptr, $7);
                             std::free($2);
                         }
-                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {
+                     | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN T_BIG_ARROW statement {
                             $$ = new AstFunctionDeclaration($2, nullptr, nullptr, $6);
                             std::free($2);
                         }
-                     /*| T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN function_declaration_arrow statement {*/
-                            /*AstStatementList *statementList = new AstStatementList();*/
-                            /*statementList->add($7);*/
-                            /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
-                            /*$$ = new AstFunctionDeclaration($2, $4, compoundStatement);*/
-                            /*std::free($2);*/
-                        /*}*/
-                     /*| T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN function_declaration_arrow statement {*/
-                            /*AstStatementList *statementList = new AstStatementList();*/
-                            /*statementList->add($6);*/
-                            /*AstCompoundStatement *compoundStatement = new AstCompoundStatement(statementList);*/
-                            /*$$ = new AstFunctionDeclaration($2, nullptr, compoundStatement);*/
-                            /*std::free($2);*/
-                        /*}*/
                      ;
 
 function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->add($1); }
@@ -280,10 +273,6 @@ function_argument_declaration_list : function_argument_declaration { $$ = new As
 
 function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); }
                               ;
-
-function_declaration_arrow : /* nothing */
-                           | T_BIG_ARROW
-                           ;
 
  /* part-3 statement */
 compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); }
