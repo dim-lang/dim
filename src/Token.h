@@ -4,9 +4,9 @@
 #pragma once
 #include <cstdio>
 
-class AstDeclarationList;
+class AstProgram;
 
 extern FILE *yyin;
 extern int yylineno;
 extern int yylex(void);
-extern int yyparse(AstDeclarationList **program);
+extern int yyparse(AstProgram **program);

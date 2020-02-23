@@ -4,14 +4,15 @@
 #include "Dump.h"
 #include "Log.h"
 #include "Token.h"
+#include "TokenBuffer.h"
 #include "catch2/catch.hpp"
 
 static void dumpAst(const char *module) {
-  if (!tokenPushImport(module)) {
+  if (!TokenBuffer::pushImport(module)) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
-  AstDeclarationList *program = nullptr;
+  AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
   CINFO("dump: {}", dump(program));
 }

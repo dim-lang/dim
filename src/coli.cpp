@@ -7,6 +7,7 @@
 #include "Parser.tab.hpp"
 #include "Semant.h"
 #include "Token.h"
+#include "TokenBuffer.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -30,13 +31,13 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
-      std::string moduleName = tokenFileToModule(fileName);
+      std::string moduleName = TokenBuffer::fileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      if (!tokenPushImport(moduleName)) {
+      if (!TokenBuffer::pushImport(moduleName)) {
         CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }
-      AstDeclarationList *program = nullptr;
+      AstProgram *program = nullptr;
       int yp = yyparse(&program);
       CINFO("yyparse: yp:{}, program:{}", yp,
             program ? program->toString() : "null");

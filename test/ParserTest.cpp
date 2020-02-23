@@ -5,15 +5,16 @@
 #include "Log.h"
 #include "Parser.tab.hpp"
 #include "Token.h"
+#include "TokenBuffer.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 
 static void go(const char *module) {
-  if (!tokenPushImport(module)) {
+  if (!TokenBuffer::pushImport(module)) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }
-  AstDeclarationList *program = nullptr;
+  AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
   CINFO("go end, program: {}", program ? program->toString() : "null");
 }

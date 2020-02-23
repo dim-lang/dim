@@ -5,11 +5,12 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
+#include "TokenBuffer.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 
 static void go(const char *module) {
-  if (!tokenPushImport(module)) {
+  if (!TokenBuffer::pushImport(module)) {
     CASSERT(false, "tokenPushImport {} fail", module);
     return;
   }

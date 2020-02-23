@@ -18,6 +18,10 @@ extern void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
 extern YY_BUFFER_STATE yy_create_buffer(FILE *file, int size);
 extern void yy_delete_buffer(YY_BUFFER_STATE b);
 
+std::string TokenBuffer::CurrentBuffer = "";
+
+std::stack<TokenBuffer *> BufferStack;
+
 int TokenBuffer::pushImport(const std::string &module) {
   TokenBuffer *fb = new TokenBuffer(module);
 

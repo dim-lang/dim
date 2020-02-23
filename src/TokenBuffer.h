@@ -20,7 +20,6 @@ public:
   FILE *fp;
 
   /* global members */
-  static std::stack<TokenBuffer *> BufferStack;
   static std::string CurrentBuffer;
   static int pushImport(const std::string &module);
   static int popImport();

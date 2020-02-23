@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cctype>
 #include <unordered_set>
-void yyerror(AstDeclarationList **program, const char *s, ...) { fprintf(stderr, "yyerror: %s\n", s); }
+void yyerror(AstProgram **program, const char *s) { fprintf(stderr, "yyerror: %s\n", s); }
 %}
 
 %parse-param { AstProgram **program }
