@@ -84,7 +84,7 @@ private:
   std::string builtinTypeName_;
 };
 
-class ClassType : public Type, public Tytab {
+class ClassType : public Tytab {
 public:
   ClassType(const std::string &classType,
             const std::vector<std::pair<Symbol *, Type *>> &memberList,
@@ -103,7 +103,7 @@ protected:
   std::string classType_;
 };
 
-class FunctionType : public Type, public Tytab {
+class FunctionType : public Tytab {
 public:
   FunctionType(const std::vector<std::pair<Symbol *, Type *>> &argumentList,
                Type *result, Tytab *enclosingScope);

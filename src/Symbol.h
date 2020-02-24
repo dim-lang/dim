@@ -79,7 +79,7 @@ private:
   std::string functionArgumentName_;
 };
 
-class FunctionSymbol : public Symbol, public Symtab {
+class FunctionSymbol : public Symtab {
 public:
   FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
   virtual ~FunctionSymbol() = default;
@@ -95,7 +95,7 @@ protected:
   std::string functionName_;
 };
 
-class ClassSymbol : public Symbol, public Symtab {
+class ClassSymbol : public Symtab {
 public:
   ClassSymbol(const std::string &className, Symtab *enclosingScope);
   virtual ~ClassSymbol() = default;
