@@ -23,7 +23,6 @@ HEXEXP ([pP][-+]?[0-9]+)
 int yycolumn = 1;
 
 #define YY_USER_ACTION do { \
-    yylloc.filename = TokenBuffer::CurrentBuffer; \
     yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng; \

@@ -3,34 +3,10 @@
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
-
-typedef struct YYLTYPE {
-    int first_line;
-    int first_column;
-    int last_line;
-    int last_column;
-    std::string filename;
-} YYLTYPE;
-#define YYLTYPE_IS_DECLARED 1
-
-#define YYLLOC_DEFAULT(Current, Rhs, N) \
-    do { \
-        if (N) { \
-            (Current).first_line = YYRHSLOC(Rhs, 1).first_line; \
-            (Current).first_column = YYRHSLOC(Rhs, 1).first_column; \
-            (Current).last_line = YYRHSLOC(Rhs, 1).last_line; \
-            (Current).last_column = YYRHSLOC(Rhs, 1).last_column; \
-            (Current).filename = YYRHSLOC(Rhs, 1).filename; \
-        } else { \
-            (Current).first_line = (Current).last_line = YYRHSLOC(Rhs, 0).last_line; \
-            (Current).first_column = (Current).last_column = YYRHSLOC(Rhs, 0).last_column; \
-            (Current).filename = ""; \
-        } \
-    } while (0)
-
 %}
 
 %parse-param { AstProgram **program }
+%locations
 
  /* Represents the many different ways we can access our data */
 %union {

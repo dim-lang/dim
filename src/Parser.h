@@ -7,4 +7,5 @@ class AstProgram;
 struct YYLTYPE;
 
 extern int yyparse(AstProgram **program);
-void yyerror(YYLTYPE *t, const char *fmt, ...);
+
+void yyerror(AstProgram **program, const char *fmt, ...);
