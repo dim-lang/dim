@@ -4,7 +4,6 @@
 #pragma once
 
 class AstProgram;
-struct YYLTYPE;
 
 extern int yyparse(AstProgram **program);
 
