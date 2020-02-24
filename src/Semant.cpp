@@ -155,7 +155,8 @@ void Semant::build() {
   CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
   CASSERT(program_->type() == A_PROGRAM, "program_ is program: {}",
           program_->toString());
-  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
+  AstProgram *e = dynamic_cast<AstProgram *>(program_);
+  CASSERT(e, "program is null: {}", e ? e->toString() : "null");
   Symbol::push(gsym_, csym_, GlobalSymtab::instance());
   Type::push(gty_, cty_, GlobalTytab::instance());
   for (int i = 0; i < e->size(); i++) {
@@ -245,7 +246,8 @@ void Semant::checkImpl(Ast *node) {
 void Semant::check() {
   CASSERT(gsym_, "gsym_ is null");
   CASSERT(gty_, "gty_ is null");
-  AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
+  AstProgram *e = dynamic_cast<AstProgram *>(program_);
+  CASSERT(e, "program is null: {}", e ? e->toString() : "null");
   Symbol::push(gsym_, csym_, GlobalSymtab::instance());
   Type::push(gty_, cty_, GlobalTytab::instance());
   for (int i = 0; i < e->size(); i++) {
