@@ -10,7 +10,7 @@ Semant::Semant(Ast *program)
     : program_(program), gsym_(nullptr), csym_(nullptr), gty_(nullptr),
       cty_(nullptr) {
   CASSERT(program_, "program_ is null");
-  CASSERT(program_->type() == A_DECLARATION_LIST, "invalid program_#type: {}",
+  CASSERT(program_->type() == A_PROGRAM, "program is program: {}",
           program_->toString());
 }
 
@@ -153,8 +153,8 @@ void Semant::build() {
   CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
   CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
   CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
-  CASSERT(program_->type() == A_DECLARATION_LIST,
-          "program_ is declarationList: {}", program_->toString());
+  CASSERT(program_->type() == A_PROGRAM, "program_ is program: {}",
+          program_->toString());
   AstDeclarationList *e = dynamic_cast<AstDeclarationList *>(program_);
   Symbol::push(gsym_, csym_, GlobalSymtab::instance());
   Type::push(gty_, cty_, GlobalTytab::instance());
