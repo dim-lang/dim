@@ -15,8 +15,8 @@ static Counter NameCounter;
 #define GEN_NAME(x) (std::string(x) + "_" + std::to_string(NameCounter.count()))
 
 #define GEN_NAME_VAL(x, y)                                                     \
-  (std::string(y) + std::string("@") + std::string(x) +                        \
-   "_" std::to_string(NameCounter.count()))
+  (std::string(y) + std::string("@") + std::string(x) + "_" +                  \
+   std::to_string(NameCounter.count()))
 
 AstExpressionList::AstExpressionList() : name_(GEN_NAME("A_ExpList")) {}
 
