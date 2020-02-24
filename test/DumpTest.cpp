@@ -4,6 +4,7 @@
 #include "Dump.h"
 #include "Log.h"
 #include "Parser.h"
+#include "Semant.h"
 #include "Token.h"
 #include "TokenBuffer.h"
 #include "catch2/catch.hpp"
@@ -12,12 +13,12 @@ static void go(const char *module) {
   REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  CINFO("dump ast: {}", dump(program));
+  CINFO("dump ast: {}", dumpAst(program));
   Semant *semant = new Semant(program);
   semant->build();
   semant->check();
-  CINFO("dump symbol: {}", dump(semant->globalSymbolTable()));
-  CINFO("dump type: {}", dump(semant->globalTypeTable()));
+  CINFO("dump symbol: {}", dumpSymbol(semant->globalSymbolTable()));
+  CINFO("dump type: {}", dumpType(semant->globalTypeTable()));
 }
 
 TEST_CASE("Dump", "[Dump]") {

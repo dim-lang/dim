@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-static std::string dumpImpl(Ast *node) {
+static std::string dumpAstImpl(Ast *node) {
   if (!node)
     return "null";
   switch (node->type()) {
@@ -33,7 +33,7 @@ static std::string dumpImpl(Ast *node) {
     ss << ce->name() << "(";
     if (ce->argumentList()) {
       for (int i = 0; i < ce->argumentList()->size(); i++) {
-        ss << dumpImpl(ce->argumentList()->get(i));
+        ss << dumpAstImpl(ce->argumentList()->get(i));
         if (i < ce->argumentList()->size() - 1) {
           ss << ", ";
         }
@@ -44,26 +44,28 @@ static std::string dumpImpl(Ast *node) {
   }
   case A_UNARY_EXPRESSION:
     return tokenName(dynamic_cast<AstUnaryExpression *>(node)->token()) + " " +
-           dumpImpl(dynamic_cast<AstUnaryExpression *>(node)->expression());
+           dumpAstImpl(dynamic_cast<AstUnaryExpression *>(node)->expression());
   case A_BINARY_EXPRESSION:
-    return dumpImpl(dynamic_cast<AstBinaryExpression *>(node)->left()) + " " +
-           tokenName(dynamic_cast<AstBinaryExpression *>(node)->token()) + " " +
-           dumpImpl(dynamic_cast<AstBinaryExpression *>(node)->right());
+    return dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->left()) +
+           " " + tokenName(dynamic_cast<AstBinaryExpression *>(node)->token()) +
+           " " +
+           dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->right());
   case A_CONDITIONAL_EXPRESSION:
-    return dumpImpl(
+    return dumpAstImpl(
                dynamic_cast<AstConditionalExpression *>(node)->condition()) +
            "?" +
-           dumpImpl(dynamic_cast<AstConditionalExpression *>(node)->hit()) +
+           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->hit()) +
            ":" +
-           dumpImpl(dynamic_cast<AstConditionalExpression *>(node)->miss());
+           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->miss());
   case A_ASSIGNMENT_EXPRESSION:
-    return dumpImpl(dynamic_cast<AstAssignmentExpression *>(node)->variable()) +
+    return dumpAstImpl(
+               dynamic_cast<AstAssignmentExpression *>(node)->variable()) +
            "=" +
-           dumpImpl(dynamic_cast<AstAssignmentExpression *>(node)->value());
+           dumpAstImpl(dynamic_cast<AstAssignmentExpression *>(node)->value());
   case A_EMPTY_EXPRESSION:
     return dynamic_cast<AstEmptyExpression *>(node)->name();
   case A_EXPRESSION_STATEMENT:
-    return dumpImpl(
+    return dumpAstImpl(
                dynamic_cast<AstExpressionStatement *>(node)->expression()) +
            ";";
   case A_COMPOUND_STATEMENT: {
@@ -72,7 +74,7 @@ static std::string dumpImpl(Ast *node) {
     AstCompoundStatement *cs = dynamic_cast<AstCompoundStatement *>(node);
     if (cs->statementList() && cs->statementList()->size() > 0) {
       for (int i = 0; i < cs->statementList()->size(); i++) {
-        ss << "\n\t" << dumpImpl(cs->statementList()->get(i));
+        ss << "\n\t" << dumpAstImpl(cs->statementList()->get(i));
       }
     }
     ss << "\n}\n";
@@ -83,9 +85,9 @@ static std::string dumpImpl(Ast *node) {
     ss << "if (";
     AstIfStatement *is = dynamic_cast<AstIfStatement *>(node);
     CASSERT(is->hit(), "is#hit is null");
-    ss << dumpImpl(is->condition()) << ") \n\t" << dumpImpl(is->hit());
+    ss << dumpAstImpl(is->condition()) << ") \n\t" << dumpAstImpl(is->hit());
     if (is->miss()) {
-      ss << " \nelse \t" << dumpImpl(is->miss());
+      ss << " \nelse \t" << dumpAstImpl(is->miss());
     }
     return ss.str();
   }
@@ -93,15 +95,15 @@ static std::string dumpImpl(Ast *node) {
     std::stringstream ss;
     ss << "while (";
     AstWhileStatement *ws = dynamic_cast<AstWhileStatement *>(node);
-    ss << dumpImpl(ws->condition()) << ")\n" << dumpImpl(ws->statement());
+    ss << dumpAstImpl(ws->condition()) << ")\n" << dumpAstImpl(ws->statement());
     return ss.str();
   }
   case A_FOR_STATEMENT: {
     AstForStatement *fs = dynamic_cast<AstForStatement *>(node);
     std::stringstream ss;
-    ss << "for (" << dumpImpl(fs->initial()) << dumpImpl(fs->condition())
-       << dumpImpl(fs->post()) + ")\n"
-       << dumpImpl(fs->statement());
+    ss << "for (" << dumpAstImpl(fs->initial()) << dumpAstImpl(fs->condition())
+       << dumpAstImpl(fs->post()) + ")\n"
+       << dumpAstImpl(fs->statement());
     return ss.str();
   }
   case A_CONTINUE_STATEMENT:
@@ -110,14 +112,14 @@ static std::string dumpImpl(Ast *node) {
     return dynamic_cast<AstBreakStatement *>(node)->name() + ";";
   case A_RETURN_STATEMENT:
     return dynamic_cast<AstReturnStatement *>(node)->name() + " " +
-           dumpImpl(dynamic_cast<AstReturnStatement *>(node)->expression()) +
+           dumpAstImpl(dynamic_cast<AstReturnStatement *>(node)->expression()) +
            ";";
   case A_VARIABLE_DECLARATION: {
     AstVariableDeclaration *vd = dynamic_cast<AstVariableDeclaration *>(node);
     std::stringstream ss;
     ss << vd->name() << ": ";
     for (int i = 0; i < vd->declarationList()->size(); i++) {
-      ss << dumpImpl(vd->declarationList()->get(i));
+      ss << dumpAstImpl(vd->declarationList()->get(i));
       if (i < vd->declarationList()->size() - 1) {
         ss << ", ";
       }
@@ -128,7 +130,7 @@ static std::string dumpImpl(Ast *node) {
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     AstVariableAssignmentDeclaration *vad =
         dynamic_cast<AstVariableAssignmentDeclaration *>(node);
-    return vad->identifier() + " = " + dumpImpl(vad->expression());
+    return vad->identifier() + " = " + dumpAstImpl(vad->expression());
   }
   case A_FUNCTION_DECLARATION: {
     AstFunctionDeclaration *fd = dynamic_cast<AstFunctionDeclaration *>(node);
@@ -142,7 +144,7 @@ static std::string dumpImpl(Ast *node) {
         }
       }
     }
-    ss << ") => " << dumpImpl(fd->statement());
+    ss << ") => " << dumpAstImpl(fd->statement());
     return ss.str();
   }
   case A_DECLARATION_LIST: {
@@ -150,7 +152,7 @@ static std::string dumpImpl(Ast *node) {
     std::stringstream ss;
     ss << dl->name() << " {\n\n";
     for (int i = 0; i < dl->size(); i++) {
-      ss << dumpImpl(dl->get(i)) << "\n";
+      ss << dumpAstImpl(dl->get(i)) << "\n";
     }
     ss << "}\n";
     return ss.str();
@@ -164,9 +166,9 @@ static std::string dumpImpl(Ast *node) {
   }
 }
 
-std::string dump(Ast *node) { return dumpImpl(node); }
+std::string dumpAst(Ast *node) { return dumpAstImpl(node); }
 
-static std::string dumpImpl(Symbol *sym) {
+static std::string dumpSymbolImpl(Symbol *sym) {
   if (!sym)
     return "null";
   switch (sym->type()) {
@@ -177,7 +179,7 @@ static std::string dumpImpl(Symbol *sym) {
     std::stringstream ss;
     ss << fs->name() << ": {";
     for (auto i = fs->begin(); i != fs->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpImpl(i->second);
+      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -189,7 +191,7 @@ static std::string dumpImpl(Symbol *sym) {
     std::stringstream ss;
     ss << cs->name() << ": {";
     for (auto i = cs->begin(); i != cs->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpImpl(i->second);
+      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -199,7 +201,7 @@ static std::string dumpImpl(Symbol *sym) {
     std::stringstream ss;
     ss << ls->name() << ": {";
     for (auto i = ls->begin(); i != ls->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpImpl(i->second);
+      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -209,7 +211,7 @@ static std::string dumpImpl(Symbol *sym) {
     std::stringstream ss;
     ss << gs->name() << ": {";
     for (auto i = gs->begin(); i != gs->end(); i++) {
-      ss << "\n\t" << i->first << " -> " << dumpImpl(i->second);
+      ss << "\n\t" << i->first << " -> " << dumpSymbolImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -219,9 +221,9 @@ static std::string dumpImpl(Symbol *sym) {
   }
 }
 
-std::string dump(Symbol *sym) { return dumpImpl(sym); }
+std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym); }
 
-static std::string dumpImpl(Type *ty) {
+static std::string dumpTypeImpl(Type *ty) {
   if (!ty)
     return "null";
   switch (ty->type()) {
@@ -232,7 +234,7 @@ static std::string dumpImpl(Type *ty) {
     std::stringstream ss;
     ss << ft->name() << ": {";
     for (auto i = ft->begin(); i != ft->end(); i++) {
-      ss << "\n\t" << i->first->name() << " -> " << dumpImpl(i->second);
+      ss << "\n\t" << i->first->name() << " -> " << dumpTypeImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -242,7 +244,7 @@ static std::string dumpImpl(Type *ty) {
     std::stringstream ss;
     ss << ct->name() << ": {";
     for (auto i = ct->begin(); i != ct->end(); i++) {
-      ss << "\n\t" << i->first->name() << ", " << dumpImpl(i->second);
+      ss << "\n\t" << i->first->name() << ", " << dumpTypeImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -252,7 +254,7 @@ static std::string dumpImpl(Type *ty) {
     std::stringstream ss;
     ss << lt->name() << ": {";
     for (auto i = lt->begin(); i != lt->end(); i++) {
-      ss << "\n\t" << i->first->name() << " -> " << dumpImpl(i->second);
+      ss << "\n\t" << i->first->name() << " -> " << dumpTypeImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -262,7 +264,7 @@ static std::string dumpImpl(Type *ty) {
     std::stringstream ss;
     ss << gt->name() << ": {";
     for (auto i = gt->begin(); i != gt->end(); i++) {
-      ss << "\n\t" << i->first->name() << ", " << dumpImpl(i->second);
+      ss << "\n\t" << i->first->name() << ", " << dumpTypeImpl(i->second);
     }
     ss << "\n}\n";
     return ss.str();
@@ -272,4 +274,4 @@ static std::string dumpImpl(Type *ty) {
   }
 }
 
-std::string dump(Type *ty) { return dumpImpl(ty); }
+std::string dumpType(Type *ty) { return dumpTypeImpl(ty); }

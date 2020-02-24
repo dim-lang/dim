@@ -7,8 +7,8 @@
 #include "Type.h"
 #include <string>
 
-std::string dump(Ast *node);
+std::string dumpAst(Ast *node);
 
-std::string dump(Symbol *sym);
+std::string dumpSymbol(Symbol *sym);
 
-std::string dump(Type *ty);
+std::string dumpType(Type *ty);
