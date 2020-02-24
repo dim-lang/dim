@@ -8,19 +8,21 @@
 #include "TokenBuffer.h"
 #include "catch2/catch.hpp"
 
-static void dumpAst(const char *module) {
-  if (!TokenBuffer::pushImport(module)) {
-    CASSERT(false, "tokenPushImport {} fail", module);
-    return;
-  }
+static void go(const char *module) {
+  REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  CINFO("dump: {}", dump(program));
+  CINFO("dump ast: {}", dump(program));
+  Semant *semant = new Semant(program);
+  semant->build();
+  semant->check();
+  CINFO("dump symbol: {}", dump(semant->globalSymbolTable()));
+  CINFO("dump type: {}", dump(semant->globalTypeTable()));
 }
 
 TEST_CASE("Dump", "[Dump]") {
   SECTION("dump for Ast") {
-    dumpAst("test.case.DslTest1");
-    dumpAst("test.case.DslTest2");
+    go("test.case.DslTest1");
+    go("test.case.DslTest2");
   }
 }

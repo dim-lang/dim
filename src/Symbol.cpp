@@ -41,6 +41,14 @@ std::string Symtab::toString() const {
                      hashtab_.size());
 }
 
+SymbolHashMapIterator Symtab::begin() { return hashtab_.begin(); }
+
+SymbolHashMapConstIterator Symtab::begin() const { return hashtab_.begin(); }
+
+SymbolHashMapIterator Symtab::end() { return hashtab_.end(); }
+
+SymbolHashMapConstIterator Symtab::end() const { return hashtab_.end(); }
+
 VariableSymbol::VariableSymbol(const std::string &variableName)
     : variableName_(variableName) {}
 

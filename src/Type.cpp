@@ -41,6 +41,14 @@ std::string Tytab::toString() const {
                      hashtab_.size());
 }
 
+TypeHashMapIterator Tytab::begin() { return hashtab_.begin(); }
+
+TypeHashMapIterator Tytab::end() { return hashtab_.end(); }
+
+TypeHashMapConstIterator Tytab::begin() const { return hashtab_.begin(); }
+
+TypeHashMapConstIterator Tytab::end() const { return hashtab_.end(); }
+
 BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
 
 std::string BuiltinType::name() const { return builtinTypeName_; }

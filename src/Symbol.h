@@ -28,7 +28,14 @@ public:
   static void pop(Symtab *&global, Symtab *&current);
 };
 
-class Symtab : public Namely, public Typely, public Stringify {
+using SymbolHashMap = std::unordered_map<std::string, Symbol *>;
+using SymbolHashMapIterator =
+    std::unordered_map<std::string, Symbol *>::iterator;
+using SymbolHashMapConstIterator =
+    std::unordered_map<std::string, Symbol *>::const_iterator;
+
+class Symtab : public Symbol, public Stringify {
+
 public:
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
@@ -38,12 +45,16 @@ public:
   virtual Symbol *resolve(const std::string &name);
   virtual Symtab *enclosingScope();
   virtual std::string toString() const;
+  virtual SymbolHashMapIterator begin();
+  virtual SymbolHashMapIterator end();
+  virtual SymbolHashMapConstIterator begin() const;
+  virtual SymbolHashMapConstIterator end() const;
 
 protected:
   virtual std::string stringify() const = 0;
 
   Symtab *enclosingScope_;
-  std::unordered_map<std::string, Symbol *> hashtab_;
+  SymbolHashMap hashtab_;
 };
 
 class VariableSymbol : public Symbol {

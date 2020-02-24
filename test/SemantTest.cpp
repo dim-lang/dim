@@ -10,13 +10,10 @@
 #include "catch2/catch.hpp"
 
 static void go(const char *module) {
-  if (!TokenBuffer::pushImport(module)) {
-    CASSERT(false, "tokenPushImport {} fail", module);
-    return;
-  }
+  REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  CINFO("go end, program: {}", program ? program->toString() : "null");
+  CINFO("program: {}", program ? program->toString() : "null");
   Semant *semant = new Semant(program);
   semant->build();
   semant->check();

@@ -10,10 +10,7 @@
 #include <cstdio>
 
 static void go(const char *module) {
-  if (!TokenBuffer::pushImport(module)) {
-    CASSERT(false, "tokenPushImport {} fail", module);
-    return;
-  }
+  REQUIRE(TokenBuffer::pushImport(module) == 1);
   CINFO("go start: {}", module);
   int t;
   while ((t = yylex()) != 0) {

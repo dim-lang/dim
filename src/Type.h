@@ -30,7 +30,13 @@ public:
   static void pop(Tytab *&global, Tytab *&current);
 };
 
-class Tytab : public Namely, public Typely, public Stringify {
+using TypeHashMap = std::unordered_map<Symbol *, Type *>;
+using TypeHashMapIterator = std::unordered_map<Symbol *, Type *>::iterator;
+using TypeHashMapConstIterator =
+    std::unordered_map<Symbol *, Type *>::const_iterator;
+
+class Tytab : public Type, public Stringify {
+
 public:
   Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
@@ -40,12 +46,16 @@ public:
   virtual Type *resolve(Symbol *sym);
   virtual Tytab *enclosingScope();
   virtual std::string toString() const;
+  virtual TypeHashMapIterator begin();
+  virtual TypeHashMapIterator end();
+  virtual TypeHashMapConstIterator begin() const;
+  virtual TypeHashMapConstIterator end() const;
 
 protected:
   virtual std::string stringify() const = 0;
 
   Tytab *enclosingScope_;
-  std::unordered_map<Symbol *, Type *> hashtab_;
+  TypeHashMap hashtab_;
 };
 
 class BuiltinType : public Type {

@@ -9,6 +9,6 @@
 
 std::string dump(Ast *node);
 
-std::string dump(Symtab *sym);
+std::string dump(Symbol *sym);
 
-std::string dump(Tytab *ty);
+std::string dump(Type *ty);
