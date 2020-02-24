@@ -125,7 +125,7 @@ function build_debug() {
         bison --debug -d -v -o Parser.tab.cpp Parser.y
     else
         flex -o Token.yy.cpp Token.l
-        bison -d -v -o Parser.tab.cpp Parser.y
+        bison -d -o Parser.tab.cpp Parser.y
     fi
 
     cd $ROOT

@@ -39,9 +39,9 @@
 
 %type <expr> postfix_expression primary_expression unary_expression logical_or_expression logical_and_expression
 %type <expr> conditional_expression assignment_expression constant_expression bit_and_expression bit_or_expression bit_xor_expression
-%type <expr> equality_expression relational_expression shift_expression additive_expression multiplicative_expression
+%type <expr> equality_expression relational_expression shift_expression additive_expression multiplicative_expression sequel_expression
 %type <expr> expression
-%type <exprList> argument_expression_list 
+%type <exprList> argument_expression_list sequel_expression_list
 
 %type <stmt> compound_statement expression_statement selection_statement iteration_statement jump_statement
 %type <stmt> statement
@@ -51,11 +51,9 @@
 %type <decl> declaration
 %type <declList> variable_assignment_declaration_list translation_unit function_argument_declaration_list
 
-%type <str> join_string_helper
+%type <str> join_string_expression
 
- /**
-  * operator precedence
-  */
+ /* operator precedence */
 
  /* assignment */
 %left T_COMMA
@@ -65,7 +63,7 @@
 %right T_ADD_ASSIGN T_SUB_ASSIGN
 %right T_ASSIGN
  /* conditional */
-%right T_QUESTION T_COLON
+%left T_QUESTION T_COLON
  /* comparison */
 %left T_LOGIC_OR
 %left T_LOGIC_AND
@@ -81,7 +79,6 @@
  /* other */
 %nonassoc T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
-%left T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET
 
 %start translation_unit
 
@@ -89,9 +86,9 @@
 
  /* part-1 expression */
 
-join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
-                   | join_string_helper T_STRING_CONSTANT { $$->append($2); std::free($2); }
-                   ;
+join_string_expression : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
+                       | join_string_expression T_STRING_CONSTANT { $1->append($2); $$ = $1; std::free($2); }
+                       ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
                    /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); }*/
@@ -104,7 +101,7 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
                    /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); }*/
                    /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); }*/
                    | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); }
-                   | join_string_helper { $$ = $1; }
+                   | join_string_expression { $$ = $1; }
                    | T_TRUE { $$ = new AstBooleanConstant(true); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); }
                    | T_LPAREN expression T_RPAREN { $$ = $2; }
@@ -118,7 +115,7 @@ postfix_expression : primary_expression { $$ = $1; }
                    ;
 
 argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
-                         | argument_expression_list T_COMMA assignment_expression { $$->add($3); }
+                         | argument_expression_list T_COMMA assignment_expression { $1->add($3); $$ = $1; }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; }
@@ -202,9 +199,15 @@ assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
                       ;
 
+sequel_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
+                       | sequel_expression_list T_COMMA assignment_expression { $1->add($3); $$ = $1; }
+                       ;
+
+sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
+                  ;
+
 expression : /* nothing */ { $$ = new AstEmptyExpression(); }
-           | assignment_expression { $$ = $1; }
-           | expression T_COMMA assignment_expression { $$ = $3; }
+           | sequel_expression { $$ = $1; }
            ;
 
 constant_expression : conditional_expression { $$ = $1; }
@@ -225,7 +228,7 @@ variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = 
                      ;
 
 variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); }
-                                     | variable_assignment_declaration_list T_COMMA variable_assignment_declaration { $$->add($3); }
+                                     | variable_assignment_declaration_list T_COMMA variable_assignment_declaration { $1->add($3); $$ = $1; }
                                      ;
 
 variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); }
@@ -259,7 +262,7 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                      ;
 
 function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->add($1); }
-                                   | function_argument_declaration_list T_COMMA function_argument_declaration { $$->add($3); }
+                                   | function_argument_declaration_list T_COMMA function_argument_declaration { $1->add($3); $$ = $1; }
                                    ;
 
 function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); }
@@ -271,7 +274,7 @@ compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr);
                    ;
 
 statement_list : statement { $$ = new AstStatementList(); $$->add($1); }
-               | statement_list statement { $$->add($2); }
+               | statement_list statement { $1->add($2); $$ = $1; }
                ;
 
 statement : compound_statement { $$ = $1; }

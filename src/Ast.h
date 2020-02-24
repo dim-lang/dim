@@ -33,6 +33,7 @@
 #define A_BOOLEAN_CONSTANT 117
 #define A_ASSIGNMENT_EXPRESSION 118
 #define A_EMPTY_EXPRESSION 119
+#define A_SEQUEL_EXPERSSION 120
 
 #define A_EXPRESSION_STATEMENT 201
 #define A_COMPOUND_STATEMENT 202
@@ -88,6 +89,7 @@ class AstBinaryExpression;
 class AstConditionalExpression;
 class AstAssignmentExpression;
 class AstEmptyExpression;
+class AstSequelExpression;
 
 /* statement */
 class AstStatement;
@@ -575,6 +577,21 @@ public:
   virtual std::string name() const;
 
 private:
+  std::string name_;
+};
+
+/* sequel expression */
+class AstSequelExpression : public AstExpression {
+public:
+  AstSequelExpression(AstExpressionList *expressionList);
+  virtual ~AstSequelExpression();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual std::string name() const;
+  virtual AstExpressionList *expressionList() const;
+
+private:
+  AstExpressionList *expressionList_;
   std::string name_;
 };
 

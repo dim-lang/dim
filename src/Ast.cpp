@@ -414,6 +414,27 @@ std::string AstEmptyExpression::toString() const {
 
 std::string AstEmptyExpression::name() const { return name_; }
 
+AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
+    : expressionList_(expressionList), name_(A_NAME("A_SeqExpr")) {}
+
+AstSequelExpression::~AstSequelExpression() {
+  delete expressionList_;
+  expressionList_ = nullptr;
+}
+
+int AstSequelExpression::type() const { return A_SEQUEL_EXPERSSION; }
+
+std::string AstSequelExpression::toString() const {
+  return fmt::format("[ @AstSequelExpression expressionList_:{} ]",
+                     expressionList_ ? expressionList_->toString() : "null");
+}
+
+std::string AstSequelExpression::name() const { return name_; }
+
+AstExpressionList *AstSequelExpression::expressionList() const {
+  return expressionList_;
+}
+
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : expression_(expression), name_(A_NAME("A_ExprStmt")) {}
 
