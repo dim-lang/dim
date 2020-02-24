@@ -13,7 +13,6 @@ static std::string dumpAstImpl(Ast *node) {
     return "null";
   switch (node->type()) {
   case A_IDENTIFIER_CONSTANT:
-    return node->name();
   case A_I8_CONSTANT:
   case A_U8_CONSTANT:
   case A_I16_CONSTANT:
@@ -64,6 +63,18 @@ static std::string dumpAstImpl(Ast *node) {
            dumpAstImpl(dynamic_cast<AstAssignmentExpression *>(node)->value());
   case A_EMPTY_EXPRESSION:
     return dynamic_cast<AstEmptyExpression *>(node)->name();
+  case A_SEQUEL_EXPERSSION: {
+    AstSequelExpression *se = dynamic_cast<AstSequelExpression *>(node);
+    std::stringstream ss;
+    ss << se->name() << ": ";
+    for (int i = 0; i < se->expressionList()->size(); i++) {
+      ss << dumpAstImpl(se->expressionList()->get(i));
+      if (i < (int)se->expressionList()->size() - 1) {
+        ss << ",";
+      }
+    }
+    return ss.str();
+  }
   case A_EXPRESSION_STATEMENT:
     return dumpAstImpl(
                dynamic_cast<AstExpressionStatement *>(node)->expression()) +
@@ -153,6 +164,16 @@ static std::string dumpAstImpl(Ast *node) {
     ss << dl->name() << " {\n\n";
     for (int i = 0; i < dl->size(); i++) {
       ss << dumpAstImpl(dl->get(i)) << "\n";
+    }
+    ss << "}\n";
+    return ss.str();
+  }
+  case A_PROGRAM: {
+    AstProgram *p = dynamic_cast<AstProgram *>(node);
+    std::stringstream ss;
+    ss << p->name() << " {\n\n";
+    for (int i = 0; i < p->size(); i++) {
+      ss << dumpAstImpl(p->get(i)) << "\n";
     }
     ss << "}\n";
     return ss.str();
