@@ -56,6 +56,7 @@ int yycolumn = 1;
 "switch"     { return T_TOKEN(T_SWITCH); }
 "case"       { return T_TOKEN(T_CASE); }
 "caseof"     { return T_TOKEN(T_CASEOF); }
+"match"      { return T_TOKEN(T_MATCH); }
 "default"    { return T_TOKEN(T_DEFAULT); }
 "for"        { return T_TOKEN(T_FOR); }
 "foreach"    { return T_TOKEN(T_FOREACH); }
