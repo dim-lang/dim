@@ -91,6 +91,7 @@ int yyCharCount = 1;
 "*"    { return T_TOKEN(T_MUL); }
 "/"    { return T_TOKEN(T_DIV); }
 "%"    { return T_TOKEN(T_MOD); }
+"_"    { return T_TOKEN(T_UNDERLINE); }
 "&&"   { return T_TOKEN(T_LOGIC_AND); }
 "||"   { return T_TOKEN(T_LOGIC_OR); }
 "!"    { return T_TOKEN(T_LOGIC_NOT); }

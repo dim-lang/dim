@@ -26,7 +26,7 @@
 %token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_I8 T_U8 T_I16 T_U16 T_I32 T_U32 T_I64 T_U64 T_F32 T_F64 T_STRING T_BOOLEAN T_ASYNC T_AWAIT
-%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
+%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_UNDERLINE T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
@@ -281,14 +281,16 @@ if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %pre
 switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
                  ;
 
-switch_body_statement : T_CASE constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+switch_body_statement : T_BIT_OR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+                      | T_BIT_OR T_UNDERLINE T_COLON statement_list {}
                       ;
 
 match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
-                 ;
+                ;
 
-match_body_statement : assignment_expression T_BIG_ARROW statement { $$ = new AstMatchBodyStatement($1, $3); }
-                      ;
+match_body_statement : T_BIT_OR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
+                     | T_BIT_OR T_UNDERLINE T_COLON statement {}
+                     ;
  */
 
 expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1); }
