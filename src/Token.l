@@ -20,13 +20,9 @@ HEXEXP ([pP][-+]?[0-9]+)
 #define T_SAVE_NO_TOKEN         yylval.literal = nullptr
 #define T_TOKEN(t)              (yylval.token = t)
 
-int yycolumn = 1;
+int yyCharCount = 1;
 
-#define YY_USER_ACTION do { \
-    yylloc.first_line = yylloc.last_line = yylineno; \
-    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn + yyleng - 1; \
-    yycolumn += yyleng; \
-} while (0);
+#define YY_USER_ACTION yyCharCount += yyleng;
 
 %}
 
