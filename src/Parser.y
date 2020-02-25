@@ -48,7 +48,7 @@
 %type <decl> declaration
 %type <declList> variable_assignment_declaration_list translation_unit function_argument_declaration_list
 
-%type <str> join_string_expression
+%type <str> join_string_helper
 
  /* operator precedence */
  /* comma */
@@ -85,9 +85,9 @@
 
  /* part-1 expression */
 
-join_string_expression : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
-                       | T_STRING_CONSTANT join_string_expression { $2->add($1); $$ = $2; std::free($1); }
-                       ;
+join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
+                   | T_STRING_CONSTANT join_string_helper { $2->add($1); $$ = $2; std::free($1); }
+                   ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
                    /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); }*/
@@ -100,7 +100,7 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
                    /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); }*/
                    /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); }*/
                    | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); }
-                   | join_string_expression { $$ = $1; }
+                   | join_string_helper { $$ = $1; }
                    | T_TRUE { $$ = new AstBooleanConstant(true); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); }
                    | T_LPAREN expression T_RPAREN { $$ = $2; }
