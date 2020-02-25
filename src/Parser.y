@@ -188,7 +188,18 @@ constant_expression : conditional_expression { $$ = $1; }
 
 declaration : function_declaration { $$ = $1; }
             | variable_declaration { $$ = $1; }
+            /*| import_module { $$ = $1; }*/
             ;
+
+ /* 
+import_module : T_IMPORT import_module_list T_SEMI
+              ;
+
+import_module_list : T_IDENTIFIER
+                   | T_IDENTIFIER T_DOT import_module_list 
+                   ;
+ */
+
 
  /**
   * var x = 1;
@@ -254,11 +265,12 @@ statement : if_statement { $$ = $1; }
           | iteration_statement { $$ = $1; }
           | jump_statement { $$ = $1; }
           | empty_statement { $$ = $1; }
-          /*| switch_statement { $$ = $1; } */
+          /*| switch_statement { $$ = $1; }*/
           /*| switch_body_statement { $$ = $1; }*/
+          /*| caseof_statement { $$ = $1; } */
+          /*| caseof_body_statement { $$ = $1; }*/
           /*| match_statement { $$ = $1; }*/
           /*| match_body_statement { $$ = $1; }*/
-          /*| import_statement { $$ = $1; }*/
           | declaration { $$ = $1; }
           ;
 
@@ -267,10 +279,18 @@ if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %pre
              ;
 
  /*
+
 switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
                  ;
 
-switch_body_statement : T_CASE assignment_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+switch_body_statement : T_CASE constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+                      ;
+
+ // caseof is same with switch except fall down behaviour
+caseof_statement : T_CASEOF T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstCaseofStatement($3, $5); }
+                 ;
+
+caseof_body_statement : assignment_expression T_BIG_ARROW statement_list { $$ = new AstCaseofBodyStatement($1, $3); }
                       ;
 
 match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
@@ -296,15 +316,6 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
 
 empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
-
- /* 
-import_statement : T_IMPORT import_module_list T_SEMI
-                 ;
-
-import_module_list : T_IDENTIFIER
-                   | T_IDENTIFIER T_DOT import_module_list 
-                   ;
- */
 
 translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->add($1); } }
                  | declaration translation_unit { if (program) { (*program)->add($1); } }
