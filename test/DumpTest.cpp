@@ -13,12 +13,12 @@ static void go(const char *module) {
   REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
   REQUIRE(yyparse(&program) == 0);
-  CINFO("dump ast: {}", dumpAst(program));
+  CINFO("dump ast: {} {}", module, dumpAst(program));
   Semant *semant = new Semant(program);
   semant->build();
   semant->check();
-  CINFO("dump symbol: {}", dumpSymbol(semant->globalSymbolTable()));
-  CINFO("dump type: {}", dumpType(semant->globalTypeTable()));
+  CINFO("dump symbol:{} {}", module, dumpSymbol(semant->globalSymbolTable()));
+  CINFO("dump type:{} {}", module, dumpType(semant->globalTypeTable()));
 }
 
 TEST_CASE("Dump", "[Dump]") {
