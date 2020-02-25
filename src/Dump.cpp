@@ -61,8 +61,6 @@ static std::string dumpAstImpl(Ast *node) {
                dynamic_cast<AstAssignmentExpression *>(node)->variable()) +
            "=" +
            dumpAstImpl(dynamic_cast<AstAssignmentExpression *>(node)->value());
-  case A_EMPTY_EXPRESSION:
-    return dynamic_cast<AstEmptyExpression *>(node)->name();
   case A_SEQUEL_EXPERSSION: {
     AstSequelExpression *se = dynamic_cast<AstSequelExpression *>(node);
     std::stringstream ss;
@@ -125,6 +123,8 @@ static std::string dumpAstImpl(Ast *node) {
     return dynamic_cast<AstReturnStatement *>(node)->name() + " " +
            dumpAstImpl(dynamic_cast<AstReturnStatement *>(node)->expression()) +
            ";";
+  case A_EMPTY_STATEMENT:
+    return dynamic_cast<AstEmptyStatement *>(node)->name() + ";";
   case A_VARIABLE_DECLARATION: {
     AstVariableDeclaration *vd = dynamic_cast<AstVariableDeclaration *>(node);
     std::stringstream ss;

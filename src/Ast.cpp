@@ -240,8 +240,10 @@ std::string AstStringConstant::name() const { return name_; }
 
 const std::string &AstStringConstant::value() const { return value_; }
 
-void AstStringConstant::append(const char *value) {
-  value_.append(std::string(value));
+void AstStringConstant::add(const char *value) { value_ += std::string(value); }
+
+void AstStringConstant::addHead(const char *value) {
+  value_ = std::string(value) + value_;
 }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value)
@@ -402,18 +404,6 @@ AstExpression *AstAssignmentExpression::variable() const { return variable_; }
 int AstAssignmentExpression::token() const { return token_; }
 
 AstExpression *AstAssignmentExpression::value() const { return value_; }
-
-AstEmptyExpression::AstEmptyExpression() : name_(GEN_NAME("A_EmpExp")) {}
-
-AstEmptyExpression::~AstEmptyExpression() {}
-
-int AstEmptyExpression::type() const { return A_EMPTY_EXPRESSION; }
-
-std::string AstEmptyExpression::toString() const {
-  return "[ @AstEmptyExpression ]";
-}
-
-std::string AstEmptyExpression::name() const { return name_; }
 
 AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
     : expressionList_(expressionList), name_(GEN_NAME("A_SeqExp")) {}
@@ -616,6 +606,18 @@ std::string AstReturnStatement::toString() const {
 std::string AstReturnStatement::name() const { return name_; }
 
 AstExpression *AstReturnStatement::expression() const { return expression_; }
+
+AstEmptyStatement::AstEmptyStatement() : name_(GEN_NAME("A_EmpStm")) {}
+
+AstEmptyStatement::~AstEmptyStatement() {}
+
+int AstEmptyStatement::type() const { return A_EMPTY_STATEMENT; }
+
+std::string AstEmptyStatement::toString() const {
+  return fmt::format("[ @AstEmptyStatement ]");
+}
+
+std::string AstEmptyStatement::name() const { return name_; }
 
 AstVariableDeclaration::AstVariableDeclaration(
     AstDeclarationList *declarationList)

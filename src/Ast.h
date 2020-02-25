@@ -8,9 +8,9 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
+#include <deque>
 #include <sstream>
 #include <string>
-#include <vector>
 
 /* Ast::type */
 
@@ -32,8 +32,7 @@
 #define A_U64_CONSTANT 116
 #define A_BOOLEAN_CONSTANT 117
 #define A_ASSIGNMENT_EXPRESSION 118
-#define A_EMPTY_EXPRESSION 119
-#define A_SEQUEL_EXPERSSION 120
+#define A_SEQUEL_EXPERSSION 119
 
 #define A_EXPRESSION_STATEMENT 201
 #define A_COMPOUND_STATEMENT 202
@@ -43,6 +42,7 @@
 #define A_CONTINUE_STATEMENT 206
 #define A_BREAK_STATEMENT 207
 #define A_RETURN_STATEMENT 208
+#define A_EMPTY_STATEMENT 209
 
 #define A_VARIABLE_DECLARATION 301
 #define A_VARIABLE_ASSIGNMENT_DECLARATION 302
@@ -88,7 +88,6 @@ class AstUnaryExpression;
 class AstBinaryExpression;
 class AstConditionalExpression;
 class AstAssignmentExpression;
-class AstEmptyExpression;
 class AstSequelExpression;
 
 /* statement */
@@ -101,6 +100,7 @@ class AstForStatement;
 class AstContinueStatement;
 class AstBreakStatement;
 class AstReturnStatement;
+class AstEmptyStatement;
 
 /* declaration */
 class AstDeclaration;
@@ -181,11 +181,12 @@ public:
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const { return items_[pos]; }
   virtual void add(T *item) { items_.push_back(item); }
+  virtual void addHead(T *item) { items_.push_front(item); }
 
 protected:
   virtual std::string stringify() const = 0;
 
-  std::vector<T *> items_;
+  std::deque<T *> items_;
 };
 
 } // namespace detail
@@ -446,7 +447,8 @@ public:
   virtual std::string name() const;
 
   virtual const std::string &value() const;
-  virtual void append(const char *value);
+  virtual void add(const char *value);
+  virtual void addHead(const char *value);
 
 private:
   std::string value_;
@@ -564,19 +566,6 @@ private:
   AstExpression *variable_;
   int token_;
   AstExpression *value_;
-  std::string name_;
-};
-
-/* empty expression */
-class AstEmptyExpression : public AstExpression {
-public:
-  AstEmptyExpression();
-  virtual ~AstEmptyExpression();
-  virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
-
-private:
   std::string name_;
 };
 
@@ -727,6 +716,19 @@ public:
 
 private:
   AstExpression *expression_;
+  std::string name_;
+};
+
+/* empty statement */
+class AstEmptyStatement : public AstStatement {
+public:
+  AstEmptyStatement();
+  virtual ~AstEmptyStatement();
+  virtual int type() const;
+  virtual std::string toString() const;
+  virtual std::string name() const;
+
+private:
   std::string name_;
 };
 
