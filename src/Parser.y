@@ -258,6 +258,7 @@ statement : if_statement { $$ = $1; }
           /*| switch_body_statement { $$ = $1; }*/
           /*| match_statement { $$ = $1; }*/
           /*| match_body_statement { $$ = $1; }*/
+          /*| import_statement { $$ = $1; }*/
           | declaration { $$ = $1; }
           ;
 
@@ -295,6 +296,15 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
 
 empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
+
+ /* 
+import_statement : T_IMPORT import_module_list T_SEMI
+                 ;
+
+import_module_list : T_IDENTIFIER
+                   | T_IDENTIFIER T_DOT import_module_list 
+                   ;
+ */
 
 translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->add($1); } }
                  | declaration translation_unit { if (program) { (*program)->add($1); } }

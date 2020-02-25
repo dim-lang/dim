@@ -165,32 +165,26 @@ int yycolumn = 1;
 [a-zA-Z_][a-zA-Z0-9_]*              { T_SAVE_TOKEN; return T_IDENTIFIER; }
 
  /* whitespace */
-[ \t\n\v\f\r]           { /* skip whitespace */ }
+[ \t\n\v\f\r]                       { /* skip whitespace */ }
 
  /* import module */
-^[ \t]*import[ \t]*     { BEGIN IMPORT; }
-<IMPORT>[^ \t\n\;]+     {
-                            {
-                                int c;
-                                while ((c = yyinput()) && c != ';')
-                                    ;
-                            }
-                            TokenBuffer::pushImport(yytext);
-                            BEGIN INITIAL;
-                        }
-<IMPORT>.|\n            {
-                            CASSERT(false, "{}:{} error! bad import:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
-                            BEGIN INITIAL;
-                        }
-<<EOF>>                 {
-                            if (!TokenBuffer::popImport())
-                                yyterminate();
-                        }
+^[ \t\n\v\f\r]*import[ \t\n\v\f\r]* { BEGIN IMPORT; }
+<IMPORT>[^ \t\n\v\f\r\;]+           {
+                                        TokenBuffer::pushImport(yytext);
+                                        BEGIN INITIAL;
+                                    }
+<IMPORT>.|\n                        {
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
+                                        BEGIN INITIAL;
+                                    }
+<<EOF>>                             {
+                                        if (!TokenBuffer::popImport())
+                                            yyterminate();
+                                    }
 
  /* invalid token */
-.                       {
-                            CASSERT(false, "{}:{} error! invalid token:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
-                        }
-
+.                           {
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng); 
+                            }
 
 %%
