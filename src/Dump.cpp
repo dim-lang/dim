@@ -8,7 +8,7 @@
 #include <sstream>
 #include <string>
 
-static std::string dumpAstImpl(Ast *node) {
+static std::string dumpAstImpl(Ast *node, int depth) {
   if (!node)
     return "null";
   switch (node->type()) {
@@ -32,7 +32,7 @@ static std::string dumpAstImpl(Ast *node) {
     ss << ce->name() << "(";
     if (ce->argumentList()) {
       for (int i = 0; i < ce->argumentList()->size(); i++) {
-        ss << dumpAstImpl(ce->argumentList()->get(i));
+        ss << dumpAstImpl(ce->argumentList()->get(i), depth);
         if (i < ce->argumentList()->size() - 1) {
           ss << ", ";
         }
@@ -43,30 +43,38 @@ static std::string dumpAstImpl(Ast *node) {
   }
   case A_UNARY_EXPRESSION:
     return tokenName(dynamic_cast<AstUnaryExpression *>(node)->token()) + " " +
-           dumpAstImpl(dynamic_cast<AstUnaryExpression *>(node)->expression());
+           dumpAstImpl(dynamic_cast<AstUnaryExpression *>(node)->expression(),
+                       depth);
   case A_BINARY_EXPRESSION:
-    return dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->left()) +
+    return dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->left(),
+                       depth) +
            " " + tokenName(dynamic_cast<AstBinaryExpression *>(node)->token()) +
            " " +
-           dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->right());
+           dumpAstImpl(dynamic_cast<AstBinaryExpression *>(node)->right(),
+                       depth);
   case A_CONDITIONAL_EXPRESSION:
     return dumpAstImpl(
-               dynamic_cast<AstConditionalExpression *>(node)->condition()) +
+               dynamic_cast<AstConditionalExpression *>(node)->condition(),
+               depth) +
            "?" +
-           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->hit()) +
+           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->hit(),
+                       depth) +
            ":" +
-           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->miss());
+           dumpAstImpl(dynamic_cast<AstConditionalExpression *>(node)->miss(),
+                       depth);
   case A_ASSIGNMENT_EXPRESSION:
     return dumpAstImpl(
-               dynamic_cast<AstAssignmentExpression *>(node)->variable()) +
+               dynamic_cast<AstAssignmentExpression *>(node)->variable(),
+               depth) +
            "=" +
-           dumpAstImpl(dynamic_cast<AstAssignmentExpression *>(node)->value());
+           dumpAstImpl(dynamic_cast<AstAssignmentExpression *>(node)->value(),
+                       depth);
   case A_SEQUEL_EXPERSSION: {
     AstSequelExpression *se = dynamic_cast<AstSequelExpression *>(node);
     std::stringstream ss;
     ss << se->name() << ": ";
     for (int i = 0; i < se->expressionList()->size(); i++) {
-      ss << dumpAstImpl(se->expressionList()->get(i));
+      ss << dumpAstImpl(se->expressionList()->get(i), depth);
       if (i < (int)se->expressionList()->size() - 1) {
         ss << ",";
       }
@@ -74,79 +82,96 @@ static std::string dumpAstImpl(Ast *node) {
     return ss.str();
   }
   case A_EXPRESSION_STATEMENT:
-    return dumpAstImpl(
-               dynamic_cast<AstExpressionStatement *>(node)->expression()) +
-           ";";
+    return std::string(depth, ' ') +
+           dumpAstImpl(
+               dynamic_cast<AstExpressionStatement *>(node)->expression(),
+               depth) +
+           ";\n";
   case A_COMPOUND_STATEMENT: {
-    std::stringstream ss;
-    ss << "{";
     AstCompoundStatement *cs = dynamic_cast<AstCompoundStatement *>(node);
+    std::stringstream ss;
+    ss << std::string(depth, ' ') << "{";
     if (cs->statementList() && cs->statementList()->size() > 0) {
       for (int i = 0; i < cs->statementList()->size(); i++) {
-        ss << "\n\t" << dumpAstImpl(cs->statementList()->get(i));
+        ss << "\n"
+           << std::string(depth, ' ')
+           << dumpAstImpl(cs->statementList()->get(i), depth + 1);
       }
+      ss << "\n" << std::string(depth, ' ');
     }
-    ss << "\n}\n";
+    ss << "}\n";
     return ss.str();
   }
   case A_IF_STATEMENT: {
-    std::stringstream ss;
-    ss << "if (";
     AstIfStatement *is = dynamic_cast<AstIfStatement *>(node);
+    std::stringstream ss;
+    ss << std::string(depth, ' ') << "if (";
     CASSERT(is->hit(), "is#hit is null");
-    ss << dumpAstImpl(is->condition()) << ") \n\t" << dumpAstImpl(is->hit());
+    ss << dumpAstImpl(is->condition(), depth) << ") \n"
+       << std::string(depth, ' ') << dumpAstImpl(is->hit(), depth);
     if (is->miss()) {
-      ss << " \nelse \t" << dumpAstImpl(is->miss());
+      ss << "\n"
+         << std::string(depth, ' ') << "else "
+         << dumpAstImpl(is->miss(), depth);
     }
+    ss << "\n";
     return ss.str();
   }
   case A_WHILE_STATEMENT: {
-    std::stringstream ss;
-    ss << "while (";
     AstWhileStatement *ws = dynamic_cast<AstWhileStatement *>(node);
-    ss << dumpAstImpl(ws->condition()) << ")\n" << dumpAstImpl(ws->statement());
+    std::stringstream ss;
+    ss << std::string(depth, ' ') << "while (";
+    ss << dumpAstImpl(ws->condition(), depth) << ") "
+       << dumpAstImpl(ws->statement(), depth) << "\n";
     return ss.str();
   }
   case A_FOR_STATEMENT: {
     AstForStatement *fs = dynamic_cast<AstForStatement *>(node);
     std::stringstream ss;
-    ss << "for (" << dumpAstImpl(fs->initial()) << dumpAstImpl(fs->condition())
-       << dumpAstImpl(fs->post()) + ")\n"
-       << dumpAstImpl(fs->statement());
+    ss << std::string(depth, ' ') << "for ("
+       << dumpAstImpl(fs->initial(), depth)
+       << dumpAstImpl(fs->condition(), depth)
+       << dumpAstImpl(fs->post(), depth) + ") "
+       << dumpAstImpl(fs->statement(), depth) << "\n";
     return ss.str();
   }
   case A_CONTINUE_STATEMENT:
-    return dynamic_cast<AstContinueStatement *>(node)->name() + ";";
+    return std::string(depth, ' ') +
+           dynamic_cast<AstContinueStatement *>(node)->name() + ";\n";
   case A_BREAK_STATEMENT:
-    return dynamic_cast<AstBreakStatement *>(node)->name() + ";";
+    return std::string(depth, ' ') +
+           dynamic_cast<AstBreakStatement *>(node)->name() + ";\n";
   case A_RETURN_STATEMENT:
-    return dynamic_cast<AstReturnStatement *>(node)->name() + " " +
-           dumpAstImpl(dynamic_cast<AstReturnStatement *>(node)->expression()) +
-           ";";
+    return std::string(depth, ' ') +
+           dynamic_cast<AstReturnStatement *>(node)->name() + " " +
+           dumpAstImpl(dynamic_cast<AstReturnStatement *>(node)->expression(),
+                       depth) +
+           ";\n";
   case A_EMPTY_STATEMENT:
-    return dynamic_cast<AstEmptyStatement *>(node)->name() + ";";
+    return std::string(depth, ' ') +
+           dynamic_cast<AstEmptyStatement *>(node)->name() + ";\n";
   case A_VARIABLE_DECLARATION: {
     AstVariableDeclaration *vd = dynamic_cast<AstVariableDeclaration *>(node);
     std::stringstream ss;
-    ss << vd->name() << ": ";
+    ss << std::string(depth, ' ') << vd->name() << ": ";
     for (int i = 0; i < vd->declarationList()->size(); i++) {
-      ss << dumpAstImpl(vd->declarationList()->get(i));
+      ss << dumpAstImpl(vd->declarationList()->get(i), depth);
       if (i < vd->declarationList()->size() - 1) {
         ss << ", ";
       }
     }
-    ss << ";";
+    ss << ";\n";
     return ss.str();
   }
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     AstVariableAssignmentDeclaration *vad =
         dynamic_cast<AstVariableAssignmentDeclaration *>(node);
-    return vad->identifier() + " = " + dumpAstImpl(vad->expression());
+    return vad->identifier() + " = " + dumpAstImpl(vad->expression(), depth);
   }
   case A_FUNCTION_DECLARATION: {
     AstFunctionDeclaration *fd = dynamic_cast<AstFunctionDeclaration *>(node);
     std::stringstream ss;
-    ss << "\n" << fd->name() << "(";
+    ss << std::string(depth, ' ') << fd->name() << "(";
     if (fd->argumentList() && fd->argumentList()->size() > 0) {
       for (int i = 0; i < fd->argumentList()->size(); i++) {
         ss << fd->argumentList()->get(i)->name();
@@ -155,15 +180,15 @@ static std::string dumpAstImpl(Ast *node) {
         }
       }
     }
-    ss << ") => " << dumpAstImpl(fd->statement());
+    ss << ") => " << dumpAstImpl(fd->statement(), depth) << "\n";
     return ss.str();
   }
   case A_DECLARATION_LIST: {
     AstDeclarationList *dl = dynamic_cast<AstDeclarationList *>(node);
     std::stringstream ss;
-    ss << dl->name() << " {\n\n";
+    ss << std::string(depth, ' ') << dl->name() << "{\n";
     for (int i = 0; i < dl->size(); i++) {
-      ss << dumpAstImpl(dl->get(i)) << "\n";
+      ss << dumpAstImpl(dl->get(i), depth);
     }
     ss << "}\n";
     return ss.str();
@@ -171,9 +196,9 @@ static std::string dumpAstImpl(Ast *node) {
   case A_PROGRAM: {
     AstProgram *p = dynamic_cast<AstProgram *>(node);
     std::stringstream ss;
-    ss << p->name() << " {\n\n";
+    ss << std::string(depth, ' ') << p->name() << " {\n";
     for (int i = 0; i < p->size(); i++) {
-      ss << dumpAstImpl(p->get(i)) << "\n";
+      ss << dumpAstImpl(p->get(i), depth + 1);
     }
     ss << "}\n";
     return ss.str();
@@ -187,7 +212,7 @@ static std::string dumpAstImpl(Ast *node) {
   }
 }
 
-std::string dumpAst(Ast *node) { return dumpAstImpl(node); }
+std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
 static std::string dumpSymbolImpl(Symbol *sym) {
   if (!sym)
