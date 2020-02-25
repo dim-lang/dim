@@ -267,8 +267,6 @@ statement : if_statement { $$ = $1; }
           | empty_statement { $$ = $1; }
           /*| switch_statement { $$ = $1; }*/
           /*| switch_body_statement { $$ = $1; }*/
-          /*| caseof_statement { $$ = $1; } */
-          /*| caseof_body_statement { $$ = $1; }*/
           /*| match_statement { $$ = $1; }*/
           /*| match_body_statement { $$ = $1; }*/
           | declaration { $$ = $1; }
@@ -284,13 +282,6 @@ switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { 
                  ;
 
 switch_body_statement : T_CASE constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
-                      ;
-
- // caseof is same with switch except fall down behaviour
-caseof_statement : T_CASEOF T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstCaseofStatement($3, $5); }
-                 ;
-
-caseof_body_statement : assignment_expression T_BIG_ARROW statement_list { $$ = new AstCaseofBodyStatement($1, $3); }
                       ;
 
 match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
