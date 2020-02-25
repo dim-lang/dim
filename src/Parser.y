@@ -87,7 +87,7 @@
  /* part-1 expression */
 
 join_string_expression : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
-                       | T_STRING_CONSTANT join_string_expression { $2->addHead($1); $$ = $2; std::free($1); }
+                       | T_STRING_CONSTANT join_string_expression { $2->add($1); $$ = $2; std::free($1); }
                        ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
@@ -114,8 +114,8 @@ postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
 
-argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->addHead($1); }
-                         | assignment_expression T_COMMA argument_expression_list { $3->addHead($1); $$ = $3; }
+argument_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
+                         | assignment_expression T_COMMA argument_expression_list { $3->add($1); $$ = $3; }
                          ;
 
 unary_expression : postfix_expression { $$ = $1; }
@@ -199,8 +199,8 @@ assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3); }
                       ;
 
-sequel_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->addHead($1); }
-                       | assignment_expression T_COMMA sequel_expression_list { $3->addHead($1); $$ = $3; }
+sequel_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
+                       | assignment_expression T_COMMA sequel_expression_list { $3->add($1); $$ = $3; }
                        ;
 
 sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
@@ -226,8 +226,8 @@ declaration : function_declaration { $$ = $1; }
 variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = new AstVariableDeclaration($2); }
                      ;
 
-variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->addHead($1); }
-                                     | variable_assignment_declaration T_COMMA variable_assignment_declaration_list { $3->addHead($1); $$ = $3; }
+variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); }
+                                     | variable_assignment_declaration T_COMMA variable_assignment_declaration_list { $3->add($1); $$ = $3; }
                                      ;
 
 variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); }
@@ -260,8 +260,8 @@ function_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaratio
                         }
                      ;
 
-function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->addHead($1); }
-                                   | function_argument_declaration T_COMMA function_argument_declaration_list { $3->addHead($1); $$ = $3; }
+function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->add($1); }
+                                   | function_argument_declaration T_COMMA function_argument_declaration_list { $3->add($1); $$ = $3; }
                                    ;
 
 function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); }
@@ -272,8 +272,8 @@ compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr);
                    | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); }
                    ;
 
-statement_list : statement { $$ = new AstStatementList(); $$->addHead($1); }
-               | statement statement_list { $2->addHead($1); $$ = $2; }
+statement_list : statement { $$ = new AstStatementList(); $$->add($1); }
+               | statement statement_list { $2->add($1); $$ = $2; }
                ;
 
 statement : compound_statement { $$ = $1; }
@@ -307,8 +307,8 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
 empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
-translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->addHead($1); } }
-                 | declaration translation_unit { if (program) { (*program)->addHead($1); } }
+translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->add($1); } }
+                 | declaration translation_unit { if (program) { (*program)->add($1); } }
                  ;
 
 %%

@@ -180,8 +180,7 @@ public:
   virtual std::string name() const = 0;
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const { return items_[pos]; }
-  virtual void add(T *item) { items_.push_back(item); }
-  virtual void addHead(T *item) { items_.push_front(item); }
+  virtual void add(T *item) { items_.push_front(item); }
 
 protected:
   virtual std::string stringify() const = 0;
@@ -448,7 +447,6 @@ public:
 
   virtual const std::string &value() const;
   virtual void add(const char *value);
-  virtual void addHead(const char *value);
 
 private:
   std::string value_;

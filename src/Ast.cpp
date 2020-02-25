@@ -240,9 +240,7 @@ std::string AstStringConstant::name() const { return name_; }
 
 const std::string &AstStringConstant::value() const { return value_; }
 
-void AstStringConstant::add(const char *value) { value_ += std::string(value); }
-
-void AstStringConstant::addHead(const char *value) {
+void AstStringConstant::add(const char *value) {
   value_ = std::string(value) + value_;
 }
 
