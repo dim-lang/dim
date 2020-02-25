@@ -27,7 +27,6 @@ static std::unordered_map<int, std::string> TokenNameMap = {
     {T_CONTINUE, "continue"},
     {T_SWITCH, "switch"},
     {T_CASE, "case"},
-    {T_CASEOF, "caseof"},
     {T_MATCH, "match"},
     {T_DEFAULT, "default"},
     {T_FUNC, "func"},
