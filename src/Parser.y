@@ -1,4 +1,6 @@
 %{
+#include <cstdarg>
+#include <cstdio>
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
@@ -315,3 +317,15 @@ translation_unit : declaration { if (program) { (*program) = new AstProgram(); (
                  ;
 
 %%
+
+void yyerror(AstProgram **program, const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  if (yylloc.first_line) {
+    fprintf(stderr, "%d.%d-%d.%d: error: ", yylloc.first_line,
+            yylloc.first_column, yylloc.last_line, yylloc.last_column);
+  }
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+}

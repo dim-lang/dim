@@ -8,7 +8,6 @@
 #include "Parser.tab.hpp"
 #include "Semant.h"
 #include "Token.h"
-#include "TokenBuffer.h"
 #include <iostream>
 #include <string>
 #include <vector>

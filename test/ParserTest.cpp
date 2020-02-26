@@ -6,7 +6,6 @@
 #include "Log.h"
 #include "Parser.tab.hpp"
 #include "Token.h"
-#include "TokenBuffer.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 

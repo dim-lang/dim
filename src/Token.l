@@ -11,7 +11,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 
 %{
 #include "Log.h"
-#include "TokenBuffer.h"
+#include "Token.h"
 #include "Ast.h"
 #include "Parser.tab.hpp"
 
@@ -19,6 +19,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 #define T_SAVE_TOKEN_X(p, q)    yylval.literal = strndup(yytext+(p), yyleng-(p)-(q))
 #define T_SAVE_NO_TOKEN         yylval.literal = nullptr
 #define T_TOKEN(t)              (yylval.token = t)
+#define TOKEN_FILE_EXT ".co"
 
 int yyCharCount = 1;
 
@@ -184,3 +185,105 @@ int yyCharCount = 1;
                             }
 
 %%
+
+std::string TokenBuffer::CurrentBuffer = "";
+
+static std::stack<TokenBuffer *> BufferStack;
+
+int TokenBuffer::pushImport(const std::string &module) {
+  TokenBuffer *fb = new TokenBuffer(module);
+
+  /* remember state */
+  if (!BufferStack.empty()) {
+    BufferStack.top()->lineNo = yylineno;
+  }
+
+  /* switch to new file */
+  BufferStack.push(fb);
+
+  yy_switch_to_buffer(fb->yyBufferState);
+  yylineno = 1;
+  CurrentBuffer = fb->fileName;
+  return 1;
+}
+
+int TokenBuffer::popImport() {
+  CASSERT(!BufferStack.empty(),
+          "BufferStack must not empty! CurrentBuffer:{} yylineno:{}",
+          CurrentBuffer, yylineno);
+  TokenBuffer *fb;
+
+  fb = BufferStack.top();
+  BufferStack.pop();
+  delete fb;
+  fb = nullptr;
+  if (BufferStack.empty()) {
+    CurrentBuffer = "";
+    return 0;
+  }
+
+  fb = BufferStack.top();
+  yy_switch_to_buffer(fb->yyBufferState);
+  yylineno = fb->lineNo;
+  CurrentBuffer = fb->fileName;
+  return 1;
+}
+
+std::string TokenBuffer::moduleToFile(const std::string &name) {
+  std::string r(name);
+  char replace;
+#if PLATFORM_WINDOWS
+  replace = '\\';
+#else
+  replace = '/';
+#endif
+  std::for_each(r.begin(), r.end(), [&replace](char &c) {
+    if (c == '.') {
+      c = replace;
+    }
+  });
+  r.append(TOKEN_FILE_EXT);
+  return r;
+}
+
+std::string TokenBuffer::fileToModule(const std::string &name) {
+  std::string r(name.substr(0, name.length() - 5));
+  std::for_each(r.begin(), r.end(), [](char &c) {
+    if (c == '/' || c == '\\') {
+      c = '.';
+    }
+  });
+  return r;
+}
+
+TokenBuffer::TokenBuffer(const std::string &module)
+    : yyBufferState(nullptr), fileName(moduleToFile(module)), lineNo(1),
+      fp(nullptr) {
+  CASSERT(fileName.length() > 5, "{}:{} error! fileName {} invalid!",
+          CurrentBuffer, yylineno, fileName);
+  fp = std::fopen(fileName.c_str(), "r");
+  if (!fp) {
+    release();
+    CASSERT(fp, "{}:{} error! file {} cannot open!", CurrentBuffer, yylineno,
+            fileName);
+  }
+  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
+  if (!yyBufferState) {
+    release();
+    CASSERT(yyBufferState, "{}:{} error! yy_create_buffer {} failed!",
+            CurrentBuffer, yylineno, fileName);
+  }
+}
+
+TokenBuffer::~TokenBuffer() { release(); }
+
+void TokenBuffer::release() {
+  if (fp) {
+    std::fclose(fp);
+    fp = nullptr;
+  }
+  if (yyBufferState) {
+    yy_delete_buffer(yyBufferState);
+    yyBufferState = nullptr;
+  }
+}
