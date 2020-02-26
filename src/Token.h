@@ -8,11 +8,11 @@
 
 class AstProgram;
 struct yy_buffer_state;
+struct YYLTYPE;
+union YYSTYPE;
 using YY_BUFFER_STATE = yy_buffer_state *;
 
-extern FILE *yyin;
-extern int yylineno;
-extern int yylex(void);
+extern int yylex(YYSTYPE *yylval_param, YYLTYPE *yylloc_param);
 
 class TokenBuffer {
 public:

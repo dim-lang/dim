@@ -1,14 +1,19 @@
-%{
+%define api.pure
+%locations
+%parse-param { AstProgram **program }
+
+%code top {
 #include <cstdarg>
 #include <cstdio>
 #include "Log.h"
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
-%}
+}
 
-%parse-param { AstProgram **program }
-%locations
+%code requires {
+class AstProgram;
+}
 
  /* different ways to access data */
 %union {
@@ -312,18 +317,27 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
 empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
-translation_unit : declaration { if (program) { (*program) = new AstProgram(); (*program)->add($1); } }
-                 | declaration translation_unit { if (program) { (*program)->add($1); } }
+translation_unit : declaration {
+                        if (program) {
+                            (*program) = new AstProgram();
+                            (*program)->add($1); 
+                        }
+                    }
+                 | declaration translation_unit {
+                        if (program) {
+                            (*program)->add($1);
+                        }
+                    }
                  ;
 
 %%
 
-void yyerror(AstProgram **program, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, AstProgram **program, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  if (yylloc.first_line) {
-    fprintf(stderr, "%d.%d-%d.%d: error: ", yylloc.first_line,
-            yylloc.first_column, yylloc.last_line, yylloc.last_column);
+  if (yyllocp && yyllocp->first_line) {
+    fprintf(stderr, "%d.%d-%d.%d: error: ", yyllocp->first_line,
+            yyllocp->first_column, yyllocp->last_line, yyllocp->last_column);
   }
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");

@@ -122,10 +122,10 @@ function build_debug() {
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
     if [ "$1" = "-d" ]; then
         flex -d -o Token.yy.cpp Token.l
-        bison --debug -d -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+        bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
     else
         flex -o Token.yy.cpp Token.l
-        bison -d -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+        bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
     fi
 
     cd $ROOT
@@ -152,7 +152,7 @@ function build_release() {
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
     flex -o Token.yy.cpp Token.l
-    bison -d -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+    bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 
     cd $ROOT
     RELEASE=release

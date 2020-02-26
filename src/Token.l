@@ -1,4 +1,5 @@
-%option noyywrap nodefault yylineno
+%option noyywrap nodefault yylineno 8bit
+%option bison-locations bison-bridge
 
 %x COMMENT
 %x IMPORT
@@ -15,15 +16,21 @@ HEXEXP ([pP][-+]?[0-9]+)
 #include "Ast.h"
 #include "Parser.tab.hpp"
 
-#define T_SAVE_TOKEN            yylval.literal = strndup(yytext, yyleng)
-#define T_SAVE_TOKEN_X(p, q)    yylval.literal = strndup(yytext+(p), yyleng-(p)-(q))
-#define T_SAVE_NO_TOKEN         yylval.literal = nullptr
-#define T_TOKEN(t)              (yylval.token = t)
+#define T_SAVE_TOKEN            yylval->literal = strndup(yytext, yyleng)
+#define T_SAVE_TOKEN_X(p, q)    yylval->literal = strndup(yytext+(p), yyleng-(p)-(q))
+#define T_SAVE_NO_TOKEN         yylval->literal = nullptr
+#define T_TOKEN(t)              (yylval->token = t)
 #define TOKEN_FILE_EXT ".co"
 
-int yyCharCount = 1;
-
-#define YY_USER_ACTION yyCharCount += yyleng;
+#define YY_USER_ACTION                                             \
+    yylloc->first_line = yylloc->last_line;                             \
+    yylloc->first_column = yylloc->last_column;                         \
+    if (yylloc->last_line == yylineno) {                                \
+        yylloc->last_column += yyleng;                                  \
+    } else {                                                            \
+        yylloc->last_line = yylineno;                                   \
+        yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');  \
+    }
 
 %}
 
