@@ -33,12 +33,11 @@ public:
 #define CASSERT(cond, ...)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      const char *fmtmsg = fmt::format(__VA_ARGS__).c_str();                   \
-      std::fprintf(                                                            \
-          stderr, "Assert Fail! %s:%d %s - Condition: %s, Result: %s\n",       \
-          __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), fmtmsg); \
-      throw fmt::format("Assert Fail! {}:{} {} - Condition: {}, Result: {}",   \
-                        __FILE__, __LINE__, __FUNCTION__,                      \
-                        BOOST_PP_STRINGIZE(cond), fmtmsg);                     \
+      const char *argmsg = fmt::format(__VA_ARGS__).c_str();                   \
+      std::string fmtmsg = fmt::format(                                        \
+          "Assert Fail! {}:{} {} - Condition: {}, Result: {}", __FILE__,       \
+          __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), argmsg);           \
+      std::fprintf(stderr, "%s\n", fmtmsg.c_str());                            \
+      throw fmtmsg;                                                            \
     }                                                                          \
   } while (0)
