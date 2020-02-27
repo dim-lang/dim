@@ -16,7 +16,13 @@ class Type;
 using YY_BUFFER_STATE = yy_buffer_state *;
 using yyscan_t = void *;
 
-extern int yylex(YYSTYPE *yylval_param, YYLTYPE *yylloc_param);
+extern int yylex(YYSTYPE *yylval_param, YYLTYPE *yylloc_param,
+                 yyscan_t yyscanner);
+
+/* global methods */
+std::string moduleToFile(const std::string &name);
+
+std::string fileToModule(const std::string &name);
 
 class TokenBuffer {
 public:
@@ -30,10 +36,6 @@ public:
   int lineNo;
   FILE *fp;
 
-  /* global members */
-  static std::string moduleToFile(const std::string &name);
-  static std::string fileToModule(const std::string &name);
-
 private:
   yyscan_t scaninfo_;
   void release();
@@ -44,8 +46,11 @@ public:
   TokenBufferStack(Scanner *scanner);
   virtual ~TokenBufferStack();
   virtual const std::string &currentBuffer() const;
-  virtual int push(const std::string &module) const;
-  virtual int pop() const;
+  virtual int push(const std::string &module);
+  virtual int pop();
+  virtual int size() const;
+  virtual bool empty() const;
+  virtual Scanner *scanner() const;
 
 private:
   std::string currentBuffer_;
@@ -58,10 +63,16 @@ class Scanner {
 public:
   Scanner();
   virtual ~Scanner();
+  /** short path for calling
+   * tokenBufferStack->push()
+   * tokenBufferStack->pop()
+   */
+  virtual int push(const std::string &module);
+  virtual int pop();
 
-  yyscan_t scaninfo;
   AstProgram *program;
   Symbol *globalSymbolScope;
   Type *globalTypeScope;
+  yyscan_t scaninfo;
   TokenBufferStack *tokenBufferStack;
 };

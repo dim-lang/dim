@@ -1,4 +1,4 @@
-%option noyywrap nodefault yylineno 8bit
+%option noyywrap nounput noinput nodefault yylineno 8bit
 %option reentrant bison-locations bison-bridge
 %option extra-type="Scanner *"
 
@@ -17,21 +17,29 @@ HEXEXP ([pP][-+]?[0-9]+)
 #include "Token.h"
 #include "Ast.h"
 #include "Parser.tab.hpp"
+#include "Symbol.h"
+#include "Type.h"
 
-#define T_SAVE_TOKEN            yylval->literal = strndup(yytext, yyleng)
-#define T_SAVE_TOKEN_X(p, q)    yylval->literal = strndup(yytext+(p), yyleng-(p)-(q))
-#define T_SAVE_NO_TOKEN         yylval->literal = nullptr
-#define T_TOKEN(t)              (yylval->token = t)
+#define T_YYLENG                yyget_leng(yyextra->scaninfo)
+#define T_YYTEXT                yyget_text(yyextra->scaninfo)
+#define T_YYLVAL                yyget_lval(yyextra->scaninfo)
+#define T_YYLLOC                yyget_lloc(yyextra->scaninfo)
+#define T_YYLINENO              yyget_lineno(yyextra->scaninfo)
+
+#define T_SAVE_TOKEN            T_YYLVAL->literal = strndup(T_YYTEXT, T_YYLENG)
+#define T_SAVE_TOKEN_X(p, q)    T_YYLVAL->literal = strndup(T_YYTEXT+(p), T_YYLENG-(p)-(q))
+#define T_SAVE_NO_TOKEN         T_YYLVAL->literal = nullptr
+#define T_TOKEN(t)              (T_YYLVAL->token = t)
 #define TOKEN_FILE_EXT ".co"
 
 #define YY_USER_ACTION                                             \
-    yylloc->first_line = yylloc->last_line;                             \
-    yylloc->first_column = yylloc->last_column;                         \
-    if (yylloc->last_line == yylineno) {                                \
-        yylloc->last_column += yyleng;                                  \
-    } else {                                                            \
-        yylloc->last_line = yylineno;                                   \
-        yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');  \
+    T_YYLLOC->first_line = T_YYLLOC->last_line;                                 \
+    T_YYLLOC->first_column = T_YYLLOC->last_column;                             \
+    if (T_YYLLOC->last_line == T_YYLINENO) {                                      \
+        T_YYLLOC->last_column += T_YYLENG;                                      \
+    } else {                                                                    \
+        T_YYLLOC->last_line = T_YYLINENO;                                         \
+        T_YYLLOC->last_column = T_YYTEXT + T_YYLENG - strrchr(T_YYTEXT, '\n');  \
     }
 
 %}
@@ -43,7 +51,9 @@ HEXEXP ([pP][-+]?[0-9]+)
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->tokenBufferStack->currentBuffer(), yylineno);
+                            CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
+                                    "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
+                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO);
                             return 0;
                         }
 
@@ -145,22 +155,22 @@ HEXEXP ([pP][-+]?[0-9]+)
 
  /* integer constants */
  /* decimal integer: 102813 */
-{INT}                               { T_SAVE_TOKEN; return T_I64_CONSTANT; }
-{INT}[Uu]                           { T_SAVE_TOKEN; return T_U64_CONSTANT; }
+{INT}                                   { T_SAVE_TOKEN; return T_I64_CONSTANT; }
+{INT}[Uu]                               { T_SAVE_TOKEN; return T_U64_CONSTANT; }
  /* heximal integer: 0x03ff */
-0[xX]{HEX}+                         { T_SAVE_TOKEN; return T_I64_CONSTANT; }
+0[xX]{HEX}+                             { T_SAVE_TOKEN; return T_I64_CONSTANT; }
  /* octal integer: 0o27121 */
-0[oO][0-7]+                         { T_SAVE_TOKEN; return T_I64_CONSTANT; }
+0[oO][0-7]+                             { T_SAVE_TOKEN; return T_I64_CONSTANT; }
  /* binary integer: 0b10011 */
-0[bB][01]+                          { T_SAVE_TOKEN; return T_I64_CONSTANT; }
+0[bB][01]+                              { T_SAVE_TOKEN; return T_I64_CONSTANT; }
 
  /* floating constants */
  /* floating number: 92.312, 92.312e-10, 102e+91 */
-{INT}"."[0-9]+{EXP}?                { T_SAVE_TOKEN; return T_F64_CONSTANT; }
-{INT}{EXP}                          { T_SAVE_TOKEN; return T_F64_CONSTANT; }
+{INT}"."[0-9]+{EXP}?                    { T_SAVE_TOKEN; return T_F64_CONSTANT; }
+{INT}{EXP}                              { T_SAVE_TOKEN; return T_F64_CONSTANT; }
  /* floating hexcimal number: 0x1fa9p+7, 0x2f.3abfp-3 */
-0[xX]{HEX}+{HEXEXP}                 { T_SAVE_TOKEN; return T_F64_CONSTANT; }
-0[xX]({HEX}+"."{HEX}+){HEXEXP}?     { T_SAVE_TOKEN; return T_F64_CONSTANT; }
+0[xX]{HEX}+{HEXEXP}                     { T_SAVE_TOKEN; return T_F64_CONSTANT; }
+0[xX]({HEX}+"."{HEX}+){HEXEXP}?         { T_SAVE_TOKEN; return T_F64_CONSTANT; }
 
  /* string literal */
 \"\"                                    { T_SAVE_NO_TOKEN; return T_STRING_CONSTANT; }
@@ -168,34 +178,40 @@ HEXEXP ([pP][-+]?[0-9]+)
 \'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_SAVE_TOKEN_X(1, 1); return T_CHAR_CONSTANT; }
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*              { T_SAVE_TOKEN; return T_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]*                  { T_SAVE_TOKEN; return T_IDENTIFIER; }
 
  /* whitespace */
-[ \t\n\v\f\r]                       { /* skip whitespace */ }
+[ \t\n\v\f\r]                           { /* skip whitespace */ }
 
  /* import module */
 ^[ \t\n\v\f\r]*import[ \t\n\v\f\r]* { BEGIN IMPORT; }
 <IMPORT>[^ \t\n\v\f\r\;]+           {
-                                        yyextra->tokenBufferStack->push(yytext);
+                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
+                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
+                                        yyextra->tokenBufferStack->push(T_YYTEXT);
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), yylineno, yytext, yyleng);
+                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
+                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO, T_YYTEXT, T_YYLENG);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
+                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
+                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
                                         if (!yyextra->tokenBufferStack->pop())
                                             yyterminate();
                                     }
 
  /* invalid token */
 .                           {
-                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), yylineno, yytext, yyleng); 
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO, T_YYTEXT, T_YYLENG); 
                             }
 
 %%
 
-std::string TokenBuffer::moduleToFile(const std::string &name) {
+std::string moduleToFile(const std::string &name) {
   std::string r(name);
   char replace;
 #if PLATFORM_WINDOWS
@@ -212,7 +228,7 @@ std::string TokenBuffer::moduleToFile(const std::string &name) {
   return r;
 }
 
-std::string TokenBuffer::fileToModule(const std::string &name) {
+std::string fileToModule(const std::string &name) {
   std::string r(name.substr(0, name.length() - 5));
   std::for_each(r.begin(), r.end(), [](char &c) {
     if (c == '/' || c == '\\') {
@@ -252,57 +268,65 @@ void TokenBuffer::release() {
   scaninfo_ = nullptr;
 }
 
-TokenBufferStack::TokenBufferStack(Scanner *scanner) : scanner_(scanner), currentBuffer_(""), stack_() {}
+TokenBufferStack::TokenBufferStack(Scanner *scanner) : currentBuffer_(""), stack_(), scanner_(scanner) {}
 
 TokenBufferStack::~TokenBufferStack() {
     /* don't try to delete scanner_, it's just a reference */
     scanner_ = nullptr;
-    CASSERT(stack_.empty(), "stack_ is not empty, size: {}", stack_.size());
+    CASSERT(stack_.empty(), "stack_ not empty: {}", stack_.empty());
 }
 
 const std::string &TokenBufferStack::currentBuffer() const { return currentBuffer_; }
 
+bool TokenBufferStack::empty() const { return stack_.empty(); }
+
+int TokenBufferStack::size() const { return (int)stack_.size(); }
+
+Scanner *TokenBufferStack::scanner() const { return scanner_; }
+
 int TokenBufferStack::push(const std::string &module) {
-  TokenBuffer *fb = new TokenBuffer(module, scaninfo_);
+  TokenBuffer *tb = new TokenBuffer(module, scanner_->scaninfo);
 
   /* remember state */
   if (!stack_.empty()) {
-    stack_.top()->lineNo = yylineno;
+    stack_.top()->lineNo = yyget_lineno(scanner_->scaninfo);
   }
 
   /* switch to new file */
-  stack_.push(fb);
+  stack_.push(tb);
 
-  yy_switch_to_buffer(fb->yyBufferState, scaninfo_);
-  yylineno = 1;
-  currentBuffer_ = fb->fileName;
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->scaninfo);
+  yyset_lineno(1, scanner_->scaninfo);
+  currentBuffer_ = tb->fileName;
   return 1;
 }
 
 int TokenBufferStack::pop() {
   CASSERT(!stack_.empty(), "stack_ must not empty! currentBuffer:{}", currentBuffer_);
-  TokenBuffer *fb;
+  TokenBuffer *tb;
 
-  fb = stack_.top();
+  tb = stack_.top();
   stack_.pop();
-  delete fb;
-  fb = nullptr;
+  delete tb;
+  tb = nullptr;
   if (stack_.empty()) {
     currentBuffer_ = "";
     return 0;
   }
 
-  fb = stack_.top();
-  yy_switch_to_buffer(fb->yyBufferState, scaninfo_);
-  yylineno = fb->lineNo;
-  currentBuffer_ = fb->fileName;
+  tb = stack_.top();
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->scaninfo);
+  yyset_lineno(tb->lineNo, scanner_->scaninfo);
+  currentBuffer_ = tb->fileName;
   return 1;
 }
 
-Scanner::Scanner() : scaninfo(nullptr), program(new AstProgram()), globalSymbolScope(nullptr), globalTypeScope(nullptr), tokenBufferStack(new TokenBufferStack()) {
+Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), tokenBufferStack(nullptr) {
+    program = new AstProgram();
     yylex_init_extra(this, &scaninfo);
-    CASSERT(scaninfo, "scaninfo is null");
+    tokenBufferStack = new TokenBufferStack(this);
     CASSERT(program, "program is null");
+    CASSERT(scaninfo, "scaninfo is null");
     CASSERT(tokenBufferStack, "tokenBufferStack is null");
 }
 
@@ -327,4 +351,15 @@ Scanner::~Scanner() {
         delete globalTypeScope;
         globalTypeScope = nullptr;
     }
+}
+
+int Scanner::push(const std::string &module) {
+    CASSERT(tokenBufferStack, "tokenBufferStack is null");
+    return tokenBufferStack->push(module);
+}
+
+int Scanner::pop() {
+    CASSERT(tokenBufferStack, "tokenBufferStack is null");
+    CASSERT(!tokenBufferStack->empty(), "tokenBufferStack is empty: {}", tokenBufferStack->size());
+    return tokenBufferStack->pop();
 }

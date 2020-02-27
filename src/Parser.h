@@ -3,9 +3,9 @@
 
 #pragma once
 
-class AstProgram;
+class Scanner;
 struct YYLTYPE;
 
-extern int yyparse(AstProgram *&program);
+extern int yyparse(Scanner *scanner);
 
-void yyerror(YYLTYPE *yyllocp, AstProgram *&program, const char *fmt, ...);
+void yyerror(YYLTYPE *yyllocp, Scanner *scanner, const char *fmt, ...);

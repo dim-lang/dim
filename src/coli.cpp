@@ -31,20 +31,21 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
-      std::string moduleName = TokenBuffer::fileToModule(fileName);
+      std::string moduleName = fileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      if (!TokenBuffer::pushImport(moduleName)) {
+      Scanner *scanner = new Scanner();
+      if (!scanner->push(moduleName)) {
         CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }
-      AstProgram *program = nullptr;
-      int yp = yyparse(program);
-      CINFO("yyparse: yp:{}, program:{}", yp,
-            program ? program->toString() : "null");
+      int yp = yyparse(scanner);
+      CINFO("yyparse: yp:{}, scanner:{}", yp, (void *)scanner);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
-      Semant *semant = new Semant(program);
+      Semant *semant = new Semant(scanner->program);
       semant->build();
       semant->check();
+      delete semant;
+      delete scanner;
     }
   }
 
