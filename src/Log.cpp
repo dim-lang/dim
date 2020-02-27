@@ -20,7 +20,7 @@ void Log::initialize(const std::string &logName, const std::string &logPath) {
   std::time_t timestamp = std::time(nullptr);
   std::tm dt = *std::localtime(&timestamp);
   std::string fileName =
-      fmt::format("{}/{}-{:04d}-{:02d}-{:02d}-{:02d}-{:02d}-{:02d}.log",
+      fmt::format("{}/{}-{:04d}_{:02d}_{:02d}-{:02d}.{:02d}.{:02d}.log",
                   logPath, logName, dt.tm_year + 1900, dt.tm_mon + 1,
                   dt.tm_mday, dt.tm_hour, dt.tm_min, dt.tm_sec);
 
