@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
+#include "Ast.h"
 #include "Log.h"
 #include "Parser.h"
-#include "Scanner.h"
 #include "Semant.h"
 #include "Token.h"
 #include "catch2/catch.hpp"

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Parser.h"
+#include "Ast.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
 #include "Token.h"
