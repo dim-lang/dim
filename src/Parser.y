@@ -1,6 +1,6 @@
-%define api.pure
+%define api.pure full
 %locations
-%parse-param { AstProgram *&program }
+%param { Scanner *scanner }
 
 %code top {
 #include <cstdarg>
@@ -12,7 +12,7 @@
 }
 
 %code requires {
-class AstProgram;
+class Scanner;
 }
 
  /* different ways to access data */
@@ -318,26 +318,31 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
 translation_unit : declaration {
-                        if (!program) {
-                            program = new AstProgram();
+                        if (scanner) {
+                            CASSERT(scanner->program, "scanner#program is null");
+                            scanner->program->add($1);
                         }
-                        program->add($1); 
                     }
                  | declaration translation_unit {
-                        if (program) {
-                            program->add($1);
+                        if (scanner) {
+                            CASSERT(scanner->program, "scanner#program is null");
+                            scanner->program->add($1);
                         }
                     }
                  ;
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, AstProgram *&program, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, Scanner *scanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
-    fprintf(stderr, "%d.%d-%d.%d: error: ", yyllocp->first_line,
-            yyllocp->first_column, yyllocp->last_line, yyllocp->last_column);
+    fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
+            (scanner? scanner->tokenBufferStack->currentBuffer().c_str() : "unknown"),
+            yyllocp->first_line,
+            yyllocp->first_column, 
+            yyllocp->last_line, 
+            yyllocp->last_column);
   }
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");

@@ -1,5 +1,7 @@
 %option noyywrap nodefault yylineno 8bit
-%option bison-locations bison-bridge
+%option reentrant bison-locations bison-bridge
+%option extra-type="Scanner *"
+
 
 %x COMMENT
 %x IMPORT
@@ -41,7 +43,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            CASSERT(false, "{}:{} error! unterminated comment!", TokenBuffer::CurrentBuffer, yylineno);
+                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->tokenBufferStack->currentBuffer(), yylineno);
                             return 0;
                         }
 
@@ -174,67 +176,24 @@ HEXEXP ([pP][-+]?[0-9]+)
  /* import module */
 ^[ \t\n\v\f\r]*import[ \t\n\v\f\r]* { BEGIN IMPORT; }
 <IMPORT>[^ \t\n\v\f\r\;]+           {
-                                        TokenBuffer::pushImport(yytext);
+                                        yyextra->tokenBufferStack->push(yytext);
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng);
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), yylineno, yytext, yyleng);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
-                                        if (!TokenBuffer::popImport())
+                                        if (!yyextra->tokenBufferStack->pop())
                                             yyterminate();
                                     }
 
  /* invalid token */
 .                           {
-                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", TokenBuffer::CurrentBuffer, yylineno, yytext, yyleng); 
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), yylineno, yytext, yyleng); 
                             }
 
 %%
-
-std::string TokenBuffer::CurrentBuffer = "";
-
-static std::stack<TokenBuffer *> BufferStack;
-
-int TokenBuffer::pushImport(const std::string &module) {
-  TokenBuffer *fb = new TokenBuffer(module);
-
-  /* remember state */
-  if (!BufferStack.empty()) {
-    BufferStack.top()->lineNo = yylineno;
-  }
-
-  /* switch to new file */
-  BufferStack.push(fb);
-
-  yy_switch_to_buffer(fb->yyBufferState);
-  yylineno = 1;
-  CurrentBuffer = fb->fileName;
-  return 1;
-}
-
-int TokenBuffer::popImport() {
-  CASSERT(!BufferStack.empty(),
-          "BufferStack must not empty! CurrentBuffer:{} yylineno:{}",
-          CurrentBuffer, yylineno);
-  TokenBuffer *fb;
-
-  fb = BufferStack.top();
-  BufferStack.pop();
-  delete fb;
-  fb = nullptr;
-  if (BufferStack.empty()) {
-    CurrentBuffer = "";
-    return 0;
-  }
-
-  fb = BufferStack.top();
-  yy_switch_to_buffer(fb->yyBufferState);
-  yylineno = fb->lineNo;
-  CurrentBuffer = fb->fileName;
-  return 1;
-}
 
 std::string TokenBuffer::moduleToFile(const std::string &name) {
   std::string r(name);
@@ -263,22 +222,19 @@ std::string TokenBuffer::fileToModule(const std::string &name) {
   return r;
 }
 
-TokenBuffer::TokenBuffer(const std::string &module)
+TokenBuffer::TokenBuffer(const std::string &module, yyscan_t scaninfo)
     : yyBufferState(nullptr), fileName(moduleToFile(module)), lineNo(1),
-      fp(nullptr) {
-  CASSERT(fileName.length() > 5, "{}:{} error! fileName {} invalid!",
-          CurrentBuffer, yylineno, fileName);
+      fp(nullptr), scaninfo_(scaninfo) {
+  CASSERT(fileName.length() > 3, "fileName invalid: {}! module: {}", fileName, module);
   fp = std::fopen(fileName.c_str(), "r");
   if (!fp) {
     release();
-    CASSERT(fp, "{}:{} error! file {} cannot open!", CurrentBuffer, yylineno,
-            fileName);
+    CASSERT(fp, "file {} cannot open!", fileName);
   }
-  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE);
+  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, scaninfo_);
   if (!yyBufferState) {
     release();
-    CASSERT(yyBufferState, "{}:{} error! yy_create_buffer {} failed!",
-            CurrentBuffer, yylineno, fileName);
+    CASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName, (void*)scaninfo_);
   }
 }
 
@@ -290,7 +246,85 @@ void TokenBuffer::release() {
     fp = nullptr;
   }
   if (yyBufferState) {
-    yy_delete_buffer(yyBufferState);
+    yy_delete_buffer(yyBufferState, scaninfo_);
     yyBufferState = nullptr;
   }
+  scaninfo_ = nullptr;
+}
+
+TokenBufferStack::TokenBufferStack(Scanner *scanner) : scanner_(scanner), currentBuffer_(""), stack_() {}
+
+TokenBufferStack::~TokenBufferStack() {
+    /* don't try to delete scanner_, it's just a reference */
+    scanner_ = nullptr;
+    CASSERT(stack_.empty(), "stack_ is not empty, size: {}", stack_.size());
+}
+
+const std::string &TokenBufferStack::currentBuffer() const { return currentBuffer_; }
+
+int TokenBufferStack::push(const std::string &module) {
+  TokenBuffer *fb = new TokenBuffer(module, scaninfo_);
+
+  /* remember state */
+  if (!stack_.empty()) {
+    stack_.top()->lineNo = yylineno;
+  }
+
+  /* switch to new file */
+  stack_.push(fb);
+
+  yy_switch_to_buffer(fb->yyBufferState, scaninfo_);
+  yylineno = 1;
+  currentBuffer_ = fb->fileName;
+  return 1;
+}
+
+int TokenBufferStack::pop() {
+  CASSERT(!stack_.empty(), "stack_ must not empty! currentBuffer:{}", currentBuffer_);
+  TokenBuffer *fb;
+
+  fb = stack_.top();
+  stack_.pop();
+  delete fb;
+  fb = nullptr;
+  if (stack_.empty()) {
+    currentBuffer_ = "";
+    return 0;
+  }
+
+  fb = stack_.top();
+  yy_switch_to_buffer(fb->yyBufferState, scaninfo_);
+  yylineno = fb->lineNo;
+  currentBuffer_ = fb->fileName;
+  return 1;
+}
+
+Scanner::Scanner() : scaninfo(nullptr), program(new AstProgram()), globalSymbolScope(nullptr), globalTypeScope(nullptr), tokenBufferStack(new TokenBufferStack()) {
+    yylex_init_extra(this, &scaninfo);
+    CASSERT(scaninfo, "scaninfo is null");
+    CASSERT(program, "program is null");
+    CASSERT(tokenBufferStack, "tokenBufferStack is null");
+}
+
+Scanner::~Scanner() {
+    if (scaninfo) {
+        yylex_destroy(&scaninfo);
+        scaninfo = nullptr;
+    }
+    if (tokenBufferStack) {
+        delete tokenBufferStack;
+        tokenBufferStack = nullptr;
+    }
+    if (program) {
+        delete program;
+        program = nullptr;
+    }
+    if (globalSymbolScope) {
+        delete globalSymbolScope;
+        globalSymbolScope = nullptr;
+    }
+    if (globalTypeScope) {
+        delete globalTypeScope;
+        globalTypeScope = nullptr;
+    }
 }
