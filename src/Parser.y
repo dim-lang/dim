@@ -1,7 +1,7 @@
 %define api.pure full
 %locations
+%param { yyscan_t yyscanner }
 %parse-param { Scanner *scanner }
-%lex-param { yyscan_t yyscanner }
 
 %code top {
 #include <cstdarg>
@@ -14,6 +14,7 @@
 
 %code requires {
 class Scanner;
+using yyscan_t = void *;
 }
 
  /* different ways to access data */
@@ -334,7 +335,7 @@ translation_unit : declaration {
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, Scanner *scanner, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, Scanner *scanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
