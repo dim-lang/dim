@@ -35,12 +35,13 @@ HEXEXP ([pP][-+]?[0-9]+)
 #define YY_USER_ACTION                                             \
     T_YYLLOC->first_line = T_YYLLOC->last_line;                                 \
     T_YYLLOC->first_column = T_YYLLOC->last_column;                             \
-    if (T_YYLLOC->last_line == T_YYLINENO) {                                      \
+    if (T_YYLLOC->last_line == T_YYLINENO) {                                    \
         T_YYLLOC->last_column += T_YYLENG;                                      \
     } else {                                                                    \
-        T_YYLLOC->last_line = T_YYLINENO;                                         \
+        T_YYLLOC->last_line = T_YYLINENO;                                       \
         T_YYLLOC->last_column = T_YYTEXT + T_YYLENG - strrchr(T_YYTEXT, '\n');  \
-    }
+    }                                                                           \
+    CASSERT(yyextra, "yyextra is null");
 
 %}
 
@@ -51,7 +52,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer, T_YYLINENO);
+                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->top()->fileName, T_YYLINENO);
                             return 0;
                         }
 
@@ -188,7 +189,7 @@ HEXEXP ([pP][-+]?[0-9]+)
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer, T_YYLINENO, T_YYTEXT, T_YYLENG);
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->top()->fileName, T_YYLINENO, T_YYTEXT, T_YYLENG);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
@@ -198,7 +199,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 
  /* invalid token */
 .                           {
-                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer, T_YYLINENO, T_YYTEXT, T_YYLENG); 
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->top()->fileName, T_YYLINENO, T_YYTEXT, T_YYLENG); 
                             }
 
 %%
@@ -230,10 +231,10 @@ std::string fileToModule(const std::string &name) {
   return r;
 }
 
-TokenBuffer::TokenBuffer(const std::string &module, yyscan_t scaninfo)
-    : yyBufferState(nullptr), fileName(moduleToFile(module)), lineNo(1),
+TokenBuffer::TokenBuffer(const std::string &a_fileName, yyscan_t scaninfo)
+    : yyBufferState(nullptr), fileName(a_fileName), lineNo(1),
       fp(nullptr), scaninfo_(scaninfo) {
-  CASSERT(fileName.length() > 3, "fileName invalid: {}! module: {}", fileName, module);
+  CASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
   fp = std::fopen(fileName.c_str(), "r");
   if (!fp) {
     release();
@@ -260,7 +261,7 @@ void TokenBuffer::release() {
   scaninfo_ = nullptr;
 }
 
-Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), currentBuffer(""), tokenBufferStack_() {
+Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), tokenBufferStack_() {
   program = new AstProgram();
   yylex_init_extra(this, &scaninfo);
   CASSERT(program, "program is null");
@@ -288,7 +289,7 @@ Scanner::~Scanner() {
 }
 
 int Scanner::push(const std::string &module) {
-  TokenBuffer *tb = new TokenBuffer(module, scaninfo);
+  TokenBuffer *tb = new TokenBuffer(moduleToFile(module), scaninfo);
 
   /* remember state */
   if (!tokenBufferStack_.empty()) {
@@ -300,25 +301,22 @@ int Scanner::push(const std::string &module) {
 
   yy_switch_to_buffer(tb->yyBufferState, scaninfo);
   yyset_lineno(1, scaninfo);
-  currentBuffer = tb->fileName;
   return 1;
 }
 
 int Scanner::pop() {
-  CASSERT(!tokenBufferStack_.empty(), "tokenBufferStack_ must not empty! currentBuffer:{}", currentBuffer);
+  CASSERT(!tokenBufferStack_.empty(), "tokenBufferStack_ must not empty! current file:{}", tokenBufferStack_.top()->fileName);
   TokenBuffer *tb = tokenBufferStack_.top();
   tokenBufferStack_.pop();
   delete tb;
   tb = nullptr;
   if (tokenBufferStack_.empty()) {
-    currentBuffer = "";
     return 0;
   }
 
   tb = tokenBufferStack_.top();
   yy_switch_to_buffer(tb->yyBufferState, scaninfo);
   yyset_lineno(tb->lineNo, scaninfo);
-  currentBuffer = tb->fileName;
   return 1;
 }
 

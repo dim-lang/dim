@@ -27,7 +27,7 @@ std::string fileToModule(const std::string &name);
 class TokenBuffer {
 public:
   /* methods */
-  TokenBuffer(const std::string &module, yyscan_t scaninfo);
+  TokenBuffer(const std::string &fileName, yyscan_t scaninfo);
   virtual ~TokenBuffer();
 
   /* members */
@@ -56,7 +56,6 @@ public:
   Symbol *globalSymbolScope;
   Type *globalTypeScope;
   yyscan_t scaninfo;
-  std::string currentBuffer;
 
 private:
   std::stack<TokenBuffer *> tokenBufferStack_;
