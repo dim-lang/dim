@@ -51,9 +51,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
-                                    "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
-                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO);
+                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer, T_YYLINENO);
                             return 0;
                         }
 
@@ -186,27 +184,21 @@ HEXEXP ([pP][-+]?[0-9]+)
  /* import module */
 ^[ \t\n\v\f\r]*import[ \t\n\v\f\r]* { BEGIN IMPORT; }
 <IMPORT>[^ \t\n\v\f\r\;]+           {
-                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
-                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
-                                        yyextra->tokenBufferStack->push(T_YYTEXT);
+                                        yyextra->push(T_YYTEXT);
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
-                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
-                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO, T_YYTEXT, T_YYLENG);
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer, T_YYLINENO, T_YYTEXT, T_YYLENG);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
-                                        CASSERT((void*)yyextra->tokenBufferStack->scanner() == (void*)yyextra,
-                                                "yyextra#tokenBufferStack#scanner: {} == yyextra: {}", (void*)yyextra->tokenBufferStack->scanner(), (void*)yyextra);
-                                        if (!yyextra->tokenBufferStack->pop())
+                                        if (!yyextra->pop())
                                             yyterminate();
                                     }
 
  /* invalid token */
 .                           {
-                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->tokenBufferStack->currentBuffer(), T_YYLINENO, T_YYTEXT, T_YYLENG); 
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer, T_YYLINENO, T_YYTEXT, T_YYLENG); 
                             }
 
 %%
@@ -268,98 +260,70 @@ void TokenBuffer::release() {
   scaninfo_ = nullptr;
 }
 
-TokenBufferStack::TokenBufferStack(Scanner *scanner) : currentBuffer_(""), stack_(), scanner_(scanner) {}
-
-TokenBufferStack::~TokenBufferStack() {
-    /* don't try to delete scanner_, it's just a reference */
-    scanner_ = nullptr;
-    CASSERT(stack_.empty(), "stack_ not empty: {}", stack_.empty());
-}
-
-const std::string &TokenBufferStack::currentBuffer() const { return currentBuffer_; }
-
-bool TokenBufferStack::empty() const { return stack_.empty(); }
-
-int TokenBufferStack::size() const { return (int)stack_.size(); }
-
-Scanner *TokenBufferStack::scanner() const { return scanner_; }
-
-int TokenBufferStack::push(const std::string &module) {
-  TokenBuffer *tb = new TokenBuffer(module, scanner_->scaninfo);
-
-  /* remember state */
-  if (!stack_.empty()) {
-    stack_.top()->lineNo = yyget_lineno(scanner_->scaninfo);
-  }
-
-  /* switch to new file */
-  stack_.push(tb);
-
-  yy_switch_to_buffer(tb->yyBufferState, scanner_->scaninfo);
-  yyset_lineno(1, scanner_->scaninfo);
-  currentBuffer_ = tb->fileName;
-  return 1;
-}
-
-int TokenBufferStack::pop() {
-  CASSERT(!stack_.empty(), "stack_ must not empty! currentBuffer:{}", currentBuffer_);
-  TokenBuffer *tb;
-
-  tb = stack_.top();
-  stack_.pop();
-  delete tb;
-  tb = nullptr;
-  if (stack_.empty()) {
-    currentBuffer_ = "";
-    return 0;
-  }
-
-  tb = stack_.top();
-  yy_switch_to_buffer(tb->yyBufferState, scanner_->scaninfo);
-  yyset_lineno(tb->lineNo, scanner_->scaninfo);
-  currentBuffer_ = tb->fileName;
-  return 1;
-}
-
-Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), tokenBufferStack(nullptr) {
-    program = new AstProgram();
-    yylex_init_extra(this, &scaninfo);
-    tokenBufferStack = new TokenBufferStack(this);
-    CASSERT(program, "program is null");
-    CASSERT(scaninfo, "scaninfo is null");
-    CASSERT(tokenBufferStack, "tokenBufferStack is null");
+Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), currentBuffer(""), tokenBufferStack_() {
+  program = new AstProgram();
+  yylex_init_extra(this, &scaninfo);
+  CASSERT(program, "program is null");
+  CASSERT(scaninfo, "scaninfo is null");
 }
 
 Scanner::~Scanner() {
-    if (scaninfo) {
-        yylex_destroy(&scaninfo);
-        scaninfo = nullptr;
-    }
-    if (tokenBufferStack) {
-        delete tokenBufferStack;
-        tokenBufferStack = nullptr;
-    }
-    if (program) {
-        delete program;
-        program = nullptr;
-    }
-    if (globalSymbolScope) {
-        delete globalSymbolScope;
-        globalSymbolScope = nullptr;
-    }
-    if (globalTypeScope) {
-        delete globalTypeScope;
-        globalTypeScope = nullptr;
-    }
+  if (scaninfo) {
+    yylex_destroy(&scaninfo);
+    scaninfo = nullptr;
+  }
+  CASSERT(tokenBufferStack_.empty(), "tokenBufferStack_ not empty: {}", tokenBufferStack_.empty());
+  if (program) {
+    delete program;
+    program = nullptr;
+  }
+  if (globalSymbolScope) {
+    delete globalSymbolScope;
+    globalSymbolScope = nullptr;
+  }
+  if (globalTypeScope) {
+    delete globalTypeScope;
+    globalTypeScope = nullptr;
+  }
 }
 
 int Scanner::push(const std::string &module) {
-    CASSERT(tokenBufferStack, "tokenBufferStack is null");
-    return tokenBufferStack->push(module);
+  TokenBuffer *tb = new TokenBuffer(module, scaninfo);
+
+  /* remember state */
+  if (!tokenBufferStack_.empty()) {
+    tokenBufferStack_.top()->lineNo = yyget_lineno(scaninfo);
+  }
+
+  /* switch to new file */
+  tokenBufferStack_.push(tb);
+
+  yy_switch_to_buffer(tb->yyBufferState, scaninfo);
+  yyset_lineno(1, scaninfo);
+  currentBuffer = tb->fileName;
+  return 1;
 }
 
 int Scanner::pop() {
-    CASSERT(tokenBufferStack, "tokenBufferStack is null");
-    CASSERT(!tokenBufferStack->empty(), "tokenBufferStack is empty: {}", tokenBufferStack->size());
-    return tokenBufferStack->pop();
+  CASSERT(!tokenBufferStack_.empty(), "tokenBufferStack_ must not empty! currentBuffer:{}", currentBuffer);
+  TokenBuffer *tb = tokenBufferStack_.top();
+  tokenBufferStack_.pop();
+  delete tb;
+  tb = nullptr;
+  if (tokenBufferStack_.empty()) {
+    currentBuffer = "";
+    return 0;
+  }
+
+  tb = tokenBufferStack_.top();
+  yy_switch_to_buffer(tb->yyBufferState, scaninfo);
+  yyset_lineno(tb->lineNo, scaninfo);
+  currentBuffer = tb->fileName;
+  return 1;
 }
+
+TokenBuffer *Scanner::top() const { return tokenBufferStack_.empty() ? nullptr : tokenBufferStack_.top(); }
+
+int Scanner::size() const { return (int)tokenBufferStack_.size(); }
+
+bool Scanner::empty() const { return tokenBufferStack_.empty(); }

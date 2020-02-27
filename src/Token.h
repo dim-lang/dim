@@ -41,38 +41,23 @@ private:
   void release();
 };
 
-class TokenBufferStack {
-public:
-  TokenBufferStack(Scanner *scanner);
-  virtual ~TokenBufferStack();
-  virtual const std::string &currentBuffer() const;
-  virtual int push(const std::string &module);
-  virtual int pop();
-  virtual int size() const;
-  virtual bool empty() const;
-  virtual Scanner *scanner() const;
-
-private:
-  std::string currentBuffer_;
-  std::stack<TokenBuffer *> stack_;
-  Scanner *scanner_;
-};
-
 /* Scanner is yyextra */
 class Scanner {
 public:
   Scanner();
   virtual ~Scanner();
-  /** short path for calling
-   * tokenBufferStack->push()
-   * tokenBufferStack->pop()
-   */
   virtual int push(const std::string &module);
   virtual int pop();
+  virtual TokenBuffer *top() const;
+  virtual int size() const;
+  virtual bool empty() const;
 
   AstProgram *program;
   Symbol *globalSymbolScope;
   Type *globalTypeScope;
   yyscan_t scaninfo;
-  TokenBufferStack *tokenBufferStack;
+  std::string currentBuffer;
+
+private:
+  std::stack<TokenBuffer *> tokenBufferStack_;
 };

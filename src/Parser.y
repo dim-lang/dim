@@ -338,7 +338,7 @@ void yyerror(YYLTYPE *yyllocp, Scanner *scanner, const char *fmt, ...) {
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            (scanner? scanner->tokenBufferStack->currentBuffer().c_str() : "unknown"),
+            (scanner? scanner->currentBuffer.c_str() : "unknown"),
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 
