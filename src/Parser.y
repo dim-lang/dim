@@ -94,8 +94,17 @@ using yyscan_t = void *;
 
  /* part-1 expression */
 
-join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("{}: first_line: {}, first_column: {} last_line: {}, last_column: {}", "join_string_helper", @$.first_line, @$.first_column, @$.last_line, @$.last_column); }
-                   | T_STRING_CONSTANT join_string_helper { $2->add($1); $$ = $2; std::free($1); }
+join_string_helper : T_STRING_CONSTANT {
+                        $$ = new AstStringConstant($1);
+                        std::free($1);
+                        CINFO("join_string_helper: {} {}.{}-{}.{}", scanner->top()->fileName, @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                    }
+                   | T_STRING_CONSTANT join_string_helper { 
+                        $2->add($1); 
+                        $$ = $2; 
+                        std::free($1); 
+                        CINFO("join_string_helper2: {} {}.{}-{}.{}", scanner->top()->fileName, @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                    }
                    ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
