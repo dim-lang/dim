@@ -11,7 +11,7 @@
 static void go(const char *module) {
   Scanner scanner;
   REQUIRE(scanner.push(module) == 1);
-  REQUIRE(yyparse(&scanner) == 0);
+  REQUIRE(yyparse(scanner.scaninfo, &scanner) == 0);
   CINFO("program: {}", scanner.program->toString());
   Semant *semant = new Semant(scanner.program);
   semant->build();

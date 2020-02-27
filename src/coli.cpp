@@ -33,19 +33,19 @@ int main(int argc, char **argv) {
       std::string fileName = fileNameList[i];
       std::string moduleName = fileToModule(fileName);
       CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      Scanner *scanner = new Scanner();
-      if (!scanner->push(moduleName)) {
+      Scanner scanner;
+      if (!scanner.push(moduleName)) {
         CASSERT(false, "tkPushImport {} fail", moduleName);
         return 0;
       }
-      int yp = yyparse(scanner);
-      CINFO("yyparse: yp:{}, scanner:{}", yp, (void *)scanner);
+      int yp = yyparse(scanner.scaninfo, &scanner);
+      CINFO("yyparse: yp:{}, scanner.scaninfo:{}", yp,
+            (void *)scanner.scaninfo);
       CASSERT(yp == 0, "yyparse fail:{}", yp);
-      Semant *semant = new Semant(scanner->program);
+      Semant *semant = new Semant(scanner.program);
       semant->build();
       semant->check();
       delete semant;
-      delete scanner;
     }
   }
 

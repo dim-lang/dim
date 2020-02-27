@@ -149,10 +149,10 @@ void Semant::buildImpl(Ast *node) {
 }
 
 void Semant::build() {
-  CASSERT(!gsym_, "gsym_ is not null: {}", gsym_->toString());
-  CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
-  CASSERT(!gty_, "gty_ is not null: {}", gty_->toString());
-  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(!gsym_, "gsym_ is not null: {}", gsym_ ? gsym_->toString() : "null");
+  CASSERT(!csym_, "csym_ is not null: {}", csym_ ? csym_->toString() : "null");
+  CASSERT(!gty_, "gty_ is not null: {}", gty_ ? gty_->toString() : "null");
+  CASSERT(!cty_, "cty_ is not null: {}", cty_ ? cty_->toString() : "null");
   CASSERT(program_->type() == A_PROGRAM, "program_ is program: {}",
           program_->toString());
   AstProgram *e = dynamic_cast<AstProgram *>(program_);
@@ -164,9 +164,9 @@ void Semant::build() {
   }
   Symbol::pop(gsym_, csym_);
   Type::pop(gty_, cty_);
-  CASSERT(!csym_, "csym_ is not null: {}", csym_->toString());
+  CASSERT(!csym_, "csym_ is not null: {}", csym_ ? csym_->toString() : "null");
   CASSERT(gsym_, "gsym_ is null");
-  CASSERT(!cty_, "cty_ is not null: {}", cty_->toString());
+  CASSERT(!cty_, "cty_ is not null: {}", cty_ ? cty_->toString() : "null");
   CASSERT(gty_, "gty_ is null");
 }
 

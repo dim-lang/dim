@@ -7,7 +7,7 @@ class Scanner;
 struct YYLTYPE;
 using yyscan_t = void *;
 
-extern int yyparse(Scanner *scanner);
+extern int yyparse(yyscan_t yyscanner, Scanner *scanner);
 
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, Scanner *scanner,
              const char *fmt, ...);
