@@ -91,12 +91,13 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     std::stringstream ss;
     ss << std::string(depth, ' ') << "{";
     if (cs->statementList() && cs->statementList()->size() > 0) {
+      ss << "\n";
       for (int i = 0; i < cs->statementList()->size(); i++) {
-        ss << "\n" << dumpAstImpl(cs->statementList()->get(i), depth + 1);
+        ss << dumpAstImpl(cs->statementList()->get(i), depth + 1);
       }
       ss << std::string(depth, ' ');
     }
-    ss << "}\n";
+    ss << "}\n\n";
     return ss.str();
   }
   case A_IF_STATEMENT: {
@@ -110,7 +111,6 @@ static std::string dumpAstImpl(Ast *node, int depth) {
       ss << std::string(depth, ' ') << "else\n"
          << dumpAstImpl(is->miss(), depth + 1);
     }
-    ss << "\n";
     return ss.str();
   }
   case A_WHILE_STATEMENT: {
@@ -118,7 +118,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     std::stringstream ss;
     ss << std::string(depth, ' ') << "while (";
     ss << dumpAstImpl(ws->condition(), depth) << ")\n"
-       << dumpAstImpl(ws->statement(), depth + 1) << "\n";
+       << dumpAstImpl(ws->statement(), depth + 1);
     return ss.str();
   }
   case A_FOR_STATEMENT: {
@@ -176,7 +176,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
         }
       }
     }
-    ss << ") => " << dumpAstImpl(fd->statement(), depth) << "\n";
+    ss << ") =>\n" << dumpAstImpl(fd->statement(), depth);
     return ss.str();
   }
   case A_DECLARATION_LIST: {
