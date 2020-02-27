@@ -24,11 +24,11 @@ std::string moduleToFile(const std::string &name);
 
 std::string fileToModule(const std::string &name);
 
-class TokenBuffer {
+class Buffer {
 public:
   /* methods */
-  TokenBuffer(const std::string &fileName, yyscan_t scaninfo);
-  virtual ~TokenBuffer();
+  Buffer(const std::string &fileName, yyscan_t scaninfo);
+  virtual ~Buffer();
 
   /* members */
   YY_BUFFER_STATE yyBufferState;
@@ -48,7 +48,7 @@ public:
   virtual ~Scanner();
   virtual int push(const std::string &module);
   virtual int pop();
-  virtual TokenBuffer *top() const;
+  virtual Buffer *top() const;
   virtual int size() const;
   virtual bool empty() const;
 
@@ -58,5 +58,5 @@ public:
   yyscan_t scaninfo;
 
 private:
-  std::stack<TokenBuffer *> tokenBufferStack_;
+  std::stack<Buffer *> bufferStack_;
 };

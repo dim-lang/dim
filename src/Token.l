@@ -231,7 +231,7 @@ std::string fileToModule(const std::string &name) {
   return r;
 }
 
-TokenBuffer::TokenBuffer(const std::string &a_fileName, yyscan_t scaninfo)
+Buffer::Buffer(const std::string &a_fileName, yyscan_t scaninfo)
     : yyBufferState(nullptr), fileName(a_fileName), lineNo(1),
       fp(nullptr), scaninfo_(scaninfo) {
   CASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
@@ -247,9 +247,9 @@ TokenBuffer::TokenBuffer(const std::string &a_fileName, yyscan_t scaninfo)
   }
 }
 
-TokenBuffer::~TokenBuffer() { release(); }
+Buffer::~Buffer() { release(); }
 
-void TokenBuffer::release() {
+void Buffer::release() {
   if (fp) {
     std::fclose(fp);
     fp = nullptr;
@@ -261,7 +261,7 @@ void TokenBuffer::release() {
   scaninfo_ = nullptr;
 }
 
-Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), tokenBufferStack_() {
+Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeScope(nullptr), scaninfo(nullptr), bufferStack_() {
   program = new AstProgram();
   yylex_init_extra(this, &scaninfo);
   CASSERT(program, "program is null");
@@ -273,7 +273,7 @@ Scanner::~Scanner() {
     yylex_destroy(scaninfo);
     scaninfo = nullptr;
   }
-  CASSERT(tokenBufferStack_.empty(), "tokenBufferStack_ not empty: {}", tokenBufferStack_.empty());
+  CASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}", bufferStack_.empty());
   if (program) {
     delete program;
     program = nullptr;
@@ -289,15 +289,15 @@ Scanner::~Scanner() {
 }
 
 int Scanner::push(const std::string &module) {
-  TokenBuffer *tb = new TokenBuffer(moduleToFile(module), scaninfo);
+  Buffer *tb = new Buffer(moduleToFile(module), scaninfo);
 
   /* remember state */
-  if (!tokenBufferStack_.empty()) {
-    tokenBufferStack_.top()->lineNo = yyget_lineno(scaninfo);
+  if (!bufferStack_.empty()) {
+    bufferStack_.top()->lineNo = yyget_lineno(scaninfo);
   }
 
   /* switch to new file */
-  tokenBufferStack_.push(tb);
+  bufferStack_.push(tb);
 
   yy_switch_to_buffer(tb->yyBufferState, scaninfo);
   yyset_lineno(1, scaninfo);
@@ -305,23 +305,23 @@ int Scanner::push(const std::string &module) {
 }
 
 int Scanner::pop() {
-  CASSERT(!tokenBufferStack_.empty(), "tokenBufferStack_ must not empty! current file:{}", tokenBufferStack_.top()->fileName);
-  TokenBuffer *tb = tokenBufferStack_.top();
-  tokenBufferStack_.pop();
+  CASSERT(!bufferStack_.empty(), "bufferStack_ must not empty! current file:{}", bufferStack_.top()->fileName);
+  Buffer *tb = bufferStack_.top();
+  bufferStack_.pop();
   delete tb;
   tb = nullptr;
-  if (tokenBufferStack_.empty()) {
+  if (bufferStack_.empty()) {
     return 0;
   }
 
-  tb = tokenBufferStack_.top();
+  tb = bufferStack_.top();
   yy_switch_to_buffer(tb->yyBufferState, scaninfo);
   yyset_lineno(tb->lineNo, scaninfo);
   return 1;
 }
 
-TokenBuffer *Scanner::top() const { return tokenBufferStack_.empty() ? nullptr : tokenBufferStack_.top(); }
+Buffer *Scanner::top() const { return bufferStack_.empty() ? nullptr : bufferStack_.top(); }
 
-int Scanner::size() const { return (int)tokenBufferStack_.size(); }
+int Scanner::size() const { return (int)bufferStack_.size(); }
 
-bool Scanner::empty() const { return tokenBufferStack_.empty(); }
+bool Scanner::empty() const { return bufferStack_.empty(); }
