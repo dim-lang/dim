@@ -40,8 +40,7 @@ HEXEXP ([pP][-+]?[0-9]+)
     } else {                                                                    \
         T_YYLLOC->last_line = T_YYLINENO;                                       \
         T_YYLLOC->last_column = T_YYTEXT + T_YYLENG - strrchr(T_YYTEXT, '\n');  \
-    }                                                                           \
-    CASSERT(yyextra, "yyextra is null");
+    }
 
 %}
 
