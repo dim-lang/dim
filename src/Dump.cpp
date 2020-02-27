@@ -94,7 +94,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
       for (int i = 0; i < cs->statementList()->size(); i++) {
         ss << "\n" << dumpAstImpl(cs->statementList()->get(i), depth + 1);
       }
-      ss << "\n" << std::string(depth, ' ');
+      ss << std::string(depth, ' ');
     }
     ss << "}\n";
     return ss.str();
@@ -117,8 +117,8 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstWhileStatement *ws = dynamic_cast<AstWhileStatement *>(node);
     std::stringstream ss;
     ss << std::string(depth, ' ') << "while (";
-    ss << dumpAstImpl(ws->condition(), depth) << ") "
-       << dumpAstImpl(ws->statement(), depth) << "\n";
+    ss << dumpAstImpl(ws->condition(), depth) << ")\n"
+       << dumpAstImpl(ws->statement(), depth + 1) << "\n";
     return ss.str();
   }
   case A_FOR_STATEMENT: {
