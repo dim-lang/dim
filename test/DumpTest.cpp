@@ -4,16 +4,17 @@
 #include "Dump.h"
 #include "Log.h"
 #include "Parser.h"
+#include "Scanner.h"
 #include "Semant.h"
 #include "Token.h"
 #include "catch2/catch.hpp"
 
 static void go(const char *module) {
-  REQUIRE(TokenBuffer::pushImport(module) == 1);
-  AstProgram *program = nullptr;
-  REQUIRE(yyparse(program) == 0);
-  CINFO("dump ast: {} {}", module, dumpAst(program));
-  Semant *semant = new Semant(program);
+  Scanner scanner;
+  REQUIRE(scanner.push(module) == 1);
+  REQUIRE(yyparse(&scanner) == 0);
+  CINFO("dump ast: {} {}", module, dumpAst(scanner.program));
+  Semant *semant = new Semant(scanner.program);
   semant->build();
   semant->check();
   CINFO("dump symbol:{} {}", module, dumpSymbol(semant->globalSymbolTable()));

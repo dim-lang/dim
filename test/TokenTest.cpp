@@ -11,10 +11,11 @@
 static void go(const char *module) {
   union YYSTYPE ys;
   struct YYLTYPE yl;
-  REQUIRE(TokenBuffer::pushImport(module) == 1);
+  Scanner scanner;
+  REQUIRE(scanner.push(module) == 1);
   CINFO("go start: {}", module);
   int t;
-  while ((t = yylex(&ys, &yl)) != 0) {
+  while ((t = yylex(&ys, &yl, scanner.scaninfo)) != 0) {
     if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
         t == T_U8_CONSTANT || t == T_I16_CONSTANT || t == T_U16_CONSTANT ||
         t == T_U32_CONSTANT || t == T_I64_CONSTANT || t == T_U64_CONSTANT ||
@@ -25,8 +26,6 @@ static void go(const char *module) {
     }
   }
   // we don't need pop file manually here
-  // tokenPopImport();
-  CINFO("go end: {}", module);
 }
 
 TEST_CASE("Token", "[Token]") {
