@@ -1,6 +1,7 @@
 %define api.pure full
 %locations
-%param { Scanner *scanner }
+%parse-param { Scanner *scanner }
+%lex-param { yyscan_t yyscanner }
 
 %code top {
 #include <cstdarg>
