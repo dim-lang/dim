@@ -269,7 +269,7 @@ Scanner::Scanner() : program(nullptr), globalSymbolScope(nullptr), globalTypeSco
 
 Scanner::~Scanner() {
   if (scaninfo) {
-    yylex_destroy(&scaninfo);
+    yylex_destroy(scaninfo);
     scaninfo = nullptr;
   }
   CASSERT(tokenBufferStack_.empty(), "tokenBufferStack_ not empty: {}", tokenBufferStack_.empty());
