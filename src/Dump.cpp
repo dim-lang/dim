@@ -72,7 +72,6 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   case A_SEQUEL_EXPERSSION: {
     AstSequelExpression *se = dynamic_cast<AstSequelExpression *>(node);
     std::stringstream ss;
-    ss << se->name() << ": ";
     for (int i = 0; i < se->expressionList()->size(); i++) {
       ss << dumpAstImpl(se->expressionList()->get(i), depth);
       if (i < (int)se->expressionList()->size() - 1) {
@@ -93,9 +92,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << std::string(depth, ' ') << "{";
     if (cs->statementList() && cs->statementList()->size() > 0) {
       for (int i = 0; i < cs->statementList()->size(); i++) {
-        ss << "\n"
-           << std::string(depth, ' ')
-           << dumpAstImpl(cs->statementList()->get(i), depth + 1);
+        ss << "\n" << dumpAstImpl(cs->statementList()->get(i), depth + 1);
       }
       ss << "\n" << std::string(depth, ' ');
     }
@@ -108,11 +105,10 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << std::string(depth, ' ') << "if (";
     CASSERT(is->hit(), "is#hit is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
-       << std::string(depth, ' ') << dumpAstImpl(is->hit(), depth);
+       << dumpAstImpl(is->hit(), depth + 1);
     if (is->miss()) {
-      ss << "\n"
-         << std::string(depth, ' ') << "else "
-         << dumpAstImpl(is->miss(), depth);
+      ss << std::string(depth, ' ') << "else\n"
+         << dumpAstImpl(is->miss(), depth + 1);
     }
     ss << "\n";
     return ss.str();
@@ -214,7 +210,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
-static std::string dumpSymbolImpl(Symbol *sym) {
+static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   if (!sym)
     return "null";
   switch (sym->type()) {
@@ -223,11 +219,13 @@ static std::string dumpSymbolImpl(Symbol *sym) {
   case SYM_FUNC: {
     FunctionSymbol *fs = dynamic_cast<FunctionSymbol *>(sym);
     std::stringstream ss;
-    ss << fs->name() << ": {";
+    ss << std::string(depth, ' ') << " func " << fs->name() << " {";
     for (auto i = fs->begin(); i != fs->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
+      ss << "\n"
+         << std::string(depth, ' ') << i->first << ", "
+         << dumpSymbolImpl(i->second, depth + 1);
     }
-    ss << "\n}\n";
+    ss << "\n" << std::string(depth, ' ') << "}\n";
     return ss.str();
   }
   case SYM_FUNC_ARG:
@@ -235,31 +233,37 @@ static std::string dumpSymbolImpl(Symbol *sym) {
   case SYM_CLASS: {
     ClassSymbol *cs = dynamic_cast<ClassSymbol *>(sym);
     std::stringstream ss;
-    ss << cs->name() << ": {";
+    ss << std::string(depth, ' ') << " class " << cs->name() << " {";
     for (auto i = cs->begin(); i != cs->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
+      ss << "\n"
+         << std::string(depth, ' ') << i->first << ", "
+         << dumpSymbolImpl(i->second, depth + 1);
     }
-    ss << "\n}\n";
+    ss << "\n" << std::string(depth, ' ') << "}\n";
     return ss.str();
   }
   case SYM_LOCAL: {
     LocalSymtab *ls = dynamic_cast<LocalSymtab *>(sym);
     std::stringstream ss;
-    ss << ls->name() << ": {";
+    ss << std::string(depth, ' ') << " local " << ls->name() << " {";
     for (auto i = ls->begin(); i != ls->end(); i++) {
-      ss << "\n\t" << i->first << ", " << dumpSymbolImpl(i->second);
+      ss << "\n"
+         << std::string(depth, ' ') << i->first << ", "
+         << dumpSymbolImpl(i->second, depth + 1);
     }
-    ss << "\n}\n";
+    ss << "\n" << std::string(depth, ' ') << "}\n";
     return ss.str();
   }
   case SYM_GLOBAL: {
     GlobalSymtab *gs = dynamic_cast<GlobalSymtab *>(sym);
     std::stringstream ss;
-    ss << gs->name() << ": {";
+    ss << std::string(depth, ' ') << " global " << gs->name() << " {";
     for (auto i = gs->begin(); i != gs->end(); i++) {
-      ss << "\n\t" << i->first << " -> " << dumpSymbolImpl(i->second);
+      ss << "\n"
+         << std::string(depth, ' ') << i->first << " => "
+         << dumpSymbolImpl(i->second, depth + 1);
     }
-    ss << "\n}\n";
+    ss << "\n" << std::string(depth, ' ') << "}\n";
     return ss.str();
   }
   default:
@@ -267,7 +271,7 @@ static std::string dumpSymbolImpl(Symbol *sym) {
   }
 }
 
-std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym); }
+std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym, 0); }
 
 static std::string dumpTypeImpl(Type *ty) {
   if (!ty)
