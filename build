@@ -125,7 +125,7 @@ function build_debug() {
         bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
     else
         flex -o Token.yy.cpp Token.l
-        bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+        bison -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
     fi
 
     cd $ROOT

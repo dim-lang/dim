@@ -12,7 +12,7 @@
 static void go(const char *module) {
   REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
-  REQUIRE(yyparse(&program) == 0);
+  REQUIRE(yyparse(program) == 0);
   CINFO("go end, program: {}", program ? program->toString() : "null");
 }
 

@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
         return 0;
       }
       AstProgram *program = nullptr;
-      int yp = yyparse(&program);
+      int yp = yyparse(program);
       CINFO("yyparse: yp:{}, program:{}", yp,
             program ? program->toString() : "null");
       CASSERT(yp == 0, "yyparse fail:{}", yp);

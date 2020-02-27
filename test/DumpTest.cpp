@@ -11,7 +11,7 @@
 static void go(const char *module) {
   REQUIRE(TokenBuffer::pushImport(module) == 1);
   AstProgram *program = nullptr;
-  REQUIRE(yyparse(&program) == 0);
+  REQUIRE(yyparse(program) == 0);
   CINFO("dump ast: {} {}", module, dumpAst(program));
   Semant *semant = new Semant(program);
   semant->build();

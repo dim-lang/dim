@@ -6,6 +6,6 @@
 class AstProgram;
 struct YYLTYPE;
 
-extern int yyparse(AstProgram **program);
+extern int yyparse(AstProgram *&program);
 
-void yyerror(YYLTYPE *yyllocp, AstProgram **program, const char *fmt, ...);
+void yyerror(YYLTYPE *yyllocp, AstProgram *&program, const char *fmt, ...);

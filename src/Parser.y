@@ -1,6 +1,6 @@
 %define api.pure
 %locations
-%parse-param { AstProgram **program }
+%parse-param { AstProgram *&program }
 
 %code top {
 #include <cstdarg>
@@ -92,7 +92,7 @@ class AstProgram;
 
  /* part-1 expression */
 
-join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); }
+join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1); std::free($1); CINFO("{}: first_line: {}, first_column: {} last_line: {}, last_column: {}", "join_string_helper", @$.first_line, @$.first_column, @$.last_line, @$.last_column); }
                    | T_STRING_CONSTANT join_string_helper { $2->add($1); $$ = $2; std::free($1); }
                    ;
 
@@ -318,21 +318,21 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
 translation_unit : declaration {
-                        if (program) {
-                            (*program) = new AstProgram();
-                            (*program)->add($1); 
+                        if (!program) {
+                            program = new AstProgram();
                         }
+                        program->add($1); 
                     }
                  | declaration translation_unit {
                         if (program) {
-                            (*program)->add($1);
+                            program->add($1);
                         }
                     }
                  ;
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, AstProgram **program, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, AstProgram *&program, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
