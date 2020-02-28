@@ -48,7 +48,7 @@ class BufferStack {
 public:
   BufferStack(yyscan_t yy_scaninfo);
   virtual ~BufferStack();
-  virtual int push(const std::string &module);
+  virtual int push(const std::string &fileName);
   virtual int pop();
   virtual Buffer *top() const;
   virtual int size() const;

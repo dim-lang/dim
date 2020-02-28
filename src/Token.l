@@ -267,8 +267,8 @@ BufferStack::~BufferStack() {
   CASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}", bufferStack_.size());
 }
 
-int BufferStack::push(const std::string &module) {
-  Buffer *tb = new Buffer(Buffer::moduleToFile(module), yy_scaninfo_);
+int BufferStack::push(const std::string &fileName) {
+  Buffer *tb = new Buffer(fileName, yy_scaninfo_);
 
   /* remember state */
   if (!bufferStack_.empty()) {

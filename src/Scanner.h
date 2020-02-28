@@ -21,7 +21,7 @@ public:
   virtual ~Scanner();
 
   // buffer stack
-  virtual int push(const std::string &module);
+  virtual int push(const std::string &fileName);
   virtual int pop();
   virtual const std::string &currentBuffer() const;
   virtual Buffer *top() const;
@@ -37,6 +37,7 @@ public:
   virtual Type *&gts();
   virtual const yyscan_t yy_scaninfo() const;
   virtual yyscan_t &yy_scaninfo();
+  virtual const std::string &fileName() const;
 
   // wrapper for flex/bison
   virtual std::tuple<int, YYSTYPE, YYLTYPE> tokenize();
@@ -44,7 +45,6 @@ public:
 
 private:
   std::string fileName_;
-  std::string moduleName_;
 
   AstProgram *program_;
   Symbol *gss_;

@@ -6,12 +6,13 @@
 #include "Parser.h"
 
 Scanner::Scanner(const std::string &fileName)
-    : fileName_(fileName), moduleName_(Buffer::fileToModule(fileName)),
-      program_(nullptr), gss_(nullptr), gts_(nullptr), yy_scaninfo_(nullptr),
-      bufferStack_(nullptr) {
+    : fileName_(fileName), program_(nullptr), gss_(nullptr), gts_(nullptr),
+      yy_scaninfo_(nullptr), bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   program_ = new AstProgram();
   bufferStack_ = new BufferStack(yy_scaninfo_);
+  int p = push(fileName);
+  CASSERT(p == 1, "bufferStack_#push fail: {}", p);
 }
 
 Scanner::~Scanner() {
@@ -32,16 +33,14 @@ Scanner::~Scanner() {
     gts_ = nullptr;
   }
   if (bufferStack_) {
-    CASSERT(bufferStack_->empty(), "bufferStack_ not empty: {}!",
-            bufferStack_->size());
     delete bufferStack_;
     bufferStack_ = nullptr;
   }
 }
 
-int Scanner::push(const std::string &module) {
+int Scanner::push(const std::string &fileName) {
   CASSERT(bufferStack_, "bufferStack_ is null");
-  return bufferStack_->push(module);
+  return bufferStack_->push(fileName);
 }
 
 int Scanner::pop() {
@@ -89,6 +88,8 @@ const yyscan_t Scanner::yy_scaninfo() const { return yy_scaninfo_; }
 
 yyscan_t &Scanner::yy_scaninfo() { return yy_scaninfo_; }
 
+const std::string &Scanner::fileName() const { return fileName_; }
+
 std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
   YYSTYPE yy_value;
   YYLTYPE yy_location;
@@ -96,9 +97,4 @@ std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
   return std::make_tuple(r, yy_value, yy_location);
 }
 
-int Scanner::parse() {
-  CASSERT(bufferStack_, "bufferStack_ is null");
-  int p = bufferStack_->push(moduleName_);
-  CASSERT(p == 1, "bufferStack_#push fail: {}", p);
-  return yyparse(yy_scaninfo_, this);
-}
+int Scanner::parse() { return yyparse(yy_scaninfo_, this); }
