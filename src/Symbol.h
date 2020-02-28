@@ -35,7 +35,6 @@ using SymbolHashMapConstIterator =
     std::unordered_map<std::string, Symbol *>::const_iterator;
 
 class Symtab : public Symbol, public Stringify {
-
 public:
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
@@ -49,6 +48,8 @@ public:
   virtual SymbolHashMapIterator end();
   virtual SymbolHashMapConstIterator begin() const;
   virtual SymbolHashMapConstIterator end() const;
+  virtual int size() const;
+  virtual bool empty() const;
 
 protected:
   virtual std::string stringify() const = 0;

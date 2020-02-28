@@ -50,6 +50,8 @@ public:
   virtual TypeHashMapIterator end();
   virtual TypeHashMapConstIterator begin() const;
   virtual TypeHashMapConstIterator end() const;
+  virtual int size() const;
+  virtual bool empty() const;
 
 protected:
   virtual std::string stringify() const = 0;

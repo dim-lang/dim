@@ -49,6 +49,10 @@ SymbolHashMapIterator Symtab::end() { return hashtab_.end(); }
 
 SymbolHashMapConstIterator Symtab::end() const { return hashtab_.end(); }
 
+int Symtab::size() const { return (int)hashtab_.size(); }
+
+bool Symtab::empty() const { return hashtab_.empty(); }
+
 VariableSymbol::VariableSymbol(const std::string &variableName)
     : variableName_(variableName) {}
 

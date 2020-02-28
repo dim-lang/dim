@@ -49,6 +49,10 @@ TypeHashMapConstIterator Tytab::begin() const { return hashtab_.begin(); }
 
 TypeHashMapConstIterator Tytab::end() const { return hashtab_.end(); }
 
+int Tytab::size() const { return (int)hashtab_.size(); }
+
+bool Tytab::empty() const { return hashtab_.empty(); }
+
 BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
 
 std::string BuiltinType::name() const { return builtinTypeName_; }
