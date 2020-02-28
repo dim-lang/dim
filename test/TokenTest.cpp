@@ -21,6 +21,7 @@ static void go(const char *fileName) {
         std::get<0>(t) == T_U64_CONSTANT || std::get<0>(t) == T_F32_CONSTANT ||
         std::get<0>(t) == T_F64_CONSTANT || std::get<0>(t) == T_STRING) {
       CINFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
+      std::free(std::get<1>(t).literal);
     } else {
       CINFO("token:{}", std::get<0>(t));
     }
