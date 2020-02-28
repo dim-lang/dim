@@ -98,4 +98,4 @@ std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
   return std::make_tuple(r, yy_value, yy_location);
 }
 
-int Scanner::parse() { return yyparse(yy_scaninfo_, this); }
+int Scanner::parse() { return yyparse(yy_scaninfo_); }

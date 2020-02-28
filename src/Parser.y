@@ -1,7 +1,6 @@
 %define api.pure full
 %locations
 %param { yyscan_t yyscanner }
-%parse-param { Scanner *scanner }
 
 %code top {
 #include <cstdarg>
@@ -11,6 +10,7 @@
 #include "Token.h"
 #include "Parser.h"
 #include "Scanner.h"
+#define Y_EXTRA yyget_extra(yyscanner)
 }
 
 %code requires {
@@ -23,6 +23,8 @@ class AstStatement;
 class AstDeclaration;
 class AstStringConstant;
 using yyscan_t = void *;
+using YY_EXTRA_TYPE = Scanner *;
+extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 }
 
  /* different ways to access data */
@@ -105,13 +107,13 @@ using yyscan_t = void *;
 join_string_helper : T_STRING_CONSTANT {
                         $$ = new AstStringConstant($1);
                         std::free($1);
-                        CINFO("join_string_helper: {} {}.{}-{}.{}", scanner->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        CINFO("join_string_helper: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    | T_STRING_CONSTANT join_string_helper { 
                         $2->add($1); 
                         $$ = $2; 
                         std::free($1); 
-                        CINFO("join_string_helper2: {} {}.{}-{}.{}", scanner->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        CINFO("join_string_helper2: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    ;
 
@@ -337,25 +339,25 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
 translation_unit : declaration {
-                        CASSERT(scanner, "scanner is null");
-                        CASSERT(scanner->program(), "scanner#program is null");
-                        scanner->program()->add($1);
+                        CASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        CASSERT(Y_EXTRA->program(), "Y_EXTRA#program is null");
+                        Y_EXTRA->program()->add($1);
                     }
                  | declaration translation_unit {
-                        CASSERT(scanner, "scanner is null");
-                        CASSERT(scanner->program(), "scanner#program is null");
-                        scanner->program()->add($1);
+                        CASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        CASSERT(Y_EXTRA->program(), "Y_EXTRA#program is null");
+                        Y_EXTRA->program()->add($1);
                     }
                  ;
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, Scanner *scanner, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            (scanner ? scanner->currentBuffer().c_str() : "unknown"),
+            (Y_EXTRA ? Y_EXTRA->currentBuffer().c_str() : "unknown"),
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 
