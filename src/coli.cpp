@@ -6,6 +6,7 @@
 #include "Option.h"
 #include "Parser.h"
 #include "Parser.tab.hpp"
+#include "Scanner.h"
 #include "Semant.h"
 #include "Token.h"
 #include <iostream>
@@ -31,18 +32,13 @@ int main(int argc, char **argv) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
-      std::string moduleName = fileToModule(fileName);
-      CINFO("fileName:{} moduleName:{}", fileName, moduleName);
-      Scanner scanner;
-      if (!scanner.push(moduleName)) {
-        CASSERT(false, "tkPushImport {} fail", moduleName);
-        return 0;
-      }
-      int yp = yyparse(scanner.scaninfo, &scanner);
-      CINFO("yyparse: yp:{}, scanner.scaninfo:{}", yp,
-            (void *)scanner.scaninfo);
-      CASSERT(yp == 0, "yyparse fail:{}", yp);
-      Semant *semant = new Semant(scanner.program);
+      CINFO("fileName:{}", fileName);
+      Scanner scanner(fileName);
+      int p = scanner.parse();
+      CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
+            scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
+      CASSERT(p == 0, "parse fail:{}", p);
+      Semant *semant = new Semant(scanner.program());
       semant->build();
       semant->check();
       delete semant;

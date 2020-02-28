@@ -10,10 +10,18 @@
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
+#include "Scanner.h"
 }
 
 %code requires {
 class Scanner;
+class AstExpressionList;
+class AstStatementList;
+class AstDeclarationList;
+class AstExpression;
+class AstStatement;
+class AstDeclaration;
+class AstStringConstant;
 using yyscan_t = void *;
 }
 
@@ -97,13 +105,13 @@ using yyscan_t = void *;
 join_string_helper : T_STRING_CONSTANT {
                         $$ = new AstStringConstant($1);
                         std::free($1);
-                        CINFO("join_string_helper: {} {}.{}-{}.{}", scanner->top()->fileName, @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        CINFO("join_string_helper: {} {}.{}-{}.{}", scanner->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    | T_STRING_CONSTANT join_string_helper { 
                         $2->add($1); 
                         $$ = $2; 
                         std::free($1); 
-                        CINFO("join_string_helper2: {} {}.{}-{}.{}", scanner->top()->fileName, @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        CINFO("join_string_helper2: {} {}.{}-{}.{}", scanner->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    ;
 
@@ -329,16 +337,14 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
 translation_unit : declaration {
-                        if (scanner) {
-                            CASSERT(scanner->program, "scanner#program is null");
-                            scanner->program->add($1);
-                        }
+                        CASSERT(scanner, "scanner is null");
+                        CASSERT(scanner->program(), "scanner#program is null");
+                        scanner->program()->add($1);
                     }
                  | declaration translation_unit {
-                        if (scanner) {
-                            CASSERT(scanner->program, "scanner#program is null");
-                            scanner->program->add($1);
-                        }
+                        CASSERT(scanner, "scanner is null");
+                        CASSERT(scanner->program(), "scanner#program is null");
+                        scanner->program()->add($1);
                     }
                  ;
 
@@ -349,7 +355,7 @@ void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, Scanner *scanner, const char 
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            (scanner? scanner->top()->fileName.c_str() : "unknown"),
+            (scanner ? scanner->currentBuffer().c_str() : "unknown"),
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 

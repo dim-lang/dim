@@ -15,19 +15,18 @@ class Symbol;
 class Type;
 using YY_BUFFER_STATE = yy_buffer_state *;
 using yyscan_t = void *;
+using YY_EXTRA_TYPE = Scanner *;
 
 extern int yylex(YYSTYPE *yylval_param, YYLTYPE *yylloc_param,
                  yyscan_t yyscanner);
-
-/* global methods */
-std::string moduleToFile(const std::string &name);
-
-std::string fileToModule(const std::string &name);
+extern int yylex_init_extra(YY_EXTRA_TYPE yy_user_defined,
+                            yyscan_t *ptr_yy_globals);
+extern int yylex_destroy(yyscan_t yyscanner);
 
 class Buffer {
 public:
   /* methods */
-  Buffer(const std::string &fileName, yyscan_t scaninfo);
+  Buffer(const std::string &fileName, yyscan_t yy_scaninfo);
   virtual ~Buffer();
 
   /* members */
@@ -36,27 +35,26 @@ public:
   int lineNo;
   FILE *fp;
 
+  /* global methods */
+  static std::string moduleToFile(const std::string &name);
+  static std::string fileToModule(const std::string &name);
+
 private:
-  yyscan_t scaninfo_;
+  yyscan_t yy_scaninfo_;
   void release();
 };
 
-/* Scanner is yyextra */
-class Scanner {
+class BufferStack {
 public:
-  Scanner();
-  virtual ~Scanner();
-  virtual int push(const std::string &module);
+  BufferStack(yyscan_t yy_scaninfo);
+  virtual ~BufferStack();
+  virtual int push(const std::string &fileName);
   virtual int pop();
   virtual Buffer *top() const;
   virtual int size() const;
   virtual bool empty() const;
 
-  AstProgram *program;
-  Symbol *globalSymbolScope;
-  Type *globalTypeScope;
-  yyscan_t scaninfo;
-
 private:
+  yyscan_t yy_scaninfo_;
   std::stack<Buffer *> bufferStack_;
 };
