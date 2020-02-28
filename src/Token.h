@@ -2,17 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Parser.tab.hpp"
 #include <cstdio>
 #include <stack>
 #include <string>
 
-class AstProgram;
 class Scanner;
 struct yy_buffer_state;
-struct YYLTYPE;
-union YYSTYPE;
-class Symbol;
-class Type;
 using YY_BUFFER_STATE = yy_buffer_state *;
 using yyscan_t = void *;
 using YY_EXTRA_TYPE = Scanner *;

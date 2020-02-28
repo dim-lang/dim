@@ -12,5 +12,10 @@ TEST_CASE("Exception", "[Exception]") {
     } catch (const std::string &ex) {
       CERROR("catch: {}", ex);
     }
+    try {
+      CASSERT(false, "assert false");
+    } catch (const std::string &ex) {
+      CERROR("catch assert: {}", ex);
+    }
   }
 }
