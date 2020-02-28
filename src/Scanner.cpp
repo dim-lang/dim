@@ -9,6 +9,7 @@ Scanner::Scanner(const std::string &fileName)
     : fileName_(fileName), program_(nullptr), gss_(nullptr), gts_(nullptr),
       yy_scaninfo_(nullptr), bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
+  CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   program_ = new AstProgram();
   bufferStack_ = new BufferStack(yy_scaninfo_);
   int p = push(fileName);
