@@ -35,7 +35,7 @@ public:
     if (!(cond)) {                                                             \
       const char *argmsg = fmt::format(__VA_ARGS__).c_str();                   \
       std::string fmtmsg = fmt::format(                                        \
-          "Assert Fail! {}:{} {} - Condition: {}, Result: {}", __FILE__,       \
+          "Assert Fail! {}:{} {} - Condition:{}, Result:{}", __FILE__,         \
           __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), argmsg);           \
       std::fprintf(stderr, "%s\n", fmtmsg.c_str());                            \
       throw fmtmsg;                                                            \
