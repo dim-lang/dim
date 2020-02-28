@@ -5,15 +5,15 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.h"
+#include "Scanner.h"
 #include "Token.h"
 #include "catch2/catch.hpp"
 
-static void go(const char *module) {
-  Scanner scanner;
-  REQUIRE(scanner.push(module) == 1);
-  REQUIRE(yyparse(scanner.scaninfo, &scanner) == 0);
-  CINFO("program: {}", scanner.program->toString());
-  Semant *semant = new Semant(scanner.program);
+static void go(const char *fileName) {
+  Scanner scanner(fileName);
+  REQUIRE(scanner.parse() == 0);
+  CINFO("program: {}", scanner.program()->toString());
+  Semant *semant = new Semant(scanner.program());
   semant->build();
   semant->check();
 }

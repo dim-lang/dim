@@ -5,24 +5,24 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
+#include "Scanner.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 
-static void go(const char *module) {
-  union YYSTYPE ys;
-  struct YYLTYPE yl;
-  Scanner scanner;
-  REQUIRE(scanner.push(module) == 1);
-  CINFO("go start: {}", module);
-  int t;
-  while ((t = yylex(&ys, &yl, scanner.scaninfo)) != 0) {
-    if (t == T_IDENTIFIER || t == T_I32_CONSTANT || t == T_I8_CONSTANT ||
-        t == T_U8_CONSTANT || t == T_I16_CONSTANT || t == T_U16_CONSTANT ||
-        t == T_U32_CONSTANT || t == T_I64_CONSTANT || t == T_U64_CONSTANT ||
-        t == T_F32_CONSTANT || t == T_F64_CONSTANT || t == T_STRING) {
-      CINFO("token:{}, literal:{}", t, ys.literal);
+static void go(const char *fileName) {
+  Scanner scanner(fileName);
+  CINFO("go start: {}", fileName);
+  std::tuple<int, YYSTYPE, YYLTYPE> t;
+  while ((t = scanner.tokenize()), std::get<0>(t) != 0) {
+    if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_I32_CONSTANT ||
+        std::get<0>(t) == T_I8_CONSTANT || std::get<0>(t) == T_U8_CONSTANT ||
+        std::get<0>(t) == T_I16_CONSTANT || std::get<0>(t) == T_U16_CONSTANT ||
+        std::get<0>(t) == T_U32_CONSTANT || std::get<0>(t) == T_I64_CONSTANT ||
+        std::get<0>(t) == T_U64_CONSTANT || std::get<0>(t) == T_F32_CONSTANT ||
+        std::get<0>(t) == T_F64_CONSTANT || std::get<0>(t) == T_STRING) {
+      CINFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
     } else {
-      CINFO("token:{}", t);
+      CINFO("token:{}", std::get<0>(t));
     }
   }
   // we don't need pop file manually here
@@ -30,7 +30,7 @@ static void go(const char *module) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    go("test.case.DslTest1");
-    go("test.case.DslTest2");
+    go("test/case/DslTest1.co");
+    go("test/case/DslTest2.co");
   }
 }
