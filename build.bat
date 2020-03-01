@@ -53,10 +53,10 @@ if not exist %ROOT%\src\boost\stage (
 echo [coli] prepare boostorg/boost boost-1.70.0 - done
 
 echo [coli] prepare msvc project
-set RELEASE=msvc
+set MSVC=msvc
 cd %ROOT%
-if not exist %RELEASE% md %RELEASE%
-cd %RELEASE% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
+if not exist %MSVC% md %MSVC%
+cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
 echo [coli] 1. please manually build `icu4c` library:
@@ -65,4 +65,4 @@ echo [coli]      $ cd \
 echo [coli]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
 echo [coli]    build `icu4c` library with option `Debug Win32` and `Release Win32`, then move `\icu` library to `%ROOT%\src`
 echo [coli]      $ mv \icu %ROOT%\src
-echo [coli] 2. please manually build msvc project `%RELEASE%\coli-parent.sln` with `Release Win32`
+echo [coli] 2. please manually build msvc project `%MSVC%\coli-parent.sln` with `Release Win32`
