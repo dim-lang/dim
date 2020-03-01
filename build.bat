@@ -14,13 +14,6 @@ if not exist %ROOT%\test\catch2 (
     cd %ROOT%
 )
 echo [coli] prepare catchorg/Catch2 v2.9.1 - done
-echo [coli] prepare PDCurses PDCurses_3_6
-if not exist %ROOT%\src\PDCurses (
-    cd %ROOT%\src
-    git clone -b PDCurses_3_6 --single-branch --depth 1 https://github.com/wmcbrine/PDCurses.git
-    cd %ROOT%
-)
-echo [coli] prepare PDCurses PDCurses_3_6 - done
 echo [coli] prepare gabime/spdlog v1.3.1
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
