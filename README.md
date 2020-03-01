@@ -1,10 +1,10 @@
 # coli
 
-coli - a modern and friendly programming language.
+coli - a modern, object oriented, high performance programming language.
 
 ## Why coli?
 
-Here is an example written in coli-lang.
+Here is an example.
 
 ```
 /* declare an interface */

@@ -28,13 +28,15 @@ if not exist %ROOT%\src\fmt (
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt 5.3.0 - done
-echo [coli] prepare unicode-org/icu release-64-2
-if not exist %ROOT%\src\icu (
-    cd %ROOT%\src
-    git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
-    cd %ROOT%
-)
-echo [coli] prepare unicode-org/icu release-64-2 - done
+
+REM echo [coli] prepare unicode-org/icu release-64-2
+REM if not exist %ROOT%\src\icu (
+    REM cd %ROOT%\src
+    REM git clone -b release-64-2 --single-branch --depth 1 https://github.com/unicode-org/icu.git
+    REM cd %ROOT%
+REM )
+REM echo [coli] prepare unicode-org/icu release-64-2 - done
+
 echo [coli] prepare boostorg/boost boost-1.70.0
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
