@@ -100,7 +100,15 @@ Download coli source code from github and build mannually.
 |  Fedora    | git                                                               |
 |  Ubuntu    | git                                                               |
 |  OpenSUSE  | git                                                               |
-|  Windows   | Visual Studio 2017, cmake, git, python3, LLVM                     |
+|  Windows   | Visual Studio, cmake, git, python3, LLVM, flex, bison             |
+
+Install dependencies for windows:
+* [Visual Studio](https://visualstudio.microsoft.com/downloads/), install with **.NET desktop development**, **Visual C++ desktop development**, **Common Windows Platform development**.
+* [cmake](https://cmake.org/download/), install and add `cmake.exe` to `PATH`.
+* [git](https://git-scm.com/downloads), install and add `git.exe` to `PATH`.
+* [python3](https://www.python.org/downloads/), install and add `python.exe` to `PATH`.
+* [LLVM](https://llvm.org/), install and add `clang.exe` to `PATH`.
+* [flex & bison](https://sourceforge.net/projects/winflexbison/files/), install **win_flex_bison3-latest.zip** and add `win_flex.exe` and `win_bison.exe` to `PATH`.
 
 #### Build
 
