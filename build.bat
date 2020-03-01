@@ -65,4 +65,4 @@ echo [coli]      $ cd \
 echo [coli]    open msvc project `\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
 echo [coli]    build `icu4c` library with option `Debug Win32` and `Release Win32`, then move `\icu` library to `%ROOT%\src`
 echo [coli]      $ mv \icu %ROOT%\src
-echo [coli] 2. please manually build msvc project `%DEBUG%\coli-parent.sln` with `Debug Win32`, `%RELEASE%\coli-parent.sln` with `Release Win32`
+echo [coli] 2. please manually build msvc project `%RELEASE%\coli-parent.sln` with `Release Win32`

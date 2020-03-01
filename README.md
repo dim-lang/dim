@@ -102,7 +102,7 @@ Download coli source code from github and build mannually.
 |  OpenSUSE  | git                                                               |
 |  Windows   | Visual Studio, cmake, git, python3, LLVM, flex, bison             |
 
-Install dependencies for windows:
+Install dependencies on windows:
 * [Visual Studio](https://visualstudio.microsoft.com/downloads/), install with **.NET desktop development**, **Visual C++ desktop development**, **Common Windows Platform development**.
 * [cmake](https://cmake.org/download/), install and add `cmake.exe` to `PATH`.
 * [git](https://git-scm.com/downloads), install and add `git.exe` to `PATH`.
@@ -112,7 +112,11 @@ Install dependencies for windows:
 
 #### Build
 
-|  Platform      |  Build                                                                          |
-|----------------|---------------------------------------------------------------------------------|
-|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build`     |
-|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat` |
+|  Platform      |  Build                                                                                              |
+|----------------|-----------------------------------------------------------------------------------------------------|
+|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
+|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
+
+Manually build steps on windows:
+1. open `coli\msvc\coli-parent.sln` with Visual Studio.
+2. build with configuration `Release Win32` or `Release x64`.
