@@ -1,8 +1,17 @@
 # coli
 
-coli - a modern, object oriented, high performance programming language.
+coli - a modern, object-oriented, high performance programming language.
 
 ## Why coli?
+
+coli is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're themes we want to introduce coli:
+
+#### Object-Oriented
+#### Functional Programming
+#### Garbage Collection
+#### Thread
+
+## How to write?
 
 Here is an example.
 
