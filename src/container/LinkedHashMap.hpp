@@ -474,6 +474,16 @@ int LinkedHashMap<K, V, H, E>::size() const {
 }
 
 template <typename K, typename V, typename H, typename E>
+int LinkedHashMap<K, V, H, E>::bucket() const {
+  return ht_.bucket();
+}
+
+template <typename K, typename V, typename H, typename E>
+double LinkedHashMap<K, V, H, E>::loadFactor() const {
+  return ht_.loadFactor();
+}
+
+template <typename K, typename V, typename H, typename E>
 void LinkedHashMap<K, V, H, E>::clear() {
   ht_.clear();
 }

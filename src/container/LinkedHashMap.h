@@ -129,6 +129,8 @@ public:
   virtual ~LinkedHashMap();
   bool empty() const;
   int size() const;
+  int bucket() const;
+  double loadFactor() const;
   void clear();
   void release();
   Iterator begin() const;
