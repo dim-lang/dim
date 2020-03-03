@@ -11,7 +11,7 @@
   do {                                                                         \
     LinkedHashMap<a, b> hm;                                                    \
     REQUIRE(hm.size() == 0);                                                   \
-    REQUIRE(hm.capacity() == 0);                                               \
+    REQUIRE(hm.bucket() == 0);                                                 \
     REQUIRE(hm.empty() == 0);                                                  \
     REQUIRE(hm.begin() == hm.end());                                           \
   } while (0)
