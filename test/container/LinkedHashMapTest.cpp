@@ -10,10 +10,10 @@
 #define CONSTRUCTOR_UNIT(a, b)                                                 \
   do {                                                                         \
     LinkedHashMap<a, b> hm;                                                    \
-    REQIURE(hm.size() == 0);                                                   \
-    REQIURE(hm.capacity() == 0);                                               \
-    REQIURE(hm.empty() == 0);                                                  \
-    REQIURE(hm.begin() == hm.end());                                           \
+    REQUIRE(hm.size() == 0);                                                   \
+    REQUIRE(hm.capacity() == 0);                                               \
+    REQUIRE(hm.empty() == 0);                                                  \
+    REQUIRE(hm.begin() == hm.end());                                           \
   } while (0)
 
 struct LHMTester {
@@ -27,8 +27,8 @@ namespace std {
 template <> struct hash<LHMTester> {
 public:
   std::size_t operator()(const LHMTester &t) const {
-    std::hash<int> h1();
-    std::hash<std::string> h2();
+    std::hash<int> h1;
+    std::hash<std::string> h2;
     return h1(t.age) ^ h1(t.score) ^ h2(t.name);
   }
 };

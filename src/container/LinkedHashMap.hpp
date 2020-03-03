@@ -335,22 +335,12 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() {
+LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() const {
   return LinkedIterator<K, V>(head_.next());
 }
 
 template <typename K, typename V, typename H, typename E>
-const LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() const {
-  return LinkedIterator<K, V>(head_.next());
-}
-
-template <typename K, typename V, typename H, typename E>
-LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() {
-  return LinkedIterator<K, V>(&head_);
-}
-
-template <typename K, typename V, typename H, typename E>
-const LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
+LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
   return LinkedIterator<K, V>(&head_);
 }
 
@@ -551,12 +541,11 @@ LinkedHashMap<K, V, H, E>::find(const K &key) const {
 
 template <typename K, typename V, typename H, typename E>
 V &LinkedHashMap<K, V, H, E>::operator[](const K &key) {
-  LinkedHashMap<K, V, H, E>::Iterator position = ht_.find(key);
-  return position->second;
+  return ht_.find(key)->second;
 }
 
 template <typename K, typename V, typename H, typename E>
 const V &LinkedHashMap<K, V, H, E>::operator[](const K &key) const {
-  LinkedHashMap<K, V, H, E>::CIterator position = ht_.find(key);
-  return position->second;
+  LinkedHashMap<K, V, H, E>::Iterator position = ht_.find(key);
+  return ht_.find(key)->second;
 }

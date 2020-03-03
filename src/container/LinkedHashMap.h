@@ -99,10 +99,8 @@ public:
   int insertOrAssign(const std::pair<const K, V> &value);
   LinkedIterator<K, V> find(const K &key) const;
   int remove(LinkedIterator<K, V> position);
-  LinkedIterator<K, V> begin();
-  const LinkedIterator<K, V> begin() const;
-  LinkedIterator<K, V> end();
-  const LinkedIterator<K, V> end() const;
+  LinkedIterator<K, V> begin() const;
+  LinkedIterator<K, V> end() const;
 
 private:
   void isNotNull();
