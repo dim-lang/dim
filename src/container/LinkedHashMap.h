@@ -106,7 +106,7 @@ public:
 
 private:
   bool isNotNull();
-  void extend(int n);
+  void extend(bool force, int n);
   void destroyList(int i);
 
   H hasher_;
