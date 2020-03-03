@@ -4,33 +4,51 @@
 #include "container/LinkedHashMap.h"
 #include "Log.h"
 #include "catch2/catch.hpp"
+#include "container/LinkedHashMap.hpp"
 #include <string>
+
+#define CONSTRUCTOR_UNIT(a, b)                                                 \
+  do {                                                                         \
+    LinkedHashMap<a, b> hm;                                                    \
+    REQIURE(hm.size() == 0);                                                   \
+    REQIURE(hm.capacity() == 0);                                               \
+    REQIURE(hm.empty() == 0);                                                  \
+    REQIURE(hm.begin() == hm.end());                                           \
+  } while (0)
+
+struct LHMTester {
+  std::string name;
+  int age;
+  int score;
+};
+
+namespace std {
+
+template <> struct hash<LHMTester> {
+public:
+  std::size_t operator()(const LHMTester &t) const {
+    std::hash<int> h1();
+    std::hash<std::string> h2();
+    return h1(t.age) ^ h1(t.score) ^ h2(t.name);
+  }
+};
+
+} // namespace std
 
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("constructor") {
-    LinkedHashMap<char, unsigned char> mchar1;
-    LinkedHashMap<unsigned char, char> mchar2;
-    LinkedHashMap<short, unsigned short> mshort1;
-    LinkedHashMap<unsigned short, short> mshort2;
-    LinkedHashMap<int, unsigned int> mint1;
-    LinkedHashMap<unsigned int, int> mint2;
-    LinkedHashMap<long, unsigned long> mlong1;
-    LinkedHashMap<unsigned long, long> mlong2;
-    LinkedHashMap<long long, unsigned long long> mllong1;
-    LinkedHashMap<unsigned long long, long long> mllong2;
-    LinkedHashMap<std::string, int> mstring1;
-
-    REQUIRE(mchar1.size() == 0);
-    REQUIRE(mchar2.size() == 0);
-    REQUIRE(mshort1.size() == 0);
-    REQUIRE(mshort2.size() == 0);
-    REQUIRE(mint1.size() == 0);
-    REQUIRE(mint2.size() == 0);
-    REQUIRE(mlong1.size() == 0);
-    REQUIRE(mlong2.size() == 0);
-    REQUIRE(mllong1.size() == 0);
-    REQUIRE(mllong2.size() == 0);
-    REQUIRE(mstring1.size() == 0);
+    CONSTRUCTOR_UNIT(char, unsigned char);
+    CONSTRUCTOR_UNIT(unsigned char, char);
+    CONSTRUCTOR_UNIT(short, unsigned short);
+    CONSTRUCTOR_UNIT(unsigned short, short);
+    CONSTRUCTOR_UNIT(int, unsigned int);
+    CONSTRUCTOR_UNIT(unsigned int, int);
+    CONSTRUCTOR_UNIT(long, unsigned long);
+    CONSTRUCTOR_UNIT(unsigned long, long);
+    CONSTRUCTOR_UNIT(long long, unsigned long long);
+    CONSTRUCTOR_UNIT(unsigned long long, long long);
+    CONSTRUCTOR_UNIT(std::string, int);
   }
-  SECTION("destructor") {}
 }
+
+#undef CONSTRUCTOR_UNIT

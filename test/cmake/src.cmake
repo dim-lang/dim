@@ -15,4 +15,5 @@ set(CTEST
     ExceptionTest.cpp
     SemantTest.cpp
     DumpTest.cpp
+    container/LinkedHashMapTest.cpp
 )
