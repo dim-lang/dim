@@ -103,7 +103,7 @@ public:
   LinkedIterator<K, V> end() const;
 
 private:
-  void isNotNull();
+  bool isNotNull();
   void extend(int n);
   void destroyList(int i);
 
@@ -112,7 +112,7 @@ private:
   LinkedNode<K, V> head_;
   LinkedNode<K, V> *ht_; // hash table head node
   int *count_;           // node count in list
-  int capacity_;         // hash table array capacity
+  int bucket_;           // hash table array capacity
   int size_;             // hash table node count
 };
 

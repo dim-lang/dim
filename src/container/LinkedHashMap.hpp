@@ -221,7 +221,7 @@ template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
 
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt()
-    : hasher_(), equal_(), head_(), ht_(nullptr), count_(nullptr), capacity_(0),
+    : hasher_(), equal_(), head_(), ht_(nullptr), count_(nullptr), bucket_(0),
       size_(0) {}
 
 template <typename K, typename V, typename H, typename E>
@@ -247,18 +247,18 @@ int LinkedHt<K, V, H, E>::size() const {
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::bucket() const {
-  return capacity_;
+  return bucket_;
 }
 
 template <typename K, typename V, typename H, typename E>
 double LinkedHt<K, V, H, E>::loadFactor() const {
-  return (double)size_ / (double)capacity_;
+  return (double)size_ / (double)bucket_;
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::clear() {
   if (isNotNull()) {
-    for (int i = 0; i < capacity_; i++) {
+    for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
   }
@@ -268,16 +268,16 @@ void LinkedHt<K, V, H, E>::clear() {
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::release() {
   if (isNotNull()) {
-    for (int i = 0; i < capacity_; i++) {
+    for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    CASSERT(head_.empty(), "head_#empty: {}", head_.empty());
-    delete[] ht_;
-    delete[] count_;
+    CASSERT(head_.isNull(), "head_#isNull: {}", head_.isNull());
+    std::free(ht_);
+    std::free(count_);
     ht_ = nullptr;
     count_ = nullptr;
   }
-  capacity_ = 0;
+  bucket_ = 0;
   size_ = 0;
 }
 
@@ -285,7 +285,7 @@ template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   extend();
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-  int b = (int)hasher_(value.first) % capacity_;
+  int b = (int)hasher_(value.first) % bucket_;
   ht_[b].insertHead(e);
   count_[b]++;
 }
@@ -296,7 +296,7 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
   LinkedIterator<K, V> position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-    int b = (int)hasher_(value.first) % capacity_;
+    int b = (int)hasher_(value.first) % bucket_;
     ht_[b].insertHead(e);
     count_[b]++;
     return 1;
@@ -308,7 +308,7 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
 
 template <typename K, typename V, typename H, typename E>
 LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
-  int b = (int)hasher_(key) % capacity_;
+  int b = (int)hasher_(key) % bucket_;
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != &ht_[b]) {
     if (equal_(e->key(), key)) {
@@ -320,7 +320,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
-  int b = (int)hasher_(position->first) % capacity_;
+  int b = (int)hasher_(position->first) % bucket_;
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != &ht_[b]) {
     if (equal_(e->key(), position->first)) {
@@ -345,7 +345,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
 }
 
 template <typename K, typename V, typename H, typename E>
-void LinkedHt<K, V, H, E>::isNotNull() {
+bool LinkedHt<K, V, H, E>::isNotNull() {
   CASSERT((ht_ && count_) || (!ht_ && !count_), "ht_ {} null, count_ {} null",
           (void *)ht_, (void *)count_);
   return ht_ && count_;
@@ -353,21 +353,21 @@ void LinkedHt<K, V, H, E>::isNotNull() {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::extend(int n) {
-  if (n <= capacity_) {
+  if (n <= bucket_) {
     return;
   }
   LinkedNode<K, V> *new_ht =
-      (LinkedNode<K, V> *)realloc(ht_, n * sizeof(LinkedNode<K, V>));
-  int *new_count = (int *)realloc(count_, n * sizeof(int));
+      (LinkedNode<K, V> *)std::realloc(ht_, n * sizeof(LinkedNode<K, V>));
+  int *new_count = (int *)std::realloc(count_, n * sizeof(int));
   CASSERT(new_ht, "new_ht is null");
   CASSERT(new_count, "new_ht is null");
-  for (int i = capacity_; i < n; i++) {
+  for (int i = bucket_; i < n; i++) {
     LinkedNode<K, V>::initializeList(new_ht[i]);
     new_count[i] = 0;
   }
   ht_ = new_ht;
   count_ = new_count;
-  capacity_ = n;
+  bucket_ = n;
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -378,7 +378,7 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
     delete e;
     count_[i]--;
   }
-  CASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
+  CASSERT(ht_[i].isNull(), "ht_[{}]#isNull: {}", i, ht_[i].isNull());
   CASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 
