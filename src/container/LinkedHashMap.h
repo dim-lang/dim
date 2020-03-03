@@ -124,8 +124,7 @@ template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
 class LinkedHashMap {
 public:
-  typedef typename detail::LinkedIterator<K, V> Iterator;
-  typedef const typename detail::LinkedIterator<K, V> CIterator;
+  using Iterator = typename detail::LinkedIterator<K, V>;
 
   LinkedHashMap();
   LinkedHashMap(int n);
@@ -134,10 +133,8 @@ public:
   int size() const;
   void clear();
   void release();
-  Iterator begin();
-  CIterator begin() const;
-  Iterator end();
-  CIterator end() const;
+  Iterator begin() const;
+  Iterator end() const;
 
   void insert(const K &key, const V &mapped);
   void insert(const std::pair<const K, V> &value);
@@ -145,7 +142,6 @@ public:
   int insertOrAssign(const std::pair<const K, V> &value);
   int remove(const K &key);
   int remove(Iterator position);
-  int remove(const Iterator &position);
   bool exist(const K &key) const;
   Iterator find(const K &key) const;
   V &operator[](const K &key);

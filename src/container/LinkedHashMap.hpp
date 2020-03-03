@@ -494,22 +494,14 @@ void LinkedHashMap<K, V, H, E>::release() {
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::Iterator LinkedHashMap<K, V, H, E>::begin() {
+typename LinkedHashMap<K, V, H, E>::Iterator
+LinkedHashMap<K, V, H, E>::begin() const {
   return ht_.begin();
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::CIterator LinkedHashMap<K, V, H, E>::begin() const {
-  return ht_.begin();
-}
-
-template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::Iterator LinkedHashMap<K, V, H, E>::end() {
-  return ht_.end();
-}
-
-template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::CIterator LinkedHashMap<K, V, H, E>::end() const {
+typename LinkedHashMap<K, V, H, E>::Iterator
+LinkedHashMap<K, V, H, E>::end() const {
   return ht_.end();
 }
 
@@ -547,17 +539,12 @@ int LinkedHashMap<K, V, H, E>::remove(
 }
 
 template <typename K, typename V, typename H, typename E>
-int LinkedHashMap<K, V, H, E>::remove(CIterator position) {
-  return ht_.remove(position);
-}
-
-template <typename K, typename V, typename H, typename E>
 bool LinkedHashMap<K, V, H, E>::exist(const K &key) const {
   return find(key) != end();
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::Iterator
+typename LinkedHashMap<K, V, H, E>::Iterator
 LinkedHashMap<K, V, H, E>::find(const K &key) const {
   return ht_.find(key);
 }
