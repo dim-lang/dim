@@ -87,7 +87,7 @@ private:
 template <typename K, typename V, typename H, typename E> class LinkedHt {
 public:
   LinkedHt();
-  LinkedHt(int n);
+  LinkedHt(int bucket);
   virtual ~LinkedHt();
   bool empty() const;
   int size() const;
@@ -99,8 +99,10 @@ public:
   int insertOrAssign(const std::pair<const K, V> &value);
   LinkedIterator<K, V> find(const K &key) const;
   int remove(LinkedIterator<K, V> position);
-  LinkedIterator<K, V> begin() const;
-  LinkedIterator<K, V> end() const;
+  LinkedIterator<K, V> begin();
+  const LinkedIterator<K, V> begin() const;
+  LinkedIterator<K, V> end();
+  const LinkedIterator<K, V> end() const;
 
 private:
   bool isNotNull();
@@ -123,9 +125,10 @@ template <typename K, typename V, typename H = std::hash<K>,
 class LinkedHashMap {
 public:
   using Iterator = typename detail::LinkedIterator<K, V>;
+  using CIterator = typename detail::LinkedIterator<K, V> const;
 
   LinkedHashMap();
-  LinkedHashMap(int n);
+  LinkedHashMap(int bucket);
   virtual ~LinkedHashMap();
   bool empty() const;
   int size() const;
@@ -133,8 +136,10 @@ public:
   double loadFactor() const;
   void clear();
   void release();
-  Iterator begin() const;
-  Iterator end() const;
+  Iterator begin();
+  CIterator begin() const;
+  Iterator end();
+  CIterator end() const;
 
   void insert(const K &key, const V &mapped);
   void insert(const std::pair<const K, V> &value);

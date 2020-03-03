@@ -9,11 +9,19 @@
 
 #define CONSTRUCTOR_UNIT(a, b)                                                 \
   do {                                                                         \
-    LinkedHashMap<a, b> hm;                                                    \
-    REQUIRE(hm.size() == 0);                                                   \
-    REQUIRE(hm.bucket() == 0);                                                 \
-    REQUIRE(hm.empty() == 0);                                                  \
-    REQUIRE(hm.begin() == hm.end());                                           \
+    LinkedHashMap<a, b> hm1;                                                   \
+    REQUIRE(hm1.size() == 0);                                                  \
+    REQUIRE(hm1.bucket() == 0);                                                \
+    REQUIRE(hm1.empty());                                                      \
+    REQUIRE(hm1.loadFactor() == 0.0);                                          \
+    REQUIRE(hm1.begin() == hm1.end());                                         \
+                                                                               \
+    LinkedHashMap<a, b> hm2(100);                                              \
+    REQUIRE(hm2.size() == 0);                                                  \
+    REQUIRE(hm2.bucket() == 100);                                              \
+    REQUIRE(hm2.empty());                                                      \
+    REQUIRE(hm2.loadFactor() == 0.0);                                          \
+    REQUIRE(hm2.begin() == hm2.end());                                         \
   } while (0)
 
 struct LHMTester {
