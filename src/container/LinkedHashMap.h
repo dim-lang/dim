@@ -104,6 +104,15 @@ public:
     next_ = next_->next();
     return e;
   }
+  void remove(LinkedNode<K, V> *e) {
+    if (empty()) {
+      return;
+    }
+    e->prev()->next() = e->next();
+    e->next()->prev() = e->prev();
+    e->prev() = nullptr;
+    e->next() = nullptr;
+  }
 
   void tr_insertTail(LinkedNode<K, V> *e) {
     e->tr_prev() = tr_prev_;
@@ -117,6 +126,8 @@ public:
     }
     e->tr_prev()->tr_next() = e->tr_next();
     e->tr_next()->tr_prev() = e->tr_prev();
+    e->tr_prev() = nullptr;
+    e->tr_next() = nullptr;
   }
   bool empty() const {
     CASSERT(prev_ && next_ && tr_prev_ && tr_next_,
@@ -187,14 +198,27 @@ public:
     size_ = 0;
   }
 
-  int insert(const std::pair<const K, V> &value) {
+  void insert(const std::pair<const K, V> &value) {
     extend();
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
     int b = (int)hasher_(value.first) % capacity_;
     ht_[b].insertHead(e);
+    count_[b]++;
   }
-  int insertOrAssign(const std::pair<const K, V> &value) { extend(); }
-
+  int insertOrAssign(const std::pair<const K, V> &value) {
+    extend();
+    LinkedIterator<K, V> position = find(value.first);
+    if (position == end()) {
+      LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
+      int b = (int)hasher_(value.first) % capacity_;
+      ht_[b].insertHead(e);
+      count_[b]++;
+      return 1;
+    } else {
+      position->second = value.second;
+      return 0;
+    }
+  }
   LinkedIterator<K, V> find(const K &key) const {
     int b = (int)hasher_(value.first) % capacity_;
     LinkedNode<K, V> *e = ht_[b].next();
@@ -203,7 +227,30 @@ public:
         return LinkedIterator<K, V>(e);
       }
     }
-    return LinkedIterator<K, V>(nullptr);
+    return end();
+  }
+  int remove(LinkedIterator<K, V> position) {
+    int b = (int)hasher_(position->first) % capacity_;
+    LinkedNode<K, V> *e = ht_[b].next();
+    while (e != &ht_[b]) {
+      if (equal_(e->key(), position->first)) {
+        ht_[b].remove(e);
+        head_.tr_remove(e);
+        delete e;
+        count_[b]--;
+        return 0;
+      }
+    }
+    return -1;
+  }
+
+  LinkedIterator<K, V> begin() { return LinkedIterator<K, V>(head_.next()); }
+  const LinkedIterator<K, V> begin() const {
+    return LinkedIterator<K, V>(head_.next());
+  }
+  LinkedIterator<K, V> end() { return LinkedIterator<K, V>(&head_); }
+  const LinkedIterator<K, V> end() const {
+    return LinkedIterator<K, V>(&head_);
   }
 
   // iterator
@@ -211,6 +258,41 @@ public:
   public:
     LinkedIterator(LinkedNode<K, V> *node) : node_(node) {}
     virtual ~LinkedIterator() { node_ = nullptr; }
+    LinkedIterator(const LinkedIterator<K, V> &other) : node_(other.node_) {}
+    LinkedIterator<K, V> &operator=(const LinkedIterator<K, V> &other) {
+      if (this == &other) {
+        return *this;
+      }
+      node_ = other.node_;
+      return *this;
+    }
+    LinkedIterator<K, V> &operator++() {
+      node_ = node_->next();
+      return *this;
+    }
+    LinkedIterator<K, V> &operator--() {
+      node_ = node_->prev();
+      return *this;
+    }
+    LinkedIterator<K, V> operator++(int) {
+      LinkedIterator<K, V> save = node_;
+      node_ = node_->next();
+      return LinkedIterator<K, V>(save);
+    }
+    LinkedIterator<K, V> operator--(int) {
+      LinkedIterator<K, V> save = node_;
+      node_ = node_->prev();
+      return LinkedIterator<K, V>(save);
+    }
+    bool operator==(const LinkedIterator<K, V> &other) const {
+      return node_ == other.node_;
+    }
+    bool operator!=(const LinkedIterator<K, V> &other) const {
+      return node_ != other.node_;
+    }
+    bool operator!() const { return !node_; }
+    LinkedNode<K, V> &operator*() { return *node_; }
+    LinkedNode<K, V> *operator->() { return node_; }
 
   private:
     LinkedNode<K, V> *node_;
@@ -251,6 +333,10 @@ template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<E>>
 class LinkedHashMap {
 public:
+  typedef typename detail::LinkedHt<K, V, H, E>::LinkedIterator<K, V> Iterator;
+  typedef const typename detail::LinkedHt<K, V, H, E>::LinkedIterator<K, V>
+      CIterator;
+
   LinkedHashMap() : ht_() {}
   LinkedHashMap(int n) : ht_(n) {}
   virtual ~LinkedHashMap() {}
@@ -258,46 +344,37 @@ public:
   int size() const { return ht_.size(); }
   void clear() { ht_.clear(); }
   void release() { ht_.release(); }
-  Iterator begin() { return travel_.begin(); }
-  Iterator end() { return travel_.end(); }
-  const Iterator &begin() const { return travel_.cbegin(); }
-  const Iterator &end() const { return travel_.cend(); }
+  Iterator begin() { return ht_.begin(); }
+  CIterator begin() const { return ht_.begin(); }
+  Iterator end() { return ht_.end(); }
+  CIterator end() const { return ht_.end(); }
 
-  void insert(const K &key, const V &value) {
-    travel_.push_back(std::make_pair(key, value));
-    umap_.insert(std::make_pair(key, value));
+  void insert(const K &key, const V &mapped) {
+    ht_.insert(std::pair<const K, V>(key, mapped));
   }
-  void insertOrAssign(const K &key, const V &value) {
-    if (umap_.find(key) == umap_.end()) {
-      travel_.push_back(std::make_pair(key, value));
-      umap_.insert(std::make_pair(key, value));
-    } else {
-      travel_.push_back(std::make_pair(key, value));
-      umap_[key] = value;
-    }
+  void insert(const std::pair<const K, V> &value) { ht_.insert(value); }
+  int insertOrAssign(const K &key, const V &mapped) {
+    return ht_.insertOrAssign(std::pair<const K, V>(key, mapped));
+  }
+  int insertOrAssign(const std::pair<const K, V> &value) {
+    return ht_.insertOrAssign(value);
   }
   int remove(const K &key) {
-    auto position = umap_.find(key);
-    if (position == umap_.end()) {
-      return -1;
-    }
-    umap_.erase(position);
-    return 0;
+    auto position = find(key);
+    return position == end() ? -1 : ht_.remove(position);
   }
-  int remove(Iterator position) {
-    const K key = position.first;
-    auto iter = umap_.find(key);
-    if (iter == umap_.end()) {
-      return -1;
-    }
-    umap_.erase(iter);
-    return 0;
+  int remove(Iterator position) { return ht_.remove(position); }
+  int remove(const Iterator &position) { return ht_.remove(position); }
+  bool exist(const K &key) const { return find(key) != end(); }
+  Iterator find(const K &key) const { return ht_.find(key); }
+  V &operator[](const K &key) {
+    Iterator position = ht_.find(key);
+    return position->second;
   }
-  int remove(const Iterator &position);
-  bool exist(const K &key);
-  Iterator find(const K &key) const;
-  V &operator[](const K &key);
-  const V &operator[](const K &key) const;
+  const V &operator[](const K &key) const {
+    CIterator position = ht_.find(key);
+    return position->second;
+  }
 
 private:
   detail::LinkedHt<K, V, H, E> ht_;
