@@ -221,7 +221,7 @@ template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
 
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt()
-    : hasher_(), equal_(), head_(), ht_(nullptr), capacity_(0), count_(nullptr),
+    : hasher_(), equal_(), head_(), ht_(nullptr), count_(nullptr), capacity_(0),
       size_(0) {}
 
 template <typename K, typename V, typename H, typename E>
