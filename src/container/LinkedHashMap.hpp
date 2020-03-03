@@ -227,7 +227,7 @@ LinkedHt<K, V, H, E>::LinkedHt()
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt(int bucket) : LinkedHt() {
   CASSERT(bucket > 0, "bucket {} > 0", bucket);
-  extend(true, bucket);
+  extend(bucket);
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -284,22 +284,28 @@ void LinkedHt<K, V, H, E>::release() {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
-  extend(false, bucket_ * 2);
+  extend(bucket_ * 2);
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
   int b = (int)hasher_(value.first) % bucket_;
   ht_[b].insertHead(e);
-  count_[b]++;
+  CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+  CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  ++count_[b];
+  ++size_;
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
-  extend(false, bucket_ * 2);
+  extend(bucket_ * 2);
   LinkedIterator<K, V> position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
     int b = (int)hasher_(value.first) % bucket_;
     ht_[b].insertHead(e);
-    count_[b]++;
+    CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+    CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    ++count_[b];
+    ++size_;
     return 1;
   } else {
     position->second = value.second;
@@ -328,7 +334,10 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
       ht_[b].remove(e);
       head_.tr_remove(e);
       delete e;
-      count_[b]--;
+      --count_[b];
+      --size_;
+      CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      CASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
   }
@@ -363,7 +372,7 @@ bool LinkedHt<K, V, H, E>::isNotNull() {
 }
 
 template <typename K, typename V, typename H, typename E>
-void LinkedHt<K, V, H, E>::extend(bool force, int n) {
+void LinkedHt<K, V, H, E>::extend(int n) {
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   CASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   CASSERT(n > 0, "n {} > 0", n);
@@ -371,7 +380,7 @@ void LinkedHt<K, V, H, E>::extend(bool force, int n) {
   if (n <= bucket_) {
     return;
   }
-  if (!force && loadFactor() < 4.0) {
+  if (!isNotNull() && loadFactor() < 4.0) {
     return;
   }
   LinkedNode<K, V> *new_ht =
@@ -394,7 +403,10 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
     LinkedNode<K, V> *e = ht_[i].removeTail();
     head_.tr_remove(e);
     delete e;
-    count_[i]--;
+    --count_[i];
+    --size_;
+    CASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
+    CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
   CASSERT(ht_[i].isNull(), "ht_[{}]#isNull: {}", i, ht_[i].isNull());
   CASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
