@@ -4,7 +4,6 @@
 #pragma once
 #include "LinkedHashMap.h"
 #include "Log.h"
-#include <cstdlib>
 
 namespace detail {
 
@@ -385,13 +384,10 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   if (isNotNull() && loadFactor() < 4.0) {
     return;
   }
-  LinkedNode<K, V> *ht =
-      (LinkedNode<K, V> *)std::malloc(n * sizeof(LinkedNode<K, V>));
-  int *count = (int *)std::malloc(n * sizeof(int));
+  LinkedNode<K, V> *ht = new LinkedNode<K, V>[n];
+  int *count = new int[n];
   CASSERT(ht, "ht is null");
   CASSERT(count, "count is null");
-  std::memset(ht, 0, n * sizeof(LinkedNode<K, V>));
-  std::memset(count, 0, n * sizeof(int));
   for (int i = 0; i < n; i++) {
     LinkedNode<K, V>::initializeList(ht[i]);
     count[i] = 0;
@@ -405,11 +401,11 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     }
   }
   if (ht_) {
-    std::free(ht_);
+    delete[] ht_;
     ht_ = nullptr;
   }
   if (count_) {
-    std::free(count_);
+    delete[] count_;
     count_ = nullptr;
   }
   ht_ = ht;
