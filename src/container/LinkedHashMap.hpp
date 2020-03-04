@@ -384,13 +384,29 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     return;
   }
   LinkedNode<K, V> *new_ht =
-      (LinkedNode<K, V> *)std::realloc(ht_, n * sizeof(LinkedNode<K, V>));
-  int *new_count = (int *)std::realloc(count_, n * sizeof(int));
+      (LinkedNode<K, V> *)std::malloc(n * sizeof(LinkedNode<K, V>));
+  int *new_count = (int *)std::malloc(n * sizeof(int));
   CASSERT(new_ht, "new_ht is null");
   CASSERT(new_count, "new_ht is null");
-  for (int i = bucket_; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     LinkedNode<K, V>::initializeList(new_ht[i]);
     new_count[i] = 0;
+  }
+  for (int i = 0; i < bucket_; i++) {
+    while (count_[i] > 0) {
+      LinkedNode<K, V> *e = ht_[i].removeHead();
+      int b = (int)hasher_(e->key()) % n;
+      new_ht[b].insertHead(e);
+      --count_[i];
+    }
+  }
+  if (ht_) {
+    std::free(ht_);
+    ht_ = nullptr;
+  }
+  if (count_) {
+    std::free(count_);
+    count_ = nullptr;
   }
   ht_ = new_ht;
   count_ = new_count;
