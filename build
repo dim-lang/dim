@@ -92,7 +92,7 @@ function init_linux() {
     fi
 }
 
-function init_all() {
+function init_common() {
     cd $ROOT
     echo [coli] prepare catchorg/Catch2 v2.9.1
     if [ ! -d test/Catch2 ]; then
@@ -113,6 +113,9 @@ function purge_all() {
     rm *.log >>/dev/null 2>&1
     if [ -d debug ]; then rm -rf debug>>/dev/null 2>&1; fi
     if [ -d release ]; then rm -rf release>>/dev/null 2>&1; fi
+    if [ -d src/spdlog ]; then rm -rf src/spdlog>>/dev/null 2>&1; fi
+    if [ -d src/fmt ]; then rm -rf src/fmt>>/dev/null 2>&1; fi
+    if [ -d test/Catch2 ]; then rm -rf test/Catch2 >>/dev/null 2>&1; fi
 }
 
 function build_generate() {
@@ -165,22 +168,23 @@ function build_routine() {
       *)        echo "[coli] Unknown OS: $FOS!" && exit 3 ;;
     esac
     echo [coli] build for $FOS, mode=$1, job=$2
-    init_all
+    init_common
     build_generate $1
     build_make $1 $2
 }
 
 function build_help() {
     echo [coli] help message:
-    echo   1. build help    - show help message.
-    echo   2. build init    - initialize third party dependencies.
-    echo   3. build debug   - build debug version.
-    echo   4. build release - build release version.
-    echo   5. build all     - build both debug and release version.
-    echo   6. build install - build and install.
-    echo   7. build test    - run unit tests.
-    echo   8. build clean   - clean build objects.
-    echo   9. build purge   - purge build objects.
+    echo   build -h/--help      - show help message.
+    echo   build --init         - initialize third party dependencies.
+    echo   build -r/--release   - build release.
+    echo   build -d/--debug     - build debug.
+    echo   build --trace        - build trace.
+    echo   build -j/--job [n]   - build with [n] worker threads.
+    echo   build -i/--install   - build release and install.
+    echo   build -t/--test      - run debug/trace unit tests.
+    echo   build -c/--clean     - clean make objects.
+    echo   build -p/--purge     - purge make objects/logs/cmake caches.
 }
 
 # ---- main ----
