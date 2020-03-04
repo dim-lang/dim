@@ -121,17 +121,17 @@ function build_generate() {
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
     case "$1" in
-        trace)
-            flex -d -o Token.yy.cpp Token.l
-            bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+        release)
+            flex -o Token.yy.cpp Token.l
+            bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         debug)
             flex -d -o Token.yy.cpp Token.l
             bison -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
-        release)
-            flex -o Token.yy.cpp Token.l
-            bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+        trace)
+            flex -d -o Token.yy.cpp Token.l
+            bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         *)
             echo [coli] unknown build_generate argument "$1"
@@ -143,12 +143,12 @@ function build_generate() {
 function build_make() {
     cd $ROOT
     if [ "$1" == "release" ]; then
-        if [ ! -d debug ]; then mkdir debug; fi
-        cd debug
-        cmake -DCMAKE_BUILD_TYPE=Release .. && make -j $2
-    else
         if [ ! -d release ]; then mkdir release; fi
         cd release
+        cmake -DCMAKE_BUILD_TYPE=Release .. && make -j $2
+    else
+        if [ ! -d debug ]; then mkdir debug; fi
+        cd debug
         cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && make VERBOSE=1 -j $2
     fi
     cd $ROOT
