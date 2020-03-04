@@ -11,13 +11,8 @@ namespace detail {
 // node
 template <typename K, typename V> class LinkedNode {
 public:
-  LinkedNode(LinkedNode<K, V> *prev = nullptr, LinkedNode<K, V> *next = nullptr,
-             LinkedNode<K, V> *tr_prev = nullptr,
-             LinkedNode<K, V> *tr_next = nullptr);
-  LinkedNode(const std::pair<const K, V> &value,
-             LinkedNode<K, V> *prev = nullptr, LinkedNode<K, V> *next = nullptr,
-             LinkedNode<K, V> *tr_prev = nullptr,
-             LinkedNode<K, V> *tr_next = nullptr);
+  LinkedNode();
+  LinkedNode(const std::pair<const K, V> &value);
   virtual ~LinkedNode();
 
   // copy
@@ -34,10 +29,10 @@ public:
   const LinkedNode<K, V> *prev() const;
   LinkedNode<K, V> *&next();
   const LinkedNode<K, V> *next() const;
-  LinkedNode<K, V> *&tr_prev();
-  const LinkedNode<K, V> *tr_prev() const;
-  LinkedNode<K, V> *&tr_next();
-  const LinkedNode<K, V> *tr_next() const;
+  LinkedNode<K, V> *&seq_prev();
+  const LinkedNode<K, V> *seq_prev() const;
+  LinkedNode<K, V> *&seq_next();
+  const LinkedNode<K, V> *seq_next() const;
 
   // list operation
   template <typename K1, typename V1>
@@ -51,16 +46,16 @@ public:
   LinkedNode<K, V> *removeTail();
   LinkedNode<K, V> *removeHead();
   void remove(LinkedNode<K, V> *e);
-  void tr_insertTail(LinkedNode<K, V> *e);
-  void tr_remove(LinkedNode<K, V> *e);
+  void seq_insert(LinkedNode<K, V> *e);
+  void seq_remove(LinkedNode<K, V> *e);
   bool isNull() const;
 
 private:
   std::pair<const K, V> value_;
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
-  LinkedNode<K, V> *tr_prev_;
-  LinkedNode<K, V> *tr_next_;
+  LinkedNode<K, V> *seq_prev_;
+  LinkedNode<K, V> *seq_next_;
 };
 
 // iterator

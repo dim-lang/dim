@@ -9,30 +9,25 @@
 namespace detail {
 
 template <typename K, typename V>
-LinkedNode<K, V>::LinkedNode(LinkedNode<K, V> *prev, LinkedNode<K, V> *next,
-                             LinkedNode<K, V> *tr_prev,
-                             LinkedNode<K, V> *tr_next)
-    : prev_(prev), next_(next), tr_prev_(tr_prev), tr_next_(tr_next) {}
+LinkedNode<K, V>::LinkedNode()
+    : prev_(nullptr), next_(nullptr), seq_prev_(nullptr), seq_next_(nullptr) {}
 
 template <typename K, typename V>
-LinkedNode<K, V>::LinkedNode(const std::pair<const K, V> &value,
-                             LinkedNode<K, V> *prev, LinkedNode<K, V> *next,
-                             LinkedNode<K, V> *tr_prev,
-                             LinkedNode<K, V> *tr_next)
-    : value_(value), prev_(prev), next_(next), tr_prev_(tr_prev),
-      tr_next_(tr_next) {}
+LinkedNode<K, V>::LinkedNode(const std::pair<const K, V> &value)
+    : value_(value), prev_(nullptr), next_(nullptr), seq_prev_(nullptr),
+      seq_next_(nullptr) {}
 
 template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
   prev_ = nullptr;
   next_ = nullptr;
-  tr_prev_ = nullptr;
-  tr_next_ = nullptr;
+  seq_prev_ = nullptr;
+  seq_next_ = nullptr;
 }
 
 template <typename K, typename V>
 LinkedNode<K, V>::LinkedNode(const LinkedNode<K, V> &other)
     : value_(other.value_), prev_(other.prev_), next_(other.next_),
-      tr_prev_(other.tr_prev_), tr_next_(other.tr_next_) {}
+      seq_prev_(other.seq_prev_), seq_next_(other.seq_next_) {}
 
 template <typename K, typename V>
 LinkedNode<K, V> &LinkedNode<K, V>::operator=(const LinkedNode<K, V> &other) {
@@ -42,8 +37,8 @@ LinkedNode<K, V> &LinkedNode<K, V>::operator=(const LinkedNode<K, V> &other) {
   value_ = other.value();
   prev_ = other.prev();
   next_ = other.next();
-  tr_prev_ = other.tr_prev();
-  tr_next_ = other.tr_next();
+  seq_prev_ = other.seq_prev();
+  seq_next_ = other.seq_next();
   return *this;
 }
 
@@ -88,23 +83,23 @@ const LinkedNode<K, V> *LinkedNode<K, V>::next() const {
 }
 
 template <typename K, typename V>
-LinkedNode<K, V> *&LinkedNode<K, V>::tr_prev() {
-  return tr_prev_;
+LinkedNode<K, V> *&LinkedNode<K, V>::seq_prev() {
+  return seq_prev_;
 }
 
 template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::tr_prev() const {
-  return tr_prev_;
+const LinkedNode<K, V> *LinkedNode<K, V>::seq_prev() const {
+  return seq_prev_;
 }
 
 template <typename K, typename V>
-LinkedNode<K, V> *&LinkedNode<K, V>::tr_next() {
-  return tr_next_;
+LinkedNode<K, V> *&LinkedNode<K, V>::seq_next() {
+  return seq_next_;
 }
 
 template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::tr_next() const {
-  return tr_next_;
+const LinkedNode<K, V> *LinkedNode<K, V>::seq_next() const {
+  return seq_next_;
 }
 
 // list operation
@@ -115,8 +110,8 @@ void LinkedNode<K, V>::initializeList(LinkedNode<K1, V1> &l) {
   CASSERT(!l.next(), "l#next {} is null", (void *)l.next());
   l.prev() = &l;
   l.next() = &l;
-  l.tr_prev() = &l;
-  l.tr_next() = &l;
+  l.seq_prev() = &l;
+  l.seq_next() = &l;
 }
 
 template <typename K, typename V> LinkedNode<K, V> *&LinkedNode<K, V>::head() {
@@ -187,36 +182,37 @@ void LinkedNode<K, V>::remove(LinkedNode<K, V> *e) {
 }
 
 template <typename K, typename V>
-void LinkedNode<K, V>::tr_insertTail(LinkedNode<K, V> *e) {
-  e->tr_prev() = tr_prev_;
-  e->tr_next() = this;
-  tr_prev_->tr_next() = e;
-  tr_prev_ = e;
+void LinkedNode<K, V>::seq_insert(LinkedNode<K, V> *e) {
+  e->seq_prev() = seq_prev_;
+  e->seq_next() = this;
+  seq_prev_->seq_next() = e;
+  seq_prev_ = e;
 }
 
 template <typename K, typename V>
-void LinkedNode<K, V>::tr_remove(LinkedNode<K, V> *e) {
+void LinkedNode<K, V>::seq_remove(LinkedNode<K, V> *e) {
   if (isNull()) {
     return;
   }
-  e->tr_prev()->tr_next() = e->tr_next();
-  e->tr_next()->tr_prev() = e->tr_prev();
-  e->tr_prev() = nullptr;
-  e->tr_next() = nullptr;
+  e->seq_prev()->seq_next() = e->seq_next();
+  e->seq_next()->seq_prev() = e->seq_prev();
+  e->seq_prev() = nullptr;
+  e->seq_next() = nullptr;
 }
 
 template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
-  CASSERT(prev_ && next_ && tr_prev_ && tr_next_,
-          "prev_ {}, next_ {}, tr_prev_ {}, tr_next_ {} is null", (void *)prev_,
-          (void *)next_, (void *)tr_prev_, (void *)tr_next_);
-  CASSERT((prev_ == this && next_ == this && tr_prev_ == this &&
-           tr_next_ == this) ||
-              (prev_ != this && next_ != this && tr_prev_ != this &&
-               tr_next_ != this),
-          "this: {}, prev_: {}, next_: {}, tr_prev_: {}, tr_next_: {}",
-          (void *)this, (void *)prev_, (void *)next_, (void *)tr_prev_,
-          (void *)tr_next_);
-  return prev_ == this && next_ == this && tr_prev_ == this && tr_next_ == this;
+  CASSERT(prev_ && next_ && seq_prev_ && seq_next_,
+          "prev_ {}, next_ {}, seq_prev_ {}, seq_next_ {} is null",
+          (void *)prev_, (void *)next_, (void *)seq_prev_, (void *)seq_next_);
+  CASSERT((prev_ == this && next_ == this && seq_prev_ == this &&
+           seq_next_ == this) ||
+              (prev_ != this && next_ != this && seq_prev_ != this &&
+               seq_next_ != this),
+          "this: {}, prev_: {}, next_: {}, seq_prev_: {}, seq_next_: {}",
+          (void *)this, (void *)prev_, (void *)next_, (void *)seq_prev_,
+          (void *)seq_next_);
+  return prev_ == this && next_ == this && seq_prev_ == this &&
+         seq_next_ == this;
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -290,6 +286,7 @@ void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
   int b = (int)hasher_(value.first) % bucket_;
   ht_[b].insertHead(e);
+  head_.seq_insert(e);
   CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   ++count_[b];
@@ -304,6 +301,7 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
     int b = (int)hasher_(value.first) % bucket_;
     ht_[b].insertHead(e);
+    head_.seq_insert(e);
     CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
     CASSERT(size_ >= 0, "size_ {} >= 0", size_);
     ++count_[b];
@@ -334,7 +332,7 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
   while (e != &ht_[b]) {
     if (equal_(e->key(), position->first)) {
       ht_[b].remove(e);
-      head_.tr_remove(e);
+      head_.seq_remove(e);
       delete e;
       --count_[b];
       --size_;
@@ -382,7 +380,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   if (n <= bucket_) {
     return;
   }
-  if (!isNotNull() && loadFactor() < 4.0) {
+  if (isNotNull() && loadFactor() < 4.0) {
     return;
   }
   LinkedNode<K, V> *new_ht =
@@ -419,7 +417,7 @@ template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::destroyList(int i) {
   while (ht_[i].next() != &ht_[i]) {
     LinkedNode<K, V> *e = ht_[i].removeTail();
-    head_.tr_remove(e);
+    head_.seq_remove(e);
     delete e;
     --count_[i];
     --size_;
