@@ -108,6 +108,8 @@ template <typename K1, typename V1>
 void LinkedNode<K, V>::initializeList(LinkedNode<K1, V1> &l) {
   CASSERT(!l.prev(), "l#prev {} is null", (void *)l.prev());
   CASSERT(!l.next(), "l#next {} is null", (void *)l.next());
+  CASSERT(!l.seq_prev(), "l#seq_prev {} is null", (void *)l.seq_prev());
+  CASSERT(!l.seq_next(), "l#seq_next {} is null", (void *)l.seq_next());
   l.prev() = &l;
   l.next() = &l;
   l.seq_prev() = &l;
@@ -383,20 +385,22 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   if (isNotNull() && loadFactor() < 4.0) {
     return;
   }
-  LinkedNode<K, V> *new_ht =
+  LinkedNode<K, V> *ht =
       (LinkedNode<K, V> *)std::malloc(n * sizeof(LinkedNode<K, V>));
-  int *new_count = (int *)std::malloc(n * sizeof(int));
-  CASSERT(new_ht, "new_ht is null");
-  CASSERT(new_count, "new_ht is null");
+  int *count = (int *)std::malloc(n * sizeof(int));
+  CASSERT(ht, "ht is null");
+  CASSERT(count, "count is null");
+  std::memset(ht, 0, n * sizeof(LinkedNode<K, V>));
+  std::memset(count, 0, n * sizeof(int));
   for (int i = 0; i < n; i++) {
-    LinkedNode<K, V>::initializeList(new_ht[i]);
-    new_count[i] = 0;
+    LinkedNode<K, V>::initializeList(ht[i]);
+    count[i] = 0;
   }
   for (int i = 0; i < bucket_; i++) {
     while (count_[i] > 0) {
       LinkedNode<K, V> *e = ht_[i].removeHead();
       int b = (int)hasher_(e->key()) % n;
-      new_ht[b].insertHead(e);
+      ht[b].insertHead(e);
       --count_[i];
     }
   }
@@ -408,8 +412,8 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     std::free(count_);
     count_ = nullptr;
   }
-  ht_ = new_ht;
-  count_ = new_count;
+  ht_ = ht;
+  count_ = count;
   bucket_ = n;
 }
 
