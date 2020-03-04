@@ -3,6 +3,7 @@
 
 #include "container/LinkedHashMap.h"
 #include "Log.h"
+#include "boost/preprocessor/stringize.hpp"
 #include "catch2/catch.hpp"
 #include "container/LinkedHashMap.hpp"
 #include <string>
@@ -14,6 +15,9 @@
     REQUIRE(hm1.bucket() == 0);                                                \
     REQUIRE(hm1.empty());                                                      \
     REQUIRE(hm1.loadFactor() == 0.0);                                          \
+    CINFO("CONSTRUCTOR_UNIT: a:{}, b:{}, hm1.begin:{}, hm1.end: {}",           \
+          BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b),                        \
+          hm1.begin().toString(), hm1.end().toString());                       \
     REQUIRE(hm1.begin() == hm1.end());                                         \
                                                                                \
     LinkedHashMap<a, b> hm2(100);                                              \
@@ -22,6 +26,9 @@
     REQUIRE(hm2.empty());                                                      \
     REQUIRE(hm2.loadFactor() == 0.0);                                          \
     REQUIRE(hm2.begin() == hm2.end());                                         \
+    CINFO("CONSTRUCTOR_UNIT: a:{}, b:{}, hm2.begin:{}, hm2.end: {}",           \
+          BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b),                        \
+          hm2.begin().toString(), hm2.end().toString());                       \
   } while (0)
 
 struct LHMTester {

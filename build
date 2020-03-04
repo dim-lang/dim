@@ -165,6 +165,7 @@ function build_routine() {
       *)        echo "[coli] Unknown OS: $FOS!" && exit 3 ;;
     esac
     echo [coli] build for $FOS, mode=$1, job=$2
+    init_all
     build_generate $1
     build_make $1 $2
 }
@@ -211,7 +212,6 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         --init)
-            init_all
             case "$FOS" in
               darwin*)  init_macos ;;
               linux*)   init_linux ;;
@@ -220,7 +220,7 @@ while [[ $# -gt 0 ]]; do
             esac
             exit 0
             ;;
-        --debug)
+        -d|--debug)
             BUILD_TYPE=debug
             shift
             ;;
@@ -228,7 +228,7 @@ while [[ $# -gt 0 ]]; do
             BUILD_TYPE=trace
             shift
             ;;
-        --release)
+        -r|--release)
             BUILD_TYPE=release
             shift
             ;;

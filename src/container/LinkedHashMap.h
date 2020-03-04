@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "interface/Stringify.h"
 #include <functional>
 #include <utility>
 
@@ -63,7 +64,7 @@ private:
 };
 
 // iterator
-template <typename K, typename V> class LinkedIterator {
+template <typename K, typename V> class LinkedIterator : public Stringify {
 public:
   LinkedIterator(LinkedNode<K, V> *node);
   virtual ~LinkedIterator();
@@ -78,6 +79,7 @@ public:
   bool operator!() const;
   LinkedNode<K, V> &operator*();
   LinkedNode<K, V> *operator->();
+  virtual std::string toString() const;
 
 private:
   LinkedNode<K, V> *node_;

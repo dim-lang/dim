@@ -222,7 +222,9 @@ template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt()
     : hasher_(), equal_(), head_(), ht_(nullptr), count_(nullptr), bucket_(0),
-      size_(0) {}
+      size_(0) {
+  LinkedNode<K, V>::initializeList(head_);
+}
 
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt(int bucket) : LinkedHt() {
@@ -496,6 +498,11 @@ LinkedNode<K, V> &LinkedIterator<K, V>::operator*() {
 template <typename K, typename V>
 LinkedNode<K, V> *LinkedIterator<K, V>::operator->() {
   return node_;
+}
+
+template <typename K, typename V>
+std::string LinkedIterator<K, V>::toString() const {
+  return fmt::format("[ @LinkedIterator node_:{} ]", (void *)node_);
 }
 
 } // namespace detail
