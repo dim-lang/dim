@@ -8,22 +8,22 @@
 #include <cstddef>
 #include <cstdint>
 
-#define TEST_MAX 16384 * 7
+#define TEST_MAX 16384
 
-#define assertValid(i, IntType, Name)                                          \
+#define TEST_INT(T, a, b)                                                      \
   do {                                                                         \
-    IntType a = BOOST_PP_CAT(Random::next, Name)();                            \
-    IntType b = BOOST_PP_CAT(Random::next, Name)(i);                           \
-    IntType c =                                                                \
-        BOOST_PP_CAT(Random::next, Name)(std::min(a, b), std::max(a, b));      \
-    REQUIRE(a >= 0);                                                           \
-    REQUIRE(a < std::numeric_limits<IntType>::max());                          \
-    REQUIRE(b >= 0);                                                           \
-    if (i > 0) {                                                               \
-      REQUIRE(b < i);                                                          \
+    RandomInt<T> rand;                                                         \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      T t = rand.next();                                                       \
+      REQUIRE(t >= 0);                                                         \
+      REQUIRE(t < std::numeric_limits<T>::max());                              \
     }                                                                          \
-    REQUIRE(c >= std::min(a, b));                                              \
-    REQUIRE(c < std::max(a, b));                                               \
+    RandomInt<T> rand(a, b);                                                   \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      T t = rand.next();                                                       \
+      REQUIRE(t >= a);                                                         \
+      REQUIRE(t < b);                                                          \
+    }                                                                          \
   } while (0)
 
 #define assertLiteral(U, V, P)                                                 \
@@ -38,68 +38,45 @@
     }                                                                          \
   }
 
+#define TEST_LITERAL(f, p)                                                     \
+  do {                                                                         \
+    RandomChar rc;                                                             \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      char c = rc.f();                                                         \
+      REQUIRE(p(c));                                                           \
+    }                                                                          \
+    RandomString rs;                                                           \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      std::string s = rs.f(i + 1);                                             \
+      for (int j = 0; j < s.length(); j++) {                                   \
+        REQUIRE(p(s[j]));                                                      \
+      }                                                                        \
+    }                                                                          \
+  } while (0)
+
 TEST_CASE("Random", "[Random]") {
   Random::initialize();
 
-  SECTION("int") {
-    INFO("int");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, int, Int);
-    }
+  SECTION("integer") {
+    TEST_INT(short, -1023, 193);
+    TEST_INT(unsigned short, 38, 193);
+    TEST_INT(int, 1023, 9331193);
+    TEST_INT(unsigned int, 138, 44193);
+    TEST_INT(long, -94L, 9393L);
+    TEST_INT(unsigned long, 8138L, 4483193L);
+    TEST_INT(long long, -9394LL, 129393LL);
+    TEST_INT(unsigned long long, 288138LL, 844483193LL);
   }
 
-  SECTION("unsigned int") {
-    INFO("unsigned int");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, unsigned int, UInt);
-    }
-  }
-
-  SECTION("long") {
-    INFO("long");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, long, Long);
-    }
-  }
-
-  SECTION("unsigned long") {
-    INFO("unsigned long");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, unsigned long, ULong);
-    }
-  }
-
-  SECTION("long long") {
-    INFO("long long");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, long long, LLong);
-    }
-  }
-
-  SECTION("unsigned long long") {
-    INFO("unsigned long long");
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {
-      assertValid(i, unsigned long long, ULLong);
-    }
-  }
-
-  SECTION("alpha") {
-    // alpha
-    assertLiteral(Random::nextAlphaChar, Random::nextAlpha, std::isalpha);
-    // digit
-    assertLiteral(Random::nextDigitChar, Random::nextDigit, std::isdigit);
-    // hex
-    assertLiteral(Random::nextHexChar, Random::nextHex, std::isxdigit);
-    // alpha numeric
-    assertLiteral(Random::nextAlphaNumericChar, Random::nextAlphaNumeric,
-                  std::isalnum);
-    // punctuation
-    assertLiteral(Random::nextPunctuationChar, Random::nextPunctuation,
-                  std::ispunct);
-    // printable
-    assertLiteral(Random::nextPrintableChar, Random::nextPrintable,
-                  std::isprint);
-    // control
-    assertLiteral(Random::nextControlChar, Random::nextControl, std::iscntrl);
+  SECTION("literal") {
+    TEST_LITERAL(nextAlpha, std::isalpha);
+    TEST_LITERAL(nextAlnum, std::isalnum);
+    TEST_LITERAL(nextDigit, std::isdigit);
+    TEST_LITERAL(nextHex, std::isxdigit);
+    TEST_LITERAL(nextPunct, std::ispunct);
+    TEST_LITERAL(nextPrint, std::isprint);
+    TEST_LITERAL(nextWhitespace, std::isspace);
+    TEST_LITERAL(nextCtrl, std::iscntrl);
+    TEST_LITERAL(nextAscii, std::isascii);
   }
 }
