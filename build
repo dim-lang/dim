@@ -94,11 +94,11 @@ function init_linux() {
 
 function init_common() {
     cd $ROOT
-    echo [coli] prepare catchorg/Catch2 v2.9.1
     if [ ! -d test/Catch2 ]; then
+        echo [coli] prepare catchorg/Catch2 v2.9.1
         cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
+        echo [coli] prepare catchorg/Catch2 v2.9.1 - done
     fi
-    echo [coli] prepare catchorg/Catch2 v2.9.1 - done
 }
 
 function clean_all() {
