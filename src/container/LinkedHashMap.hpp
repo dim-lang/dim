@@ -217,14 +217,15 @@ template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedHt<K, V, H, E>::LinkedHt()
+LinkedHt<K, V, H, E>::LinkedHt(double threshold)
     : hasher_(), equal_(), head_(), ht_(nullptr), count_(nullptr), bucket_(0),
-      size_(0) {
+      size_(0), threshold_(threshold) {
   LinkedNode<K, V>::initializeList(head_);
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedHt<K, V, H, E>::LinkedHt(int bucket) : LinkedHt() {
+LinkedHt<K, V, H, E>::LinkedHt(int bucket, double threshold)
+    : LinkedHt(threshold) {
   CASSERT(bucket > 0, "bucket {} > 0", bucket);
   extend(bucket);
 }
@@ -251,8 +252,18 @@ int LinkedHt<K, V, H, E>::bucket() const {
 }
 
 template <typename K, typename V, typename H, typename E>
-double LinkedHt<K, V, H, E>::loadFactor() const {
+double LinkedHt<K, V, H, E>::load() const {
   return empty() ? 0.0 : ((double)size_ / (double)bucket_);
+}
+
+template <typename K, typename V, typename H, typename E>
+const double &LinkedHt<K, V, H, E>::threshold() const {
+  return threshold_;
+}
+
+template <typename K, typename V, typename H, typename E>
+double &LinkedHt<K, V, H, E>::threshold() {
+  return threshold_;
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -377,11 +388,11 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   CASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   CASSERT(n > 0, "n {} > 0", n);
-  n = std::max(16, n);
+  n = std::max(8, n / 8 * 8 + 8);
   if (n <= bucket_) {
     return;
   }
-  if (isNotNull() && loadFactor() < 4.0) {
+  if (isNotNull() && load() < 4.0) {
     return;
   }
   LinkedNode<K, V> *ht = new LinkedNode<K, V>[n];
@@ -506,10 +517,11 @@ std::string LinkedIterator<K, V>::toString() const {
 } // namespace detail
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::LinkedHashMap() : ht_() {}
+LinkedHashMap<K, V, H, E>::LinkedHashMap(double threshold) : ht_(threshold) {}
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::LinkedHashMap(int bucket) : ht_(bucket) {}
+LinkedHashMap<K, V, H, E>::LinkedHashMap(int bucket, double threshold)
+    : ht_(bucket, threshold) {}
 
 template <typename K, typename V, typename H, typename E>
 LinkedHashMap<K, V, H, E>::~LinkedHashMap() {}
@@ -530,8 +542,18 @@ int LinkedHashMap<K, V, H, E>::bucket() const {
 }
 
 template <typename K, typename V, typename H, typename E>
-double LinkedHashMap<K, V, H, E>::loadFactor() const {
-  return ht_.loadFactor();
+double LinkedHashMap<K, V, H, E>::load() const {
+  return ht_.load();
+}
+
+template <typename K, typename V, typename H, typename E>
+const double &LinkedHashMap<K, V, H, E>::threshold() const {
+  return ht_.threshold();
+}
+
+template <typename K, typename V, typename H, typename E>
+double &LinkedHashMap<K, V, H, E>::threshold() {
+  return ht_.threshold();
 }
 
 template <typename K, typename V, typename H, typename E>

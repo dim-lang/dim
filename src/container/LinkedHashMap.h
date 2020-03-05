@@ -83,13 +83,15 @@ private:
 // hash table
 template <typename K, typename V, typename H, typename E> class LinkedHt {
 public:
-  LinkedHt();
-  LinkedHt(int bucket);
+  LinkedHt(double threshold);
+  LinkedHt(int bucket, double threshold);
   virtual ~LinkedHt();
   bool empty() const;
   int size() const;
   int bucket() const;
-  double loadFactor() const;
+  double load() const;
+  const double &threshold() const;
+  double &threshold();
   void clear();
   void release();
   void insert(const std::pair<const K, V> &value);
@@ -113,6 +115,7 @@ private:
   int *count_;           // node count in list
   int bucket_;           // hash table array capacity
   int size_;             // hash table node count
+  double threshold_;     // load factor threshold
 };
 
 } // namespace detail
@@ -124,13 +127,15 @@ public:
   using Iterator = typename detail::LinkedIterator<K, V>;
   using CIterator = typename detail::LinkedIterator<K, V> const;
 
-  LinkedHashMap();
-  LinkedHashMap(int bucket);
+  LinkedHashMap(double load = 4.0);
+  LinkedHashMap(int bucket, double load = 4.0);
   virtual ~LinkedHashMap();
   bool empty() const;
   int size() const;
   int bucket() const;
-  double loadFactor() const;
+  double load() const;
+  const double &threshold() const;
+  double &threshold();
   void clear();
   void release();
   Iterator begin();
@@ -140,12 +145,21 @@ public:
 
   void insert(const K &key, const V &mapped);
   void insert(const std::pair<const K, V> &value);
+
+  // return   1 if insert, 0 if assign
   int insertOrAssign(const K &key, const V &mapped);
   int insertOrAssign(const std::pair<const K, V> &value);
+
+  // return   0 if success, -1 if not exist
   int remove(const K &key);
   int remove(Iterator position);
+
+  // return   true if exist, false if not exist
   bool exist(const K &key) const;
+
+  // return   this->end() if not found, other if found
   Iterator find(const K &key) const;
+
   V &operator[](const K &key);
   const V &operator[](const K &key) const;
 

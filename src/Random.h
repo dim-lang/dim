@@ -3,92 +3,84 @@
 
 #pragma once
 #include "Log.h"
-#include "boost/preprocessor/cat.hpp"
-#include "unicode/uchar.h"
-#include "unicode/unistr.h"
-#include "unicode/ustdio.h"
-#include "unicode/ustring.h"
-#include "unicode/utypes.h"
 #include <cstdint>
 #include <cstring>
 #include <limits>
 #include <random>
 #include <string>
 
-class Random {
+template <typename T> class RandomInt {
 public:
-  static void initialize();
-
-#define FDECL_RAND(Type, Name)                                                 \
-  static Type BOOST_PP_CAT(next, Name)(Type right =                            \
-                                           std::numeric_limits<Type>::max());  \
-  static Type BOOST_PP_CAT(next, Name)(Type left, Type right)
-
-  /**
-   * generate API like:
-   *
-   * @return  random integer range in [0, right)
-   * static int nextInt(int right = std::numeric_limits<int>::max());
-   *
-   * @return  random integer range in [left, right)
-   * static int nextInt(int left, int right);
-   */
-
-  FDECL_RAND(short, Short);
-  FDECL_RAND(unsigned short, UShort);
-  FDECL_RAND(int, Int);
-  FDECL_RAND(unsigned int, UInt);
-  FDECL_RAND(long, Long);
-  FDECL_RAND(unsigned long, ULong);
-  FDECL_RAND(long long, LLong);
-  FDECL_RAND(unsigned long long, ULLong);
-
-#undef FDECL_RAND
-
-  static icu::UnicodeString nextAlpha(int len = 1);
-  static icu::UnicodeString nextAlphaNumeric(int len = 1);
-  static icu::UnicodeString nextDigit(int len = 1);
-  static icu::UnicodeString nextHex(int len = 1);
-  static icu::UnicodeString nextPunctuation(int len = 1);
-  static icu::UnicodeString nextPrintable(int len = 1);
-  static icu::UnicodeString nextWhitespace(int len = 1);
-  static icu::UnicodeString nextControl(int len = 1);
-  static icu::UnicodeString nextAscii(int len = 1);
-  static icu::UnicodeString nextString(const UChar *candidates, int n,
-                                       int len = 1);
-  static icu::UnicodeString nextString(const icu::UnicodeString &candidates,
-                                       int len = 1);
-
-  static UChar nextAlphaChar();
-  static UChar nextAlphaNumericChar();
-  static UChar nextDigitChar();
-  static UChar nextHexChar();
-  static UChar nextPunctuationChar();
-  static UChar nextPrintableChar();
-  static UChar nextWhitespaceChar();
-  static UChar nextControlChar();
-  static UChar nextAsciiChar();
-  static UChar nextChar(const UChar *candidates, int n);
-  static UChar nextChar(const icu::UnicodeString &candidates);
+  // [0, b)
+  RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
+  // [a, b)
+  RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
+    CASSERT(b >= a, "b {} >= a {}", b, a);
+  }
+  virtual ~RandomInt() = default;
+  T next() { return dist_(engine_); }
 
 private:
-  static UChar nextCharImpl(const std::vector<std::pair<int, int>> &range,
-                            int n);
-  static icu::UnicodeString
-  nextStringImpl(const std::vector<std::pair<int, int>> &range, int n, int len);
+  std::random_device device_;
+  std::mt19937 engine_;
+  std::uniform_int_distribution<T> dist_;
+};
 
-  static std::random_device &device();
-  static std::mt19937 &engine();
-  static std::uniform_int_distribution<long> &longDistribution();
-  static std::uniform_int_distribution<unsigned long> &ulongDistribution();
-  static std::uniform_int_distribution<long long> &llongDistribution();
-  static std::uniform_int_distribution<unsigned long long> &
-  ullongDistribution();
+template <typename T> class RandomReal {
+public:
+  // [0, b)
+  RandomReal(T b = (T)1.0) : RandomReal((T)0.0, b) {}
+  // [a, b)
+  RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
+    CASSERT(b >= a, "b {} >= a {}", b, a);
+  }
+  virtual ~RandomReal() = default;
+  T next() { return dist_(engine_); }
 
-  static std::random_device *device_;
-  static std::mt19937 *engine_;
-  static std::uniform_int_distribution<long> *longDist_;
-  static std::uniform_int_distribution<unsigned long> *ulongDist_;
-  static std::uniform_int_distribution<long long> *llongDist_;
-  static std::uniform_int_distribution<unsigned long long> *ullongDist_;
+private:
+  std::random_device device_;
+  std::mt19937 engine_;
+  std::uniform_real_distribution<T> dist_;
+};
+
+class RandomChar {
+public:
+  RandomChar();
+  virtual ~RandomChar() = default;
+
+  char nextAlpha();
+  char nextAlnum();
+  char nextDigit();
+  char nextHex();
+  char nextPunct();
+  char nextPrint();
+  char nextWhitespace();
+  char nextCtrl();
+  char nextAscii();
+  char next(const char *candidates, int n);
+  char next(const std::string &candidates);
+
+private:
+  RandomInt<unsigned long> randint_;
+};
+
+class RandomString {
+public:
+  RandomString();
+  virtual ~RandomString() = default;
+
+  std::string nextAlpha(int n = 1);
+  std::string nextAlnum(int n = 1);
+  std::string nextDigit(int n = 1);
+  std::string nextHex(int n = 1);
+  std::string nextPunct(int n = 1);
+  std::string nextPrint(int n = 1);
+  std::string nextWhitespace(int n = 1);
+  std::string nextCtrl(int n = 1);
+  std::string nextAscii(int n = 1);
+  std::string next(const char *candidates, int c, int n = 1);
+  std::string next(const std::string &candidates, int n = 1);
+
+private:
+  RandomChar randchar_;
 };
