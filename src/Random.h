@@ -66,25 +66,6 @@ private:
   std::uniform_real_distribution<double> dist_;
 };
 
-template <typename T> class RandomReal {
-public:
-  // [0, b)
-  RandomReal(T b = (T)1.0) : RandomReal((T)0.0, b) {}
-  // [a, b)
-  RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    CASSERT(b > a, "b {} > a {}", b, a);
-  }
-  virtual ~RandomReal() = default;
-  T next() { return dist_(engine_); }
-  T min() const { return dist_.min(); }
-  T max() const { return dist_.max(); }
-
-private:
-  std::random_device device_;
-  std::mt19937 engine_;
-  std::uniform_real_distribution<T> dist_;
-};
-
 class RandomChar {
 public:
   RandomChar();
