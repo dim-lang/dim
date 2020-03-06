@@ -34,9 +34,8 @@ static const int CtrlLength = 32 - 0 + 128 - 127;
 static const std::vector<std::pair<int, int>> PrintRange = {{32, 127}};
 static const int PrintLength = 127 - 32;
 
-static const std::vector<std::pair<int, int>> WhitespaceRange = {{9, 14},
-                                                                 {32, 33}};
-static const int WhitespaceLength = 14 - 9 + 33 - 32;
+static const std::vector<std::pair<int, int>> SpaceRange = {{9, 14}, {32, 33}};
+static const int SpaceLength = 14 - 9 + 33 - 32;
 
 static const std::vector<std::pair<int, int>> AsciiRange = {{0, 128}};
 static const int AsciiLength = 128 - 0;
@@ -88,8 +87,8 @@ char RandomChar::nextPrint() {
   return nextCharImpl(PrintRange, PrintLength, randint_);
 }
 
-char RandomChar::nextWhitespace() {
-  return nextCharImpl(WhitespaceRange, WhitespaceLength, randint_);
+char RandomChar::nextSpace() {
+  return nextCharImpl(SpaceRange, SpaceLength, randint_);
 }
 
 char RandomChar::nextCtrl() {
@@ -133,9 +132,7 @@ std::string RandomString::nextPunct(int n) { NEXT_STRING_IMPL(nextPunct, n); }
 
 std::string RandomString::nextPrint(int n) { NEXT_STRING_IMPL(nextPrint, n); }
 
-std::string RandomString::nextWhitespace(int n) {
-  NEXT_STRING_IMPL(nextWhitespace, n);
-}
+std::string RandomString::nextSpace(int n) { NEXT_STRING_IMPL(nextSpace, n); }
 
 std::string RandomString::nextCtrl(int n) { NEXT_STRING_IMPL(nextCtrl, n); }
 

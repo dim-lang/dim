@@ -9,6 +9,36 @@
 #include "container/LinkedHashMap.hpp"
 #include <string>
 
+struct LHMTester {
+  std::string name;
+  int age;
+  int score;
+
+  LHMTester() : name("name"), age(1), score(1) {}
+  LHMTester(const std::string &a_name, int a_age, int a_score)
+      : name(a_name), age(a_age), score(a_score) {}
+
+  bool operator==(const LHMTester &other) const {
+    return name == other.name && age == other.age && score == other.score;
+  }
+  bool operator!=(const LHMTester &other) const {
+    return name != other.name || age != other.age || score != other.score;
+  }
+};
+
+namespace std {
+
+template <> struct hash<LHMTester> {
+public:
+  std::size_t operator()(const LHMTester &t) const {
+    std::hash<int> h1;
+    std::hash<std::string> h2;
+    return h1(t.age) ^ h1(t.score) ^ h2(t.name);
+  }
+};
+
+} // namespace std
+
 template <typename A, typename B> void testConstructor(A a, B b) {
   LinkedHashMap<A, B> hm1;
   REQUIRE(hm1.size() == 0);
@@ -34,7 +64,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
 }
 
 template <typename A> void testInsert(A a, A b) {
-  LinkedHashMap<A, B> hm1;
+  LinkedHashMap<A, A> hm1;
   int c = 0;
   for (int i = (int)a; i < (int)b; i++) {
     if (i % 2 == 0) {
@@ -52,47 +82,46 @@ template <typename A> void testInsert(A a, A b) {
 }
 
 template <> void testInsert(std::string a, std::string b) {
-  LinkedHashMap<A, B> hm1;
+  RandomString rs;
+  LinkedHashMap<std::string, std::string> hm1;
   int c = 0;
   for (int i = 0; i < 64; i++) {
+    std::string kv = rs.nextAlnum(i + 1);
     if (i % 2 == 0) {
-      hm1.insert((A)i, (A)i);
+      hm1.insert(kv, kv);
     } else {
-      hm1.insert(std::make_pair((A)i, (A)i));
+      hm1.insert(std::make_pair(kv, kv));
     }
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
     REQUIRE(hm1.load() <= hm1.threshold());
-    REQUIRE(hm1[(A)i] == (A)i);
+    REQUIRE(hm1[kv] == kv);
   }
 }
 
-struct LHMTester {
-  std::string name;
-  int age;
-  int score;
-  bool operator==(const LHMTester &other) const {
-    return name == other.name && age == other.age && score == other.score;
+template <> void testInsert(LHMTester a, LHMTester b) {
+  RandomString r1;
+  RandomInt<int> r2;
+  LinkedHashMap<LHMTester, LHMTester> hm1;
+  int c = 0;
+  for (int i = 0; i < 64; i++) {
+    std::string p = r1.nextAlnum(i + 1);
+    int q = r2.next();
+    if (i % 2 == 0) {
+      hm1.insert(LHMTester(p, q, q), LHMTester(p, q, q));
+    } else {
+      hm1.insert(std::make_pair(LHMTester(p, q, q), LHMTester(p, q, q)));
+    }
+    ++c;
+    REQUIRE(hm1.size() == c);
+    REQUIRE(hm1.bucket() > 0);
+    REQUIRE(!hm1.empty());
+    REQUIRE(hm1.load() <= hm1.threshold());
+    REQUIRE(hm1[LHMTester(p, q, q)] == LHMTester(p, q, q));
   }
-  bool operator!=(const LHMTester &other) const {
-    return name != other.name || age != other.age || score != other.score;
-  }
-};
-
-namespace std {
-
-template <> struct hash<LHMTester> {
-public:
-  std::size_t operator()(const LHMTester &t) const {
-    std::hash<int> h1;
-    std::hash<std::string> h2;
-    return h1(t.age) ^ h1(t.score) ^ h2(t.name);
-  }
-};
-
-} // namespace std
+}
 
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("constructor") {
@@ -121,6 +150,6 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
     testInsert((long long)1, (long long)1);
     testInsert((unsigned long long)1, (unsigned long long)1);
     testInsert(std::string("1"), std::string("1"));
-    testInsert(LHMTester(), (int)1);
+    testInsert(LHMTester(), LHMTester());
   }
 }

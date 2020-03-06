@@ -1,6 +1,5 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
-
 #pragma once
 #include "interface/Stringify.h"
 #include <functional>
@@ -72,8 +71,10 @@ public:
   bool operator==(const LinkedIterator<K, V> &other) const;
   bool operator!=(const LinkedIterator<K, V> &other) const;
   bool operator!() const;
-  LinkedNode<K, V> &operator*();
-  LinkedNode<K, V> *operator->();
+  std::pair<const K, V> &operator*();
+  const std::pair<const K, V> &operator*() const;
+  std::pair<const K, V> *operator->();
+  const std::pair<const K, V> *operator->() const;
   virtual std::string toString() const;
 
 private:
@@ -164,5 +165,5 @@ public:
   const V &operator[](const K &key) const;
 
 private:
-  detail::LinkedHt<K, V, H, E> ht_;
+  detail::LinkedHt<K, V, H, E> hm_;
 };

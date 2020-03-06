@@ -10,73 +10,73 @@
 
 #define TEST_MAX 16384
 
-#define TEST_INT(T, a, b)                                                      \
-  do {                                                                         \
-    RandomInt<T> rand;                                                         \
-    for (int i = 0; i < TEST_MAX; i++) {                                       \
-      T t = rand.next();                                                       \
-      REQUIRE(t >= 0);                                                         \
-      REQUIRE(t < std::numeric_limits<T>::max());                              \
-    }                                                                          \
-    RandomInt<T> rand(a, b);                                                   \
-    for (int i = 0; i < TEST_MAX; i++) {                                       \
-      T t = rand.next();                                                       \
-      REQUIRE(t >= a);                                                         \
-      REQUIRE(t < b);                                                          \
-    }                                                                          \
-  } while (0)
-
-#define assertLiteral(U, V, P)                                                 \
-  {                                                                            \
-    for (int i = 0; i < TEST_MAX; i = std::max(i * 3, i + 1)) {                \
-      UChar c = U();                                                           \
-      icu::UnicodeString s = V(i + 1);                                         \
-      REQUIRE(P(c));                                                           \
-      for (int j = 0; j < s.length(); j++) {                                   \
-        REQUIRE(P((char)s.charAt(j)));                                         \
-      }                                                                        \
-    }                                                                          \
+template <typename T> void testInt(T a, T b) {
+  RandomInt<T> r1;
+  for (int i = 0; i < TEST_MAX; i++) {
+    T t = r1.next();
+    REQUIRE(t >= 0);
+    REQUIRE(t < std::numeric_limits<T>::max());
   }
+  RandomInt<T> r2(a, b);
+  for (int i = 0; i < TEST_MAX; i++) {
+    T t = r2.next();
+    REQUIRE(t >= a);
+    REQUIRE(t < b);
+  }
+}
 
-#define TEST_LITERAL(f, p)                                                     \
+#define TEST_LITERAL(f, g)                                                     \
   do {                                                                         \
     RandomChar rc;                                                             \
     for (int i = 0; i < TEST_MAX; i++) {                                       \
       char c = rc.f();                                                         \
-      REQUIRE(p(c));                                                           \
+      REQUIRE(g(c));                                                           \
     }                                                                          \
     RandomString rs;                                                           \
     for (int i = 0; i < TEST_MAX; i++) {                                       \
       std::string s = rs.f(i + 1);                                             \
       for (int j = 0; j < s.length(); j++) {                                   \
-        REQUIRE(p(s[j]));                                                      \
+        REQUIRE(g(s[j]));                                                      \
       }                                                                        \
     }                                                                          \
   } while (0)
 
-TEST_CASE("Random", "[Random]") {
-  Random::initialize();
+static bool testIsAscii(int c) { return c >= 0 && c < 128; }
 
+TEST_CASE("Random", "[Random]") {
   SECTION("integer") {
-    TEST_INT(short, -1023, 193);
-    TEST_INT(unsigned short, 38, 193);
-    TEST_INT(int, 1023, 9331193);
-    TEST_INT(unsigned int, 138, 44193);
-    TEST_INT(long, -94L, 9393L);
-    TEST_INT(unsigned long, 8138L, 4483193L);
-    TEST_INT(long long, -9394LL, 129393LL);
-    TEST_INT(unsigned long long, 288138LL, 844483193LL);
+    testInt<short>(-1023, 193);
+    testInt<unsigned short>(38, 193);
+    testInt<int>(1023, 9331193);
+    testInt<unsigned int>(138, 44193);
+    testInt<long>(-94L, 9393L);
+    testInt<unsigned long>(8138L, 4483193L);
+    testInt<long long>(-9394LL, 129393LL);
+    testInt<unsigned long long>(288138LL, 844483193LL);
   }
 
   SECTION("literal") {
-    TEST_LITERAL(nextAlpha, std::isalpha);
+    {
+      RandomChar rc;
+      for (int i = 0; i < TEST_MAX; i++) {
+        char c = rc.nextAlpha();
+        REQUIRE(std::isalpha(c));
+      }
+      RandomString rs;
+      for (int i = 0; i < TEST_MAX; i++) {
+        std::string s = rs.nextAlpha(i + 1);
+        for (int j = 0; j < s.length(); j++) {
+          REQUIRE(std::isalpha(s[j]));
+        }
+      }
+    }
     TEST_LITERAL(nextAlnum, std::isalnum);
     TEST_LITERAL(nextDigit, std::isdigit);
     TEST_LITERAL(nextHex, std::isxdigit);
     TEST_LITERAL(nextPunct, std::ispunct);
     TEST_LITERAL(nextPrint, std::isprint);
-    TEST_LITERAL(nextWhitespace, std::isspace);
+    TEST_LITERAL(nextSpace, std::isspace);
     TEST_LITERAL(nextCtrl, std::iscntrl);
-    TEST_LITERAL(nextAscii, std::isascii);
+    TEST_LITERAL(nextAscii, testIsAscii);
   }
 }

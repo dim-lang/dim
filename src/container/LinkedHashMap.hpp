@@ -358,22 +358,22 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
 
 template <typename K, typename V, typename H, typename E>
 LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() {
-  return LinkedIterator<K, V>(head_.next());
+  return LinkedIterator<K, V>((LinkedNode<K, V> *)head_.next());
 }
 
 template <typename K, typename V, typename H, typename E>
 const LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() const {
-  return LinkedIterator<K, V>(head_.next());
+  return LinkedIterator<K, V>((LinkedNode<K, V> *)head_.next());
 }
 
 template <typename K, typename V, typename H, typename E>
 LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() {
-  return LinkedIterator<K, V>(&head_);
+  return LinkedIterator<K, V>((LinkedNode<K, V> *)&head_);
 }
 
 template <typename K, typename V, typename H, typename E>
 const LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
-  return LinkedIterator<K, V>(&head_);
+  return LinkedIterator<K, V>((LinkedNode<K, V> *)&head_);
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -500,13 +500,23 @@ template <typename K, typename V> bool LinkedIterator<K, V>::operator!() const {
 }
 
 template <typename K, typename V>
-LinkedNode<K, V> &LinkedIterator<K, V>::operator*() {
-  return *node_;
+std::pair<const K, V> &LinkedIterator<K, V>::operator*() {
+  return node_->value();
 }
 
 template <typename K, typename V>
-LinkedNode<K, V> *LinkedIterator<K, V>::operator->() {
-  return node_;
+const std::pair<const K, V> &LinkedIterator<K, V>::operator*() const {
+  return node_->value();
+}
+
+template <typename K, typename V>
+std::pair<const K, V> *LinkedIterator<K, V>::operator->() {
+  return &(node_->value());
+}
+
+template <typename K, typename V>
+const std::pair<const K, V> *LinkedIterator<K, V>::operator->() const {
+  return &(node_->value());
 }
 
 template <typename K, typename V>
@@ -517,109 +527,109 @@ std::string LinkedIterator<K, V>::toString() const {
 } // namespace detail
 
 template <typename K, typename V, typename H, typename E>
-LinkedHashMap<K, V, H, E>::LinkedHashMap(double threshold) : ht_(threshold) {}
+LinkedHashMap<K, V, H, E>::LinkedHashMap(double threshold) : hm_(threshold) {}
 
 template <typename K, typename V, typename H, typename E>
 LinkedHashMap<K, V, H, E>::LinkedHashMap(int bucket, double threshold)
-    : ht_(bucket, threshold) {}
+    : hm_(bucket, threshold) {}
 
 template <typename K, typename V, typename H, typename E>
 LinkedHashMap<K, V, H, E>::~LinkedHashMap() {}
 
 template <typename K, typename V, typename H, typename E>
 bool LinkedHashMap<K, V, H, E>::empty() const {
-  return ht_.empty();
+  return hm_.empty();
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::size() const {
-  return ht_.size();
+  return hm_.size();
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::bucket() const {
-  return ht_.bucket();
+  return hm_.bucket();
 }
 
 template <typename K, typename V, typename H, typename E>
 double LinkedHashMap<K, V, H, E>::load() const {
-  return ht_.load();
+  return hm_.load();
 }
 
 template <typename K, typename V, typename H, typename E>
 const double &LinkedHashMap<K, V, H, E>::threshold() const {
-  return ht_.threshold();
+  return hm_.threshold();
 }
 
 template <typename K, typename V, typename H, typename E>
 double &LinkedHashMap<K, V, H, E>::threshold() {
-  return ht_.threshold();
+  return hm_.threshold();
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHashMap<K, V, H, E>::clear() {
-  ht_.clear();
+  hm_.clear();
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHashMap<K, V, H, E>::release() {
-  ht_.release();
+  hm_.release();
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::Iterator
 LinkedHashMap<K, V, H, E>::begin() {
-  return ht_.begin();
+  return hm_.begin();
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::CIterator
 LinkedHashMap<K, V, H, E>::begin() const {
-  return ht_.begin();
+  return hm_.begin();
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::Iterator LinkedHashMap<K, V, H, E>::end() {
-  return ht_.end();
+  return hm_.end();
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::CIterator
 LinkedHashMap<K, V, H, E>::end() const {
-  return ht_.end();
+  return hm_.end();
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHashMap<K, V, H, E>::insert(const K &key, const V &mapped) {
-  ht_.insert(std::pair<const K, V>(key, mapped));
+  hm_.insert(std::pair<const K, V>(key, mapped));
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHashMap<K, V, H, E>::insert(const std::pair<const K, V> &value) {
-  ht_.insert(value);
+  hm_.insert(value);
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::insertOrAssign(const K &key, const V &mapped) {
-  return ht_.insertOrAssign(std::pair<const K, V>(key, mapped));
+  return hm_.insertOrAssign(std::pair<const K, V>(key, mapped));
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::insertOrAssign(
     const std::pair<const K, V> &value) {
-  return ht_.insertOrAssign(value);
+  return hm_.insertOrAssign(value);
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::remove(const K &key) {
   auto position = find(key);
-  return position == end() ? -1 : ht_.remove(position);
+  return position == end() ? -1 : hm_.remove(position);
 }
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::remove(
     LinkedHashMap<K, V, H, E>::Iterator position) {
-  return ht_.remove(position);
+  return hm_.remove(position);
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -630,16 +640,16 @@ bool LinkedHashMap<K, V, H, E>::exist(const K &key) const {
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::Iterator
 LinkedHashMap<K, V, H, E>::find(const K &key) const {
-  return ht_.find(key);
+  return hm_.find(key);
 }
 
 template <typename K, typename V, typename H, typename E>
 V &LinkedHashMap<K, V, H, E>::operator[](const K &key) {
-  return ht_.find(key)->second;
+  return hm_.find(key)->second;
 }
 
 template <typename K, typename V, typename H, typename E>
 const V &LinkedHashMap<K, V, H, E>::operator[](const K &key) const {
-  LinkedHashMap<K, V, H, E>::Iterator position = ht_.find(key);
-  return ht_.find(key)->second;
+  LinkedHashMap<K, V, H, E>::Iterator position = hm_.find(key);
+  return hm_.find(key)->second;
 }

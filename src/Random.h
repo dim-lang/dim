@@ -15,7 +15,7 @@ public:
   RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
   // [a, b)
   RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    CASSERT(b >= a, "b {} >= a {}", b, a);
+    CASSERT(b > a, "b {} > a {}", b, a);
   }
   virtual ~RandomInt() = default;
   T next() { return dist_(engine_); }
@@ -32,7 +32,7 @@ public:
   RandomReal(T b = (T)1.0) : RandomReal((T)0.0, b) {}
   // [a, b)
   RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    CASSERT(b >= a, "b {} >= a {}", b, a);
+    CASSERT(b > a, "b {} > a {}", b, a);
   }
   virtual ~RandomReal() = default;
   T next() { return dist_(engine_); }
@@ -54,7 +54,7 @@ public:
   char nextHex();
   char nextPunct();
   char nextPrint();
-  char nextWhitespace();
+  char nextSpace();
   char nextCtrl();
   char nextAscii();
   char next(const char *candidates, int n);
@@ -75,7 +75,7 @@ public:
   std::string nextHex(int n = 1);
   std::string nextPunct(int n = 1);
   std::string nextPrint(int n = 1);
-  std::string nextWhitespace(int n = 1);
+  std::string nextSpace(int n = 1);
   std::string nextCtrl(int n = 1);
   std::string nextAscii(int n = 1);
   std::string next(const char *candidates, int c, int n = 1);
