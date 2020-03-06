@@ -387,7 +387,7 @@ template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::extend(int n) {
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   CASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
-  CASSERT(n > 0, "n {} > 0", n);
+  CASSERT(n >= 0, "n {} >= 0", n);
   n = std::max(8, n / 8 * 8 + 8);
   if (n <= bucket_) {
     return;
