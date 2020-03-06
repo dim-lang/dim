@@ -12,9 +12,9 @@
 template <typename T> class RandomInt {
 public:
   // [0, b)
-  RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b - (T)1) {}
+  RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
   // [a, b)
-  RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
+  RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b - (T)1) {
     CASSERT(b > a, "b {} > a {}", b, a);
   }
   virtual ~RandomInt() = default;
