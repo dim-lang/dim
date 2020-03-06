@@ -9,6 +9,13 @@
 #include "container/LinkedHashMap.hpp"
 #include <string>
 
+#define BUCKET_MIN 16
+#define BUCKET_STEP 8
+
+static RandomNumber<int> randomBucket(1, 1024);
+static RandomString randomString;
+static RandomNumber<int> randomInt;
+
 struct LHMTester {
   std::string name;
   int age;
@@ -51,9 +58,12 @@ template <typename A, typename B> void testConstructor(A a, B b) {
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
         hm1.end().toString());
 
-  LinkedHashMap<A, B> hm2(100);
+  int r = randomBucket.next();
+  LinkedHashMap<A, B> hm2(r);
   REQUIRE(hm2.size() == 0);
-  REQUIRE(hm2.bucket() == 100);
+  REQUIRE(hm2.bucket() >= BUCKET_MIN);
+  REQUIRE(hm2.bucket() >= r);
+  REQUIRE(hm2.bucket() <= r + BUCKET_STEP);
   REQUIRE(hm2.empty());
   REQUIRE(hm2.load() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
@@ -82,11 +92,10 @@ template <typename A> void testInsert(A a, A b) {
 }
 
 template <> void testInsert(std::string a, std::string b) {
-  RandomString rs;
   LinkedHashMap<std::string, std::string> hm1;
   int c = 0;
   for (int i = 0; i < 64; i++) {
-    std::string kv = rs.nextAlnum(i + 1);
+    std::string kv = randomString.nextAlnum(i + 1);
     if (i % 2 == 0) {
       hm1.insert(kv, kv);
     } else {
@@ -102,13 +111,11 @@ template <> void testInsert(std::string a, std::string b) {
 }
 
 template <> void testInsert(LHMTester a, LHMTester b) {
-  RandomString r1;
-  RandomNumber<int> r2;
   LinkedHashMap<LHMTester, LHMTester> hm1;
   int c = 0;
   for (int i = 0; i < 64; i++) {
-    std::string p = r1.nextAlnum(i + 1);
-    int q = r2.next();
+    std::string p = randomString.nextAlnum(i + 1);
+    int q = randomInt.next();
     if (i % 2 == 0) {
       hm1.insert(LHMTester(p, q, q), LHMTester(p, q, q));
     } else {
