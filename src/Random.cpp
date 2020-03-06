@@ -43,7 +43,7 @@ static const int AsciiLength = 128 - 0;
 RandomChar::RandomChar() : randint_() {}
 
 static char nextCharImpl(const std::vector<std::pair<int, int>> &range, int n,
-                         RandomInt<unsigned long> &randint) {
+                         RandomNumber<unsigned long> &randint) {
   int c = 0;
   int position = (int)(randint.next() % (unsigned long)n);
   for (int i = 0; i < (int)range.size(); i++) {

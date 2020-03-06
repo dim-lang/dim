@@ -2,28 +2,30 @@
 // Apache License Version 2.0
 
 #include "Random.h"
+#include "Log.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <cstdint>
 
-#define TEST_MAX 16384
+#define TEST_MAX 1024
 
-template <typename T> void testInt(T a, T b) {
-  RandomInt<T> r1;
-  for (int i = 0; i < TEST_MAX; i++) {
-    T t = r1.next();
-    REQUIRE(t >= 0);
-    REQUIRE(t < std::numeric_limits<T>::max());
-  }
-  RandomInt<T> r2(a, b);
-  for (int i = 0; i < TEST_MAX; i++) {
-    T t = r2.next();
-    REQUIRE(t >= a);
-    REQUIRE(t < b);
-  }
-}
+#define TEST_NUMBER(T, a, b)                                                   \
+  do {                                                                         \
+    RandomNumber<T> r1;                                                        \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      T t = r1.next();                                                         \
+      REQUIRE(t >= (T)0);                                                      \
+      REQUIRE(t <= std::numeric_limits<T>::max());                             \
+    }                                                                          \
+    RandomNumber<T> r2(a, b);                                                  \
+    for (int i = 0; i < TEST_MAX; i++) {                                       \
+      T t = r2.next();                                                         \
+      REQUIRE(t >= (T)a);                                                      \
+      REQUIRE(t <= (T)b);                                                      \
+    }                                                                          \
+  } while (0)
 
 #define TEST_LITERAL(f, g)                                                     \
   do {                                                                         \
@@ -45,15 +47,19 @@ static bool testIsAscii(int c) { return c >= 0 && c < 128; }
 
 TEST_CASE("Random", "[Random]") {
   SECTION("integer") {
-    testInt<short>(-1023, 193);
-    testInt<unsigned short>(38, 193);
-    testInt<int>(1023, 9331193);
-    testInt<unsigned int>(138, 44193);
-    testInt<long>(-94L, 9393L);
-    testInt<unsigned long>(8138L, 4483193L);
-    testInt<long long>(-9394LL, 129393LL);
-    testInt<unsigned long long>(288138LL, 844483193LL);
+    TEST_NUMBER(short, -1023, 193);
+    TEST_NUMBER(unsigned short, 38, 193);
+    TEST_NUMBER(int, 1023, 9331193);
+    TEST_NUMBER(unsigned int, 138, 44193);
+    TEST_NUMBER(long, -94L, 9393L);
+    TEST_NUMBER(unsigned long, 8138L, 4483193L);
+    TEST_NUMBER(long long, -9394LL, 129393LL);
+    TEST_NUMBER(unsigned long long, 288138LL, 844483193LL);
+    TEST_NUMBER(float, 1.28, 8.29);
+    TEST_NUMBER(double, -0.183, 821.89e+4);
   }
+
+  SECTION("real") {}
 
   SECTION("literal") {
     {

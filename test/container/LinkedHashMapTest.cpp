@@ -103,7 +103,7 @@ template <> void testInsert(std::string a, std::string b) {
 
 template <> void testInsert(LHMTester a, LHMTester b) {
   RandomString r1;
-  RandomInt<int> r2;
+  RandomNumber<int> r2;
   LinkedHashMap<LHMTester, LHMTester> hm1;
   int c = 0;
   for (int i = 0; i < 64; i++) {
