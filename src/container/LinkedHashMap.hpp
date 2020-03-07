@@ -151,7 +151,7 @@ void LinkedNode<K, V>::insertHead(LinkedNode<K, V> *e) {
 
 template <typename K, typename V>
 LinkedNode<K, V> *LinkedNode<K, V>::removeTail() {
-  if (isNull()) {
+  if (empty()) {
     return this;
   }
   LinkedNode<K, V> *e = prev_;
@@ -162,7 +162,7 @@ LinkedNode<K, V> *LinkedNode<K, V>::removeTail() {
 
 template <typename K, typename V>
 LinkedNode<K, V> *LinkedNode<K, V>::removeHead() {
-  if (isNull()) {
+  if (empty()) {
     return this;
   }
   LinkedNode<K, V> *e = next_;
@@ -173,7 +173,7 @@ LinkedNode<K, V> *LinkedNode<K, V>::removeHead() {
 
 template <typename K, typename V>
 void LinkedNode<K, V>::remove(LinkedNode<K, V> *e) {
-  if (isNull()) {
+  if (empty()) {
     return;
   }
   e->prev()->next() = e->next();
@@ -192,7 +192,7 @@ void LinkedNode<K, V>::seq_insert(LinkedNode<K, V> *e) {
 
 template <typename K, typename V>
 void LinkedNode<K, V>::seq_remove(LinkedNode<K, V> *e) {
-  if (isNull()) {
+  if (empty()) {
     return;
   }
   e->seq_prev()->seq_next() = e->seq_next();
@@ -201,7 +201,7 @@ void LinkedNode<K, V>::seq_remove(LinkedNode<K, V> *e) {
   e->seq_next() = nullptr;
 }
 
-template <typename K, typename V> bool LinkedNode<K, V>::isNull() const {
+template <typename K, typename V> bool LinkedNode<K, V>::empty() const {
   CASSERT(prev_ && next_ && seq_prev_ && seq_next_,
           "prev_ {}, next_ {}, seq_prev_ {}, seq_next_ {} is null",
           (void *)prev_, (void *)next_, (void *)seq_prev_, (void *)seq_next_);
@@ -237,6 +237,9 @@ LinkedHt<K, V, H, E>::~LinkedHt() {
 template <typename K, typename V, typename H, typename E>
 bool LinkedHt<K, V, H, E>::empty() const {
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  CASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
+          "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
+          (void *)count_, size_, bucket_);
   return size_ == 0;
 }
 
@@ -257,7 +260,7 @@ double LinkedHt<K, V, H, E>::load() const {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::clear() {
-  if (isNotNull()) {
+  if (!empty()) {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
@@ -267,11 +270,11 @@ void LinkedHt<K, V, H, E>::clear() {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::release() {
-  if (isNotNull()) {
+  if (!empty()) {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    CASSERT(head_.isNull(), "head_#isNull: {}", head_.isNull());
+    CASSERT(head_.empty(), "head_#empty: {}", head_.empty());
     std::free(ht_);
     std::free(count_);
     ht_ = nullptr;
@@ -372,17 +375,10 @@ const LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
 }
 
 template <typename K, typename V, typename H, typename E>
-bool LinkedHt<K, V, H, E>::isNotNull() {
-  CASSERT((ht_ && count_) || (!ht_ && !count_), "ht_ {} null, count_ {} null",
-          (void *)ht_, (void *)count_);
-  return ht_ && count_;
-}
-
-template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::extend(int n) {
   CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   CASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
-  if (isNotNull() && load() < 4.0) {
+  if (!empty() && load() < 4.0) {
     return;
   }
   n = nextBucket(n);
@@ -427,7 +423,7 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
     CASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
     CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
-  CASSERT(ht_[i].isNull(), "ht_[{}]#isNull: {}", i, ht_[i].isNull());
+  CASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
   CASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 

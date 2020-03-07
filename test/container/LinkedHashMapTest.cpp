@@ -9,7 +9,7 @@
 #include "container/LinkedHashMap.hpp"
 #include <string>
 
-#define BUCKET_MIN 16
+#define BUCKET_MIN 8
 #define BUCKET_STEP 8
 
 static RandomNumber<int> randomBucket(1, 1024);

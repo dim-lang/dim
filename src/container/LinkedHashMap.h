@@ -47,7 +47,7 @@ public:
   void remove(LinkedNode<K, V> *e);
   void seq_insert(LinkedNode<K, V> *e);
   void seq_remove(LinkedNode<K, V> *e);
-  bool isNull() const;
+  bool empty() const;
 
 private:
   std::pair<const K, V> value_;
@@ -103,7 +103,6 @@ public:
   const LinkedIterator<K, V> end() const;
 
 private:
-  bool isNotNull();
   void extend(int n);
   void destroyList(int i);
   int nextBucket(int n);
