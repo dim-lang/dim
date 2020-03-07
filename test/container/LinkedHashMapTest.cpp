@@ -12,7 +12,7 @@
 #define BUCKET_MIN 16
 #define BUCKET_STEP 8
 
-static RandomNumber<int> randomBucket(1024);
+static RandomNumber<int> randomBucket(1, 1024);
 static RandomString randomString;
 static RandomNumber<int> randomInt;
 
@@ -53,7 +53,6 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.empty());
   REQUIRE(hm1.load() == 0.0);
   REQUIRE(hm1.begin() == hm1.end());
-  REQUIRE(hm1.threshold() == 4.0);
   CINFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end: {}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
         hm1.end().toString());
@@ -67,7 +66,6 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm2.empty());
   REQUIRE(hm2.load() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
-  REQUIRE(hm2.threshold() == 4.0);
   CINFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end: {}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
         hm2.end().toString());
@@ -88,7 +86,7 @@ template <typename A> void testInsert(A a, A b) {
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= hm1.threshold());
+    REQUIRE(hm1.load() <= 4.0);
     REQUIRE(hm1[(A)i] == (A)i);
   }
 }
@@ -109,7 +107,7 @@ template <> void testInsert(std::string a, std::string b) {
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= hm1.threshold());
+    REQUIRE(hm1.load() <= 4.0);
     REQUIRE(hm1[kv] == kv);
   }
 }
@@ -131,7 +129,7 @@ template <> void testInsert(LHMTester a, LHMTester b) {
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= hm1.threshold());
+    REQUIRE(hm1.load() <= 4.0);
     REQUIRE(hm1[LHMTester(p, q, q)] == LHMTester(p, q, q));
   }
 }

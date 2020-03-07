@@ -84,15 +84,13 @@ private:
 // hash table
 template <typename K, typename V, typename H, typename E> class LinkedHt {
 public:
-  LinkedHt(double threshold);
-  LinkedHt(int bucket, double threshold);
+  LinkedHt();
+  LinkedHt(int bucket);
   virtual ~LinkedHt();
   bool empty() const;
   int size() const;
   int bucket() const;
   double load() const;
-  const double &threshold() const;
-  double &threshold();
   void clear();
   void release();
   void insert(const std::pair<const K, V> &value);
@@ -108,6 +106,7 @@ private:
   bool isNotNull();
   void extend(int n);
   void destroyList(int i);
+  int nextBucket(int n);
 
   H hasher_;
   E equal_;
@@ -116,7 +115,6 @@ private:
   int *count_;           // node count in list
   int bucket_;           // hash table array capacity
   int size_;             // hash table node count
-  double threshold_;     // load factor threshold
 };
 
 } // namespace detail
@@ -128,15 +126,13 @@ public:
   using Iterator = typename detail::LinkedIterator<K, V>;
   using CIterator = typename detail::LinkedIterator<K, V> const;
 
-  LinkedHashMap(double load = 4.0);
-  LinkedHashMap(int bucket, double load = 4.0);
+  LinkedHashMap();
+  LinkedHashMap(int bucket);
   virtual ~LinkedHashMap();
   bool empty() const;
   int size() const;
   int bucket() const;
   double load() const;
-  const double &threshold() const;
-  double &threshold();
   void clear();
   void release();
   Iterator begin();
