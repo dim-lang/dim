@@ -78,8 +78,10 @@ template <typename A> void testInsert(A a, A b) {
   int c = 0;
   for (int i = (int)a; i < (int)b; i++) {
     if (i % 2 == 0) {
+      REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert((A)i, (A)i);
     } else {
+      REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert(std::make_pair((A)i, (A)i));
     }
     ++c;
@@ -97,8 +99,10 @@ template <> void testInsert(std::string a, std::string b) {
   for (int i = 0; i < 64; i++) {
     std::string kv = randomString.nextAlnum(i + 1);
     if (i % 2 == 0) {
+      REQUIRE(hm1.find(kv) == hm1.end());
       hm1.insert(kv, kv);
     } else {
+      REQUIRE(hm1.find(kv) == hm1.end());
       hm1.insert(std::make_pair(kv, kv));
     }
     ++c;
@@ -117,8 +121,10 @@ template <> void testInsert(LHMTester a, LHMTester b) {
     std::string p = randomString.nextAlnum(i + 1);
     int q = randomInt.next();
     if (i % 2 == 0) {
+      REQUIRE(hm1.find(LHMTester(p, q, q)) == hm1.end());
       hm1.insert(LHMTester(p, q, q), LHMTester(p, q, q));
     } else {
+      REQUIRE(hm1.find(LHMTester(p, q, q)) == hm1.end());
       hm1.insert(std::make_pair(LHMTester(p, q, q), LHMTester(p, q, q)));
     }
     ++c;
