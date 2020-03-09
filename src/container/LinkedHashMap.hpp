@@ -470,6 +470,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
     if (equal_(e->key(), key)) {
       return LinkedIterator<K, V>(e);
     }
+    e = e->next();
   }
   return end();
 }

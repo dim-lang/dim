@@ -162,14 +162,14 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("insert") {
     testInsert((char)0, (char)127);
     testInsert((unsigned char)0, (unsigned char)127);
-    testInsert((short)0, (short)1024);
-    testInsert((unsigned short)0, (unsigned short)1024);
-    testInsert((int)0, (int)1024);
-    testInsert((unsigned int)0, (unsigned int)4096);
-    testInsert((long)0, (long)4096);
-    testInsert((unsigned long)0, (unsigned long)4096);
-    testInsert((long long)0, (long long)4096);
-    testInsert((unsigned long long)0, (unsigned long long)4096);
+    testInsert((short)0, (short)128);
+    testInsert((unsigned short)0, (unsigned short)128);
+    testInsert((int)0, (int)128);
+    testInsert((unsigned int)0, (unsigned int)128);
+    testInsert((long)0, (long)128);
+    testInsert((unsigned long)0, (unsigned long)128);
+    testInsert((long long)0, (long long)128);
+    testInsert((unsigned long long)0, (unsigned long long)128);
     testInsert(std::string("1"), std::string("1"));
     testInsert(LHMTester(), LHMTester());
   }
