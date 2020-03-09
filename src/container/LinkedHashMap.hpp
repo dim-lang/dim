@@ -576,7 +576,7 @@ template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::nextBucket(int n) {
   return n <= 0 ? 8
                 : (n < std::numeric_limits<int>::max() - 7
-                       ? ((n + 7) % 8 * 8)
+                       ? ((n + 7) / 8 * 8)
                        : std::numeric_limits<int>::max());
 }
 

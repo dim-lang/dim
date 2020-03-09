@@ -135,6 +135,15 @@ template <> void testInsert(LHMTester a, LHMTester b) {
 }
 
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
+  SECTION("nextBucket") {
+    detail::LinkedHt<int, int, std::hash<int>, std::equal_to<int>> ht;
+    for (int i = 0; i < 1024; i++) {
+      int r = randomInt.next();
+      REQUIRE(ht.nextBucket(r) % 8 == 0);
+      REQUIRE(ht.nextBucket(r) >= r);
+      REQUIRE(ht.nextBucket(r) < r + 8);
+    }
+  }
   SECTION("constructor") {
     testConstructor((char)1, (unsigned char)1);
     testConstructor((unsigned char)1, (char)1);

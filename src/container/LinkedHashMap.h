@@ -126,11 +126,11 @@ public:
   const LinkedIterator<K, V> begin() const;
   LinkedIterator<K, V> end();
   const LinkedIterator<K, V> end() const;
+  int nextBucket(int n);
 
 private:
   void extend(int n);
   void destroyList(int i);
-  int nextBucket(int n);
 
   H hasher_;
   E equal_;
