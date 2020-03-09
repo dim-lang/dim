@@ -99,7 +99,7 @@ const LinkedNode<K, V> *LinkedList<K, V>::tail() const {
 template <typename K, typename V>
 void LinkedList<K, V>::insertTail(LinkedNode<K, V> *e) {
   e->prev() = prev_;
-  e->next() = this;
+  e->next() = CLN(this);
   prev_->next() = e;
   prev_ = e;
 }
@@ -545,6 +545,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
         int b = (int)hasher_(e->key()) % n;
         ht[b].insertHead(e);
         --count_[i];
+        ++count[b];
       }
     }
     if (ht_) {
