@@ -155,7 +155,7 @@ void LinkedList<K, V>::seq_insert(LinkedNode<K, V> *e) {
 
 template <typename K, typename V>
 void LinkedList<K, V>::seq_remove(LinkedNode<K, V> *e) {
-  if (empty()) {
+  if (seq_empty()) {
     return;
   }
   e->seq_prev()->seq_next() = e->seq_next();
@@ -165,18 +165,23 @@ void LinkedList<K, V>::seq_remove(LinkedNode<K, V> *e) {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::empty() const {
-  CASSERT(prev_ && next_ && seq_prev_ && seq_next_,
-          "prev_ {}, next_ {}, seq_prev_ {}, seq_next_ {} is null",
-          (void *)prev_, (void *)next_, (void *)seq_prev_, (void *)seq_next_);
-  CASSERT((prev_ == CLN(this) && next_ == CLN(this) && seq_prev_ == CLN(this) &&
-           seq_next_ == CLN(this)) ||
-              (prev_ != CLN(this) && next_ != CLN(this) &&
-               seq_prev_ != CLN(this) && seq_next_ != CLN(this)),
-          "this: {}, prev_: {}, next_: {}, seq_prev_: {}, seq_next_: {}",
-          (void *)this, (void *)prev_, (void *)next_, (void *)seq_prev_,
-          (void *)seq_next_);
-  return prev_ == CLN(this) && next_ == CLN(this) && seq_prev_ == CLN(this) &&
-         seq_next_ == CLN(this);
+  CASSERT(prev_ && next_, "prev_ {}, next_ {} is null", (void *)prev_,
+          (void *)next_);
+  CASSERT((prev_ == CLN(this) && next_ == CLN(this)) ||
+              (prev_ != CLN(this) && next_ != CLN(this)),
+          "this: {}, prev_: {}, next_: {}", (void *)this, (void *)prev_,
+          (void *)next_);
+  return prev_ == CLN(this) && next_ == CLN(this);
+}
+
+template <typename K, typename V> bool LinkedList<K, V>::seq_empty() const {
+  CASSERT(seq_prev_ && seq_next_, "seq_prev_ {}, seq_next_ {} is null",
+          (void *)prev_, (void *)next_);
+  CASSERT((seq_prev_ == CLN(this) && seq_next_ == CLN(this)) ||
+              (seq_prev_ != CLN(this) && seq_next_ != CLN(this)),
+          "this: {}, seq_prev_: {}, seq_next_: {}", (void *)this,
+          (void *)seq_prev_, (void *)seq_next_);
+  return seq_prev_ == CLN(this) && seq_next_ == CLN(this);
 }
 
 // linked node
@@ -416,7 +421,7 @@ void LinkedHt<K, V, H, E>::release() {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    CASSERT(head_.empty(), "head_#empty: {}", head_.empty());
+    CASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
     delete[] ht_;
     delete[] count_;
     ht_ = nullptr;

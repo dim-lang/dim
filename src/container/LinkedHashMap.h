@@ -41,6 +41,7 @@ public:
   void seq_insert(LinkedNode<K, V> *e);
   void seq_remove(LinkedNode<K, V> *e);
   bool empty() const;
+  bool seq_empty() const;
 
 private:
   LinkedNode<K, V> *prev_;
