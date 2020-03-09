@@ -35,9 +35,9 @@ public:
     CASSERT(b >= a, "b {} >= a {}", b, a);
   }
   virtual ~RandomReal() = default;
-  float next() { return dist_(engine_); }
-  float min() const { return dist_.min(); }
-  float max() const { return dist_.max(); }
+  T next() { return dist_(engine_); }
+  T min() const { return dist_.min(); }
+  T max() const { return dist_.max(); }
 
 private:
   std::random_device device_;

@@ -32,7 +32,7 @@
     RandomReal<T> r1;                                                          \
     for (int i = 0; i < TEST_MAX; i++) {                                       \
       T t = r1.next();                                                         \
-      REQUIRE(t >= (T)0);                                                      \
+      REQUIRE(t >= (T)0.0);                                                    \
       REQUIRE(t <= std::numeric_limits<T>::max());                             \
     }                                                                          \
     RandomReal<T> r2(a, b);                                                    \
@@ -71,12 +71,11 @@ TEST_CASE("Random", "[Random]") {
     TEST_INT(unsigned long, 8138L, 4483193L);
     TEST_INT(long long, -9394LL, 129393LL);
     TEST_INT(unsigned long long, 288138LL, 844483193LL);
+  }
+  SECTION("real") {
     TEST_REAL(float, 1.28, 8.29);
     TEST_REAL(double, -0.183, 821.89e+4);
   }
-
-  SECTION("real") {}
-
   SECTION("literal") {
     {
       RandomChar rc;
