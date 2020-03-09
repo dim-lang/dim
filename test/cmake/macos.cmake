@@ -8,18 +8,17 @@ find_package(Threads REQUIRED)
 set(CINC
     .
     ../src
+    ../src/spdlog/include
+    ../src/fmt/include
+    Catch2/single_include
     Threads::Threads
-    /usr/local/opt/spdlog/include
-    /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
     /usr/local/opt/llvm/include
-    /usr/local/opt/catch2/include
     )
 
 set(CLIB
     Threads::Threads
-    fmt
     boost_program_options-mt
     boost_system-mt
     boost_filesystem-mt
@@ -50,6 +49,7 @@ set(CLIB_DIR
     /usr/local/opt/llvm/lib
     )
 
+add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 

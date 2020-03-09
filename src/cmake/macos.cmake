@@ -44,6 +44,7 @@ set(CLIB_DIR
     /usr/local/opt/llvm/lib
     )
 
+add_definitions(-DFMT_HEADER_ONLY)
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 

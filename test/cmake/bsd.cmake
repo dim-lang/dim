@@ -8,12 +8,12 @@ find_package(Threads REQUIRED)
 set(CINC
     .
     ../src
-    Threads::Threads
-    /usr/include
-    /usr/local/include
     ../src/spdlog/include
     ../src/fmt/include
     Catch2/single_include
+    Threads::Threads
+    /usr/include
+    /usr/local/include
     )
 
 set(CLIB
