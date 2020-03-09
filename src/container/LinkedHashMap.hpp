@@ -428,7 +428,7 @@ void LinkedHt<K, V, H, E>::release() {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
-  extend(bucket_);
+  extend(2 * bucket_);
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
   int b = (int)hasher_(value.first) % bucket_;
   ht_[b].insertHead(e);
@@ -441,7 +441,7 @@ void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
-  extend(bucket_);
+  extend(2 * bucket_);
   LinkedIterator<K, V> position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
@@ -524,7 +524,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   if (!empty() && load() < 4.0) {
     return;
   }
-  n = nextBucket(n);
+  n = alignBucket(n);
   CASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
   LinkedList<K, V> *ht = new LinkedList<K, V>[n];
   int *count = new int[n];
@@ -574,11 +574,11 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
 }
 
 template <typename K, typename V, typename H, typename E>
-int LinkedHt<K, V, H, E>::nextBucket(int n) {
+int LinkedHt<K, V, H, E>::alignBucket(int n) {
   if (n <= 0)
     return 8;
   if (n < (std::numeric_limits<int>::max() - 7) / 2)
-    return (2 * n + 7) / 8 * 8;
+    return (n + 7) / 8 * 8;
   return std::numeric_limits<int>::max();
 }
 

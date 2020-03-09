@@ -136,13 +136,17 @@ template <> void testInsert(LHMTester a, LHMTester b) {
 }
 
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
-  SECTION("nextBucket") {
+  SECTION("alignBucket") {
     detail::LinkedHt<int, int, std::hash<int>, std::equal_to<int>> ht;
     for (int i = 0; i < TEST_MAX; i++) {
       int r = randomInt.next();
-      REQUIRE(ht.nextBucket(r) % 8 == 0);
-      REQUIRE(ht.nextBucket(r) >= r);
-      REQUIRE(ht.nextBucket(r) < r + 8);
+      if (ht.alignBucket(r) == std::numeric_limits<int>::max()) {
+        REQUIRE(ht.alignBucket(r) >= (std::numeric_limits<int>::max() - 7) / 2);
+      } else {
+        REQUIRE(ht.alignBucket(r) % 8 == 0);
+        REQUIRE(ht.alignBucket(r) >= r);
+        REQUIRE(ht.alignBucket(r) < r + 8);
+      }
     }
   }
   SECTION("constructor") {
