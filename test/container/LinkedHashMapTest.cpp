@@ -75,7 +75,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
 template <typename A> void testInsert(A a, A b) {
   LinkedHashMap<A, A> hm1;
   int c = 0;
-  for (int i = (A)a; i < (A)b; i++) {
+  for (int i = (A)a; i < (int)b; i++) {
     if (i % 2 == 0) {
       REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert((A)i, (A)i);
