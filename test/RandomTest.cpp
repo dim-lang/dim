@@ -87,7 +87,7 @@ TEST_CASE("Random", "[Random]") {
       RandomString rs;
       for (int i = 0; i < TEST_MAX; i++) {
         std::string s = rs.nextAlpha(i + 1);
-        for (int j = 0; j < s.length(); j++) {
+        for (int j = 0; j < (int)s.length(); j++) {
           REQUIRE(std::isalpha(s[j]));
         }
       }
