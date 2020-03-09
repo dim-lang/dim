@@ -7,12 +7,53 @@
 
 namespace detail {
 
-// node
+template <typename K, typename V> class LinkedNode;
+
+// linked list
+template <typename K, typename V> class LinkedList {
+public:
+  LinkedList();
+  ~LinkedList();
+
+  // copy
+  LinkedList(const LinkedList<K, V> &other);
+  LinkedList<K, V> &operator=(const LinkedList<K, V> &other);
+
+  // attribute
+  LinkedNode<K, V> *&prev();
+  const LinkedNode<K, V> *prev() const;
+  LinkedNode<K, V> *&next();
+  const LinkedNode<K, V> *next() const;
+  LinkedNode<K, V> *&seq_prev();
+  const LinkedNode<K, V> *seq_prev() const;
+  LinkedNode<K, V> *&seq_next();
+  const LinkedNode<K, V> *seq_next() const;
+
+  LinkedNode<K, V> *&head();
+  const LinkedNode<K, V> *head() const;
+  LinkedNode<K, V> *&tail();
+  const LinkedNode<K, V> *tail() const;
+  void insertTail(LinkedNode<K, V> *e);
+  void insertHead(LinkedNode<K, V> *e);
+  LinkedNode<K, V> *removeTail();
+  LinkedNode<K, V> *removeHead();
+  void remove(LinkedNode<K, V> *e);
+  void seq_insert(LinkedNode<K, V> *e);
+  void seq_remove(LinkedNode<K, V> *e);
+  bool empty() const;
+
+private:
+  LinkedNode<K, V> *prev_;
+  LinkedNode<K, V> *next_;
+  LinkedNode<K, V> *seq_prev_;
+  LinkedNode<K, V> *seq_next_;
+};
+
+// linked node
 template <typename K, typename V> class LinkedNode {
 public:
-  LinkedNode();
   LinkedNode(const std::pair<const K, V> &value);
-  virtual ~LinkedNode();
+  ~LinkedNode();
 
   // copy
   LinkedNode(const LinkedNode<K, V> &other);
@@ -33,22 +74,6 @@ public:
   LinkedNode<K, V> *&seq_next();
   const LinkedNode<K, V> *seq_next() const;
 
-  // list operation
-  template <typename K1, typename V1>
-  static void initializeList(LinkedNode<K1, V1> &l);
-  LinkedNode<K, V> *&head();
-  const LinkedNode<K, V> *head() const;
-  LinkedNode<K, V> *&tail();
-  const LinkedNode<K, V> *tail() const;
-  void insertTail(LinkedNode<K, V> *e);
-  void insertHead(LinkedNode<K, V> *e);
-  LinkedNode<K, V> *removeTail();
-  LinkedNode<K, V> *removeHead();
-  void remove(LinkedNode<K, V> *e);
-  void seq_insert(LinkedNode<K, V> *e);
-  void seq_remove(LinkedNode<K, V> *e);
-  bool empty() const;
-
 private:
   std::pair<const K, V> value_;
   LinkedNode<K, V> *prev_;
@@ -57,11 +82,11 @@ private:
   LinkedNode<K, V> *seq_next_;
 };
 
-// iterator
+// linked iterator
 template <typename K, typename V> class LinkedIterator : public Stringify {
 public:
   LinkedIterator(LinkedNode<K, V> *node);
-  virtual ~LinkedIterator();
+  ~LinkedIterator();
   LinkedIterator(const LinkedIterator<K, V> &other);
   LinkedIterator<K, V> &operator=(const LinkedIterator<K, V> &other);
   LinkedIterator<K, V> &operator++();
@@ -81,12 +106,12 @@ private:
   LinkedNode<K, V> *node_;
 };
 
-// hash table
+// linked hashtable
 template <typename K, typename V, typename H, typename E> class LinkedHt {
 public:
   LinkedHt();
   LinkedHt(int bucket);
-  virtual ~LinkedHt();
+  ~LinkedHt();
   bool empty() const;
   int size() const;
   int bucket() const;
@@ -109,8 +134,8 @@ private:
 
   H hasher_;
   E equal_;
-  LinkedNode<K, V> head_;
-  LinkedNode<K, V> *ht_; // hash table head node
+  LinkedList<K, V> head_;
+  LinkedList<K, V> *ht_; // hash table head node
   int *count_;           // node count in list
   int bucket_;           // hash table array capacity
   int size_;             // hash table node count
@@ -118,6 +143,7 @@ private:
 
 } // namespace detail
 
+// linked hashmap
 template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
 class LinkedHashMap {
@@ -127,7 +153,7 @@ public:
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
-  virtual ~LinkedHashMap();
+  ~LinkedHashMap();
   bool empty() const;
   int size() const;
   int bucket() const;
@@ -153,7 +179,7 @@ public:
   // return   true if exist, false if not exist
   bool exist(const K &key) const;
 
-  // return   this->end() if not found, other if found
+  // return   end() if not found, other if found
   Iterator find(const K &key) const;
 
   V &operator[](const K &key);
