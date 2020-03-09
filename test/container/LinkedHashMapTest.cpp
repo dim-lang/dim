@@ -13,9 +13,9 @@
 #define BUCKET_STEP 8
 #define TEST_MAX 1024
 
-static RandomNumber<int> randomBucket(1, 1024);
+static RandomInt<int> randomBucket(1, 1024);
 static RandomString randomString;
-static RandomNumber<int> randomInt;
+static RandomInt<int> randomInt;
 
 struct LHMTester {
   std::string name;

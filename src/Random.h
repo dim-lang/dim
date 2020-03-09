@@ -9,16 +9,15 @@
 #include <random>
 #include <string>
 
-template <typename T, typename D = std::uniform_int_distribution<T>>
-class RandomNumber {
+template <typename T> class RandomInt {
 public:
   // [0, b]
-  RandomNumber(T b = std::numeric_limits<T>::max()) : RandomNumber((T)0, b) {}
+  RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
   // [a, b]
-  RandomNumber(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
+  RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
     CASSERT(b >= a, "b {} >= a {}", b, a);
   }
-  virtual ~RandomNumber() = default;
+  virtual ~RandomInt() = default;
   T next() { return dist_(engine_); }
   T min() const { return dist_.min(); }
   T max() const { return dist_.max(); }
@@ -26,17 +25,16 @@ public:
 private:
   std::random_device device_;
   std::mt19937 engine_;
-  D dist_;
+  std::uniform_int_distribution<T> dist_;
 };
 
-template <> class RandomNumber<float, std::uniform_real_distribution<float>> {
+template <typename T> class RandomReal {
 public:
-  RandomNumber(float b = std::numeric_limits<float>::max())
-      : RandomNumber((float)0.0, b) {}
-  RandomNumber(float a, float b) : device_(), engine_(device_()), dist_(a, b) {
+  RandomReal(T b = std::numeric_limits<T>::max()) : RandomReal((T)0.0, b) {}
+  RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
     CASSERT(b >= a, "b {} >= a {}", b, a);
   }
-  virtual ~RandomNumber() = default;
+  virtual ~RandomReal() = default;
   float next() { return dist_(engine_); }
   float min() const { return dist_.min(); }
   float max() const { return dist_.max(); }
@@ -44,26 +42,7 @@ public:
 private:
   std::random_device device_;
   std::mt19937 engine_;
-  std::uniform_real_distribution<float> dist_;
-};
-
-template <> class RandomNumber<double, std::uniform_real_distribution<double>> {
-public:
-  RandomNumber(double b = std::numeric_limits<double>::max())
-      : RandomNumber((double)0.0, b) {}
-  RandomNumber(double a, double b)
-      : device_(), engine_(device_()), dist_(a, b) {
-    CASSERT(b >= a, "b {} >= a {}", b, a);
-  }
-  virtual ~RandomNumber() = default;
-  double next() { return dist_(engine_); }
-  double min() const { return dist_.min(); }
-  double max() const { return dist_.max(); }
-
-private:
-  std::random_device device_;
-  std::mt19937 engine_;
-  std::uniform_real_distribution<double> dist_;
+  std::uniform_real_distribution<T> dist_;
 };
 
 class RandomChar {
@@ -84,7 +63,7 @@ public:
   char next(const std::string &candidates);
 
 private:
-  RandomNumber<unsigned long> randint_;
+  RandomInt<unsigned long> randint_;
 };
 
 class RandomString {

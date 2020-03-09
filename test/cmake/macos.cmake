@@ -14,7 +14,7 @@ set(CINC
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
     /usr/local/opt/llvm/include
-    Catch2/single_include
+    /usr/local/opt/catch2/include
     )
 
 set(CLIB
