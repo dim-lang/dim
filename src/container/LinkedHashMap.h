@@ -75,11 +75,11 @@ public:
   const LinkedNode<K, V> *seq_next() const;
 
 private:
-  std::pair<const K, V> value_;
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
   LinkedNode<K, V> *seq_prev_;
   LinkedNode<K, V> *seq_next_;
+  std::pair<const K, V> value_;
 };
 
 // linked iterator

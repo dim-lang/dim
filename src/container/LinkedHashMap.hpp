@@ -183,8 +183,8 @@ template <typename K, typename V> bool LinkedList<K, V>::empty() const {
 
 template <typename K, typename V>
 LinkedNode<K, V>::LinkedNode(const std::pair<const K, V> &value)
-    : value_(value), prev_(nullptr), next_(nullptr), seq_prev_(nullptr),
-      seq_next_(nullptr) {}
+    : prev_(nullptr), next_(nullptr), seq_prev_(nullptr), seq_next_(nullptr),
+      value_(value) {}
 
 template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
   prev_ = nullptr;
@@ -195,19 +195,19 @@ template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
 
 template <typename K, typename V>
 LinkedNode<K, V>::LinkedNode(const LinkedNode<K, V> &other)
-    : value_(other.value_), prev_(other.prev_), next_(other.next_),
-      seq_prev_(other.seq_prev_), seq_next_(other.seq_next_) {}
+    : prev_(other.prev_), next_(other.next_), seq_prev_(other.seq_prev_),
+      seq_next_(other.seq_next_), value_(other.value_) {}
 
 template <typename K, typename V>
 LinkedNode<K, V> &LinkedNode<K, V>::operator=(const LinkedNode<K, V> &other) {
   if (this == &other) {
     return *this;
   }
-  value_ = other.value();
   prev_ = other.prev();
   next_ = other.next();
   seq_prev_ = other.seq_prev();
   seq_next_ = other.seq_next();
+  value_ = other.value();
   return *this;
 }
 
