@@ -7,19 +7,16 @@ find_package(Threads REQUIRED)
 
 set(CINC
     .
+    spdlog/include
+    fmt/include
     Threads::Threads
-    /usr/local/opt/spdlog/include
-    /usr/local/opt/fmt/include
     /usr/local/opt/boost/include
     /usr/local/opt/icu4c/include
-    /usr/local/opt/catch2/include
     /usr/local/opt/llvm/include
     )
 
 set(CLIB
     Threads::Threads
-    panel
-    fmt
     boost_program_options-mt
     boost_system-mt
     boost_filesystem-mt
@@ -41,8 +38,6 @@ set(CLIB
 
 set(CLIB_DIR
     .
-    /usr/local/opt/spdlog/lib
-    /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib

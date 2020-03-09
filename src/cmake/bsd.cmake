@@ -7,9 +7,9 @@ find_package(Threads REQUIRED)
 
 set(CINC
     .
-    Threads::Threads
     spdlog/include
     fmt/include
+    Threads::Threads
     /usr/include
     /usr/local/include
     )

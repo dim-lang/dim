@@ -7,15 +7,14 @@ find_package(Threads REQUIRED)
 
 set(CINC
     .
-    Threads::Threads
     spdlog/include
     fmt/include
+    Threads::Threads
     /usr/include
     /usr/include/x86_64-linux-gnu
     )
 set(CLIB
     Threads::Threads
-    panel
     boost_program_options
     boost_system
     boost_filesystem
