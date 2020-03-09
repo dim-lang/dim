@@ -134,10 +134,10 @@ ClassType::ClassType(const std::string &classType,
                      const std::vector<std::pair<Symbol *, Type *>> &methodList,
                      Tytab *enclosingScope)
     : Tytab(enclosingScope), classType_(classType) {
-  for (int i = 0; i < memberList.size(); i++) {
+  for (int i = 0; i < (int)memberList.size(); i++) {
     define(memberList[i].first, memberList[i].second);
   }
-  for (int i = 0; i < methodList.size(); i++) {
+  for (int i = 0; i < (int)methodList.size(); i++) {
     define(methodList[i].first, methodList[i].second);
   }
 }
@@ -156,7 +156,7 @@ FunctionType::FunctionType(
   CASSERT(enclosingScope, "enclosingScope is null");
   std::stringstream ss;
   ss << "func(";
-  for (int i = 0; i < argumentList.size(); i++) {
+  for (int i = 0; i < (int)argumentList.size(); i++) {
     ss << argumentList[i].second->name();
     if (i < (int)argumentList.size() - 1) {
       ss << ",";
