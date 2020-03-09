@@ -11,6 +11,7 @@
 
 #define BUCKET_MIN 8
 #define BUCKET_STEP 8
+#define TEST_MAX 1024
 
 static RandomNumber<int> randomBucket(1, 1024);
 static RandomString randomString;
@@ -74,7 +75,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
 template <typename A> void testInsert(A a, A b) {
   LinkedHashMap<A, A> hm1;
   int c = 0;
-  for (int i = (int)a; i < (int)b; i++) {
+  for (int i = (A)a; i < (A)b; i++) {
     if (i % 2 == 0) {
       REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert((A)i, (A)i);
@@ -94,7 +95,7 @@ template <typename A> void testInsert(A a, A b) {
 template <> void testInsert(std::string a, std::string b) {
   LinkedHashMap<std::string, std::string> hm1;
   int c = 0;
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < TEST_MAX; i++) {
     std::string kv = randomString.nextAlnum(i + 1);
     if (i % 2 == 0) {
       REQUIRE(hm1.find(kv) == hm1.end());
@@ -115,7 +116,7 @@ template <> void testInsert(std::string a, std::string b) {
 template <> void testInsert(LHMTester a, LHMTester b) {
   LinkedHashMap<LHMTester, LHMTester> hm1;
   int c = 0;
-  for (int i = 0; i < 64; i++) {
+  for (int i = 0; i < TEST_MAX; i++) {
     std::string p = randomString.nextAlnum(i + 1);
     int q = randomInt.next();
     if (i % 2 == 0) {
@@ -137,7 +138,7 @@ template <> void testInsert(LHMTester a, LHMTester b) {
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("nextBucket") {
     detail::LinkedHt<int, int, std::hash<int>, std::equal_to<int>> ht;
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < TEST_MAX; i++) {
       int r = randomInt.next();
       REQUIRE(ht.nextBucket(r) % 8 == 0);
       REQUIRE(ht.nextBucket(r) >= r);
@@ -159,16 +160,16 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
     testConstructor(LHMTester(), (int)1);
   }
   SECTION("insert") {
-    testInsert((char)1, (char)1);
-    testInsert((unsigned char)1, (unsigned char)1);
-    testInsert((short)1, (short)1);
-    testInsert((unsigned short)1, (unsigned short)1);
-    testInsert((int)1, (int)1);
-    testInsert((unsigned int)1, (unsigned int)1);
-    testInsert((long)1, (long)1);
-    testInsert((unsigned long)1, (unsigned long)1);
-    testInsert((long long)1, (long long)1);
-    testInsert((unsigned long long)1, (unsigned long long)1);
+    testInsert((char)0, (char)127);
+    testInsert((unsigned char)0, (unsigned char)127);
+    testInsert((short)0, (short)1024);
+    testInsert((unsigned short)0, (unsigned short)1024);
+    testInsert((int)0, (int)1024);
+    testInsert((unsigned int)0, (unsigned int)4096);
+    testInsert((long)0, (long)4096);
+    testInsert((unsigned long)0, (unsigned long)4096);
+    testInsert((long long)0, (long long)4096);
+    testInsert((unsigned long long)0, (unsigned long long)4096);
     testInsert(std::string("1"), std::string("1"));
     testInsert(LHMTester(), LHMTester());
   }
