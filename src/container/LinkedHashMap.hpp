@@ -575,10 +575,11 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
 
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::nextBucket(int n) {
-  return n <= 0 ? 8
-                : (n < std::numeric_limits<int>::max() - 7
-                       ? ((n + 7) / 8 * 8)
-                       : std::numeric_limits<int>::max());
+  if (n <= 0)
+    return 8;
+  if (n < (std::numeric_limits<int>::max() - 7) / 2)
+    return (2 * n + 7) / 8 * 8;
+  return std::numeric_limits<int>::max();
 }
 
 } // namespace detail
