@@ -531,11 +531,11 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   }
   n = alignBucket(n);
   CASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
-  LinkedList<K, V> *ht = new LinkedList<K, V>[n];
-  int *count = new int[n];
-  CASSERT(ht, "ht is null");
-  CASSERT(count, "count is null");
-  std::memset(count, 0, n * sizeof(int));
+  LinkedList<K, V> *newHt = new LinkedList<K, V>[n];
+  int *newCount = new int[n];
+  CASSERT(newHt, "newHt is null");
+  CASSERT(newCount, "newCount is null");
+  std::memset(newCount, 0, n * sizeof(int));
 
   // first try rehash old hashtable
   if (!empty()) {
@@ -543,9 +543,9 @@ void LinkedHt<K, V, H, E>::extend(int n) {
       while (count_[i] > 0) {
         LinkedNode<K, V> *e = ht_[i].removeHead();
         int b = getBucket(e->key());
-        ht[b].insertHead(e);
+        newHt[b].insertHead(e);
         --count_[i];
-        ++count[b];
+        ++newCount[b];
       }
     }
     if (ht_) {
@@ -559,8 +559,8 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   }
 
   // then assign new hashtable
-  ht_ = ht;
-  count_ = count;
+  ht_ = newHt;
+  count_ = newCount;
   bucket_ = n;
 }
 
