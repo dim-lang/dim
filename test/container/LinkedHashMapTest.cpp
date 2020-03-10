@@ -76,13 +76,16 @@ template <typename A> void testInsert(A a, A b) {
   LinkedHashMap<A, A> hm1;
   int c = 0;
   for (int i = (A)a; i < (int)b; i++) {
+    REQUIRE(hm1.find((A)i) == hm1.end());
     if (i % 2 == 0) {
-      REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert((A)i, (A)i);
     } else {
-      REQUIRE(hm1.find((A)i) == hm1.end());
       hm1.insert(std::make_pair((A)i, (A)i));
     }
+    auto p = hm1.find((A)i);
+    REQUIRE(p != hm1.end());
+    REQUIRE(p->first == (A)i);
+    REQUIRE(p->second == (A)i);
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -97,13 +100,16 @@ template <> void testInsert(std::string a, std::string b) {
   int c = 0;
   for (int i = 0; i < TEST_MAX; i++) {
     std::string kv = randomString.nextAlnum(i + 1);
+    REQUIRE(hm1.find(kv) == hm1.end());
     if (i % 2 == 0) {
-      REQUIRE(hm1.find(kv) == hm1.end());
       hm1.insert(kv, kv);
     } else {
-      REQUIRE(hm1.find(kv) == hm1.end());
       hm1.insert(std::make_pair(kv, kv));
     }
+    auto p = hm1.find(kv);
+    REQUIRE(p != hm1.end());
+    REQUIRE(p->first == kv);
+    REQUIRE(p->second == kv);
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -119,19 +125,23 @@ template <> void testInsert(LHMTester a, LHMTester b) {
   for (int i = 0; i < TEST_MAX; i++) {
     std::string p = randomString.nextAlnum(i + 1);
     int q = randomInt.next();
+    LHMTester lhm(p, q, q);
+    REQUIRE(hm1.find(lhm) == hm1.end());
     if (i % 2 == 0) {
-      REQUIRE(hm1.find(LHMTester(p, q, q)) == hm1.end());
-      hm1.insert(LHMTester(p, q, q), LHMTester(p, q, q));
+      hm1.insert(lhm, lhm);
     } else {
-      REQUIRE(hm1.find(LHMTester(p, q, q)) == hm1.end());
-      hm1.insert(std::make_pair(LHMTester(p, q, q), LHMTester(p, q, q)));
+      hm1.insert(std::make_pair(lhm, lhm));
     }
+    auto u = hm1.find(lhm);
+    REQUIRE(u != hm1.end());
+    REQUIRE(u->first == lhm);
+    REQUIRE(u->second == lhm);
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
     REQUIRE(hm1.load() <= 4.0);
-    REQUIRE(hm1[LHMTester(p, q, q)] == LHMTester(p, q, q));
+    REQUIRE(hm1[lhm] == lhm);
   }
 }
 

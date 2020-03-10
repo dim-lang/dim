@@ -41,8 +41,6 @@ set(CLIB
 set(CLIB_DIR
     .
     ../src
-    /usr/local/opt/spdlog/lib
-    /usr/local/opt/fmt/lib
     /usr/local/opt/boost/lib
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib
