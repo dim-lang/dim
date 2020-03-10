@@ -86,6 +86,7 @@ template <typename A> void testInsert(A a, A b) {
     REQUIRE(p != hm1.end());
     REQUIRE(p->first == (A)i);
     REQUIRE(p->second == (A)i);
+    REQUIRE(hm1.exist((A)i));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -110,6 +111,7 @@ template <> void testInsert(std::string a, std::string b) {
     REQUIRE(p != hm1.end());
     REQUIRE(p->first == kv);
     REQUIRE(p->second == kv);
+    REQUIRE(hm1.exist(kv));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -136,6 +138,7 @@ template <> void testInsert(LHMTester a, LHMTester b) {
     REQUIRE(u != hm1.end());
     REQUIRE(u->first == lhm);
     REQUIRE(u->second == lhm);
+    REQUIRE(hm1.exist(lhm));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -145,32 +148,32 @@ template <> void testInsert(LHMTester a, LHMTester b) {
   }
 }
 
-template <typename A> void testRemove(A a, A b) {
-  LinkedHashMap<A, A> hm1(100);
+void testRemove(int a, int b) {
+  LinkedHashMap<int, int> hm1(100);
   int c = 0;
   for (int i = (int)a; i < (int)b; i++) {
-    REQUIRE(hm1.find((A)i) == hm1.end());
-    hm1.insert((A)i, (A)i);
-    auto p = hm1.find((A)i);
+    REQUIRE(hm1.find(i) == hm1.end());
+    hm1.insert(i, i);
+    auto p = hm1.find(i);
     REQUIRE(p != hm1.end());
-    REQUIRE(p->first == (A)i);
-    REQUIRE(p->second == (A)i);
+    REQUIRE(p->first == i);
+    REQUIRE(p->second == i);
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
     REQUIRE(hm1.load() <= 4.0);
-    REQUIRE(hm1[(A)i] == (A)i);
+    REQUIRE(hm1[i] == i);
   }
   for (int i = (int)a; i < (int)b; i++) {
-    REQUIRE(hm1.find((A)i) != hm1.end());
+    REQUIRE(hm1.find(i) != hm1.end());
     if (i % 2 == 0) {
-      hm1.remove((A)i);
+      hm1.remove(i);
     } else {
-      auto k = hm1.find((A)i);
+      auto k = hm1.find(i);
       hm1.remove(k);
     }
-    REQUIRE(hm1.find((A)i) == hm1.end());
+    REQUIRE(hm1.find(i) == hm1.end());
     --c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
@@ -183,7 +186,7 @@ template <typename A> void testRemove(A a, A b) {
   }
 }
 
-template <> void testRemove(std::string a, std::string b) {
+void testRemove(std::string a, std::string b) {
   LinkedHashMap<std::string, std::string> hm1(100);
   std::vector<std::string> keyList;
   int c = 0;
@@ -222,20 +225,9 @@ template <> void testRemove(std::string a, std::string b) {
   }
 }
 
+void testClear() {}
+
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
-  // SECTION("alignBucket") {
-  // detail::LinkedHt<int, int, std::hash<int>, std::equal_to<int>> ht;
-  // for (int i = 0; i < TEST_MAX; i++) {
-  // int r = randomInt.next();
-  // if (ht.alignBucket(r) == std::numeric_limits<int>::max()) {
-  // REQUIRE(ht.alignBucket(r) >= (std::numeric_limits<int>::max() - 7) / 2);
-  //} else {
-  // REQUIRE(ht.alignBucket(r) % 8 == 0);
-  // REQUIRE(ht.alignBucket(r) >= r);
-  // REQUIRE(ht.alignBucket(r) < r + 8);
-  //}
-  //}
-  //}
   SECTION("constructor") {
     testConstructor((char)1, (unsigned char)1);
     testConstructor((unsigned char)1, (char)1);
@@ -267,5 +259,19 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("remove") {
     testRemove((int)0, (int)1024);
     testRemove(std::string("1"), std::string("1"));
+  }
+  SECTION("clear/release") {
+    for (int j = 0; j < 10; j++) {
+      LinkedHashMap<int, int> h1;
+      for (int i = 0; i < TEST_MAX; i++) {
+        h1.insert(i, i);
+      }
+      h1.clear();
+      REQUIRE(h1.empty());
+      REQUIRE(h1.bucket() > 0);
+      h1.release();
+      REQUIRE(h1.empty());
+      REQUIRE(h1.bucket() == 0);
+    }
   }
 }
