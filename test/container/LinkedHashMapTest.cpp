@@ -145,6 +145,83 @@ template <> void testInsert(LHMTester a, LHMTester b) {
   }
 }
 
+template <typename A> void testRemove(A a, A b) {
+  LinkedHashMap<A, A> hm1(100);
+  int c = 0;
+  for (int i = (int)a; i < (int)b; i++) {
+    REQUIRE(hm1.find((A)i) == hm1.end());
+    hm1.insert((A)i, (A)i);
+    auto p = hm1.find((A)i);
+    REQUIRE(p != hm1.end());
+    REQUIRE(p->first == (A)i);
+    REQUIRE(p->second == (A)i);
+    ++c;
+    REQUIRE(hm1.size() == c);
+    REQUIRE(hm1.bucket() > 0);
+    REQUIRE(!hm1.empty());
+    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1[(A)i] == (A)i);
+  }
+  for (int i = (int)a; i < (int)b; i++) {
+    REQUIRE(hm1.find((A)i) != hm1.end());
+    if (i % 2 == 0) {
+      hm1.remove((A)i);
+    } else {
+      auto k = hm1.find((A)i);
+      hm1.remove(k);
+    }
+    REQUIRE(hm1.find((A)i) == hm1.end());
+    --c;
+    REQUIRE(hm1.size() == c);
+    REQUIRE(hm1.bucket() > 0);
+    if (i < (int)b - 1) {
+      REQUIRE(!hm1.empty());
+    } else {
+      REQUIRE(hm1.empty());
+    }
+    REQUIRE(hm1.load() <= 4.0);
+  }
+}
+
+template <> void testRemove(std::string a, std::string b) {
+  LinkedHashMap<std::string, std::string> hm1(100);
+  std::vector<std::string> keyList;
+  int c = 0;
+  for (int i = 0; i < TEST_MAX; i++) {
+    std::string kv = randomString.nextAlnum(i + 1);
+    keyList.push_back(kv);
+    REQUIRE(hm1.find(kv) == hm1.end());
+    hm1.insert(kv, kv);
+    REQUIRE(hm1.find(kv) != hm1.end());
+    ++c;
+    REQUIRE(hm1.size() == c);
+    REQUIRE(hm1.bucket() > 0);
+    REQUIRE(!hm1.empty());
+    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1[kv] == kv);
+  }
+  for (int i = 0; i < TEST_MAX; i++) {
+    std::string kv = keyList[i];
+    REQUIRE(hm1.find(kv) != hm1.end());
+    if (i % 2 == 0) {
+      hm1.remove(kv);
+    } else {
+      auto k = hm1.find(kv);
+      hm1.remove(k);
+    }
+    REQUIRE(hm1.find(kv) == hm1.end());
+    --c;
+    REQUIRE(hm1.size() == c);
+    REQUIRE(hm1.bucket() > 0);
+    if (i < TEST_MAX - 1) {
+      REQUIRE(!hm1.empty());
+    } else {
+      REQUIRE(hm1.empty());
+    }
+    REQUIRE(hm1.load() <= 4.0);
+  }
+}
+
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   // SECTION("alignBucket") {
   // detail::LinkedHt<int, int, std::hash<int>, std::equal_to<int>> ht;
@@ -186,5 +263,9 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
     testInsert((unsigned long long)0, (unsigned long long)128);
     testInsert(std::string("1"), std::string("1"));
     testInsert(LHMTester(), LHMTester());
+  }
+  SECTION("remove") {
+    testRemove((int)0, (int)1024);
+    testRemove(std::string("1"), std::string("1"));
   }
 }
