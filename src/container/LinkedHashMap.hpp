@@ -435,7 +435,7 @@ template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   extend(2 * bucket_);
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-  int b = (int)hasher_(value.first) % bucket_;
+  int b = getBucket(value.first);
   ht_[b].insertHead(e);
   head_.seq_insert(e);
   CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
@@ -450,7 +450,7 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
   LinkedIterator<K, V> position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-    int b = (int)hasher_(value.first) % bucket_;
+    int b = getBucket(value.first);
     ht_[b].insertHead(e);
     head_.seq_insert(e);
     CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
@@ -469,7 +469,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
   if (empty()) {
     return end();
   }
-  int b = (int)hasher_(key) % bucket_;
+  int b = getBucket(key);
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), key)) {
@@ -485,7 +485,7 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
   if (empty()) {
     return -1;
   }
-  int b = (int)hasher_(position->first) % bucket_;
+  int b = getBucket(position->first);
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), position->first)) {
@@ -537,12 +537,12 @@ void LinkedHt<K, V, H, E>::extend(int n) {
   CASSERT(count, "count is null");
   std::memset(count, 0, n * sizeof(int));
 
-  // first try release old hashtable
+  // first try rehash old hashtable
   if (!empty()) {
     for (int i = 0; i < bucket_; i++) {
       while (count_[i] > 0) {
         LinkedNode<K, V> *e = ht_[i].removeHead();
-        int b = (int)hasher_(e->key()) % n;
+        int b = getBucket(e->key());
         ht[b].insertHead(e);
         --count_[i];
         ++count[b];
@@ -580,12 +580,17 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
 }
 
 template <typename K, typename V, typename H, typename E>
-int LinkedHt<K, V, H, E>::alignBucket(int n) {
+int LinkedHt<K, V, H, E>::alignBucket(int n) const {
   if (n <= 0)
     return 8;
   if (n < (std::numeric_limits<int>::max() - 7) / 2)
     return (n + 7) / 8 * 8;
   return std::numeric_limits<int>::max();
+}
+
+template <typename K, typename V, typename H, typename E>
+int LinkedHt<K, V, H, E>::getBucket(const K &key) const {
+  return int((size_t)hasher_(key) % (size_t)bucket_);
 }
 
 } // namespace detail

@@ -127,9 +127,10 @@ public:
   const LinkedIterator<K, V> begin() const;
   LinkedIterator<K, V> end();
   const LinkedIterator<K, V> end() const;
-  int alignBucket(int n);
 
 private:
+  int getBucket(const K &key) const;
+  int alignBucket(int n) const;
   void extend(int n);
   void destroyList(int i);
 
