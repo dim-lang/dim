@@ -32,26 +32,32 @@ set(CINC
     /usr/local/opt/icu4c/include
     ${Boost_INCLUDE_DIRS}
     ${LLVM_INCLUDE_DIRS}
+    ${Gperftools_INCLUDE_DIRS}
+    /usr/include
+    /usr/local/include
     )
 
 set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
     ${llvm_libraries}
+    ${Gperftools_LIBRARIES}
+    tcmalloc
     icuuc
     icuio
     icudata
     icui18n
-    tcmalloc
     )
 
 set(CLIB_DIR
     .
     ../src
     /usr/local/opt/icu4c/lib
-    /usr/local/opt/gperftools/lib
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
+    ${Gperftools_LIBRARY_DIRS}
+    /usr/lib
+    /usr/local/lib
     )
 
 add_definitions(-DFMT_HEADER_ONLY)

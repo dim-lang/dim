@@ -30,25 +30,28 @@ set(CINC
     Threads::Threads
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
+    /usr/include
+    /usr/local/include
     )
 
 set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
     ${llvm_libraries}
+    tcmalloc
     icuuc
     icuio
     icudata
     icui18n
-    tcmalloc
     )
 
 set(CLIB_DIR
     .
     /usr/local/opt/icu4c/lib
-    /usr/local/opt/gperftools/lib
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
+    /usr/lib
+    /usr/local/lib
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
