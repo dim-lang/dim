@@ -303,4 +303,34 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
       REQUIRE(u->second == LHMTester(std::to_string(i), i, i));
     }
   }
+  SECTION("insertOrAssign") {
+    LinkedHashMap<int, int> hm1;
+    LinkedHashMap<std::string, std::string> hm2;
+    LinkedHashMap<LHMTester, LHMTester> hm3;
+
+    int a = 100;
+    std::string b = "hello";
+    LHMTester c("jack", 10, 20);
+
+    hm1.insertOrAssign(a, a);
+    REQUIRE(hm1.size() == 1);
+    REQUIRE(hm1[a] == a);
+    hm1.insertOrAssign(a, a);
+    REQUIRE(hm1.size() == 1);
+    REQUIRE(hm1[a] == a);
+
+    hm2.insertOrAssign(b, b);
+    REQUIRE(hm2.size() == 1);
+    REQUIRE(hm2[b] == b);
+    hm2.insertOrAssign(b, b);
+    REQUIRE(hm2.size() == 1);
+    REQUIRE(hm2[b] == b);
+
+    hm3.insertOrAssign(c, c);
+    REQUIRE(hm3.size() == 1);
+    REQUIRE(hm3[c] == c);
+    hm3.insertOrAssign(c, c);
+    REQUIRE(hm3.size() == 1);
+    REQUIRE(hm3[c] == c);
+  }
 }
