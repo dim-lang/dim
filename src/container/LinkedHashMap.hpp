@@ -498,6 +498,7 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
       CASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
+    e = e->next();
   }
   return -1;
 }
