@@ -31,17 +31,19 @@ set(CINC
     Threads::Threads
     ${Boost_INCLUDE_DIRS}
     ${LLVM_INCLUDE_DIRS}
+    /usr/include
+    /usr/local/include
     )
 
 set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
     ${llvm_libraries}
+    tcmalloc
     icuuc
     icuio
     icudata
     icui18n
-    tcmalloc
     )
 
 set(CLIB_DIR
@@ -49,6 +51,8 @@ set(CLIB_DIR
     ../src
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
+    /usr/lib
+    /usr/local/lib
     )
 
 add_definitions(-DFMT_HEADER_ONLY)

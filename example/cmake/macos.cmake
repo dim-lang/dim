@@ -59,7 +59,6 @@ set(CLIB_DIR
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-add_definitions(${Gperftools_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
