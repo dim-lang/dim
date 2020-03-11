@@ -13,6 +13,15 @@ find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libs analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
+message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
+message(Boost_LIBRARIES: ${Boost_LIBRARIES})
+message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
+message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
+message(llvm_libraries: ${llvm_libraries})
+message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
+message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
+
 set(CINC
     .
     ../src
