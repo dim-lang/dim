@@ -54,10 +54,10 @@ function init_pacman() {
 
 function init_zypper() {
     sudo echo [coli] prepare compiler and toolchain through zypper || { echo [coli] sudo not found; exit 3; }
-    sudo zypper install -y gcc gcc-c++ gcc-32bit gcc-c++-32bit make cmake automake autoconf flex bison
+    sudo zypper install -y gcc gcc-c++ make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through zypper - done
     echo [coli] prepare libboost-devel, libicu-devel, gperftools-devel through zypper
-    sudo zypper install -y libboost*-devel libboost*-32bit libicu-devel libicu-devel-32bit gperftools-devel
+    sudo zypper install -y libboost*-devel libicu-devel gperftools-devel
     echo [coli] prepare libboost-devel, libicu-devel, gperftools-devel through zypper - done
 }
 
