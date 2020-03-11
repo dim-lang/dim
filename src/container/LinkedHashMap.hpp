@@ -435,7 +435,7 @@ template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   extend(2 * bucket_);
   LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-  int b = getBucket(value.first);
+  int b = getBucket(value.first, bucket_);
   ht_[b].insertHead(e);
   head_.seq_insert(e);
   CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
@@ -450,7 +450,7 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
   LinkedIterator<K, V> position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
-    int b = getBucket(value.first);
+    int b = getBucket(value.first, bucket_);
     ht_[b].insertHead(e);
     head_.seq_insert(e);
     CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
@@ -469,7 +469,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
   if (empty()) {
     return end();
   }
-  int b = getBucket(key);
+  int b = getBucket(key, bucket_);
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), key)) {
@@ -485,7 +485,7 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
   if (empty()) {
     return -1;
   }
-  int b = getBucket(position->first);
+  int b = getBucket(position->first, bucket_);
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), position->first)) {
@@ -543,7 +543,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     for (int i = 0; i < bucket_; i++) {
       while (count_[i] > 0) {
         LinkedNode<K, V> *e = ht_[i].removeHead();
-        int b = getBucket(e->key());
+        int b = getBucket(e->key(), n);
         newHt[b].insertHead(e);
         --count_[i];
         ++newCount[b];
@@ -590,8 +590,8 @@ int LinkedHt<K, V, H, E>::alignBucket(int n) const {
 }
 
 template <typename K, typename V, typename H, typename E>
-int LinkedHt<K, V, H, E>::getBucket(const K &key) const {
-  return int((size_t)hasher_(key) % (size_t)bucket_);
+int LinkedHt<K, V, H, E>::getBucket(const K &key, int bucket) const {
+  return int((size_t)hasher_(key) % (size_t)bucket);
 }
 
 } // namespace detail

@@ -151,7 +151,7 @@ template <> void testInsert(LHMTester a, LHMTester b) {
 void testRemove(int a, int b) {
   LinkedHashMap<int, int> hm1(100);
   int c = 0;
-  for (int i = (int)a; i < (int)b; i++) {
+  for (int i = a; i < b; i++) {
     REQUIRE(hm1.find(i) == hm1.end());
     hm1.insert(i, i);
     auto p = hm1.find(i);
@@ -165,7 +165,10 @@ void testRemove(int a, int b) {
     REQUIRE(hm1.load() <= 4.0);
     REQUIRE(hm1[i] == i);
   }
-  for (int i = (int)a; i < (int)b; i++) {
+  for (int i = a; i < b; i++) {
+    if (hm1.find(i) == hm1.end()) {
+      CINFO("i: {}", i);
+    }
     REQUIRE(hm1.find(i) != hm1.end());
     if (i % 2 == 0) {
       hm1.remove(i);
@@ -257,7 +260,7 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
     testInsert(LHMTester(), LHMTester());
   }
   SECTION("remove") {
-    testRemove((int)0, (int)1024);
+    testRemove(0, 1024);
     testRemove(std::string("1"), std::string("1"));
   }
   SECTION("clear/release") {

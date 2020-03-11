@@ -129,7 +129,7 @@ public:
   const LinkedIterator<K, V> end() const;
 
 private:
-  int getBucket(const K &key) const;
+  int getBucket(const K &key, int bucket) const;
   int alignBucket(int n) const;
   void extend(int n);
   void destroyList(int i);
