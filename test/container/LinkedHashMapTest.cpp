@@ -314,23 +314,29 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
 
     hm1.insertOrAssign(a, a);
     REQUIRE(hm1.size() == 1);
+    REQUIRE(hm1.exist(a));
     REQUIRE(hm1[a] == a);
     hm1.insertOrAssign(a, a);
     REQUIRE(hm1.size() == 1);
+    REQUIRE(hm1.exist(a));
     REQUIRE(hm1[a] == a);
 
     hm2.insertOrAssign(b, b);
     REQUIRE(hm2.size() == 1);
     REQUIRE(hm2[b] == b);
+    REQUIRE(hm2.exist(b));
     hm2.insertOrAssign(b, b);
     REQUIRE(hm2.size() == 1);
     REQUIRE(hm2[b] == b);
+    REQUIRE(hm2.exist(b));
 
     hm3.insertOrAssign(c, c);
     REQUIRE(hm3.size() == 1);
     REQUIRE(hm3[c] == c);
+    REQUIRE(hm3.exist(c));
     hm3.insertOrAssign(c, c);
     REQUIRE(hm3.size() == 1);
     REQUIRE(hm3[c] == c);
+    REQUIRE(hm3.exist(c));
   }
 }
