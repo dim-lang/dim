@@ -44,6 +44,6 @@ link_directories(${LIB_DIR})
 
 add_executable(coli-icu_ustdio icu_ustdio.cpp)
 target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
-target_link_libraries(coli-icu_ustdio debug ${CLIBD})
-#target_link_libraries(coli-icu_ustdio ${CLIB})
+#target_link_libraries(coli-icu_ustdio debug ${CLIBD})
+target_link_libraries(coli-icu_ustdio ${CLIB})
 set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
