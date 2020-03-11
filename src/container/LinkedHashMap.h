@@ -86,6 +86,7 @@ private:
 // linked iterator
 template <typename K, typename V> class LinkedIterator : public Stringify {
 public:
+  LinkedIterator();
   LinkedIterator(LinkedNode<K, V> *node);
   ~LinkedIterator();
   LinkedIterator(const LinkedIterator<K, V> &other);

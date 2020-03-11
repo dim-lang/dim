@@ -228,8 +228,6 @@ void testRemove(std::string a, std::string b) {
   }
 }
 
-void testClear() {}
-
 TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
   SECTION("constructor") {
     testConstructor((char)1, (unsigned char)1);
@@ -264,17 +262,45 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
     testRemove(std::string("1"), std::string("1"));
   }
   SECTION("clear/release") {
-    for (int j = 0; j < 10; j++) {
-      LinkedHashMap<int, int> h1;
-      for (int i = 0; i < TEST_MAX; i++) {
-        h1.insert(i, i);
-      }
-      h1.clear();
-      REQUIRE(h1.empty());
-      REQUIRE(h1.bucket() > 0);
-      h1.release();
-      REQUIRE(h1.empty());
-      REQUIRE(h1.bucket() == 0);
+    LinkedHashMap<int, int> h1;
+    for (int i = 0; i < TEST_MAX; i++) {
+      h1.insert(i, i);
+    }
+    h1.clear();
+    REQUIRE(h1.empty());
+    REQUIRE(h1.bucket() > 0);
+    h1.release();
+    REQUIRE(h1.empty());
+    REQUIRE(h1.bucket() == 0);
+  }
+  SECTION("foreach") {
+    LinkedHashMap<int, int> hm1;
+    LinkedHashMap<std::string, std::string> hm2;
+    LinkedHashMap<LHMTester, LHMTester> hm3;
+    int i;
+    for (i = 0; i < TEST_MAX; i++) {
+      hm1.insert(i, i);
+      hm2.insert(std::to_string(i), std::to_string(i));
+      hm3.insert(LHMTester(std::to_string(i), i, i),
+                 LHMTester(std::to_string(i), i, i));
+    }
+    LinkedHashMap<int, int>::Iterator p;
+    for (p = hm1.begin(), i = 0; p != hm1.end(); p++, i++) {
+      REQUIRE(i < TEST_MAX);
+      REQUIRE(p->first == i);
+      REQUIRE(p->second == i);
+    }
+    LinkedHashMap<std::string, std::string>::Iterator q;
+    for (q = hm2.begin(), i = 0; q != hm2.end(); q++, i++) {
+      REQUIRE(i < TEST_MAX);
+      REQUIRE(q->first == std::to_string(i));
+      REQUIRE(q->second == std::to_string(i));
+    }
+    LinkedHashMap<LHMTester, LHMTester>::Iterator u;
+    for (u = hm3.begin(), i = 0; u != hm3.end(); u++, i++) {
+      REQUIRE(i < TEST_MAX);
+      REQUIRE(u->first == LHMTester(std::to_string(i), i, i));
+      REQUIRE(u->second == LHMTester(std::to_string(i), i, i));
     }
   }
 }

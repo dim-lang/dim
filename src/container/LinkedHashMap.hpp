@@ -279,6 +279,9 @@ const LinkedNode<K, V> *LinkedNode<K, V>::seq_next() const {
 // linked iterator
 
 template <typename K, typename V>
+LinkedIterator<K, V>::LinkedIterator() : node_(nullptr) {}
+
+template <typename K, typename V>
 LinkedIterator<K, V>::LinkedIterator(LinkedNode<K, V> *node) : node_(node) {}
 
 template <typename K, typename V> LinkedIterator<K, V>::~LinkedIterator() {
