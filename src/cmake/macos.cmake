@@ -11,7 +11,7 @@ set(Boost_USE_DEBUG_LIBS OFF)
 set(Boost_USE_RELEASE_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
-llvm_map_components_to_libnames(llvm_libs analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
+llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
 message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
 message(Boost_LIBRARIES: ${Boost_LIBRARIES})
@@ -35,7 +35,7 @@ set(CINC
 set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
-    ${llvm_libs}
+    ${llvm_libraries}
     icuuc
     icuio
     icudata
