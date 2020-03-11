@@ -10,20 +10,23 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_DEBUG_LIBS OFF)
 set(Boost_USE_RELEASE_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
+find_package(LLVM REQUIRED CONFIG)
+llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
 set(CINC
     .
     ../src
     spdlog/include
     fmt/include
-    Threads::Threads
     /usr/local/opt/icu4c/include
-    /usr/local/opt/catch2/include
+    Threads::Threads
     ${Boost_INCLUDE_DIRS}
+    ${LLVM_INCLUDE_DIRS}
     )
 set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
+    ${llvm_libraries}
     icuuc
     icuio
     icudata
@@ -35,9 +38,12 @@ set(CLIB_DIR
     /usr/local/opt/icu4c/lib
     /usr/local/opt/gperftools/lib
     ${Boost_LIBRARY_DIRS}
+    ${LLVM_LIBRARY_DIRS}
     )
 
 add_definitions(-DFMT_HEADER_ONLY)
+add_definitions(${Boost_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
