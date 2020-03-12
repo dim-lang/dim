@@ -123,7 +123,7 @@ protected:
 
 class GlobalTytab : public Tytab {
 public:
-  static GlobalTytab *instance();
+  GlobalTytab();
   virtual ~GlobalTytab() = default;
   virtual std::string name() const;
   virtual int type() const;
@@ -133,7 +133,6 @@ public:
   // virtual std::string toString() const;
 
 protected:
-  GlobalTytab();
   virtual std::string stringify() const;
 };
 

@@ -113,7 +113,7 @@ protected:
 
 class GlobalSymtab : public Symtab {
 public:
-  static GlobalSymtab *instance();
+  GlobalSymtab();
   virtual ~GlobalSymtab() = default;
   virtual std::string name() const;
   virtual int type() const;
@@ -123,7 +123,6 @@ public:
   // virtual std::string toString() const;
 
 protected:
-  GlobalSymtab();
   virtual std::string stringify() const;
 };
 

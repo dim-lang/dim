@@ -6,6 +6,12 @@
 #include "Symbol.h"
 #include "Type.h"
 
+class Semantic {
+public:
+  void buildSemantic(Symtab *&gss, Symtab *&css, const Ast *node);
+  void checkSemantic(Tytab *&gts, Tytab *&cts, const Ast *node);
+};
+
 class Semant {
 public:
   Semant(Ast *program);

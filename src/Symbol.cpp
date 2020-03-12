@@ -89,11 +89,6 @@ int ClassSymbol::type() const { return SYM_CLASS; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
-GlobalSymtab *GlobalSymtab::instance() {
-  static GlobalSymtab *gs = new GlobalSymtab();
-  return gs;
-}
-
 GlobalSymtab::GlobalSymtab() : Symtab(nullptr) {}
 
 std::string GlobalSymtab::name() const {

@@ -11,10 +11,6 @@
 #include <tuple>
 #include <utility>
 
-class AstProgram;
-class Symbol;
-class Type;
-
 class Scanner {
 public:
   Scanner(const std::string &fileName);
@@ -31,10 +27,14 @@ public:
   // attribute access
   virtual const AstProgram *program() const;
   virtual AstProgram *&program();
-  virtual const Symbol *gss() const;
-  virtual Symbol *&gss();
-  virtual const Type *gts() const;
-  virtual Type *&gts();
+  virtual const Symtab *gss() const;
+  virtual Symtab *&gss();
+  virtual const Symtab *css() const;
+  virtual Symtab *&css();
+  virtual const Tytab *gts() const;
+  virtual Tytab *&gts();
+  virtual const Tytab *cts() const;
+  virtual Tytab *&cts();
   virtual const yyscan_t yy_scaninfo() const;
   virtual yyscan_t &yy_scaninfo();
   virtual const std::string &fileName() const;
@@ -47,8 +47,10 @@ private:
   std::string fileName_;
 
   AstProgram *program_;
-  Symbol *gss_;
-  Type *gts_;
+  Symtab *gss_; // global symbol scope
+  Symtab *css_; // current symbol scope
+  Tytab *gts_;  // global type scope
+  Tytab *cts_;  // current type scope
   yyscan_t yy_scaninfo_;
   BufferStack *bufferStack_;
 };

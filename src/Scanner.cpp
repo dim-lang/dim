@@ -6,11 +6,14 @@
 #include "Parser.h"
 
 Scanner::Scanner(const std::string &fileName)
-    : fileName_(fileName), program_(nullptr), gss_(nullptr), gts_(nullptr),
-      yy_scaninfo_(nullptr), bufferStack_(nullptr) {
+    : fileName_(fileName), program_(nullptr), gss_(nullptr), css_(nullptr),
+      gts_(nullptr), cts_(nullptr) yy_scaninfo_(nullptr),
+      bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   program_ = new AstProgram();
+  Symbol::push(gss_, css_, new GlobalSymtab());
+  Type::push(gts_, cts_, new GlobalTytab());
   bufferStack_ = new BufferStack(yy_scaninfo_);
   int p = push(fileName);
   CASSERT(p == 1, "bufferStack_#push fail: {}", p);
@@ -29,10 +32,12 @@ Scanner::~Scanner() {
     delete gss_;
     gss_ = nullptr;
   }
+  css_ = nullptr;
   if (gts_) {
     delete gts_;
     gts_ = nullptr;
   }
+  cts_ = nullptr;
   if (bufferStack_) {
     delete bufferStack_;
     bufferStack_ = nullptr;
@@ -77,13 +82,21 @@ const AstProgram *Scanner::program() const { return program_; }
 
 AstProgram *&Scanner::program() { return program_; }
 
-const Symbol *Scanner::gss() const { return gss_; }
+const Symtab *Scanner::gss() const { return gss_; }
 
-Symbol *&Scanner::gss() { return gss_; }
+Symtab *&Scanner::gss() { return gss_; }
 
-const Type *Scanner::gts() const { return gts_; }
+const Symtab *Scanner::css() const { return css_; }
 
-Type *&Scanner::gts() { return gts_; }
+Symtab *&Scanner::css() { return css_; }
+
+const Tytab *Scanner::gts() const { return gts_; }
+
+Tytab *&Scanner::gts() { return gts_; }
+
+const Tytab *Scanner::cts() const { return cts_; }
+
+Tytab *&Scanner::cts() { return cts_; }
 
 const yyscan_t Scanner::yy_scaninfo() const { return yy_scaninfo_; }
 
