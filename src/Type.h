@@ -3,11 +3,13 @@
 
 #pragma once
 #include "Symbol.h"
+#include "boost/core/noncopyable.hpp"
+#include "container/LinkedHashMap.h"
+#include "container/LinkedHashMap.hpp"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include "interface/Typely.h"
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -20,7 +22,7 @@
 
 class Tytab;
 
-class Type : public Namely, public Typely {
+class Type : public Namely, public Typely, private boost::noncopyable {
 public:
   virtual ~Type() = default;
   virtual std::string name() const = 0;
@@ -30,14 +32,12 @@ public:
   static void pop(Tytab *&global, Tytab *&current);
 };
 
-using TypeHashMap = std::unordered_map<Symbol *, Type *>;
-using TypeHashMapIterator = std::unordered_map<Symbol *, Type *>::iterator;
-using TypeHashMapConstIterator =
-    std::unordered_map<Symbol *, Type *>::const_iterator;
-
 class Tytab : public Type, public Stringify {
-
 public:
+  using TypeHashMap = LinkedHashMap<Symbol *, Type *>;
+  using Iterator = LinkedHashMap<Symbol *, Type *>::Iterator;
+  using CIterator = LinkedHashMap<Symbol *, Type *>::CIterator;
+
   Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
   virtual std::string name() const = 0;
@@ -46,10 +46,10 @@ public:
   virtual Type *resolve(Symbol *sym);
   virtual Tytab *enclosingScope();
   virtual std::string toString() const;
-  virtual TypeHashMapIterator begin();
-  virtual TypeHashMapIterator end();
-  virtual TypeHashMapConstIterator begin() const;
-  virtual TypeHashMapConstIterator end() const;
+  virtual Iterator begin();
+  virtual CIterator begin() const;
+  virtual Iterator end();
+  virtual CIterator end() const;
   virtual int size() const;
   virtual bool empty() const;
 

@@ -2,11 +2,13 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "boost/core/noncopyable.hpp"
+#include "container/LinkedHashMap.h"
+#include "container/LinkedHashMap.hpp"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include "interface/Typely.h"
 #include <string>
-#include <unordered_map>
 
 #define SYM_VAR 101
 #define SYM_FUNC_ARG 102
@@ -18,7 +20,7 @@
 
 class Symtab;
 
-class Symbol : public Namely, public Typely {
+class Symbol : public Namely, public Typely, private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
@@ -28,14 +30,12 @@ public:
   static void pop(Symtab *&global, Symtab *&current);
 };
 
-using SymbolHashMap = std::unordered_map<std::string, Symbol *>;
-using SymbolHashMapIterator =
-    std::unordered_map<std::string, Symbol *>::iterator;
-using SymbolHashMapConstIterator =
-    std::unordered_map<std::string, Symbol *>::const_iterator;
-
 class Symtab : public Symbol, public Stringify {
 public:
+  using SymbolHashMap = LinkedHashMap<std::string, Symbol *>;
+  using Iterator = LinkedHashMap<std::string, Symbol *>::Iterator;
+  using CIterator = LinkedHashMap<std::string, Symbol *>::CIterator;
+
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
   virtual std::string name() const = 0;
@@ -44,10 +44,10 @@ public:
   virtual Symbol *resolve(const std::string &name);
   virtual Symtab *enclosingScope();
   virtual std::string toString() const;
-  virtual SymbolHashMapIterator begin();
-  virtual SymbolHashMapIterator end();
-  virtual SymbolHashMapConstIterator begin() const;
-  virtual SymbolHashMapConstIterator end() const;
+  virtual Iterator begin();
+  virtual CIterator begin() const;
+  virtual Iterator end();
+  virtual CIterator end() const;
   virtual int size() const;
   virtual bool empty() const;
 

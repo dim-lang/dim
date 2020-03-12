@@ -1,6 +1,7 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 #pragma once
+#include "boost/core/noncopyable.hpp"
 #include "interface/Stringify.h"
 #include <functional>
 #include <utility>
@@ -10,7 +11,8 @@ namespace detail {
 template <typename K, typename V> class LinkedNode;
 
 // linked list
-template <typename K, typename V> class LinkedList {
+template <typename K, typename V>
+class LinkedList : private boost::noncopyable {
 public:
   LinkedList();
   ~LinkedList();
@@ -51,7 +53,8 @@ private:
 };
 
 // linked node
-template <typename K, typename V> class LinkedNode {
+template <typename K, typename V>
+class LinkedNode : private boost::noncopyable {
 public:
   LinkedNode(const std::pair<const K, V> &value);
   ~LinkedNode();
@@ -109,7 +112,8 @@ private:
 };
 
 // linked hashtable
-template <typename K, typename V, typename H, typename E> class LinkedHt {
+template <typename K, typename V, typename H, typename E>
+class LinkedHt : private boost::noncopyable {
 public:
   LinkedHt();
   LinkedHt(int bucket);
@@ -149,7 +153,7 @@ private:
 // linked hashmap
 template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
-class LinkedHashMap {
+class LinkedHashMap : private boost::noncopyable {
 public:
   using Iterator = typename detail::LinkedIterator<K, V>;
   using CIterator = typename detail::LinkedIterator<K, V> const;
