@@ -7,16 +7,16 @@
 #include "Type.h"
 #include "container/LinkedHashMap.hpp"
 
-Semant::Semant(Ast *program)
-    : program_(program), gsym_(nullptr), csym_(nullptr), gty_(nullptr),
-      cty_(nullptr) {
-  CASSERT(program_, "program_ is null");
-  CASSERT(program_->type() == A_PROGRAM, "program is program: {}",
-          program_->toString());
+Semant::Semant(Ast *translateUnit)
+    : translateUnit_(translateUnit), gsym_(nullptr), csym_(nullptr),
+      gty_(nullptr), cty_(nullptr) {
+  CASSERT(translateUnit_, "translateUnit_ is null");
+  CASSERT(translateUnit_->type() == A_TRANSLATE_UNIT,
+          "translateUnit_ is A_TRANSLATE_UNIT: {}", translateUnit_->toString());
 }
 
 Semant::~Semant() {
-  program_ = nullptr;
+  translateUnit_ = nullptr;
   gsym_ = nullptr;
   csym_ = nullptr;
   gty_ = nullptr;
@@ -156,8 +156,8 @@ void buildSemantic(Symtab *&gss, Symtab *&css, const Ast *node) {
   CASSERT(css, "css is null: {}", css ? css->toString() : "null");
   CASSERT(node, "node is null: {}", node ? node->toString() : "null");
   switch (node->type()) {
-  case A_PROGRAM: {
-    AstProgram *e = DC(AstProgram, node);
+  case A_TRANSLATE_UNIT: {
+    AstTranslateUnit *e = DC(AstTranslateUnit, node);
     Symbol::push(gss, csym_, new GlobalSymtab());
     Type::push(gty_, cty_, new GlobalTytab());
     for (int i = 0; i < e->size(); i++) {
@@ -289,10 +289,10 @@ void Semant::build() {
   CASSERT(!csym_, "csym_ is not null: {}", csym_ ? csym_->toString() : "null");
   CASSERT(!gty_, "gty_ is not null: {}", gty_ ? gty_->toString() : "null");
   CASSERT(!cty_, "cty_ is not null: {}", cty_ ? cty_->toString() : "null");
-  CASSERT(program_->type() == A_PROGRAM, "program_ is program: {}",
-          program_->toString());
-  AstProgram *e = dynamic_cast<AstProgram *>(program_);
-  CASSERT(e, "program is null: {}", e ? e->toString() : "null");
+  CASSERT(translateUnit_->type() == A_TRANSLATE_UNIT,
+          "translateUnit_ is translateUnit_: {}", translateUnit_->toString());
+  AstTranslateUnit *e = dynamic_cast<AstTranslateUnit *>(translateUnit_);
+  CASSERT(e, "translateUnit_ is null: {}", e ? e->toString() : "null");
   Symbol::push(gsym_, csym_, new GlobalSymtab());
   Type::push(gty_, cty_, new GlobalTytab());
   for (int i = 0; i < e->size(); i++) {
@@ -382,8 +382,8 @@ void Semant::checkImpl(Ast *node) {
 void Semant::check() {
   CASSERT(gsym_, "gsym_ is null");
   CASSERT(gty_, "gty_ is null");
-  AstProgram *e = dynamic_cast<AstProgram *>(program_);
-  CASSERT(e, "program is null: {}", e ? e->toString() : "null");
+  AstTranslateUnit *e = dynamic_cast<AstTranslateUnit *>(translateUnit_);
+  CASSERT(e, "translateUnit_ is null: {}", e ? e->toString() : "null");
   Symbol::push(gsym_, csym_, gsym_);
   Type::push(gty_, cty_, gty_);
   for (int i = 0; i < e->size(); i++) {

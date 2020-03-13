@@ -25,8 +25,8 @@ public:
   virtual bool empty() const;
 
   // attribute access
-  virtual const AstProgram *program() const;
-  virtual AstProgram *&program();
+  virtual const AstTranslateUnit *translateUnit() const;
+  virtual AstTranslateUnit *&translateUnit();
   virtual const Symtab *gss() const;
   virtual Symtab *&gss();
   virtual const Symtab *css() const;
@@ -46,7 +46,7 @@ public:
 private:
   std::string fileName_;
 
-  AstProgram *program_;
+  AstTranslateUnit *translateUnit_;
   Symtab *gss_; // global symbol scope
   Symtab *css_; // current symbol scope
   Tytab *gts_;  // global type scope

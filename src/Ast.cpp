@@ -50,15 +50,15 @@ std::string AstDeclarationList::name() const { return name_; }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
-AstProgram::AstProgram() : name_(GEN_NAME("A_Prog")) {}
+AstTranslateUnit::AstTranslateUnit() : name_(GEN_NAME("A_Prog")) {}
 
-AstProgram::~AstProgram() {}
+AstTranslateUnit::~AstTranslateUnit() {}
 
-int AstProgram::type() const { return A_PROGRAM; }
+int AstTranslateUnit::type() const { return A_TRANSLATE_UNIT; }
 
-std::string AstProgram::name() const { return name_; }
+std::string AstTranslateUnit::name() const { return name_; }
 
-std::string AstProgram::stringify() const { return "AstProgram"; }
+std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : value_(value), name_(GEN_NAME_VAL("A_id", value)) {}

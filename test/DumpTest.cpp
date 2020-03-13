@@ -13,8 +13,8 @@
 static void go(const char *fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  CINFO("dump ast: {} {}", fileName, dumpAst(scanner.program()));
-  Semant *semant = new Semant(scanner.program());
+  CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
+  Semant *semant = new Semant(scanner.translateUnit());
   semant->build();
   semant->check();
   CINFO("dump symbol:{} {}", fileName, dumpSymbol(semant->globalSymbolTable()));

@@ -53,15 +53,15 @@
 #define A_STATEMENT_LIST 402
 #define A_DECLARATION_LIST 403
 
-#define A_PROGRAM 501
+#define A_TRANSLATE_UNIT 501
 
 /* ================================== */
 
 /* interface */
 class Ast;
 
-/* program */
-class AstProgram;
+/* translate unit */
+class AstTranslateUnit;
 
 /* list */
 class AstExpressionList;
@@ -241,12 +241,12 @@ private:
   std::string name_;
 };
 
-/* program is actually declaration list */
+/* translate unit is actually declaration list */
 
-class AstProgram : public detail::AstList<AstDeclaration> {
+class AstTranslateUnit : public detail::AstList<AstDeclaration> {
 public:
-  AstProgram();
-  virtual ~AstProgram();
+  AstTranslateUnit();
+  virtual ~AstTranslateUnit();
   virtual int type() const;
   virtual std::string name() const;
   // virtual std::string toString() const;

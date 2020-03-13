@@ -6,12 +6,12 @@
 #include "Parser.h"
 
 Scanner::Scanner(const std::string &fileName)
-    : fileName_(fileName), program_(nullptr), gss_(nullptr), css_(nullptr),
-      gts_(nullptr), cts_(nullptr), yy_scaninfo_(nullptr),
+    : fileName_(fileName), translateUnit_(nullptr), gss_(nullptr),
+      css_(nullptr), gts_(nullptr), cts_(nullptr), yy_scaninfo_(nullptr),
       bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
-  program_ = new AstProgram();
+  translateUnit_ = new AstTranslateUnit();
   Symbol::push(gss_, css_, new GlobalSymtab());
   Type::push(gts_, cts_, new GlobalTytab());
   bufferStack_ = new BufferStack(yy_scaninfo_);
@@ -24,9 +24,9 @@ Scanner::~Scanner() {
     yylex_destroy(yy_scaninfo_);
     yy_scaninfo_ = nullptr;
   }
-  if (program_) {
-    delete program_;
-    program_ = nullptr;
+  if (translateUnit_) {
+    delete translateUnit_;
+    translateUnit_ = nullptr;
   }
   if (gss_) {
     delete gss_;
@@ -78,9 +78,11 @@ bool Scanner::empty() const {
   return bufferStack_->empty();
 }
 
-const AstProgram *Scanner::program() const { return program_; }
+const AstTranslateUnit *Scanner::translateUnit() const {
+  return translateUnit_;
+}
 
-AstProgram *&Scanner::program() { return program_; }
+AstTranslateUnit *&Scanner::translateUnit() { return translateUnit_; }
 
 const Symtab *Scanner::gss() const { return gss_; }
 

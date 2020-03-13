@@ -14,7 +14,7 @@ public:
 
 class Semant {
 public:
-  Semant(Ast *program);
+  Semant(Ast *translateUnit);
   virtual ~Semant();
   virtual void build();
   virtual void check();
@@ -25,7 +25,7 @@ private:
   virtual void buildImpl(Ast *node);
   virtual void checkImpl(Ast *node);
 
-  Ast *program_;
+  Ast *translateUnit_;
   Symtab *gsym_;
   Symtab *csym_;
   Tytab *gty_;

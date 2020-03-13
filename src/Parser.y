@@ -340,14 +340,14 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
 
 translation_unit : declaration {
                         CASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        CASSERT(Y_EXTRA->program(), "Y_EXTRA#program is null");
-                        Y_EXTRA->program()->add($1);
+                        CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA#translateUnit is null");
+                        Y_EXTRA->translateUnit()->add($1);
                         Y_EXTRA->gss();
                     }
                  | declaration translation_unit {
                         CASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        CASSERT(Y_EXTRA->program(), "Y_EXTRA#program is null");
-                        Y_EXTRA->program()->add($1);
+                        CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA#translateUnit is null");
+                        Y_EXTRA->translateUnit()->add($1);
                     }
                  ;
 

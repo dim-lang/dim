@@ -186,8 +186,8 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case A_PROGRAM: {
-    AstProgram *p = dynamic_cast<AstProgram *>(node);
+  case A_TRANSLATE_UNIT: {
+    AstTranslateUnit *p = dynamic_cast<AstTranslateUnit *>(node);
     std::stringstream ss;
     ss << DS << p->name() << " {\n";
     for (int i = 0; i < p->size(); i++) {

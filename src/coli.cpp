@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
       CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
             scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       CASSERT(p == 0, "parse fail:{}", p);
-      Semant *semant = new Semant(scanner.program());
+      Semant *semant = new Semant(scanner.translateUnit());
       semant->build();
       semant->check();
       delete semant;
