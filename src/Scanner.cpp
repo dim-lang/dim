@@ -7,7 +7,7 @@
 
 Scanner::Scanner(const std::string &fileName)
     : fileName_(fileName), program_(nullptr), gss_(nullptr), css_(nullptr),
-      gts_(nullptr), cts_(nullptr) yy_scaninfo_(nullptr),
+      gts_(nullptr), cts_(nullptr), yy_scaninfo_(nullptr),
       bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);

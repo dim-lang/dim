@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Symbol.h"
 #include "Type.h"
+#include "container/LinkedHashMap.hpp"
 
 Semant::Semant(Ast *program)
     : program_(program), gsym_(nullptr), csym_(nullptr), gty_(nullptr),

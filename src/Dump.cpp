@@ -4,6 +4,7 @@
 #include "Dump.h"
 #include "Log.h"
 #include "TokenName.h"
+#include "container/LinkedHashMap.hpp"
 #include <cstdio>
 #include <sstream>
 #include <string>
