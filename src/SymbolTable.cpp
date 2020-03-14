@@ -6,12 +6,7 @@
 
 SymbolTable::SymbolTable()
     : gss_(new GlobalSymtab()), css_(nullptr), symstk_(0),
-      gts_(new GlobalTytab()), cts_(nullptr), tystk_(0) {
-  Symbol::push(gss_, css_, gss_);
-  ++symstk_;
-  Type::push(gts_, cts_, gts_);
-  ++tystk_;
-}
+      gts_(new GlobalTytab()), cts_(nullptr), tystk_(0) {}
 
 SymbolTable::~SymbolTable() {
   CASSERT(symstk_ == 0, "symstk_ {} != 0", symstk_);
@@ -72,4 +67,14 @@ void SymbolTable::popType() {
   cts_ = cts_->enclosingScope();
   --tystk_;
   CASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
+}
+
+void SymbolTable::resetSymbolStack() {
+  css_ = nullptr;
+  symstk_ = 0;
+}
+
+void SymbolTable::resetTypeStack() {
+  cts_ = nullptr;
+  tystk_ = 0;
 }

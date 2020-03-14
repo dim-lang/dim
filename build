@@ -82,22 +82,25 @@ function init_linux() {
 }
 
 function init_common() {
+    CATCH2_VERSION=v2.9.1
+    SPDLOG_VERSION=v1.3.1
+    FMTLIB_VERSION=5.3.0
     cd $ROOT
-    echo [coli] prepare gabime/spdlog v1.3.1
-    if [ ! -d src/spdlog ]; then
-        cd src && git clone -b 'v1.3.1' --single-branch --depth 1 https://github.com/gabime/spdlog.git && cd ..
-    fi
-    echo [coli] prepare gabime/spdlog v1.3.1 - done
-    echo [coli] prepare fmtlib/fmt 5.3.0
-    if [ ! -d src/fmt ]; then
-        cd src && git clone -b '5.3.0' --single-branch --depth 1 https://github.com/fmtlib/fmt.git && cd ..
-    fi
-    echo [coli] prepare fmtlib/fmt 5.3.0 - done
-    echo [coli] prepare catchorg/Catch2 v2.9.1
+    echo [coli] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
-        cd test && git clone -b 'v2.9.1' --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
+        cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2.git && cd ..
     fi
-    echo [coli] prepare catchorg/Catch2 v2.9.1 - done
+    echo [coli] prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo [coli] prepare gabime/spdlog $SPDLOG_VERSION
+    if [ ! -d src/spdlog ]; then
+        cd src && git clone -b v1.3.1 --single-branch --depth 1 https://github.com/gabime/spdlog.git && cd ..
+    fi
+    echo [coli] prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo [coli] prepare fmtlib/fmt $FMTLIB_VERSION
+    if [ ! -d src/fmt ]; then
+        cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt.git && cd ..
+    fi
+    echo [coli] prepare fmtlib/fmt $FMTLIB_VERSION - done
 }
 
 function clean_all() {
@@ -147,11 +150,11 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCMAKE_BUILD_TYPE=Release .. && make -j $2
+        cmake -DCMAKE_BUILD_TYPE=Release -DCOLI_BUILD_TYPE=$1 .. && make -j $2
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
-        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && make VERBOSE=1 -j $2
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCOLI_BUILD_TYPE=$1 .. && make VERBOSE=1 -j $2
     fi
     cd $ROOT
 }

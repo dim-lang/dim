@@ -251,6 +251,20 @@ void Semant::check() {
 /**
  * A_TRANSLATE_UNIT
  *
+ * A_IDENTIFIER_CONSTANT
+ * A_I8_CONSTANT
+ * A_U8_CONSTANT
+ * A_I16_CONSTANT
+ * A_U16_CONSTANT
+ * A_I32_CONSTANT
+ * A_U32_CONSTANT
+ * A_I64_CONSTANT
+ * A_U64_CONSTANT
+ * A_F32_CONSTANT
+ * A_F64_CONSTANT
+ * A_BOOLEAN_CONSTANT
+ * A_STRING_CONSTANT
+ *
  * A_CALL_EXPRESSION
  * A_UNARY_EXPRESSION
  * A_BINARY_EXPRESSION
@@ -275,39 +289,89 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
       check(e->get(i));
     }
   } break;
+  case A_IDENTIFIER_CONSTANT: {
+    AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
+    Symbol *s = symtable->css()->resolve(e->value());
+    CASSERT(s, "sematic check failure: symbol {} not found", e->value());
+  } break;
   case A_CALL_EXPRESSION: {
     AstCallExpression *e = DC(AstCallExpression, node);
     Symbol *fs = symtable->css()->resolve(e->identifier());
-    CASSERT(fs, "function symbol {} not defined", e->identifier());
+    CASSERT(fs, "sematic check failure: function symbol {} not found",
+            e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
         AstFunctionArgumentDeclaration *fad = e->argumentList()->get(i);
         Symbol *fas = symtable->css()->resolve(fad->value());
-        CASSERT(fas, "function argument symbol {} not defined", fad->value());
+        CASSERT(fas,
+                "sematic check failure: function argument symbol {} not found",
+                fad->value());
       }
     }
   } break;
   case A_UNARY_EXPRESSION: {
+    AstUnaryExpression *e = DC(AstUnaryExpression, node);
+    check(e->expression());
   } break;
   case A_BINARY_EXPRESSION: {
+    AstBinaryExpression *e = DC(AstBinaryExpression, node);
+    check(e->left());
+    check(e->right());
   } break;
   case A_CONDITIONAL_EXPRESSION: {
+    AstConditionalExpresion *e = DC(AstConditionalExpresion, node);
+    check(e->condition());
+    check(e->hit());
+    check(e->miss());
   } break;
   case A_ASSIGNMENT_EXPRESSION: {
+    AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
+    check(e->variable());
+    check(e->value());
   } break;
   case A_SEQUEL_EXPERSSION: {
+    AstSequelExpression *e = DC(AstSequelExpression, node);
+    if (e->expressionList()) {
+      for (int i = 0; i < e->expressionList()->size(); i++) {
+        check(e->expressionList()->get(i));
+      }
+    }
   } break;
   case A_EXPRESSION_STATEMENT: {
+    AstExpressionStatement *e = DC(AstExpressionStatement, node);
+    check(e->expresion());
   } break;
   case A_COMPOUND_STATEMENT: {
+    AstCompoundStatement *e = DC(AstCompoundStatement, node);
+    if (e->statementList()) {
+      for (int i = 0; i < e->statementList()->size(); i++) {
+        check(e->statementList()->get(i));
+      }
+    }
   } break;
   case A_IF_STATEMENT: {
+    AstIfStatement *e = DC(AstIfStatement, node);
+    check(e->condition());
+    check(e->hit());
+    if (e->miss()) {
+      check(e->miss());
+    }
   } break;
   case A_WHILE_STATEMENT: {
+    AstWhileStatement *e = DC(AstWhileStatement, node);
+    check(e->condition());
+    check(e->statement());
   } break;
   case A_FOR_STATEMENT: {
+    AstForStatement *e = DC(AstForStatement, node);
+    check(e->initial());
+    check(e->condition());
+    check(e->post());
+    check(e->statement());
   } break;
   case A_RETURN_STATEMENT: {
+    AstReturnStatement *e = DC(AstReturnStatement, node);
+    check(e->expression());
   } break;
   default:
     CINFO("do nothing for node: {}", node->toString());

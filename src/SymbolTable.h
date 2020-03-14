@@ -27,6 +27,8 @@ public:
   void popSymbol();
   void pushType(Tytab *tt);
   void popType();
+  void resetSymbolStack();
+  void resetTypeStack();
 
 private:
   Symtab *gss_; // global symbol scope
