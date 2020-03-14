@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
       CINFO("fileName:{}", fileName);
-      Scanner scanner(fileName);
+      Scanner scanner;
+      scanner.pushBuffer(fileName);
       int p = scanner.parse();
       CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
             scanner.currentBuffer(), (void *)scanner.yy_scaninfo());

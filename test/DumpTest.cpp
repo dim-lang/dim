@@ -11,7 +11,8 @@
 #include "catch2/catch.hpp"
 
 static void go(const char *fileName) {
-  Scanner scanner(fileName);
+  Scanner scanner;
+  scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
   Semant *semant = new Semant(scanner.translateUnit());

@@ -11,7 +11,8 @@
 #include <cstdio>
 
 static void go(const char *fileName) {
-  Scanner scanner(fileName);
+  Scanner scanner;
+  scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("go end, program: {}", scanner.program()->toString());
 }

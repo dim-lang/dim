@@ -5,18 +5,14 @@
 #include "Log.h"
 #include "Parser.h"
 
-Scanner::Scanner(const std::string &fileName)
-    : fileName_(fileName), translateUnit_(nullptr), gss_(nullptr),
-      css_(nullptr), gts_(nullptr), cts_(nullptr), yy_scaninfo_(nullptr),
-      bufferStack_(nullptr) {
+Scanner::Scanner()
+    : fileName_(fileName), translateUnit_(nullptr), symtable_(nullptr),
+      yy_scaninfo_(nullptr), bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
-  Symbol::push(gss_, css_, new GlobalSymtab());
-  Type::push(gts_, cts_, new GlobalTytab());
+  symtable_ = new SymbolTable();
   bufferStack_ = new BufferStack(yy_scaninfo_);
-  int p = push(fileName);
-  CASSERT(p == 1, "bufferStack_#push fail: {}", p);
 }
 
 Scanner::~Scanner() {
@@ -28,28 +24,22 @@ Scanner::~Scanner() {
     delete translateUnit_;
     translateUnit_ = nullptr;
   }
-  if (gss_) {
-    delete gss_;
-    gss_ = nullptr;
+  if (symtable_) {
+    delete symtable_;
+    symtable_ = nullptr;
   }
-  css_ = nullptr;
-  if (gts_) {
-    delete gts_;
-    gts_ = nullptr;
-  }
-  cts_ = nullptr;
   if (bufferStack_) {
     delete bufferStack_;
     bufferStack_ = nullptr;
   }
 }
 
-int Scanner::push(const std::string &fileName) {
+int Scanner::pushBuffer(const std::string &fileName) {
   CASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->push(fileName);
 }
 
-int Scanner::pop() {
+int Scanner::popBuffer() {
   CASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->pop();
 }
@@ -84,21 +74,9 @@ const AstTranslateUnit *Scanner::translateUnit() const {
 
 AstTranslateUnit *&Scanner::translateUnit() { return translateUnit_; }
 
-const Symtab *Scanner::gss() const { return gss_; }
+const SymbolTable *Scanner::symtable() const { return symtable_; }
 
-Symtab *&Scanner::gss() { return gss_; }
-
-const Symtab *Scanner::css() const { return css_; }
-
-Symtab *&Scanner::css() { return css_; }
-
-const Tytab *Scanner::gts() const { return gts_; }
-
-Tytab *&Scanner::gts() { return gts_; }
-
-const Tytab *Scanner::cts() const { return cts_; }
-
-Tytab *&Scanner::cts() { return cts_; }
+SymbolTable *&Scanner::symtable() { return symtable_; }
 
 const yyscan_t Scanner::yy_scaninfo() const { return yy_scaninfo_; }
 

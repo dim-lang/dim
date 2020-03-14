@@ -5,6 +5,7 @@
 #include "Ast.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
+#include "SymbolTable.h"
 #include "Token.h"
 #include "Type.h"
 #include <string>
@@ -13,12 +14,12 @@
 
 class Scanner {
 public:
-  Scanner(const std::string &fileName);
+  Scanner();
   virtual ~Scanner();
 
   // buffer stack
-  virtual int push(const std::string &fileName);
-  virtual int pop();
+  virtual int pushBuffer(const std::string &fileName);
+  virtual int popBuffer();
   virtual const std::string &currentBuffer() const;
   virtual Buffer *top() const;
   virtual int size() const;
@@ -27,14 +28,8 @@ public:
   // attribute access
   virtual const AstTranslateUnit *translateUnit() const;
   virtual AstTranslateUnit *&translateUnit();
-  virtual const Symtab *gss() const;
-  virtual Symtab *&gss();
-  virtual const Symtab *css() const;
-  virtual Symtab *&css();
-  virtual const Tytab *gts() const;
-  virtual Tytab *&gts();
-  virtual const Tytab *cts() const;
-  virtual Tytab *&cts();
+  virtual const SymbolTable *symtable() const;
+  virtual SymbolTable *&symtable();
   virtual const yyscan_t yy_scaninfo() const;
   virtual yyscan_t &yy_scaninfo();
   virtual const std::string &fileName() const;
@@ -47,10 +42,7 @@ private:
   std::string fileName_;
 
   AstTranslateUnit *translateUnit_;
-  Symtab *gss_; // global symbol scope
-  Symtab *css_; // current symbol scope
-  Tytab *gts_;  // global type scope
-  Tytab *cts_;  // current type scope
   yyscan_t yy_scaninfo_;
   BufferStack *bufferStack_;
+  SymbolTable *symtable_;
 };

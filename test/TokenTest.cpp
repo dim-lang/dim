@@ -10,7 +10,8 @@
 #include <cstdio>
 
 static void go(const char *fileName) {
-  Scanner scanner(fileName);
+  Scanner scanner;
+  scanner.pushBuffer(fileName);
   CINFO("go start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;
   while ((t = scanner.tokenize()), std::get<0>(t) != 0) {

@@ -50,7 +50,7 @@ std::string AstDeclarationList::name() const { return name_; }
 
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
-AstTranslateUnit::AstTranslateUnit() : name_(GEN_NAME("A_Prog")) {}
+AstTranslateUnit::AstTranslateUnit() : name_(GEN_NAME("A_Unit")) {}
 
 AstTranslateUnit::~AstTranslateUnit() {}
 
