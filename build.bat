@@ -16,36 +16,45 @@ set BOOST_VERSION=boost-1.70.0
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
-    git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2.git
+    git clone https://github.com/catchorg/Catch2
+    cd Catch2
+    git checkout -b %CATCH2_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION% - done
 echo [coli] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
-    git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog.git
+    git clone https://github.com/gabime/spdlog
+    cd spdlog
+    git checkout -b %SPDLOG_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare gabime/spdlog %SPDLOG_VERSION% - done
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
-    git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt.git
+    git clone https://github.com/fmtlib/fmt
+    cd fmt
+    git checkout -b %FMTLIB_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
 echo [coli] prepare unicode-org/icu %ICU_VERSION%
 if not exist %ROOT%\src\icu (
     cd %ROOT%\src
-    git clone -b %ICU_VERSION% --single-branch --depth 1 https://github.com/unicode-org/icu.git
+    git clone https://github.com/unicode-org/icu
+    cd icu
+    git checkout -b %ICU_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
-    git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost.git
+    git clone https://github.com/boostorg/boost
     cd boost
+    git checkout -b %BOOST_VERSION%
     git submodule update --init
     cd %ROOT%
 )
