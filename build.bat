@@ -16,61 +16,37 @@ set BOOST_VERSION=boost-1.70.0
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
-    git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare catchorg/Catch2 failed with %ERRORLEVEL%
-        exit 3
-    )
+    git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2
     cd %ROOT%
 )
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION% - done
 echo [coli] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
-    git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare gabime/spdlog failed with %ERRORLEVEL%
-        exit 3
-    )
+    git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog
     cd %ROOT%
 )
 echo [coli] prepare gabime/spdlog %SPDLOG_VERSION% - done
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
-    git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare fmtlib/fmt failed with %ERRORLEVEL%
-        exit 3
-    )
+    git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
 echo [coli] prepare unicode-org/icu %ICU_VERSION%
 if not exist %ROOT%\src\icu (
     cd %ROOT%\src
-    git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/unicode-org/icu
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare unicode-org/icu failed with %ERRORLEVEL%
-        exit 3
-    )
+    git clone -b %ICU_VERSION% --single-branch --depth 1 https://github.com/unicode-org/icu
     cd %ROOT%
 )
 echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
-    git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/boostorg/boost
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare boostorg/boost failed with %ERRORLEVEL%
-        exit 3
-    )
+    git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
     cd boost
     git submodule update --init
-    if %ERRORLEVEL% 1 (
-        echo [coli] prepare boostorg/boost submodule failed with %ERRORLEVEL%
-        exit 3
-    )
     cd %ROOT%
 )
 if not exist %ROOT%\src\boost\stage (
