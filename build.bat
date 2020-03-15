@@ -18,7 +18,7 @@ if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone https://github.com/catchorg/Catch2
     cd Catch2
-    git checkout -b %CATCH2_VERSION%
+    git checkout %CATCH2_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION% - done
@@ -27,7 +27,7 @@ if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone https://github.com/gabime/spdlog
     cd spdlog
-    git checkout -b %SPDLOG_VERSION%
+    git checkout %SPDLOG_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare gabime/spdlog %SPDLOG_VERSION% - done
@@ -36,7 +36,7 @@ if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
     git clone https://github.com/fmtlib/fmt
     cd fmt
-    git checkout -b %FMTLIB_VERSION%
+    git checkout %FMTLIB_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
@@ -45,7 +45,7 @@ if not exist %ROOT%\src\icu (
     cd %ROOT%\src
     git clone https://github.com/unicode-org/icu
     cd icu
-    git checkout -b %ICU_VERSION%
+    git checkout %ICU_VERSION%
     cd %ROOT%
 )
 echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
@@ -54,7 +54,7 @@ if not exist %ROOT%\src\boost (
     cd %ROOT%\src
     git clone https://github.com/boostorg/boost
     cd boost
-    git checkout -b %BOOST_VERSION%
+    git checkout %BOOST_VERSION%
     git submodule update --init
     cd %ROOT%
 )
