@@ -17,8 +17,8 @@ echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare catchorg/Catch2 failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare catchorg/Catch2 failed with %ERRORLEVEL%
         exit 3
     )
     cd %ROOT%
@@ -28,8 +28,8 @@ echo [coli] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare gabime/spdlog failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare gabime/spdlog failed with %ERRORLEVEL%
         exit 3
     )
     cd %ROOT%
@@ -39,8 +39,8 @@ echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
     git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare fmtlib/fmt failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare fmtlib/fmt failed with %ERRORLEVEL%
         exit 3
     )
     cd %ROOT%
@@ -50,8 +50,8 @@ echo [coli] prepare unicode-org/icu %ICU_VERSION%
 if not exist %ROOT%\src\icu (
     cd %ROOT%\src
     git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/unicode-org/icu
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare unicode-org/icu failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare unicode-org/icu failed with %ERRORLEVEL%
         exit 3
     )
     cd %ROOT%
@@ -61,14 +61,14 @@ echo [coli] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
     git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/boostorg/boost
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare boostorg/boost failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare boostorg/boost failed with %ERRORLEVEL%
         exit 3
     )
     cd boost
     git submodule update --init
-    if %ERRORLEVE% 1 (
-        echo [coli] prepare boostorg/boost submodule failed with %ERRORLEVE%
+    if %ERRORLEVEL% 1 (
+        echo [coli] prepare boostorg/boost submodule failed with %ERRORLEVEL%
         exit 3
     )
     cd %ROOT%
