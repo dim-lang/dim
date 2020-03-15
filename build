@@ -29,9 +29,9 @@ function init_apt() {
     sudo echo [coli] prepare compiler and toolchain through apt || { echo [coli] sudo not found; exit 3; }
     sudo apt-get install -y gcc g++ make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through apt - done
-    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev through apt
-    sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev libncurses-dev
-    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev, libncurses-dev through apt - done
+    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev through apt
+    sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev
+    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev through apt - done
 }
 
 function init_dnf() {
@@ -47,9 +47,9 @@ function init_pacman() {
     sudo echo [coli] prepare compiler and toolchain through pacman || { echo [coli] sudo not found; exit 3; }
     yes | sudo pacman -S gcc make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pacman - done
-    echo [coli] prepare boost, icu, gperftools through pacman
-    yes | sudo pacman -S boost icu gperftools
-    echo [coli] prepare boost, icu, gperftools through pacman - done
+    echo [coli] prepare boost, icu, gperftools, llvm through pacman
+    yes | sudo pacman -S boost icu gperftools llvm
+    echo [coli] prepare boost, icu, gperftools, llvm through pacman - done
 }
 
 function init_zypper() {
