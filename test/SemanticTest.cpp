@@ -15,9 +15,8 @@ static void go(const char *fileName) {
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("translateUnit: {}", scanner.translateUnit()->toString());
-  Semant *semant = new Semant(scanner.translateUnit());
-  semant->build();
-  semant->check();
+  Semantic::build(&symtable, scanner.translateUnit());
+  Semantic::check(&symtable, scanner.translateUnit());
 }
 
 TEST_CASE("Semant", "[Semant]") {
