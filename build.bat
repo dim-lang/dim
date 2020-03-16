@@ -43,17 +43,17 @@ if not exist %ROOT%\src\boost (
 )
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
-    call bootstrap.bat
-    call b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
+    cmd /c bootstrap.bat
+    cmd /c b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
 )
 if exist %ROOT%\src\boost\stage\lib (
     cd %ROOT%\src\boost\stage\lib
-    call xcopy boost_program_options-vc*-mt-x32*.dll boost_filesystem.dll /Y
-    call xcopy boost_program_options-vc*-mt-x32*.lib boost_filesystem.lib /Y
-    call xcopy boost_system-vc*-mt-x32*.dll boost_filesystem.dll /Y
-    call xcopy boost_system-vc*-mt-x32*.lib boost_filesystem.lib /Y
-    call xcopy boost_filesystem-vc*-mt-x32*.dll boost_filesystem.dll /Y
-    call xcopy boost_filesystem-vc*-mt-x32*.lib boost_filesystem.lib /Y
+    cp boost_program_options-vc*-mt-x32*.dll boost_filesystem.dll
+    cp boost_program_options-vc*-mt-x32*.lib boost_filesystem.lib
+    cp boost_system-vc*-mt-x32*.dll boost_filesystem.dll
+    cp boost_system-vc*-mt-x32*.lib boost_filesystem.lib
+    cp boost_filesystem-vc*-mt-x32*.dll boost_filesystem.dll
+    cp boost_filesystem-vc*-mt-x32*.lib boost_filesystem.lib
 )
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
