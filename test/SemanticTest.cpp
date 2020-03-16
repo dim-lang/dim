@@ -14,8 +14,8 @@ static void go(const char *fileName) {
   Scanner scanner(&symtable);
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  CINFO("program: {}", scanner.program()->toString());
-  Semant *semant = new Semant(scanner.program());
+  CINFO("translateUnit: {}", scanner.translateUnit()->toString());
+  Semant *semant = new Semant(scanner.translateUnit());
   semant->build();
   semant->check();
 }
