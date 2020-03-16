@@ -34,23 +34,6 @@ if not exist %ROOT%\src\fmt (
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-REM echo [coli] prepare unicode-org/icu %ICU_VERSION%
-REM if not exist %ROOT%\src\icu (
-    REM cd %ROOT%\src
-    REM git clone -b %ICU_VERSION% --single-branch --depth 1 https://github.com/unicode-org/icu
-    REM cd %ROOT%
-REM )
-REM echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
-echo [coli] prepare boostorg/boost %BOOST_VERSION%
-echo [coli] download pre-built %BOOST_VERSION% binaries and install at `C:\local` manually
-echo [coli] download url: `https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/`
-echo [coli] select `boost_1_70_0-msvc-{version}-32.exe` where `{version}` matched your msvc version:
-echo [coli]   boost_1_70_0-msvc-14.1-32.exe - Visual Studio 2017
-echo [coli]   boost_1_70_0-msvc-14.0-32.exe - Visual Studio 2015
-echo [coli]   boost_1_70_0-msvc-12.0-32.exe - Visual Studio 2013
-echo [coli]   boost_1_70_0-msvc-11.0-32.exe - Visual Studio 2012
-echo [coli]   boost_1_70_0-msvc-10.0-32.exe - Visual Studio 2010
-echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
 echo [coli] prepare msvc project
 cd %ROOT%
