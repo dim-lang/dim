@@ -45,6 +45,14 @@ if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c .\bootstrap.bat
     cmd /c .\b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
+    cd %ROOT%\src\boost\stage\lib
+    dir * /b | findstr 
+    xcopy boost_program_options-vc*-mt-x32*.dll boost_filesystem.dll /Y
+    xcopy boost_program_options-vc*-mt-x32*.lib boost_filesystem.lib /Y
+    xcopy boost_system-vc*-mt-x32*.dll boost_filesystem.dll /Y
+    xcopy boost_system-vc*-mt-x32*.lib boost_filesystem.lib /Y
+    xcopy boost_filesystem-vc*-mt-x32*.dll boost_filesystem.dll /Y
+    xcopy boost_filesystem-vc*-mt-x32*.lib boost_filesystem.lib /Y
 )
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
