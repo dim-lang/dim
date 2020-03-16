@@ -69,7 +69,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        AstFunctionArgumentDeclaration *fa =
+        const AstFunctionArgumentDeclaration *fa =
             DC(AstFunctionArgumentDeclaration, e->argumentList()->get(i));
         argumentTypeList.push_back(std::make_pair(
             new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_void()));
@@ -88,8 +88,8 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     }
     CASSERT(e->statement(), "e#statement is null");
     build(symtable, e->statement());
-    SymbolTable::popSymbol();
-    SymbolTable::popType();
+    symtable->popSymbol();
+    symtable->popType();
   } break;
   case A_FUNCTION_ARGUMENT_DECLARATION: {
     const AstFunctionArgumentDeclaration *e =
@@ -109,8 +109,8 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
         build(symtable, e->statementList()->get(i));
       }
     }
-    SymbolTable::popSymbol();
-    SymbolTable::popType();
+    symtable->popSymbol();
+    symtable->popType();
   } break;
   case A_IF_STATEMENT: {
     const AstIfStatement *e = DC(AstIfStatement, node);
