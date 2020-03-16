@@ -28,19 +28,18 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  SymbolTable symtable;
   if (conf.hasFileNames()) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
       CINFO("fileName:{}", fileName);
-      SymbolTable *symtable = new SymbolTable();
-      Scanner scanner(symtable);
+      Scanner scanner(&symtable);
       scanner.pushBuffer(fileName);
       int p = scanner.parse();
       CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
             scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       CASSERT(p == 0, "parse fail:{}", p);
-      delete symtable;
     }
   }
 

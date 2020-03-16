@@ -1,7 +1,7 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
-#include "Semant.h"
+#include "Semantic.h"
 #include "Ast.h"
 #include "Log.h"
 #include "Parser.h"
@@ -10,7 +10,8 @@
 #include "catch2/catch.hpp"
 
 static void go(const char *fileName) {
-  Scanner scanner;
+  SymbolTable symtable;
+  Scanner scanner(&symtable);
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("program: {}", scanner.program()->toString());
