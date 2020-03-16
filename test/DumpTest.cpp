@@ -18,8 +18,8 @@ static void go(const char *fileName) {
   CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
   Semantic::build(&symtable, scanner.translateUnit());
   Semantic::check(&symtable, scanner.translateUnit());
-  CINFO("dump symbol:{} {}", fileName, dumpSymbol(symtable->gss()));
-  CINFO("dump type:{} {}", fileName, dumpType(symtable->gts()));
+  CINFO("dump symbol:{} {}", fileName, dumpSymbol(symtable.gss()));
+  CINFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
 }
 
 TEST_CASE("Dump", "[Dump]") {
