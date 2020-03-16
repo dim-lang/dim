@@ -59,7 +59,7 @@ echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 echo [coli] prepare msvc project
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
-cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
+cd %MSVC% && cmake -DBoost_DEBUG=ON -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
 REM echo [coli] 1. build `icu4c` library:
