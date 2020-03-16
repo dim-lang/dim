@@ -60,7 +60,6 @@ cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
-
 REM echo [coli] 1. build `icu4c` library:
 REM echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
 REM echo [coli]    (since icu windows project fail when execution/argument too long in command line)
