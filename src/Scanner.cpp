@@ -5,13 +5,12 @@
 #include "Log.h"
 #include "Parser.h"
 
-Scanner::Scanner()
-    : fileName_(fileName), translateUnit_(nullptr), symtable_(nullptr),
+Scanner::Scanner(SymbolTable *symtable)
+    : fileName_(""), translateUnit_(nullptr), symtable_(symtable),
       yy_scaninfo_(nullptr), bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
-  symtable_ = new SymbolTable();
   bufferStack_ = new BufferStack(yy_scaninfo_);
 }
 
@@ -24,10 +23,7 @@ Scanner::~Scanner() {
     delete translateUnit_;
     translateUnit_ = nullptr;
   }
-  if (symtable_) {
-    delete symtable_;
-    symtable_ = nullptr;
-  }
+  symtable_ = nullptr;
   if (bufferStack_) {
     delete bufferStack_;
     bufferStack_ = nullptr;

@@ -1,14 +1,11 @@
 // Copyright 2019- <coli-lang>
 // Apache License Version 2.0
 
+#include "Semantic.h"
 #include "Log.h"
-#include "Semant.h"
-#include "Symbol.h"
-#include "SymbolTable.h"
-#include "Type.h"
 #include "container/LinkedHashMap.hpp"
 
-#define DC(x, y) dynamic_cast<x *>(y)
+#define DC(x, y) dynamic_cast<const x *>(y)
 
 /**
  * A_TRANSLATE_UNIT
@@ -30,21 +27,21 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
   CASSERT(node, "node is null");
   switch (node->type()) {
   case A_TRANSLATE_UNIT: {
-    AstTranslateUnit *e = DC(AstTranslateUnit, node);
+    const AstTranslateUnit *e = DC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
-      build(e->get(i));
+      build(symtable, e->get(i));
     }
   } break;
   case A_VARIABLE_DECLARATION: {
-    AstVariableDeclaration *e = DC(AstVariableDeclaration, node);
+    const AstVariableDeclaration *e = DC(AstVariableDeclaration, node);
     if (e->declarationList()) {
       for (int i = 0; i < e->declarationList()->size(); i++) {
-        build(e->declarationList()->get(i));
+        build(symtable, e->declarationList()->get(i));
       }
     }
   } break;
   case A_VARIABLE_ASSIGNMENT_DECLARATION: {
-    AstVariableAssignmentDeclaration *e =
+    const AstVariableAssignmentDeclaration *e =
         DC(AstVariableAssignmentDeclaration, node);
     VariableSymbol *vs = new VariableSymbol(e->identifier());
     symtable->css()->define(vs);
@@ -67,7 +64,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     }
   } break;
   case A_FUNCTION_DECLARATION: {
-    AstFunctionDeclaration *e = DC(AstFunctionDeclaration, node);
+    const AstFunctionDeclaration *e = DC(AstFunctionDeclaration, node);
     FunctionSymbol *fs = new FunctionSymbol(e->identifier(), symtable->css());
     std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
     if (e->argumentList()) {
@@ -86,73 +83,73 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     symtable->pushType(ft);
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        build(e->argumentList()->get(i));
+        build(symtable, e->argumentList()->get(i));
       }
     }
     CASSERT(e->statement(), "e#statement is null");
-    build(e->statement());
+    build(symtable, e->statement());
     SymbolTable::popSymbol();
     SymbolTable::popType();
   } break;
   case A_FUNCTION_ARGUMENT_DECLARATION: {
-    AstFunctionArgumentDeclaration *e =
+    const AstFunctionArgumentDeclaration *e =
         DC(AstFunctionArgumentDeclaration, node);
     FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->value());
     symtable->css()->define(fa);
     symtable->cts()->define(fa, BuiltinType::ty_void());
   } break;
   case A_COMPOUND_STATEMENT: {
-    AstCompoundStatement *e = DC(AstCompoundStatement, node);
+    const AstCompoundStatement *e = DC(AstCompoundStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
     symtable->pushSymbol(ls);
     symtable->pushType(lt);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
-        build(e->statementList()->get(i));
+        build(symtable, e->statementList()->get(i));
       }
     }
     SymbolTable::popSymbol();
     SymbolTable::popType();
   } break;
   case A_IF_STATEMENT: {
-    AstIfStatement *e = DC(AstIfStatement, node);
+    const AstIfStatement *e = DC(AstIfStatement, node);
     if (e->condition()) {
-      build(e->condition());
+      build(symtable, e->condition());
     }
     if (e->hit()) {
-      build(e->hit());
+      build(symtable, e->hit());
     }
     if (e->miss()) {
-      build(e->miss());
+      build(symtable, e->miss());
     }
   } break;
   case A_WHILE_STATEMENT: {
-    AstWhileStatement *e = DC(AstWhileStatement, node);
+    const AstWhileStatement *e = DC(AstWhileStatement, node);
     CASSERT(e->statement(), "e->statement is null");
-    build(e->statement());
+    build(symtable, e->statement());
   } break;
   case A_FOR_STATEMENT: {
-    AstForStatement *e = DC(AstForStatement, node);
+    const AstForStatement *e = DC(AstForStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
     symtable->pushSymbol(ls);
     symtable->pushType(lt);
-    build(e->initial());
-    build(e->statement());
+    build(symtable, e->initial());
+    build(symtable, e->statement());
     symtable->popSymbol();
     symtable->popType();
   } break;
   case A_RETURN_STATEMENT: {
-    AstReturnStatement *e = DC(AstReturnStatement, node);
+    const AstReturnStatement *e = DC(AstReturnStatement, node);
     if (e->expression()) {
-      build(e->expression());
+      build(symtable, e->expression());
     }
   } break;
   case A_EXPRESSION_STATEMENT: {
-    AstExpressionStatement *e = DC(AstExpressionStatement, node);
+    const AstExpressionStatement *e = DC(AstExpressionStatement, node);
     if (e->expression()) {
-      build(e->expression());
+      build(symtable, e->expression());
     }
   } break;
   default:
@@ -161,110 +158,10 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
   }
 }
 
-void Semant::checkImpl(Ast *node) {
-  CASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_IDENTIFIER_CONSTANT: {
-    AstIdentifierConstant *e = dynamic_cast<AstIdentifierConstant *>(node);
-    Symbol *sym = csym_->resolve(e->value());
-    Type *ty = cty_->resolve(sym);
-    CASSERT(sym, "sym is null");
-    CASSERT(ty, "ty is null");
-  } break;
-  case A_UNARY_EXPRESSION: {
-    AstUnaryExpression *e = dynamic_cast<AstUnaryExpression *>(node);
-    checkImpl(e->expression());
-  } break;
-  case A_BINARY_EXPRESSION: {
-    AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
-    checkImpl(e->left());
-    checkImpl(e->right());
-  } break;
-  case A_CONDITIONAL_EXPRESSION: {
-    AstBinaryExpression *e = dynamic_cast<AstBinaryExpression *>(node);
-    checkImpl(e->left());
-    checkImpl(e->right());
-  } break;
-  case A_ASSIGNMENT_EXPRESSION: {
-    AstAssignmentExpression *e = dynamic_cast<AstAssignmentExpression *>(node);
-    checkImpl(e->variable());
-  } break;
-  case A_EXPRESSION_STATEMENT: {
-    AstExpressionStatement *e = dynamic_cast<AstExpressionStatement *>(node);
-    checkImpl(e->expression());
-  } break;
-  case A_COMPOUND_STATEMENT: {
-    AstCompoundStatement *e = dynamic_cast<AstCompoundStatement *>(node);
-    Symbol *sym = csym_->resolve(e->name());
-    Type *ty = cty_->resolve(sym);
-    Symbol::push(gsym_, csym_, dynamic_cast<Symtab *>(sym));
-    Type::push(gty_, cty_, dynamic_cast<Tytab *>(ty));
-    for (int i = 0; i < e->statementList()->size(); i++) {
-      checkImpl(e->statementList()->get(i));
-    }
-    Symbol::pop(gsym_, csym_);
-    Type::pop(gty_, cty_);
-  } break;
-  case A_IF_STATEMENT: {
-    AstIfStatement *e = dynamic_cast<AstIfStatement *>(node);
-    checkImpl(e->hit());
-    checkImpl(e->miss());
-  } break;
-  case A_WHILE_STATEMENT: {
-    AstWhileStatement *e = dynamic_cast<AstWhileStatement *>(node);
-    checkImpl(e->condition());
-    checkImpl(e->statement());
-  } break;
-  case A_FOR_STATEMENT: {
-    AstForStatement *e = dynamic_cast<AstForStatement *>(node);
-    Symbol *sym = csym_->resolve(e->name());
-    Type *ty = cty_->resolve(sym);
-    Symbol::push(gsym_, csym_, dynamic_cast<Symtab *>(sym));
-    Type::push(gty_, cty_, dynamic_cast<Tytab *>(ty));
-    checkImpl(e->initial());
-    checkImpl(e->condition());
-    checkImpl(e->post());
-    checkImpl(e->statement());
-    Symbol::pop(gsym_, csym_);
-    Type::pop(gty_, cty_);
-  } break;
-  default: {
-    CINFO("do nothing for node:{}", node->toString());
-  } break;
-  }
-}
-
-void Semant::check() {
-  CASSERT(gsym_, "gsym_ is null");
-  CASSERT(gty_, "gty_ is null");
-  AstTranslateUnit *e = dynamic_cast<AstTranslateUnit *>(translateUnit_);
-  CASSERT(e, "translateUnit_ is null: {}", e ? e->toString() : "null");
-  Symbol::push(gsym_, csym_, gsym_);
-  Type::push(gty_, cty_, gty_);
-  for (int i = 0; i < e->size(); i++) {
-    checkImpl(e->get(i));
-  }
-  Symbol::pop(gsym_, csym_);
-  Type::pop(gty_, cty_);
-}
-
 /**
  * A_TRANSLATE_UNIT
  *
  * A_IDENTIFIER_CONSTANT
- * A_I8_CONSTANT
- * A_U8_CONSTANT
- * A_I16_CONSTANT
- * A_U16_CONSTANT
- * A_I32_CONSTANT
- * A_U32_CONSTANT
- * A_I64_CONSTANT
- * A_U64_CONSTANT
- * A_F32_CONSTANT
- * A_F64_CONSTANT
- * A_BOOLEAN_CONSTANT
- * A_STRING_CONSTANT
- *
  * A_CALL_EXPRESSION
  * A_UNARY_EXPRESSION
  * A_BINARY_EXPRESSION
@@ -284,18 +181,18 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
   CASSERT(node, "node is null");
   switch (node->type()) {
   case A_TRANSLATE_UNIT: {
-    AstTranslateUnit *e = DC(AstTranslateUnit, node);
+    const AstTranslateUnit *e = DC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
-      check(e->get(i));
+      check(symtable, e->get(i));
     }
   } break;
   case A_IDENTIFIER_CONSTANT: {
-    AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
+    const AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
     Symbol *s = symtable->css()->resolve(e->value());
     CASSERT(s, "sematic check failure: symbol {} not found", e->value());
   } break;
   case A_CALL_EXPRESSION: {
-    AstCallExpression *e = DC(AstCallExpression, node);
+    const AstCallExpression *e = DC(AstCallExpression, node);
     Symbol *fs = symtable->css()->resolve(e->identifier());
     CASSERT(fs, "sematic check failure: function symbol {} not found",
             e->identifier());
@@ -310,68 +207,68 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
     }
   } break;
   case A_UNARY_EXPRESSION: {
-    AstUnaryExpression *e = DC(AstUnaryExpression, node);
-    check(e->expression());
+    const AstUnaryExpression *e = DC(AstUnaryExpression, node);
+    check(symtable, e->expression());
   } break;
   case A_BINARY_EXPRESSION: {
-    AstBinaryExpression *e = DC(AstBinaryExpression, node);
-    check(e->left());
-    check(e->right());
+    const AstBinaryExpression *e = DC(AstBinaryExpression, node);
+    check(symtable, e->left());
+    check(symtable, e->right());
   } break;
   case A_CONDITIONAL_EXPRESSION: {
-    AstConditionalExpresion *e = DC(AstConditionalExpresion, node);
-    check(e->condition());
-    check(e->hit());
-    check(e->miss());
+    const AstConditionalExpresion *e = DC(AstConditionalExpresion, node);
+    check(symtable, e->condition());
+    check(symtable, e->hit());
+    check(symtable, e->miss());
   } break;
   case A_ASSIGNMENT_EXPRESSION: {
-    AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
-    check(e->variable());
-    check(e->value());
+    const AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
+    check(symtable, e->variable());
+    check(symtable, e->value());
   } break;
   case A_SEQUEL_EXPERSSION: {
-    AstSequelExpression *e = DC(AstSequelExpression, node);
+    const AstSequelExpression *e = DC(AstSequelExpression, node);
     if (e->expressionList()) {
       for (int i = 0; i < e->expressionList()->size(); i++) {
-        check(e->expressionList()->get(i));
+        check(symtable, e->expressionList()->get(i));
       }
     }
   } break;
   case A_EXPRESSION_STATEMENT: {
-    AstExpressionStatement *e = DC(AstExpressionStatement, node);
-    check(e->expresion());
+    const AstExpressionStatement *e = DC(AstExpressionStatement, node);
+    check(symtable, e->expresion());
   } break;
   case A_COMPOUND_STATEMENT: {
-    AstCompoundStatement *e = DC(AstCompoundStatement, node);
+    const AstCompoundStatement *e = DC(AstCompoundStatement, node);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
-        check(e->statementList()->get(i));
+        check(symtable, e->statementList()->get(i));
       }
     }
   } break;
   case A_IF_STATEMENT: {
-    AstIfStatement *e = DC(AstIfStatement, node);
-    check(e->condition());
-    check(e->hit());
+    const AstIfStatement *e = DC(AstIfStatement, node);
+    check(symtable, e->condition());
+    check(symtable, e->hit());
     if (e->miss()) {
-      check(e->miss());
+      check(symtable, e->miss());
     }
   } break;
   case A_WHILE_STATEMENT: {
-    AstWhileStatement *e = DC(AstWhileStatement, node);
-    check(e->condition());
-    check(e->statement());
+    const AstWhileStatement *e = DC(AstWhileStatement, node);
+    check(symtable, e->condition());
+    check(symtable, e->statement());
   } break;
   case A_FOR_STATEMENT: {
-    AstForStatement *e = DC(AstForStatement, node);
-    check(e->initial());
-    check(e->condition());
-    check(e->post());
-    check(e->statement());
+    const AstForStatement *e = DC(AstForStatement, node);
+    check(symtable, e->initial());
+    check(symtable, e->condition());
+    check(symtable, e->post());
+    check(symtable, e->statement());
   } break;
   case A_RETURN_STATEMENT: {
-    AstReturnStatement *e = DC(AstReturnStatement, node);
-    check(e->expression());
+    const AstReturnStatement *e = DC(AstReturnStatement, node);
+    check(symtable, e->expression());
   } break;
   default:
     CINFO("do nothing for node: {}", node->toString());

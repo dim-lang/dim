@@ -4,6 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Symbol.h"
+#include "SymbolTable.h"
 #include "Type.h"
 
 class Semantic {

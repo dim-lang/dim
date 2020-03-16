@@ -11,13 +11,14 @@ set(CCORE
     Random.cpp
     Approximate.cpp
     TokenName.cpp
+    Token.cpp
     Token.yy.cpp
     Parser.tab.cpp
     Scanner.cpp
     Ast.cpp
     Symbol.cpp
     Type.cpp
-    Semant.cpp
+    Semantic.cpp
     Counter.cpp
     Dump.cpp
 )

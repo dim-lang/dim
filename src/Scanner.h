@@ -14,7 +14,7 @@
 
 class Scanner {
 public:
-  Scanner();
+  Scanner(SymbolTable *symtable);
   virtual ~Scanner();
 
   // buffer stack
