@@ -48,20 +48,20 @@ if not exist %ROOT%\src\boost\stage (
 )
 if exist %ROOT%\src\boost\stage\lib (
     cd %ROOT%\src\boost\stage\lib
-    cp boost_program_options-vc*-mt-x32-*.dll boost_program_options-vc-mt-x32.dll
-    cp boost_program_options-vc*-mt-x32-*.lib boost_program_options-vc-mt-x32.lib
-    cp boost_program_options-vc*-mt-gd-x32-*.dll boost_program_options-vc-mt-gd-x32.dll
-    cp boost_program_options-vc*-mt-gd-x32-*.lib boost_program_options-vc-mt-gd-x32.lib
+    cp boost_program_options-vc*-mt-x32-*.dll boost_program_options-mt-x32.dll
+    cp boost_program_options-vc*-mt-x32-*.lib boost_program_options-mt-x32.lib
+    cp boost_program_options-vc*-mt-gd-x32-*.dll boost_program_options-mt-gd-x32.dll
+    cp boost_program_options-vc*-mt-gd-x32-*.lib boost_program_options-mt-gd-x32.lib
 
-    cp boost_system-vc*-mt-x32-*.dll boost_system-vc-mt-x32.dll
-    cp boost_system-vc*-mt-x32-*.lib boost_system-vc-mt-x32.lib
-    cp boost_system-vc*-mt-gd-x32-*.dll boost_system-vc-mt-gd-x32.dll
-    cp boost_system-vc*-mt-gd-x32-*.lib boost_system-vc-mt-gd-x32.lib
+    cp boost_system-vc*-mt-x32-*.dll boost_system-mt-x32.dll
+    cp boost_system-vc*-mt-x32-*.lib boost_system-mt-x32.lib
+    cp boost_system-vc*-mt-gd-x32-*.dll boost_system-mt-gd-x32.dll
+    cp boost_system-vc*-mt-gd-x32-*.lib boost_system-mt-gd-x32.lib
 
-    cp boost_filesystem-vc*-mt-x32-*.dll boost_filesystem-vc-mt-x32.dll
-    cp boost_filesystem-vc*-mt-x32-*.lib boost_filesystem-vc-mt-x32.lib
-    cp boost_filesystem-vc*-mt-gd-x32-*.dll boost_filesystem-vc-mt-gd-x32.dll
-    cp boost_filesystem-vc*-mt-gd-x32-*.lib boost_filesystem-vc-mt-gd-x32.lib
+    cp boost_filesystem-vc*-mt-x32-*.dll boost_filesystem-mt-x32.dll
+    cp boost_filesystem-vc*-mt-x32-*.lib boost_filesystem-mt-x32.lib
+    cp boost_filesystem-vc*-mt-gd-x32-*.dll boost_filesystem-mt-gd-x32.dll
+    cp boost_filesystem-vc*-mt-gd-x32-*.lib boost_filesystem-mt-gd-x32.lib
 )
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
