@@ -8,9 +8,7 @@ set(Boost_DEBUG ON)
 set(Boost_DETAILED_FAILURE_MSG ON)
 set(Boost_THREADAPI win32)
 set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/boost")
-set(Boost_LIBRARY_DIRS "${BOOST_ROOT}/stage/lib")
 set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib")
-set(Boost_INCLUDE_DIRS "${BOOST_ROOT}")
 set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
 set(Boost_COMPILER "-vc")
 set(Boost_USE_STATIC_LIBS OFF)
@@ -19,6 +17,10 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_DEBUG_LIBS OFF)
 set(Boost_USE_RELEASE_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
+message(Boost_DEFINITIONS: ${Boost_DEFINITIONS});
+message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS});
+message(Boost_LIBRARIES: ${Boost_LIBRARIES});
+message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS});
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
