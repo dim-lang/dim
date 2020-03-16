@@ -13,7 +13,7 @@ set(CTEST
     TokenTest.cpp
     ParserTest.cpp
     ExceptionTest.cpp
-    SemantTest.cpp
+    SemanticTest.cpp
     DumpTest.cpp
     container/LinkedHashMapTest.cpp
 )
