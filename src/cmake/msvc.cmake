@@ -17,10 +17,10 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_DEBUG_LIBS OFF)
 set(Boost_USE_RELEASE_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
-message(Boost_DEFINITIONS: ${Boost_DEFINITIONS});
-message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS});
-message(Boost_LIBRARIES: ${Boost_LIBRARIES});
-message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS});
+message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
+message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
+message(Boost_LIBRARIES: ${Boost_LIBRARIES})
+message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
