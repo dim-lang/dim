@@ -6,8 +6,8 @@
 #include "Parser.h"
 
 Scanner::Scanner(SymbolTable *symtable)
-    : fileName_(""), translateUnit_(nullptr), symtable_(symtable),
-      yy_scaninfo_(nullptr), bufferStack_(nullptr) {
+    : fileName_(""), translateUnit_(nullptr), yy_scaninfo_(nullptr),
+      bufferStack_(nullptr), symtable_(symtable) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
