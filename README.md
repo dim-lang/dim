@@ -112,13 +112,13 @@ Download coli source code from github and build mannually.
 |  Windows   | Visual Studio, cmake, git, python3, LLVM, flex, bison             |
 
 Install dependencies on windows:
-* [Visual Studio](https://visualstudio.microsoft.com/downloads/) install with **.NET desktop development**, **Visual C++ desktop development**, **Common Windows Platform development**.
-* [cmake](https://cmake.org/download/) install and add `cmake.exe` to `PATH`.
-* [git](https://git-scm.com/downloads) install and add `git.exe` to `PATH`.
-* [python3](https://www.python.org/downloads/) install and add `python.exe` to `PATH`.
-* [LLVM](https://llvm.org/) install and add `clang.exe` to `PATH`.
-* [flex & bison](https://sourceforge.net/projects/winflexbison/files/) install **win_flex_bison3-latest.zip** and add `win_flex.exe` and `win_bison.exe` to `PATH`.
-* [boost-1.70.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/) install `boost_1_70_0-msvc-{version}-32.exe` at `C:\local` where `{version}` matched your msvc version.
+* [Visual Studio](https://visualstudio.microsoft.com/downloads/) - install with *.NET desktop development*, *Visual C++ desktop development*, *Common Windows Platform development*.
+* [cmake](https://cmake.org/download/) - install and add `cmake.exe` to `PATH`.
+* [git](https://git-scm.com/downloads) - install and add `git.exe` to `PATH`.
+* [python3](https://www.python.org/downloads/) - install and add `python.exe` to `PATH`.
+* [LLVM](https://llvm.org/) - install and add `clang.exe` to `PATH`.
+* [flex & bison](https://sourceforge.net/projects/winflexbison/files/) - install `win_flex_bison3-latest.zip` and add `win_flex.exe` and `win_bison.exe` to `PATH`.
+* [boost-1.70.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/) - install `boost_1_70_0-msvc-{version}-32.exe` at `C:\local` where `{version}` matched your msvc version.
     * boost_1_70_0-msvc-14.1-32.exe - Visual Studio 2017
     * boost_1_70_0-msvc-14.0-32.exe - Visual Studio 2015
     * boost_1_70_0-msvc-12.0-32.exe - Visual Studio 2013
