@@ -52,7 +52,7 @@ if not exist %ROOT%\src\boost (
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c .\bootstrap.bat
-    cmd /c .\b2 link=static address-model=64 threading=multi runtime-link=shared --build-type=complete stage
+    cmd /c .\b2
 )
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 

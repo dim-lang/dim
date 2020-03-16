@@ -23,7 +23,7 @@ std::string File::read(const std::string &fileName) {
       CASSERT(data, "realloc error! data {} is null", (void *)data);
     }
 
-    n = std::fread(data + tot, len - tot, fp);
+    n = std::fread(data + tot, 1, len - tot, fp);
     tot += n;
   } while (n > 0);
 
