@@ -18,6 +18,7 @@ set(CCORE
     Ast.cpp
     Symbol.cpp
     Type.cpp
+    SymbolTable.cpp
     Semantic.cpp
     Counter.cpp
     Dump.cpp

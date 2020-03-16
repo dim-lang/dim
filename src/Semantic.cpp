@@ -198,7 +198,8 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
             e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        const AstFunctionArgumentDeclaration *fad = e->argumentList()->get(i);
+        const AstFunctionArgumentDeclaration *fad =
+            DC(AstFunctionArgumentDeclaration, e->argumentList()->get(i));
         Symbol *fas = symtable->css()->resolve(fad->value());
         CASSERT(fas,
                 "sematic check failure: function argument symbol {} not found",
@@ -236,7 +237,7 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
   } break;
   case A_EXPRESSION_STATEMENT: {
     const AstExpressionStatement *e = DC(AstExpressionStatement, node);
-    check(symtable, e->expresion());
+    check(symtable, e->expression());
   } break;
   case A_COMPOUND_STATEMENT: {
     const AstCompoundStatement *e = DC(AstCompoundStatement, node);

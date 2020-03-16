@@ -7,7 +7,7 @@
 #include "Parser.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
-#include "Semant.h"
+#include "Semantic.h"
 #include "Token.h"
 #include <iostream>
 #include <string>
@@ -33,16 +33,14 @@ int main(int argc, char **argv) {
     for (int i = 0; i < (int)fileNameList.size(); i++) {
       std::string fileName = fileNameList[i];
       CINFO("fileName:{}", fileName);
-      Scanner scanner;
+      SymbolTable *symtable = new SymbolTable();
+      Scanner scanner(symtable);
       scanner.pushBuffer(fileName);
       int p = scanner.parse();
       CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
             scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       CASSERT(p == 0, "parse fail:{}", p);
-      Semant *semant = new Semant(scanner.translateUnit());
-      semant->build();
-      semant->check();
-      delete semant;
+      delete symtable;
     }
   }
 
