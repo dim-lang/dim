@@ -42,30 +42,20 @@ REM if not exist %ROOT%\src\icu (
 REM )
 REM echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
-if not exist %ROOT%\src\boost (
-    cd %ROOT%\src
-    git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
-    cd boost
-    git submodule update --init
-)
-if not exist %ROOT%\src\boost\stage (
-    cd %ROOT%\src\boost
-    cmd /c .\bootstrap.bat
-    cmd /c .\b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
-)
+echo [coli] download pre-built %BOOST_VERSION% binaries and install at `C:\local` manually
+echo [coli] download url: `https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/`
+echo [coli] select `boost_1_70_0-msvc-{version}-32.exe` where `{version}` matched your msvc version:
+echo [coli]   boost_1_70_0-msvc-14.1-32.exe - Visual Studio 2017
+echo [coli]   boost_1_70_0-msvc-14.0-32.exe - Visual Studio 2015
+echo [coli]   boost_1_70_0-msvc-12.0-32.exe - Visual Studio 2013
+echo [coli]   boost_1_70_0-msvc-11.0-32.exe - Visual Studio 2012
+echo [coli]   boost_1_70_0-msvc-10.0-32.exe - Visual Studio 2010
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
 echo [coli] prepare msvc project
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
-
 echo [coli] prepare msvc project - done
-REM echo [coli] 1. build `icu4c` library:
-REM echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
-REM echo [coli]    (since icu windows project fail when execution/argument too long in command line)
-REM echo [coli]    $ mv C:\\%ROOT%\src\icu C:\\
-REM echo [coli]    open msvc project `C:\\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
-REM echo [coli]    build `icu4c` library with option `Release Win32`, then move `C:\\icu` library back to `C:\\%ROOT%\src`
-REM echo [coli]    $ mv C:\\icu C:\\%ROOT%\src
+
 echo [coli] open msvc project `%MSVC%\coli-parent.sln` and build with configuration `Release Win32`
