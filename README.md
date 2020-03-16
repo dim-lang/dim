@@ -121,12 +121,6 @@ Install dependencies on windows:
 * Install [python3](https://www.python.org/downloads/) and add `python.exe` to `PATH`.
 * Install [LLVM](https://llvm.org/) and add `clang.exe` to `PATH`.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
-* Install [boost_1_70_0-msvc-{version}-32.exe](https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/) at `C:\local` where `{version}` matched your msvc version:
-    * boost_1_70_0-msvc-14.1-32.exe - Visual Studio 2017
-    * boost_1_70_0-msvc-14.0-32.exe - Visual Studio 2015
-    * boost_1_70_0-msvc-12.0-32.exe - Visual Studio 2013
-    * boost_1_70_0-msvc-11.0-32.exe - Visual Studio 2012
-    * boost_1_70_0-msvc-10.0-32.exe - Visual Studio 2010
 
 #### Build
 
