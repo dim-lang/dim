@@ -42,15 +42,14 @@ REM if not exist %ROOT%\src\icu (
 REM )
 REM echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
-if not exist %ROOT%\src\boost (
-    cd %ROOT%\src
-    git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
-    cd boost
+if not exist C:\local\boost_1_70_0 (
+    cd C:\local
+    git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost boost_1_70_0
+    cd boost_1_70_0
     git submodule update --init
-    cd %ROOT%
 )
-if not exist %ROOT%\src\boost\stage (
-    cd %ROOT%\src\boost
+if not exist C:\local\boost_1_70_0\stage (
+    cd C:\local\boost_1_70_0
     cmd /c .\bootstrap.bat
     cmd /c .\b2 address-model=64 architecture=x86 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
 )
