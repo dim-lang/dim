@@ -3,62 +3,61 @@
 
 #include "File.h"
 #include "Log.h"
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
-#define INIT_LEN 1024
+#define F_BUF_SIZE 16384
 
-icu::UnicodeString File::read(const icu::UnicodeString &fileName,
-                              const char *locale, const char *codepage) {
-  UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
+std::string File::read(const std::string &fileName) {
+  FILE *fp = std::fopen(fileName.c_str(), "r");
   CASSERT(fp, "fp is null: {}", (void *)fp);
-  UChar *data = nullptr;
-  int len = INIT_LEN, n = 0, tot = 0;
+  int len = F_BUF_SIZE, n = 0, tot = 0;
+  char *data = (char *)std::malloc(len * sizeof(char));
+  CASSERT(data, "malloc error! data is null: {}", (void *)data);
 
   do {
     if (data == nullptr || tot >= len) {
       len *= 2;
-      data = (UChar *)realloc(data, len * sizeof(UChar));
-      CASSERT(data, "realloc error! data {} != nullptr", (void *)data);
+      data = (char *)std::realloc(data, len * sizeof(char));
+      CASSERT(data, "realloc error! data {} is null", (void *)data);
     }
 
-    n = u_file_read(data + tot, len - tot, fp);
+    n = std::fread(data + tot, len - tot, fp);
     tot += n;
   } while (n > 0);
 
-  u_fclose(fp);
-
-  icu::UnicodeString ret = icu::UnicodeString(data, tot);
-  free(data);
+  std::fclose(fp);
+  std::string ret = std::string(data, tot);
+  std::free(data);
   return ret;
 }
 
-std::vector<icu::UnicodeString>
-File::readline(const icu::UnicodeString &fileName, const char *locale,
-               const char *codepage) {
-  UFILE *fp = u_fopen_u(fileName.getBuffer(), "r", locale, codepage);
+std::vector<std::string> File::readline(const std::string &fileName) {
+  FILE *fp = std::fopen(fileName.c_str(), "r");
   CASSERT(fp, "fp is null: {}", (void *)fp);
-  int len = INIT_LEN;
-  UChar *data = (UChar *)malloc(len * sizeof(UChar));
+  int len = F_BUF_SIZE;
+  char *data = (char *)malloc(len * sizeof(char));
   CASSERT(data, "realloc error! data is null: {}", (void *)data);
-  std::vector<icu::UnicodeString> ret;
+  std::vector<std::string> ret;
 
   while (true) {
     int pos = 0;
     int32_t dataLen;
     while (true) {
-      UChar *r = u_fgets(data + pos, len - pos, fp);
+      char *r = std::fgets(data + pos, len - pos, fp);
       if (!r) {
         goto end_of_readline;
       }
-      dataLen = u_strlen(data);
+      dataLen = std::strlen(data);
       CASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
       CASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
       if (dataLen < len - 1) {
-        ret.push_back(icu::UnicodeString(data, dataLen));
+        ret.push_back(std::string(data, dataLen));
         break;
       } else {
         len *= 2;
-        data = (UChar *)realloc(data, sizeof(UChar) * len);
+        data = (char *)realloc(data, sizeof(char) * len);
         CASSERT(data, "realloc error! data is null: {}", (void *)data);
         pos = dataLen;
       }
@@ -66,49 +65,41 @@ File::readline(const icu::UnicodeString &fileName, const char *locale,
   }
 
 end_of_readline:
-  u_fclose(fp);
-  free(data);
+  std::fclose(fp);
+  std::free(data);
   return ret;
 }
 
-static int writeImpl(const icu::UnicodeString &fileName,
-                     const std::vector<icu::UnicodeString> &texts,
-                     const char *perm, const char *locale,
-                     const char *codepage) {
-  UFILE *fp = u_fopen_u(fileName.getBuffer(), perm, locale, codepage);
+static int writeImpl(const std::string &fileName,
+                     const std::vector<std::string> &texts, const char *perm) {
+  FILE *fp = std::fopen(fileName.c_str(), perm);
   CASSERT(fp, "open file error! fp is null: {}", (void *)fp);
   int n = 0;
   for (int i = 0; i < (int)texts.size(); i++) {
-    n += (int)u_file_write(texts[i].getBuffer(), texts[i].length(), fp);
+    n += (int)std::fwrite(texts[i].c_str(), 1, texts[i].length(), fp);
   }
-  u_fclose(fp);
+  std::fclose(fp);
   return n;
 }
 
-int File::write(const icu::UnicodeString &fileName,
-                const icu::UnicodeString &text, const char *locale,
-                const char *codepage) {
-  std::vector<icu::UnicodeString> ts = {text};
-  return writeImpl(fileName, ts, "w", locale, codepage);
+int File::write(const std::string &fileName, const std::string &text) {
+  std::vector<std::string> ts = {text};
+  return writeImpl(fileName, ts, "w");
 }
 
-int File::writeline(const icu::UnicodeString &fileName,
-                    const std::vector<icu::UnicodeString> &lines,
-                    const char *locale, const char *codepage) {
-  return writeImpl(fileName, lines, "w", locale, codepage);
+int File::writeline(const std::string &fileName,
+                    const std::vector<std::string> &lines) {
+  return writeImpl(fileName, lines, "w");
 }
 
-int File::append(const icu::UnicodeString &fileName,
-                 const icu::UnicodeString &text, const char *locale,
-                 const char *codepage) {
-  std::vector<icu::UnicodeString> ts = {text};
-  return writeImpl(fileName, ts, "a", locale, codepage);
+int File::append(const std::string &fileName, const std::string &text) {
+  std::vector<std::string> ts = {text};
+  return writeImpl(fileName, ts, "a");
 }
 
-int File::appendline(const icu::UnicodeString &fileName,
-                     const std::vector<icu::UnicodeString> &lines,
-                     const char *locale, const char *codepage) {
-  return writeImpl(fileName, lines, "a", locale, codepage);
+int File::appendline(const std::string &fileName,
+                     const std::vector<std::string> &lines) {
+  return writeImpl(fileName, lines, "a");
 }
 
-#undef INIT_LEN
+#undef F_BUF_SIZE
