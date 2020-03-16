@@ -81,7 +81,7 @@ echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 echo [coli] prepare msvc project
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
-cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
+cd %MSVC% && cmake -A x64 -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
 echo [coli] open msvc project `%MSVC%\coli-parent.sln` and build with configuration `Release Win32`
