@@ -58,13 +58,14 @@ echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 echo [coli] prepare msvc project
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
-cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
+cd %MSVC% && cmake -A x64 -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
+
 echo [coli] prepare msvc project - done
-REM echo [coli] 1. build `icu4c` library:
-REM echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
-REM echo [coli]    (since icu windows project fail when execution/argument too long in command line)
-REM echo [coli]    $ mv C:\\%ROOT%\src\icu C:\\
-REM echo [coli]    open msvc project `C:\\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
-REM echo [coli]    build `icu4c` library with option `Release x64`, then move `C:\\icu` library back to `C:\\%ROOT%\src`
-REM echo [coli]    $ mv C:\\icu C:\\%ROOT%\src
+echo [coli] 1. build `icu4c` library:
+echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
+echo [coli]    (since icu windows project fail when execution/argument too long in command line)
+echo [coli]    $ mv C:\\%ROOT%\src\icu C:\\
+echo [coli]    open msvc project `C:\\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
+echo [coli]    build `icu4c` library with option `Release x64`, then move `C:\\icu` library back to `C:\\%ROOT%\src`
+echo [coli]    $ mv C:\\icu C:\\%ROOT%\src
 echo [coli] open msvc project `%MSVC%\coli-parent.sln` and build with configuration `Release x64`
