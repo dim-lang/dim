@@ -12,7 +12,7 @@ TEST_CASE("File", "[File]") {
   SECTION("read/write") {
     boost::filesystem::remove("FileTest1.log");
     boost::filesystem::remove("FileTest2.log");
-    icu::UnicodeString text1 = UNICODE_STRING_SIMPLE(
+    std::string text1 =
         "This is a long string for testing File::write and File::read "
         "static methods.\n"
         "Test cases will firstly write this unicode string into a temporary "
@@ -20,57 +20,52 @@ TEST_CASE("File", "[File]") {
         "then read text from this temporary file. Finally compare the read "
         "text with the original text.\n"
         "For convenience, our test cases do not compare substring, but only "
-        "the whole text.\n");
-    int n1 = File::write(UNICODE_STRING_SIMPLE("FileTest1.log"), text1);
+        "the whole text.\n";
+    int n1 = File::write("FileTest1.log", text1);
     REQUIRE(n1 == text1.length());
-    icu::UnicodeString result1 =
-        File::read(UNICODE_STRING_SIMPLE("FileTest1.log"));
+    std::string result1 = File::read("FileTest1.log");
     REQUIRE(text1.length() == result1.length());
     REQUIRE(text1 == result1);
 
-    icu::UnicodeString text2 = UNICODE_STRING_SIMPLE(
+    std::string text2 =
         "This is a simple string for testing File::append and File::readline "
         "static methods.\n"
         "Test cases will firstly append to a temporary file named "
         "\"FileTest2.log\",\n"
         "then read text line by line from this temporary file. Finally compare "
-        "all the lines text with the original text.\n");
-    int n2 = File::write(UNICODE_STRING_SIMPLE("FileTest2.log"), text2);
+        "all the lines text with the original text.\n";
+    int n2 = File::write("FileTest2.log", text2);
     REQUIRE(n2 == text2.length());
-    icu::UnicodeString result2 =
-        File::read(UNICODE_STRING_SIMPLE("FileTest2.log"));
+    std::string result2 = File::read("FileTest2.log");
     REQUIRE(result2 == text2);
   }
 
   SECTION("append/readline") {
     boost::filesystem::remove("FileTest3.log");
-    icu::UnicodeString l1 = UNICODE_STRING_SIMPLE("Hello World\n");
-    icu::UnicodeString l2 = UNICODE_STRING_SIMPLE(
-        "What a greate morning! What a lovely weather!\n");
-    icu::UnicodeString l3 =
-        UNICODE_STRING_SIMPLE("Let's go to KFC and have a good meal!\n");
-    icu::UnicodeString l4 = UNICODE_STRING_SIMPLE("I cannot wait anymore!\n");
-    icu::UnicodeString l5, l6;
-    l5 = l6 = UNICODE_STRING_SIMPLE("Test a very long string in one line!");
+    std::string l1 = "Hello World\n";
+    std::string l2 = "What a greate morning! What a lovely weather!\n";
+    std::string l3 = "Let's go to KFC and have a good meal!\n";
+    std::string l4 = "I cannot wait anymore!\n";
+    std::string l5, l6;
+    l5 = l6 = "Test a very long string in one line!";
     for (int i = 0; i < 256; i++) {
       l5 += l6;
     }
-    l5 += UNICODE_STRING_SIMPLE("\n");
-    int n1 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l1);
-    int n2 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l2);
-    int n3 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l3);
-    int n4 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l4);
-    int n5 = File::append(UNICODE_STRING_SIMPLE("FileTest3.log"), l5);
+    l5 += "\n";
+    int n1 = File::append("FileTest3.log", l1);
+    int n2 = File::append("FileTest3.log", l2);
+    int n3 = File::append("FileTest3.log", l3);
+    int n4 = File::append("FileTest3.log", l4);
+    int n5 = File::append("FileTest3.log", l5);
     REQUIRE(n1 == l1.length());
     REQUIRE(n2 == l2.length());
     REQUIRE(n3 == l3.length());
     REQUIRE(n4 == l4.length());
     REQUIRE(n5 == l5.length());
 
-    std::vector<icu::UnicodeString> lines =
-        File::readline(UNICODE_STRING_SIMPLE("FileTest3.log"));
+    std::vector<std::string> lines = File::readline("FileTest3.log");
     REQUIRE(std::accumulate(lines.begin(), lines.end(), 0,
-                            [](int a, const icu::UnicodeString &b) {
+                            [](int a, const std::string &b) {
                               return a + (int)b.length();
                             }) == l1.length() + l2.length() + l3.length() +
                                       l4.length() + l5.length());
