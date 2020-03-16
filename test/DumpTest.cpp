@@ -6,7 +6,7 @@
 #include "Log.h"
 #include "Parser.h"
 #include "Scanner.h"
-#include "Semant.h"
+#include "Semantic.h"
 #include "Token.h"
 #include "catch2/catch.hpp"
 
@@ -16,11 +16,10 @@ static void go(const char *fileName) {
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
-  Semant *semant = new Semant(scanner.translateUnit());
-  semant->build();
-  semant->check();
-  CINFO("dump symbol:{} {}", fileName, dumpSymbol(semant->globalSymbolTable()));
-  CINFO("dump type:{} {}", fileName, dumpType(semant->globalTypeTable()));
+  Semantic::build(&symtable, scanner.translateUnit());
+  Semantic::check(&symtable, scanner.translateUnit());
+  CINFO("dump symbol:{} {}", fileName, dumpSymbol(symtable->gss()));
+  CINFO("dump type:{} {}", fileName, dumpType(symtable->gts()));
 }
 
 TEST_CASE("Dump", "[Dump]") {
