@@ -29,7 +29,6 @@ set(CINC
     ../src/fmt/include
     Catch2/single_include
     Threads::Threads
-    /usr/local/opt/icu4c/include
     ${Boost_INCLUDE_DIRS}
     ${LLVM_INCLUDE_DIRS}
     /usr/include
@@ -41,16 +40,11 @@ set(CLIB
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     tcmalloc
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 
 set(CLIB_DIR
     .
     ../src
-    /usr/local/opt/icu4c/lib
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     /usr/lib

@@ -26,7 +26,6 @@ set(CINC
     .
     spdlog/include
     fmt/include
-    /usr/local/opt/icu4c/include
     Threads::Threads
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
@@ -39,15 +38,10 @@ set(CLIB
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     tcmalloc
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 
 set(CLIB_DIR
     .
-    /usr/local/opt/icu4c/lib
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     /usr/lib

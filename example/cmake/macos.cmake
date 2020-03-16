@@ -27,7 +27,6 @@ set(CINC
     ../src
     spdlog/include
     fmt/include
-    /usr/local/opt/icu4c/include
     Threads::Threads
     ${Boost_INCLUDE_DIRS}
     ${LLVM_INCLUDE_DIRS}
@@ -39,14 +38,9 @@ set(CLIB
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     tcmalloc
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 set(CLIB_DIR
     .
-    /usr/local/opt/icu4c/lib
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     /usr/lib
@@ -59,7 +53,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
-add_executable(coli-icu_ustdio icu_ustdio.cpp)
-target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
-target_link_libraries(coli-icu_ustdio ${CLIB})
-set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+#add_executable(coli-icu_ustdio icu_ustdio.cpp)
+#target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
+#target_link_libraries(coli-icu_ustdio ${CLIB})
+#set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

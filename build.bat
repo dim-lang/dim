@@ -34,13 +34,13 @@ if not exist %ROOT%\src\fmt (
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-echo [coli] prepare unicode-org/icu %ICU_VERSION%
-if not exist %ROOT%\src\icu (
-    cd %ROOT%\src
-    git clone -b %ICU_VERSION% --single-branch --depth 1 https://github.com/unicode-org/icu
-    cd %ROOT%
-)
-echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
+REM echo [coli] prepare unicode-org/icu %ICU_VERSION%
+REM if not exist %ROOT%\src\icu (
+    REM cd %ROOT%\src
+    REM git clone -b %ICU_VERSION% --single-branch --depth 1 https://github.com/unicode-org/icu
+    REM cd %ROOT%
+REM )
+REM echo [coli] prepare unicode-org/icu %ICU_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
@@ -62,11 +62,11 @@ if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
-echo [coli] 1. build `icu4c` library:
-echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
-echo [coli]    (since icu windows project fail when execution/argument too long in command line)
-echo [coli]    $ mv C:\\%ROOT%\src\icu C:\\
-echo [coli]    open msvc project `C:\\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
-echo [coli]    build `icu4c` library with option `Release x64`, then move `C:\\icu` library back to `C:\\%ROOT%\src`
-echo [coli]    $ mv C:\\icu C:\\%ROOT%\src
-echo [coli] 2. build msvc project `%MSVC%\coli-parent.sln` with `Release x64`
+REM echo [coli] 1. build `icu4c` library:
+REM echo [coli]    suppose coli project location is `C:\\%ROOT%`, move `C:\\%ROOT%\src\icu` to `C:\\` first
+REM echo [coli]    (since icu windows project fail when execution/argument too long in command line)
+REM echo [coli]    $ mv C:\\%ROOT%\src\icu C:\\
+REM echo [coli]    open msvc project `C:\\icu\icu4c\source\allinone\allinone.sln`, remove sub projects `common_uwp`, `i18n_uwp`.
+REM echo [coli]    build `icu4c` library with option `Release x64`, then move `C:\\icu` library back to `C:\\%ROOT%\src`
+REM echo [coli]    $ mv C:\\icu C:\\%ROOT%\src
+echo [coli] open msvc project `%MSVC%\coli-parent.sln` and build with configuration `Release x64`

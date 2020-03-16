@@ -37,10 +37,6 @@ set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
     ${llvm_libraries}
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 
 set(CLIB_DIR

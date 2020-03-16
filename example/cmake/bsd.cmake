@@ -37,10 +37,6 @@ set(CLIB
     Threads::Threads
     ${Boost_LIBRARIES}
     ${llvm_libraries}
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 set(CLIB_DIR
     ${Boost_LIBRARY_DIRS}
@@ -55,7 +51,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
-add_executable(coli-icu_ustdio icu_ustdio.cpp)
-target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
-target_link_libraries(coli-icu_ustdio ${CLIB})
-set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+#add_executable(coli-icu_ustdio icu_ustdio.cpp)
+#target_include_directories(coli-icu_ustdio PRIVATE ${CINC})
+#target_link_libraries(coli-icu_ustdio ${CLIB})
+#set_target_properties(coli-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

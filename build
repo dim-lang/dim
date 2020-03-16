@@ -11,54 +11,54 @@ function init_macos() {
     echo [coli] prepare compiler and toolchain through homebrew
     brew install cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through homebrew - done
-    echo [coli] prepare boost, icu4c, gperftools, llvm through homebrew
-    brew install boost icu4c gperftools llvm
-    echo [coli] prepare boost, icu4c, gperftools, llvm through homebrew - done
+    echo [coli] prepare boost, gperftools, llvm through homebrew
+    brew install boost gperftools llvm
+    echo [coli] prepare boost, gperftools, llvm through homebrew - done
 }
 
 function init_bsd() {
     sudo echo [coli] prepare compiler and toolchain through pkg || { echo [coli] sudo not found; exit 3; }
     sudo pkg install -y cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pkg - done
-    echo [coli] prepare boost-all, icu, llvm through pkg
-    sudo pkg install -y boost-all icu llvm
-    echo [coli] prepare boost-all, icu, llvm through pkg - done
+    echo [coli] prepare boost-all, llvm through pkg
+    sudo pkg install -y boost-all llvm
+    echo [coli] prepare boost-all, llvm through pkg - done
 }
 
 function init_apt() {
     sudo echo [coli] prepare compiler and toolchain through apt || { echo [coli] sudo not found; exit 3; }
     sudo apt-get install -y gcc g++ make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through apt - done
-    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev through apt
-    sudo apt-get install -y libboost-all-dev libicu-dev libgoogle-perftools-dev
-    echo [coli] prepare libboost-all-dev, libicu-dev, libgoogle-perftools-dev through apt - done
+    echo [coli] prepare libboost-all-dev, libgoogle-perftools-dev through apt
+    sudo apt-get install -y libboost-all-dev libgoogle-perftools-dev
+    echo [coli] prepare libboost-all-dev, libgoogle-perftools-dev through apt - done
 }
 
 function init_dnf() {
     sudo echo [coli] prepare compiler and toolchain through dnf || { echo [coli] sudo not found; exit 3; }
     sudo dnf install -y gcc g++ make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through dnf - done
-    echo [coli] prepare boost-devel, libicu-devel, gperftools-devel through dnf
-    sudo dnf install -y boost-devel libicu-devel gperftools-devel
-    echo [coli] prepare boost-devel, libicu-devel, gperftools-devel through dnf - done
+    echo [coli] prepare boost-devel, gperftools-devel through dnf
+    sudo dnf install -y boost-devel gperftools-devel
+    echo [coli] prepare boost-devel, gperftools-devel through dnf - done
 }
 
 function init_pacman() {
     sudo echo [coli] prepare compiler and toolchain through pacman || { echo [coli] sudo not found; exit 3; }
     yes | sudo pacman -S gcc make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pacman - done
-    echo [coli] prepare boost, icu, gperftools, llvm through pacman
-    yes | sudo pacman -S boost icu gperftools llvm
-    echo [coli] prepare boost, icu, gperftools, llvm through pacman - done
+    echo [coli] prepare boost, gperftools, llvm through pacman
+    yes | sudo pacman -S boost gperftools llvm
+    echo [coli] prepare boost, gperftools, llvm through pacman - done
 }
 
 function init_zypper() {
     sudo echo [coli] prepare compiler and toolchain through zypper || { echo [coli] sudo not found; exit 3; }
     sudo zypper install -y gcc gcc-c++ make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through zypper - done
-    echo [coli] prepare libboost-devel, libicu-devel, gperftools-devel through zypper
-    sudo zypper install -y libboost*-devel libicu-devel gperftools-devel
-    echo [coli] prepare libboost-devel, libicu-devel, gperftools-devel through zypper - done
+    echo [coli] prepare libboost-devel, gperftools-devel through zypper
+    sudo zypper install -y libboost*-devel gperftools-devel
+    echo [coli] prepare libboost-devel, gperftools-devel through zypper - done
 }
 
 function init_linux() {

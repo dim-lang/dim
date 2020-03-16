@@ -37,10 +37,6 @@ set(CLIB
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     tcmalloc
-    icuuc
-    icuio
-    icudata
-    icui18n
     )
 set(CLIB_DIR
     ${Boost_LIBRARY_DIRS}
