@@ -9,8 +9,6 @@ set MSVC=msvc
 set SPDLOG_VERSION=v1.3.1
 set FMTLIB_VERSION=5.3.0
 set CATCH2_VERSION=v2.9.1
-set ICU_VERSION=release-64-2
-set BOOST_VERSION=boost-1.70.0
 
 @rem init third party library
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION%
