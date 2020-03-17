@@ -10,7 +10,7 @@ set SPDLOG_VERSION=v1.3.1
 set FMTLIB_VERSION=5.3.0
 set CATCH2_VERSION=v2.9.1
 set BOOST_VERSION=boost-1.70.0
-set LLVM_VERSION=llvm-9.0.1
+set LLVM_VERSION=llvmorg-9.0.1
 
 @rem init third party library
 echo [coli] prepare catchorg/Catch2 %CATCH2_VERSION%
@@ -34,18 +34,6 @@ if not exist %ROOT%\src\fmt (
     cd %ROOT%
 )
 echo [coli] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-REM echo [coli] prepare llvm/llvm-project %LLVM_VERSION%
-REM if not exist %ROOT%\src\llvm-project (
-    REM cd %ROOT%\src
-    REM git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
-    REM cd %ROOT%
-REM )
-REM if not exist %ROOT%\src\llvm-project\build (
-    REM cd %ROOT%\src\llvm-project
-    REM mkdir build && cd build
-    REM cmake .. --config Release --target INSTALL
-REM )
-REM echo [coli] prepare llvm/llvm-project %LLVM_VERSION% - done
 echo [coli] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
@@ -84,4 +72,6 @@ if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -A x64 -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
-echo [coli] open msvc project `%MSVC%\coli-parent.sln` and build with configuration `Release Win32`
+echo [coli] 1. download `https://sourceforge.net/projects/boost/files/boost/1.70.0/` and extract to `%ROOT%\src\boost` if git clone boostorg/boost too slow
+echo [coli] 2. download `https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/llvm-project-9.0.1.tar.xz` and extract to `%ROOT%\src\llvm-project` if git clone llvm/llvm-project too slow
+echo [coli] 3. open project `%MSVC%\coli-parent.sln` and build with configuration `Release Win32`
