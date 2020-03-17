@@ -84,6 +84,5 @@ if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -A x64 -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%
 echo [coli] prepare msvc project - done
 
-echo [coli] 1. download `https://sourceforge.net/projects/boost/files/boost/1.70.0/` and extract to `%ROOT%\src\boost` if git clone boostorg/boost too slow
-echo [coli] 2. download `https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/llvm-project-9.0.1.tar.xz` and extract to `%ROOT%\src\llvm-project` if git clone llvm/llvm-project too slow
-echo [coli] 3. open project `%MSVC%\coli-parent.sln` and build with configuration `Release Win32`
+echo [coli] notice:
+echo [coli] download `https://sourceforge.net/projects/boost/files/boost/1.70.0/` and extract to `%ROOT%\src\boost` if git clone boostorg/boost too slow

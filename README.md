@@ -120,10 +120,6 @@ Install dependencies on windows:
 * Install [git](https://git-scm.com/downloads) and add `git.exe` to `PATH`.
 * Install [python3](https://www.python.org/downloads/) and add `python.exe` to `PATH`.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
-* Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
-    1. extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
-    2. generate msvc project: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
-    3. build `coli/src/llvm/build/LLVM.sln` with both `Debug x64` and `Release x64`.
 
 #### Build
 
@@ -132,4 +128,13 @@ Install dependencies on windows:
 |  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
 |  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
 
-Build msvc project `coli\msvc\coli-parent.sln` with `Release x64`.
+Build dependencies on windows:
+1. Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
+    1. extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
+    2. generate msvc project: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
+    3. build `coli/src/llvm/build/LLVM.sln` with `Debug x64` and `Release x64`.
+2. Build msvc project `coli\msvc\coli-parent.sln` with `Release x64` and `Debug x64`.
+
+#### Notice
+
+Download [boost-1.70.0](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost` if git clone boostorg/boost too slow.
