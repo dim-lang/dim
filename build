@@ -18,7 +18,7 @@ function init_macos() {
 
 function init_bsd() {
     sudo echo [coli] prepare compiler and toolchain through pkg || { echo [coli] sudo not found; exit 3; }
-    sudo pkg install -y cmake automake autoconf flex bison
+    sudo pkg install -y clang cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pkg - done
     echo [coli] prepare boost-all, llvm through pkg
     sudo pkg install -y boost-all llvm
@@ -27,7 +27,7 @@ function init_bsd() {
 
 function init_apt() {
     sudo echo [coli] prepare compiler and toolchain through apt || { echo [coli] sudo not found; exit 3; }
-    sudo apt-get install -y gcc g++ make cmake automake autoconf flex bison
+    sudo apt-get install -y clang make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through apt - done
     echo [coli] prepare libboost-all-dev, libgoogle-perftools-dev, llvm-dev through apt
     sudo apt-get install -y libboost-all-dev libgoogle-perftools-dev llvm-dev
@@ -36,7 +36,7 @@ function init_apt() {
 
 function init_dnf() {
     sudo echo [coli] prepare compiler and toolchain through dnf || { echo [coli] sudo not found; exit 3; }
-    sudo dnf install -y gcc g++ make cmake automake autoconf flex bison
+    sudo dnf install -y clang make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through dnf - done
     echo [coli] prepare boost-devel, gperftools-devel, jemalloc-devel, llvm-devel through dnf
     sudo dnf install -y boost-devel gperftools-devel jemalloc-devel llvm-devel
@@ -45,7 +45,7 @@ function init_dnf() {
 
 function init_pacman() {
     sudo echo [coli] prepare compiler and toolchain through pacman || { echo [coli] sudo not found; exit 3; }
-    yes | sudo pacman -S gcc make cmake automake autoconf flex bison
+    yes | sudo pacman -S clang make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through pacman - done
     echo [coli] prepare boost, gperftools, jemalloc, llvm through pacman
     yes | sudo pacman -S boost gperftools jemalloc llvm
@@ -54,7 +54,7 @@ function init_pacman() {
 
 function init_zypper() {
     sudo echo [coli] prepare compiler and toolchain through zypper || { echo [coli] sudo not found; exit 3; }
-    sudo zypper install -y gcc gcc-c++ make cmake automake autoconf flex bison
+    sudo zypper install -y clang make cmake automake autoconf flex bison
     echo [coli] prepare compiler and toolchain through zypper - done
     echo [coli] prepare libboost-devel, gperftools-devel, jemalloc-devel, llvm-devel through zypper
     sudo zypper install -y libboost*-devel gperftools-devel jemalloc-devel llvm-devel

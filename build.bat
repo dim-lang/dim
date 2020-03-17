@@ -67,6 +67,18 @@ if exist %ROOT%\src\boost\stage\lib (
 echo [coli] prepare boostorg/boost %BOOST_VERSION% - done
 
 echo [coli] prepare msvc project
+cd %ROOT%\src
+if exist Token.yy.cpp (
+    rm Token.yy.cpp
+)
+if exist Parser.tab.hpp (
+    rm Parser.tab.hpp
+)
+if exist Parser.tab.cpp (
+    rm Parser.tab.cpp
+)
+win_flex -o Token.yy.cpp Token.l
+win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC% && cmake -A x64 -DCMAKE_GENERATOR_PLATFORM=x64 -DCMAKE_BUILD_TYPE=Release --config Release .. && cd %ROOT%

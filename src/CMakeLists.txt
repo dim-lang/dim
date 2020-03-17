@@ -31,23 +31,9 @@ set(CSRC
     coli.cpp
 )
 
-if(WIN32) # windows
+if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
-elseif(APPLE) # macos
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-elseif(UNIX AND NOT APPLE)
-    if(${CMAKE_SYSTEM_NAME} MATCHES BSD) # bsd
-        set(CMAKE_C_COMPILER clang)
-        set(CMAKE_CXX_COMPILER clang++)
-    else() # linux
-        set(CMAKE_C_COMPILER gcc)
-        set(CMAKE_CXX_COMPILER g++)
-    endif(${CMAKE_SYSTEM_NAME} MATCHES BSD)
-endif(WIN32)
-
-if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
     set(Boost_DEBUG ON)
     set(Boost_DETAILED_FAILURE_MSG ON)
@@ -59,6 +45,8 @@ if(WIN32)
     set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm-project")
     add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 else()
+    set(CMAKE_C_COMPILER clang)
+    set(CMAKE_CXX_COMPILER clang++)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
