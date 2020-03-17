@@ -27,6 +27,7 @@ fmt
 boost
 icu
 Catch2
+llvm
 
 # auto generate source code
 *.yy.cpp

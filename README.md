@@ -122,8 +122,8 @@ Install dependencies on windows:
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
 * Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
     1. extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
-    2. create msvc project with cmake: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
-    3. open msvc project `LLVM.sln` and build with configuration `Release x64`.
+    2. generate msvc project: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
+    3. build `coli/src/llvm/build/LLVM.sln` with both `Debug x64` and `Release x64`.
 
 #### Build
 
