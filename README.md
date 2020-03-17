@@ -120,6 +120,17 @@ Install dependencies on windows:
 * Install [git](https://git-scm.com/downloads) and add `git.exe` to `PATH`.
 * Install [python3](https://www.python.org/downloads/) and add `python.exe` to `PATH`.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
+* Install [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from source code:
+    * Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `llvm-9.0.1`.
+    * Build and install llvm-9.0.1 to `C:\Program Files` with administrator authorization:
+    ```
+    cd llvm-9.0.1
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX="C:\Program Files\LLVM" -A x64 ..
+    cmake --build . --config Release --target INSTALL
+    ```
+* Install [boost_1_70_0](https://github.com) from source code:
 
 #### Build
 
@@ -127,15 +138,3 @@ Install dependencies on windows:
 |----------------|-----------------------------------------------------------------------------------------------------|
 |  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
 |  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
-
-Build dependencies on windows:
-1. Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
-    * extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
-    * generate msvc project: `cd coli/src/llvm && mkdir build && cd build && cmake -A x64 .. && cmake --build . --config=Release --target=.`
-    * build `coli/src/llvm/build/LLVM.sln` with `Debug x64` and `Release x64`.
-2. Build msvc project `coli\msvc\coli-parent.sln` with `Release x64` and `Debug x64`.
-
-#### Notice
-
-Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost` if git clone boostorg/boost too slow.
-Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `coli\src\llvm-project` if git clone llvm/llvm-project too slow.
