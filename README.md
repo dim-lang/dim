@@ -132,6 +132,4 @@ Install dependencies on windows:
 |  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
 |  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
 
-Manually build steps on windows:
-1. open `coli\msvc\coli-parent.sln` with Visual Studio.
-2. build with configuration `Release Win32` or `Release x64`.
+Build msvc project `coli\msvc\coli-parent.sln` with `Release x64`.
