@@ -131,10 +131,11 @@ Install dependencies on windows:
 Build dependencies on windows:
 1. Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
     * extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
-    * generate msvc project: `cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release --target=INSTALL ..`
+    * generate msvc project: `cd coli/src/llvm && mkdir build && cd build && cmake -A x64 .. && cmake --build . --config=Release --target=.`
     * build `coli/src/llvm/build/LLVM.sln` with `Debug x64` and `Release x64`.
 2. Build msvc project `coli\msvc\coli-parent.sln` with `Release x64` and `Debug x64`.
 
 #### Notice
 
-Download [boost-1.70.0](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost` if git clone boostorg/boost too slow.
+Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost` if git clone boostorg/boost too slow.
+Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `coli\src\llvm-project` if git clone llvm/llvm-project too slow.
