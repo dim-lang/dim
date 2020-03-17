@@ -130,9 +130,9 @@ Install dependencies on windows:
 
 Build dependencies on windows:
 1. Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and build with:
-    1. extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
-    2. generate msvc project: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
-    3. build `coli/src/llvm/build/LLVM.sln` with `Debug x64` and `Release x64`.
+    * extract `llvm-9.0.1.src.tar.xz` to `coli/src/llvm`.
+    * generate msvc project: `$ cd coli/src/llvm && mkdir build && cd build && cmake -A x64 --config=Release ..`
+    * build `coli/src/llvm/build/LLVM.sln` with `Debug x64` and `Release x64`.
 2. Build msvc project `coli\msvc\coli-parent.sln` with `Release x64` and `Debug x64`.
 
 #### Notice
