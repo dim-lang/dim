@@ -29,9 +29,11 @@ void Tytab::define(Symbol *sym, Type *ty) {
 
 Type *Tytab::resolve(Symbol *sym) {
   CASSERT(sym, "sym is null");
-  CASSERT(hashtab_.find(sym) != hashtab_.end(), "sym {}:{} not exist",
-          (void *)sym, sym->name());
-  return hashtab_[sym];
+  if (hashtab_.find(sym) != hashtab_.end())
+    return hashtab_[sym];
+  if (enclosingScope_)
+    return enclosingScope_->resolve(sym);
+  return nullptr;
 }
 
 Tytab *Tytab::enclosingScope() { return enclosingScope_; }

@@ -1,9 +1,9 @@
 func abs() {
-    number = 3 + -2;
+    var number = 3 + -2;
     number = 1 + 6e+4 / (-3) * (4 + 3 % -2) + 2;
-    a = number;
-    b = 10 * a + 10 * number / 4;
-    c = a - -b;
+    var a = number;
+    var b = 10 * a + 10 * number / 4;
+    var c = a - -b;
     ;
     ;
 }
@@ -11,7 +11,7 @@ func abs() {
 func World(x, y) {
     x = 1;
     y = 2;
-    z = x + y;
+    var z = x + y;
     return z + 10 / 4;
 }
 

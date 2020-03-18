@@ -29,9 +29,12 @@ void Symtab::define(Symbol *sym) {
 }
 
 Symbol *Symtab::resolve(const std::string &name) {
-  CASSERT(name.length() > 0, "name#length <= 0");
-  CASSERT(hashtab_.find(name) != hashtab_.end(), "symbol {} not exist", name);
-  return hashtab_[name];
+  CASSERT(name.length() > 0, "name#length {} > 0", name.length());
+  if (hashtab_.find(name) != hashtab_.end())
+    return hashtab_[name];
+  if (enclosingScope_)
+    return enclosingScope_->resolve(name);
+  return nullptr;
 }
 
 Symtab *Symtab::enclosingScope() { return enclosingScope_; }

@@ -54,9 +54,11 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.empty());
   REQUIRE(hm1.load() == 0.0);
   REQUIRE(hm1.begin() == hm1.end());
-  CINFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end: {}",
+  REQUIRE(hm1.rbegin() == hm1.rend());
+  CINFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
+        "hm1.rbegin():{}, hm1.rend():{}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
-        hm1.end().toString());
+        hm1.end().toString(), hm1.rbegin().toString(), hm1.rend().toString());
 
   int r = randomBucket.next();
   LinkedHashMap<A, B> hm2(r);
@@ -67,9 +69,10 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm2.empty());
   REQUIRE(hm2.load() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
-  CINFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end: {}",
+  CINFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
+        "hm2.rend:{}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
-        hm2.end().toString());
+        hm2.end().toString(), hm2.rbegin().toString(), hm2.rend().toString());
 }
 
 template <typename A> void testInsert(A a, A b) {
@@ -285,22 +288,40 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
                  LHMTester(std::to_string(i), i, i));
     }
     LinkedHashMap<int, int>::Iterator p;
+    LinkedHashMap<int, int>::RIterator p1;
     for (p = hm1.begin(), i = 0; p != hm1.end(); p++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(p->first == i);
       REQUIRE(p->second == i);
     }
+    for (p1 = hm1.rbegin(), i = TEST_MAX - 1; p1 != hm1.rend(); p1++, i--) {
+      REQUIRE(i >= 0);
+      REQUIRE(p1->first == i);
+      REQUIRE(p1->second == i);
+    }
     LinkedHashMap<std::string, std::string>::Iterator q;
+    LinkedHashMap<std::string, std::string>::RIterator q1;
     for (q = hm2.begin(), i = 0; q != hm2.end(); q++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(q->first == std::to_string(i));
       REQUIRE(q->second == std::to_string(i));
     }
+    for (q1 = hm2.rbegin(), i = TEST_MAX - 1; q1 != hm2.rend(); q1++, i--) {
+      REQUIRE(i >= 0);
+      REQUIRE(q1->first == std::to_string(i));
+      REQUIRE(q1->second == std::to_string(i));
+    }
     LinkedHashMap<LHMTester, LHMTester>::Iterator u;
+    LinkedHashMap<LHMTester, LHMTester>::RIterator u1;
     for (u = hm3.begin(), i = 0; u != hm3.end(); u++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(u->first == LHMTester(std::to_string(i), i, i));
       REQUIRE(u->second == LHMTester(std::to_string(i), i, i));
+    }
+    for (u1 = hm3.rbegin(), i = TEST_MAX - 1; u1 != hm3.rend(); u1++, i--) {
+      REQUIRE(i >= 0);
+      REQUIRE(u1->first == LHMTester(std::to_string(i), i, i));
+      REQUIRE(u1->second == LHMTester(std::to_string(i), i, i));
     }
   }
   SECTION("insertOrAssign") {

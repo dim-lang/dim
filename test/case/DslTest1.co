@@ -4,19 +4,19 @@ var z = x + y;
 var a9 = 228;
 var a18 = 123.901;
 
-func Hello() {
-    a = 1;
-    b = 2;
+func Hello(x, y) {
+    var a = 1;
+    var b = 2;
     a = a + b;
     return a;
 
     if (a < b)
-        print(a);
+        print(x);
     else
-        print(b);
+        print(y);
 
     while (a < b)
-        print(a);
+        print(x+y);
 }
 
 // this is a line comment */ is for testing block comment ending
@@ -27,7 +27,8 @@ func Hello() {
  * integer: 10243+e31
  */
 
-func ok() { return 0; }
+func ok(y) { var x = 1; return x%y; }
+
 func testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing coli DSL language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.

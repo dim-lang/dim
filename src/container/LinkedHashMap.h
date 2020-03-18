@@ -111,6 +111,31 @@ private:
   LinkedNode<K, V> *node_;
 };
 
+// linked reverse iterator
+template <typename K, typename V> class LinkedRIterator : public Stringify {
+public:
+  LinkedRIterator();
+  LinkedRIterator(LinkedNode<K, V> *node);
+  ~LinkedRIterator();
+  LinkedRIterator(const LinkedRIterator<K, V> &other);
+  LinkedRIterator<K, V> &operator=(const LinkedRIterator<K, V> &other);
+  LinkedRIterator<K, V> &operator++();
+  LinkedRIterator<K, V> &operator--();
+  LinkedRIterator<K, V> operator++(int);
+  LinkedRIterator<K, V> operator--(int);
+  bool operator==(const LinkedRIterator<K, V> &other) const;
+  bool operator!=(const LinkedRIterator<K, V> &other) const;
+  bool operator!() const;
+  std::pair<const K, V> &operator*();
+  const std::pair<const K, V> &operator*() const;
+  std::pair<const K, V> *operator->();
+  const std::pair<const K, V> *operator->() const;
+  virtual std::string toString() const;
+
+private:
+  LinkedNode<K, V> *node_;
+};
+
 // linked hashtable
 template <typename K, typename V, typename H, typename E>
 class LinkedHt : private boost::noncopyable {
@@ -132,6 +157,10 @@ public:
   const LinkedIterator<K, V> begin() const;
   LinkedIterator<K, V> end();
   const LinkedIterator<K, V> end() const;
+  LinkedRIterator<K, V> rbegin();
+  const LinkedRIterator<K, V> rbegin() const;
+  LinkedRIterator<K, V> rend();
+  const LinkedRIterator<K, V> rend() const;
 
 private:
   int getBucket(const K &key, int bucket) const;
@@ -157,6 +186,8 @@ class LinkedHashMap : private boost::noncopyable {
 public:
   using Iterator = typename detail::LinkedIterator<K, V>;
   using CIterator = typename detail::LinkedIterator<K, V> const;
+  using RIterator = typename detail::LinkedRIterator<K, V>;
+  using CRIterator = typename detail::LinkedRIterator<K, V> const;
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
@@ -171,6 +202,10 @@ public:
   CIterator begin() const;
   Iterator end();
   CIterator end() const;
+  RIterator rbegin();
+  CRIterator rbegin() const;
+  RIterator rend();
+  CRIterator rend() const;
 
   void insert(const K &key, const V &mapped);
   void insert(const std::pair<const K, V> &value);
