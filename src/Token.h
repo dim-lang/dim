@@ -5,6 +5,7 @@
 #include "Parser.tab.hpp"
 #include "config/Platform.h"
 #include <cstdio>
+#include <cstring>
 #include <stack>
 #include <string>
 
