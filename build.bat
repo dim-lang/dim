@@ -50,7 +50,6 @@ cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC%
 cmake -A x64 ..
-cd %ROOT%\%MSVC%
 cmake --build . --config Release
 cd %ROOT%
 echo [coli] build - done
