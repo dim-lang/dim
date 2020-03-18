@@ -98,12 +98,10 @@ func main():i32 {
 ## How to install?
 
 #### Install dependencies on MacOS
-First install Xcode, git, homebrew
-`brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`
+First install Xcode, git, homebrew, then: `brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`
 
 #### Install dependencies on *BSD
-First install pkg, bash
-`sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`
+First install pkg, bash, then: `sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`
 
 #### Install dependencies on Debian/Ubuntu
 `sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`
