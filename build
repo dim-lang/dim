@@ -14,16 +14,6 @@ function clean_all() {
     if [ -d release ]; then cd release && cmake -- clean && cd ..; fi
 }
 
-function purge_all() {
-    cd $ROOT
-    rm *.log >>/dev/null 2>&1
-    if [ -d debug ]; then rm -rf debug>>/dev/null 2>&1; fi
-    if [ -d release ]; then rm -rf release>>/dev/null 2>&1; fi
-    if [ -d src/spdlog ]; then rm -rf src/spdlog>>/dev/null 2>&1; fi
-    if [ -d src/fmt ]; then rm -rf src/fmt>>/dev/null 2>&1; fi
-    if [ -d test/Catch2 ]; then rm -rf test/Catch2 >>/dev/null 2>&1; fi
-}
-
 function build_generate() {
     CATCH2_VERSION=v2.9.1
     SPDLOG_VERSION=v1.3.1
@@ -87,34 +77,52 @@ function build_cmake() {
 # $2: job number
 function build_routine() {
     case "$FOS" in
-      solaris*) echo "[coli] Solaris Not Support!" && exit 3 ;;
+      solaris*) echo "[coli] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[coli] Unknown OS: $FOS!" && exit 3 ;;
+      *)        echo "[coli] unknown os: $FOS!" && exit 3 ;;
     esac
     echo [coli] build for $FOS, mode=$1, job=$2
     build_generate $1
     build_cmake $1 $2
 }
 
+# $1: install path
+function build_install() {
+    case "$FOS" in
+      solaris*) echo "[coli] solaris not support!" && exit 3 ;;
+      darwin*)  ;;
+      linux*)   ;;
+      *bsd*)    ;;
+      *)        echo "[coli] unknown os: $FOS!" && exit 3 ;;
+    esac
+    echo [coli] install for $FOS, INSTALL_PATH=$1
+    cd $ROOT
+    if [ ! -d release ]; then mkdir release; fi
+    cd release
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. && cmake --build . --config Release -- -j $2
+}
+
 function build_help() {
     echo [coli] help message:
-    echo   build -h/--help      - show help message.
-    echo   build -r/--release   - build release.
-    echo   build -d/--debug     - build debug.
-    echo   build --trace        - build trace.
-    echo   build -j/--job [n]   - build with [n] worker threads.
-    echo   build -i/--install   - build release and install.
-    echo   build -t/--test      - run debug/trace unit tests.
-    echo   build -c/--clean     - clean objects.
-    echo   build -p/--purge     - purge objects/logs/caches.
+    echo   build -h/--help              - show help message.
+    echo   build -r/--release           - build release.
+    echo   build -d/--debug             - build debug.
+    echo   build --trace                - build trace.
+    echo   build -j/--job [n]           - build with [n] worker threads.
+    echo   build -i/--install           - install, install path is /usr/local by default.
+    echo   build -p/--path [path]       - custom install path.
+    echo   build -t/--test              - run debug/trace unit tests.
+    echo   build -c/--clean             - clean objects.
 }
 
 # ---- main ----
 
 BUILD_TYPE=release
 BUILD_JOB=1
+INSTALL=0
+INSTALL_PATH=/usr/local
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -125,14 +133,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -c|--clean)
             clean_all
-            exit 0
-            ;;
-        -p|--purge)
-            purge_all
-            exit 0
-            ;;
-        -i|--install)
-            echo [coli] error! install not implmented!
             exit 0
             ;;
         -t|--test)
@@ -156,6 +156,14 @@ while [[ $# -gt 0 ]]; do
             BUILD_JOB=$1
             shift
             ;;
+        -i|--install)
+            INSTALL=1
+            ;;
+        -p|--path)
+            shift
+            INSTALL_PATH=$1
+            shift
+            ;;
         *)
             build_help
             exit 0
@@ -164,3 +172,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 build_routine $BUILD_TYPE $BUILD_JOB
+if [[ $INSTALL -gt 0 ]]; then
+    build_install $INSTALL_PATH
+fi
