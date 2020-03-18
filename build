@@ -10,8 +10,8 @@ FOS=$(bash -c "echo \$OSTYPE")
 function clean_all() {
     cd $ROOT
     rm *.log >>/dev/null 2>&1
-    if [ -d debug ]; then cd debug && cmake -- clean && cd ..; fi
-    if [ -d release ]; then cd release && cmake -- clean && cd ..; fi
+    if [ -d debug ]; then cd debug && make clean && cd ..; fi
+    if [ -d release ]; then cd release && make clean && cd ..; fi
 }
 
 function build_generate() {
