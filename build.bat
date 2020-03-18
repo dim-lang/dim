@@ -49,7 +49,7 @@ win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC%
-cmake -DYY_NO_UNISTD_H -A x64 ..
-cmake --build . --config Release
+cmake -A x64 ..
+cmake -DYY_NO_UNISTD_H --build . --config Release
 cd %ROOT%
 echo [coli] build - done
