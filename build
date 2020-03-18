@@ -10,8 +10,8 @@ FOS=$(bash -c "echo \$OSTYPE")
 function clean_all() {
     cd $ROOT
     rm *.log >>/dev/null 2>&1
-    if [ -d debug ]; then cd debug && make clean && cd ..; fi
-    if [ -d release ]; then cd release && make clean && cd ..; fi
+    if [ -d debug ]; then cd debug && cmake -- clean && cd ..; fi
+    if [ -d release ]; then cd release && cmake -- clean && cd ..; fi
 }
 
 function purge_all() {
@@ -69,7 +69,7 @@ function build_generate() {
     esac
 }
 
-function build_make() {
+function build_cmake() {
     cd $ROOT
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
@@ -95,21 +95,20 @@ function build_routine() {
     esac
     echo [coli] build for $FOS, mode=$1, job=$2
     build_generate $1
-    build_make $1 $2
+    build_cmake $1 $2
 }
 
 function build_help() {
     echo [coli] help message:
     echo   build -h/--help      - show help message.
-    echo   build --init         - initialize third party dependencies.
     echo   build -r/--release   - build release.
     echo   build -d/--debug     - build debug.
     echo   build --trace        - build trace.
     echo   build -j/--job [n]   - build with [n] worker threads.
     echo   build -i/--install   - build release and install.
     echo   build -t/--test      - run debug/trace unit tests.
-    echo   build -c/--clean     - clean make objects.
-    echo   build -p/--purge     - purge make objects/logs/cmake caches.
+    echo   build -c/--clean     - clean objects.
+    echo   build -p/--purge     - purge objects/logs/caches.
 }
 
 # ---- main ----
