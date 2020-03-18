@@ -17,6 +17,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 #include "Ast.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
+#include <cstring>
 
 #define Y_LENG                  yyget_leng(yyextra->yy_scaninfo())
 #define Y_TEXT                  yyget_text(yyextra->yy_scaninfo())
