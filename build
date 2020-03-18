@@ -74,11 +74,11 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCMAKE_BUILD_TYPE=Release -DCOLI_BUILD_TYPE=$1 .. && make -j $2
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release -- -j $2
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
-        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -DCOLI_BUILD_TYPE=$1 .. && make VERBOSE=1 -j $2
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1 -j $2
     fi
     cd $ROOT
 }
