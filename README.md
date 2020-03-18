@@ -98,24 +98,24 @@ func main():i32 {
 ## How to install?
 
 #### Install dependencies on MacOS
-* Install Xcode, git, homebrew
-* `brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`
+First install Xcode, git, homebrew
+`brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`
 
 #### Install dependencies on *BSD
-* Install pkg, bash
-* `sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`
+First install pkg, bash
+`sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`
 
 #### Install dependencies on Debian/Ubuntu
-* `sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`
+`sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`
 
 #### Install dependencies on Fedora
-* `sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`
+`sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`
 
 #### Install dependencies on Archlinux/Manjaro
-* `yes | sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`
+`yes | sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`
 
 #### Install dependencies on OpenSUSE
-* `sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel`
+`sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel`
 
 #### Install dependencies on windows
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
