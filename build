@@ -111,7 +111,7 @@ function build_help() {
     echo   build -j/--job [n]           - build with [n] worker threads.
     echo   build -i/--install           - install, install path is /usr/local by default.
     echo   build -p/--path [path]       - custom install path.
-    echo   build -t/--test              - run debug/trace unit tests.
+    echo   build -t/--test              - run unit tests for debug/trace.
     echo   build -c/--clean             - clean objects.
 }
 

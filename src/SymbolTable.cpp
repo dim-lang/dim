@@ -6,9 +6,14 @@
 
 SymbolTable::SymbolTable()
     : gss_(new GlobalSymtab()), css_(nullptr), symstk_(0),
-      gts_(new GlobalTytab()), cts_(nullptr), tystk_(0) {}
+      gts_(new GlobalTytab()), cts_(nullptr), tystk_(0) {
+  pushSymbol(gss_);
+  pushType(gts_);
+}
 
 SymbolTable::~SymbolTable() {
+  popSymbol();
+  popType();
   CASSERT(symstk_ == 0, "symstk_ {} != 0", symstk_);
   CASSERT(tystk_ == 0, "tystk_ {} != 0", tystk_);
   if (gss_) {

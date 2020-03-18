@@ -154,7 +154,6 @@ FunctionType::FunctionType(
     Tytab *enclosingScope)
     : Tytab(enclosingScope) {
   CASSERT(result, "result is null");
-  CASSERT(enclosingScope, "enclosingScope is null");
   std::stringstream ss;
   ss << "func(";
   for (int i = 0; i < (int)argumentList.size(); i++) {
