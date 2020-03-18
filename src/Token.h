@@ -3,9 +3,14 @@
 
 #pragma once
 #include "Parser.tab.hpp"
+#include "config/Platform.h"
 #include <cstdio>
 #include <stack>
 #include <string>
+
+#ifdef PLATFORM_WINDOWS
+#define YY_NO_UNISTD_H
+#endif
 
 class Scanner;
 struct yy_buffer_state;
