@@ -3,8 +3,6 @@
 
 #include "Token.h"
 #include "Log.h"
-#include <cstdlib>
-#include <cstring>
 
 #define TOKEN_FILE_EXT ".co"
 #ifndef YY_BUF_SIZE
@@ -35,13 +33,6 @@ std::string Buffer::fileToModule(const std::string &name) {
       c = '.';
     }
   });
-  return r;
-}
-
-char *Buffer::strcopy(const char *s, size_t n) {
-  char *r = (char *)std::malloc(n * sizeof(char));
-  std::memset(r, 0, n * sizeof(char));
-  std::memcpy(r, s, n * sizeof(char));
   return r;
 }
 

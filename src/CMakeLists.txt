@@ -11,6 +11,7 @@ set(CCORE
     Timer.cpp
     DateTime.cpp
     File.cpp
+    Strings.cpp
     Hash.cpp
     Random.cpp
     Approximate.cpp
