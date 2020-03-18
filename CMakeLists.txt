@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.8)
 project(coli-parent LANGUAGES CXX)
 
 add_subdirectory(src)
-if(${COLI_ONLY_RELEASE})
-    # skip others when release
+if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    # skip example and test for release
     add_subdirectory(test)
     add_subdirectory(example)
-endif(${COLI_ONLY_RELEASE})
+endif(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Release")

@@ -2,8 +2,6 @@
 # Copyright 2019- <coli-lang>
 # Apache License Version 2.0
 
-# ---- library ----
-
 ROOT=`pwd`
 FOS=$(bash -c "echo \$OSTYPE")
 
@@ -64,7 +62,7 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCOLI_ONLY_RELEASE=1 -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release -- -j $2
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release -- -j $2
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
@@ -101,7 +99,7 @@ function build_install() {
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cd release
-    cmake -DCOLI_ONLY_RELEASE=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. && cmake --build . --config Release --target INSTALL -- -j $2
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. && cmake --build . --config Release --target INSTALL -- -j $2
 }
 
 function build_help() {

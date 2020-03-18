@@ -117,6 +117,7 @@ link_directories(${CLIB_DIR})
 
 add_library(colicore STATIC ${CCORE})
 target_include_directories(colicore PRIVATE ${CINC})
+target_link_libraries(colicore ${CLIB})
 set_target_properties(colicore PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(coli ${CSRC})
