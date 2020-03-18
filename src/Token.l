@@ -17,7 +17,6 @@ HEXEXP ([pP][-+]?[0-9]+)
 #include "Ast.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
-#include <cstring>
 
 #define Y_LENG                  yyget_leng(yyextra->yy_scaninfo())
 #define Y_TEXT                  yyget_text(yyextra->yy_scaninfo())
@@ -25,8 +24,8 @@ HEXEXP ([pP][-+]?[0-9]+)
 #define Y_LLOC                  yyget_lloc(yyextra->yy_scaninfo())
 #define Y_LINENO                yyget_lineno(yyextra->yy_scaninfo())
 
-#define T_SAVE_TOKEN            Y_LVAL->literal = strndup(Y_TEXT, Y_LENG)
-#define T_SAVE_TOKEN_X(p, q)    Y_LVAL->literal = strndup(Y_TEXT+(p), Y_LENG-(p)-(q))
+#define T_SAVE_TOKEN            Y_LVAL->literal = Buffer::strcopy(Y_TEXT, Y_LENG)
+#define T_SAVE_TOKEN_X(p, q)    Y_LVAL->literal = Buffer::strcopy(Y_TEXT+(p), Y_LENG-(p)-(q))
 #define T_SAVE_NO_TOKEN         Y_LVAL->literal = nullptr
 #define T_TOKEN(t)              (Y_LVAL->token = t)
 

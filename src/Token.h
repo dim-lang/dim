@@ -45,6 +45,7 @@ public:
   /* global methods */
   static std::string moduleToFile(const std::string &name);
   static std::string fileToModule(const std::string &name);
+  static char *strcopy(const char *s, size_t n);
 
 private:
   yyscan_t yy_scaninfo_;
