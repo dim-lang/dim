@@ -59,7 +59,7 @@ function build_generate() {
     esac
 }
 
-function build_cmake() {
+function build_make() {
     cd $ROOT
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
@@ -85,7 +85,7 @@ function build_routine() {
     esac
     echo [coli] build for $FOS, mode=$1, job=$2
     build_generate $1
-    build_cmake $1 $2
+    build_make $1 $2
 }
 
 # $1: install path
