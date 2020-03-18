@@ -13,8 +13,8 @@ core
 release
 debug
 msvc
-*m4_in_temp_file*
-*m4_out_temp_file*
+~m4_in_temp_file*
+~m4_out_temp_file*
 
 # log
 *.log
