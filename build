@@ -7,81 +7,24 @@
 ROOT=`pwd`
 FOS=$(bash -c "echo \$OSTYPE")
 
-function init_macos() {
-    echo [coli] prepare compiler and toolchain through homebrew
-    brew install cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through homebrew - done
-    echo [coli] prepare boost, gperftools, jemalloc, llvm through homebrew
-    brew install boost gperftools jemalloc llvm
-    echo [coli] prepare boost, gperftools, jemalloc, llvm through homebrew - done
+function clean_all() {
+    cd $ROOT
+    rm *.log >>/dev/null 2>&1
+    if [ -d debug ]; then cd debug && make clean && cd ..; fi
+    if [ -d release ]; then cd release && make clean && cd ..; fi
 }
 
-function init_bsd() {
-    sudo echo [coli] prepare compiler and toolchain through pkg || { echo [coli] sudo not found; exit 3; }
-    sudo pkg install -y clang cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through pkg - done
-    echo [coli] prepare boost-all, llvm through pkg
-    sudo pkg install -y boost-all llvm
-    echo [coli] prepare boost-all, llvm through pkg - done
+function purge_all() {
+    cd $ROOT
+    rm *.log >>/dev/null 2>&1
+    if [ -d debug ]; then rm -rf debug>>/dev/null 2>&1; fi
+    if [ -d release ]; then rm -rf release>>/dev/null 2>&1; fi
+    if [ -d src/spdlog ]; then rm -rf src/spdlog>>/dev/null 2>&1; fi
+    if [ -d src/fmt ]; then rm -rf src/fmt>>/dev/null 2>&1; fi
+    if [ -d test/Catch2 ]; then rm -rf test/Catch2 >>/dev/null 2>&1; fi
 }
 
-function init_apt() {
-    sudo echo [coli] prepare compiler and toolchain through apt || { echo [coli] sudo not found; exit 3; }
-    sudo apt-get install -y clang make cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through apt - done
-    echo [coli] prepare libboost-all-dev, libgoogle-perftools-dev, llvm-dev through apt
-    sudo apt-get install -y libboost-all-dev libgoogle-perftools-dev llvm-dev
-    echo [coli] prepare libboost-all-dev, libgoogle-perftools-dev, llvm-dev through apt - done
-}
-
-function init_dnf() {
-    sudo echo [coli] prepare compiler and toolchain through dnf || { echo [coli] sudo not found; exit 3; }
-    sudo dnf install -y clang make cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through dnf - done
-    echo [coli] prepare boost-devel, gperftools-devel, jemalloc-devel, llvm-devel through dnf
-    sudo dnf install -y boost-devel gperftools-devel jemalloc-devel llvm-devel
-    echo [coli] prepare boost-devel, gperftools-devel, jemalloc-devel, llvm-devel through dnf - done
-}
-
-function init_pacman() {
-    sudo echo [coli] prepare compiler and toolchain through pacman || { echo [coli] sudo not found; exit 3; }
-    yes | sudo pacman -S clang make cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through pacman - done
-    echo [coli] prepare boost, gperftools, jemalloc, llvm through pacman
-    yes | sudo pacman -S boost gperftools jemalloc llvm
-    echo [coli] prepare boost, gperftools, jemalloc, llvm through pacman - done
-}
-
-function init_zypper() {
-    sudo echo [coli] prepare compiler and toolchain through zypper || { echo [coli] sudo not found; exit 3; }
-    sudo zypper install -y clang make cmake automake autoconf flex bison
-    echo [coli] prepare compiler and toolchain through zypper - done
-    echo [coli] prepare libboost-devel, gperftools-devel, jemalloc-devel, llvm-devel through zypper
-    sudo zypper install -y libboost*-devel gperftools-devel jemalloc-devel llvm-devel
-    echo [coli] prepare libboost-devel, gperftools-devel, jemalloc-devel, llvm-devel through zypper - done
-}
-
-function init_linux() {
-    if [ $(uname) == "Linux" ]; then
-        if cat /etc/*release | grep ^NAME | grep Ubuntu 1>/dev/null 2>&1; then
-            init_apt
-        elif cat /etc/*release | grep ^NAME | grep Debian 1>/dev/null 2>&1; then
-            init_apt
-        elif cat /etc/*release | grep ^NAME | grep Fedora 1>/dev/null 2>&1; then
-            init_dnf
-        elif cat /etc/*release | grep ^NAME | grep Manjaro 1>/dev/null 2>&1; then
-            init_pacman
-        elif cat /etc/*release | grep ^NAME | grep openSUSE 1>/dev/null 2>&1; then
-            init_zypper
-        else
-            echo [coli] Error! Unknown Operating System $(uname)! && exit 3
-        fi
-    else
-        echo [coli] Error! Unknown Operating System $(uname)! && exit 3
-    fi
-}
-
-function init_common() {
+function build_generate() {
     CATCH2_VERSION=v2.9.1
     SPDLOG_VERSION=v1.3.1
     FMTLIB_VERSION=5.3.0
@@ -101,26 +44,7 @@ function init_common() {
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
     echo [coli] prepare fmtlib/fmt $FMTLIB_VERSION - done
-}
 
-function clean_all() {
-    cd $ROOT
-    rm *.log >>/dev/null 2>&1
-    if [ -d debug ]; then cd debug && make clean && cd ..; fi
-    if [ -d release ]; then cd release && make clean && cd ..; fi
-}
-
-function purge_all() {
-    cd $ROOT
-    rm *.log >>/dev/null 2>&1
-    if [ -d debug ]; then rm -rf debug>>/dev/null 2>&1; fi
-    if [ -d release ]; then rm -rf release>>/dev/null 2>&1; fi
-    if [ -d src/spdlog ]; then rm -rf src/spdlog>>/dev/null 2>&1; fi
-    if [ -d src/fmt ]; then rm -rf src/fmt>>/dev/null 2>&1; fi
-    if [ -d test/Catch2 ]; then rm -rf test/Catch2 >>/dev/null 2>&1; fi
-}
-
-function build_generate() {
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
@@ -214,16 +138,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test)
             debug/test/coli-test
-            exit 0
-            ;;
-        --init)
-            init_common
-            case "$FOS" in
-              darwin*)  init_macos ;;
-              linux*)   init_linux ;;
-              *bsd*)    init_bsd ;;
-              *)        ;;
-            esac
             exit 0
             ;;
         -d|--debug)

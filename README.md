@@ -99,7 +99,7 @@ func main():i32 {
 
 Download coli source code from github and build mannually.
 
-#### Dependencies
+### Dependencies
 
 |  Platform  |  Manually Installed Dependencies                                  |
 |------------|-------------------------------------------------------------------|
@@ -111,7 +111,43 @@ Download coli source code from github and build mannually.
 |  OpenSUSE  | git                                                               |
 |  Windows   | Visual Studio, cmake, git, python3, flex, bison, LLVM             |
 
-Install dependencies on windows:
+#### Install dependencies on MacOS
+Install dependencies by homebrew:
+```
+brew install cmake automake autoconf flex bison
+brew install boost gperftools jemalloc llvm
+```
+
+#### Install dependencies on *BSD
+Install dependencies by pkg:
+```
+sudo pkg install -y clang cmake automake autoconf flex bison
+sudo pkg install -y boost-all llvm
+```
+
+#### Install dependencies on Linux
+* Install dependencies on Debian/Ubuntu:
+    ```
+    sudo apt-get install -y clang make cmake automake autoconf flex bison
+    sudo apt-get install -y libboost-all-dev libgoogle-perftools-dev llvm-dev
+    ```
+* Install dependencies on Fedora:
+    ```
+    sudo dnf install -y clang make cmake automake autoconf flex bison
+    sudo dnf install -y boost-devel gperftools-devel jemalloc-devel llvm-devel
+    ```
+* Install dependencies on Archlinux/Manjaro:
+    ```
+    yes | sudo pacman -S clang make cmake automake autoconf flex bison
+    yes | sudo pacman -S boost gperftools jemalloc llvm
+    ```
+* Install dependencies on OpenSUSE:
+    ```
+    sudo zypper install -y clang make cmake automake autoconf flex bison
+    sudo zypper install -y libboost*-devel gperftools-devel jemalloc-devel llvm-devel
+    ```
+
+#### Install dependencies on windows
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
     * .NET desktop development
     * Visual C++ desktop development
@@ -154,7 +190,7 @@ Install dependencies on windows:
     cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
     ```
 
-#### Build
+### Build
 
 |  Platform      |  Build                                                                                              |
 |----------------|-----------------------------------------------------------------------------------------------------|
