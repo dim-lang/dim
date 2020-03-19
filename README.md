@@ -105,7 +105,7 @@ func main():i32 {
 | BSD               | Install pkg, bash<br>`sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`                                |
 | Debian/Ubuntu     | `sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`         |
 | Fedora            | `sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`        |
-| Archlinux/Manjaro | `yes | sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`                               |
+| Archlinux/Manjaro | `yes <code>&#124;</code> sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`             |
 | OpenSUSE          | `sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel` |
 
 #### Install dependencies on windows
