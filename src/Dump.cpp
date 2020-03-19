@@ -191,20 +191,28 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
+#define IS_SYMTAB(x)                                                           \
+  ((x)->type() == SYM_FUNC || (x)->type() == SYM_CLASS ||                      \
+   (x)->type() == SYM_GLOBAL || (x)->type() == SYM_LOCAL)
+
 static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   if (!sym)
     return "null";
   switch (sym->type()) {
   case SYM_VAR:
-    return DS + " var " + DC(VariableSymbol, sym)->name();
+    return DS + "var " + DC(VariableSymbol, sym)->name();
   case SYM_FUNC: {
     FunctionSymbol *fs = DC(FunctionSymbol, sym);
     std::stringstream ss;
-    ss << " func " << fs->name() << " {";
-    for (auto i = fs->begin(); i != fs->end(); i++) {
-      ss << "\n"
-         << DS << i->first << ", " << dumpSymbolImpl(i->second, depth + 1);
-      ss << "\n" << DS;
+    ss << "func " << fs->name() << " {";
+    if (!fs->empty()) {
+      for (auto i = fs->begin(); i != fs->end(); i++) {
+        ss << "\n" << DS << i->first;
+        if (IS_SYMTAB(i->second)) {
+          ss << " => " << dumpSymbolImpl(i->second, depth + 1);
+        }
+      }
+      ss << "\n" << std::string(depth - 1, ' ');
     }
     ss << "}\n";
     return ss.str();
@@ -214,23 +222,29 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   case SYM_CLASS: {
     ClassSymbol *cs = DC(ClassSymbol, sym);
     std::stringstream ss;
-    ss << DS << " class " << cs->name() << " {";
-    for (auto i = cs->begin(); i != cs->end(); i++) {
-      ss << "\n"
-         << DS << i->first << ", " << dumpSymbolImpl(i->second, depth + 1);
+    ss << DS << "class " << cs->name() << " {";
+    if (!cs->empty()) {
+      for (auto i = cs->begin(); i != cs->end(); i++) {
+        ss << "\n" << DS << i->first;
+        if (IS_SYMTAB(i->second)) {
+          ss << " => " << dumpSymbolImpl(i->second, depth + 1);
+        }
+      }
+      ss << "\n" << std::string(depth - 1, ' ');
     }
-    ss << "\n" << DS << "}\n";
+    ss << "}\n";
     return ss.str();
   }
   case SYM_LOCAL: {
     LocalSymtab *ls = DC(LocalSymtab, sym);
     std::stringstream ss;
-    ss << DS << " local " << ls->name() << " {";
+    ss << DS << "local " << ls->name() << " {";
     for (auto i = ls->begin(); i != ls->end(); i++) {
       ss << "\n"
          << DS << i->first << ", " << dumpSymbolImpl(i->second, depth + 1);
+      ss << "\n" << std::string(depth - 1, ' ');
     }
-    ss << "\n" << DS << "}\n";
+    ss << "}\n";
     return ss.str();
   }
   case SYM_GLOBAL: {
@@ -240,7 +254,7 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     if (!gs->empty()) {
       for (auto i = gs->begin(); i != gs->end(); i++) {
         ss << "\n" << DS << i->first;
-        if (i->second->type() == SYM_FUNC || i->second->type() == SYM_LOCAL) {
+        if (IS_SYMTAB(i->second)) {
           ss << " => " << dumpSymbolImpl(i->second, depth + 1);
         }
       }
@@ -254,7 +268,13 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   }
 }
 
+#undef IS_SYMTAB
+
 std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym, 0); }
+
+#define IS_TYTAB(x)                                                            \
+  ((x)->type() == TY_FUNC || (x)->type() == TY_CLASS ||                        \
+   (x)->type() == TY_LOCAL || (x)->type() == TY_GLOBAL)
 
 static std::string dumpTypeImpl(Type *ty) {
   if (!ty)
