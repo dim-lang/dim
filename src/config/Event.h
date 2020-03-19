@@ -19,7 +19,7 @@
 // winselect api
 #define EVENT_HAVE_WINSELECT 1
 
-#elif defined(PLATFORM_UNIX)
+#else
 // select
 #define EVENT_HAVE_SELECT 1
 
