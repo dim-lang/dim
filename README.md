@@ -124,24 +124,32 @@ First install pkg, bash, then: `sudo pkg install -y git clang cmake automake aut
 * Install [git](https://git-scm.com/downloads) and add `git.exe` to `PATH`.
 * Install [python3](https://www.python.org/downloads/) and add `python.exe` to `PATH`.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
-* Install [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from source code:
-    * Download [llvm-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `Downloads\llvm-9.0.1`.
-    * Build and install llvm-9.0.1 to `C:\Program Files\LLVM` with administrator authorization:
+
+#### Build
+
+|  Platform      |  Build                                                                                              |
+|----------------|-----------------------------------------------------------------------------------------------------|
+|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
+|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
+
+* Install llvm-project-9.0.1 from source code if git clone is too slow for you:
+    * Download [llvm-project-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `coli\src\llvm-project`.
+    * Build and install llvm-project-9.0.1 to `coli\src\llvm-project\llvm\install`:
     ```
-    cd llvm-9.0.1
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX="C:\Program Files\LLVM" -A x64 ..
-    cmake --build . --config Release --target INSTALL
+    $ cd coli\src\llvm-project\llvm
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_INSTALL_PREFIX="%CD%\..\install" -A x64 ..
+    $ cmake --build . --config Release --target INSTALL
     ```
-* Install [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from source code:
-    * Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `C:\local\boost_1_70_0`.
-    * Build and install boost_1_70_0 with:
+* Install boost-1.70.0 from source code if git clone is too slow for you:
+    * Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost`.
+    * Build boost-1.70.0 with:
     ```
-    cd C:\local\boost_1_70_0
+    cd coli\src\boost
     bootstrap.bat
     b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
-    cd C:\local\boost_1_70_0\stage\lib
+    cd boost\stage\lib
     cp boost_program_options-vc*-mt-x64-*.dll boost_program_options-mt-x64.dll
     cp boost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
     cp boost_program_options-vc*-mt-gd-x64-*.dll boost_program_options-mt-gd-x64.dll
@@ -157,10 +165,3 @@ First install pkg, bash, then: `sudo pkg install -y git clang cmake automake aut
     cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
     cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
     ```
-
-#### Build
-
-|  Platform      |  Build                                                                                              |
-|----------------|-----------------------------------------------------------------------------------------------------|
-|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
-|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
