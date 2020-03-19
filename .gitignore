@@ -27,6 +27,8 @@ msvc
 spdlog
 fmt
 Catch2
+boost
+llvm-project
 
 # auto generate source code
 *.yy.cpp
