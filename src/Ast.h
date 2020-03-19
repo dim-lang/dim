@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "boost/core/noncopyable.hpp"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include "interface/Typely.h"
@@ -119,7 +120,10 @@ class AstFunctionArgumentDeclaration;
 
 /* ================================== */
 
-class Ast : public Namely, public Typely, public Stringify {
+class Ast : public Namely,
+            public Typely,
+            public Stringify,
+            private boost::noncopyable {
 public:
   virtual ~Ast() = default;
   virtual int type() const = 0;
@@ -186,6 +190,7 @@ public:
     return ss.str();
   }
   virtual std::string name() const = 0;
+  virtual bool empty() const { return items_.empty(); }
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const { return items_[pos]; }
   virtual void add(T *item) { items_.push_front(item); }
@@ -207,6 +212,7 @@ public:
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
+  // virtual bool empty() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
 
@@ -224,6 +230,7 @@ public:
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
+  // virtual bool empty() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
 
@@ -241,6 +248,7 @@ public:
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
+  // virtual bool empty() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
 
@@ -260,6 +268,7 @@ public:
   // virtual std::string toString() const;
   // virtual std::string name() const;
   // virtual int size() const;
+  // virtual bool empty() const;
   // virtual T *get(int pos) const;
   // virtual void add(T *item);
 
