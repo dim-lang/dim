@@ -97,25 +97,19 @@ func main():i32 {
 
 ## How to install?
 
-#### Install dependencies on MacOS
-First install Xcode, git, homebrew, then: `brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`
+#### Install dependencies on Linux & UNIX
 
-#### Install dependencies on *BSD
-First install pkg, bash, then: `sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`
-
-#### Install dependencies on Debian/Ubuntu
-`sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`
-
-#### Install dependencies on Fedora
-`sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`
-
-#### Install dependencies on Archlinux/Manjaro
-`yes | sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`
-
-#### Install dependencies on OpenSUSE
-`sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel`
+| Platform          |  Dependencies                                                                                                                         |
+|-------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| MacOS             | Install Xcode, git, homebrew, then `$ brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`                 |
+| BSD               | Install pkg, bash, then `sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`                             |
+| Debian/Ubuntu     | `sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`         |
+| Fedora            | `sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`        |
+| Archlinux/Manjaro | `yes | sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`                               |
+| OpenSUSE          | `sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel` |
 
 #### Install dependencies on windows
+
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
     * .NET desktop development
     * Visual C++ desktop development
@@ -127,11 +121,12 @@ First install pkg, bash, then: `sudo pkg install -y git clang cmake automake aut
 
 #### Build
 
-|  Platform      |  Build                                                                                              |
-|----------------|-----------------------------------------------------------------------------------------------------|
-|  Linux & UNIX  | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release`     |
-|  Windows       | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                         |
+| Platform     | Build                                                                                           |
+|--------------|-------------------------------------------------------------------------------------------------|
+| Linux & UNIX | `git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release` |
+| Windows      | `git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                     |
 
+#### Speed up building on windows
 * Install llvm-project-9.0.1 from source code if git clone is too slow for you:
     * Download [llvm-project-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `coli\src\llvm-project`.
     * Build and install llvm-project-9.0.1 to `coli\src\llvm-project\llvm\install`:
@@ -146,22 +141,22 @@ First install pkg, bash, then: `sudo pkg install -y git clang cmake automake aut
     * Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost`.
     * Build boost-1.70.0 with:
     ```
-    cd coli\src\boost
-    bootstrap.bat
-    b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
-    cd boost\stage\lib
-    cp boost_program_options-vc*-mt-x64-*.dll boost_program_options-mt-x64.dll
-    cp boost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
-    cp boost_program_options-vc*-mt-gd-x64-*.dll boost_program_options-mt-gd-x64.dll
-    cp boost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
-
-    cp boost_system-vc*-mt-x64-*.dll boost_system-mt-x64.dll
-    cp boost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
-    cp boost_system-vc*-mt-gd-x64-*.dll boost_system-mt-gd-x64.dll
-    cp boost_system-vc*-mt-gd-x64-*.lib boost_system-mt-gd-x64.lib
-
-    cp boost_filesystem-vc*-mt-x64-*.dll boost_filesystem-mt-x64.dll
-    cp boost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
-    cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
-    cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
+    $ cd coli\src\boost
+    $ bootstrap.bat
+    $ b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
+    $ cd boost\stage\lib
+    $ cp boost_program_options-vc*-mt-x64-*.dll boost_program_options-mt-x64.dll
+    $ cp boost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
+    $ cp boost_program_options-vc*-mt-gd-x64-*.dll boost_program_options-mt-gd-x64.dll
+    $ cp boost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
+    $
+    $ cp boost_system-vc*-mt-x64-*.dll boost_system-mt-x64.dll
+    $ cp boost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
+    $ cp boost_system-vc*-mt-gd-x64-*.dll boost_system-mt-gd-x64.dll
+    $ cp boost_system-vc*-mt-gd-x64-*.lib boost_system-mt-gd-x64.lib
+    $
+    $ cp boost_filesystem-vc*-mt-x64-*.dll boost_filesystem-mt-x64.dll
+    $ cp boost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
+    $ cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
+    $ cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
     ```
