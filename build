@@ -37,17 +37,18 @@ function build_generate() {
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
     if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
     if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
+    if [ -f Parser.output ]; then rm Parser.output; fi
     case "$1" in
         release)
             flex -o Token.yy.cpp Token.l
             bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         debug)
-            flex -d -o Token.yy.cpp Token.l
+            flex -o Token.yy.cpp Token.l
             bison -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         trace)
-            flex -d -o Token.yy.cpp Token.l
+            flex --debug -o Token.yy.cpp Token.l
             bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         *)

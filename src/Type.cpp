@@ -44,13 +44,13 @@ std::string Tytab::toString() const {
                      hashtab_.size());
 }
 
-Tytab::Iterator Tytab::begin() { return hashtab_.begin(); }
+Tytab::Iterator Tytab::begin() { return hashtab_.rbegin(); }
 
-Tytab::CIterator Tytab::begin() const { return hashtab_.begin(); }
+Tytab::CIterator Tytab::begin() const { return hashtab_.rbegin(); }
 
-Tytab::Iterator Tytab::end() { return hashtab_.end(); }
+Tytab::Iterator Tytab::end() { return hashtab_.rend(); }
 
-Tytab::CIterator Tytab::end() const { return hashtab_.end(); }
+Tytab::CIterator Tytab::end() const { return hashtab_.rend(); }
 
 int Tytab::size() const { return (int)hashtab_.size(); }
 

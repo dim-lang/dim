@@ -33,8 +33,8 @@ public:
 
 class Tytab : public Type, public Stringify {
 public:
-  using Iterator = LinkedHashMap<Symbol *, Type *>::Iterator;
-  using CIterator = LinkedHashMap<Symbol *, Type *>::CIterator;
+  using Iterator = LinkedHashMap<Symbol *, Type *>::RIterator;
+  using CIterator = LinkedHashMap<Symbol *, Type *>::CRIterator;
 
   Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
