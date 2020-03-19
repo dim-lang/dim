@@ -102,6 +102,8 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     const AstCompoundStatement *e = DC(AstCompoundStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
+    symtable->css()->define(ls);
+    symtable->cts()->define(ls, lt);
     symtable->pushSymbol(ls);
     symtable->pushType(lt);
     if (e->statementList()) {
@@ -133,6 +135,8 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     const AstForStatement *e = DC(AstForStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
+    symtable->css()->define(ls);
+    symtable->cts()->define(ls, lt);
     symtable->pushSymbol(ls);
     symtable->pushType(lt);
     build(symtable, e->initial());

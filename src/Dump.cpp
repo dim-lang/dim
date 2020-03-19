@@ -200,7 +200,7 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return "null";
   switch (sym->type()) {
   case SYM_VAR:
-    return DS + "var " + DC(VariableSymbol, sym)->name();
+    return "var " + DC(VariableSymbol, sym)->name();
   case SYM_FUNC: {
     FunctionSymbol *fs = DC(FunctionSymbol, sym);
     std::stringstream ss;
@@ -238,10 +238,12 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   case SYM_LOCAL: {
     LocalSymtab *ls = DC(LocalSymtab, sym);
     std::stringstream ss;
-    ss << DS << "local " << ls->name() << " {";
-    for (auto i = ls->begin(); i != ls->end(); i++) {
-      ss << "\n"
-         << DS << i->first << ", " << dumpSymbolImpl(i->second, depth + 1);
+    ss << "local " << ls->name() << " {";
+    if (!ls->empty()) {
+      for (auto i = ls->begin(); i != ls->end(); i++) {
+        ss << "\n"
+           << DS << i->first << " => " << dumpSymbolImpl(i->second, depth + 1);
+      }
       ss << "\n" << std::string(depth - 1, ' ');
     }
     ss << "}\n";
@@ -276,7 +278,7 @@ std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym, 0); }
   ((x)->type() == TY_FUNC || (x)->type() == TY_CLASS ||                        \
    (x)->type() == TY_LOCAL || (x)->type() == TY_GLOBAL)
 
-static std::string dumpTypeImpl(Type *ty) {
+static std::string dumpTypeImpl(Type *ty, int depth) {
   if (!ty)
     return "null";
   switch (ty->type()) {
@@ -287,7 +289,9 @@ static std::string dumpTypeImpl(Type *ty) {
     std::stringstream ss;
     ss << ft->name() << ": {";
     for (auto i = ft->begin(); i != ft->end(); i++) {
-      ss << "\n\t" << i->first->name() << " -> " << dumpTypeImpl(i->second);
+      ss << "\n"
+         << DS << i->first->name() << " => "
+         << dumpTypeImpl(i->second, depth + 1);
     }
     ss << "\n}\n";
     return ss.str();
@@ -297,7 +301,9 @@ static std::string dumpTypeImpl(Type *ty) {
     std::stringstream ss;
     ss << ct->name() << ": {";
     for (auto i = ct->begin(); i != ct->end(); i++) {
-      ss << "\n\t" << i->first->name() << ", " << dumpTypeImpl(i->second);
+      ss << "\n"
+         << DS << i->first->name() << ", "
+         << dumpTypeImpl(i->second, depth + 1);
     }
     ss << "\n}\n";
     return ss.str();
@@ -307,7 +313,9 @@ static std::string dumpTypeImpl(Type *ty) {
     std::stringstream ss;
     ss << lt->name() << ": {";
     for (auto i = lt->begin(); i != lt->end(); i++) {
-      ss << "\n\t" << i->first->name() << " -> " << dumpTypeImpl(i->second);
+      ss << "\n"
+         << DS << i->first->name() << " => "
+         << dumpTypeImpl(i->second, depth + 1);
     }
     ss << "\n}\n";
     return ss.str();
@@ -317,7 +325,9 @@ static std::string dumpTypeImpl(Type *ty) {
     std::stringstream ss;
     ss << gt->name() << ": {";
     for (auto i = gt->begin(); i != gt->end(); i++) {
-      ss << "\n\t" << i->first->name() << ", " << dumpTypeImpl(i->second);
+      ss << "\n"
+         << DS << i->first->name() << ", "
+         << dumpTypeImpl(i->second, depth + 1);
     }
     ss << "\n}\n";
     return ss.str();
@@ -327,7 +337,7 @@ static std::string dumpTypeImpl(Type *ty) {
   }
 }
 
-std::string dumpType(Type *ty) { return dumpTypeImpl(ty); }
+std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
 
 #undef DS
 #undef DC
