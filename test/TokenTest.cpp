@@ -10,8 +10,7 @@
 #include <cstdio>
 
 static void go(const char *fileName) {
-  SymbolTable symtable;
-  Scanner scanner(&symtable);
+  Scanner scanner;
   scanner.pushBuffer(fileName);
   CINFO("go start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;

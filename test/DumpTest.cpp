@@ -11,14 +11,15 @@
 #include "catch2/catch.hpp"
 
 static void go(const char *fileName) {
-  SymbolTable symtable;
-  Scanner scanner(&symtable);
+  Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
+  SymbolTable symtable;
+  Semantic::build(&symtable, scanner.translateUnit());
+  Semantic::check(&symtable, scanner.translateUnit());
   CINFO("dump symbol:{} {}", fileName, dumpSymbol(symtable.gss()));
   CINFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
-  Semantic::check(&symtable, scanner.translateUnit());
 }
 
 TEST_CASE("Dump", "[Dump]") {

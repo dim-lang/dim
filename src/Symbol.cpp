@@ -45,13 +45,13 @@ std::string Symtab::toString() const {
                      hashtab_.size());
 }
 
-Symtab::Iterator Symtab::begin() { return hashtab_.rbegin(); }
+Symtab::Iterator Symtab::begin() { return hashtab_.begin(); }
 
-Symtab::CIterator Symtab::begin() const { return hashtab_.rbegin(); }
+Symtab::CIterator Symtab::begin() const { return hashtab_.begin(); }
 
-Symtab::Iterator Symtab::end() { return hashtab_.rend(); }
+Symtab::Iterator Symtab::end() { return hashtab_.end(); }
 
-Symtab::CIterator Symtab::end() const { return hashtab_.rend(); }
+Symtab::CIterator Symtab::end() const { return hashtab_.end(); }
 
 int Symtab::size() const { return (int)hashtab_.size(); }
 

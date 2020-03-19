@@ -14,7 +14,7 @@
 
 class Scanner {
 public:
-  Scanner(SymbolTable *symtable);
+  Scanner();
   virtual ~Scanner();
 
   // buffer stack
@@ -28,8 +28,6 @@ public:
   // attribute access
   virtual const AstTranslateUnit *translateUnit() const;
   virtual AstTranslateUnit *&translateUnit();
-  virtual const SymbolTable *symtable() const;
-  virtual SymbolTable *&symtable();
   virtual const yyscan_t yy_scaninfo() const;
   virtual yyscan_t &yy_scaninfo();
   virtual const std::string &fileName() const;
@@ -44,5 +42,4 @@ private:
   AstTranslateUnit *translateUnit_;
   yyscan_t yy_scaninfo_;
   BufferStack *bufferStack_;
-  SymbolTable *symtable_;
 };

@@ -11,8 +11,7 @@
 #include <cstdio>
 
 static void go(const char *fileName) {
-  SymbolTable symtable;
-  Scanner scanner(&symtable);
+  Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("go end, translateUnit: {}", scanner.translateUnit()->toString());

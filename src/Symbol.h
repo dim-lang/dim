@@ -31,8 +31,8 @@ public:
 
 class Symtab : public Symbol, public Stringify {
 public:
-  using Iterator = LinkedHashMap<std::string, Symbol *>::RIterator;
-  using CIterator = LinkedHashMap<std::string, Symbol *>::CRIterator;
+  using Iterator = LinkedHashMap<std::string, Symbol *>::Iterator;
+  using CIterator = LinkedHashMap<std::string, Symbol *>::CIterator;
 
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;

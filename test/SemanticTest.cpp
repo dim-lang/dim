@@ -10,18 +10,18 @@
 #include "catch2/catch.hpp"
 
 static void go(const char *fileName) {
-  SymbolTable symtable;
-  Scanner scanner(&symtable);
+  Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   CINFO("translateUnit: {}", scanner.translateUnit()->toString());
+  SymbolTable symtable;
   Semantic::build(&symtable, scanner.translateUnit());
   Semantic::check(&symtable, scanner.translateUnit());
 }
 
 TEST_CASE("Semant", "[Semant]") {
   SECTION("build & check") {
-    // go("test.DslTest1");
-    // go("test.DslTest1");
+    go("test/case/DslTest1.co");
+    go("test/case/DslTest2.co");
   }
 }

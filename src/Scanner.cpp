@@ -5,9 +5,9 @@
 #include "Log.h"
 #include "Parser.h"
 
-Scanner::Scanner(SymbolTable *symtable)
+Scanner::Scanner()
     : fileName_(""), translateUnit_(nullptr), yy_scaninfo_(nullptr),
-      bufferStack_(nullptr), symtable_(symtable) {
+      bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
   CASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
@@ -23,7 +23,6 @@ Scanner::~Scanner() {
     delete translateUnit_;
     translateUnit_ = nullptr;
   }
-  symtable_ = nullptr;
   if (bufferStack_) {
     delete bufferStack_;
     bufferStack_ = nullptr;
@@ -69,10 +68,6 @@ const AstTranslateUnit *Scanner::translateUnit() const {
 }
 
 AstTranslateUnit *&Scanner::translateUnit() { return translateUnit_; }
-
-const SymbolTable *Scanner::symtable() const { return symtable_; }
-
-SymbolTable *&Scanner::symtable() { return symtable_; }
 
 const yyscan_t Scanner::yy_scaninfo() const { return yy_scaninfo_; }
 

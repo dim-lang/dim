@@ -342,16 +342,12 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
 translation_unit : declaration {
                         CASSERT(Y_EXTRA, "Y_EXTRA is null");
                         CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                        CASSERT(Y_EXTRA->symtable(), "Y_EXTRA.symtable is null");
                         Y_EXTRA->translateUnit()->add($1);
-                        Semantic::build(Y_EXTRA->symtable(), $1);
                     }
                  | declaration translation_unit {
                         CASSERT(Y_EXTRA, "Y_EXTRA is null");
                         CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                        CASSERT(Y_EXTRA->symtable(), "Y_EXTRA.symtable is null");
                         Y_EXTRA->translateUnit()->add($1);
-                        Semantic::build(Y_EXTRA->symtable(), $1);
                     }
                  ;
 
