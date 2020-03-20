@@ -3,9 +3,7 @@
 
 #include "File.h"
 #include "catch2/catch.hpp"
-#include <algorithm>
-#include <cstring>
-#include <functional>
+#include <numeric>
 
 TEST_CASE("File", "[File]") {
 
