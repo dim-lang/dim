@@ -90,7 +90,7 @@ win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC%
-cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\%MSVC%\install" -A x64 ..
+cmake -A x64 ..
 cmake --build . --config Release
 cd %ROOT%
 echo [coli] build - done
