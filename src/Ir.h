@@ -63,6 +63,7 @@ public:
 
 private:
   AstTranslateUnit *node_;
+  std::string name_;
 };
 
 /* identifier constant */
@@ -77,6 +78,7 @@ public:
 
 private:
   AstIdentifierConstant *node_;
+  std::string name_;
 };
 
 /* i8 constant */
@@ -91,6 +93,7 @@ public:
 
 private:
   AstI8Constant *node_;
+  std::string name_;
 };
 
 /* u8 constant */
@@ -105,6 +108,7 @@ public:
 
 private:
   AstU8Constant *node_;
+  std::string name_;
 };
 
 /* i16 constant */
@@ -119,6 +123,7 @@ public:
 
 private:
   AstI16Constant *node_;
+  std::string name_;
 };
 
 /* u16 constant */
@@ -133,6 +138,7 @@ public:
 
 private:
   AstU16Constant *node_;
+  std::string name_;
 };
 
 /* i32 constant */
@@ -147,6 +153,7 @@ public:
 
 private:
   AstI32Constant *node_;
+  std::string name_;
 };
 
 /* u32 constant */
@@ -161,6 +168,7 @@ public:
 
 private:
   AstU32Constant *node_;
+  std::string name_;
 };
 
 /* i64 constant */
@@ -175,6 +183,7 @@ public:
 
 private:
   AstI64Constant *node_;
+  std::string name_;
 };
 
 /* u64 constant */
@@ -189,6 +198,7 @@ public:
 
 private:
   AstU64Constant *node_;
+  std::string name_;
 };
 
 /* f32 constant */
@@ -203,6 +213,7 @@ public:
 
 private:
   AstF32Constant *node_;
+  std::string name_;
 };
 
 /* f64 constant */
@@ -217,6 +228,7 @@ public:
 
 private:
   AstF64Constant *node_;
+  std::string name_;
 };
 
 /* string constant */
@@ -231,6 +243,7 @@ public:
 
 private:
   AstStringConstant *node_;
+  std::string name_;
 };
 
 /* boolean constant */
@@ -245,6 +258,7 @@ public:
 
 private:
   AstBooleanConstant *node_;
+  std::string name_;
 };
 
 /* call expression */
@@ -259,6 +273,7 @@ public:
 
 private:
   AstCallExpression *node_;
+  std::string name_;
 };
 
 /* unary operation expression */
@@ -273,6 +288,7 @@ public:
 
 private:
   AstUnaryExpression *node_;
+  std::string name_;
 };
 
 /* binary operation expression */
@@ -287,6 +303,7 @@ public:
 
 private:
   AstBinaryExpression *node_;
+  std::string name_;
 };
 
 /* conditional expression */
@@ -301,6 +318,7 @@ public:
 
 private:
   AstConditionalExpression *node_;
+  std::string name_;
 };
 
 /* assignment expression */
@@ -315,6 +333,7 @@ public:
 
 private:
   AstAssignmentExpression *node_;
+  std::string name_;
 };
 
 /* sequel expression */
@@ -329,6 +348,7 @@ public:
 
 private:
   AstSequelExpression *node_;
+  std::string name_;
 };
 
 /* expression statement */
@@ -343,6 +363,7 @@ public:
 
 private:
   AstExpressionStatement *node_;
+  std::string name_;
 };
 
 /* compound statement */
@@ -357,6 +378,7 @@ public:
 
 private:
   AstCompoundStatement *node_;
+  std::string name_;
 };
 
 /* if statement */
@@ -371,6 +393,7 @@ public:
 
 private:
   AstIfStatement *node_;
+  std::string name_;
 };
 
 /* while statement */
@@ -385,6 +408,7 @@ public:
 
 private:
   AstWhileStatement *node_;
+  std::string name_;
 };
 
 /* for statement */
@@ -399,6 +423,7 @@ public:
 
 private:
   AstForStatement *node_;
+  std::string name_;
 };
 
 /* continue statement */
@@ -413,6 +438,7 @@ public:
 
 private:
   AstContinueStatement *node_;
+  std::string name_;
 };
 
 /* break statement */
@@ -427,6 +453,7 @@ public:
 
 private:
   AstBreakStatement *node_;
+  std::string name_;
 };
 
 /* return statement */
@@ -441,6 +468,7 @@ public:
 
 private:
   AstReturnStatement *node_;
+  std::string name_;
 };
 
 /* empty statement */
@@ -455,6 +483,7 @@ public:
 
 private:
   AstEmptyStatement *node_;
+  std::string name_;
 };
 
 /* variable declaration */
@@ -469,6 +498,7 @@ public:
 
 private:
   AstVariableDeclaration *node_;
+  std::string name_;
 };
 
 /* variable assignment declaration */
@@ -483,6 +513,7 @@ public:
 
 private:
   AstVariableAssignmentDeclaration *node_;
+  std::string name_;
 };
 
 /* function declaration */
@@ -497,6 +528,7 @@ public:
 
 private:
   AstFunctionDeclaration *node_;
+  std::string name_;
 };
 
 /* function argument declaration */
@@ -511,4 +543,5 @@ public:
 
 private:
   AstFunctionArgumentDeclaration *node_;
+  std::string name_;
 };
