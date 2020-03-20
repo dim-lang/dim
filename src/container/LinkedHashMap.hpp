@@ -278,23 +278,24 @@ const LinkedNode<K, V> *LinkedNode<K, V>::seq_next() const {
 
 // linked iterator
 
-template <typename K, typename V>
-LinkedIterator<K, V>::LinkedIterator() : node_(nullptr) {}
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T>::LinkedIterator() : node_(nullptr) {}
 
-template <typename K, typename V>
-LinkedIterator<K, V>::LinkedIterator(LinkedNode<K, V> *node) : node_(node) {}
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T>::LinkedIterator(T node) : node_(node) {}
 
-template <typename K, typename V> LinkedIterator<K, V>::~LinkedIterator() {
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T>::~LinkedIterator() {
   node_ = nullptr;
 }
 
-template <typename K, typename V>
-LinkedIterator<K, V>::LinkedIterator(const LinkedIterator<K, V> &other)
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T>::LinkedIterator(const LinkedIterator<K, V, T> &other)
     : node_(other.node_) {}
 
-template <typename K, typename V>
-LinkedIterator<K, V> &
-LinkedIterator<K, V>::operator=(const LinkedIterator<K, V> &other) {
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> &
+LinkedIterator<K, V, T>::operator=(const LinkedIterator<K, V, T> &other) {
   if (this == &other) {
     return *this;
   }
@@ -302,89 +303,93 @@ LinkedIterator<K, V>::operator=(const LinkedIterator<K, V> &other) {
   return *this;
 }
 
-template <typename K, typename V>
-LinkedIterator<K, V> &LinkedIterator<K, V>::operator++() {
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> &LinkedIterator<K, V, T>::operator++() {
   node_ = node_->seq_next();
   return *this;
 }
 
-template <typename K, typename V>
-LinkedIterator<K, V> &LinkedIterator<K, V>::operator--() {
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> &LinkedIterator<K, V, T>::operator--() {
   node_ = node_->seq_prev();
   return *this;
 }
 
-template <typename K, typename V>
-LinkedIterator<K, V> LinkedIterator<K, V>::operator++(int) {
-  LinkedIterator<K, V> save = node_;
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> LinkedIterator<K, V, T>::operator++(int) {
+  LinkedIterator<K, V, T> save = node_;
   node_ = node_->seq_next();
-  return LinkedIterator<K, V>(save);
+  return LinkedIterator<K, V, T>(save);
 }
 
-template <typename K, typename V>
-LinkedIterator<K, V> LinkedIterator<K, V>::operator--(int) {
-  LinkedIterator<K, V> save = node_;
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> LinkedIterator<K, V, T>::operator--(int) {
+  LinkedIterator<K, V, T> save = node_;
   node_ = node_->seq_prev();
-  return LinkedIterator<K, V>(save);
+  return LinkedIterator<K, V, T>(save);
 }
 
-template <typename K, typename V>
-bool LinkedIterator<K, V>::operator==(const LinkedIterator<K, V> &other) const {
+template <typename K, typename V, typename T>
+bool LinkedIterator<K, V, T>::operator==(
+    const LinkedIterator<K, V, T> &other) const {
   return node_ == other.node_;
 }
 
-template <typename K, typename V>
-bool LinkedIterator<K, V>::operator!=(const LinkedIterator<K, V> &other) const {
+template <typename K, typename V, typename T>
+bool LinkedIterator<K, V, T>::operator!=(
+    const LinkedIterator<K, V, T> &other) const {
   return node_ != other.node_;
 }
-template <typename K, typename V> bool LinkedIterator<K, V>::operator!() const {
+template <typename K, typename V, typename T>
+bool LinkedIterator<K, V, T>::operator!() const {
   return !node_;
 }
 
-template <typename K, typename V>
-std::pair<const K, V> &LinkedIterator<K, V>::operator*() {
+template <typename K, typename V, typename T>
+std::pair<const K, V> &LinkedIterator<K, V, T>::operator*() {
   return node_->value();
 }
 
-template <typename K, typename V>
-const std::pair<const K, V> &LinkedIterator<K, V>::operator*() const {
+template <typename K, typename V, typename T>
+const std::pair<const K, V> &LinkedIterator<K, V, T>::operator*() const {
   return node_->value();
 }
 
-template <typename K, typename V>
-std::pair<const K, V> *LinkedIterator<K, V>::operator->() {
+template <typename K, typename V, typename T>
+std::pair<const K, V> *LinkedIterator<K, V, T>::operator->() {
   return &(node_->value());
 }
 
-template <typename K, typename V>
-const std::pair<const K, V> *LinkedIterator<K, V>::operator->() const {
+template <typename K, typename V, typename T>
+const std::pair<const K, V> *LinkedIterator<K, V, T>::operator->() const {
   return &(node_->value());
 }
 
-template <typename K, typename V>
-std::string LinkedIterator<K, V>::toString() const {
+template <typename K, typename V, typename T>
+std::string LinkedIterator<K, V, T>::toString() const {
   return fmt::format("[ @LinkedIterator node_:{} ]", (void *)node_);
 }
 
 // linked reverse iterator
 
-template <typename K, typename V>
-LinkedRIterator<K, V>::LinkedRIterator() : node_(nullptr) {}
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T>::LinkedRIterator() : node_(nullptr) {}
 
-template <typename K, typename V>
-LinkedRIterator<K, V>::LinkedRIterator(LinkedNode<K, V> *node) : node_(node) {}
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T>::LinkedRIterator(T node) : node_(node) {}
 
-template <typename K, typename V> LinkedRIterator<K, V>::~LinkedRIterator() {
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T>::~LinkedRIterator() {
   node_ = nullptr;
 }
 
-template <typename K, typename V>
-LinkedRIterator<K, V>::LinkedRIterator(const LinkedRIterator<K, V> &other)
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T>::LinkedRIterator(const LinkedRIterator<K, V, T> &other)
     : node_(other.node_) {}
 
-template <typename K, typename V>
-LinkedRIterator<K, V> &
-LinkedRIterator<K, V>::operator=(const LinkedRIterator<K, V> &other) {
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> &
+LinkedRIterator<K, V, T>::operator=(const LinkedRIterator<K, V, T> &other) {
   if (this == &other) {
     return *this;
   }
@@ -392,71 +397,71 @@ LinkedRIterator<K, V>::operator=(const LinkedRIterator<K, V> &other) {
   return *this;
 }
 
-template <typename K, typename V>
-LinkedRIterator<K, V> &LinkedRIterator<K, V>::operator++() {
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> &LinkedRIterator<K, V, T>::operator++() {
   node_ = node_->seq_prev();
   return *this;
 }
 
-template <typename K, typename V>
-LinkedRIterator<K, V> &LinkedRIterator<K, V>::operator--() {
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> &LinkedRIterator<K, V, T>::operator--() {
   node_ = node_->seq_next();
   return *this;
 }
 
-template <typename K, typename V>
-LinkedRIterator<K, V> LinkedRIterator<K, V>::operator++(int) {
-  LinkedRIterator<K, V> save = node_;
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> LinkedRIterator<K, V, T>::operator++(int) {
+  LinkedRIterator<K, V, T> save = node_;
   node_ = node_->seq_prev();
-  return LinkedRIterator<K, V>(save);
+  return LinkedRIterator<K, V, T>(save);
 }
 
-template <typename K, typename V>
-LinkedRIterator<K, V> LinkedRIterator<K, V>::operator--(int) {
-  LinkedRIterator<K, V> save = node_;
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> LinkedRIterator<K, V, T>::operator--(int) {
+  LinkedRIterator<K, V, T> save = node_;
   node_ = node_->seq_next();
-  return LinkedRIterator<K, V>(save);
+  return LinkedRIterator<K, V, T>(save);
 }
 
-template <typename K, typename V>
-bool LinkedRIterator<K, V>::operator==(
-    const LinkedRIterator<K, V> &other) const {
+template <typename K, typename V, typename T>
+bool LinkedRIterator<K, V, T>::operator==(
+    const LinkedRIterator<K, V, T> &other) const {
   return node_ == other.node_;
 }
 
-template <typename K, typename V>
-bool LinkedRIterator<K, V>::operator!=(
-    const LinkedRIterator<K, V> &other) const {
+template <typename K, typename V, typename T>
+bool LinkedRIterator<K, V, T>::operator!=(
+    const LinkedRIterator<K, V, T> &other) const {
   return node_ != other.node_;
 }
 
-template <typename K, typename V>
-bool LinkedRIterator<K, V>::operator!() const {
+template <typename K, typename V, typename T>
+bool LinkedRIterator<K, V, T>::operator!() const {
   return !node_;
 }
 
-template <typename K, typename V>
-std::pair<const K, V> &LinkedRIterator<K, V>::operator*() {
+template <typename K, typename V, typename T>
+std::pair<const K, V> &LinkedRIterator<K, V, T>::operator*() {
   return node_->value();
 }
 
-template <typename K, typename V>
-const std::pair<const K, V> &LinkedRIterator<K, V>::operator*() const {
+template <typename K, typename V, typename T>
+const std::pair<const K, V> &LinkedRIterator<K, V, T>::operator*() const {
   return node_->value();
 }
 
-template <typename K, typename V>
-std::pair<const K, V> *LinkedRIterator<K, V>::operator->() {
+template <typename K, typename V, typename T>
+std::pair<const K, V> *LinkedRIterator<K, V, T>::operator->() {
   return &(node_->value());
 }
 
-template <typename K, typename V>
-const std::pair<const K, V> *LinkedRIterator<K, V>::operator->() const {
+template <typename K, typename V, typename T>
+const std::pair<const K, V> *LinkedRIterator<K, V, T>::operator->() const {
   return &(node_->value());
 }
 
-template <typename K, typename V>
-std::string LinkedRIterator<K, V>::toString() const {
+template <typename K, typename V, typename T>
+std::string LinkedRIterator<K, V, T>::toString() const {
   return fmt::format("[ @LinkedRIterator node_:{} ]", (void *)node_);
 }
 
@@ -544,7 +549,7 @@ void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
 template <typename K, typename V, typename H, typename E>
 int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
   extend(2 * bucket_);
-  LinkedIterator<K, V> position = find(value.first);
+  Iterator position = find(value.first);
   if (position == end()) {
     LinkedNode<K, V> *e = new LinkedNode<K, V>(value);
     int b = getBucket(value.first, bucket_);
@@ -562,7 +567,8 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
+typename LinkedHt<K, V, H, E>::Iterator
+LinkedHt<K, V, H, E>::find(const K &key) {
   if (empty()) {
     return end();
   }
@@ -570,7 +576,7 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
   LinkedNode<K, V> *e = ht_[b].next();
   while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), key)) {
-      return LinkedIterator<K, V>(e);
+      return LinkedHt<K, V, H, E>::Iterator(e);
     }
     e = e->next();
   }
@@ -578,7 +584,25 @@ LinkedIterator<K, V> LinkedHt<K, V, H, E>::find(const K &key) const {
 }
 
 template <typename K, typename V, typename H, typename E>
-int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
+typename LinkedHt<K, V, H, E>::CIterator
+LinkedHt<K, V, H, E>::find(const K &key) const {
+  if (empty()) {
+    return end();
+  }
+  int b = getBucket(key, bucket_);
+  LinkedNode<K, V> *e = ht_[b].next();
+  while (e != CLN(&ht_[b])) {
+    if (equal_(e->key(), key)) {
+      return LinkedHt<K, V, H, E>::CIterator(e);
+    }
+    e = e->next();
+  }
+  return end();
+}
+
+template <typename K, typename V, typename H, typename E>
+int LinkedHt<K, V, H, E>::remove(
+    typename LinkedHt<K, V, H, E>::Iterator position) {
   if (empty()) {
     return -1;
   }
@@ -601,43 +625,43 @@ int LinkedHt<K, V, H, E>::remove(LinkedIterator<K, V> position) {
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() {
-  return LinkedIterator<K, V>(CLN(head_.seq_next()));
+typename LinkedHt<K, V, H, E>::Iterator LinkedHt<K, V, H, E>::begin() {
+  return typename LinkedHt<K, V, H, E>::Iterator(CLN(head_.seq_next()));
 }
 
 template <typename K, typename V, typename H, typename E>
-const LinkedIterator<K, V> LinkedHt<K, V, H, E>::begin() const {
-  return LinkedIterator<K, V>(CLN(head_.seq_next()));
+typename LinkedHt<K, V, H, E>::CIterator LinkedHt<K, V, H, E>::begin() const {
+  return typename LinkedHt<K, V, H, E>::CIterator(CLN(head_.seq_next()));
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() {
-  return LinkedIterator<K, V>(CLN(&head_));
+typename LinkedHt<K, V, H, E>::Iterator LinkedHt<K, V, H, E>::end() {
+  return typename LinkedHt<K, V, H, E>::Iterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
-const LinkedIterator<K, V> LinkedHt<K, V, H, E>::end() const {
-  return LinkedIterator<K, V>(CLN(&head_));
+typename LinkedHt<K, V, H, E>::CIterator LinkedHt<K, V, H, E>::end() const {
+  return typename LinkedHt<K, V, H, E>::CIterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedRIterator<K, V> LinkedHt<K, V, H, E>::rbegin() {
-  return LinkedRIterator<K, V>(CLN(head_.seq_prev()));
+typename LinkedHt<K, V, H, E>::RIterator LinkedHt<K, V, H, E>::rbegin() {
+  return typename LinkedHt<K, V, H, E>::RIterator(CLN(head_.seq_prev()));
 }
 
 template <typename K, typename V, typename H, typename E>
-const LinkedRIterator<K, V> LinkedHt<K, V, H, E>::rbegin() const {
-  return LinkedRIterator<K, V>(CLN(head_.seq_prev()));
+typename LinkedHt<K, V, H, E>::CRIterator LinkedHt<K, V, H, E>::rbegin() const {
+  return typename LinkedHt<K, V, H, E>::CRIterator(CLN(head_.seq_prev()));
 }
 
 template <typename K, typename V, typename H, typename E>
-LinkedRIterator<K, V> LinkedHt<K, V, H, E>::rend() {
-  return LinkedRIterator<K, V>(CLN(&head_));
+typename LinkedHt<K, V, H, E>::RIterator LinkedHt<K, V, H, E>::rend() {
+  return typename LinkedHt<K, V, H, E>::RIterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
-const LinkedRIterator<K, V> LinkedHt<K, V, H, E>::rend() const {
-  return LinkedRIterator<K, V>(CLN(&head_));
+typename LinkedHt<K, V, H, E>::CRIterator LinkedHt<K, V, H, E>::rend() const {
+  return typename LinkedHt<K, V, H, E>::CRIterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -839,6 +863,12 @@ bool LinkedHashMap<K, V, H, E>::exist(const K &key) const {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::Iterator
+LinkedHashMap<K, V, H, E>::find(const K &key) {
+  return hm_.find(key);
+}
+
+template <typename K, typename V, typename H, typename E>
+typename LinkedHashMap<K, V, H, E>::CIterator
 LinkedHashMap<K, V, H, E>::find(const K &key) const {
   return hm_.find(key);
 }

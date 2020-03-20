@@ -87,19 +87,20 @@ private:
 };
 
 // linked iterator
-template <typename K, typename V> class LinkedIterator : public Stringify {
+template <typename K, typename V, typename T>
+class LinkedIterator : public Stringify {
 public:
   LinkedIterator();
-  LinkedIterator(LinkedNode<K, V> *node);
+  LinkedIterator(T node);
   ~LinkedIterator();
-  LinkedIterator(const LinkedIterator<K, V> &other);
-  LinkedIterator<K, V> &operator=(const LinkedIterator<K, V> &other);
-  LinkedIterator<K, V> &operator++();
-  LinkedIterator<K, V> &operator--();
-  LinkedIterator<K, V> operator++(int);
-  LinkedIterator<K, V> operator--(int);
-  bool operator==(const LinkedIterator<K, V> &other) const;
-  bool operator!=(const LinkedIterator<K, V> &other) const;
+  LinkedIterator(const LinkedIterator<K, V, T> &other);
+  LinkedIterator<K, V, T> &operator=(const LinkedIterator<K, V, T> &other);
+  LinkedIterator<K, V, T> &operator++();
+  LinkedIterator<K, V, T> &operator--();
+  LinkedIterator<K, V, T> operator++(int);
+  LinkedIterator<K, V, T> operator--(int);
+  bool operator==(const LinkedIterator<K, V, T> &other) const;
+  bool operator!=(const LinkedIterator<K, V, T> &other) const;
   bool operator!() const;
   std::pair<const K, V> &operator*();
   const std::pair<const K, V> &operator*() const;
@@ -108,23 +109,24 @@ public:
   virtual std::string toString() const;
 
 private:
-  LinkedNode<K, V> *node_;
+  T node_;
 };
 
 // linked reverse iterator
-template <typename K, typename V> class LinkedRIterator : public Stringify {
+template <typename K, typename V, typename T>
+class LinkedRIterator : public Stringify {
 public:
   LinkedRIterator();
-  LinkedRIterator(LinkedNode<K, V> *node);
+  LinkedRIterator(T node);
   ~LinkedRIterator();
-  LinkedRIterator(const LinkedRIterator<K, V> &other);
-  LinkedRIterator<K, V> &operator=(const LinkedRIterator<K, V> &other);
-  LinkedRIterator<K, V> &operator++();
-  LinkedRIterator<K, V> &operator--();
-  LinkedRIterator<K, V> operator++(int);
-  LinkedRIterator<K, V> operator--(int);
-  bool operator==(const LinkedRIterator<K, V> &other) const;
-  bool operator!=(const LinkedRIterator<K, V> &other) const;
+  LinkedRIterator(const LinkedRIterator<K, V, T> &other);
+  LinkedRIterator<K, V, T> &operator=(const LinkedRIterator<K, V, T> &other);
+  LinkedRIterator<K, V, T> &operator++();
+  LinkedRIterator<K, V, T> &operator--();
+  LinkedRIterator<K, V, T> operator++(int);
+  LinkedRIterator<K, V, T> operator--(int);
+  bool operator==(const LinkedRIterator<K, V, T> &other) const;
+  bool operator!=(const LinkedRIterator<K, V, T> &other) const;
   bool operator!() const;
   std::pair<const K, V> &operator*();
   const std::pair<const K, V> &operator*() const;
@@ -133,13 +135,20 @@ public:
   virtual std::string toString() const;
 
 private:
-  LinkedNode<K, V> *node_;
+  T node_;
 };
 
 // linked hashtable
 template <typename K, typename V, typename H, typename E>
 class LinkedHt : private boost::noncopyable {
 public:
+  using Iterator = typename detail::LinkedIterator<K, V, LinkedNode<K, V> *>;
+  using CIterator =
+      typename detail::LinkedIterator<K, V, const LinkedNode<K, V> *>;
+  using RIterator = typename detail::LinkedRIterator<K, V, LinkedNode<K, V> *>;
+  using CRIterator =
+      typename detail::LinkedRIterator<K, V, const LinkedNode<K, V> *>;
+
   LinkedHt();
   LinkedHt(int bucket);
   ~LinkedHt();
@@ -151,16 +160,17 @@ public:
   void release();
   void insert(const std::pair<const K, V> &value);
   int insertOrAssign(const std::pair<const K, V> &value);
-  LinkedIterator<K, V> find(const K &key) const;
-  int remove(LinkedIterator<K, V> position);
-  LinkedIterator<K, V> begin();
-  const LinkedIterator<K, V> begin() const;
-  LinkedIterator<K, V> end();
-  const LinkedIterator<K, V> end() const;
-  LinkedRIterator<K, V> rbegin();
-  const LinkedRIterator<K, V> rbegin() const;
-  LinkedRIterator<K, V> rend();
-  const LinkedRIterator<K, V> rend() const;
+  Iterator find(const K &key);
+  CIterator find(const K &key) const;
+  int remove(Iterator position);
+  Iterator begin();
+  CIterator begin() const;
+  Iterator end();
+  CIterator end() const;
+  RIterator rbegin();
+  CRIterator rbegin() const;
+  RIterator rend();
+  CRIterator rend() const;
 
 private:
   int getBucket(const K &key, int bucket) const;
@@ -184,10 +194,10 @@ template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
 class LinkedHashMap : private boost::noncopyable {
 public:
-  using Iterator = typename detail::LinkedIterator<K, V>;
-  using CIterator = typename detail::LinkedIterator<K, V> const;
-  using RIterator = typename detail::LinkedRIterator<K, V>;
-  using CRIterator = typename detail::LinkedRIterator<K, V> const;
+  using Iterator = typename detail::LinkedHt<K, V, H, E>::Iterator;
+  using CIterator = typename detail::LinkedHt<K, V, H, E>::CIterator;
+  using RIterator = typename detail::LinkedHt<K, V, H, E>::RIterator;
+  using CRIterator = typename detail::LinkedHt<K, V, H, E>::CRIterator;
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
@@ -222,7 +232,8 @@ public:
   bool exist(const K &key) const;
 
   // return   end() if not found, other if found
-  Iterator find(const K &key) const;
+  Iterator find(const K &key);
+  CIterator find(const K &key) const;
 
   V &operator[](const K &key);
   const V &operator[](const K &key) const;
