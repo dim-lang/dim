@@ -142,10 +142,10 @@ private:
 template <typename K, typename V, typename H, typename E>
 class LinkedHt : private boost::noncopyable {
 public:
-  using Iterator = typename LinkedIterator<K, V, LinkedNode<K, V> *>;
-  using CIterator = typename LinkedIterator<K, V, const LinkedNode<K, V> *>;
-  using RIterator = typename LinkedRIterator<K, V, LinkedNode<K, V> *>;
-  using CRIterator = typename LinkedRIterator<K, V, const LinkedNode<K, V> *>;
+  using Iterator = LinkedIterator<K, V, LinkedNode<K, V> *>;
+  using CIterator = LinkedIterator<K, V, const LinkedNode<K, V> *>;
+  using RIterator = LinkedRIterator<K, V, LinkedNode<K, V> *>;
+  using CRIterator = LinkedRIterator<K, V, const LinkedNode<K, V> *>;
 
   LinkedHt();
   LinkedHt(int bucket);
