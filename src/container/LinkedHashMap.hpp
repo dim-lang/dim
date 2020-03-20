@@ -625,6 +625,30 @@ int LinkedHt<K, V, H, E>::remove(
 }
 
 template <typename K, typename V, typename H, typename E>
+int LinkedHt<K, V, H, E>::remove(
+    typename LinkedHt<K, V, H, E>::RIterator position) {
+  if (empty()) {
+    return -1;
+  }
+  int b = getBucket(position->first, bucket_);
+  LinkedNode<K, V> *e = ht_[b].next();
+  while (e != CLN(&ht_[b])) {
+    if (equal_(e->key(), position->first)) {
+      ht_[b].remove(e);
+      head_.seq_remove(e);
+      delete e;
+      --count_[b];
+      --size_;
+      CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      return 0;
+    }
+    e = e->next();
+  }
+  return -1;
+}
+
+template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::Iterator LinkedHt<K, V, H, E>::begin() {
   return typename LinkedHt<K, V, H, E>::Iterator(CLN(head_.seq_next()));
 }
@@ -853,6 +877,12 @@ int LinkedHashMap<K, V, H, E>::remove(const K &key) {
 template <typename K, typename V, typename H, typename E>
 int LinkedHashMap<K, V, H, E>::remove(
     LinkedHashMap<K, V, H, E>::Iterator position) {
+  return hm_.remove(position);
+}
+
+template <typename K, typename V, typename H, typename E>
+int LinkedHashMap<K, V, H, E>::remove(
+    LinkedHashMap<K, V, H, E>::RIterator position) {
   return hm_.remove(position);
 }
 

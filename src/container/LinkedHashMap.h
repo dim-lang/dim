@@ -161,6 +161,7 @@ public:
   Iterator find(const K &key);
   CIterator find(const K &key) const;
   int remove(Iterator position);
+  int remove(RIterator position);
   Iterator begin();
   CIterator begin() const;
   Iterator end();
@@ -225,6 +226,7 @@ public:
   // return   0 if success, -1 if not exist
   int remove(const K &key);
   int remove(Iterator position);
+  int remove(RIterator position);
 
   // return   true if exist, false if not exist
   bool exist(const K &key) const;
