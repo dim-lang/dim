@@ -92,4 +92,20 @@ std::string IrI8Constant::name() const { return name_; }
 
 llvm::Value *IrI8Constant::codegen(IrContext *context) {}
 
+/* u8 constant */
+IrU8Constant::IrU8Constant(AstU8Constant *node)
+    : node_(node), name_(GEN_NAME("IrU8Constant")) {}
+
+IrU8Constant::~IrU8Constant() { node_ = nullptr; }
+
+int IrU8Constant::type() const { return A_U8_CONSTANT; }
+
+std::string IrU8Constant::toString() const {
+  return fmt::format("[ IrU8Constant node_:{} ]", node_->name());
+}
+
+std::string IrU8Constant::name() const { return name_; }
+
+llvm::Value *IrU8Constant::codegen(IrContext *context) {}
+
 #undef GEN_NAME
