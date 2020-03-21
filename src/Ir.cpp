@@ -4,6 +4,21 @@
 #include "Ir.h"
 #include "Counter.h"
 #include "Log.h"
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/APInt.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Target/TargetMachine.h"
 
 static Counter NameCounter;
 
@@ -36,17 +51,9 @@ const td::map<std::string, llvm::Value *> &IrContext::symtable() const {
 
 /* translate unit */
 IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
-    : node_(node), name_(GEN_NAME("IrTranslateUnit")) {}
-
-IrTranslateUnit::~IrTranslateUnit() { node_ = nullptr; }
+    : Ir<AstTranslateUnit *>(node), name_(GEN_NAME("IrTranslateUnit")) {}
 
 int IrTranslateUnit::type() const { return A_TRANSLATE_UNIT; }
-
-std::string IrTranslateUnit::toString() const {
-  return fmt::format("[ @IrTranslateUnit node_:{} ]", node_->name());
-}
-
-std::string IrTranslateUnit::name() const { return name_; }
 
 llvm::Value *IrTranslateUnit::codegen(IrContext *context) {
   if (!node_->empty()) {
@@ -62,50 +69,121 @@ llvm::Value *IrTranslateUnit::codegen(IrContext *context) {
 
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(AstIdentifierConstant *node)
-    : node_(node), name_(GEN_NAME("IrIdentifierConstant")) {}
-
-IrIdentifierConstant::~IrIdentifierConstant() { node_ = nullptr; }
+    : Ir<AstIdentifierConstant *>(node),
+      name_(GEN_NAME("IrIdentifierConstant")) {}
 
 int IrIdentifierConstant::type() const { return A_IDENTIFIER_CONSTANT; }
-
-std::string IrIdentifierConstant::toString() const {
-  return fmt::format("[ @IrIdentifierConstant node_:{} ]", node_->name());
-}
-
-std::string IrIdentifierConstant::name() const { return name_; }
 
 llvm::Value *IrIdentifierConstant::codegen(IrContext *context) {}
 
 /* i8 constant */
 IrI8Constant::IrI8Constant(AstI8Constant *node)
-    : node_(node), name_(GEN_NAME("IrI8Constant")) {}
-
-IrI8Constant::~IrI8Constant() { node_ = nullptr; }
+    : Ir<AstI8Constant *>(node), name_(GEN_NAME("IrI8Constant")) {}
 
 int IrI8Constant::type() const { return A_I8_CONSTANT; }
 
-std::string IrI8Constant::toString() const {
-  return fmt::format("[ @IrI8Constant node_:{} ]", node_->name());
+llvm::Value *IrI8Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(8, node_->value(), true));
 }
-
-std::string IrI8Constant::name() const { return name_; }
-
-llvm::Value *IrI8Constant::codegen(IrContext *context) {}
 
 /* u8 constant */
 IrU8Constant::IrU8Constant(AstU8Constant *node)
-    : node_(node), name_(GEN_NAME("IrU8Constant")) {}
-
-IrU8Constant::~IrU8Constant() { node_ = nullptr; }
+    : Ir<AstU8Constant *>(node), name_(GEN_NAME("IrU8Constant")) {}
 
 int IrU8Constant::type() const { return A_U8_CONSTANT; }
 
-std::string IrU8Constant::toString() const {
-  return fmt::format("[ IrU8Constant node_:{} ]", node_->name());
+llvm::Value *IrU8Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(8, node_->value(), false));
 }
 
-std::string IrU8Constant::name() const { return name_; }
+/* i16 constant */
+IrI16Constant::IrI16Constant(AstI16Constant *node)
+    : Ir<IrI16Constant *>(node), name_(GEN_NAME("IrI16Constant")) {}
 
-llvm::Value *IrU8Constant::codegen(IrContext *context) {}
+int IrI16Constant::type() const { return A_I16_CONSTANT; }
+
+llvm::Value *IrI16Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(16, node_->value(), true));
+}
+
+/* u16 constant */
+IrU16Constant::IrU16Constant(AstU16Constant *node)
+    : Ir<AstU16Constant *>(node), name_(GEN_NAME("IrU16Constant")) {}
+
+int IrU16Constant::type() const { return A_U16_CONSTANT; }
+
+llvm::Value *IrU16Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(16, node_->value(), false));
+}
+
+/* i32 constant */
+IrI32Constant::IrI32Constant(AstI32Constant *node)
+    : Ir<AstI32Constant *>(node), name_(GEN_NAME("IrI32Constant")) {}
+
+int IrI32Constant::type() const { return A_I32_CONSTANT; }
+
+llvm::Value *IrI32Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(32, node_->value(), true));
+}
+
+/* u32 constant */
+IrU32Constant::IrU32Constant(AstU32Constant *node)
+    : Ir<AstU32Constant *>(node), name_(GEN_NAME("IrU32Constant")) {}
+
+int IrU32Constant::type() const { return A_U32_CONSTANT; }
+
+llvm::Value *IrU32Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(32, node_->value(), false));
+}
+
+/* i64 constant */
+IrI64Constant::IrI64Constant(AstI64Constant *node)
+    : Ir<AstI64Constant *>(node), name_(GEN_NAME("IrI64Constant")) {}
+
+int IrI64Constant::type() const { return A_I64_CONSTANT; }
+
+llvm::Value *IrI64Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(64, node_->value(), true));
+}
+
+/* u64 constant */
+IrU64Constant::IrU64Constant(AstU64Constant *node)
+    : Ir<AstU64Constant *>(node), name_(GEN_NAME("IrU64Constant")) {}
+
+int IrU64Constant::type() const { return A_U64_CONSTANT; }
+
+llvm::Value *IrU64Constant::codegen(IrContext *context) {
+  return llvm::ConstantInt::get(context->context(),
+                                llvm::APInt(64, node_->value(), false));
+}
+
+/* f32 constant */
+IrF32Constant::IrF32Constant(AstF32Constant *node)
+    : Ir<AstF32Constant *>(node), name_(GEN_NAME("IrF32Constant")) {}
+
+int IrF32Constant::type() const { return A_F32_CONSTANT; }
+
+llvm::Value *IrF32Constant::codegen(IrContext *context) {
+  return llvm::ConstantFP::get(context->context(),
+                               llvm::APFloat((float)node_->value()));
+}
+
+/* f64 constant */
+IrF64Constant::IrF64Constant(AstF64Constant *node)
+    : Ir<AstF64Constant *>(node), name_(GEN_NAME("IrF64Constant")) {}
+
+int IrF64Constant::type() const { return A_F64_CONSTANT; }
+
+llvm::Value *IrF64Constant::codegen(IrContext *context) {
+  return llvm::ConstantFP::get(context->context(),
+                               llvm::APFloat((double)node_->value()));
+}
 
 #undef GEN_NAME
