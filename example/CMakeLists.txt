@@ -85,6 +85,7 @@ message(CLIB: ${CLIB})
 message(CLIB_DIR: ${CLIB_DIR})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(-DBOOST_SYSTEM_DYN_LINK)
 add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 add_definitions(-DBOOST_SYSTEM_DYN_LINK)
