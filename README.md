@@ -1,15 +1,15 @@
-# coli
+# collie
 
-coli - a modern, object-oriented, high performance programming language.
+collie - a modern, object-oriented, high performance programming language.
 
-## Why coli?
+## Why collie?
 
-coli is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're themes we want to introduce coli:
+collie is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're themes we want to introduce collie:
 
 #### Object-Oriented
 #### Functional Programming
 #### Garbage Collection
-#### Thread
+#### Concurrency
 
 ## How to write?
 
@@ -123,25 +123,25 @@ func main():i32 {
 
 | Platform     | Build                                                                                             |
 |--------------|---------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/coli-lang/coli.git && cd coli && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/coli-lang/coli.git && cd coli && .\build.bat`                     |
+| Linux & UNIX | `$ git clone https://github.com/collie-lang/collie.git && cd collie && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/collie-lang/collie.git && cd collie && .\build.bat`                     |
 
 #### Speed up building on windows
 * Install llvm-project-9.0.1 from source code if git clone is too slow for you:
-    * Download [llvm-project-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `coli\src\llvm-project`.
-    * Build and install llvm-project-9.0.1 to `coli\src\llvm-project\llvm\install`:
+    * Download [llvm-project-9.0.1.src.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) and extract to `collie\src\llvm-project`.
+    * Build and install llvm-project-9.0.1 to `collie\src\llvm-project\llvm\install`:
     ```
-    $ cd coli\src\llvm-project\llvm
+    $ cd collie\src\llvm-project\llvm
     $ mkdir build
     $ cd build
     $ cmake -DCMAKE_INSTALL_PREFIX="%CD%\..\install" -A x64 ..
     $ cmake --build . --config Release --target INSTALL
     ```
 * Install boost-1.70.0 from source code if git clone is too slow for you:
-    * Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `coli\src\boost`.
+    * Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) and extract to `collie\src\boost`.
     * Build boost-1.70.0 with:
     ```
-    $ cd coli\src\boost
+    $ cd collie\src\boost
     $ bootstrap.bat
     $ b2 link=shared threading=multi runtime-link=shared --with-program_options --with-system --with-filesystem --build-type=complete stage
     $ cd boost\stage\lib
