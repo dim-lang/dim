@@ -10,9 +10,9 @@
 #include <string>
 
 class Log {
-public:
-  static void initialize(const std::string &logName = "coli",
-                         const std::string &logPath = ".");
+  public:
+    static void initialize(const std::string &logName = "collie",
+        const std::string &logPath = ".");
 };
 
 #ifdef NDEBUG

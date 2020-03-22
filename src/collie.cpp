@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
       scanner.pushBuffer(fileName);
       int p = scanner.parse();
       CINFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
-            scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
+          scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       CASSERT(p == 0, "parse fail:{}", p);
       Semantic::build(&symtable, scanner.translateUnit());
       Semantic::check(&symtable, scanner.translateUnit());

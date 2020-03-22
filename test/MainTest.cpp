@@ -6,6 +6,6 @@
 #include "catch2/catch.hpp"
 
 TEST_CASE("Main", "[Main]") {
-  Log::initialize("coli-test");
-  SECTION("Main Initialize") { CINFO("coli-test starting..."); }
+  Log::initialize("collie-test");
+  SECTION("Main Initialize") { CINFO("collie-test starting..."); }
 }
