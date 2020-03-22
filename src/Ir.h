@@ -71,8 +71,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstTranslateUnit *node_;
-  std::string name_;
 };
 
 /* identifier constant */
@@ -85,8 +83,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstIdentifierConstant *node_;
-  std::string name_;
 };
 
 /* i8 constant */
@@ -99,8 +95,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstI8Constant *node_;
-  std::string name_;
 };
 
 /* u8 constant */
@@ -113,8 +107,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstU8Constant *node_;
-  std::string name_;
 };
 
 /* i16 constant */
@@ -127,8 +119,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstI16Constant *node_;
-  std::string name_;
 };
 
 /* u16 constant */
@@ -141,8 +131,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstU16Constant *node_;
-  std::string name_;
 };
 
 /* i32 constant */
@@ -155,8 +143,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstI32Constant *node_;
-  std::string name_;
 };
 
 /* u32 constant */
@@ -169,8 +155,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstU32Constant *node_;
-  std::string name_;
 };
 
 /* i64 constant */
@@ -183,8 +167,6 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstI64Constant *node_;
-  std::string name_;
 };
 
 /* u64 constant */
@@ -197,12 +179,10 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstU64Constant *node_;
-  std::string name_;
 };
 
 /* f32 constant */
-class IrF32Constant : public Ir {
+class IrF32Constant : public Ir<AstF32Constant *> {
 public:
   IrF32Constant(AstF32Constant *node);
   virtual ~IrF32Constant() = default;
@@ -211,12 +191,10 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstF32Constant *node_;
-  std::string name_;
 };
 
 /* f64 constant */
-class IrF64Constant : public Ir {
+class IrF64Constant : public Ir<AstF64Constant *> {
 public:
   IrF64Constant(AstF64Constant *node);
   virtual ~IrF64Constant() = default;
@@ -225,12 +203,10 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstF64Constant *node_;
-  std::string name_;
 };
 
 /* string constant */
-class IrStringConstant : public Ir {
+class IrStringConstant : public Ir<AstStringConstant *> {
 public:
   IrStringConstant(AstStringConstant *node);
   virtual ~IrStringConstant() = default;
@@ -239,317 +215,246 @@ public:
 
 protected:
   virtual std::string stringify() const;
-  AstStringConstant *node_;
-  std::string name_;
 };
 
 /* boolean constant */
-class IrBooleanConstant : public Ir {
+class IrBooleanConstant : public Ir<AstBooleanConstant *> {
 public:
   IrBooleanConstant(AstBooleanConstant *node);
   virtual ~IrBooleanConstant() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstBooleanConstant *node_;
-  std::string name_;
 };
 
 /* call expression */
-class IrCallExpression : public Ir {
+class IrCallExpression : public Ir<AstCallExpression *> {
 public:
   IrCallExpression(AstCallExpression *node);
   virtual ~IrCallExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstCallExpression *node_;
-  std::string name_;
 };
 
-/* unary operation expression */
-class IrUnaryExpression : public Ir {
+/* unary expression */
+class IrUnaryExpression : public Ir<AstUnaryExpression *> {
 public:
   IrUnaryExpression(AstUnaryExpression *node);
   virtual ~IrUnaryExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstUnaryExpression *node_;
-  std::string name_;
 };
 
-/* binary operation expression */
-class IrBinaryExpression : public Ir {
+/* binary expression */
+class IrBinaryExpression : public Ir<AstBinaryExpression *> {
 public:
   IrBinaryExpression(AstBinaryExpression *node);
   virtual ~IrBinaryExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstBinaryExpression *node_;
-  std::string name_;
 };
 
 /* conditional expression */
-class IrConditionalExpression : public Ir {
+class IrConditionalExpression : public Ir<AstConditionalExpression *> {
 public:
   IrConditionalExpression(AstConditionalExpression *node);
   virtual ~IrConditionalExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstConditionalExpression *node_;
-  std::string name_;
 };
 
 /* assignment expression */
-class IrAssignmentExpression : public Ir {
+class IrAssignmentExpression : public Ir<AstAssignmentExpression *> {
 public:
   IrAssignmentExpression(AstAssignmentExpression *node);
   virtual ~IrAssignmentExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstAssignmentExpression *node_;
-  std::string name_;
 };
 
 /* sequel expression */
-class IrSequelExpression : public Ir {
+class IrSequelExpression : public Ir<AstSequelExpression *> {
 public:
   IrSequelExpression(AstSequelExpression *node);
   virtual ~IrSequelExpression() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstSequelExpression *node_;
-  std::string name_;
 };
 
 /* expression statement */
-class IrExpressionStatement : public Ir {
+class IrExpressionStatement : public Ir<AstExpressionStatement *> {
 public:
   IrExpressionStatement(AstExpressionStatement *node);
   virtual ~IrExpressionStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstExpressionStatement *node_;
-  std::string name_;
 };
 
 /* compound statement */
-class IrCompoundStatement : public Ir {
+class IrCompoundStatement : public Ir<AstCompoundStatement *> {
 public:
   IrCompoundStatement(AstCompoundStatement *node);
   virtual ~IrCompoundStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstCompoundStatement *node_;
-  std::string name_;
 };
 
 /* if statement */
-class IrIfStatement : public Ir {
+class IrIfStatement : public Ir<AstIfStatement *> {
 public:
   IrIfStatement(AstIfStatement *node);
   virtual ~IrIfStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstIfStatement *node_;
-  std::string name_;
 };
 
 /* while statement */
-class IrWhileStatement : public Ir {
+class IrWhileStatement : public Ir<AstWhileStatement *> {
 public:
   IrWhileStatement(AstWhileStatement *node);
   virtual ~IrWhileStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
-  AstWhileStatement *node_;
-  std::string name_;
 };
 
 /* for statement */
-class IrForStatement : public Ir {
+class IrForStatement : public Ir<AstForStatement *> {
 public:
   IrForStatement(AstForStatement *node);
   virtual ~IrForStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstForStatement *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* continue statement */
-class IrContinueStatement : public Ir {
+class IrContinueStatement : public Ir<AstContinueStatement *> {
 public:
   IrContinueStatement(AstContinueStatement *node);
   virtual ~IrContinueStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstContinueStatement *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* break statement */
-class IrBreakStatement : public Ir {
+class IrBreakStatement : public Ir<AstBreakStatement *> {
 public:
   IrBreakStatement(AstBreakStatement *node);
   virtual ~IrBreakStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstBreakStatement *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* return statement */
-class IrReturnStatement : public Ir {
+class IrReturnStatement : public Ir<AstReturnStatement *> {
 public:
   IrReturnStatement(AstReturnStatement *node);
   virtual ~IrReturnStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstReturnStatement *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* empty statement */
-class IrEmptyStatement : public Ir {
+class IrEmptyStatement : public Ir<AstEmptyStatement *> {
 public:
   IrEmptyStatement(AstEmptyStatement *node);
   virtual ~IrEmptyStatement() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstEmptyStatement *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* variable declaration */
-class IrVariableDeclaration : public Ir {
+class IrVariableDeclaration : public Ir<AstVariableDeclaration *> {
 public:
   IrVariableDeclaration(AstVariableDeclaration *node);
   virtual ~IrVariableDeclaration() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstVariableDeclaration *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* variable assignment declaration */
-class IrVariableAssignmentDeclaration : public Ir {
+class IrVariableAssignmentDeclaration
+    : public Ir<AstVariableAssignmentDeclaration *> {
 public:
   IrVariableAssignmentDeclaration(AstVariableAssignmentDeclaration *node);
   virtual ~IrVariableAssignmentDeclaration() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstVariableAssignmentDeclaration *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* function declaration */
-class IrFunctionDeclaration : public Ir {
+class IrFunctionDeclaration : public Ir<AstFunctionDeclaration *> {
 public:
   IrFunctionDeclaration(AstFunctionDeclaration *node);
   virtual ~IrFunctionDeclaration() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstFunctionDeclaration *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
 
 /* function argument declaration */
-class IrFunctionArgumentDeclaration : public Ir {
+class IrFunctionArgumentDeclaration
+    : public Ir<AstFunctionArgumentDeclaration *> {
 public:
   IrFunctionArgumentDeclaration(AstFunctionArgumentDeclaration *node);
   virtual ~IrFunctionArgumentDeclaration() = default;
   virtual int type() const;
-  virtual std::string toString() const;
-  virtual std::string name() const;
   virtual llvm::Value *codegen(IrContext *context);
 
 protected:
-  AstFunctionArgumentDeclaration *node_;
-  std::string name_;
+  virtual std::string stringify() const;
 };
