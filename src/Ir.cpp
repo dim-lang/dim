@@ -164,6 +164,8 @@ llvm::Value *IrU64Constant::codegen(IrContext *context) {
                                 llvm::APInt(64, node_->value(), false));
 }
 
+std::string IrU64Constant::stringify() const { return "IrU64Constant"; }
+
 /* f32 constant */
 IrF32Constant::IrF32Constant(AstF32Constant *node)
     : Ir<AstF32Constant *>(node), name_(GEN_NAME("IrF32Constant")) {}
@@ -175,6 +177,8 @@ llvm::Value *IrF32Constant::codegen(IrContext *context) {
                                llvm::APFloat((float)node_->value()));
 }
 
+std::string IrF32Constant::stringify() const { return "IrF32Constant"; }
+
 /* f64 constant */
 IrF64Constant::IrF64Constant(AstF64Constant *node)
     : Ir<AstF64Constant *>(node), name_(GEN_NAME("IrF64Constant")) {}
@@ -185,5 +189,19 @@ llvm::Value *IrF64Constant::codegen(IrContext *context) {
   return llvm::ConstantFP::get(context->context(),
                                llvm::APFloat((double)node_->value()));
 }
+
+std::string IrF64Constant::stringify() const { return "IrF64Constant"; }
+
+/* string constant */
+IrStringConstant::IrStringConstant(AstStringConstant *node)
+    : Ir<AstStringConstant *>(node), name_(GEN_NAME("IrStringConstant")) {}
+
+IrStringConstant::~IrStringConstant() = default;
+
+int IrStringConstant::type() const;
+
+llvm::Value *IrStringConstant::codegen(IrContext *context);
+
+std::string IrStringConstant::stringify() const;
 
 #undef GEN_NAME
