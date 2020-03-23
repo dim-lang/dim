@@ -27,6 +27,7 @@ set(CCORE
     Semantic.cpp
     Counter.cpp
     Dump.cpp
+    Ir.cpp
 )
 set(CSRC
     collie.cpp

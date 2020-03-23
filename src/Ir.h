@@ -11,10 +11,10 @@
 //#include "llvm/IR/Constants.h"
 //#include "llvm/IR/DerivedTypes.h"
 //#include "llvm/IR/Function.h"
-//#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/IRBuilder.h"
 //#include "llvm/IR/Instructions.h"
-//#include "llvm/IR/LLVMContext.h"
-//#include "llvm/IR/Module.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 //#include "llvm/IR/Type.h"
 //#include "llvm/IR/Verifier.h"
 //#include "llvm/Support/TargetSelect.h"
@@ -31,7 +31,7 @@ public:
   llvm::Module *&module();
   const llvm::Module *module() const;
   std::map<std::string, llvm::Value *> &symtable();
-  const td::map<std::string, llvm::Value *> &symtable() const;
+  const std::map<std::string, llvm::Value *> &symtable() const;
 
 private:
   llvm::LLVMContext context_;
@@ -44,16 +44,16 @@ template <typename T>
 class Ir : public Namely,
            public Typely,
            public Stringify,
-           protected boost::noncopyable {
+           private boost::noncopyable {
 public:
-  Ir(T node) : node_(node) {}
-  virtual ~Ir() { node_ = nullptr; }
+  Ir(T node, const std::string &name) : node_(node), name_(name) {}
+  virtual ~Ir() = default;
   virtual std::string toString() const {
     return fmt::format("[ {} node_:{} ]", stringify(), node_->name());
   }
   virtual std::string name() const { return name_; }
   virtual int type() const = 0;
-  virtual llvm::Value *codegen() = 0;
+  virtual llvm::Value *codegen(IrContext *context) = 0;
 
 protected:
   virtual std::string stringify() const = 0;
