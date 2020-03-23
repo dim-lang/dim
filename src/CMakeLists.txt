@@ -15,6 +15,7 @@ set(CCORE
     Hash.cpp
     Random.cpp
     Approximate.cpp
+    NameGenerator.cpp
     TokenName.cpp
     Token.cpp
     Token.yy.cpp

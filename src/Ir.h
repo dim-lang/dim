@@ -46,7 +46,7 @@ class Ir : public Namely,
            public Stringify,
            private boost::noncopyable {
 public:
-  Ir(T node, const std::string &name) : node_(node), name_(name) {}
+  Ir(T *node, const std::string &name) : node_(node), name_(name) {}
   virtual ~Ir() = default;
   virtual std::string toString() const {
     return fmt::format("[ {} node_:{} ]", stringify(), node_->name());
