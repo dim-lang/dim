@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-# Copyright 2019- <co-lang>
+# Copyright 2019- <collie.org>
 # Apache License Version 2.0
 
 ROOT=`pwd`
@@ -17,21 +17,21 @@ function build_generate() {
     SPDLOG_VERSION=v1.3.1
     FMTLIB_VERSION=5.3.0
     cd $ROOT
-    echo [co-lang] prepare catchorg/Catch2 $CATCH2_VERSION
+    echo [collie] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
         cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2 && cd $ROOT
     fi
-    echo [co-lang] prepare catchorg/Catch2 $CATCH2_VERSION - done
-    echo [co-lang] prepare gabime/spdlog $SPDLOG_VERSION
+    echo [collie] prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo [collie] prepare gabime/spdlog $SPDLOG_VERSION
     if [ ! -d src/spdlog ]; then
         cd src && git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog && cd $ROOT
     fi
-    echo [co-lang] prepare gabime/spdlog $SPDLOG_VERSION - done
-    echo [co-lang] prepare fmtlib/fmt $FMTLIB_VERSION
+    echo [collie] prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo [collie] prepare fmtlib/fmt $FMTLIB_VERSION
     if [ ! -d src/fmt ]; then
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
-    echo [co-lang] prepare fmtlib/fmt $FMTLIB_VERSION - done
+    echo [collie] prepare fmtlib/fmt $FMTLIB_VERSION - done
 
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
@@ -52,7 +52,7 @@ function build_generate() {
             bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         *)
-            echo [co-lang] unknown build_generate argument "$1"
+            echo [collie] unknown build_generate argument "$1"
             exit 3
             ;;
     esac
@@ -76,13 +76,13 @@ function build_make() {
 # $2: job number
 function build_routine() {
     case "$FOS" in
-      solaris*) echo "[co-lang] solaris not support!" && exit 3 ;;
+      solaris*) echo "[collie] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[co-lang] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[collie] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [co-lang] build for $FOS, mode=$1, job=$2
+    echo [collie] build for $FOS, mode=$1, job=$2
     build_generate $1
     build_make $1 $2
 }
@@ -90,13 +90,13 @@ function build_routine() {
 # $1: install path
 function build_install() {
     case "$FOS" in
-      solaris*) echo "[co-lang] solaris not support!" && exit 3 ;;
+      solaris*) echo "[collie] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[co-lang] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[collie] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [co-lang] install for $FOS, INSTALL_PATH=$1
+    echo [collie] install for $FOS, INSTALL_PATH=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cd release
@@ -104,7 +104,7 @@ function build_install() {
 }
 
 function build_help() {
-    echo [co-lang] help message:
+    echo [collie] help message:
     echo   build -h/--help              - show help message.
     echo   build -r/--release           - build release.
     echo   build -d/--debug             - build debug.

@@ -1,4 +1,4 @@
-# Copyright 2019- <co-lang>
+# Copyright 2019- <collie.org>
 # Apache License Version 2.0
 
 project(collie VERSION 0.0.2 LANGUAGES CXX)
