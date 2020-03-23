@@ -4,6 +4,7 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "Log.h"
+#include "NameGenerator.h"
 #include "TokenName.h"
 #include <algorithm>
 #include <sstream>
@@ -12,33 +13,43 @@
 
 static Counter NameCounter;
 
-#define GEN_NAME(x) (std::string(x) + "_" + std::to_string(NameCounter.count()))
+//#define GEN_NAME(x) (std::string(x) + "_" +
+// std::to_string(NameCounter.count()))
 
-#define GEN_NAME_VAL(x, y)                                                     \
-  (std::string(y) + std::string("@") + std::string(x) + "_" +                  \
-   std::to_string(NameCounter.count()))
+//#define GEN_NAME_VAL(x, y)                                                     \
+  //(std::string(y) + std::string("@") + std::string(x) + "_" +                  \
+   //std::to_string(NameCounter.count()))
 
-AstExpressionList::AstExpressionList() : name_(GEN_NAME("A_ExpList")) {}
+Ast::Ast(const std::string &name) : name_(name) {}
+
+std::string Ast::name() const { return name_; }
+
+AstExpression::AstExpression(const std::string &name) : Ast(name) {}
+
+AstStatement::AstStatement(const std::string &name) : Ast(name) {}
+
+AstDeclaration::AstDeclaration(const std::string &name) : AstStatement(name) {}
+
+AstExpressionList::AstExpressionList()
+    : detail::AstList<AstExpression>(namegen("A_ExpList")) {}
 
 AstExpressionList::~AstExpressionList() {}
 
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
-std::string AstExpressionList::name() const { return name_; }
-
 int AstExpressionList::type() const { return A_EXPRESSION_LIST; }
 
-AstStatementList::AstStatementList() : name_(GEN_NAME("A_StmList")) {}
+AstStatementList::AstStatementList()
+    : detail::AstList<AstStatement>(namegen("A_StmList")) {}
 
 AstStatementList::~AstStatementList() {}
 
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
-std::string AstStatementList::name() const { return name_; }
-
 int AstStatementList::type() const { return A_STATEMENT_LIST; }
 
-AstDeclarationList::AstDeclarationList() : name_(GEN_NAME("A_DeclList")) {}
+AstDeclarationList::AstDeclarationList()
+    : detail::AstList<AstDeclaration>(namegen("A_DeclList")) {}
 
 AstDeclarationList::~AstDeclarationList() {}
 
@@ -46,22 +57,19 @@ std::string AstDeclarationList::stringify() const {
   return "AstDeclarationList";
 }
 
-std::string AstDeclarationList::name() const { return name_; }
-
 int AstDeclarationList::type() const { return A_DECLARATION_LIST; }
 
-AstTranslateUnit::AstTranslateUnit() : name_(GEN_NAME("A_Unit")) {}
+AstTranslateUnit::AstTranslateUnit()
+    : detail::AstList<AstDeclaration>(namegen("A_Unit")) {}
 
 AstTranslateUnit::~AstTranslateUnit() {}
 
 int AstTranslateUnit::type() const { return A_TRANSLATE_UNIT; }
 
-std::string AstTranslateUnit::name() const { return name_; }
-
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
-    : value_(value), name_(GEN_NAME_VAL("A_id", value)) {}
+    : AstExpression(namegen2(value, "A_id")), value_(value) {}
 
 AstIdentifierConstant::~AstIdentifierConstant() {}
 
@@ -71,12 +79,10 @@ std::string AstIdentifierConstant::toString() const {
   return fmt::format("[ @AstIdentifierConstant value_:{} ]", value_);
 }
 
-std::string AstIdentifierConstant::name() const { return name_; }
-
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
 AstI8Constant::AstI8Constant(const int8_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_i8", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_i8")), value_(value) {}
 
 AstI8Constant::~AstI8Constant() {}
 
@@ -86,12 +92,10 @@ std::string AstI8Constant::toString() const {
   return fmt::format("[ @AstI8Constant value_:{} ]", (int)value_);
 }
 
-std::string AstI8Constant::name() const { return name_; }
-
 const int8_t &AstI8Constant::value() const { return value_; }
 
 AstU8Constant::AstU8Constant(const uint8_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_u8", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_u8")), value_(value) {}
 
 AstU8Constant::~AstU8Constant() {}
 
@@ -101,12 +105,10 @@ std::string AstU8Constant::toString() const {
   return fmt::format("[ @AstU8Constant value_:{} ]", (int)value_);
 }
 
-std::string AstU8Constant::name() const { return name_; }
-
 const uint8_t &AstU8Constant::value() const { return value_; }
 
 AstI16Constant::AstI16Constant(const int16_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_i16", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_i16")), value_(value) {}
 
 AstI16Constant::~AstI16Constant() {}
 
@@ -116,12 +118,10 @@ std::string AstI16Constant::toString() const {
   return fmt::format("[ @AstI16Constant value_:{} ]", value_);
 }
 
-std::string AstI16Constant::name() const { return name_; }
-
 const int16_t &AstI16Constant::value() const { return value_; }
 
 AstU16Constant::AstU16Constant(const uint16_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_u16", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_u16")), value_(value) {}
 
 AstU16Constant::~AstU16Constant() {}
 
@@ -131,12 +131,10 @@ std::string AstU16Constant::toString() const {
   return fmt::format("[ @AstU16Constant value_:{} ]", value_);
 }
 
-std::string AstU16Constant::name() const { return name_; }
-
 const uint16_t &AstU16Constant::value() const { return value_; }
 
 AstI32Constant::AstI32Constant(const int32_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_i32", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_i32")), value_(value) {}
 
 AstI32Constant::~AstI32Constant() {}
 
@@ -146,12 +144,10 @@ std::string AstI32Constant::toString() const {
   return fmt::format("[ @AstI32Constant value_:{} ]", value_);
 }
 
-std::string AstI32Constant::name() const { return name_; }
-
 const int32_t &AstI32Constant::value() const { return value_; }
 
 AstU32Constant::AstU32Constant(const uint32_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_u32", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_u32")), value_(value) {}
 
 AstU32Constant::~AstU32Constant() {}
 
@@ -161,12 +157,10 @@ std::string AstU32Constant::toString() const {
   return fmt::format("[ @AstU32Constant value_:{} ]", value_);
 }
 
-std::string AstU32Constant::name() const { return name_; }
-
 const uint32_t &AstU32Constant::value() const { return value_; }
 
 AstI64Constant::AstI64Constant(const int64_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_i64", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_i64")), value_(value) {}
 
 AstI64Constant::~AstI64Constant() {}
 
@@ -176,12 +170,10 @@ std::string AstI64Constant::toString() const {
   return fmt::format("[ @AstI64Constant value_:{} ]", value_);
 }
 
-std::string AstI64Constant::name() const { return name_; }
-
 const int64_t &AstI64Constant::value() const { return value_; }
 
 AstU64Constant::AstU64Constant(const uint64_t &value)
-    : value_(value), name_(GEN_NAME_VAL("A_u64", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_u64")), value_(value) {}
 
 AstU64Constant::~AstU64Constant() {}
 
@@ -191,12 +183,10 @@ std::string AstU64Constant::toString() const {
   return fmt::format("[ @AstU64Constant value_:{} ]", value_);
 }
 
-std::string AstU64Constant::name() const { return name_; }
-
 const uint64_t &AstU64Constant::value() const { return value_; }
 
 AstF32Constant::AstF32Constant(const float &value)
-    : value_(value), name_(GEN_NAME_VAL("A_f32", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_f32")), value_(value) {}
 
 AstF32Constant::~AstF32Constant() {}
 
@@ -206,12 +196,10 @@ std::string AstF32Constant::toString() const {
   return fmt::format("[ @AstF32Constant value_:{} ]", value_);
 }
 
-std::string AstF32Constant::name() const { return name_; }
-
 const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value)
-    : value_(value), name_(GEN_NAME_VAL("A_f64", std::to_string(value))) {}
+    : AstExpression(namegen2(value, "A_f64")), value_(value) {}
 
 AstF64Constant::~AstF64Constant() {}
 
@@ -221,12 +209,10 @@ std::string AstF64Constant::toString() const {
   return fmt::format("[ @AstF64Constant value_:{} ]", value_);
 }
 
-std::string AstF64Constant::name() const { return name_; }
-
 const double &AstF64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
-    : value_(value), name_(GEN_NAME_VAL("A_string", value)) {}
+    : AstExpression(namegen2(value, "A_string")), value_(value) {}
 
 AstStringConstant::~AstStringConstant() {}
 
@@ -236,8 +222,6 @@ std::string AstStringConstant::toString() const {
   return fmt::format("[ @AstStringConstant value_:{} ]", value_);
 }
 
-std::string AstStringConstant::name() const { return name_; }
-
 const std::string &AstStringConstant::value() const { return value_; }
 
 void AstStringConstant::add(const char *value) {
@@ -245,8 +229,8 @@ void AstStringConstant::add(const char *value) {
 }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value)
-    : value_(value), name_(GEN_NAME_VAL("A_Bool", (value ? "true" : "false"))) {
-}
+    : AstExpression(namegen2((value ? "true" : "false"), "A_Bool")),
+      value_(value) {}
 
 AstBooleanConstant::~AstBooleanConstant() {}
 
@@ -256,14 +240,12 @@ std::string AstBooleanConstant::toString() const {
   return fmt::format("[ @AstBooleanConstant value_:{} ]", value_);
 }
 
-std::string AstBooleanConstant::name() const { return name_; }
-
 const bool &AstBooleanConstant::value() const { return value_; }
 
 AstCallExpression::AstCallExpression(const char *identifier,
                                      AstExpressionList *argumentList)
-    : identifier_(identifier), argumentList_(argumentList),
-      name_(GEN_NAME_VAL("A_Call", identifier)) {}
+    : AstExpression(namegen2(identifier, "A_Call")), identifier_(identifier),
+      argumentList_(argumentList) {}
 
 AstCallExpression::~AstCallExpression() {
   delete argumentList_;
@@ -278,8 +260,6 @@ std::string AstCallExpression::toString() const {
                      argumentList_ ? argumentList_->toString() : "null");
 }
 
-std::string AstCallExpression::name() const { return name_; }
-
 const std::string &AstCallExpression::identifier() const { return identifier_; }
 
 AstExpressionList *AstCallExpression::argumentList() const {
@@ -287,7 +267,8 @@ AstExpressionList *AstCallExpression::argumentList() const {
 }
 
 AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression)
-    : token_(token), expression_(expression), name_(GEN_NAME("A_UnrExp")) {}
+    : AstExpression(namegen("A_UnrExp")), token_(token),
+      expression_(expression) {}
 
 AstUnaryExpression::~AstUnaryExpression() {
   delete expression_;
@@ -302,15 +283,14 @@ std::string AstUnaryExpression::toString() const {
                      tokenName(token_), exprStr);
 }
 
-std::string AstUnaryExpression::name() const { return name_; }
-
 int AstUnaryExpression::token() const { return token_; }
 
 AstExpression *AstUnaryExpression::expression() const { return expression_; }
 
 AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
                                          AstExpression *right)
-    : left_(left), token_(token), right_(right), name_(GEN_NAME("A_BinExp")) {}
+    : AstExpression(namegen("A_BinExp")), left_(left), token_(token),
+      right_(right) {}
 
 AstBinaryExpression::~AstBinaryExpression() {
   delete left_;
@@ -328,8 +308,6 @@ std::string AstBinaryExpression::toString() const {
                      leftStr, tokenName(token_), rightStr);
 }
 
-std::string AstBinaryExpression::name() const { return name_; }
-
 AstExpression *AstBinaryExpression::left() const { return left_; }
 
 int AstBinaryExpression::token() const { return token_; }
@@ -339,8 +317,8 @@ AstExpression *AstBinaryExpression::right() const { return right_; }
 AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
                                                    AstExpression *hit,
                                                    AstExpression *miss)
-    : condition_(condition), hit_(hit), miss_(miss),
-      name_(GEN_NAME("A_CondExp")) {}
+    : AstExpression(namegen("A_CondExp")), condition_(condition), hit_(hit),
+      miss_(miss) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
   delete condition_;
@@ -362,8 +340,6 @@ std::string AstConditionalExpression::toString() const {
       hitStr, missStr);
 }
 
-std::string AstConditionalExpression::name() const { return name_; }
-
 AstExpression *AstConditionalExpression::condition() const {
   return condition_;
 }
@@ -375,8 +351,8 @@ AstExpression *AstConditionalExpression::miss() const { return miss_; }
 AstAssignmentExpression::AstAssignmentExpression(AstExpression *variable,
                                                  int token,
                                                  AstExpression *value)
-    : variable_(variable), token_(token), value_(value),
-      name_(GEN_NAME("A_AssExp")) {}
+    : AstExpression(namegen("A_AssExp")), variable_(variable), token_(token),
+      value_(value) {}
 
 AstAssignmentExpression::~AstAssignmentExpression() {
   delete variable_;
@@ -395,8 +371,6 @@ std::string AstAssignmentExpression::toString() const {
       tokenName(token_), valStr);
 }
 
-std::string AstAssignmentExpression::name() const { return name_; }
-
 AstExpression *AstAssignmentExpression::variable() const { return variable_; }
 
 int AstAssignmentExpression::token() const { return token_; }
@@ -404,7 +378,7 @@ int AstAssignmentExpression::token() const { return token_; }
 AstExpression *AstAssignmentExpression::value() const { return value_; }
 
 AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
-    : expressionList_(expressionList), name_(GEN_NAME("A_SeqExp")) {}
+    : AstExpression(namegen("A_SeqExp")), expressionList_(expressionList) {}
 
 AstSequelExpression::~AstSequelExpression() {
   delete expressionList_;
@@ -418,14 +392,12 @@ std::string AstSequelExpression::toString() const {
                      expressionList_ ? expressionList_->toString() : "null");
 }
 
-std::string AstSequelExpression::name() const { return name_; }
-
 AstExpressionList *AstSequelExpression::expressionList() const {
   return expressionList_;
 }
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
-    : expression_(expression), name_(GEN_NAME("A_ExpStm")) {}
+    : AstStatement(namegen("A_ExpStm")), expression_(expression) {}
 
 AstExpressionStatement::~AstExpressionStatement() {
   delete expression_;
@@ -439,14 +411,12 @@ std::string AstExpressionStatement::toString() const {
   return fmt::format("[ @AstExpressionStatement expression_:{} ]", exprStr);
 }
 
-std::string AstExpressionStatement::name() const { return name_; }
-
 AstExpression *AstExpressionStatement::expression() const {
   return expression_;
 }
 
 AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList)
-    : statementList_(statementList), name_(GEN_NAME("A_Compound")) {}
+    : AstStatement(namegen("A_Compound")), statementList_(statementList) {}
 
 AstCompoundStatement::~AstCompoundStatement() {
   delete statementList_;
@@ -460,15 +430,14 @@ std::string AstCompoundStatement::toString() const {
                      statementList_ ? statementList_->toString() : "null");
 }
 
-std::string AstCompoundStatement::name() const { return name_; }
-
 AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
 AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *hit,
                                AstStatement *miss)
-    : condition_(condition), hit_(hit), miss_(miss), name_(GEN_NAME("A_If")) {}
+    : AstStatement(namegen("A_If")), condition_(condition), hit_(hit),
+      miss_(miss) {}
 
 AstIfStatement::~AstIfStatement() {
   delete condition_;
@@ -489,8 +458,6 @@ std::string AstIfStatement::toString() const {
                      condStr, hStr, mStr);
 }
 
-std::string AstIfStatement::name() const { return name_; }
-
 AstExpression *AstIfStatement::condition() const { return condition_; }
 
 AstStatement *AstIfStatement::hit() const { return hit_; }
@@ -499,8 +466,8 @@ AstStatement *AstIfStatement::miss() const { return miss_; }
 
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement)
-    : condition_(condition), statement_(statement), name_(GEN_NAME("A_While")) {
-}
+    : AstStatement(namegen("A_While")), condition_(condition),
+      statement_(statement) {}
 
 AstWhileStatement::~AstWhileStatement() {
   delete condition_;
@@ -518,16 +485,14 @@ std::string AstWhileStatement::toString() const {
                      condStr, stmtStr);
 }
 
-std::string AstWhileStatement::name() const { return name_; }
-
 AstExpression *AstWhileStatement::condition() const { return condition_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
 AstForStatement::AstForStatement(AstStatement *initial, AstStatement *condition,
                                  AstExpression *post, AstStatement *statement)
-    : initial_(initial), condition_(condition), post_(post),
-      statement_(statement), name_(GEN_NAME("A_For")) {}
+    : AstStatement(namegen("A_For")), initial_(initial), condition_(condition),
+      post_(post), statement_(statement) {}
 
 AstForStatement::~AstForStatement() {
   delete initial_;
@@ -552,8 +517,6 @@ std::string AstForStatement::toString() const {
                      initStr, condStr, postStr, stmtStr);
 }
 
-std::string AstForStatement::name() const { return name_; }
-
 AstStatement *AstForStatement::initial() const { return initial_; }
 
 AstStatement *AstForStatement::condition() const { return condition_; }
@@ -562,7 +525,8 @@ AstExpression *AstForStatement::post() const { return post_; }
 
 AstStatement *AstForStatement::statement() const { return statement_; }
 
-AstContinueStatement::AstContinueStatement() : name_(GEN_NAME("A_continue")) {}
+AstContinueStatement::AstContinueStatement()
+    : AstStatement(namegen("A_continue")) {}
 
 AstContinueStatement::~AstContinueStatement() {}
 
@@ -572,9 +536,7 @@ std::string AstContinueStatement::toString() const {
   return fmt::format("[ @AstContinueStatement ]");
 }
 
-std::string AstContinueStatement::name() const { return name_; }
-
-AstBreakStatement::AstBreakStatement() : name_(GEN_NAME("A_break")) {}
+AstBreakStatement::AstBreakStatement() : AstStatement(namegen("A_break")) {}
 
 AstBreakStatement::~AstBreakStatement() {}
 
@@ -584,10 +546,8 @@ std::string AstBreakStatement::toString() const {
   return fmt::format("[ @AstBreakStatement ]");
 }
 
-std::string AstBreakStatement::name() const { return name_; }
-
 AstReturnStatement::AstReturnStatement(AstExpression *expression)
-    : expression_(expression), name_(GEN_NAME("A_return")) {}
+    : AstStatement(namegen("A_return")), expression_(expression) {}
 
 AstReturnStatement::~AstReturnStatement() {
   delete expression_;
@@ -601,11 +561,9 @@ std::string AstReturnStatement::toString() const {
   return fmt::format("[ @AstReturnStatement expression_:{} ]", exprStr);
 }
 
-std::string AstReturnStatement::name() const { return name_; }
-
 AstExpression *AstReturnStatement::expression() const { return expression_; }
 
-AstEmptyStatement::AstEmptyStatement() : name_(GEN_NAME("A_EmpStm")) {}
+AstEmptyStatement::AstEmptyStatement() : AstStatement(namegen("A_EmpStm")) {}
 
 AstEmptyStatement::~AstEmptyStatement() {}
 
@@ -615,11 +573,9 @@ std::string AstEmptyStatement::toString() const {
   return fmt::format("[ @AstEmptyStatement ]");
 }
 
-std::string AstEmptyStatement::name() const { return name_; }
-
 AstVariableDeclaration::AstVariableDeclaration(
     AstDeclarationList *declarationList)
-    : declarationList_(declarationList), name_(GEN_NAME("A_VarDecl")) {}
+    : AstDeclaration(namegen("A_VarDecl")), declarationList_(declarationList) {}
 
 AstVariableDeclaration::~AstVariableDeclaration() {
   delete declarationList_;
@@ -633,16 +589,14 @@ std::string AstVariableDeclaration::toString() const {
                      declarationList_ ? declarationList_->toString() : "null");
 }
 
-std::string AstVariableDeclaration::name() const { return name_; }
-
 AstDeclarationList *AstVariableDeclaration::declarationList() const {
   return declarationList_;
 }
 
 AstVariableAssignmentDeclaration::AstVariableAssignmentDeclaration(
     const char *identifier, AstExpression *expression)
-    : identifier_(identifier), expression_(expression),
-      name_(GEN_NAME("A_VarAssDecl")) {}
+    : AstDeclaration(namegen("A_VarAssDecl")), identifier_(identifier),
+      expression_(expression) {}
 
 AstVariableAssignmentDeclaration::~AstVariableAssignmentDeclaration() {
   delete expression_;
@@ -660,8 +614,6 @@ std::string AstVariableAssignmentDeclaration::toString() const {
       identifier_, expr);
 }
 
-std::string AstVariableAssignmentDeclaration::name() const { return name_; }
-
 const std::string &AstVariableAssignmentDeclaration::identifier() const {
   return identifier_;
 }
@@ -674,8 +626,9 @@ AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
                                                AstDeclarationList *argumentList,
                                                AstExpression *result,
                                                AstStatement *statement)
-    : identifier_(identifier), argumentList_(argumentList), result_(result),
-      statement_(statement), name_(GEN_NAME_VAL("A_FuncDecl", identifier)) {}
+    : AstDeclaration(namegen2(identifier, "A_FuncDecl")),
+      identifier_(identifier), argumentList_(argumentList), result_(result),
+      statement_(statement) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
   delete argumentList_;
@@ -697,8 +650,6 @@ std::string AstFunctionDeclaration::toString() const {
                      identifier_, arguStr, rStr, stmtStr);
 }
 
-std::string AstFunctionDeclaration::name() const { return name_; }
-
 const std::string &AstFunctionDeclaration::identifier() const {
   return identifier_;
 }
@@ -713,7 +664,7 @@ AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
 
 AstFunctionArgumentDeclaration::AstFunctionArgumentDeclaration(
     const char *value)
-    : value_(value), name_(GEN_NAME_VAL("A_FuncArgDecl", value)) {}
+    : AstDeclaration(namegen2(value, "A_FuncArgDecl")), value_(value) {}
 
 AstFunctionArgumentDeclaration::~AstFunctionArgumentDeclaration() {}
 
@@ -724,8 +675,6 @@ int AstFunctionArgumentDeclaration::type() const {
 std::string AstFunctionArgumentDeclaration::toString() const {
   return fmt::format("[ @AstFunctionArgumentDeclaration value_:{} ]", value_);
 }
-
-std::string AstFunctionArgumentDeclaration::name() const { return name_; }
 
 const std::string &AstFunctionArgumentDeclaration::value() const {
   return value_;

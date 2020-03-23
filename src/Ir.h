@@ -57,12 +57,12 @@ public:
 
 protected:
   virtual std::string stringify() const = 0;
-  T node_;
+  T *node_;
   std::string name_;
 };
 
 /* translate unit */
-class IrTranslateUnit : public Ir<AstTranslateUnit *> {
+class IrTranslateUnit : public Ir<AstTranslateUnit> {
 public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
@@ -74,7 +74,7 @@ protected:
 };
 
 /* identifier constant */
-class IrIdentifierConstant : public Ir<AstIdentifierConstant *> {
+class IrIdentifierConstant : public Ir<AstIdentifierConstant> {
 public:
   IrIdentifierConstant(AstIdentifierConstant *node);
   virtual ~IrIdentifierConstant() = default;
@@ -86,7 +86,7 @@ protected:
 };
 
 /* i8 constant */
-class IrI8Constant : public Ir<AstI8Constant *> {
+class IrI8Constant : public Ir<AstI8Constant> {
 public:
   IrI8Constant(AstI8Constant *node);
   virtual ~IrI8Constant() = default;
@@ -98,7 +98,7 @@ protected:
 };
 
 /* u8 constant */
-class IrU8Constant : public Ir<AstU8Constant *> {
+class IrU8Constant : public Ir<AstU8Constant> {
 public:
   IrU8Constant(AstU8Constant *node);
   virtual ~IrU8Constant() = default;
@@ -110,7 +110,7 @@ protected:
 };
 
 /* i16 constant */
-class IrI16Constant : public Ir<AstI16Constant *> {
+class IrI16Constant : public Ir<AstI16Constant> {
 public:
   IrI16Constant(AstI16Constant *node);
   virtual ~IrI16Constant() = default;
@@ -122,7 +122,7 @@ protected:
 };
 
 /* u16 constant */
-class IrU16Constant : public Ir<AstU16Constant *> {
+class IrU16Constant : public Ir<AstU16Constant> {
 public:
   IrU16Constant(AstU16Constant *node);
   virtual ~IrU16Constant() = default;
@@ -134,7 +134,7 @@ protected:
 };
 
 /* i32 constant */
-class IrI32Constant : public Ir<AstI32Constant *> {
+class IrI32Constant : public Ir<AstI32Constant> {
 public:
   IrI32Constant(AstI32Constant *node);
   virtual ~IrI32Constant() = default;
@@ -146,7 +146,7 @@ protected:
 };
 
 /* u32 constant */
-class IrU32Constant : public Ir<AstU32Constant *> {
+class IrU32Constant : public Ir<AstU32Constant> {
 public:
   IrU32Constant(AstU32Constant *node);
   virtual ~IrU32Constant() = default;
@@ -158,7 +158,7 @@ protected:
 };
 
 /* i64 constant */
-class IrI64Constant : public Ir<AstI64Constant *> {
+class IrI64Constant : public Ir<AstI64Constant> {
 public:
   IrI64Constant(AstI64Constant *node);
   virtual ~IrI64Constant() = default;
@@ -170,7 +170,7 @@ protected:
 };
 
 /* u64 constant */
-class IrU64Constant : public Ir<AstU64Constant *> {
+class IrU64Constant : public Ir<AstU64Constant> {
 public:
   IrU64Constant(AstU64Constant *node);
   virtual ~IrU64Constant() = default;
@@ -182,7 +182,7 @@ protected:
 };
 
 /* f32 constant */
-class IrF32Constant : public Ir<AstF32Constant *> {
+class IrF32Constant : public Ir<AstF32Constant> {
 public:
   IrF32Constant(AstF32Constant *node);
   virtual ~IrF32Constant() = default;
@@ -194,7 +194,7 @@ protected:
 };
 
 /* f64 constant */
-class IrF64Constant : public Ir<AstF64Constant *> {
+class IrF64Constant : public Ir<AstF64Constant> {
 public:
   IrF64Constant(AstF64Constant *node);
   virtual ~IrF64Constant() = default;
@@ -206,7 +206,7 @@ protected:
 };
 
 /* string constant */
-class IrStringConstant : public Ir<AstStringConstant *> {
+class IrStringConstant : public Ir<AstStringConstant> {
 public:
   IrStringConstant(AstStringConstant *node);
   virtual ~IrStringConstant() = default;
@@ -218,7 +218,7 @@ protected:
 };
 
 /* boolean constant */
-class IrBooleanConstant : public Ir<AstBooleanConstant *> {
+class IrBooleanConstant : public Ir<AstBooleanConstant> {
 public:
   IrBooleanConstant(AstBooleanConstant *node);
   virtual ~IrBooleanConstant() = default;
@@ -230,7 +230,7 @@ protected:
 };
 
 /* call expression */
-class IrCallExpression : public Ir<AstCallExpression *> {
+class IrCallExpression : public Ir<AstCallExpression> {
 public:
   IrCallExpression(AstCallExpression *node);
   virtual ~IrCallExpression() = default;
@@ -242,7 +242,7 @@ protected:
 };
 
 /* unary expression */
-class IrUnaryExpression : public Ir<AstUnaryExpression *> {
+class IrUnaryExpression : public Ir<AstUnaryExpression> {
 public:
   IrUnaryExpression(AstUnaryExpression *node);
   virtual ~IrUnaryExpression() = default;
@@ -254,7 +254,7 @@ protected:
 };
 
 /* binary expression */
-class IrBinaryExpression : public Ir<AstBinaryExpression *> {
+class IrBinaryExpression : public Ir<AstBinaryExpression> {
 public:
   IrBinaryExpression(AstBinaryExpression *node);
   virtual ~IrBinaryExpression() = default;
@@ -266,7 +266,7 @@ protected:
 };
 
 /* conditional expression */
-class IrConditionalExpression : public Ir<AstConditionalExpression *> {
+class IrConditionalExpression : public Ir<AstConditionalExpression> {
 public:
   IrConditionalExpression(AstConditionalExpression *node);
   virtual ~IrConditionalExpression() = default;
@@ -278,7 +278,7 @@ protected:
 };
 
 /* assignment expression */
-class IrAssignmentExpression : public Ir<AstAssignmentExpression *> {
+class IrAssignmentExpression : public Ir<AstAssignmentExpression> {
 public:
   IrAssignmentExpression(AstAssignmentExpression *node);
   virtual ~IrAssignmentExpression() = default;
@@ -290,7 +290,7 @@ protected:
 };
 
 /* sequel expression */
-class IrSequelExpression : public Ir<AstSequelExpression *> {
+class IrSequelExpression : public Ir<AstSequelExpression> {
 public:
   IrSequelExpression(AstSequelExpression *node);
   virtual ~IrSequelExpression() = default;
@@ -302,7 +302,7 @@ protected:
 };
 
 /* expression statement */
-class IrExpressionStatement : public Ir<AstExpressionStatement *> {
+class IrExpressionStatement : public Ir<AstExpressionStatement> {
 public:
   IrExpressionStatement(AstExpressionStatement *node);
   virtual ~IrExpressionStatement() = default;
@@ -314,7 +314,7 @@ protected:
 };
 
 /* compound statement */
-class IrCompoundStatement : public Ir<AstCompoundStatement *> {
+class IrCompoundStatement : public Ir<AstCompoundStatement> {
 public:
   IrCompoundStatement(AstCompoundStatement *node);
   virtual ~IrCompoundStatement() = default;
@@ -326,7 +326,7 @@ protected:
 };
 
 /* if statement */
-class IrIfStatement : public Ir<AstIfStatement *> {
+class IrIfStatement : public Ir<AstIfStatement> {
 public:
   IrIfStatement(AstIfStatement *node);
   virtual ~IrIfStatement() = default;
@@ -338,7 +338,7 @@ protected:
 };
 
 /* while statement */
-class IrWhileStatement : public Ir<AstWhileStatement *> {
+class IrWhileStatement : public Ir<AstWhileStatement> {
 public:
   IrWhileStatement(AstWhileStatement *node);
   virtual ~IrWhileStatement() = default;
@@ -350,7 +350,7 @@ protected:
 };
 
 /* for statement */
-class IrForStatement : public Ir<AstForStatement *> {
+class IrForStatement : public Ir<AstForStatement> {
 public:
   IrForStatement(AstForStatement *node);
   virtual ~IrForStatement() = default;
@@ -362,7 +362,7 @@ protected:
 };
 
 /* continue statement */
-class IrContinueStatement : public Ir<AstContinueStatement *> {
+class IrContinueStatement : public Ir<AstContinueStatement> {
 public:
   IrContinueStatement(AstContinueStatement *node);
   virtual ~IrContinueStatement() = default;
@@ -374,7 +374,7 @@ protected:
 };
 
 /* break statement */
-class IrBreakStatement : public Ir<AstBreakStatement *> {
+class IrBreakStatement : public Ir<AstBreakStatement> {
 public:
   IrBreakStatement(AstBreakStatement *node);
   virtual ~IrBreakStatement() = default;
@@ -386,7 +386,7 @@ protected:
 };
 
 /* return statement */
-class IrReturnStatement : public Ir<AstReturnStatement *> {
+class IrReturnStatement : public Ir<AstReturnStatement> {
 public:
   IrReturnStatement(AstReturnStatement *node);
   virtual ~IrReturnStatement() = default;
@@ -398,7 +398,7 @@ protected:
 };
 
 /* empty statement */
-class IrEmptyStatement : public Ir<AstEmptyStatement *> {
+class IrEmptyStatement : public Ir<AstEmptyStatement> {
 public:
   IrEmptyStatement(AstEmptyStatement *node);
   virtual ~IrEmptyStatement() = default;
@@ -410,7 +410,7 @@ protected:
 };
 
 /* variable declaration */
-class IrVariableDeclaration : public Ir<AstVariableDeclaration *> {
+class IrVariableDeclaration : public Ir<AstVariableDeclaration> {
 public:
   IrVariableDeclaration(AstVariableDeclaration *node);
   virtual ~IrVariableDeclaration() = default;
@@ -423,7 +423,7 @@ protected:
 
 /* variable assignment declaration */
 class IrVariableAssignmentDeclaration
-    : public Ir<AstVariableAssignmentDeclaration *> {
+    : public Ir<AstVariableAssignmentDeclaration> {
 public:
   IrVariableAssignmentDeclaration(AstVariableAssignmentDeclaration *node);
   virtual ~IrVariableAssignmentDeclaration() = default;
@@ -435,7 +435,7 @@ protected:
 };
 
 /* function declaration */
-class IrFunctionDeclaration : public Ir<AstFunctionDeclaration *> {
+class IrFunctionDeclaration : public Ir<AstFunctionDeclaration> {
 public:
   IrFunctionDeclaration(AstFunctionDeclaration *node);
   virtual ~IrFunctionDeclaration() = default;
@@ -448,7 +448,7 @@ protected:
 
 /* function argument declaration */
 class IrFunctionArgumentDeclaration
-    : public Ir<AstFunctionArgumentDeclaration *> {
+    : public Ir<AstFunctionArgumentDeclaration> {
 public:
   IrFunctionArgumentDeclaration(AstFunctionArgumentDeclaration *node);
   virtual ~IrFunctionArgumentDeclaration() = default;
