@@ -8,8 +8,12 @@
 TEST_CASE("File", "[File]") {
 
   SECTION("read/write") {
-    boost::filesystem::remove("FileTest1.log");
-    boost::filesystem::remove("FileTest2.log");
+    if (boost::filesystem::exists("FileTest1.log")) {
+      boost::filesystem::remove("FileTest1.log");
+    }
+    if (boost::filesystem::exists("FileTest2.log")) {
+      boost::filesystem::remove("FileTest2.log");
+    }
     std::string text1 =
         "This is a long string for testing File::write and File::read "
         "static methods.\n"
@@ -39,7 +43,9 @@ TEST_CASE("File", "[File]") {
   }
 
   SECTION("append/readline") {
-    boost::filesystem::remove("FileTest3.log");
+    if (boost::filesystem::exists("FileTest3.log")) {
+      boost::filesystem::remove("FileTest3.log");
+    }
     std::string l1 = "Hello World\n";
     std::string l2 = "What a greate morning! What a lovely weather!\n";
     std::string l3 = "Let's go to KFC and have a good meal!\n";
