@@ -94,12 +94,17 @@ HEXEXP ([pP][-+]?[0-9]+)
 "u32"        { return T_TOKEN(T_U32); }
 "i64"        { return T_TOKEN(T_I64); }
 "u64"        { return T_TOKEN(T_U64); }
+"i128"       { return T_TOKEN(T_I128); }
+"u128"       { return T_TOKEN(T_U128); }
 "f32"        { return T_TOKEN(T_F32); }
 "f64"        { return T_TOKEN(T_F64); }
 "string"     { return T_TOKEN(T_STRING); }
 "boolean"    { return T_TOKEN(T_BOOLEAN); }
 "async"      { return T_TOKEN(T_ASYNC); }
 "await"      { return T_TOKEN(T_AWAIT); }
+"public"     { return T_TOKEN(T_PUBLIC); }
+"protect"    { return T_TOKEN(T_PROTECT); }
+"private"    { return T_TOKEN(T_PRIVATE); }
 
  /* punctuators */
 "+"    { return T_TOKEN(T_ADD); }
@@ -108,6 +113,11 @@ HEXEXP ([pP][-+]?[0-9]+)
 "/"    { return T_TOKEN(T_DIV); }
 "%"    { return T_TOKEN(T_MOD); }
 "_"    { return T_TOKEN(T_UNDERLINE); }
+"++"   { return T_TOKEN(T_ADD2); }
+"--"   { return T_TOKEN(T_SUB2); }
+"**"   { return T_TOKEN(T_MUL2); }
+"//"   { return T_TOKEN(T_DIV2); }
+"%%"   { return T_TOKEN(T_MOD2); }
 "&&"   { return T_TOKEN(T_LOGIC_AND); }
 "||"   { return T_TOKEN(T_LOGIC_OR); }
 "!"    { return T_TOKEN(T_LOGIC_NOT); }
