@@ -1,7 +1,7 @@
-# Copyright 2019- <collie.org>
+# Copyright 2019- <ac-lang>
 # Apache License Version 2.0
 
-project(collie-example VERSION 0.0.1 LANGUAGES CXX)
+project(ac-example VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -94,7 +94,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
-#add_executable(collie-icu_ustdio icu_ustdio.cpp)
-#target_include_directories(collie-icu_ustdio PRIVATE ${CINC})
-#target_link_libraries(collie-icu_ustdio ${CLIB})
-#set_target_properties(collie-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+#add_executable(ac-icu_ustdio icu_ustdio.cpp)
+#target_include_directories(ac-icu_ustdio PRIVATE ${CINC})
+#target_link_libraries(ac-icu_ustdio ${CLIB})
+#set_target_properties(ac-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

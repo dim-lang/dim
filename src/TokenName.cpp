@@ -1,4 +1,4 @@
-// Copyright 2019- <collie.org>
+// Copyright 2019- <ac-lang>
 // Apache License Version 2.0
 
 #include "TokenName.h"

@@ -1,4 +1,4 @@
-@rem Copyright 2019- <collie.org>
+@rem Copyright 2019- <ac-lang>
 @rem Apache License Version 2.0
 
 @echo off
@@ -13,25 +13,25 @@ set LLVM_VERSION=llvmorg-9.0.1
 set BOOST_VERSION=boost-1.70.0
 
 @rem init third party library
-echo [collie] prepare catchorg/Catch2 %CATCH2_VERSION%
+echo [ac] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2
 )
-echo [collie] prepare catchorg/Catch2 %CATCH2_VERSION% - done
-echo [collie] prepare gabime/spdlog %SPDLOG_VERSION%
+echo [ac] prepare catchorg/Catch2 %CATCH2_VERSION% - done
+echo [ac] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog
 )
-echo [collie] prepare gabime/spdlog %SPDLOG_VERSION% - done
-echo [collie] prepare fmtlib/fmt %FMTLIB_VERSION%
+echo [ac] prepare gabime/spdlog %SPDLOG_VERSION% - done
+echo [ac] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
 )
-echo [collie] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-echo [collie] prepare boostorg/boost %BOOST_VERSION%
+echo [ac] prepare fmtlib/fmt %FMTLIB_VERSION% - done
+echo [ac] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
     git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
@@ -59,8 +59,8 @@ if not exist %ROOT%\src\boost\stage (
     cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
     cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
 )
-echo [collie] prepare boostorg/boost %BOOST_VERSION% - done
-echo [collie] prepare llvm/llvm-project %LLVM_VERSION%
+echo [ac] prepare boostorg/boost %BOOST_VERSION% - done
+echo [ac] prepare llvm/llvm-project %LLVM_VERSION%
 if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
@@ -72,9 +72,9 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -A x64 ..
     cmake --build . --config Release --target INSTALL
 )
-echo [collie] prepare llvm/llvm-project %LLVM_VERSION% - done
+echo [ac] prepare llvm/llvm-project %LLVM_VERSION% - done
 
-echo [collie] build
+echo [ac] build
 cd %ROOT%\src
 if exist Token.yy.cpp (
     rm Token.yy.cpp
@@ -93,4 +93,4 @@ cd %MSVC%
 cmake -DCMAKE_BUILD_TYPE=Release -A x64 ..
 cmake --build . --config Release
 cd %ROOT%
-echo [collie] build - done
+echo [ac] build - done

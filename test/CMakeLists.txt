@@ -1,7 +1,7 @@
-# Copyright 2019- <collie.org>
+# Copyright 2019- <ac-lang>
 # Apache License Version 2.0
 
-project(collie-test VERSION 0.0.2 LANGUAGES CXX)
+project(ac-test VERSION 0.0.2 LANGUAGES CXX)
 configure_file(../src/Configure.h.in ../src/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -111,7 +111,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
-add_executable(collie-test ${CTEST})
-target_include_directories(collie-test PRIVATE ${CINC})
-target_link_libraries(collie-test ${CLIB} colliecore)
-set_target_properties(collie-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(ac-test ${CTEST})
+target_include_directories(ac-test PRIVATE ${CINC})
+target_link_libraries(ac-test ${CLIB} accore)
+set_target_properties(ac-test PROPERTIES VERSION ${PROJECT_VERSION})

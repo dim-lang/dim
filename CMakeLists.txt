@@ -1,8 +1,8 @@
-# Copyright 2019- <collie.org>
+# Copyright 2019- <ac-lang>
 # Apache License Version 2.0
 
 cmake_minimum_required(VERSION 3.8)
-project(collie-parent LANGUAGES CXX)
+project(ac-parent LANGUAGES CXX)
 
 add_subdirectory(src)
 add_subdirectory(test)

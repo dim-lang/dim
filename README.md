@@ -1,10 +1,10 @@
-# collie
+# ac
 
-collie - a modern, object-oriented, high performance programming language.
+ac - a modern, object-oriented, high performance programming language.
 
-## Why collie?
+## Why ac?
 
-collie is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're themes we want to introduce collie:
+ac is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're themes we want to introduce ac:
 
 #### Object-Oriented
 #### Functional Programming
@@ -121,11 +121,11 @@ func main():i32 {
 
 #### Build
 
-| Platform     | Build                                                                                             |
-|--------------|---------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/collie-lang/collie.git && cd collie && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/collie-lang/collie.git && cd collie && .\build.bat`                     |
+| Platform     | Build                                                                                       |
+|--------------|---------------------------------------------------------------------------------------------|
+| Linux & UNIX | `$ git clone https://github.com/ac-lang/ac.git && cd ac && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/ac-lang/ac.git && cd ca && .\build.bat`                     |
 
 #### Speed up git clone on windows
-* Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release if git clone is too slow for you, and extract it to `collie\src\llvm-project`.
-* Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge if git clone is too slow for you, and extract to `collie\src\boost`.
+* Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release if git clone is too slow for you, and extract it to `ac\src\llvm-project`.
+* Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge if git clone is too slow for you, and extract to `ac\src\boost`.

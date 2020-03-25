@@ -1,4 +1,4 @@
-// Copyright 2019- <collie.org>
+// Copyright 2019- <ac-lang>
 // Apache License Version 2.0
 
 #include "Option.h"
@@ -23,18 +23,18 @@ namespace boost_po = boost::program_options;
 Option::Option() : optDesc_(OPT) {
   optDesc_.add_options()(OPT_HELP "," OPT_H, "help message")(
       OPT_VERSION "," OPT_V, "version information")(
-        OPT_FILE_NAMES "," OPT_F, boost_po::value<std::vector<std::string>>(),
-        "file names")(OPT_JOB "," OPT_J,
-          "concurrent job count")(OPT_DEBUG "," OPT_D, "debug mode");
+      OPT_FILE_NAMES "," OPT_F, boost_po::value<std::vector<std::string>>(),
+      "file names")(OPT_JOB "," OPT_J,
+                    "concurrent job count")(OPT_DEBUG "," OPT_D, "debug mode");
   posOptDesc_.add(OPT_FILE_NAMES, -1);
 }
 
 Option::Option(int argCount, char **argList) : Option() {
   boost_po::store(boost_po::command_line_parser(argCount, argList)
-      .options(optDesc_)
-      .positional(posOptDesc_)
-      .run(),
-      varMap_);
+                      .options(optDesc_)
+                      .positional(posOptDesc_)
+                      .run(),
+                  varMap_);
   boost_po::notify(varMap_);
 }
 
@@ -56,7 +56,7 @@ std::string Option::help() const {
 
 bool Option::hasVersion() const { return varMap_.count(OPT_VERSION); }
 
-std::string Option::version() const { return "collie-" PROJECT_VERSION; }
+std::string Option::version() const { return "ac-" PROJECT_VERSION; }
 
 bool Option::hasFileNames() const { return varMap_.count(OPT_FILE_NAMES); }
 

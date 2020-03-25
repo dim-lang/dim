@@ -1,7 +1,7 @@
-# Copyright 2019- <collie.org>
+# Copyright 2019- <ac-lang>
 # Apache License Version 2.0
 
-project(collie VERSION 0.0.2 LANGUAGES CXX)
+project(ac VERSION 0.0.2 LANGUAGES CXX)
 configure_file(Configure.h.in Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -31,7 +31,7 @@ set(CCORE
     Ir.cpp
 )
 set(CSRC
-    collie.cpp
+    ac.cpp
 )
 
 if(WIN32)
@@ -120,12 +120,12 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${CINC})
 link_directories(${CLIB_DIR})
 
-add_library(colliecore STATIC ${CCORE})
-target_include_directories(colliecore PRIVATE ${CINC})
-target_link_libraries(colliecore ${CLIB})
-set_target_properties(colliecore PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(accore STATIC ${CCORE})
+target_include_directories(accore PRIVATE ${CINC})
+target_link_libraries(accore ${CLIB})
+set_target_properties(accore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(collie ${CSRC})
-target_include_directories(collie PRIVATE ${CINC})
-target_link_libraries(collie ${CLIB} colliecore)
-set_target_properties(collie PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(ac ${CSRC})
+target_include_directories(ac PRIVATE ${CINC})
+target_link_libraries(ac ${CLIB} accore)
+set_target_properties(ac PROPERTIES VERSION ${PROJECT_VERSION})
