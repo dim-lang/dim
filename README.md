@@ -102,7 +102,7 @@ func main():i32 {
 | Platform          |  Dependencies                                                                                                                           |
 |-------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | MacOS             | Install Xcode, git, homebrew<br>`$ brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`                      |
-| BSD               | Install pkg, bash<br>`$ sudo pkg install -y git clang cmake automake autoconf flex bison boost-all llvm`                                |
+| BSD               | Install pkg, bash<br>`$ sudo pkg install -y git cmake automake autoconf flex bison boost-all llvm`                                      |
 | Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`         |
 | Fedora            | `$ sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`        |
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`                                     |
