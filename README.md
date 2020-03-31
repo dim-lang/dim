@@ -99,14 +99,14 @@ func main():i32 {
 
 #### Install dependencies on Linux & UNIX
 
-| Platform          |  Dependencies                                                                                                                           |
-|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| MacOS             | Install Xcode, git, homebrew<br>`$ brew install cmake automake autoconf flex bison boost gperftools jemalloc llvm`                      |
-| BSD               | Install pkg, bash<br>`$ sudo pkg install -y git cmake automake autoconf flex bison boost-all llvm`                                      |
-| Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev libgoogle-perftools-dev llvm-dev`         |
-| Fedora            | `$ sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel gperftools-devel jemalloc-devel llvm-devel`        |
-| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake automake autoconf flex bison boost gperftools jemalloc llvm`                                     |
-| OpenSUSE          | `$ sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel gperftools-devel jemalloc-devel llvm-devel` |
+| Platform          |  Dependencies                                                                                                          |
+|-------------------|------------------------------------------------------------------------------------------------------------------------|
+| MacOS             | Install Xcode, git, homebrew<br>`$ brew install cmake automake autoconf flex bison boost jemalloc llvm`                |
+| BSD               | Install pkg, bash<br>`$ sudo pkg install -y git cmake automake autoconf flex bison boost-all llvm`                     |
+| Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake automake autoconf flex bison libboost-all-dev jemalloc-dev llvm-dev`   |
+| Fedora            | `$ sudo dnf install -y git clang make cmake automake autoconf flex bison boost-devel jemalloc-devel llvm-devel`        |
+| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake automake autoconf flex bison boost jemalloc llvm`                               |
+| OpenSUSE          | `$ sudo zypper install -y git clang make cmake automake autoconf flex bison libboost*-devel jemalloc-devel llvm-devel` |
 
 #### Install dependencies on windows
 
