@@ -33,8 +33,6 @@ else()
         )
     set(CLIB
         Threads::Threads
-        #tcmalloc
-        jemalloc
         )
     set(CLIB_DIR
         /usr/lib
