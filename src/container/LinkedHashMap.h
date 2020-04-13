@@ -42,10 +42,6 @@ public:
   bool seq_empty() const;
 
 private:
-  // no copy
-  LinkedList(const LinkedList<K, V> &other) = delete;
-  LinkedList<K, V> &operator=(const LinkedList<K, V> &other) = delete;
-
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
   LinkedNode<K, V> *seq_prev_;
@@ -75,10 +71,6 @@ public:
   const LinkedNode<K, V> *seq_next() const;
 
 private:
-  // copy
-  LinkedNode(const LinkedNode<K, V> &other) = delete;
-  LinkedNode<K, V> &operator=(const LinkedNode<K, V> &other) = delete;
-
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
   LinkedNode<K, V> *seq_prev_;
@@ -191,9 +183,6 @@ private:
   void extend(int n);
   void destroyList(int i);
 
-  LinkedHt(const LinkedHt<K, V, H, E> &other) = delete;
-  LinkedHt<K, V, H, E> &operator=(const LinkedHt<K, V, H, E> &other) = delete;
-
   H hasher_;
   E equal_;
   LinkedList<K, V> head_;
@@ -259,9 +248,5 @@ public:
   const V &operator[](const K &key) const;
 
 private:
-  LinkedHashMap(const LinkedHashMap<K, V, H, E> &other) = delete;
-  LinkedHashMap<K, V, H, E> &
-  operator=(const LinkedHashMap<K, V, H, E> &other) = delete;
-
   detail::LinkedHt<K, V, H, E> hm_;
 };

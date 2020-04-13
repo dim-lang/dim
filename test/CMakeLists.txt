@@ -2,7 +2,7 @@
 # Apache License Version 2.0
 
 project(ac-test VERSION 0.0.2 LANGUAGES CXX)
-configure_file(../src/Configure.h.in ../src/Configure.h)
+configure_file(${PROJECT_SOURCE_DIR}/../src/Configure.h.in ${PROJECT_SOURCE_DIR}/../src/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CTEST

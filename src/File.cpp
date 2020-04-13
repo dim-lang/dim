@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#define F_BUF_SIZE 16384
+#define F_BUF_SIZE 1024
 
 std::string File::read(const std::string &fileName) {
   FILE *fp = std::fopen(fileName.c_str(), "r");

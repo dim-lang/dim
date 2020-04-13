@@ -2,7 +2,7 @@
 # Apache License Version 2.0
 
 project(ac VERSION 0.0.2 LANGUAGES CXX)
-configure_file(Configure.h.in Configure.h)
+configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CCORE

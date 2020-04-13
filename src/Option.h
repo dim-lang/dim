@@ -22,13 +22,9 @@ public:
   bool hasVersion() const;
   std::string version() const;
 
-  // --file-name, -f
+  // --file, -f
   bool hasFileNames() const;
   std::vector<std::string> fileNames() const;
-
-  // --job, -j
-  // by default: system thread size
-  int job() const;
 
   // --debug, -d
   // by default: false

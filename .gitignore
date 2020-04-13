@@ -34,6 +34,7 @@ llvm-project
 *.yy.cpp
 *.tab.hpp
 *.tab.cpp
+Configure.h
 
 # clion
 .idea

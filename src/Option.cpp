@@ -13,20 +13,17 @@ namespace boost_po = boost::program_options;
 #define OPT_H "h"
 #define OPT_VERSION "version"
 #define OPT_V "v"
-#define OPT_FILE_NAMES "file-name"
+#define OPT_FILE "file"
 #define OPT_F "f"
-#define OPT_JOB "job"
-#define OPT_J "j"
 #define OPT_DEBUG "debug"
 #define OPT_D "d"
 
 Option::Option() : optDesc_(OPT) {
   optDesc_.add_options()(OPT_HELP "," OPT_H, "help message")(
       OPT_VERSION "," OPT_V, "version information")(
-      OPT_FILE_NAMES "," OPT_F, boost_po::value<std::vector<std::string>>(),
-      "file names")(OPT_JOB "," OPT_J,
-                    "concurrent job count")(OPT_DEBUG "," OPT_D, "debug mode");
-  posOptDesc_.add(OPT_FILE_NAMES, -1);
+      OPT_FILE "," OPT_F, boost_po::value<std::vector<std::string>>(),
+      "file name")(OPT_DEBUG "," OPT_D, "debug mode");
+  posOptDesc_.add(OPT_FILE, -1);
 }
 
 Option::Option(int argCount, char **argList) : Option() {
@@ -58,14 +55,10 @@ bool Option::hasVersion() const { return varMap_.count(OPT_VERSION); }
 
 std::string Option::version() const { return "ac-" PROJECT_VERSION; }
 
-bool Option::hasFileNames() const { return varMap_.count(OPT_FILE_NAMES); }
+bool Option::hasFileNames() const { return varMap_.count(OPT_FILE); }
 
 std::vector<std::string> Option::fileNames() const {
-  return varMap_[OPT_FILE_NAMES].as<std::vector<std::string>>();
-}
-
-int Option::job() const {
-  return varMap_.count(OPT_JOB) ? varMap_[OPT_JOB].as<int>() : 1;
+  return varMap_[OPT_FILE].as<std::vector<std::string>>();
 }
 
 bool Option::debug() const { return varMap_.count(OPT_DEBUG); }
@@ -75,9 +68,7 @@ bool Option::debug() const { return varMap_.count(OPT_DEBUG); }
 #undef OPT_H
 #undef OPT_VERSION
 #undef OPT_V
-#undef OPT_FILE_NAMES
+#undef OPT_FILE
 #undef OPT_F
-#undef OPT_JOB
-#undef OPT_J
 #undef OPT_DEBUG
 #undef OPT_D
