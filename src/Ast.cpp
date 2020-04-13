@@ -11,15 +11,6 @@
 #include <string>
 #include <utility>
 
-static Counter NameCounter;
-
-//#define GEN_NAME(x) (std::string(x) + "_" +
-// std::to_string(NameCounter.count()))
-
-//#define GEN_NAME_VAL(x, y)                                                     \
-  //(std::string(y) + std::string("@") + std::string(x) + "_" +                  \
-   //std::to_string(NameCounter.count()))
-
 Ast::Ast(const std::string &name) : name_(name) {}
 
 std::string Ast::name() const { return name_; }
