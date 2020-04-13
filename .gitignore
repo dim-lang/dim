@@ -26,6 +26,7 @@ msvc
 # dependencies
 spdlog
 fmt
+better-enums
 Catch2
 boost
 llvm-project
