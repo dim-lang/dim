@@ -115,7 +115,7 @@ func main():i32 {
     * Visual C++ desktop development
     * Common Windows Platform development
 * Install [cmake](https://cmake.org/download/) and add `cmake.exe` to `PATH`.
-* Install [git](https://git-scm.com/downloads) and add `git.exe` to `PATH`.
+* Install [git](https://git-scm.com/downloads) and enable Linux/UNIX commands(include `git.exe`) from Windows Command Line.
 * Install [python3](https://www.python.org/downloads/) and add `python.exe` to `PATH`.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `PATH`.
 
