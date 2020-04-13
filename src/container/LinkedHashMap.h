@@ -86,6 +86,8 @@ private:
   std::pair<const K, V> value_;
 };
 
+template <typename K, typename V, typename T> class LinkedRIterator;
+
 // linked iterator
 template <typename K, typename V, typename T>
 class LinkedIterator : public Stringify {
@@ -95,10 +97,13 @@ public:
   ~LinkedIterator();
   LinkedIterator(const LinkedIterator<K, V, T> &other);
   LinkedIterator<K, V, T> &operator=(const LinkedIterator<K, V, T> &other);
+  LinkedIterator(const LinkedRIterator<K, V, T> &other);
+  LinkedIterator<K, V, T> &operator=(const LinkedRIterator<K, V, T> &other);
   LinkedIterator<K, V, T> &operator++();
   LinkedIterator<K, V, T> &operator--();
   LinkedIterator<K, V, T> operator++(int);
   LinkedIterator<K, V, T> operator--(int);
+  T get() const;
   bool operator==(const LinkedIterator<K, V, T> &other) const;
   bool operator!=(const LinkedIterator<K, V, T> &other) const;
   bool operator!() const;
@@ -121,10 +126,13 @@ public:
   ~LinkedRIterator();
   LinkedRIterator(const LinkedRIterator<K, V, T> &other);
   LinkedRIterator<K, V, T> &operator=(const LinkedRIterator<K, V, T> &other);
+  LinkedRIterator(const LinkedIterator<K, V, T> &other);
+  LinkedRIterator<K, V, T> &operator=(const LinkedIterator<K, V, T> &other);
   LinkedRIterator<K, V, T> &operator++();
   LinkedRIterator<K, V, T> &operator--();
   LinkedRIterator<K, V, T> operator++(int);
   LinkedRIterator<K, V, T> operator--(int);
+  T get() const;
   bool operator==(const LinkedRIterator<K, V, T> &other) const;
   bool operator!=(const LinkedRIterator<K, V, T> &other) const;
   bool operator!() const;
@@ -150,18 +158,24 @@ public:
   LinkedHt();
   LinkedHt(int bucket);
   ~LinkedHt();
+
   bool empty() const;
   int size() const;
   int bucket() const;
   double load() const;
+
   void clear();
   void release();
+
   void insert(const std::pair<const K, V> &value);
   int insertOrAssign(const std::pair<const K, V> &value);
+
   Iterator find(const K &key);
   CIterator find(const K &key) const;
+
   int remove(Iterator position);
   int remove(RIterator position);
+
   Iterator begin();
   CIterator begin() const;
   Iterator end();
@@ -176,6 +190,9 @@ private:
   int alignBucket(int n) const;
   void extend(int n);
   void destroyList(int i);
+
+  LinkedHt(const LinkedHt<K, V, H, E> &other) = delete;
+  LinkedHt<K, V, H, E> &operator=(const LinkedHt<K, V, H, E> &other) = delete;
 
   H hasher_;
   E equal_;
@@ -201,12 +218,15 @@ public:
   LinkedHashMap();
   LinkedHashMap(int bucket);
   ~LinkedHashMap();
+
   bool empty() const;
   int size() const;
   int bucket() const;
   double load() const;
+
   void clear();
   void release();
+
   Iterator begin();
   CIterator begin() const;
   Iterator end();
@@ -239,5 +259,9 @@ public:
   const V &operator[](const K &key) const;
 
 private:
+  LinkedHashMap(const LinkedHashMap<K, V, H, E> &other) = delete;
+  LinkedHashMap<K, V, H, E> &
+  operator=(const LinkedHashMap<K, V, H, E> &other) = delete;
+
   detail::LinkedHt<K, V, H, E> hm_;
 };

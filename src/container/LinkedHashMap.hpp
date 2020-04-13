@@ -269,6 +269,20 @@ LinkedIterator<K, V, T>::operator=(const LinkedIterator<K, V, T> &other) {
 }
 
 template <typename K, typename V, typename T>
+LinkedIterator<K, V, T>::LinkedIterator(const LinkedRIterator<K, V, T> &other)
+    : node_(other.get()) {}
+
+template <typename K, typename V, typename T>
+LinkedIterator<K, V, T> &
+LinkedIterator<K, V, T>::operator=(const LinkedRIterator<K, V, T> &other) {
+  if (node_ == other.get()) {
+    return *this;
+  }
+  node_ = other.get();
+  return *this;
+}
+
+template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> &LinkedIterator<K, V, T>::operator++() {
   node_ = node_->seq_next();
   return *this;
@@ -292,6 +306,11 @@ LinkedIterator<K, V, T> LinkedIterator<K, V, T>::operator--(int) {
   LinkedIterator<K, V, T> save = node_;
   node_ = node_->seq_prev();
   return LinkedIterator<K, V, T>(save);
+}
+
+template <typename K, typename V, typename T>
+T LinkedIterator<K, V, T>::get() const {
+  return node_;
 }
 
 template <typename K, typename V, typename T>
@@ -363,6 +382,20 @@ LinkedRIterator<K, V, T>::operator=(const LinkedRIterator<K, V, T> &other) {
 }
 
 template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T>::LinkedRIterator(const LinkedIterator<K, V, T> &other)
+    : node_(other.get()) {}
+
+template <typename K, typename V, typename T>
+LinkedRIterator<K, V, T> &
+LinkedRIterator<K, V, T>::operator=(const LinkedIterator<K, V, T> &other) {
+  if (node_ == &other.get()) {
+    return *this;
+  }
+  node_ = other.get();
+  return *this;
+}
+
+template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> &LinkedRIterator<K, V, T>::operator++() {
   node_ = node_->seq_prev();
   return *this;
@@ -386,6 +419,11 @@ LinkedRIterator<K, V, T> LinkedRIterator<K, V, T>::operator--(int) {
   LinkedRIterator<K, V, T> save = node_;
   node_ = node_->seq_next();
   return LinkedRIterator<K, V, T>(save);
+}
+
+template <typename K, typename V, typename T>
+T LinkedRIterator<K, V, T>::get() const {
+  return node_;
 }
 
 template <typename K, typename V, typename T>
