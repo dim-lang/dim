@@ -16,6 +16,7 @@ function build_generate() {
     CATCH2_VERSION=v2.9.1
     SPDLOG_VERSION=v1.3.1
     FMTLIB_VERSION=5.3.0
+    ENUM_VERSION=0.11.2
     cd $ROOT
     echo [ac] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
@@ -32,6 +33,11 @@ function build_generate() {
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
     echo [ac] prepare fmtlib/fmt $FMTLIB_VERSION - done
+    echo [ac] prepare aantron/better-enums $ENUM_VERSION
+    if [ ! -d src/better-enums ]; then
+        cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums.git && cd $ROOT
+    fi
+    echo [ac] prepare aantron/better-enums $ENUM_VERSION - done
 
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi

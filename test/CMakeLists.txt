@@ -69,6 +69,7 @@ set(CINC
     ../src
     ../src/spdlog/include
     ../src/fmt/include
+    ../src/better-enums
     Catch2/single_include
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}

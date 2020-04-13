@@ -80,6 +80,7 @@ set(CINC
     .
     spdlog/include
     fmt/include
+    better-enums
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )

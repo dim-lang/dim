@@ -8,6 +8,7 @@ set MSVC=msvc
 
 set SPDLOG_VERSION=v1.3.1
 set FMTLIB_VERSION=5.3.0
+set ENUM_VERSION=0.11.2
 set CATCH2_VERSION=v2.9.1
 set LLVM_VERSION=llvmorg-9.0.1
 set BOOST_VERSION=boost-1.70.0
@@ -31,6 +32,12 @@ if not exist %ROOT%\src\fmt (
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
 )
 echo [ac] prepare fmtlib/fmt %FMTLIB_VERSION% - done
+echo [ac] prepare aantron/better-enums %ENUM_VERSION%
+if not exist %ROOT%\src\better-enums (
+    cd %ROOT%\src
+    git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
+)
+echo [ac] prepare aantron/better-enums %ENUM_VERSION% - done
 echo [ac] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
