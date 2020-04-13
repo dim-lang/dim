@@ -131,7 +131,7 @@ public:
   virtual std::string toString() const = 0;
   virtual std::string name() const;
 
-protected:
+private:
   std::string name_;
 };
 
@@ -200,7 +200,6 @@ public:
 
 protected:
   virtual std::string stringify() const = 0;
-
   std::deque<T *> items_;
 };
 
@@ -219,7 +218,6 @@ public:
 
 private:
   virtual std::string stringify() const;
-  std::string name_;
 };
 
 class AstStatementList : public detail::AstList<AstStatement> {
@@ -235,7 +233,6 @@ public:
 
 private:
   virtual std::string stringify() const;
-  std::string name_;
 };
 
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
@@ -251,7 +248,6 @@ public:
 
 private:
   virtual std::string stringify() const;
-  std::string name_;
 };
 
 /* translate unit is actually declaration list */
@@ -269,7 +265,6 @@ public:
 
 private:
   virtual std::string stringify() const;
-  std::string name_;
 };
 
 /* constant expression - T_IDENTIFIER */
@@ -284,7 +279,6 @@ public:
 
 private:
   std::string value_;
-  std::string name_;
 };
 
 /* constant expression - T_I8_CONSTANT */
@@ -299,7 +293,6 @@ public:
 
 private:
   int8_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_U8_CONSTANT */
@@ -314,7 +307,6 @@ public:
 
 private:
   uint8_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_I16_CONSTANT */
@@ -329,7 +321,6 @@ public:
 
 private:
   int16_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_U16_CONSTANT */
@@ -344,7 +335,6 @@ public:
 
 private:
   uint16_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_I32_CONSTANT */
@@ -359,7 +349,6 @@ public:
 
 private:
   int32_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_U32_CONSTANT */
@@ -374,7 +363,6 @@ public:
 
 private:
   uint32_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_I64_CONSTANT */
@@ -389,7 +377,6 @@ public:
 
 private:
   int64_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_U64_CONSTANT */
@@ -404,7 +391,6 @@ public:
 
 private:
   uint64_t value_;
-  std::string name_;
 };
 
 /* constant expression - T_F32_CONSTANT */
@@ -419,7 +405,6 @@ public:
 
 private:
   float value_;
-  std::string name_;
 };
 
 /* constant expression - T_F64_CONSTANT */
@@ -434,7 +419,6 @@ public:
 
 private:
   double value_;
-  std::string name_;
 };
 
 /* constant expression - T_STRING_CONSTANT */
@@ -450,7 +434,6 @@ public:
 
 private:
   std::string value_;
-  std::string name_;
 };
 
 /* constant expression - T_TRUE T_FALSE */
@@ -465,7 +448,6 @@ public:
 
 private:
   bool value_;
-  std::string name_;
 };
 
 /* function call expression */
@@ -482,7 +464,6 @@ public:
 private:
   std::string identifier_;
   AstExpressionList *argumentList_;
-  std::string name_;
 };
 
 /* unary operation expression */
@@ -499,7 +480,6 @@ public:
 private:
   int token_;
   AstExpression *expression_;
-  std::string name_;
 };
 
 /* binary operation expression */
@@ -518,7 +498,6 @@ private:
   AstExpression *left_;
   int token_;
   AstExpression *right_;
-  std::string name_;
 };
 
 /* ternary conditional expression */
@@ -538,7 +517,6 @@ private:
   AstExpression *condition_;
   AstExpression *hit_;
   AstExpression *miss_;
-  std::string name_;
 };
 
 /* assignment expression */
@@ -558,7 +536,6 @@ private:
   AstExpression *variable_;
   int token_;
   AstExpression *value_;
-  std::string name_;
 };
 
 /* sequel expression */
@@ -572,7 +549,6 @@ public:
 
 private:
   AstExpressionList *expressionList_;
-  std::string name_;
 };
 
 /* expression statement */
@@ -587,7 +563,6 @@ public:
 
 private:
   AstExpression *expression_;
-  std::string name_;
 };
 
 /* compound statement - { ... } */
@@ -602,7 +577,6 @@ public:
 
 private:
   AstStatementList *statementList_;
-  std::string name_;
 };
 
 /* selection statement - if else */
@@ -622,7 +596,6 @@ private:
   AstExpression *condition_;
   AstStatement *hit_;
   AstStatement *miss_;
-  std::string name_;
 };
 
 /* iteration statement - while */
@@ -639,7 +612,6 @@ public:
 private:
   AstExpression *condition_;
   AstStatement *statement_;
-  std::string name_;
 };
 
 /* iteration statement - for */
@@ -661,7 +633,6 @@ private:
   AstStatement *condition_;
   AstExpression *post_;
   AstStatement *statement_;
-  std::string name_;
 };
 
 /* jump statement - continue */
@@ -673,7 +644,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  std::string name_;
 };
 
 /* jump statement - break */
@@ -685,7 +655,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  std::string name_;
 };
 
 /* jump statement - return */
@@ -699,7 +668,6 @@ public:
 
 private:
   AstExpression *expression_;
-  std::string name_;
 };
 
 /* empty statement */
@@ -711,7 +679,6 @@ public:
   virtual std::string toString() const;
 
 private:
-  std::string name_;
 };
 
 /* variable declaration */
@@ -725,7 +692,6 @@ public:
 
 private:
   AstDeclarationList *declarationList_;
-  std::string name_;
 };
 
 /* variable assignment declaration */
@@ -742,7 +708,6 @@ public:
 private:
   std::string identifier_;
   AstExpression *expression_;
-  std::string name_;
 };
 
 /* function declaration */
@@ -765,7 +730,6 @@ private:
   AstDeclarationList *argumentList_;
   AstExpression *result_;
   AstStatement *statement_;
-  std::string name_;
 };
 
 /* function argument declaration */
@@ -780,5 +744,4 @@ public:
 
 private:
   std::string value_;
-  std::string name_;
 };
