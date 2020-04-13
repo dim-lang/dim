@@ -17,10 +17,6 @@ public:
   LinkedList();
   ~LinkedList();
 
-  // copy
-  LinkedList(const LinkedList<K, V> &other);
-  LinkedList<K, V> &operator=(const LinkedList<K, V> &other);
-
   // attribute
   LinkedNode<K, V> *&prev();
   const LinkedNode<K, V> *prev() const;
@@ -46,6 +42,10 @@ public:
   bool seq_empty() const;
 
 private:
+  // no copy
+  LinkedList(const LinkedList<K, V> &other) = delete;
+  LinkedList<K, V> &operator=(const LinkedList<K, V> &other) = delete;
+
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
   LinkedNode<K, V> *seq_prev_;
@@ -58,10 +58,6 @@ class LinkedNode : private boost::noncopyable {
 public:
   LinkedNode(const std::pair<const K, V> &value);
   ~LinkedNode();
-
-  // copy
-  LinkedNode(const LinkedNode<K, V> &other);
-  LinkedNode<K, V> &operator=(const LinkedNode<K, V> &other);
 
   // attribute
   const K &key() const;
@@ -79,6 +75,10 @@ public:
   const LinkedNode<K, V> *seq_next() const;
 
 private:
+  // copy
+  LinkedNode(const LinkedNode<K, V> &other) = delete;
+  LinkedNode<K, V> &operator=(const LinkedNode<K, V> &other) = delete;
+
   LinkedNode<K, V> *prev_;
   LinkedNode<K, V> *next_;
   LinkedNode<K, V> *seq_prev_;

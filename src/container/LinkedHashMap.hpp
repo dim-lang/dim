@@ -23,23 +23,6 @@ template <typename K, typename V> LinkedList<K, V>::~LinkedList() {
   seq_next_ = nullptr;
 }
 
-template <typename K, typename V>
-LinkedList<K, V>::LinkedList(const LinkedList<K, V> &other)
-    : prev_(other.prev_), next_(other.next_), seq_prev_(other.seq_prev_),
-      seq_next_(other.seq_next_) {}
-
-template <typename K, typename V>
-LinkedList<K, V> &LinkedList<K, V>::operator=(const LinkedList<K, V> &other) {
-  if (this == &other) {
-    return *this;
-  }
-  prev_ = other.prev();
-  next_ = other.next();
-  seq_prev_ = other.seq_prev();
-  seq_next_ = other.seq_next();
-  return *this;
-}
-
 template <typename K, typename V> LinkedNode<K, V> *&LinkedList<K, V>::prev() {
   return prev_;
 }
@@ -196,24 +179,6 @@ template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
   next_ = nullptr;
   seq_prev_ = nullptr;
   seq_next_ = nullptr;
-}
-
-template <typename K, typename V>
-LinkedNode<K, V>::LinkedNode(const LinkedNode<K, V> &other)
-    : prev_(other.prev_), next_(other.next_), seq_prev_(other.seq_prev_),
-      seq_next_(other.seq_next_), value_(other.value_) {}
-
-template <typename K, typename V>
-LinkedNode<K, V> &LinkedNode<K, V>::operator=(const LinkedNode<K, V> &other) {
-  if (this == &other) {
-    return *this;
-  }
-  prev_ = other.prev();
-  next_ = other.next();
-  seq_prev_ = other.seq_prev();
-  seq_next_ = other.seq_next();
-  value_ = other.value();
-  return *this;
 }
 
 template <typename K, typename V> const K &LinkedNode<K, V>::key() const {
