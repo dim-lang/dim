@@ -10,12 +10,12 @@ TEST_CASE("Exception", "[Exception]") {
     try {
       CTHROW("throw: {}", "hello world");
     } catch (const std::string &ex) {
-      CERROR("catch: {}", ex);
+      LOG_ERROR("catch: {}", ex);
     }
     try {
-      CASSERT(false, "assert false");
+      LOG_ASSERT(false, "assert false");
     } catch (const std::string &ex) {
-      CERROR("catch assert: {}", ex);
+      LOG_ERROR("catch assert: {}", ex);
     }
   }
 }

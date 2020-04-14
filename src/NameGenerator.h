@@ -10,23 +10,22 @@ namespace detail {
 
 long long nameCount();
 
-}
-
-template <typename A> std::string namegen(const A &a) {
+template <typename T> std::string nameGenImpl(T t) {
   std::stringstream ss;
-  ss << a << "_" << detail::nameCount();
+  ss << t;
   return ss.str();
 }
 
-template <typename A, typename B> std::string namegen2(const A &a, const B &b) {
+template <typename T, typename... R> std::string nameGenImpl(T t, R... r) {
   std::stringstream ss;
-  ss << a << "_" << b << "_" << detail::nameCount();
+  ss << t << "_" << nameGenImpl(r...);
   return ss.str();
 }
 
-template <typename A, typename B, typename C>
-std::string namegen3(const A &a, const B &b, const C &c) {
+} // namespace detail
+
+template <typename... T> std::string nameGen(T... t) {
   std::stringstream ss;
-  ss << a << "_" << b << "_" << c << "_" << detail::nameCount();
+  ss << detail::nameGenImpl(t...) << "_" << detail::nameCount();
   return ss.str();
 }

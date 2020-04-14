@@ -108,13 +108,13 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 join_string_helper : T_STRING_CONSTANT {
                         $$ = new AstStringConstant($1);
                         std::free($1);
-                        CINFO("join_string_helper: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        LOG_INFO("join_string_helper: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    | T_STRING_CONSTANT join_string_helper { 
                         $2->add($1); 
                         $$ = $2; 
                         std::free($1); 
-                        CINFO("join_string_helper2: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
+                        LOG_INFO("join_string_helper2: {} {}.{}-{}.{}", Y_EXTRA->currentBuffer(), @1.first_line, @1.first_column, @1.last_line, @1.last_column);
                     }
                    ;
 
@@ -340,13 +340,13 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
 translation_unit : declaration {
-                        CASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  | declaration translation_unit {
-                        CASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        CASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  ;

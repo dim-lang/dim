@@ -23,8 +23,8 @@
  * A_EXPRESSION_STATEMENT
  */
 void Semantic::build(SymbolTable *symtable, const Ast *node) {
-  CASSERT(symtable, "symtable is null");
-  CASSERT(node, "node is null");
+  LOG_ASSERT(symtable, "symtable is null");
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case A_TRANSLATE_UNIT: {
     const AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -86,7 +86,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
         build(symtable, e->argumentList()->get(i));
       }
     }
-    CASSERT(e->statement(), "e#statement is null");
+    LOG_ASSERT(e->statement(), "e#statement is null");
     build(symtable, e->statement());
     symtable->popSymbol();
     symtable->popType();
@@ -128,7 +128,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
   } break;
   case A_WHILE_STATEMENT: {
     const AstWhileStatement *e = DC(AstWhileStatement, node);
-    CASSERT(e->statement(), "e->statement is null");
+    LOG_ASSERT(e->statement(), "e->statement is null");
     build(symtable, e->statement());
   } break;
   case A_FOR_STATEMENT: {
@@ -157,7 +157,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     }
   } break;
   default:
-    CINFO("do nothing for node:{}", node->toString());
+    LOG_INFO("do nothing for node:{}", node->toString());
     break;
   }
 }
@@ -181,8 +181,8 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
  * A_RETURN_STATEMENT
  */
 void Semantic::check(SymbolTable *symtable, const Ast *node) {
-  CASSERT(symtable, "symtable is null");
-  CASSERT(node, "node is null");
+  LOG_ASSERT(symtable, "symtable is null");
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case A_TRANSLATE_UNIT: {
     const AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -193,19 +193,19 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
   case A_IDENTIFIER_CONSTANT: {
     const AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
     Symbol *s = symtable->css()->resolve(e->value());
-    CASSERT(s, "sematic check failure: symbol {} not found", e->value());
+    LOG_ASSERT(s, "sematic check failure: symbol {} not found", e->value());
   } break;
   case A_CALL_EXPRESSION: {
     const AstCallExpression *e = DC(AstCallExpression, node);
     Symbol *fs = symtable->css()->resolve(e->identifier());
-    CASSERT(fs, "sematic check failure: function symbol {} not found",
+    LOG_ASSERT(fs, "sematic check failure: function symbol {} not found",
             e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
         const AstFunctionArgumentDeclaration *fad =
             DC(AstFunctionArgumentDeclaration, e->argumentList()->get(i));
         Symbol *fas = symtable->css()->resolve(fad->value());
-        CASSERT(fas,
+        LOG_ASSERT(fas,
                 "sematic check failure: function argument symbol {} not found",
                 fad->value());
       }
@@ -276,7 +276,7 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
     check(symtable, e->expression());
   } break;
   default:
-    CINFO("do nothing for node: {}", node->toString());
+    LOG_INFO("do nothing for node: {}", node->toString());
     break;
   }
 }

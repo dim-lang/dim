@@ -7,5 +7,5 @@
 
 TEST_CASE("Main", "[Main]") {
   Log::initialize("ac-test");
-  SECTION("Main Initialize") { CINFO("ac-test starting..."); }
+  SECTION("Main Initialize") { LOG_INFO("ac-test starting..."); }
 }

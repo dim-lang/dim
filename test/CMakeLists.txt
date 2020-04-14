@@ -19,6 +19,7 @@ set(CTEST
     ExceptionTest.cpp
     SemanticTest.cpp
     DumpTest.cpp
+    NameGeneratorTest.cpp
     container/LinkedHashMapTest.cpp
 )
 

@@ -92,7 +92,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstIfStatement *is = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    CASSERT(is->hit(), "is#hit is null");
+    LOG_ASSERT(is->hit(), "is#hit is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
        << dumpAstImpl(is->hit(), depth + 1);
     if (is->miss()) {
@@ -184,7 +184,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   // return DC(AstExpressionList, node)->name();
   //}
   default: {
-    CASSERT(false, "invalid node:{}", node->toString());
+    LOG_ASSERT(false, "invalid node:{}", node->toString());
   }
   }
 }
@@ -266,7 +266,7 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   default:
-    CASSERT(false, "invalid symbol: {} {}", sym->name(), sym->type());
+    LOG_ASSERT(false, "invalid symbol: {} {}", sym->name(), sym->type());
   }
 }
 
@@ -333,7 +333,7 @@ static std::string dumpTypeImpl(Type *ty, int depth) {
     return ss.str();
   }
   default:
-    CASSERT(false, "invalid type: {} {}", ty->name(), ty->type());
+    LOG_ASSERT(false, "invalid type: {} {}", ty->name(), ty->type());
   }
 }
 
