@@ -4,9 +4,9 @@
 #include "NameGenerator.h"
 #include "Counter.h"
 
-static Counter NameGeneratorCounter;
-
 namespace detail {
+
+static Counter NameGeneratorCounter;
 
 long long nameCount() { return NameGeneratorCounter.count(); }
 
