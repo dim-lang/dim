@@ -33,11 +33,11 @@ function build_generate() {
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
     echo [ac] prepare fmtlib/fmt $FMTLIB_VERSION - done
-    echo [ac] prepare aantron/better-enums $ENUM_VERSION
-    if [ ! -d src/better-enums ]; then
-        cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums.git && cd $ROOT
-    fi
-    echo [ac] prepare aantron/better-enums $ENUM_VERSION - done
+    #echo [ac] prepare aantron/better-enums $ENUM_VERSION
+    #if [ ! -d src/better-enums ]; then
+        #cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums.git && cd $ROOT
+    #fi
+    #echo [ac] prepare aantron/better-enums $ENUM_VERSION - done
 
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
