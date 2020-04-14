@@ -32,7 +32,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    go("test/case/DslTest1.co");
-    go("test/case/DslTest2.co");
+    go("test/case/DslTest1.ac");
+    go("test/case/DslTest2.ac");
   }
 }

@@ -24,7 +24,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Dump", "[Dump]") {
   SECTION("dump for Ast") {
-    go("test/case/DslTest1.co");
-    go("test/case/DslTest2.co");
+    go("test/case/DslTest1.ac");
+    go("test/case/DslTest2.ac");
   }
 }

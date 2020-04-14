@@ -19,7 +19,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
-    go("test/case/DslTest1.co");
-    go("test/case/DslTest2.co");
+    go("test/case/DslTest1.ac");
+    go("test/case/DslTest2.ac");
   }
 }

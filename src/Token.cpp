@@ -4,7 +4,7 @@
 #include "Token.h"
 #include "Log.h"
 
-#define TOKEN_FILE_EXT ".co"
+#define TOKEN_FILE_EXT ".ac"
 #ifndef YY_BUF_SIZE
 #define YY_BUF_SIZE 32768
 #endif
@@ -48,8 +48,8 @@ Buffer::Buffer(const std::string &a_fileName, yyscan_t yy_scaninfo)
   yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yy_scaninfo_);
   if (!yyBufferState) {
     release();
-    LOG_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName,
-            (void *)yy_scaninfo_);
+    LOG_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}",
+               fileName, (void *)yy_scaninfo_);
   }
 }
 
@@ -73,7 +73,7 @@ BufferStack::BufferStack(yyscan_t yy_scaninfo)
 BufferStack::~BufferStack() {
   yy_scaninfo_ = nullptr;
   LOG_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
-          bufferStack_.size());
+             bufferStack_.size());
 }
 
 int BufferStack::push(const std::string &fileName) {
@@ -93,8 +93,9 @@ int BufferStack::push(const std::string &fileName) {
 }
 
 int BufferStack::pop() {
-  LOG_ASSERT(!bufferStack_.empty(), "bufferStack_ must not empty! current file:{}",
-          bufferStack_.top()->fileName);
+  LOG_ASSERT(!bufferStack_.empty(),
+             "bufferStack_ must not empty! current file:{}",
+             bufferStack_.top()->fileName);
   Buffer *tb = bufferStack_.top();
   bufferStack_.pop();
   delete tb;

@@ -13,8 +13,9 @@
 #include <sstream>
 #include <string>
 
-/* expression */
+/*================ type ================*/
 
+/* expression */
 #define A_IDENTIFIER_CONSTANT 101
 #define A_F32_CONSTANT 102
 #define A_F64_CONSTANT 103
@@ -36,7 +37,6 @@
 #define A_SEQUEL_EXPERSSION 119
 
 /* statement */
-
 #define A_EXPRESSION_STATEMENT 201
 #define A_COMPOUND_STATEMENT 202
 #define A_IF_STATEMENT 203
@@ -48,25 +48,22 @@
 #define A_EMPTY_STATEMENT 209
 
 /* declaration */
-
 #define A_VARIABLE_DECLARATION 301
 #define A_VARIABLE_ASSIGNMENT_DECLARATION 302
 #define A_FUNCTION_DECLARATION 303
 #define A_FUNCTION_ARGUMENT_DECLARATION 304
 
 /* list */
-
 #define A_EXPRESSION_LIST 401
 #define A_STATEMENT_LIST 402
 #define A_DECLARATION_LIST 403
 
 /* translate unit */
-
 #define A_TRANSLATE_UNIT 501
 
-/* ================================== */
+/*================ class ================*/
 
-/* interface */
+/* base interface */
 class Ast;
 
 /* translate unit */
@@ -118,8 +115,9 @@ class AstVariableAssignmentDeclaration;
 class AstFunctionDeclaration;
 class AstFunctionArgumentDeclaration;
 
-/* ================================== */
+/*================ declaration ================*/
 
+/* base interface */
 class Ast : public Namely,
             public Typely,
             public Stringify,
