@@ -14,8 +14,8 @@ SymbolTable::SymbolTable()
 SymbolTable::~SymbolTable() {
   popSymbol();
   popType();
-  LOG_ASSERT(symstk_ == 0, "symstk_ {} != 0", symstk_);
-  LOG_ASSERT(tystk_ == 0, "tystk_ {} != 0", tystk_);
+  CASSERT(symstk_ == 0, "symstk_ {} != 0", symstk_);
+  CASSERT(tystk_ == 0, "tystk_ {} != 0", tystk_);
   if (gss_) {
     delete gss_;
     gss_ = nullptr;
@@ -49,29 +49,29 @@ const Tytab *SymbolTable::cts() const { return cts_; }
 int SymbolTable::tystk() const { return tystk_; }
 
 void SymbolTable::pushSymbol(Symtab *st) {
-  LOG_ASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
+  CASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
   css_ = st;
   ++symstk_;
 }
 
 void SymbolTable::popSymbol() {
-  LOG_ASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
+  CASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
   css_ = css_->enclosingScope();
   --symstk_;
-  LOG_ASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
+  CASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
 }
 
 void SymbolTable::pushType(Tytab *tt) {
-  LOG_ASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
+  CASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
   cts_ = tt;
   ++tystk_;
 }
 
 void SymbolTable::popType() {
-  LOG_ASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
+  CASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
   cts_ = cts_->enclosingScope();
   --tystk_;
-  LOG_ASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
+  CASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
 }
 
 void SymbolTable::resetSymbolStack() {

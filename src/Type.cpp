@@ -19,15 +19,15 @@ void Type::pop(Tytab *&global, Tytab *&current) {
 }
 
 void Tytab::define(Symbol *sym, Type *ty) {
-  LOG_ASSERT(sym, "sym is null");
-  LOG_ASSERT(ty, "ty is null");
-  LOG_ASSERT(hashtab_.find(sym) == hashtab_.end(), "sym {}:{} already exist",
+  CASSERT(sym, "sym is null");
+  CASSERT(ty, "ty is null");
+  CASSERT(hashtab_.find(sym) == hashtab_.end(), "sym {}:{} already exist",
           (void *)sym, sym->name());
   hashtab_.insert(std::make_pair(sym, ty));
 }
 
 Type *Tytab::resolve(Symbol *sym) {
-  LOG_ASSERT(sym, "sym is null");
+  CASSERT(sym, "sym is null");
   if (hashtab_.find(sym) != hashtab_.end())
     return hashtab_[sym];
   if (enclosingScope_)
@@ -154,7 +154,7 @@ FunctionType::FunctionType(
     const std::vector<std::pair<Symbol *, Type *>> &argumentList, Type *result,
     Tytab *enclosingScope)
     : Tytab(enclosingScope) {
-  LOG_ASSERT(result, "result is null");
+  CASSERT(result, "result is null");
   std::stringstream ss;
   ss << "func(";
   for (int i = 0; i < (int)argumentList.size(); i++) {

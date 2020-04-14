@@ -28,7 +28,7 @@ set(CCORE
     Semantic.cpp
     Counter.cpp
     Dump.cpp
-    #Ir.cpp
+    Ir.cpp
 )
 set(CSRC
     ac.cpp

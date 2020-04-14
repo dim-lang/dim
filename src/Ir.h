@@ -20,24 +20,6 @@
 //#include "llvm/Support/TargetSelect.h"
 //#include "llvm/Target/TargetMachine.h"
 
-/* define enum IrType from 5000 */
-BETTER_ENUM(IrType, int,
-            /* constant */
-            ID_CONST = 5000, I8_CONST, U8_CONST, I16_CONST, U16_CONST,
-            I32_CONST, U32_CONST, I64_CONST, U64_CONST, F32_CONST, F64_CONST,
-            BOOL_CONST, STR_CONST,
-            /* expression */
-            CALL_EXPR, UNA_EXPR, BIN_EXPR, COND_EXPR, ASSIGN_EXPR, SEQ_EXPR,
-            /* statement */
-            EXPR_STMT, COMP_STMT, IF_STMT, WHILE_STMT, FOR_STMT, CONT_STMT,
-            BRK_STMT, RET_STMT, EMP_STMT,
-            /* declaration */
-            VAR_DECL, VAR_ASSIGN_DECL, FUNC_DECL, FUNC_ARG_DECL,
-            /* list */
-            EXPR_LIST, STMT_LIST, DECL_LIST,
-            /* translate unit */
-            TUNIT)
-
 class IrContext : protected boost::noncopyable {
 public:
   IrContext();
@@ -70,7 +52,7 @@ public:
     return fmt::format("[ {} node_:{} ]", stringify(), node_->name());
   }
   virtual std::string name() const { return name_; }
-  virtual IrType type() const = 0;
+  virtual int type() const = 0;
   virtual llvm::Value *codegen(IrContext *context) = 0;
 
 protected:

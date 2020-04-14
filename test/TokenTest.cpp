@@ -12,7 +12,7 @@
 static void go(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
-  LOG_INFO("go start: {}", fileName);
+  CINFO("go start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;
   while ((t = scanner.tokenize()), std::get<0>(t) != 0) {
     if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_I32_CONSTANT ||
@@ -21,10 +21,10 @@ static void go(const char *fileName) {
         std::get<0>(t) == T_U32_CONSTANT || std::get<0>(t) == T_I64_CONSTANT ||
         std::get<0>(t) == T_U64_CONSTANT || std::get<0>(t) == T_F32_CONSTANT ||
         std::get<0>(t) == T_F64_CONSTANT || std::get<0>(t) == T_STRING) {
-      LOG_INFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
+      CINFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
       std::free(std::get<1>(t).literal);
     } else {
-      LOG_INFO("token:{}", std::get<0>(t));
+      CINFO("token:{}", std::get<0>(t));
     }
   }
   // we don't need pop file manually here

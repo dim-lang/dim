@@ -148,9 +148,9 @@ void LinkedList<K, V>::seq_remove(LinkedNode<K, V> *e) {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::empty() const {
-  LOG_ASSERT(prev_ && next_, "prev_ {}, next_ {} is null", (void *)prev_,
+  CASSERT(prev_ && next_, "prev_ {}, next_ {} is null", (void *)prev_,
           (void *)next_);
-  LOG_ASSERT((prev_ == CLN(this) && next_ == CLN(this)) ||
+  CASSERT((prev_ == CLN(this) && next_ == CLN(this)) ||
               (prev_ != CLN(this) && next_ != CLN(this)),
           "this: {}, prev_: {}, next_: {}", (void *)this, (void *)prev_,
           (void *)next_);
@@ -158,9 +158,9 @@ template <typename K, typename V> bool LinkedList<K, V>::empty() const {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::seq_empty() const {
-  LOG_ASSERT(seq_prev_ && seq_next_, "seq_prev_ {}, seq_next_ {} is null",
+  CASSERT(seq_prev_ && seq_next_, "seq_prev_ {}, seq_next_ {} is null",
           (void *)prev_, (void *)next_);
-  LOG_ASSERT((seq_prev_ == CLN(this) && seq_next_ == CLN(this)) ||
+  CASSERT((seq_prev_ == CLN(this) && seq_next_ == CLN(this)) ||
               (seq_prev_ != CLN(this) && seq_next_ != CLN(this)),
           "this: {}, seq_prev_: {}, seq_next_: {}", (void *)this,
           (void *)seq_prev_, (void *)seq_next_);
@@ -477,7 +477,7 @@ LinkedHt<K, V, H, E>::LinkedHt()
 
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt(int bucket) : LinkedHt() {
-  LOG_ASSERT(bucket > 0, "bucket {} > 0", bucket);
+  CASSERT(bucket > 0, "bucket {} > 0", bucket);
   extend(bucket);
 }
 
@@ -488,8 +488,8 @@ LinkedHt<K, V, H, E>::~LinkedHt() {
 
 template <typename K, typename V, typename H, typename E>
 bool LinkedHt<K, V, H, E>::empty() const {
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  LOG_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
+  CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  CASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
           "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
           (void *)count_, size_, bucket_);
   return size_ == 0;
@@ -526,7 +526,7 @@ void LinkedHt<K, V, H, E>::release() {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    LOG_ASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
+    CASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
     delete[] ht_;
     delete[] count_;
     ht_ = nullptr;
@@ -543,8 +543,8 @@ void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   int b = getBucket(value.first, bucket_);
   ht_[b].insertHead(e);
   head_.seq_insert(e);
-  LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+  CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   ++count_[b];
   ++size_;
 }
@@ -558,8 +558,8 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
     int b = getBucket(value.first, bucket_);
     ht_[b].insertHead(e);
     head_.seq_insert(e);
-    LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+    CASSERT(size_ >= 0, "size_ {} >= 0", size_);
     ++count_[b];
     ++size_;
     return 1;
@@ -618,8 +618,8 @@ int LinkedHt<K, V, H, E>::remove(
       delete e;
       --count_[b];
       --size_;
-      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      CASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
     e = e->next();
@@ -642,8 +642,8 @@ int LinkedHt<K, V, H, E>::remove(
       delete e;
       --count_[b];
       --size_;
-      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      CASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      CASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
     e = e->next();
@@ -693,17 +693,17 @@ typename LinkedHt<K, V, H, E>::CRIterator LinkedHt<K, V, H, E>::rend() const {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::extend(int n) {
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  LOG_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
+  CASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  CASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   if (!empty() && load() < 4.0) {
     return;
   }
   n = alignBucket(n);
-  LOG_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
+  CASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
   LinkedList<K, V> *newHt = new LinkedList<K, V>[n];
   int *newCount = new int[n];
-  LOG_ASSERT(newHt, "newHt is null");
-  LOG_ASSERT(newCount, "newCount is null");
+  CASSERT(newHt, "newHt is null");
+  CASSERT(newCount, "newCount is null");
   std::memset(newCount, 0, n * sizeof(int));
 
   // first try rehash old hashtable
@@ -741,11 +741,11 @@ void LinkedHt<K, V, H, E>::destroyList(int i) {
     delete e;
     --count_[i];
     --size_;
-    LOG_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
-    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    CASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
+    CASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
-  LOG_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
-  LOG_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
+  CASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
+  CASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 
 template <typename K, typename V, typename H, typename E>

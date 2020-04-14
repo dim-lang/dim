@@ -49,7 +49,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            LOG_ASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer(), Y_LINENO);
+                            CASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer(), Y_LINENO);
                             return 0;
                         }
 
@@ -196,7 +196,7 @@ HEXEXP ([pP][-+]?[0-9]+)
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        LOG_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                        CASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
@@ -206,7 +206,7 @@ HEXEXP ([pP][-+]?[0-9]+)
 
  /* invalid token */
 .                           {
-                                LOG_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
+                                CASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
                             }
 
 %%

@@ -23,16 +23,16 @@
  * A_EXPRESSION_STATEMENT
  */
 void Semantic::build(SymbolTable *symtable, const Ast *node) {
-  LOG_ASSERT(symtable, "symtable is null");
-  LOG_ASSERT(node, "node is null");
+  CASSERT(symtable, "symtable is null");
+  CASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::TUNIT: {
+  case A_TRANSLATE_UNIT: {
     const AstTranslateUnit *e = DC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
       build(symtable, e->get(i));
     }
   } break;
-  case AstType::VAR_DECL: {
+  case A_VARIABLE_DECLARATION: {
     const AstVariableDeclaration *e = DC(AstVariableDeclaration, node);
     if (e->declarationList()) {
       for (int i = 0; i < e->declarationList()->size(); i++) {
@@ -40,22 +40,22 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
       }
     }
   } break;
-  case AstType::VAR_ASSIGN_DECL: {
+  case A_VARIABLE_ASSIGNMENT_DECLARATION: {
     const AstVariableAssignmentDeclaration *e =
         DC(AstVariableAssignmentDeclaration, node);
     VariableSymbol *vs = new VariableSymbol(e->identifier());
     symtable->css()->define(vs);
     switch (e->expression()->type()) {
-    case AstType::I64_CONST:
+    case A_I64_CONSTANT:
       symtable->cts()->define(vs, BuiltinType::ty_i64());
       break;
-    case AstType::F64_CONST:
+    case A_F64_CONSTANT:
       symtable->cts()->define(vs, BuiltinType::ty_f64());
       break;
-    case AstType::STR_CONST:
+    case A_STRING_CONSTANT:
       symtable->cts()->define(vs, BuiltinType::ty_string());
       break;
-    case AstType::BOOL_CONST:
+    case A_BOOLEAN_CONSTANT:
       symtable->cts()->define(vs, BuiltinType::ty_boolean());
       break;
     default:
@@ -63,7 +63,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
       break;
     }
   } break;
-  case AstType::FUNC_DECL: {
+  case A_FUNCTION_DECLARATION: {
     const AstFunctionDeclaration *e = DC(AstFunctionDeclaration, node);
     FunctionSymbol *fs = new FunctionSymbol(e->identifier(), symtable->css());
     std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
@@ -86,19 +86,19 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
         build(symtable, e->argumentList()->get(i));
       }
     }
-    LOG_ASSERT(e->statement(), "e#statement is null");
+    CASSERT(e->statement(), "e#statement is null");
     build(symtable, e->statement());
     symtable->popSymbol();
     symtable->popType();
   } break;
-  case AstType::FUNC_ARG_DECL: {
+  case A_FUNCTION_ARGUMENT_DECLARATION: {
     const AstFunctionArgumentDeclaration *e =
         DC(AstFunctionArgumentDeclaration, node);
     FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->value());
     symtable->css()->define(fa);
     symtable->cts()->define(fa, BuiltinType::ty_void());
   } break;
-  case AstType::COMP_STMT: {
+  case A_COMPOUND_STATEMENT: {
     const AstCompoundStatement *e = DC(AstCompoundStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
@@ -114,7 +114,7 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     symtable->popSymbol();
     symtable->popType();
   } break;
-  case AstType::IF_STMT: {
+  case A_IF_STATEMENT: {
     const AstIfStatement *e = DC(AstIfStatement, node);
     if (e->condition()) {
       build(symtable, e->condition());
@@ -126,12 +126,12 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
       build(symtable, e->miss());
     }
   } break;
-  case AstType::WHILE_STMT: {
+  case A_WHILE_STATEMENT: {
     const AstWhileStatement *e = DC(AstWhileStatement, node);
-    LOG_ASSERT(e->statement(), "e->statement is null");
+    CASSERT(e->statement(), "e->statement is null");
     build(symtable, e->statement());
   } break;
-  case AstType::FOR_STMT: {
+  case A_FOR_STATEMENT: {
     const AstForStatement *e = DC(AstForStatement, node);
     LocalSymtab *ls = new LocalSymtab(e->name(), symtable->css());
     LocalTytab *lt = new LocalTytab(e->name(), symtable->cts());
@@ -144,20 +144,20 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
     symtable->popSymbol();
     symtable->popType();
   } break;
-  case AstType::RET_STMT: {
+  case A_RETURN_STATEMENT: {
     const AstReturnStatement *e = DC(AstReturnStatement, node);
     if (e->expression()) {
       build(symtable, e->expression());
     }
   } break;
-  case AstType::EXPR_STMT: {
+  case A_EXPRESSION_STATEMENT: {
     const AstExpressionStatement *e = DC(AstExpressionStatement, node);
     if (e->expression()) {
       build(symtable, e->expression());
     }
   } break;
   default:
-    LOG_INFO("do nothing for node:{}", node->toString());
+    CINFO("do nothing for node:{}", node->toString());
     break;
   }
 }
@@ -181,57 +181,57 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
  * A_RETURN_STATEMENT
  */
 void Semantic::check(SymbolTable *symtable, const Ast *node) {
-  LOG_ASSERT(symtable, "symtable is null");
-  LOG_ASSERT(node, "node is null");
+  CASSERT(symtable, "symtable is null");
+  CASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::TUNIT: {
+  case A_TRANSLATE_UNIT: {
     const AstTranslateUnit *e = DC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
       check(symtable, e->get(i));
     }
   } break;
-  case AstType::ID_CONST: {
+  case A_IDENTIFIER_CONSTANT: {
     const AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
     Symbol *s = symtable->css()->resolve(e->value());
-    LOG_ASSERT(s, "sematic check failure: symbol {} not found", e->value());
+    CASSERT(s, "sematic check failure: symbol {} not found", e->value());
   } break;
-  case AstType::CALL_EXPR: {
+  case A_CALL_EXPRESSION: {
     const AstCallExpression *e = DC(AstCallExpression, node);
     Symbol *fs = symtable->css()->resolve(e->identifier());
-    LOG_ASSERT(fs, "sematic check failure: function symbol {} not found",
-               e->identifier());
+    CASSERT(fs, "sematic check failure: function symbol {} not found",
+            e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
         const AstFunctionArgumentDeclaration *fad =
             DC(AstFunctionArgumentDeclaration, e->argumentList()->get(i));
         Symbol *fas = symtable->css()->resolve(fad->value());
-        LOG_ASSERT(
-            fas, "sematic check failure: function argument symbol {} not found",
-            fad->value());
+        CASSERT(fas,
+                "sematic check failure: function argument symbol {} not found",
+                fad->value());
       }
     }
   } break;
-  case AstType::UNA_EXPR: {
+  case A_UNARY_EXPRESSION: {
     const AstUnaryExpression *e = DC(AstUnaryExpression, node);
     check(symtable, e->expression());
   } break;
-  case AstType::BIN_EXPR: {
+  case A_BINARY_EXPRESSION: {
     const AstBinaryExpression *e = DC(AstBinaryExpression, node);
     check(symtable, e->left());
     check(symtable, e->right());
   } break;
-  case AstType::COND_EXPR: {
+  case A_CONDITIONAL_EXPRESSION: {
     const AstConditionalExpression *e = DC(AstConditionalExpression, node);
     check(symtable, e->condition());
     check(symtable, e->hit());
     check(symtable, e->miss());
   } break;
-  case AstType::ASSIGN_EXPR: {
+  case A_ASSIGNMENT_EXPRESSION: {
     const AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
     check(symtable, e->variable());
     check(symtable, e->value());
   } break;
-  case AstType::SEQ_EXPR: {
+  case A_SEQUEL_EXPERSSION: {
     const AstSequelExpression *e = DC(AstSequelExpression, node);
     if (e->expressionList()) {
       for (int i = 0; i < e->expressionList()->size(); i++) {
@@ -239,11 +239,11 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
       }
     }
   } break;
-  case AstType::EXPR_STMT: {
+  case A_EXPRESSION_STATEMENT: {
     const AstExpressionStatement *e = DC(AstExpressionStatement, node);
     check(symtable, e->expression());
   } break;
-  case AstType::COMP_STMT: {
+  case A_COMPOUND_STATEMENT: {
     const AstCompoundStatement *e = DC(AstCompoundStatement, node);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
@@ -251,7 +251,7 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
       }
     }
   } break;
-  case AstType::IF_STMT: {
+  case A_IF_STATEMENT: {
     const AstIfStatement *e = DC(AstIfStatement, node);
     check(symtable, e->condition());
     check(symtable, e->hit());
@@ -259,24 +259,24 @@ void Semantic::check(SymbolTable *symtable, const Ast *node) {
       check(symtable, e->miss());
     }
   } break;
-  case AstType::WHILE_STMT: {
+  case A_WHILE_STATEMENT: {
     const AstWhileStatement *e = DC(AstWhileStatement, node);
     check(symtable, e->condition());
     check(symtable, e->statement());
   } break;
-  case AstType::FOR_STMT: {
+  case A_FOR_STATEMENT: {
     const AstForStatement *e = DC(AstForStatement, node);
     check(symtable, e->initial());
     check(symtable, e->condition());
     check(symtable, e->post());
     check(symtable, e->statement());
   } break;
-  case AstType::RET_STMT: {
+  case A_RETURN_STATEMENT: {
     const AstReturnStatement *e = DC(AstReturnStatement, node);
     check(symtable, e->expression());
   } break;
   default:
-    LOG_INFO("do nothing for node: {}", node->toString());
+    CINFO("do nothing for node: {}", node->toString());
     break;
   }
 }

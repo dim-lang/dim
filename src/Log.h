@@ -17,20 +17,20 @@ public:
 
 #ifdef NDEBUG
 
-#define LOG_TRACE(...)
-#define LOG_DEBUG(...)
-#define LOG_INFO(...)
+#define CTRACE(...)
+#define CDEBUG(...)
+#define CINFO(...)
 
 #else
 
-#define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
-#define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
-#define LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define CTRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define CDEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
+#define CINFO(...) SPDLOG_INFO(__VA_ARGS__)
 
 #endif // #ifdef NDEBUG
 
-#define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
-#define LOG_ASSERT(cond, ...)                                                  \
+#define CERROR(...) SPDLOG_ERROR(__VA_ARGS__)
+#define CASSERT(cond, ...)                                                     \
   do {                                                                         \
     if (!(cond)) {                                                             \
       const char *argmsg = fmt::format(__VA_ARGS__).c_str();                   \

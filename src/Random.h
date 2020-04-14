@@ -15,7 +15,7 @@ public:
   RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
   // [a, b]
   RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    LOG_ASSERT(b >= a, "b {} >= a {}", b, a);
+    CASSERT(b >= a, "b {} >= a {}", b, a);
   }
   virtual ~RandomInt() = default;
   T next() { return dist_(engine_); }
@@ -32,7 +32,7 @@ template <typename T> class RandomReal {
 public:
   RandomReal(T b = std::numeric_limits<T>::max()) : RandomReal((T)0.0, b) {}
   RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    LOG_ASSERT(b >= a, "b {} >= a {}", b, a);
+    CASSERT(b >= a, "b {} >= a {}", b, a);
   }
   virtual ~RandomReal() = default;
   T next() { return dist_(engine_); }
