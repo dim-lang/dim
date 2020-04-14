@@ -16,21 +16,21 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   if (!node)
     return "null";
   switch (node->type()) {
-  case A_IDENTIFIER_CONSTANT:
-  case A_I8_CONSTANT:
-  case A_U8_CONSTANT:
-  case A_I16_CONSTANT:
-  case A_U16_CONSTANT:
-  case A_I32_CONSTANT:
-  case A_U32_CONSTANT:
-  case A_I64_CONSTANT:
-  case A_U64_CONSTANT:
-  case A_F32_CONSTANT:
-  case A_F64_CONSTANT:
-  case A_STRING_CONSTANT:
-  case A_BOOLEAN_CONSTANT:
+  case AstType::ID_CONST:
+  case AstType::I8_CONST:
+  case AstType::U8_CONST:
+  case AstType::I16_CONST:
+  case AstType::U16_CONST:
+  case AstType::I32_CONST:
+  case AstType::U32_CONST:
+  case AstType::I64_CONST:
+  case AstType::U64_CONST:
+  case AstType::F32_CONST:
+  case AstType::F64_CONST:
+  case AstType::STR_CONST:
+  case AstType::BOOL_CONST:
     return node->name();
-  case A_CALL_EXPRESSION: {
+  case AstType::CALL_EXPR: {
     AstCallExpression *ce = DC(AstCallExpression, node);
     std::stringstream ss;
     ss << ce->name() << "(";
@@ -45,21 +45,21 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ")";
     return ss.str();
   }
-  case A_UNARY_EXPRESSION:
+  case AstType::UNA_EXPR:
     return tokenName(DC(AstUnaryExpression, node)->token()) + " " +
            dumpAstImpl(DC(AstUnaryExpression, node)->expression(), depth);
-  case A_BINARY_EXPRESSION:
+  case AstType::BIN_EXPR:
     return dumpAstImpl(DC(AstBinaryExpression, node)->left(), depth) + " " +
            tokenName(DC(AstBinaryExpression, node)->token()) + " " +
            dumpAstImpl(DC(AstBinaryExpression, node)->right(), depth);
-  case A_CONDITIONAL_EXPRESSION:
+  case AstType::COND_EXPR:
     return dumpAstImpl(DC(AstConditionalExpression, node)->condition(), depth) +
            "?" + dumpAstImpl(DC(AstConditionalExpression, node)->hit(), depth) +
            ":" + dumpAstImpl(DC(AstConditionalExpression, node)->miss(), depth);
-  case A_ASSIGNMENT_EXPRESSION:
+  case AstType::ASSIGN_EXPR:
     return dumpAstImpl(DC(AstAssignmentExpression, node)->variable(), depth) +
            "=" + dumpAstImpl(DC(AstAssignmentExpression, node)->value(), depth);
-  case A_SEQUEL_EXPERSSION: {
+  case AstType::SEQ_EXPR: {
     AstSequelExpression *se = DC(AstSequelExpression, node);
     std::stringstream ss;
     for (int i = 0; i < se->expressionList()->size(); i++) {
@@ -70,11 +70,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     }
     return ss.str();
   }
-  case A_EXPRESSION_STATEMENT:
+  case AstType::EXPR_STMT:
     return DS +
            dumpAstImpl(DC(AstExpressionStatement, node)->expression(), depth) +
            ";\n";
-  case A_COMPOUND_STATEMENT: {
+  case AstType::COMP_STMT: {
     AstCompoundStatement *cs = DC(AstCompoundStatement, node);
     std::stringstream ss;
     ss << DS << "{";
@@ -88,11 +88,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n\n";
     return ss.str();
   }
-  case A_IF_STATEMENT: {
+  case AstType::IF_STMT: {
     AstIfStatement *is = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    CASSERT(is->hit(), "is#hit is null");
+    LOG_ASSERT(is->hit(), "is#hit is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
        << dumpAstImpl(is->hit(), depth + 1);
     if (is->miss()) {
@@ -100,7 +100,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     }
     return ss.str();
   }
-  case A_WHILE_STATEMENT: {
+  case AstType::WHILE_STMT: {
     AstWhileStatement *ws = DC(AstWhileStatement, node);
     std::stringstream ss;
     ss << DS << "while (";
@@ -108,7 +108,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
        << dumpAstImpl(ws->statement(), depth + 1);
     return ss.str();
   }
-  case A_FOR_STATEMENT: {
+  case AstType::FOR_STMT: {
     AstForStatement *fs = DC(AstForStatement, node);
     std::stringstream ss;
     ss << DS << "for (" << dumpAstImpl(fs->initial(), depth)
@@ -117,17 +117,17 @@ static std::string dumpAstImpl(Ast *node, int depth) {
        << dumpAstImpl(fs->statement(), depth) << "\n";
     return ss.str();
   }
-  case A_CONTINUE_STATEMENT:
+  case AstType::CONT_STMT:
     return DS + DC(AstContinueStatement, node)->name() + ";\n";
-  case A_BREAK_STATEMENT:
+  case AstType::BRK_STMT:
     return DS + DC(AstBreakStatement, node)->name() + ";\n";
-  case A_RETURN_STATEMENT:
+  case AstType::RET_STMT:
     return DS + DC(AstReturnStatement, node)->name() + " " +
            dumpAstImpl(DC(AstReturnStatement, node)->expression(), depth) +
            ";\n";
-  case A_EMPTY_STATEMENT:
+  case AstType::EMP_STMT:
     return DS + DC(AstEmptyStatement, node)->name() + ";\n";
-  case A_VARIABLE_DECLARATION: {
+  case AstType::VAR_DECL: {
     AstVariableDeclaration *vd = DC(AstVariableDeclaration, node);
     std::stringstream ss;
     ss << DS << vd->name() << ": ";
@@ -140,12 +140,12 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ";\n";
     return ss.str();
   }
-  case A_VARIABLE_ASSIGNMENT_DECLARATION: {
+  case AstType::VAR_ASSIGN_DECL: {
     AstVariableAssignmentDeclaration *vad =
         DC(AstVariableAssignmentDeclaration, node);
     return vad->identifier() + " = " + dumpAstImpl(vad->expression(), depth);
   }
-  case A_FUNCTION_DECLARATION: {
+  case AstType::FUNC_DECL: {
     AstFunctionDeclaration *fd = DC(AstFunctionDeclaration, node);
     std::stringstream ss;
     ss << DS << fd->name() << "(";
@@ -160,7 +160,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ") =>\n" << dumpAstImpl(fd->statement(), depth);
     return ss.str();
   }
-  case A_DECLARATION_LIST: {
+  case AstType::DECL_LIST: {
     AstDeclarationList *dl = DC(AstDeclarationList, node);
     std::stringstream ss;
     ss << DS << dl->name() << "{\n";
@@ -170,7 +170,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case A_TRANSLATE_UNIT: {
+  case AstType::TUNIT: {
     AstTranslateUnit *p = DC(AstTranslateUnit, node);
     std::stringstream ss;
     ss << DS << p->name() << " {\n";
@@ -180,11 +180,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  // case A_EXPRESSION_LIST: {
+  // case AstType::EXPR_LIST: {
   // return DC(AstExpressionList, node)->name();
   //}
   default: {
-    CASSERT(false, "invalid node:{}", node->toString());
+    LOG_ASSERT(false, "invalid node:{}", node->toString());
   }
   }
 }
@@ -266,7 +266,7 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   default:
-    CASSERT(false, "invalid symbol: {} {}", sym->name(), sym->type());
+    LOG_ASSERT(false, "invalid symbol: {} {}", sym->name(), sym->type());
   }
 }
 
@@ -333,7 +333,7 @@ static std::string dumpTypeImpl(Type *ty, int depth) {
     return ss.str();
   }
   default:
-    CASSERT(false, "invalid type: {} {}", ty->name(), ty->type());
+    LOG_ASSERT(false, "invalid type: {} {}", ty->name(), ty->type());
   }
 }
 

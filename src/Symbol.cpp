@@ -21,14 +21,14 @@ void Symbol::pop(Symtab *&global, Symtab *&current) {
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
 void Symtab::define(Symbol *sym) {
-  CASSERT(sym, "symbol is null");
-  CASSERT(hashtab_.find(sym->name()) == hashtab_.end(),
+  LOG_ASSERT(sym, "symbol is null");
+  LOG_ASSERT(hashtab_.find(sym->name()) == hashtab_.end(),
           "symbol {} already exist", sym->name());
   hashtab_.insert(std::make_pair(sym->name(), sym));
 }
 
 Symbol *Symtab::resolve(const std::string &name) {
-  CASSERT(name.length() > 0, "name#length {} > 0", name.length());
+  LOG_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
   if (hashtab_.find(name) != hashtab_.end())
     return hashtab_[name];
   if (enclosingScope_)

@@ -39,16 +39,16 @@ std::string Buffer::fileToModule(const std::string &name) {
 Buffer::Buffer(const std::string &a_fileName, yyscan_t yy_scaninfo)
     : yyBufferState(nullptr), fileName(a_fileName), lineNo(1), fp(nullptr),
       yy_scaninfo_(yy_scaninfo) {
-  CASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
+  LOG_ASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
   fp = std::fopen(fileName.c_str(), "r");
   if (!fp) {
     release();
-    CASSERT(fp, "file {} cannot open!", fileName);
+    LOG_ASSERT(fp, "file {} cannot open!", fileName);
   }
   yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yy_scaninfo_);
   if (!yyBufferState) {
     release();
-    CASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName,
+    LOG_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName,
             (void *)yy_scaninfo_);
   }
 }
@@ -72,7 +72,7 @@ BufferStack::BufferStack(yyscan_t yy_scaninfo)
 
 BufferStack::~BufferStack() {
   yy_scaninfo_ = nullptr;
-  CASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
+  LOG_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
           bufferStack_.size());
 }
 
@@ -93,7 +93,7 @@ int BufferStack::push(const std::string &fileName) {
 }
 
 int BufferStack::pop() {
-  CASSERT(!bufferStack_.empty(), "bufferStack_ must not empty! current file:{}",
+  LOG_ASSERT(!bufferStack_.empty(), "bufferStack_ must not empty! current file:{}",
           bufferStack_.top()->fileName);
   Buffer *tb = bufferStack_.top();
   bufferStack_.pop();

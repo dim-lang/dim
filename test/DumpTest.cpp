@@ -14,12 +14,12 @@ static void go(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  CINFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
+  LOG_INFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
   SymbolTable symtable;
   Semantic::build(&symtable, scanner.translateUnit());
   Semantic::check(&symtable, scanner.translateUnit());
-  CINFO("dump symbol:{} {}", fileName, dumpSymbol(symtable.gss()));
-  CINFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
+  LOG_INFO("dump symbol:{} {}", fileName, dumpSymbol(symtable.gss()));
+  LOG_INFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
 }
 
 TEST_CASE("Dump", "[Dump]") {

@@ -62,7 +62,7 @@ llvm::Value *IrTranslateUnit::codegen(IrContext *context) {
       Ast *ast = node_->get(i);
       switch (ast->type()) {
       default:
-        CINFO("default ast:{}", ast->toString());
+        LOG_INFO("default ast:{}", ast->toString());
       }
     }
   }

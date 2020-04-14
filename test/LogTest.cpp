@@ -6,13 +6,13 @@
 
 TEST_CASE("Log", "[Log]") {
   SECTION("logging operations") {
-    CTRACE("trace test");
-    CTRACE("trace test with args: {} {} {}", "hello", 1, 4.281);
-    CDEBUG("debug test");
-    CDEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
-    CINFO("info test");
-    CINFO("info test with args:{} {} {}", "hello", 1, 4.281);
-    CERROR("error test");
-    CERROR("error test with args:{} {} {}", "hello", 1, 4.281);
+    LOG_TRACE("trace test");
+    LOG_TRACE("trace test with args: {} {} {}", "hello", 1, 4.281);
+    LOG_DEBUG("debug test");
+    LOG_DEBUG("debug test with args:{} {} {}", "hello", 1, 4.281);
+    LOG_INFO("info test");
+    LOG_INFO("info test with args:{} {} {}", "hello", 1, 4.281);
+    LOG_ERROR("error test");
+    LOG_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
   }
 }

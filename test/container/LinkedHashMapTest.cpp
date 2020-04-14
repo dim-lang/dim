@@ -55,7 +55,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.load() == 0.0);
   REQUIRE(hm1.begin() == hm1.end());
   REQUIRE(hm1.rbegin() == hm1.rend());
-  CINFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
+  LOG_INFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
         "hm1.rbegin():{}, hm1.rend():{}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
         hm1.end().toString(), hm1.rbegin().toString(), hm1.rend().toString());
@@ -69,7 +69,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm2.empty());
   REQUIRE(hm2.load() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
-  CINFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
+  LOG_INFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
         "hm2.rend:{}",
         BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
         hm2.end().toString(), hm2.rbegin().toString(), hm2.rend().toString());
@@ -170,7 +170,7 @@ void testRemove(int a, int b) {
   }
   for (int i = a; i < b; i++) {
     if (hm1.find(i) == hm1.end()) {
-      CINFO("i: {}", i);
+      LOG_INFO("i: {}", i);
     }
     REQUIRE(hm1.find(i) != hm1.end());
     if (i % 2 == 0) {

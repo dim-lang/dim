@@ -14,7 +14,7 @@ static void go(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  CINFO("go end, translateUnit: {}", scanner.translateUnit()->toString());
+  LOG_INFO("go end, translateUnit: {}", scanner.translateUnit()->toString());
 }
 
 TEST_CASE("Parser", "[Parser]") {

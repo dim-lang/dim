@@ -9,7 +9,7 @@ Scanner::Scanner()
     : fileName_(""), translateUnit_(nullptr), yy_scaninfo_(nullptr),
       bufferStack_(nullptr) {
   int r = yylex_init_extra(this, &yy_scaninfo_);
-  CASSERT(r == 0, "yylex_init_extra fail: {}", r);
+  LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
   bufferStack_ = new BufferStack(yy_scaninfo_);
 }
@@ -30,36 +30,36 @@ Scanner::~Scanner() {
 }
 
 int Scanner::pushBuffer(const std::string &fileName) {
-  CASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->push(fileName);
 }
 
 int Scanner::popBuffer() {
-  CASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->pop();
 }
 
 const std::string &Scanner::currentBuffer() const {
-  CASSERT(bufferStack_, "bufferStack_ is null");
-  CASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
           bufferStack_->size());
   return bufferStack_->top()->fileName;
 }
 
 Buffer *Scanner::top() const {
-  CASSERT(bufferStack_, "bufferStack_ is null");
-  CASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
           bufferStack_->size());
   return bufferStack_->top();
 }
 
 int Scanner::size() const {
-  CASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->size();
 }
 
 bool Scanner::empty() const {
-  CASSERT(bufferStack_, "bufferStack_ is null");
+  LOG_ASSERT(bufferStack_, "bufferStack_ is null");
   return bufferStack_->empty();
 }
 

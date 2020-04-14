@@ -13,7 +13,7 @@ static void go(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  CINFO("translateUnit: {}", scanner.translateUnit()->toString());
+  LOG_INFO("translateUnit: {}", scanner.translateUnit()->toString());
   SymbolTable symtable;
   Semantic::build(&symtable, scanner.translateUnit());
   Semantic::check(&symtable, scanner.translateUnit());
