@@ -60,7 +60,7 @@ int AstTranslateUnit::type() const { return A_TRANSLATE_UNIT; }
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
-    : AstExpression(nameGen(value, "A_id")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_id")), value_(value) {}
 
 AstIdentifierConstant::~AstIdentifierConstant() {}
 
@@ -73,7 +73,7 @@ std::string AstIdentifierConstant::toString() const {
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
 AstI8Constant::AstI8Constant(const int8_t &value)
-    : AstExpression(nameGen(value, "A_i8")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_i8")), value_(value) {}
 
 AstI8Constant::~AstI8Constant() {}
 
@@ -86,7 +86,7 @@ std::string AstI8Constant::toString() const {
 const int8_t &AstI8Constant::value() const { return value_; }
 
 AstU8Constant::AstU8Constant(const uint8_t &value)
-    : AstExpression(nameGen(value, "A_u8")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_u8")), value_(value) {}
 
 AstU8Constant::~AstU8Constant() {}
 
@@ -99,7 +99,7 @@ std::string AstU8Constant::toString() const {
 const uint8_t &AstU8Constant::value() const { return value_; }
 
 AstI16Constant::AstI16Constant(const int16_t &value)
-    : AstExpression(nameGen(value, "A_i16")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_i16")), value_(value) {}
 
 AstI16Constant::~AstI16Constant() {}
 
@@ -112,7 +112,7 @@ std::string AstI16Constant::toString() const {
 const int16_t &AstI16Constant::value() const { return value_; }
 
 AstU16Constant::AstU16Constant(const uint16_t &value)
-    : AstExpression(nameGen(value, "A_u16")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_u16")), value_(value) {}
 
 AstU16Constant::~AstU16Constant() {}
 
@@ -125,7 +125,7 @@ std::string AstU16Constant::toString() const {
 const uint16_t &AstU16Constant::value() const { return value_; }
 
 AstI32Constant::AstI32Constant(const int32_t &value)
-    : AstExpression(nameGen(value, "A_i32")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_i32")), value_(value) {}
 
 AstI32Constant::~AstI32Constant() {}
 
@@ -138,7 +138,7 @@ std::string AstI32Constant::toString() const {
 const int32_t &AstI32Constant::value() const { return value_; }
 
 AstU32Constant::AstU32Constant(const uint32_t &value)
-    : AstExpression(nameGen(value, "A_u32")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_u32")), value_(value) {}
 
 AstU32Constant::~AstU32Constant() {}
 
@@ -151,7 +151,7 @@ std::string AstU32Constant::toString() const {
 const uint32_t &AstU32Constant::value() const { return value_; }
 
 AstI64Constant::AstI64Constant(const int64_t &value)
-    : AstExpression(nameGen(value, "A_i64")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_i64")), value_(value) {}
 
 AstI64Constant::~AstI64Constant() {}
 
@@ -164,7 +164,7 @@ std::string AstI64Constant::toString() const {
 const int64_t &AstI64Constant::value() const { return value_; }
 
 AstU64Constant::AstU64Constant(const uint64_t &value)
-    : AstExpression(nameGen(value, "A_u64")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_u64")), value_(value) {}
 
 AstU64Constant::~AstU64Constant() {}
 
@@ -177,7 +177,7 @@ std::string AstU64Constant::toString() const {
 const uint64_t &AstU64Constant::value() const { return value_; }
 
 AstF32Constant::AstF32Constant(const float &value)
-    : AstExpression(nameGen(value, "A_f32")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_f32")), value_(value) {}
 
 AstF32Constant::~AstF32Constant() {}
 
@@ -190,7 +190,7 @@ std::string AstF32Constant::toString() const {
 const float &AstF32Constant::value() const { return value_; }
 
 AstF64Constant::AstF64Constant(const double &value)
-    : AstExpression(nameGen(value, "A_f64")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_f64")), value_(value) {}
 
 AstF64Constant::~AstF64Constant() {}
 
@@ -203,7 +203,7 @@ std::string AstF64Constant::toString() const {
 const double &AstF64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
-    : AstExpression(nameGen(value, "A_string")), value_(value) {}
+    : AstExpression(nameGenWith(value, "A_string")), value_(value) {}
 
 AstStringConstant::~AstStringConstant() {}
 
@@ -220,7 +220,7 @@ void AstStringConstant::add(const char *value) {
 }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value)
-    : AstExpression(nameGen((value ? "true" : "false"), "A_Bool")),
+    : AstExpression(nameGenWith((value ? "true" : "false"), "A_Bool")),
       value_(value) {}
 
 AstBooleanConstant::~AstBooleanConstant() {}
@@ -235,7 +235,7 @@ const bool &AstBooleanConstant::value() const { return value_; }
 
 AstCallExpression::AstCallExpression(const char *identifier,
                                      AstExpressionList *argumentList)
-    : AstExpression(nameGen(identifier, "A_Call")), identifier_(identifier),
+    : AstExpression(nameGenWith(identifier, "A_Call")), identifier_(identifier),
       argumentList_(argumentList) {}
 
 AstCallExpression::~AstCallExpression() {
@@ -617,7 +617,7 @@ AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
                                                AstDeclarationList *argumentList,
                                                AstExpression *result,
                                                AstStatement *statement)
-    : AstDeclaration(nameGen(identifier, "A_FuncDecl")),
+    : AstDeclaration(nameGenWith(identifier, "A_FuncDecl")),
       identifier_(identifier), argumentList_(argumentList), result_(result),
       statement_(statement) {}
 
@@ -655,7 +655,7 @@ AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
 
 AstFunctionArgumentDeclaration::AstFunctionArgumentDeclaration(
     const char *value)
-    : AstDeclaration(nameGen(value, "A_FuncArgDecl")), value_(value) {}
+    : AstDeclaration(nameGenWith(value, "A_FuncArgDecl")), value_(value) {}
 
 AstFunctionArgumentDeclaration::~AstFunctionArgumentDeclaration() {}
 
