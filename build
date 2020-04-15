@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-# Copyright 2019- <ac-lang>
+# Copyright 2019- <rsc-lang>
 # Apache License Version 2.0
 
 ROOT=`pwd`
@@ -18,26 +18,26 @@ function build_generate() {
     FMTLIB_VERSION=5.3.0
     ENUM_VERSION=0.11.2
     cd $ROOT
-    echo [ac] prepare catchorg/Catch2 $CATCH2_VERSION
+    echo [rsc] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
         cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2 && cd $ROOT
     fi
-    echo [ac] prepare catchorg/Catch2 $CATCH2_VERSION - done
-    echo [ac] prepare gabime/spdlog $SPDLOG_VERSION
+    echo [rsc] prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo [rsc] prepare gabime/spdlog $SPDLOG_VERSION
     if [ ! -d src/spdlog ]; then
         cd src && git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog && cd $ROOT
     fi
-    echo [ac] prepare gabime/spdlog $SPDLOG_VERSION - done
-    echo [ac] prepare fmtlib/fmt $FMTLIB_VERSION
+    echo [rsc] prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo [rsc] prepare fmtlib/fmt $FMTLIB_VERSION
     if [ ! -d src/fmt ]; then
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
-    echo [ac] prepare fmtlib/fmt $FMTLIB_VERSION - done
-    #echo [ac] prepare aantron/better-enums $ENUM_VERSION
+    echo [rsc] prepare fmtlib/fmt $FMTLIB_VERSION - done
+    #echo [rsc] prepare aantron/better-enums $ENUM_VERSION
     #if [ ! -d src/better-enums ]; then
         #cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums.git && cd $ROOT
     #fi
-    #echo [ac] prepare aantron/better-enums $ENUM_VERSION - done
+    #echo [rsc] prepare aantron/better-enums $ENUM_VERSION - done
 
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
@@ -58,7 +58,7 @@ function build_generate() {
             bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         *)
-            echo [ac] unknown build_generate argument "$1"
+            echo [rsc] unknown build_generate argument "$1"
             exit 3
             ;;
     esac
@@ -82,13 +82,13 @@ function build_make() {
 # $2: job number
 function build_routine() {
     case "$FOS" in
-      solaris*) echo "[ac] solaris not support!" && exit 3 ;;
+      solaris*) echo "[rsc] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[ac] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[rsc] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [ac] build for $FOS, mode=$1, job=$2
+    echo [rsc] build for $FOS, mode=$1, job=$2
     build_generate $1
     build_make $1 $2
 }
@@ -96,13 +96,13 @@ function build_routine() {
 # $1: install path
 function build_install() {
     case "$FOS" in
-      solaris*) echo "[ac] solaris not support!" && exit 3 ;;
+      solaris*) echo "[rsc] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[ac] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[rsc] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [ac] install for $FOS, INSTALL_PATH=$1
+    echo [rsc] install for $FOS, INSTALL_PATH=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cd release
@@ -110,7 +110,7 @@ function build_install() {
 }
 
 function build_help() {
-    echo [ac] help message:
+    echo [rsc] help message:
     echo   build -h/--help              - show help message.
     echo   build -r/--release           - build release.
     echo   build -d/--debug             - build debug.
@@ -141,7 +141,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -t|--test)
-            debug/test/ac-test
+            debug/test/rsc-test
             exit 0
             ;;
         -d|--debug)

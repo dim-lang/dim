@@ -1,7 +1,7 @@
-# Copyright 2019- <ac-lang>
+# Copyright 2019- <rsc-lang>
 # Apache License Version 2.0
 
-project(ac-example VERSION 0.0.1 LANGUAGES CXX)
+project(rsc-example VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -26,15 +26,15 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
-    set(CINC
+    set(RINC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(CLIB
+    set(RLIB
         Threads::Threads
         )
-    set(CLIB_DIR
+    set(RLIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -49,21 +49,21 @@ find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
-set(CINC
-    ${CINC}
+set(RINC
+    ${RINC}
     .
     ../src/spdlog/include
     ../src/fmt/include
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(CLIB
-    ${CLIB}
+set(RLIB
+    ${RLIB}
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     )
-set(CLIB_DIR
-    ${CLIB_DIR}
+set(RLIB_DIR
+    ${RLIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
@@ -78,9 +78,9 @@ message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
 message(llvm_libraries: ${llvm_libraries})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(CINC: ${CINC})
-message(CLIB: ${CLIB})
-message(CLIB_DIR: ${CLIB_DIR})
+message(RINC: ${RINC})
+message(RLIB: ${RLIB})
+message(RLIB_DIR: ${RLIB_DIR})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
@@ -89,10 +89,10 @@ add_definitions(-DBOOST_SYSTEM_DYN_LINK)
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${CINC})
-link_directories(${CLIB_DIR})
+include_directories(${RINC})
+link_directories(${RLIB_DIR})
 
-#add_executable(ac-icu_ustdio icu_ustdio.cpp)
-#target_include_directories(ac-icu_ustdio PRIVATE ${CINC})
-#target_link_libraries(ac-icu_ustdio ${CLIB})
-#set_target_properties(ac-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+#add_executable(rsc-icu_ustdio icu_ustdio.cpp)
+#target_include_directories(rsc-icu_ustdio PRIVATE ${RINC})
+#target_link_libraries(rsc-icu_ustdio ${RLIB})
+#set_target_properties(rsc-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})

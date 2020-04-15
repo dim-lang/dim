@@ -1,4 +1,4 @@
-// Copyright 2019- <ac-lang>
+// Copyright 2019- <rsc-lang>
 // Apache License Version 2.0
 
 #include "Option.h"
@@ -53,7 +53,7 @@ std::string Option::help() const {
 
 bool Option::hasVersion() const { return varMap_.count(OPT_VERSION); }
 
-std::string Option::version() const { return "ac-" PROJECT_VERSION; }
+std::string Option::version() const { return "rsc-" PROJECT_VERSION; }
 
 bool Option::hasFileNames() const { return varMap_.count(OPT_FILE); }
 

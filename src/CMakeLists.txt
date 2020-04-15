@@ -1,11 +1,11 @@
-# Copyright 2019- <ac-lang>
+# Copyright 2019- <rsc-lang>
 # Apache License Version 2.0
 
-project(ac VERSION 0.0.2 LANGUAGES CXX)
+project(rsc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CCORE
+set(RSCC
     Log.cpp
     Option.cpp
     Timer.cpp
@@ -30,8 +30,8 @@ set(CCORE
     Dump.cpp
     Ir.cpp
 )
-set(CSRC
-    ac.cpp
+set(RSC
+    rsc.cpp
 )
 
 if(WIN32)
@@ -53,15 +53,15 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
-    set(CINC
+    set(RINC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(CLIB
+    set(RLIB
         Threads::Threads
         )
-    set(CLIB_DIR
+    set(RLIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -75,8 +75,8 @@ set(Boost_USE_RELEASE_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
-set(CINC
-    ${CINC}
+set(RINC
+    ${RINC}
     .
     spdlog/include
     fmt/include
@@ -84,13 +84,13 @@ set(CINC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(CLIB
-    ${CLIB}
+set(RLIB
+    ${RLIB}
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     )
-set(CLIB_DIR
-    ${CLIB_DIR}
+set(RLIB_DIR
+    ${RLIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
@@ -105,9 +105,9 @@ message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
 message(llvm_libraries: ${llvm_libraries})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(CINC: ${CINC})
-message(CLIB: ${CLIB})
-message(CLIB_DIR: ${CLIB_DIR})
+message(RINC: ${RINC})
+message(RLIB: ${RLIB})
+message(RLIB_DIR: ${RLIB_DIR})
 
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
@@ -116,15 +116,15 @@ add_definitions(-DBOOST_SYSTEM_DYN_LINK)
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${CINC})
-link_directories(${CLIB_DIR})
+include_directories(${RINC})
+link_directories(${RLIB_DIR})
 
-add_library(accore STATIC ${CCORE})
-target_include_directories(accore PRIVATE ${CINC})
-target_link_libraries(accore ${CLIB})
-set_target_properties(accore PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(rscc STATIC ${RSCC})
+target_include_directories(rscc PRIVATE ${RINC})
+target_link_libraries(rscc ${RLIB})
+set_target_properties(rscc PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(ac ${CSRC})
-target_include_directories(ac PRIVATE ${CINC})
-target_link_libraries(ac ${CLIB} accore)
-set_target_properties(ac PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rsc ${RSC})
+target_include_directories(rsc PRIVATE ${RINC})
+target_link_libraries(rsc ${RLIB} rscc)
+set_target_properties(rsc PROPERTIES VERSION ${PROJECT_VERSION})

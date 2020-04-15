@@ -15,9 +15,9 @@ func World(x, y) {
     return z + 10 / 4;
 }
 
-/*import test.DslTest1;*/
+/* import test.Parser1; */
 
 func fail() {
-    print("This is the very end of DslTest2.fast");
+    print("This is the very end of Parser2.rsc");
     print("Goodbye World!");
 }

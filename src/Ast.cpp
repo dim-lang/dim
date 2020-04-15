@@ -1,4 +1,4 @@
-// Copyright 2019- <ac-lang>
+// Copyright 2019- <rsc-lang>
 // Apache License Version 2.0
 
 #include "Ast.h"
