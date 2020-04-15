@@ -22,7 +22,7 @@ void Tytab::define(Symbol *sym, Type *ty) {
   LOG_ASSERT(sym, "sym is null");
   LOG_ASSERT(ty, "ty is null");
   LOG_ASSERT(hashtab_.find(sym) == hashtab_.end(), "sym {}:{} already exist",
-          (void *)sym, sym->name());
+             (void *)sym, sym->name());
   hashtab_.insert(std::make_pair(sym, ty));
 }
 
@@ -59,7 +59,7 @@ BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
 
 std::string BuiltinType::name() const { return builtinTypeName_; }
 
-int BuiltinType::type() const { return TY_BUILTIN; }
+TyType BuiltinType::type() const { return TyType::Builtin; }
 
 BuiltinType *BuiltinType::ty_i8() {
   static BuiltinType *type_i8 = new BuiltinType("i8");
@@ -146,7 +146,7 @@ ClassType::ClassType(const std::string &classType,
 
 std::string ClassType::name() const { return classType_; }
 
-int ClassType::type() const { return TY_CLASS; }
+TyType ClassType::type() const { return TyType::Class; }
 
 std::string ClassType::stringify() const { return "ClassType"; }
 
@@ -172,7 +172,7 @@ FunctionType::FunctionType(
 
 std::string FunctionType::name() const { return functionType_; }
 
-int FunctionType::type() const { return TY_FUNC; }
+TyType FunctionType::type() const { return TyType::Function; }
 
 std::string FunctionType::stringify() const { return "FunctionType"; }
 
@@ -183,7 +183,7 @@ std::string GlobalTytab::name() const {
   return globalTytabName;
 }
 
-int GlobalTytab::type() const { return TY_GLOBAL; }
+TyType GlobalTytab::type() const { return TyType::Global; }
 
 std::string GlobalTytab::stringify() const { return "GlobalTytab"; }
 
@@ -192,6 +192,6 @@ LocalTytab::LocalTytab(const std::string &localTytabName, Tytab *enclosingScope)
 
 std::string LocalTytab::name() const { return localTytabName_; }
 
-int LocalTytab::type() const { return TY_LOCAL; }
+TyType LocalTytab::type() const { return TyType::Local; }
 
 std::string LocalTytab::stringify() const { return "LocalTytab"; }

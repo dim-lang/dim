@@ -8,25 +8,24 @@
 #include "container/LinkedHashMap.hpp"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
-#include "interface/Typely.h"
 #include <string>
 #include <utility>
 #include <vector>
 
-#define TY_BUILTIN 101
-#define TY_CLASS 102
-#define TY_FUNC 103
-
-#define TY_GLOBAL 201
-#define TY_LOCAL 202
+/*================ type start from 3000 ================*/
+BETTER_ENUM(TyType, int,
+            // type
+            Builtin = 3000, Class, Function,
+            // type scope
+            Global, Local)
 
 class Tytab;
 
-class Type : public Namely, public Typely, private boost::noncopyable {
+class Type : public Namely, private boost::noncopyable {
 public:
   virtual ~Type() = default;
   virtual std::string name() const = 0;
-  virtual int type() const = 0;
+  virtual TyType type() const = 0;
 
   static void push(Tytab *&global, Tytab *&current, Tytab *s);
   static void pop(Tytab *&global, Tytab *&current);
@@ -40,7 +39,7 @@ public:
   Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
   virtual std::string name() const = 0;
-  virtual int type() const = 0;
+  virtual TyType type() const = 0;
   virtual void define(Symbol *sym, Type *ty);
   virtual Type *resolve(Symbol *sym);
   virtual Tytab *enclosingScope();
@@ -63,7 +62,7 @@ class BuiltinType : public Type {
 public:
   virtual ~BuiltinType() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual TyType type() const;
 
   static BuiltinType *ty_i8();
   static BuiltinType *ty_u8();
@@ -93,7 +92,7 @@ public:
             Tytab *enclosingScope);
   virtual ~ClassType() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual TyType type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();
@@ -110,7 +109,7 @@ public:
                Type *result, Tytab *enclosingScope);
   virtual ~FunctionType() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual TyType type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();
@@ -126,7 +125,7 @@ public:
   GlobalTytab();
   virtual ~GlobalTytab() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual TyType type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();
@@ -141,7 +140,7 @@ public:
   LocalTytab(const std::string &localTytabName, Tytab *enclosingScope);
   virtual ~LocalTytab() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual TyType type() const;
   // virtual void define(Symbol *sym, Type *ty);
   // virtual Type *resolve(Symbol *sym);
   // virtual Tytab *enclosingScope();

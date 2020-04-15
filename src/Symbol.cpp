@@ -23,7 +23,7 @@ Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
 void Symtab::define(Symbol *sym) {
   LOG_ASSERT(sym, "symbol is null");
   LOG_ASSERT(hashtab_.find(sym->name()) == hashtab_.end(),
-          "symbol {} already exist", sym->name());
+             "symbol {} already exist", sym->name());
   hashtab_.insert(std::make_pair(sym->name(), sym));
 }
 
@@ -61,7 +61,7 @@ VariableSymbol::VariableSymbol(const std::string &variableName)
 
 std::string VariableSymbol::name() const { return variableName_; }
 
-int VariableSymbol::type() const { return SYM_VAR; }
+SymType VariableSymbol::type() const { return SymType::Variable; }
 
 FunctionArgumentSymbol::FunctionArgumentSymbol(
     const std::string &functionArgumentName)
@@ -71,7 +71,9 @@ std::string FunctionArgumentSymbol::name() const {
   return functionArgumentName_;
 }
 
-int FunctionArgumentSymbol::type() const { return SYM_FUNC_ARG; }
+SymType FunctionArgumentSymbol::type() const {
+  return SymType::FunctionArgument;
+}
 
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
                                Symtab *enclosingScope)
@@ -79,7 +81,7 @@ FunctionSymbol::FunctionSymbol(const std::string &functionName,
 
 std::string FunctionSymbol::name() const { return functionName_; }
 
-int FunctionSymbol::type() const { return SYM_FUNC; }
+SymType FunctionSymbol::type() const { return SymType::Function; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
@@ -88,7 +90,7 @@ ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
 
 std::string ClassSymbol::name() const { return className_; }
 
-int ClassSymbol::type() const { return SYM_CLASS; }
+SymType ClassSymbol::type() const { return SymType::Class; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
@@ -99,7 +101,7 @@ std::string GlobalSymtab::name() const {
   return globalSymtabName;
 }
 
-int GlobalSymtab::type() const { return SYM_GLOBAL; }
+SymType GlobalSymtab::type() const { return SymType::Global; }
 
 std::string GlobalSymtab::stringify() const { return "GlobalSymtab"; }
 
@@ -109,6 +111,6 @@ LocalSymtab::LocalSymtab(const std::string &localSymtabName,
 
 std::string LocalSymtab::name() const { return localSymtabName_; }
 
-int LocalSymtab::type() const { return SYM_LOCAL; }
+SymType LocalSymtab::type() const { return SymType::Local; }
 
 std::string LocalSymtab::stringify() const { return "LocalSymtab"; }

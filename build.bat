@@ -32,12 +32,12 @@ if not exist %ROOT%\src\fmt (
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
 )
 echo [rsc] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-REM echo [rsc] prepare aantron/better-enums %ENUM_VERSION%
-REM if not exist %ROOT%\src\better-enums (
-    REM cd %ROOT%\src
-    REM git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
-REM )
-REM echo [rsc] prepare aantron/better-enums %ENUM_VERSION% - done
+echo [rsc] prepare aantron/better-enums %ENUM_VERSION%
+if not exist %ROOT%\src\better-enums (
+    cd %ROOT%\src
+    git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
+)
+echo [rsc] prepare aantron/better-enums %ENUM_VERSION% - done
 echo [rsc] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src

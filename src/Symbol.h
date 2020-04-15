@@ -5,26 +5,25 @@
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
 #include "container/LinkedHashMap.hpp"
+#include "enum.h"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
-#include "interface/Typely.h"
 #include <string>
 
-#define SYM_VAR 101
-#define SYM_FUNC_ARG 102
-#define SYM_FUNC 103
-#define SYM_CLASS 104
-
-#define SYM_GLOBAL 201
-#define SYM_LOCAL 202
+/*================ type start from 2000 ================*/
+BETTER_ENUM(SymType, int,
+            // symbol
+            Variable = 2000, FunctionArgument, Function, Class,
+            // symbol scope
+            Global, Local)
 
 class Symtab;
 
-class Symbol : public Namely, public Typely, private boost::noncopyable {
+class Symbol : public Namely, private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
-  virtual int type() const = 0;
+  virtual SymType type() const = 0;
 
   static void push(Symtab *&global, Symtab *&current, Symtab *scope);
   static void pop(Symtab *&global, Symtab *&current);
@@ -38,7 +37,7 @@ public:
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
   virtual std::string name() const = 0;
-  virtual int type() const = 0;
+  virtual SymType type() const = 0;
   virtual void define(Symbol *sym);
   virtual Symbol *resolve(const std::string &name);
   virtual Symtab *enclosingScope();
@@ -62,7 +61,7 @@ public:
   VariableSymbol(const std::string &variableName);
   virtual ~VariableSymbol() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
 
 private:
   std::string variableName_;
@@ -73,7 +72,7 @@ public:
   FunctionArgumentSymbol(const std::string &functionArgumentName);
   virtual ~FunctionArgumentSymbol() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
 
 private:
   std::string functionArgumentName_;
@@ -84,7 +83,7 @@ public:
   FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
   virtual ~FunctionSymbol() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -100,7 +99,7 @@ public:
   ClassSymbol(const std::string &className, Symtab *enclosingScope);
   virtual ~ClassSymbol() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -116,7 +115,7 @@ public:
   GlobalSymtab();
   virtual ~GlobalSymtab() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
@@ -131,7 +130,7 @@ public:
   LocalSymtab(const std::string &localSymtabName, Symtab *enclosingScope);
   virtual ~LocalSymtab() = default;
   virtual std::string name() const;
-  virtual int type() const;
+  virtual SymType type() const;
   // virtual void define(Symbol *sym);
   // virtual Symbol *resolve(const std::string &name);
   // virtual Symtab *enclosingScope();
