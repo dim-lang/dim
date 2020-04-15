@@ -31,13 +31,13 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   case A_BOOLEAN_CONSTANT:
     return node->name();
   case A_CALL_EXPRESSION: {
-    AstCallExpression *ce = DC(AstCallExpression, node);
+    AstCallExpression *e = DC(AstCallExpression, node);
     std::stringstream ss;
-    ss << ce->name() << "(";
-    if (ce->argumentList()) {
-      for (int i = 0; i < ce->argumentList()->size(); i++) {
-        ss << dumpAstImpl(ce->argumentList()->get(i), depth);
-        if (i < ce->argumentList()->size() - 1) {
+    ss << e->name() << "(";
+    if (e->argumentList()) {
+      for (int i = 0; i < e->argumentList()->size(); i++) {
+        ss << dumpAstImpl(e->argumentList()->get(i), depth);
+        if (i < e->argumentList()->size() - 1) {
           ss << ", ";
         }
       }
@@ -60,11 +60,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     return dumpAstImpl(DC(AstAssignmentExpression, node)->variable(), depth) +
            "=" + dumpAstImpl(DC(AstAssignmentExpression, node)->value(), depth);
   case A_SEQUEL_EXPERSSION: {
-    AstSequelExpression *se = DC(AstSequelExpression, node);
+    AstSequelExpression *e = DC(AstSequelExpression, node);
     std::stringstream ss;
-    for (int i = 0; i < se->expressionList()->size(); i++) {
-      ss << dumpAstImpl(se->expressionList()->get(i), depth);
-      if (i < (int)se->expressionList()->size() - 1) {
+    for (int i = 0; i < e->expressionList()->size(); i++) {
+      ss << dumpAstImpl(e->expressionList()->get(i), depth);
+      if (i < (int)e->expressionList()->size() - 1) {
         ss << ",";
       }
     }
@@ -75,13 +75,13 @@ static std::string dumpAstImpl(Ast *node, int depth) {
            dumpAstImpl(DC(AstExpressionStatement, node)->expression(), depth) +
            ";\n";
   case A_COMPOUND_STATEMENT: {
-    AstCompoundStatement *cs = DC(AstCompoundStatement, node);
+    AstCompoundStatement *e = DC(AstCompoundStatement, node);
     std::stringstream ss;
     ss << DS << "{";
-    if (cs->statementList() && cs->statementList()->size() > 0) {
+    if (e->statementList() && e->statementList()->size() > 0) {
       ss << "\n";
-      for (int i = 0; i < cs->statementList()->size(); i++) {
-        ss << dumpAstImpl(cs->statementList()->get(i), depth + 1);
+      for (int i = 0; i < e->statementList()->size(); i++) {
+        ss << dumpAstImpl(e->statementList()->get(i), depth + 1);
       }
       ss << DS;
     }
@@ -220,11 +220,11 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   case SYM_FUNC_ARG:
     return DC(FunctionArgumentSymbol, sym)->name();
   case SYM_CLASS: {
-    ClassSymbol *cs = DC(ClassSymbol, sym);
+    ClassSymbol *e = DC(ClassSymbol, sym);
     std::stringstream ss;
-    ss << DS << "class " << cs->name() << " {";
-    if (!cs->empty()) {
-      for (auto i = cs->begin(); i != cs->end(); i++) {
+    ss << DS << "class " << e->name() << " {";
+    if (!e->empty()) {
+      for (auto i = e->begin(); i != e->end(); i++) {
         ss << "\n" << DS << i->first;
         if (IS_SYMTAB(i->second)) {
           ss << " => " << dumpSymbolImpl(i->second, depth + 1);
@@ -236,11 +236,11 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   case SYM_LOCAL: {
-    LocalSymtab *ls = DC(LocalSymtab, sym);
+    LocalSymtab *e = DC(LocalSymtab, sym);
     std::stringstream ss;
-    ss << "local " << ls->name() << " {";
-    if (!ls->empty()) {
-      for (auto i = ls->begin(); i != ls->end(); i++) {
+    ss << "local " << e->name() << " {";
+    if (!e->empty()) {
+      for (auto i = e->begin(); i != e->end(); i++) {
         ss << "\n"
            << DS << i->first << " => " << dumpSymbolImpl(i->second, depth + 1);
       }
@@ -250,11 +250,11 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   case SYM_GLOBAL: {
-    GlobalSymtab *gs = DC(GlobalSymtab, sym);
+    GlobalSymtab *e = DC(GlobalSymtab, sym);
     std::stringstream ss;
-    ss << DS << gs->name() << " {";
-    if (!gs->empty()) {
-      for (auto i = gs->begin(); i != gs->end(); i++) {
+    ss << DS << e->name() << " {";
+    if (!e->empty()) {
+      for (auto i = e->begin(); i != e->end(); i++) {
         ss << "\n" << DS << i->first;
         if (IS_SYMTAB(i->second)) {
           ss << " => " << dumpSymbolImpl(i->second, depth + 1);
