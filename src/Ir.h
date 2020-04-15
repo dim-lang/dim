@@ -36,7 +36,7 @@ BETTER_ENUM(IrType, int,
             ForStatement, ContinueStatement, BreakStatement, ReturnStatement,
             EmptyStatement,
             // declaration
-            VariableDeclaration, VariableAssignmentDeclaration,
+            VariableDeclaration, VariableInitialDeclaration,
             FunctionDeclaration, FunctionArgumentDeclaration,
             // list
             ExpressionList, StatementList, DeclarationList,
@@ -75,7 +75,7 @@ class IrBreakStatement;
 class IrReturnStatement;
 class IrEmptyStatement;
 class IrVariableDeclaration;
-class IrVariableAssignmentDeclaration;
+class IrVariableInitialDeclaration;
 class IrFunctionDeclaration;
 class IrFunctionArgumentDeclaration;
 
@@ -493,11 +493,10 @@ protected:
 };
 
 /* variable assignment declaration */
-class IrVariableAssignmentDeclaration
-    : public Ir<AstVariableAssignmentDeclaration> {
+class IrVariableInitialDeclaration : public Ir<AstVariableInitialDeclaration> {
 public:
-  IrVariableAssignmentDeclaration(AstVariableAssignmentDeclaration *node);
-  virtual ~IrVariableAssignmentDeclaration() = default;
+  IrVariableInitialDeclaration(AstVariableInitialDeclaration *node);
+  virtual ~IrVariableInitialDeclaration() = default;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 

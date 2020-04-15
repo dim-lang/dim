@@ -24,8 +24,6 @@ AstDeclaration::AstDeclaration(const std::string &name) : AstStatement(name) {}
 AstExpressionList::AstExpressionList()
     : detail::AstList<AstExpression>(nameGen("A_ExpList")) {}
 
-AstExpressionList::~AstExpressionList() {}
-
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
 AstType AstExpressionList::type() const { return AstType::ExpressionList; }
@@ -33,16 +31,12 @@ AstType AstExpressionList::type() const { return AstType::ExpressionList; }
 AstStatementList::AstStatementList()
     : detail::AstList<AstStatement>(nameGen("A_StmList")) {}
 
-AstStatementList::~AstStatementList() {}
-
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
 AstType AstStatementList::type() const { return AstType::StatementList; }
 
 AstDeclarationList::AstDeclarationList()
     : detail::AstList<AstDeclaration>(nameGen("A_DeclList")) {}
-
-AstDeclarationList::~AstDeclarationList() {}
 
 std::string AstDeclarationList::stringify() const {
   return "AstDeclarationList";
@@ -53,16 +47,12 @@ AstType AstDeclarationList::type() const { return AstType::DeclarationList; }
 AstTranslateUnit::AstTranslateUnit()
     : detail::AstList<AstDeclaration>(nameGen("A_Unit")) {}
 
-AstTranslateUnit::~AstTranslateUnit() {}
-
 AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
 
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
     : AstExpression(nameGenWith(value, "A_id")), value_(value) {}
-
-AstIdentifierConstant::~AstIdentifierConstant() {}
 
 AstType AstIdentifierConstant::type() const {
   return AstType::IdentifierConstant;
@@ -77,8 +67,6 @@ const std::string &AstIdentifierConstant::value() const { return value_; }
 AstI8Constant::AstI8Constant(const int8_t &value)
     : AstExpression(nameGenWith(value, "A_i8")), value_(value) {}
 
-AstI8Constant::~AstI8Constant() {}
-
 AstType AstI8Constant::type() const { return AstType::I8Constant; }
 
 std::string AstI8Constant::toString() const {
@@ -89,8 +77,6 @@ const int8_t &AstI8Constant::value() const { return value_; }
 
 AstU8Constant::AstU8Constant(const uint8_t &value)
     : AstExpression(nameGenWith(value, "A_u8")), value_(value) {}
-
-AstU8Constant::~AstU8Constant() {}
 
 AstType AstU8Constant::type() const { return AstType::U8Constant; }
 
@@ -103,8 +89,6 @@ const uint8_t &AstU8Constant::value() const { return value_; }
 AstI16Constant::AstI16Constant(const int16_t &value)
     : AstExpression(nameGenWith(value, "A_i16")), value_(value) {}
 
-AstI16Constant::~AstI16Constant() {}
-
 AstType AstI16Constant::type() const { return AstType::I16Constant; }
 
 std::string AstI16Constant::toString() const {
@@ -115,8 +99,6 @@ const int16_t &AstI16Constant::value() const { return value_; }
 
 AstU16Constant::AstU16Constant(const uint16_t &value)
     : AstExpression(nameGenWith(value, "A_u16")), value_(value) {}
-
-AstU16Constant::~AstU16Constant() {}
 
 AstType AstU16Constant::type() const { return AstType::U16Constant; }
 
@@ -129,8 +111,6 @@ const uint16_t &AstU16Constant::value() const { return value_; }
 AstI32Constant::AstI32Constant(const int32_t &value)
     : AstExpression(nameGenWith(value, "A_i32")), value_(value) {}
 
-AstI32Constant::~AstI32Constant() {}
-
 AstType AstI32Constant::type() const { return AstType::I32Constant; }
 
 std::string AstI32Constant::toString() const {
@@ -141,8 +121,6 @@ const int32_t &AstI32Constant::value() const { return value_; }
 
 AstU32Constant::AstU32Constant(const uint32_t &value)
     : AstExpression(nameGenWith(value, "A_u32")), value_(value) {}
-
-AstU32Constant::~AstU32Constant() {}
 
 AstType AstU32Constant::type() const { return AstType::U32Constant; }
 
@@ -155,8 +133,6 @@ const uint32_t &AstU32Constant::value() const { return value_; }
 AstI64Constant::AstI64Constant(const int64_t &value)
     : AstExpression(nameGenWith(value, "A_i64")), value_(value) {}
 
-AstI64Constant::~AstI64Constant() {}
-
 AstType AstI64Constant::type() const { return AstType::I64Constant; }
 
 std::string AstI64Constant::toString() const {
@@ -167,8 +143,6 @@ const int64_t &AstI64Constant::value() const { return value_; }
 
 AstU64Constant::AstU64Constant(const uint64_t &value)
     : AstExpression(nameGenWith(value, "A_u64")), value_(value) {}
-
-AstU64Constant::~AstU64Constant() {}
 
 AstType AstU64Constant::type() const { return AstType::U64Constant; }
 
@@ -181,8 +155,6 @@ const uint64_t &AstU64Constant::value() const { return value_; }
 AstF32Constant::AstF32Constant(const float &value)
     : AstExpression(nameGenWith(value, "A_f32")), value_(value) {}
 
-AstF32Constant::~AstF32Constant() {}
-
 AstType AstF32Constant::type() const { return AstType::F32Constant; }
 
 std::string AstF32Constant::toString() const {
@@ -194,8 +166,6 @@ const float &AstF32Constant::value() const { return value_; }
 AstF64Constant::AstF64Constant(const double &value)
     : AstExpression(nameGenWith(value, "A_f64")), value_(value) {}
 
-AstF64Constant::~AstF64Constant() {}
-
 AstType AstF64Constant::type() const { return AstType::F64Constant; }
 
 std::string AstF64Constant::toString() const {
@@ -206,8 +176,6 @@ const double &AstF64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
     : AstExpression(nameGenWith(value, "A_string")), value_(value) {}
-
-AstStringConstant::~AstStringConstant() {}
 
 AstType AstStringConstant::type() const { return AstType::StringConstant; }
 
@@ -224,8 +192,6 @@ void AstStringConstant::add(const char *value) {
 AstBooleanConstant::AstBooleanConstant(const bool &value)
     : AstExpression(nameGenWith((value ? "true" : "false"), "A_Bool")),
       value_(value) {}
-
-AstBooleanConstant::~AstBooleanConstant() {}
 
 AstType AstBooleanConstant::type() const { return AstType::BooleanConstant; }
 
@@ -598,32 +564,32 @@ AstDeclarationList *AstVariableDeclaration::declarationList() const {
   return declarationList_;
 }
 
-AstVariableAssignmentDeclaration::AstVariableAssignmentDeclaration(
+AstVariableInitialDeclaration::AstVariableInitialDeclaration(
     const char *identifier, AstExpression *expression)
     : AstDeclaration(nameGen("A_VarAssDecl")), identifier_(identifier),
       expression_(expression) {}
 
-AstVariableAssignmentDeclaration::~AstVariableAssignmentDeclaration() {
+AstVariableInitialDeclaration::~AstVariableInitialDeclaration() {
   delete expression_;
   expression_ = nullptr;
 }
 
-AstType AstVariableAssignmentDeclaration::type() const {
-  return AstType::VariableAssignmentDeclaration;
+AstType AstVariableInitialDeclaration::type() const {
+  return AstType::VariableInitialDeclaration;
 }
 
-std::string AstVariableAssignmentDeclaration::toString() const {
+std::string AstVariableInitialDeclaration::toString() const {
   std::string expr = expression_ ? expression_->toString() : "null";
   return fmt::format(
-      "[ @AstVariableAssignmentDeclaration identifier_:{}, expression_:{} ]",
+      "[ @AstVariableInitialDeclaration identifier_:{}, expression_:{} ]",
       identifier_, expr);
 }
 
-const std::string &AstVariableAssignmentDeclaration::identifier() const {
+const std::string &AstVariableInitialDeclaration::identifier() const {
   return identifier_;
 }
 
-AstExpression *AstVariableAssignmentDeclaration::expression() const {
+AstExpression *AstVariableInitialDeclaration::expression() const {
   return expression_;
 }
 

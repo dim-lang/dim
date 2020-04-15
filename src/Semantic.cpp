@@ -40,9 +40,9 @@ void Semantic::build(SymbolTable *symtable, const Ast *node) {
       }
     }
   } break;
-  case AstType::VariableAssignmentDeclaration: {
-    const AstVariableAssignmentDeclaration *e =
-        DC(AstVariableAssignmentDeclaration, node);
+  case AstType::VariableInitialDeclaration: {
+    const AstVariableInitialDeclaration *e =
+        DC(AstVariableInitialDeclaration, node);
     VariableSymbol *vs = new VariableSymbol(e->identifier());
     symtable->css()->define(vs);
     switch (e->expression()->type()) {

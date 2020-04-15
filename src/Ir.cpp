@@ -653,22 +653,22 @@ std::string IrVariableDeclaration::stringify() const {
   return "IrVariableDeclaration";
 }
 
-/* variable assignment declaration */
-IrVariableAssignmentDeclaration::IrVariableAssignmentDeclaration(
-    AstVariableAssignmentDeclaration *node)
-    : Ir<AstVariableAssignmentDeclaration>(
-          node, nameGen("IrVariableAssignmentDeclaration")) {}
+/* variable initial declaration */
+IrVariableInitialDeclaration::IrVariableInitialDeclaration(
+    AstVariableInitialDeclaration *node)
+    : Ir<AstVariableInitialDeclaration>(
+          node, nameGen("IrVariableInitialDeclaration")) {}
 
-IrType IrVariableAssignmentDeclaration::type() const {
-  return IrType::VariableAssignmentDeclaration;
+IrType IrVariableInitialDeclaration::type() const {
+  return IrType::VariableInitialDeclaration;
 }
 
-llvm::Value *IrVariableAssignmentDeclaration::codeGen(IrContext *context) {
+llvm::Value *IrVariableInitialDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrVariableAssignmentDeclaration::stringify() const {
-  return "IrVariableAssignmentDeclaration";
+std::string IrVariableInitialDeclaration::stringify() const {
+  return "IrVariableInitialDeclaration";
 }
 
 /* function declaration */

@@ -140,9 +140,9 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ";\n";
     return ss.str();
   }
-  case AstType::VariableAssignmentDeclaration: {
-    AstVariableAssignmentDeclaration *vad =
-        DC(AstVariableAssignmentDeclaration, node);
+  case AstType::VariableInitialDeclaration: {
+    AstVariableInitialDeclaration *vad =
+        DC(AstVariableInitialDeclaration, node);
     return vad->identifier() + " = " + dumpAstImpl(vad->expression(), depth);
   }
   case AstType::FunctionDeclaration: {

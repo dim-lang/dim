@@ -242,7 +242,7 @@ variable_assignment_declaration_list : variable_assignment_declaration { $$ = ne
                                      | variable_assignment_declaration T_COMMA variable_assignment_declaration_list { $3->add($1); $$ = $3; }
                                      ;
 
-variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableAssignmentDeclaration($1, $3); }
+variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableInitialDeclaration($1, $3); }
                                 ;
 
  /**

@@ -27,7 +27,7 @@ BETTER_ENUM(AstType, int,
             ForStatement, ContinueStatement, BreakStatement, ReturnStatement,
             EmptyStatement,
             // declaration
-            VariableDeclaration, VariableAssignmentDeclaration,
+            VariableDeclaration, VariableInitialDeclaration,
             FunctionDeclaration, FunctionArgumentDeclaration,
             // list
             ExpressionList, StatementList, DeclarationList,
@@ -84,7 +84,7 @@ class AstEmptyStatement;
 /* declaration */
 class AstDeclaration;
 class AstVariableDeclaration;
-class AstVariableAssignmentDeclaration;
+class AstVariableInitialDeclaration;
 class AstFunctionDeclaration;
 class AstFunctionArgumentDeclaration;
 
@@ -176,7 +176,7 @@ protected:
 class AstExpressionList : public detail::AstList<AstExpression> {
 public:
   AstExpressionList();
-  virtual ~AstExpressionList();
+  virtual ~AstExpressionList() = default;
   virtual AstType type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
@@ -191,7 +191,7 @@ private:
 class AstStatementList : public detail::AstList<AstStatement> {
 public:
   AstStatementList();
-  virtual ~AstStatementList();
+  virtual ~AstStatementList() = default;
   virtual AstType type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
@@ -206,7 +206,7 @@ private:
 class AstDeclarationList : public detail::AstList<AstDeclaration> {
 public:
   AstDeclarationList();
-  virtual ~AstDeclarationList();
+  virtual ~AstDeclarationList() = default;
   virtual AstType type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
@@ -223,7 +223,7 @@ private:
 class AstTranslateUnit : public detail::AstList<AstDeclaration> {
 public:
   AstTranslateUnit();
-  virtual ~AstTranslateUnit();
+  virtual ~AstTranslateUnit() = default;
   virtual AstType type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
@@ -239,7 +239,7 @@ private:
 class AstIdentifierConstant : public AstExpression {
 public:
   AstIdentifierConstant(const char *value);
-  virtual ~AstIdentifierConstant();
+  virtual ~AstIdentifierConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -253,7 +253,7 @@ private:
 class AstI8Constant : public AstExpression {
 public:
   AstI8Constant(const int8_t &value);
-  virtual ~AstI8Constant();
+  virtual ~AstI8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -267,7 +267,7 @@ private:
 class AstU8Constant : public AstExpression {
 public:
   AstU8Constant(const uint8_t &value);
-  virtual ~AstU8Constant();
+  virtual ~AstU8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -281,7 +281,7 @@ private:
 class AstI16Constant : public AstExpression {
 public:
   AstI16Constant(const int16_t &value);
-  virtual ~AstI16Constant();
+  virtual ~AstI16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -295,7 +295,7 @@ private:
 class AstU16Constant : public AstExpression {
 public:
   AstU16Constant(const uint16_t &value);
-  virtual ~AstU16Constant();
+  virtual ~AstU16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -309,7 +309,7 @@ private:
 class AstI32Constant : public AstExpression {
 public:
   AstI32Constant(const int32_t &value);
-  virtual ~AstI32Constant();
+  virtual ~AstI32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -323,7 +323,7 @@ private:
 class AstU32Constant : public AstExpression {
 public:
   AstU32Constant(const uint32_t &value);
-  virtual ~AstU32Constant();
+  virtual ~AstU32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -337,7 +337,7 @@ private:
 class AstI64Constant : public AstExpression {
 public:
   AstI64Constant(const int64_t &value);
-  virtual ~AstI64Constant();
+  virtual ~AstI64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -351,7 +351,7 @@ private:
 class AstU64Constant : public AstExpression {
 public:
   AstU64Constant(const uint64_t &value);
-  virtual ~AstU64Constant();
+  virtual ~AstU64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -365,7 +365,7 @@ private:
 class AstF32Constant : public AstExpression {
 public:
   AstF32Constant(const float &value);
-  virtual ~AstF32Constant();
+  virtual ~AstF32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -379,7 +379,7 @@ private:
 class AstF64Constant : public AstExpression {
 public:
   AstF64Constant(const double &value);
-  virtual ~AstF64Constant();
+  virtual ~AstF64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -393,7 +393,7 @@ private:
 class AstStringConstant : public AstExpression {
 public:
   AstStringConstant(const char *value);
-  virtual ~AstStringConstant();
+  virtual ~AstStringConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -408,7 +408,7 @@ private:
 class AstBooleanConstant : public AstExpression {
 public:
   AstBooleanConstant(const bool &value);
-  virtual ~AstBooleanConstant();
+  virtual ~AstBooleanConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -662,12 +662,12 @@ private:
   AstDeclarationList *declarationList_;
 };
 
-/* variable assignment declaration */
-class AstVariableAssignmentDeclaration : public AstDeclaration {
+/* variable initial declaration */
+class AstVariableInitialDeclaration : public AstDeclaration {
 public:
-  AstVariableAssignmentDeclaration(const char *identifier,
-                                   AstExpression *expression);
-  virtual ~AstVariableAssignmentDeclaration();
+  AstVariableInitialDeclaration(const char *identifier,
+                                AstExpression *expression);
+  virtual ~AstVariableInitialDeclaration();
   virtual AstType type() const;
   virtual std::string toString() const;
   virtual const std::string &identifier() const;
