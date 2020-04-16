@@ -23,6 +23,10 @@
 #include "llvm/Target/TargetMachine.h"
 
 #define DC(x, y) dynamic_cast<x *>(y)
+#define ADDTMP "addtmp"
+#define SUBTMP "subtmp"
+#define MULTMP "multmp"
+#define DIVTMP "divtmp"
 
 /* ir context */
 IrContext::IrContext()
@@ -301,29 +305,6 @@ IrBinaryExpression::~IrBinaryExpression() {
 }
 
 IrType IrBinaryExpression::type() const { return IrType::BinaryExpression; }
-
-static llvm::Value *binOp(llvm::Value *l, llvm::Value *r, int token) {
-  switch (token) {
-  case T_ADD:
-  case T_SUB:
-  default:
-    LOG_ASSERT(false, "token {} invalid", token);
-  }
-  return nullptr;
-}
-
-#define IR_FADD(x, y) context->builder().CreateFAdd(x, y, "addtmp")
-#define IR_ADD(x, y) context->builder().CreateAdd(x, y, "addtmp")
-#define IR_FSUB(x, y) context->builder().CreateFSub(x, y, "subtmp")
-#define IR_SUB(x, y) context->builder().CreateSub(x, y, "subtmp")
-#define IR_FMUL(x, y) context->builder().CreateFMul(x, y, "multmp")
-#define IR_MUL(x, y) context->builder().CreateMul(x, y, "multmp")
-#define IR_FDIV(x, y) context->builder().CreateFMul(x, y, "divtmp")
-#define IR_DIV(x, y) context->builder().CreateMul(x, y, "divtmp")
-#define ADDTMP "addtmp"
-#define SUBTMP "subtmp"
-#define MULTMP "multmp"
-#define DIVTMP "divtmp"
 
 llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
   llvm::Value *l = left_->codeGen(context);
@@ -706,3 +687,7 @@ std::string IrFunctionArgumentDeclaration::stringify() const {
 }
 
 #undef DC
+#undef ADDTMP
+#undef SUBTMP
+#undef MULTMP
+#undef DIVTMP

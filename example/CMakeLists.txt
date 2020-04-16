@@ -1,7 +1,7 @@
 # Copyright 2019- <rsc-lang>
 # Apache License Version 2.0
 
-project(rsc-example VERSION 0.0.1 LANGUAGES CXX)
+project(rsc-example VERSION 0.0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -87,12 +87,13 @@ add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 add_definitions(-DBOOST_SYSTEM_DYN_LINK)
 add_definitions(-DFMT_HEADER_ONLY)
+add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
 include_directories(${RINC})
 link_directories(${RLIB_DIR})
 
-#add_executable(rsc-icu_ustdio icu_ustdio.cpp)
-#target_include_directories(rsc-icu_ustdio PRIVATE ${RINC})
-#target_link_libraries(rsc-icu_ustdio ${RLIB})
-#set_target_properties(rsc-icu_ustdio PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rsc-llvm_IRBuilder_CreateAdd llvm_IRBuilder_CreateAdd.cpp)
+target_include_directories(rsc-llvm_IRBuilder_CreateAdd PRIVATE ${RINC})
+target_link_libraries(rsc-llvm_IRBuilder_CreateAdd ${RLIB})
+set_target_properties(rsc-llvm_IRBuilder_CreateAdd PROPERTIES VERSION ${PROJECT_VERSION})
