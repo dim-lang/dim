@@ -24,7 +24,7 @@ int main(void) {
   llvm::IRBuilder<> builder(context);
 
   // case: i8 + i8
-  fmt::print("dump i8 + i8, i8 min: {}, i8 max: {}\n", INT8_MIN, INT8_MAX);
+  fmt::print("dump i8 + i8, i8 min: {}, i8 max: {}\n", INT8_MIN, (int)INT8_MAX);
   {
     // -7 + -101 = -108
     int8_t a = -7;
@@ -57,7 +57,7 @@ int main(void) {
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
     llvm::raw_os_ostream os(std::cout);
-    fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
     r->print(os, true);
     fmt::print("\n");
   }
@@ -69,14 +69,14 @@ int main(void) {
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
     llvm::raw_os_ostream os(std::cout);
-    fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
     r->print(os, true);
     fmt::print("\n");
   }
 
   // case: i8 + u8
   fmt::print("\ndump i8 + u8, i8 min: {}, i8 max: {}, u8 min: {}, u8 max: {}\n",
-             INT8_MIN, INT8_MAX, 0U, UINT8_MAX);
+             INT8_MIN, (int)INT8_MAX, 0U, UINT8_MAX);
   {
     // 7 + 245 = 252
     int8_t a = 7;
@@ -109,7 +109,7 @@ int main(void) {
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
     llvm::raw_os_ostream os(std::cout);
-    fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
     r->print(os, true);
     fmt::print("\n");
   }
@@ -136,7 +136,34 @@ int main(void) {
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
     llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+
+  // case: f32 + f32
+  fmt::print("\ndump f32 + f32, f32 min: {}, f32 max: {}\n", FLT_MIN, FLT_MAX);
+  {
+    // 1.02 + 23.1 = 24.12
+    float a = 1.02;
+    float b = 23.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // FLT_MAX-1.1 + 20.1 = ? overflow
+    float a = FLT_MAX - 1.1;
+    float b = 20.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
     r->print(os, true);
     fmt::print("\n");
   }
