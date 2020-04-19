@@ -102,3 +102,8 @@ add_executable(rsc-llvm_IRBuilder_IntSub llvm_IRBuilder_IntSub.cpp llvm_IRBuilde
 target_include_directories(rsc-llvm_IRBuilder_IntSub PRIVATE ${RINC})
 target_link_libraries(rsc-llvm_IRBuilder_IntSub ${RLIB})
 set_target_properties(rsc-llvm_IRBuilder_IntSub PROPERTIES VERSION ${PROJECT_VERSION})
+
+add_executable(rsc-llvm_IRBuilder_IntMul llvm_IRBuilder_IntMul.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(rsc-llvm_IRBuilder_IntMul PRIVATE ${RINC})
+target_link_libraries(rsc-llvm_IRBuilder_IntMul ${RLIB})
+set_target_properties(rsc-llvm_IRBuilder_IntMul PROPERTIES VERSION ${PROJECT_VERSION})

@@ -3,110 +3,157 @@
 
 #include "fmt/format.h"
 #include "llvm_IRBuilder_Util.h"
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/APInt.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/Support/raw_os_ostream.h"
+#include <cfloat>
+#include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <unordered_map>
 
 int main(void) {
-  llvm::LLVMContext c;
-  llvm::IRBuilder<> b(c);
-
-  // case: i8 + i8
-  fmt::print("\ndump i8 + i8, i8 min: {}, i8 max: {}\n", INT8_MIN, INT8_MAX);
-  dumpInt((int8_t)1, (int8_t)2, 8, c, b, ADD, CreateAdd);      // p+p
-  dumpInt((int8_t)-7, (int8_t)-101, 8, c, b, ADD, CreateAdd);  // n+n
-  dumpInt((int8_t)-12, (int8_t)127, 8, c, b, ADD, CreateAdd);  // n+p
-  dumpInt((int8_t)127, (int8_t)-128, 8, c, b, ADD, CreateAdd); // p+n
-  dumpInt((int8_t)127, (int8_t)1, 8, c, b, ADD,
-          CreateAdd); // p+p overflow
-  dumpInt((int8_t)-77, (int8_t)-100, 8, c, b, ADD,
-          CreateAdd); // n+n overflow
-
-  // case: i8 + u8
-  std::printf(
-      "\ndump i8 + u8, i8 min: %d, i8 max: %d, u8 min: %d, u8 max: %d\n",
-      INT8_MIN, INT8_MAX, 0U, UINT8_MAX);
-  dumpInt((int8_t)7, (uint8_t)245, 8, c, b, ADD, CreateAdd); // p+p
-  dumpInt((int8_t)-128, (uint8_t)255, 8, c, b, ADD,
-          CreateAdd); // n+p
-  dumpInt((int8_t)88, (uint8_t)250, 8, c, b, ADD,
-          CreateAdd); // p+p overflow
-  dumpInt((int8_t)-77, (uint8_t)-100, 8, c, b, ADD,
-          CreateAdd); // n+n overflow
-
-  // case: i8 - i8
-  std::printf("\ndump i8 - i8, min: %d, max: %d\n", INT8_MIN, INT8_MAX);
-  dumpInt((int8_t)1, (int8_t)2, c, b, SUB, CreateSub);     // p-p
-  dumpInt((int8_t)-7, (int8_t)-101, c, b, SUB, CreateSub); // n-n
-  dumpInt((int8_t)27, (int8_t)-28, c, b, SUB, CreateSub);  // p-n
-  dumpInt((int8_t)12, (int8_t)-107, c, b, SUB, CreateSub); // p-n
-  dumpInt((int8_t)-127, (int8_t)1, c, b, SUB, CreateSub);  // n-p
-  dumpInt((int8_t)-1, (int8_t)126, c, b, SUB, CreateSub);  // n-p
-  dumpInt((int8_t)88, (int8_t)-79, c, b, SUB,
-          CreateSub); // p-n overflow
-  dumpInt((int8_t)127, (int8_t)-1, c, b, SUB,
-          CreateSub); // p-n overflow
-  dumpInt((int8_t)-77, (int8_t)100, c, b, SUB,
-          CreateSub); // n-p overflow
-  dumpInt((int8_t)-128, (int8_t)1, c, b, SUB,
-          CreateSub); // n-p overflow
+  llvm::LLVMContext context;
+  llvm::IRBuilder<> builder(context);
 
   // case: i8 * i8
-  std::printf("\ndump i8 * i8, min: %d, max: %d\n", INT8_MIN, INT8_MAX);
-  dumpInt((int8_t)1, (int8_t)2, c, b, MUL, CreateMul);    // p*p
-  dumpInt((int8_t)-12, (int8_t)-8, c, b, MUL, CreateMul); // n*n
-  dumpInt((int8_t)-7, (int8_t)-11, c, b, MUL,
-          CreateMul); // n*n
-  dumpInt((int8_t)7, (int8_t)-13, c, b, MUL,
-          CreateMul);                                     // p*n
-  dumpInt((int8_t)2, (int8_t)-17, c, b, MUL, CreateMul);  // p*n
-  dumpInt((int8_t)-17, (int8_t)1, c, b, MUL, CreateMul);  // n*p
-  dumpInt((int8_t)-1, (int8_t)126, c, b, MUL, CreateMul); // n*p
-  dumpInt((int8_t)88, (int8_t)-79, c, b, MUL,
-          CreateMul); // p*n overflow
-  dumpInt((int8_t)127, (int8_t)-12, c, b, MUL,
-          CreateMul); // p*n overflow
-  dumpInt((int8_t)-77, (int8_t)100, c, b, MUL,
-          CreateMul); // n*p overflow
-  dumpInt((int8_t)-128, (int8_t)13, c, b, MUL,
-          CreateMul); // n*p overflow
+  fmt::print("dump i8 * i8, i8 min: {}, i8 max: {}\n", INT8_MIN, (int)INT8_MAX);
+  {
+    // -7 * -10 = 70
+    int8_t a = -7;
+    int8_t b = -10;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // -12 * 50 = ? overflow
+    int8_t a = -12;
+    int8_t b = 50;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // 13 * -127 = ? overflow
+    int8_t a = 13;
+    int8_t b = -127;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
 
-  // case: i8 / i8
-  std::printf("\ndump i8 / i8, min: %d, max: %d\n", INT8_MIN, INT8_MAX);
-  dumpInt((int8_t)1, (int8_t)2, c, b, DIV, CreateSDiv);    // p*p
-  dumpInt((int8_t)-12, (int8_t)-8, c, b, DIV, CreateSDiv); // n*n
-  dumpInt((int8_t)-7, (int8_t)-11, c, b, DIV,
-          CreateSDiv); // n*n
-  dumpInt((int8_t)7, (int8_t)-13, c, b, DIV,
-          CreateSDiv);                                     // p*n
-  dumpInt((int8_t)2, (int8_t)-17, c, b, DIV, CreateSDiv);  // p*n
-  dumpInt((int8_t)-17, (int8_t)1, c, b, DIV, CreateSDiv);  // n*p
-  dumpInt((int8_t)-1, (int8_t)126, c, b, DIV, CreateSDiv); // n*p
-  dumpInt((int8_t)88, (int8_t)-79, c, b, DIV,
-          CreateSDiv); // p*n overflow
-  dumpInt((int8_t)127, (int8_t)-12, c, b, DIV,
-          CreateSDiv); // p*n overflow
-  dumpInt((int8_t)-77, (int8_t)100, c, b, DIV,
-          CreateSDiv); // n*p overflow
-  dumpInt((int8_t)-128, (int8_t)13, c, b, DIV,
-          CreateSDiv); // n*p overflow
+  // case: i8 * u8
+  fmt::print("\ndump i8 * u8, i8 min: {}, i8 max: {}, u8 min: {}, u8 max: {}\n",
+             INT8_MIN, (int)INT8_MAX, 0U, UINT8_MAX);
+  {
+    // 7 * 12 = 84
+    int8_t a = 7;
+    uint8_t b = 12;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // -15 * 5 = -75
+    int8_t a = -10;
+    uint8_t b = 55;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // -1 * 255 = ? overflow
+    int8_t a = -1;
+    uint8_t b = 255;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
 
-  // case: f32 op f32
-  std::printf("\ndump f32 op f32, f32 min: %d, f32 max: %d\n", FLT_MIN,
-              FLT_MAX);
-  dumpFloat((float)0.01, (float)0.02, c, b, ADD, CreateFAdd);
-  dumpFloat((float)10281.0, (float)-1820.02, c, b, ADD, CreateFAdd);
-  dumpFloat((float)0.012, (float)2.01, c, b, SUB, CreateFSub);
-  dumpFloat((float)1820.012, (float)-2082.01, c, b, SUB, CreateFSub);
-  dumpFloat((float)0.01201, (float)2.0101, c, b, MUL, CreateFMul);
-  dumpFloat((float)9820.201, (float)282.01, c, b, MUL, CreateFMul);
-  dumpFloat((float)1.001, (float)0.1, c, b, DIV, CreateFDiv);
-  dumpFloat((float)182.001, (float)9820.1, c, b, DIV, CreateFDiv);
+  // case: u8 * u8
+  fmt::print("\ndump u8 * u8, u8 min: {}, u8 max: {}\n", 0U, UINT8_MAX);
+  {
+    // 7 * 13 = 91
+    uint8_t a = 7;
+    uint8_t b = 13;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, false));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // 10 * 29 = 290 overflow
+    uint8_t a = 10;
+    uint8_t b = 29;
+    llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, false));
+    llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
+    llvm::Value *r = builder.CreateMul(p, q, getOpTmp(Op::Mul));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Mul), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
 
-  // case: f32 op f64
-  std::printf("\ndump f32 op f64, f32 min: %d, f32 max: %d\n", FLT_MIN,
-              FLT_MAX);
-
-  // case: f64 op f64
-  std::printf("\ndump f32 op f64, f32 min: %d, f32 max: %d\n", FLT_MIN,
-              FLT_MAX);
-
+  // case: f32 * f32
+  fmt::print("\ndump f32 * f32, f32 min: {}, f32 max: {}\n", FLT_MIN, FLT_MAX);
+  {
+    // 31.2 * 73.1 = 2280.72
+    float a = 31.2;
+    float b = 73.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // FLT_MAX-1.1 * 2.1 = ? overflow
+    float a = FLT_MAX - 1.1;
+    float b = 2.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
   return 0;
 }

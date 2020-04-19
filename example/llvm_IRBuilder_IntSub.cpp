@@ -24,7 +24,7 @@ int main(void) {
   llvm::IRBuilder<> builder(context);
 
   // case: i8 - i8
-  fmt::print("dump i8 - i8, i8 min: {}, i8 max: {}\n", INT8_MIN, INT8_MAX);
+  fmt::print("dump i8 - i8, i8 min: {}, i8 max: {}\n", INT8_MIN, (int)INT8_MAX);
   {
     // -7 - -101 = 94
     int8_t a = -7;
@@ -64,7 +64,7 @@ int main(void) {
 
   // case: i8 - u8
   fmt::print("\ndump i8 - u8, i8 min: {}, i8 max: {}, u8 min: {}, u8 max: {}\n",
-             INT8_MIN, INT8_MAX, 0U, UINT8_MAX);
+             INT8_MIN, (int)INT8_MAX, 0U, UINT8_MAX);
   {
     // 7 - 102 = -95
     int8_t a = 7;
@@ -125,6 +125,33 @@ int main(void) {
     llvm::Value *r = builder.CreateSub(p, q, getOpTmp(Op::Sub));
     llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Sub), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+
+  // case: f32 - f32
+  fmt::print("\ndump f32 - f32, f32 min: {}, f32 max: {}\n", FLT_MIN, FLT_MAX);
+  {
+    // 31.2 - 73.1 = -41.9
+    float a = 31.2;
+    float b = 73.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
+    r->print(os, true);
+    fmt::print("\n");
+  }
+  {
+    // FLT_MAX-1.1 - -20.1 = ? overflow
+    float a = FLT_MAX - 1.1;
+    float b = -20.1;
+    llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
+    llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
+    llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
+    llvm::raw_os_ostream os(std::cout);
+    fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
     r->print(os, true);
     fmt::print("\n");
   }
