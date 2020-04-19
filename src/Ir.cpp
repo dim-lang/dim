@@ -126,7 +126,7 @@ IrType IrI8Constant::type() const { return IrType::I8Constant; }
 
 llvm::Value *IrI8Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(8, node_->value(), true));
+                                llvm::APInt(8, (uint64_t)node_->value(), true));
 }
 
 std::string IrI8Constant::stringify() const { return "IrI8Constant"; }
@@ -138,8 +138,8 @@ IrU8Constant::IrU8Constant(AstU8Constant *node)
 IrType IrU8Constant::type() const { return IrType::U8Constant; }
 
 llvm::Value *IrU8Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(8, node_->value(), false));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(8, (uint64_t)node_->value(), false));
 }
 
 std::string IrU8Constant::stringify() const { return "IrU8Constant"; }
@@ -151,8 +151,8 @@ IrI16Constant::IrI16Constant(AstI16Constant *node)
 IrType IrI16Constant::type() const { return IrType::I16Constant; }
 
 llvm::Value *IrI16Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(16, node_->value(), true));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(16, (uint64_t)node_->value(), true));
 }
 
 std::string IrI16Constant::stringify() const { return "IrI16Constant"; }
@@ -164,8 +164,8 @@ IrU16Constant::IrU16Constant(AstU16Constant *node)
 IrType IrU16Constant::type() const { return IrType::U16Constant; }
 
 llvm::Value *IrU16Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(16, node_->value(), false));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(16, (uint64_t)node_->value(), false));
 }
 
 std::string IrU16Constant::stringify() const { return "IrU16Constant"; }
@@ -177,8 +177,8 @@ IrI32Constant::IrI32Constant(AstI32Constant *node)
 IrType IrI32Constant::type() const { return IrType::I32Constant; }
 
 llvm::Value *IrI32Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(32, node_->value(), true));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(32, (uint64_t)node_->value(), true));
 }
 
 std::string IrI32Constant::stringify() const { return "IrI32Constant"; }
@@ -190,8 +190,8 @@ IrU32Constant::IrU32Constant(AstU32Constant *node)
 IrType IrU32Constant::type() const { return IrType::U32Constant; }
 
 llvm::Value *IrU32Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(32, node_->value(), false));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(32, (uint64_t)node_->value(), false));
 }
 
 std::string IrU32Constant::stringify() const { return "IrU32Constant"; }
@@ -203,8 +203,8 @@ IrI64Constant::IrI64Constant(AstI64Constant *node)
 IrType IrI64Constant::type() const { return IrType::I64Constant; }
 
 llvm::Value *IrI64Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(64, node_->value(), true));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(64, (uint64_t)node_->value(), true));
 }
 
 std::string IrI64Constant::stringify() const { return "IrI64Constant"; }
@@ -216,8 +216,8 @@ IrU64Constant::IrU64Constant(AstU64Constant *node)
 IrType IrU64Constant::type() const { return IrType::U64Constant; }
 
 llvm::Value *IrU64Constant::codeGen(IrContext *context) {
-  return llvm::ConstantInt::get(context->context(),
-                                llvm::APInt(64, node_->value(), false));
+  return llvm::ConstantInt::get(
+      context->context(), llvm::APInt(64, (uint64_t)node_->value(), false));
 }
 
 std::string IrU64Constant::stringify() const { return "IrU64Constant"; }
@@ -266,7 +266,8 @@ IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 
 llvm::Value *IrBooleanConstant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
-      context->context(), llvm::APInt(1, node_->value() ? 1U : 0U, false));
+      context->context(),
+      llvm::APInt(1, node_->value() ? (uint64_t)1U : (uint64_t)0U, false));
 }
 
 std::string IrBooleanConstant::stringify() const { return "IrBooleanConstant"; }
