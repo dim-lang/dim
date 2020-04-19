@@ -16,7 +16,6 @@ set(CTEST
     HashTest.cpp
     TokenTest.cpp
     ParserTest.cpp
-    ExceptionTest.cpp
     SemanticTest.cpp
     DumpTest.cpp
     NameGeneratorTest.cpp

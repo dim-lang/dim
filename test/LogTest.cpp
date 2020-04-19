@@ -15,4 +15,11 @@ TEST_CASE("Log", "[Log]") {
     LOG_ERROR("error test");
     LOG_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
   }
+  SECTION("exception") {
+    try {
+      LOG_ASSERT(false, "assert false");
+    } catch (const std::string &ex) {
+      LOG_ERROR("catch assert: {}", ex);
+    }
+  }
 }

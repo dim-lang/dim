@@ -20,24 +20,25 @@ public:
 #define LOG_TRACE(...)
 #define LOG_DEBUG(...)
 #define LOG_INFO(...)
+#define LOG_ASSERT(cond, ...)
 
 #else
 
 #define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
 #define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
 #define LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define LOG_ASSERT(cond, ...)                                                  \
+  do {                                                                         \
+    if (!(cond)) {                                                             \
+      const char *msg = fmt::format(__VA_ARGS__).c_str();                      \
+      fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}", __FILE__,  \
+                 __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg);       \
+      throw fmt::format("Assert Fail! {}:{} {} - Condition:{}, Result:{}",     \
+                        __FILE__, __LINE__, __FUNCTION__,                      \
+                        BOOST_PP_STRINGIZE(cond), msg);                        \
+    }                                                                          \
+  } while (0)
 
 #endif // #ifdef NDEBUG
 
 #define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
-#define LOG_ASSERT(cond, ...)                                                  \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      const char *argmsg = fmt::format(__VA_ARGS__).c_str();                   \
-      std::string fmtmsg = fmt::format(                                        \
-          "Assert Fail! {}:{} {} - Condition:{}, Result:{}", __FILE__,         \
-          __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), argmsg);           \
-      std::fprintf(stderr, "%s\n", fmtmsg.c_str());                            \
-      throw fmtmsg;                                                            \
-    }                                                                          \
-  } while (0)
