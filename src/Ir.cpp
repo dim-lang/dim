@@ -23,10 +23,6 @@
 #include "llvm/Target/TargetMachine.h"
 
 #define DC(x, y) dynamic_cast<x *>(y)
-#define ADDTMP "addtmp"
-#define SUBTMP "subtmp"
-#define MULTMP "multmp"
-#define DIVTMP "divtmp"
 
 /* ir context */
 IrContext::IrContext()
@@ -317,16 +313,16 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context->builder().CreateFAdd(l, r, ADDTMP);
+      return context->builder().CreateFAdd(l, r, "addtmp");
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context->builder().CreateFAdd(l, r, ADDTMP);
+        return context->builder().CreateFAdd(l, r, "addtmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context->builder().CreateAdd(l, r, ADDTMP);
+        return context->builder().CreateAdd(l, r, "addtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -342,16 +338,16 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context->builder().CreateFSub(l, r, SUBTMP);
+      return context->builder().CreateFSub(l, r, "subtmp");
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context->builder().CreateFSub(l, r, SUBTMP);
+        return context->builder().CreateFSub(l, r, "subtmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context->builder().CreateSub(l, r, SUBTMP);
+        return context->builder().CreateSub(l, r, "subtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -367,16 +363,16 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context->builder().CreateFMul(l, r, MULTMP);
+      return context->builder().CreateFMul(l, r, "multmp");
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context->builder().CreateFMul(l, r, MULTMP);
+        return context->builder().CreateFMul(l, r, "multmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context->builder().CreateMul(l, r, MULTMP);
+        return context->builder().CreateMul(l, r, "multmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -392,16 +388,16 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context->builder().CreateFDiv(l, r, DIVTMP);
+      return context->builder().CreateSDiv(l, r, "divtmp");
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context->builder().CreateFDiv(l, r, DIVTMP);
+        return context->builder().CreateSDiv(l, r, "divtmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context->builder().CreateSDiv(l, r, DIVTMP);
+        return context->builder().CreateSDiv(l, r, "divtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -419,9 +415,9 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::IntegerTyID: {
         // first do div
-        llvm::Value *dr = context->builder().CreateSDiv(l, r, DIVTMP);
+        llvm::Value *dr = context->builder().CreateSDiv(l, r, "divtmp");
         // second do sub
-        return context->builder().CreateSub(l, dr, SUBTMP);
+        return context->builder().CreateSub(l, dr, "subtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -434,33 +430,19 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     }
   } break;
   case T_BIT_LSHIFT:
-    return nullptr;
   case T_BIT_RSHIFT:
-    return nullptr;
   case T_BIT_ARSHIFT:
-    return nullptr;
   case T_EQ:
-    return nullptr;
   case T_NEQ:
-    return nullptr;
   case T_LE:
-    return nullptr;
   case T_LT:
-    return nullptr;
   case T_GE:
-    return nullptr;
   case T_GT:
-    return nullptr;
   case T_BIT_AND:
-    return nullptr;
   case T_BIT_OR:
-    return nullptr;
   case T_BIT_XOR:
-    return nullptr;
   case T_LOGIC_AND:
-    return nullptr;
   case T_LOGIC_OR:
-    return nullptr;
   default:
     LOG_ASSERT(false, "token {} invalid", node_->token());
   }
@@ -688,7 +670,3 @@ std::string IrFunctionArgumentDeclaration::stringify() const {
 }
 
 #undef DC
-#undef ADDTMP
-#undef SUBTMP
-#undef MULTMP
-#undef DIVTMP

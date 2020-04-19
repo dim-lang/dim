@@ -56,8 +56,10 @@ void SymbolTable::pushSymbol(Symtab *st) {
 
 void SymbolTable::popSymbol() {
   LOG_ASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
-  css_ = css_->enclosingScope();
-  --symstk_;
+  if (symstk_ > 0) {
+    css_ = css_->enclosingScope();
+    --symstk_;
+  }
   LOG_ASSERT(symstk_ >= 0, "symstk_ {} >= 0", symstk_);
 }
 
@@ -69,8 +71,10 @@ void SymbolTable::pushType(Tytab *tt) {
 
 void SymbolTable::popType() {
   LOG_ASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
-  cts_ = cts_->enclosingScope();
-  --tystk_;
+  if (tystk_ > 0) {
+    cts_ = cts_->enclosingScope();
+    --tystk_;
+  }
   LOG_ASSERT(tystk_ >= 0, "tystk_ {} >= 0", tystk_);
 }
 

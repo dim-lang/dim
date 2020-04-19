@@ -9,7 +9,7 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/Support/raw_os_ostream.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cfloat>
 #include <climits>
 #include <cstddef>
@@ -32,9 +32,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -44,9 +43,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -56,9 +54,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -68,9 +65,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, true));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
 
@@ -84,9 +80,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -96,9 +91,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -108,9 +102,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, true));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
 
@@ -123,9 +116,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, false));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -135,9 +127,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantInt::get(context, llvm::APInt(8, a, false));
     llvm::Value *q = llvm::ConstantInt::get(context, llvm::APInt(8, b, false));
     llvm::Value *r = builder.CreateAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
 
@@ -150,9 +141,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
     llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
     llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("{} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   {
@@ -162,9 +152,8 @@ int main(void) {
     llvm::Value *p = llvm::ConstantFP::get(context, llvm::APFloat(a));
     llvm::Value *q = llvm::ConstantFP::get(context, llvm::APFloat(b));
     llvm::Value *r = builder.CreateFAdd(p, q, getOpTmp(Op::Add));
-    llvm::raw_os_ostream os(std::cout);
     fmt::print("overflow {} {} {} = ", a, getOpName(Op::Add), b);
-    r->print(os, true);
+    r->print(llvm::outs(), true);
     fmt::print("\n");
   }
   return 0;

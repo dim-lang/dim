@@ -5,6 +5,9 @@
 #include "Log.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cstdio>
 #include <sstream>
 #include <string>
@@ -340,6 +343,15 @@ static std::string dumpTypeImpl(Type *ty, int depth) {
 }
 
 std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
+
+std::string dumpIr(Ir *ir, IrContext *context) {
+  LOG_ASSERT(ir, "ir is null");
+  llvm::Value *v = ir->codeGen(context);
+  std::string d;
+  llvm::raw_string_ostream os(d);
+  v->print(os, true);
+  return os.str();
+}
 
 #undef DS
 #undef DC

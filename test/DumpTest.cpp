@@ -3,6 +3,7 @@
 
 #include "Dump.h"
 #include "Ast.h"
+#include "Ir.h"
 #include "Log.h"
 #include "Parser.h"
 #include "Scanner.h"
@@ -10,7 +11,7 @@
 #include "Token.h"
 #include "catch2/catch.hpp"
 
-static void go(const char *fileName) {
+static void testAST(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
@@ -22,9 +23,18 @@ static void go(const char *fileName) {
   LOG_INFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
 }
 
+static void testIr(const char *fileName) {
+  Scanner scanner;
+  IrContext context;
+  scanner.pushBuffer(fileName);
+  REQUIRE(scanner.parse() == 0);
+  LOG_INFO("dump ir: {} {}", fileName, dumpIr(scanner.translateUnit()));
+}
+
 TEST_CASE("Dump", "[Dump]") {
-  SECTION("dump for Ast") {
-    go("test/case/Parser1.rsc");
-    go("test/case/Parser2.rsc");
+  SECTION("dump Ast/Symbol/Type") {
+    testAST("test/case/Parser1.rsc");
+    testAST("test/case/Parser2.rsc");
   }
+  SECTION("dump Ir") { testIr("test/case/IrTest1.rsc"); }
 }

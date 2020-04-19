@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Ir.h"
 #include "Symbol.h"
 #include "Type.h"
 #include "boost/core/noncopyable.hpp"
@@ -11,30 +12,49 @@ public:
   SymbolTable();
   virtual ~SymbolTable();
 
+  // symbol scope
   Symtab *&gss();
   const Symtab *gss() const;
   Symtab *&css();
   const Symtab *css() const;
   int symstk() const;
 
+  void pushSymbol(Symtab *st);
+  void popSymbol();
+  void resetSymbolStack();
+
+  // type scope
   Tytab *&gts();
   const Tytab *gts() const;
   Tytab *&cts();
   const Tytab *cts() const;
   int tystk() const;
 
-  void pushSymbol(Symtab *st);
-  void popSymbol();
   void pushType(Tytab *tt);
   void popType();
-  void resetSymbolStack();
   void resetTypeStack();
+
+  // ir scope
+  Ir *&gis();
+  const Ir *gis() const;
+  Ir *&cis();
+  const Ir *cis() const;
+  int irstk() const;
+
+  void pushIr(Ir *ir);
+  void popIr();
+  void resetIrStack();
 
 private:
   Symtab *gss_; // global symbol scope
   Symtab *css_; // current symbol scope
   int symstk_;  // symbol stack count
-  Tytab *gts_;  // global type scope
-  Tytab *cts_;  // current type scope
-  int tystk_;   // type stack count
+
+  Tytab *gts_; // global type scope
+  Tytab *cts_; // current type scope
+  int tystk_;  // type stack count
+
+  Ir *gis_;   // global ir scope
+  Ir *cis_;   // current ir scope
+  int irstk_; // ir stack count
 };

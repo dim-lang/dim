@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Ast.h"
+#include "Ir.h"
 #include "Symbol.h"
 #include "Type.h"
 #include <string>
@@ -12,3 +13,5 @@ std::string dumpAst(Ast *node);
 std::string dumpSymbol(Symbol *sym);
 
 std::string dumpType(Type *ty);
+
+std::string dumpIr(Ir *ir);
