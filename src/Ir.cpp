@@ -6,6 +6,7 @@
 #include "Log.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
+#include "fmt/format.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/ADT/STLExtras.h"
@@ -51,9 +52,14 @@ IrContext::symtable() const {
   return symtable_;
 }
 
+/* Ir */
+Ir::Ir(const std::string &name) : name_(name) {}
+
+std::string Ir::name() const { return name_; }
+
 /* translate unit */
 IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
-    : Ir<AstTranslateUnit>(node, nameGen("IrTranslateUnit")) {}
+    : Ir(nameGen("IrTranslateUnit")), node_(node) {}
 
 IrType IrTranslateUnit::type() const { return IrType::TranslateUnit; }
 
@@ -70,11 +76,13 @@ llvm::Value *IrTranslateUnit::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
+std::string IrTranslateUnit::toString() const {
+  return fmt::format("[ @IrTranslateUnit node_:{} ]", node_->toString());
+}
 
 /* expression */
 IrExpression::IrExpression(AstExpression *node)
-    : Ir<AstExpression>(node, nameGen("IrExpression")) {}
+    : Ir(nameGen("IrExpression")), node_(node) {}
 
 IrType IrExpression::type() const { return IrType::Expression; }
 
@@ -93,11 +101,13 @@ llvm::Value *IrExpression::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrExpression::stringify() const { return "IrExpression"; }
+std::string IrExpression::toString() const {
+  return fmt::format("[ @IrExpression node_:{} ]", node_->toString());
+}
 
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(AstIdentifierConstant *node)
-    : Ir<AstIdentifierConstant>(node, nameGen("IrIdentifierConstant")) {}
+    : Ir(nameGen("IrIdentifierConstant")), node_(node) {}
 
 IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
@@ -110,13 +120,13 @@ llvm::Value *IrIdentifierConstant::codeGen(IrContext *context) {
   return context->symtable()[node_->value()];
 }
 
-std::string IrIdentifierConstant::stringify() const {
-  return "IrIdentifierConstant";
+std::string IrIdentifierConstant::toString() const {
+  return fmt::format("[ @IrIdentifierConstant node_:{} ]", node_->toString());
 }
 
 /* i8 constant */
 IrI8Constant::IrI8Constant(AstI8Constant *node)
-    : Ir<AstI8Constant>(node, nameGen("IrI8Constant")) {}
+    : Ir(nameGen("IrI8Constant")), node_(node) {}
 
 IrType IrI8Constant::type() const { return IrType::I8Constant; }
 
@@ -125,11 +135,13 @@ llvm::Value *IrI8Constant::codeGen(IrContext *context) {
                                 llvm::APInt(8, (uint64_t)node_->value(), true));
 }
 
-std::string IrI8Constant::stringify() const { return "IrI8Constant"; }
+std::string IrI8Constant::toString() const {
+  return fmt::format("[ @IrI8Constant node_:{} ]", node_->toString());
+}
 
 /* u8 constant */
 IrU8Constant::IrU8Constant(AstU8Constant *node)
-    : Ir<AstU8Constant>(node, nameGen("IrU8Constant")) {}
+    : Ir(nameGen("IrU8Constant")), node_(node) {}
 
 IrType IrU8Constant::type() const { return IrType::U8Constant; }
 
@@ -138,11 +150,13 @@ llvm::Value *IrU8Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(8, (uint64_t)node_->value(), false));
 }
 
-std::string IrU8Constant::stringify() const { return "IrU8Constant"; }
+std::string IrU8Constant::toString() const {
+  return fmt::format("[ @IrU8Constant node_:{} ]", node_->toString());
+}
 
 /* i16 constant */
 IrI16Constant::IrI16Constant(AstI16Constant *node)
-    : Ir<AstI16Constant>(node, nameGen("IrI16Constant")) {}
+    : Ir(nameGen("IrI16Constant")), node_(node) {}
 
 IrType IrI16Constant::type() const { return IrType::I16Constant; }
 
@@ -151,11 +165,13 @@ llvm::Value *IrI16Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(16, (uint64_t)node_->value(), true));
 }
 
-std::string IrI16Constant::stringify() const { return "IrI16Constant"; }
+std::string IrI16Constant::toString() const {
+  return fmt::format("[ @IrI16Constant node_:{} ]", node_->toString());
+}
 
 /* u16 constant */
 IrU16Constant::IrU16Constant(AstU16Constant *node)
-    : Ir<AstU16Constant>(node, nameGen("IrU16Constant")) {}
+    : Ir(nameGen("IrU16Constant")), node_(node) {}
 
 IrType IrU16Constant::type() const { return IrType::U16Constant; }
 
@@ -164,11 +180,13 @@ llvm::Value *IrU16Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(16, (uint64_t)node_->value(), false));
 }
 
-std::string IrU16Constant::stringify() const { return "IrU16Constant"; }
+std::string IrU16Constant::toString() const {
+  return fmt::format("[ @IrU16Constant node_:{} ]", node_->toString());
+}
 
 /* i32 constant */
 IrI32Constant::IrI32Constant(AstI32Constant *node)
-    : Ir<AstI32Constant>(node, nameGen("IrI32Constant")) {}
+    : Ir(nameGen("IrI32Constant")), node_(node) {}
 
 IrType IrI32Constant::type() const { return IrType::I32Constant; }
 
@@ -177,11 +195,13 @@ llvm::Value *IrI32Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(32, (uint64_t)node_->value(), true));
 }
 
-std::string IrI32Constant::stringify() const { return "IrI32Constant"; }
+std::string IrI32Constant::toString() const {
+  return fmt::format("[ @IrI32Constant node_:{} ]", node_->toString());
+}
 
 /* u32 constant */
 IrU32Constant::IrU32Constant(AstU32Constant *node)
-    : Ir<AstU32Constant>(node, nameGen("IrU32Constant")) {}
+    : Ir(nameGen("IrU32Constant")), node_(node) {}
 
 IrType IrU32Constant::type() const { return IrType::U32Constant; }
 
@@ -190,11 +210,13 @@ llvm::Value *IrU32Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(32, (uint64_t)node_->value(), false));
 }
 
-std::string IrU32Constant::stringify() const { return "IrU32Constant"; }
+std::string IrU32Constant::toString() const {
+  return fmt::format("[ @IrU32Constant node_:{} ]", node_->toString());
+}
 
 /* i64 constant */
 IrI64Constant::IrI64Constant(AstI64Constant *node)
-    : Ir<AstI64Constant>(node, nameGen("IrI64Constant")) {}
+    : Ir(nameGen("IrI64Constant")), node_(node) {}
 
 IrType IrI64Constant::type() const { return IrType::I64Constant; }
 
@@ -203,11 +225,13 @@ llvm::Value *IrI64Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(64, (uint64_t)node_->value(), true));
 }
 
-std::string IrI64Constant::stringify() const { return "IrI64Constant"; }
+std::string IrI64Constant::toString() const {
+  return fmt::format("[ @IrI64Constant node_:{} ]", node_->toString());
+}
 
 /* u64 constant */
 IrU64Constant::IrU64Constant(AstU64Constant *node)
-    : Ir<AstU64Constant>(node, nameGen("IrU64Constant")) {}
+    : Ir(nameGen("IrU64Constant")), node_(node) {}
 
 IrType IrU64Constant::type() const { return IrType::U64Constant; }
 
@@ -216,11 +240,13 @@ llvm::Value *IrU64Constant::codeGen(IrContext *context) {
       context->context(), llvm::APInt(64, (uint64_t)node_->value(), false));
 }
 
-std::string IrU64Constant::stringify() const { return "IrU64Constant"; }
+std::string IrU64Constant::toString() const {
+  return fmt::format("[ @IrU64Constant node_:{} ]", node_->toString());
+}
 
 /* f32 constant */
 IrF32Constant::IrF32Constant(AstF32Constant *node)
-    : Ir<AstF32Constant>(node, nameGen("IrF32Constant")) {}
+    : Ir(nameGen("IrF32Constant")), node_(node) {}
 
 IrType IrF32Constant::type() const { return IrType::F32Constant; }
 
@@ -229,11 +255,13 @@ llvm::Value *IrF32Constant::codeGen(IrContext *context) {
                                llvm::APFloat((float)node_->value()));
 }
 
-std::string IrF32Constant::stringify() const { return "IrF32Constant"; }
+std::string IrF32Constant::toString() const {
+  return fmt::format("[ @IrF32Constant node_:{} ]", node_->toString());
+}
 
 /* f64 constant */
 IrF64Constant::IrF64Constant(AstF64Constant *node)
-    : Ir<AstF64Constant>(node, nameGen("IrF64Constant")) {}
+    : Ir(nameGen("IrF64Constant")), node_(node) {}
 
 IrType IrF64Constant::type() const { return IrType::F64Constant; }
 
@@ -242,21 +270,25 @@ llvm::Value *IrF64Constant::codeGen(IrContext *context) {
                                llvm::APFloat((double)node_->value()));
 }
 
-std::string IrF64Constant::stringify() const { return "IrF64Constant"; }
+std::string IrF64Constant::toString() const {
+  return fmt::format("[ @IrF64Constant node_:{} ]", node_->toString());
+}
 
 /* string constant */
 IrStringConstant::IrStringConstant(AstStringConstant *node)
-    : Ir<AstStringConstant>(node, nameGen("IrStringConstant")) {}
+    : Ir(nameGen("IrStringConstant")), node_(node) {}
 
 IrType IrStringConstant::type() const { return IrType::StringConstant; }
 
 llvm::Value *IrStringConstant::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrStringConstant::stringify() const { return "IrStringConstant"; }
+std::string IrStringConstant::toString() const {
+  return fmt::format("[ @IrStringConstant node_:{} ]", node_->toString());
+}
 
 /* boolean constant */
 IrBooleanConstant::IrBooleanConstant(AstBooleanConstant *node)
-    : Ir<AstBooleanConstant>(node, nameGen("IrBooleanConstant")) {}
+    : Ir(nameGen("IrBooleanConstant")), node_(node) {}
 
 IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 
@@ -266,32 +298,38 @@ llvm::Value *IrBooleanConstant::codeGen(IrContext *context) {
       llvm::APInt(1, node_->value() ? (uint64_t)1U : (uint64_t)0U, false));
 }
 
-std::string IrBooleanConstant::stringify() const { return "IrBooleanConstant"; }
+std::string IrBooleanConstant::toString() const {
+  return fmt::format("[ @IrBooleanConstant node_:{} ]", node_->toString());
+}
 
 /* call expression */
 IrCallExpression::IrCallExpression(AstCallExpression *node)
-    : Ir<AstCallExpression>(node, nameGen("IrCallExpression")) {}
+    : Ir(nameGen("IrCallExpression")), node_(node) {}
 
 IrType IrCallExpression::type() const { return IrType::CallExpression; }
 
 llvm::Value *IrCallExpression::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrCallExpression::stringify() const { return "IrCallExpression"; }
+std::string IrCallExpression::toString() const {
+  return fmt::format("[ @IrCallExpression node_:{} ]", node_->toString());
+}
 
 /* unary expression */
 IrUnaryExpression::IrUnaryExpression(AstUnaryExpression *node)
-    : Ir<AstUnaryExpression>(node, nameGen("IrUnaryExpression")) {}
+    : Ir(nameGen("IrUnaryExpression")), node_(node) {}
 
 IrType IrUnaryExpression::type() const { return IrType::UnaryExpression; }
 
 llvm::Value *IrUnaryExpression::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrUnaryExpression::stringify() const { return "IrUnaryExpression"; }
+std::string IrUnaryExpression::toString() const {
+  return fmt::format("[ @IrUnaryExpression node_:{} ]", node_->toString());
+}
 
 /* binary expression */
 IrBinaryExpression::IrBinaryExpression(AstBinaryExpression *node,
                                        IrExpression *left, IrExpression *right)
-    : Ir<AstBinaryExpression>(node, nameGen("IrBinaryExpression")), left_(left),
+    : Ir(nameGen("IrBinaryExpression")), node_(node), left_(left),
       right_(right) {}
 
 IrBinaryExpression::~IrBinaryExpression() {
@@ -449,13 +487,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrBinaryExpression::stringify() const {
-  return "IrBinaryExpression";
+std::string IrBinaryExpression::toString() const {
+  return fmt::format("[ @IrBinaryExpression node_:{} ]", node_->toString());
 }
 
 /* conditional expression */
 IrConditionalExpression::IrConditionalExpression(AstConditionalExpression *node)
-    : Ir<AstConditionalExpression>(node, nameGen("IrConditionalExpression")) {}
+    : Ir(nameGen("IrConditionalExpression")), node_(node) {}
 
 IrType IrConditionalExpression::type() const {
   return IrType::ConditionalExpression;
@@ -465,13 +503,14 @@ llvm::Value *IrConditionalExpression::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrConditionalExpression::stringify() const {
-  return "IrConditionalExpression";
+std::string IrConditionalExpression::toString() const {
+  return fmt::format("[ @IrConditionalExpression node_:{} ]",
+                     node_->toString());
 }
 
 /* assignment expression */
 IrAssignmentExpression::IrAssignmentExpression(AstAssignmentExpression *node)
-    : Ir<AstAssignmentExpression>(node, nameGen("IrAssignmentExpression")) {}
+    : Ir(nameGen("IrAssignmentExpression")), node_(node) {}
 
 IrType IrAssignmentExpression::type() const {
   return IrType::AssignmentExpression;
@@ -481,25 +520,25 @@ llvm::Value *IrAssignmentExpression::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrAssignmentExpression::stringify() const {
-  return "IrAssignmentExpression";
+std::string IrAssignmentExpression::toString() const {
+  return fmt::format("[ @IrAssignmentExpression node_:{} ]", node_->toString());
 }
 
 /* sequel expression */
 IrSequelExpression::IrSequelExpression(AstSequelExpression *node)
-    : Ir<AstSequelExpression>(node, nameGen("IrSequelExpression")) {}
+    : Ir(nameGen("IrSequelExpression")), node_(node) {}
 
 IrType IrSequelExpression::type() const { return IrType::SequelExpression; }
 
 llvm::Value *IrSequelExpression::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrSequelExpression::stringify() const {
-  return "IrSequelExpression";
+std::string IrSequelExpression::toString() const {
+  return fmt::format("[ @IrSequelExpression node_:{} ]", node_->toString());
 }
 
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(AstExpressionStatement *node)
-    : Ir<AstExpressionStatement>(node, nameGen("IrExpressionStatement")) {}
+    : Ir(nameGen("IrExpressionStatement")), node_(node) {}
 
 IrType IrExpressionStatement::type() const {
   return IrType::ExpressionStatement;
@@ -509,13 +548,13 @@ llvm::Value *IrExpressionStatement::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrExpressionStatement::stringify() const {
-  return "IrExpressionStatement";
+std::string IrExpressionStatement::toString() const {
+  return fmt::format("[ @IrExpressionStatement node_:{} ]", node_->toString());
 }
 
 /* compound statement */
 IrCompoundStatement::IrCompoundStatement(AstCompoundStatement *node)
-    : Ir<AstCompoundStatement>(node, nameGen("IrCompoundStatement")) {}
+    : Ir(nameGen("IrCompoundStatement")), node_(node) {}
 
 IrType IrCompoundStatement::type() const { return IrType::CompoundStatement; }
 
@@ -523,43 +562,49 @@ llvm::Value *IrCompoundStatement::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrCompoundStatement::stringify() const {
-  return "IrCompoundStatement";
+std::string IrCompoundStatement::toString() const {
+  return fmt::format("[ @IrCompoundStatement node_:{} ]", node_->toString());
 }
 
 /* if statement */
 IrIfStatement::IrIfStatement(AstIfStatement *node)
-    : Ir<AstIfStatement>(node, nameGen("IrIfStatement")) {}
+    : Ir(nameGen("IrIfStatement")), node_(node) {}
 
 IrType IrIfStatement::type() const { return IrType::IfStatement; }
 
 llvm::Value *IrIfStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrIfStatement::stringify() const { return "IrIfStatement"; }
+std::string IrIfStatement::toString() const {
+  return fmt::format("[ @IrIfStatement node_:{} ]", node_->toString());
+}
 
 /* while statement */
 IrWhileStatement::IrWhileStatement(AstWhileStatement *node)
-    : Ir<AstWhileStatement>(node, nameGen("IrWhileStatement")) {}
+    : Ir(nameGen("IrWhileStatement")), node_(node) {}
 
 IrType IrWhileStatement::type() const { return IrType::WhileStatement; }
 
 llvm::Value *IrWhileStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrWhileStatement::stringify() const { return "IrWhileStatement"; }
+std::string IrWhileStatement::toString() const {
+  return fmt::format("[ @IrWhileStatement node_:{} ]", node_->toString());
+}
 
 /* for statement */
 IrForStatement::IrForStatement(AstForStatement *node)
-    : Ir<AstForStatement>(node, nameGen("IrForStatement")) {}
+    : Ir(nameGen("IrForStatement")), node_(node) {}
 
 IrType IrForStatement::type() const { return IrType::ForStatement; }
 
 llvm::Value *IrForStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrForStatement::stringify() const { return "IrForStatement"; }
+std::string IrForStatement::toString() const {
+  return fmt::format("[ @IrForStatement node_:{} ]", node_->toString());
+}
 
 /* continue statement */
 IrContinueStatement::IrContinueStatement(AstContinueStatement *node)
-    : Ir<AstContinueStatement>(node, nameGen("IrContinueStatement")) {}
+    : Ir(nameGen("IrContinueStatement")), node_(node) {}
 
 IrType IrContinueStatement::type() const { return IrType::ContinueStatement; }
 
@@ -567,43 +612,49 @@ llvm::Value *IrContinueStatement::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrContinueStatement::stringify() const {
-  return "IrContinueStatement";
+std::string IrContinueStatement::toString() const {
+  return fmt::format("[ @IrContinueStatement node_:{} ]", node_->toString());
 }
 
 /* break statement */
 IrBreakStatement::IrBreakStatement(AstBreakStatement *node)
-    : Ir<AstBreakStatement>(node, nameGen("IrBreakStatement")) {}
+    : Ir(nameGen("IrBreakStatement")), node_(node) {}
 
 IrType IrBreakStatement::type() const { return IrType::BreakStatement; }
 
 llvm::Value *IrBreakStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrBreakStatement::stringify() const { return "IrBreakStatement"; }
+std::string IrBreakStatement::toString() const {
+  return fmt::format("[ @IrBreakStatement node_:{} ]", node_->toString());
+}
 
 /* return statement */
 IrReturnStatement::IrReturnStatement(AstReturnStatement *node)
-    : Ir<AstReturnStatement>(node, nameGen("IrReturnStatement")) {}
+    : Ir(nameGen("IrReturnStatement")), node_(node) {}
 
 IrType IrReturnStatement::type() const { return IrType::ReturnStatement; }
 
 llvm::Value *IrReturnStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrReturnStatement::stringify() const { return "IrReturnStatement"; }
+std::string IrReturnStatement::toString() const {
+  return fmt::format("[ @IrReturnStatement node_:{} ]", node_->toString());
+}
 
 /* empty statement */
 IrEmptyStatement::IrEmptyStatement(AstEmptyStatement *node)
-    : Ir<AstEmptyStatement>(node, nameGen("IrEmptyStatement")) {}
+    : Ir(nameGen("IrEmptyStatement")), node_(node) {}
 
 IrType IrEmptyStatement::type() const { return IrType::EmptyStatement; }
 
 llvm::Value *IrEmptyStatement::codeGen(IrContext *context) { return nullptr; }
 
-std::string IrEmptyStatement::stringify() const { return "IrEmptyStatement"; }
+std::string IrEmptyStatement::toString() const {
+  return fmt::format("[ @IrEmptyStatement node_:{} ]", node_->toString());
+}
 
 /* variable declaration */
 IrVariableDeclaration::IrVariableDeclaration(AstVariableDeclaration *node)
-    : Ir<AstVariableDeclaration>(node, nameGen("IrVariableDeclaration")) {}
+    : Ir(nameGen("IrVariableDeclaration")), node_(node) {}
 
 IrType IrVariableDeclaration::type() const {
   return IrType::VariableDeclaration;
@@ -613,15 +664,14 @@ llvm::Value *IrVariableDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrVariableDeclaration::stringify() const {
-  return "IrVariableDeclaration";
+std::string IrVariableDeclaration::toString() const {
+  return fmt::format("[ @IrVariableDeclaration node_:{} ]", node_->toString());
 }
 
 /* variable initial declaration */
 IrVariableInitialDeclaration::IrVariableInitialDeclaration(
     AstVariableInitialDeclaration *node)
-    : Ir<AstVariableInitialDeclaration>(
-          node, nameGen("IrVariableInitialDeclaration")) {}
+    : Ir(nameGen("IrVariableInitialDeclaration")), node_(node) {}
 
 IrType IrVariableInitialDeclaration::type() const {
   return IrType::VariableInitialDeclaration;
@@ -631,13 +681,14 @@ llvm::Value *IrVariableInitialDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrVariableInitialDeclaration::stringify() const {
-  return "IrVariableInitialDeclaration";
+std::string IrVariableInitialDeclaration::toString() const {
+  return fmt::format("[ @IrVariableInitialDeclaration node_:{} ]",
+                     node_->toString());
 }
 
 /* function declaration */
 IrFunctionDeclaration::IrFunctionDeclaration(AstFunctionDeclaration *node)
-    : Ir<AstFunctionDeclaration>(node, nameGen("IrFunctionDeclaration")) {}
+    : Ir(nameGen("IrFunctionDeclaration")), node_(node) {}
 
 IrType IrFunctionDeclaration::type() const {
   return IrType::FunctionDeclaration;
@@ -647,15 +698,14 @@ llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrFunctionDeclaration::stringify() const {
-  return "IrFunctionDeclaration";
+std::string IrFunctionDeclaration::toString() const {
+  return fmt::format("[ @IrFunctionDeclaration node_:{} ]", node_->toString());
 }
 
 /* function argument declaration */
 IrFunctionArgumentDeclaration::IrFunctionArgumentDeclaration(
     AstFunctionArgumentDeclaration *node)
-    : Ir<AstFunctionArgumentDeclaration>(
-          node, nameGen("IrFunctionArgumentDeclaration")) {}
+    : Ir(nameGen("IrFunctionArgumentDeclaration")), node_(node) {}
 
 IrType IrFunctionArgumentDeclaration::type() const {
   return IrType::FunctionArgumentDeclaration;
@@ -665,8 +715,9 @@ llvm::Value *IrFunctionArgumentDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrFunctionArgumentDeclaration::stringify() const {
-  return "IrFunctionArgumentDeclaration";
+std::string IrFunctionArgumentDeclaration::toString() const {
+  return fmt::format("[ @IrFunctionArgumentDeclaration node_:{} ]",
+                     node_->toString());
 }
 
 #undef DC
