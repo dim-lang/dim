@@ -47,8 +47,7 @@ class AstExpressionList;
 class AstStatementList;
 class AstDeclarationList;
 
-/* expression */
-class AstExpression;
+/* constant */
 class AstIdentifierConstant;
 class AstI8Constant;
 class AstU8Constant;
@@ -62,6 +61,9 @@ class AstF32Constant;
 class AstF64Constant;
 class AstStringConstant;
 class AstBooleanConstant;
+
+/* expression */
+class AstExpression;
 class AstCallExpression;
 class AstUnaryExpression;
 class AstBinaryExpression;

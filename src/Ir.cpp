@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Ir.h"
-#include "Counter.h"
 #include "Log.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
@@ -27,9 +26,14 @@
 
 /* ir context */
 IrContext::IrContext()
-    : context_(), builder_(context_), module_(), symtable_() {}
+    : context_(), builder_(context_), module_(nullptr), symtable_() {
+  module_ = new llvm::Module("rsc jit", context_);
+}
 
-IrContext::~IrContext() {}
+IrContext::~IrContext() {
+  delete module_;
+  module_ = nullptr;
+}
 
 llvm::LLVMContext &IrContext::context() { return context_; }
 
@@ -59,25 +63,27 @@ std::string Ir::name() const { return name_; }
 
 /* translate unit */
 IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
-    : Ir(nameGen("IrTranslateUnit")), node_(node) {}
+    : detail::IrList<Ir>(nameGen("IrTranslateUnit")), node_(node) {}
 
 IrType IrTranslateUnit::type() const { return IrType::TranslateUnit; }
 
 llvm::Value *IrTranslateUnit::codeGen(IrContext *context) {
-  if (!node_->empty()) {
-    for (int i = 0; i < node_->size(); i++) {
-      Ast *ast = node_->get(i);
-      switch (ast->type()) {
-      default:
-        LOG_INFO("default ast:{}", ast->toString());
-      }
+  for (int i = 0; i < node_->size(); i++) {
+    Ast *ast = node_->get(i);
+    switch (ast->type()) {
+    case AstType::VariableDeclaration: {
+      add(new IrVariableDeclaration(
+          dynamic_cast<AstVariableDeclaration *>(ast)));
+    } break;
+    case AstType::FunctionDeclaration: {
+      add(new IrFunctionDeclaration(
+          dynamic_cast<AstFunctionDeclaration *>(ast)));
+    } break;
+    default:
+      LOG_ASSERT(false, "invalid ast:{}", ast->toString());
     }
   }
   return nullptr;
-}
-
-std::string IrTranslateUnit::toString() const {
-  return fmt::format("[ @IrTranslateUnit node_:{} ]", node_->toString());
 }
 
 /* expression */

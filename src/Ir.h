@@ -5,21 +5,10 @@
 #include "Ast.h"
 #include "Log.h"
 #include "boost/core/noncopyable.hpp"
-//#include "llvm/ADT/APFloat.h"
-//#include "llvm/ADT/STLExtras.h"
-//#include "llvm/IR/BasicBlock.h"
-//#include "llvm/IR/Constants.h"
-//#include "llvm/IR/DerivedTypes.h"
-//#include "llvm/IR/Function.h"
+#include "enum.h"
 #include "llvm/IR/IRBuilder.h"
-//#include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-//#include "llvm/IR/Type.h"
-//#include "llvm/IR/Verifier.h"
-//#include "llvm/Support/TargetSelect.h"
-//#include "llvm/Target/TargetMachine.h"
-#include "enum.h"
 #include <unordered_map>
 
 /*================ type from start 4000 ================*/
@@ -44,6 +33,18 @@ BETTER_ENUM(IrType, int,
             TranslateUnit, Expression, Statement, Declaration)
 
 /*================ class ================*/
+// basic interface
+class Ir;
+
+// translate unit
+class IrTranslateUnit;
+
+// list
+class IrExpressionList;
+class IrStatementList;
+class IrDeclarationList;
+
+// constant
 class IrIdentifierConstant;
 class IrI8Constant;
 class IrU8Constant;
@@ -57,14 +58,18 @@ class IrF32Constant;
 class IrF64Constant;
 class IrStringConstant;
 class IrBooleanConstant;
+
+// expression
+class IrExpression;
 class IrCallExpression;
 class IrUnaryExpression;
 class IrBinaryExpression;
-class IrTranslateUnit;
-class IrExpression;
 class IrConditionalExpression;
 class IrAssignmentExpression;
 class IrSequelExpression;
+
+// statement
+class IrStatement;
 class IrExpressionStatement;
 class IrCompoundStatement;
 class IrIfStatement;
@@ -74,10 +79,15 @@ class IrContinueStatement;
 class IrBreakStatement;
 class IrReturnStatement;
 class IrEmptyStatement;
+
+// declaration
+class IrDeclaration;
 class IrVariableDeclaration;
 class IrVariableInitialDeclaration;
 class IrFunctionDeclaration;
 class IrFunctionArgumentDeclaration;
+
+/*================ declaration ================*/
 
 class IrContext : protected boost::noncopyable {
 public:
@@ -112,12 +122,55 @@ protected:
   std::string name_;
 };
 
+namespace detail {
+
+template <class T> class IrList : public Ir {
+public:
+  IrList(const std::string &name) : Ir(name) {}
+  virtual ~IrList() {
+    for (int i = 0; i < (int)items_.size(); i++) {
+      delete items_[i];
+      items_[i] = nullptr;
+    }
+    items_.clear();
+  }
+  virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual std::string toString() const {
+    std::stringstream ss;
+    ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
+    if (items_.empty()) {
+      ss << " ]";
+      return ss.str();
+    }
+    ss << ", ";
+    for (int i = 0; i < (int)items_.size(); i++) {
+      Ir *item = dynamic_cast<Ir *>(items_[i]);
+      ss << fmt::format("{}:{}", i, item ? item->toString() : "null");
+      if (i < (int)items_.size() - 1) {
+        ss << ",";
+      }
+    }
+    ss << " ]";
+    return ss.str();
+  }
+  virtual bool empty() const { return items_.empty(); }
+  virtual int size() const { return items_.size(); }
+  virtual T *get(int pos) const { return items_[pos]; }
+  virtual void add(T *item) { items_.push_back(item); }
+
+protected:
+  virtual std::string stringify() const = 0;
+  std::deque<T *> items_;
+};
+
+} // namespace detail
+
 /* translate unit */
-class IrTranslateUnit : public Ir {
+class IrTranslateUnit : public detail::IrList<Ir> {
 public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
-  virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
