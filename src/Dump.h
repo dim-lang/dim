@@ -14,4 +14,4 @@ std::string dumpSymbol(Symbol *sym);
 
 std::string dumpType(Type *ty);
 
-std::string dumpIr(Ir *ir);
+std::string dumpIr(Ir *ir, IrContext *context);

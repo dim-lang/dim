@@ -150,12 +150,13 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   }
   case AstType::FunctionDeclaration: {
     AstFunctionDeclaration *fd = DC(AstFunctionDeclaration, node);
+    AstFunctionSignatureDeclaration *fsd = fd->signature();
     std::stringstream ss;
     ss << DS << fd->name() << "(";
-    if (fd->argumentList() && fd->argumentList()->size() > 0) {
-      for (int i = 0; i < fd->argumentList()->size(); i++) {
-        ss << fd->argumentList()->get(i)->name();
-        if (i < fd->argumentList()->size() - 1) {
+    if (fsd->argumentList() && fsd->argumentList()->size() > 0) {
+      for (int i = 0; i < fsd->argumentList()->size(); i++) {
+        ss << fsd->argumentList()->get(i)->name();
+        if (i < fsd->argumentList()->size() - 1) {
           ss << ",";
         }
       }
@@ -195,10 +196,8 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
 #define IS_SYMTAB(x)                                                           \
-  ((x)->type()._to_integral() == (+SymType::Function)._to_integral() ||        \
-   (x)->type()._to_integral() == (+SymType::Class)._to_integral() ||           \
-   (x)->type()._to_integral() == (+SymType::Global)._to_integral() ||          \
-   (x)->type()._to_integral() == (+SymType::Local)._to_integral())
+  ((x)->type() == (+SymType::Function) || (x)->type() == (+SymType::Class) ||  \
+   (x)->type() == (+SymType::Global) || (x)->type() == (+SymType::Local))
 
 static std::string dumpSymbolImpl(Symbol *sym, int depth) {
   if (!sym)
@@ -280,8 +279,8 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
 std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym, 0); }
 
 #define IS_TYTAB(x)                                                            \
-  ((x)->type() == TY_FUNC || (x)->type() == TY_CLASS ||                        \
-   (x)->type() == TY_LOCAL || (x)->type() == TY_GLOBAL)
+  ((x)->type() == (+TyType::Function) || (x)->type() == (+TyType::Class) ||    \
+   (x)->type() == (+TyType::Global) || (x)->type() == (+TyType::Local))
 
 static std::string dumpTypeImpl(Type *ty, int depth) {
   if (!ty)

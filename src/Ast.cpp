@@ -593,19 +593,15 @@ AstExpression *AstVariableInitialDeclaration::expression() const {
   return expression_;
 }
 
-AstFunctionDeclaration::AstFunctionDeclaration(const char *identifier,
-                                               AstDeclarationList *argumentList,
-                                               AstExpression *result,
-                                               AstStatement *statement)
-    : AstDeclaration(nameGenWith(identifier, "A_FuncDecl")),
-      identifier_(identifier), argumentList_(argumentList), result_(result),
-      statement_(statement) {}
+AstFunctionDeclaration::AstFunctionDeclaration(
+    AstFunctionSignatureDeclaration *signature, AstStatement *statement)
+    : AstDeclaration(nameGenWith((signature ? signature->identifier() : "null"),
+                                 "A_FuncDecl")),
+      signature_(signature), statement_(statement) {}
 
 AstFunctionDeclaration::~AstFunctionDeclaration() {
-  delete argumentList_;
-  argumentList_ = nullptr;
-  delete result_;
-  result_ = nullptr;
+  delete signature_;
+  signature_ = nullptr;
   delete statement_;
   statement_ = nullptr;
 }
@@ -615,25 +611,53 @@ AstType AstFunctionDeclaration::type() const {
 }
 
 std::string AstFunctionDeclaration::toString() const {
-  std::string arguStr = argumentList_ ? argumentList_->toString() : "null";
-  std::string rStr = result_ ? result_->toString() : "null";
-  std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstFunctionDeclaration identifier_:{}, "
-                     "argumentList_:{}, result_:{}, statement_:{} ]",
-                     identifier_, arguStr, rStr, stmtStr);
+  return fmt::format("[ @AstFunctionDeclaration signature_:{}, statement_:{} ]",
+                     signature_ ? signature_->toString() : "null",
+                     statement_ ? statement_->toString() : "null");
 }
 
-const std::string &AstFunctionDeclaration::identifier() const {
+AstFunctionSignatureDeclaration *AstFunctionDeclaration::signature() const {
+  return signature_;
+}
+
+AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
+
+AstFunctionSignatureDeclaration::AstFunctionSignatureDeclaration(
+    const char *identifier, AstDeclarationList *argumentList,
+    AstExpression *result)
+    : AstDeclaration(nameGenWith(identifier, "A_FuncSignDecl")),
+      identifier_(identifier), argumentList_(argumentList), result_(result) {}
+
+AstFunctionSignatureDeclaration::~AstFunctionSignatureDeclaration() {
+  delete argumentList_;
+  argumentList_ = nullptr;
+  delete result_;
+  result_ = nullptr;
+}
+
+const std::string &AstFunctionSignatureDeclaration::identifier() const {
   return identifier_;
 }
 
-AstDeclarationList *AstFunctionDeclaration::argumentList() const {
+AstDeclarationList *AstFunctionSignatureDeclaration::argumentList() const {
   return argumentList_;
 }
 
-AstExpression *AstFunctionDeclaration::result() const { return result_; }
+AstExpression *AstFunctionSignatureDeclaration::result() const {
+  return result_;
+}
 
-AstStatement *AstFunctionDeclaration::statement() const { return statement_; }
+AstType AstFunctionSignatureDeclaration::type() const {
+  return AstType::FunctionSignatureDeclaration;
+}
+
+std::string AstFunctionSignatureDeclaration::toString() const {
+  return fmt::format("[ @AstFunctionSignatureDeclaration identifier_:{}, "
+                     "argumentList_:{}, result_:{} ]",
+                     identifier_,
+                     argumentList_ ? argumentList_->toString() : "null",
+                     result_ ? result_->toString() : "null");
+}
 
 AstFunctionArgumentDeclaration::AstFunctionArgumentDeclaration(
     const char *value)

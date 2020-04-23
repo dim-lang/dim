@@ -9,6 +9,6 @@
 
 class Semantic {
 public:
-  static void build(SymbolTable *symtable, const Ast *node);
-  static void check(SymbolTable *symtable, const Ast *node);
+  static void build(SymbolTable *symtable, Ast *node);
+  static void check(SymbolTable *symtable, Ast *node);
 };

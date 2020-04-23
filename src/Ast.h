@@ -28,7 +28,8 @@ BETTER_ENUM(AstType, int,
             EmptyStatement,
             // declaration
             VariableDeclaration, VariableInitialDeclaration,
-            FunctionDeclaration, FunctionArgumentDeclaration,
+            FunctionDeclaration, FunctionSignatureDeclaration,
+            FunctionArgumentDeclaration,
             // list
             ExpressionList, StatementList, DeclarationList,
             // translate unit
@@ -88,6 +89,7 @@ class AstDeclaration;
 class AstVariableDeclaration;
 class AstVariableInitialDeclaration;
 class AstFunctionDeclaration;
+class AstFunctionSignatureDeclaration;
 class AstFunctionArgumentDeclaration;
 
 /*================ declaration ================*/
@@ -683,23 +685,38 @@ private:
 /* function declaration */
 class AstFunctionDeclaration : public AstDeclaration {
 public:
-  AstFunctionDeclaration(const char *identifier,
-                         AstDeclarationList *argumentList,
-                         AstExpression *result, AstStatement *statement);
+  AstFunctionDeclaration(AstFunctionSignatureDeclaration *signature,
+                         AstStatement *statement);
   virtual ~AstFunctionDeclaration();
+  virtual AstType type() const;
+  virtual std::string toString() const;
+
+  virtual AstFunctionSignatureDeclaration *signature() const;
+  virtual AstStatement *statement() const;
+
+private:
+  AstFunctionSignatureDeclaration *signature_;
+  AstStatement *statement_;
+};
+
+/* function signature declaration */
+class AstFunctionSignatureDeclaration : public AstDeclaration {
+public:
+  AstFunctionSignatureDeclaration(const char *identifier,
+                                  AstDeclarationList *argumentList,
+                                  AstExpression *result);
+  virtual ~AstFunctionSignatureDeclaration();
   virtual AstType type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
   virtual AstDeclarationList *argumentList() const;
   virtual AstExpression *result() const;
-  virtual AstStatement *statement() const;
 
 private:
   std::string identifier_;
   AstDeclarationList *argumentList_;
   AstExpression *result_;
-  AstStatement *statement_;
 };
 
 /* function argument declaration */
