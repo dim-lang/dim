@@ -1,7 +1,7 @@
-# Copyright 2019- <rsc-lang>
+# Copyright 2019- <rec-lang>
 # Apache License Version 2.0
 
-project(rsc-example VERSION 0.0.2 LANGUAGES CXX)
+project(rec-example VERSION 0.0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -93,22 +93,22 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${RINC})
 link_directories(${RLIB_DIR})
 
-add_executable(rsc-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rsc-llvm_IRBuilder_Add PRIVATE ${RINC})
-target_link_libraries(rsc-llvm_IRBuilder_Add ${RLIB})
-set_target_properties(rsc-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(rec-llvm_IRBuilder_Add PRIVATE ${RINC})
+target_link_libraries(rec-llvm_IRBuilder_Add ${RLIB})
+set_target_properties(rec-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rsc-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rsc-llvm_IRBuilder_Sub PRIVATE ${RINC})
-target_link_libraries(rsc-llvm_IRBuilder_Sub ${RLIB})
-set_target_properties(rsc-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(rec-llvm_IRBuilder_Sub PRIVATE ${RINC})
+target_link_libraries(rec-llvm_IRBuilder_Sub ${RLIB})
+set_target_properties(rec-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rsc-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rsc-llvm_IRBuilder_Mul PRIVATE ${RINC})
-target_link_libraries(rsc-llvm_IRBuilder_Mul ${RLIB})
-set_target_properties(rsc-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(rec-llvm_IRBuilder_Mul PRIVATE ${RINC})
+target_link_libraries(rec-llvm_IRBuilder_Mul ${RLIB})
+set_target_properties(rec-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rsc-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rsc-llvm_IRBuilder_Div PRIVATE ${RINC})
-target_link_libraries(rsc-llvm_IRBuilder_Div ${RLIB})
-set_target_properties(rsc-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(rec-llvm_IRBuilder_Div PRIVATE ${RINC})
+target_link_libraries(rec-llvm_IRBuilder_Div ${RLIB})
+set_target_properties(rec-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})

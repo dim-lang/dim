@@ -1,10 +1,10 @@
-# rsc
+# rec programming languge
 
-rsc - a modern, object-oriented, high performance programming language.
+rec - a modern, object-oriented, high performance programming language.
 
-## Why rsc?
+## Why rec?
 
-rsc is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+rec is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
 #### Object-Oriented
 #### Functional Programming
@@ -123,9 +123,9 @@ func main():i32 {
 
 | Platform     | Build                                                                                          |
 |--------------|------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/rsc-lang/rsc.git && cd rsc && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/rsc-lang/rsc.git && cd rsc && .\build.bat`                     |
+| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                     |
 
 #### Speed up git clone on windows
-* Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release if git clone is too slow for you, and extract it to `rsc\src\llvm-project`.
-* Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge if git clone is too slow for you, and extract to `rsc\src\boost`.
+* Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release if git clone is too slow for you, and extract it to `rec\src\llvm-project`.
+* Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge if git clone is too slow for you, and extract to `rec\src\boost`.

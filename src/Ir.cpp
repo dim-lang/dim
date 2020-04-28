@@ -1,4 +1,4 @@
-// Copyright 2019- <rsc-lang>
+// Copyright 2019- <rec-lang>
 // Apache License Version 2.0
 
 #include "Ir.h"
@@ -27,7 +27,7 @@
 /* ir context */
 IrContext::IrContext()
     : context_(), builder_(context_), module_(nullptr), symtable_() {
-  module_ = new llvm::Module("rsc jit", context_);
+  module_ = new llvm::Module("rec jit", context_);
 }
 
 IrContext::~IrContext() {

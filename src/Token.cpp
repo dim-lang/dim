@@ -1,10 +1,10 @@
-// Copyright 2019- <rsc-lang>
+// Copyright 2019- <rec-lang>
 // Apache License Version 2.0
 
 #include "Token.h"
 #include "Log.h"
 
-#define TOKEN_FILE_EXT ".rsc"
+#define TOKEN_FILE_EXT ".rec"
 #ifndef YY_BUF_SIZE
 #define YY_BUF_SIZE 32768
 #endif

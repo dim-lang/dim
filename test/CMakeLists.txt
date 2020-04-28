@@ -1,11 +1,11 @@
-# Copyright 2019- <rsc-lang>
+# Copyright 2019- <rec-lang>
 # Apache License Version 2.0
 
-project(rsc-test VERSION 0.0.2 LANGUAGES CXX)
+project(rec-test VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/../src/Configure.h.in ${PROJECT_SOURCE_DIR}/../src/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CTEST
+set(RTEST
     MainTest.cpp
     LogTest.cpp
     ConfigureTest.cpp
@@ -111,7 +111,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${RINC})
 link_directories(${RLIB_DIR})
 
-add_executable(rsc-test ${CTEST})
-target_include_directories(rsc-test PRIVATE ${RINC})
-target_link_libraries(rsc-test ${RLIB} rscc)
-set_target_properties(rsc-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec-test ${RTEST})
+target_include_directories(rec-test PRIVATE ${RINC})
+target_link_libraries(rec-test ${RLIB} recc)
+set_target_properties(rec-test PROPERTIES VERSION ${PROJECT_VERSION})

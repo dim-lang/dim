@@ -1,4 +1,4 @@
-// Copyright 2019- <rsc-lang>
+// Copyright 2019- <rec-lang>
 // Apache License Version 2.0
 
 #include "Token.h"
@@ -32,7 +32,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    go("test/case/Parser1.rsc");
-    go("test/case/Parser2.rsc");
+    go("test/case/Parser1.rec");
+    go("test/case/Parser2.rec");
   }
 }

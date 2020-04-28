@@ -1,4 +1,4 @@
-// Copyright 2019- <rsc-lang>
+// Copyright 2019- <rec-lang>
 // Apache License Version 2.0
 
 #include "Ast.h"
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
       scanner.pushBuffer(fileName);
       int p = scanner.parse();
       LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
-          scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
+               scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       LOG_ASSERT(p == 0, "parse fail:{}", p);
       Semantic::build(&symtable, scanner.translateUnit());
       Semantic::check(&symtable, scanner.translateUnit());

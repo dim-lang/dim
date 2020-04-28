@@ -1,11 +1,11 @@
-# Copyright 2019- <rsc-lang>
+# Copyright 2019- <rec-lang>
 # Apache License Version 2.0
 
-project(rsc VERSION 0.0.2 LANGUAGES CXX)
+project(rec VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
-set(RSCC
+set(RECC
     Log.cpp
     Option.cpp
     Timer.cpp
@@ -30,8 +30,8 @@ set(RSCC
     Dump.cpp
     Ir.cpp
 )
-set(RSC
-    rsc.cpp
+set(REC
+    rec.cpp
 )
 
 if(WIN32)
@@ -120,12 +120,12 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${RINC})
 link_directories(${RLIB_DIR})
 
-add_library(rscc STATIC ${RSCC})
-target_include_directories(rscc PRIVATE ${RINC})
-target_link_libraries(rscc ${RLIB})
-set_target_properties(rscc PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(recc STATIC ${RECC})
+target_include_directories(recc PRIVATE ${RINC})
+target_link_libraries(recc ${RLIB})
+set_target_properties(recc PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rsc ${RSC})
-target_include_directories(rsc PRIVATE ${RINC})
-target_link_libraries(rsc ${RLIB} rscc)
-set_target_properties(rsc PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rec ${REC})
+target_include_directories(rec PRIVATE ${RINC})
+target_link_libraries(rec ${RLIB} recc)
+set_target_properties(rec PROPERTIES VERSION ${PROJECT_VERSION})
