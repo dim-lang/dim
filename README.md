@@ -121,11 +121,11 @@ func main():i32 {
 
 #### Build
 
-| Platform     | Build                                                                                          |
-|--------------|------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                     |
+| Platform     | Build                                                                                            |
+|--------------|--------------------------------------------------------------------------------------------------|
+| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build --release` |
+| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                       |
 
-#### Speed up git clone on windows
-* Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release if git clone is too slow for you, and extract it to `rec\src\llvm-project`.
-* Download [boost_1_70_0.zip](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge if git clone is too slow for you, and extract to `rec\src\boost`.
+#### Download source code if git clone is too slow
+* Use [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release.
+* Use [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge.
