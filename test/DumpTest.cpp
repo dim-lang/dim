@@ -24,11 +24,10 @@ static void testAST(const char *fileName) {
 }
 
 static void testIr(const char *fileName) {
-  return;
-  Scanner scanner;
-  IrContext context;
-  scanner.pushBuffer(fileName);
-  REQUIRE(scanner.parse() == 0);
+  // Scanner scanner;
+  // IrContext context;
+  // scanner.pushBuffer(fileName);
+  // REQUIRE(scanner.parse() == 0);
   // LOG_INFO("dump ir: {} {}", fileName, dumpIr(scanner.translateUnit()));
 }
 
