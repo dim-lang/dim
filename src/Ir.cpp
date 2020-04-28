@@ -708,6 +708,30 @@ std::string IrFunctionDeclaration::toString() const {
   return fmt::format("[ @IrFunctionDeclaration node_:{} ]", node_->toString());
 }
 
+/* function signature declaration */
+IrFunctionSignatureDeclaration::IrFunctionSignatureDeclaration(
+    AstFunctionSignatureDeclaration *node)
+    : Ir(nameGen("IrFunctionSignatureDeclaration")), node_(node) {}
+
+std::string IrFunctionSignatureDeclaration::toString() const {
+  return fmt::format("[ @IrFunctionSignatureDeclaration node_:{} ]",
+                     node_->toString());
+}
+
+IrType IrFunctionSignatureDeclaration::type() const {
+  return IrType::FunctionSignatureDeclaration;
+}
+
+llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
+  AstDeclarationList *args = node_->argumentList();
+  std::vector<llvm::Type *> doubleArgs(
+      args->size(), llvm::Type::getDoubleTy(context->context()));
+  // result, parameters
+  llvm::FunctionType *ft = llvm::FunctionType::get(
+      llvm::Type::getDoubleTy(context->context()), doubleArgs, false);
+  return nullptr;
+}
+
 /* function argument declaration */
 IrFunctionArgumentDeclaration::IrFunctionArgumentDeclaration(
     AstFunctionArgumentDeclaration *node)

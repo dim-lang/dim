@@ -26,7 +26,8 @@ BETTER_ENUM(IrType, int,
             EmptyStatement,
             // declaration
             VariableDeclaration, VariableInitialDeclaration,
-            FunctionDeclaration, FunctionArgumentDeclaration,
+            FunctionDeclaration, FunctionSignatureDeclaration,
+            FunctionArgumentDeclaration,
             // list
             ExpressionList, StatementList, DeclarationList,
             // common
@@ -595,6 +596,19 @@ public:
 
 private:
   AstFunctionDeclaration *node_;
+};
+
+/* function signature declaration */
+class IrFunctionSignatureDeclaration : public Ir {
+public:
+  IrFunctionSignatureDeclaration(AstFunctionSignatureDeclaration *node);
+  virtual ~IrFunctionSignatureDeclaration() = default;
+  virtual std::string toString() const;
+  virtual IrType type() const;
+  virtual llvm::Value *codeGen(IrContext *context);
+
+private:
+  AstFunctionSignatureDeclaration *node_;
 };
 
 /* function argument declaration */

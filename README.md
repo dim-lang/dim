@@ -121,11 +121,16 @@ func main():i32 {
 
 #### Build
 
-| Platform     | Build                                                                                            |
-|--------------|--------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build --release` |
-| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                       |
+| Platform     | Build                                                                                          |
+|--------------|------------------------------------------------------------------------------------------------|
+| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                     |
 
-#### Download source code if git clone is too slow
-* Use [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release.
-* Use [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge.
+Fix issue while installation:
+1. Download source code instead of slowly git clone on windows:
+    * [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release.
+    * [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge.
+2. Fix version incompatible on macOS:
+    * flex: `$ echo 'export PATH="/usr/local/opt/flex/bin:$PATH"' >> ~/.bash_profile`.
+    * bison: `$ echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile`.
+    * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
