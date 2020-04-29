@@ -1,4 +1,4 @@
-// Copyright 2019- <rec-lang>
+// Copyright 2019- <rooster-lang>
 // Apache License Version 2.0
 
 #include "Semantic.h"

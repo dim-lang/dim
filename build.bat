@@ -1,4 +1,4 @@
-@rem Copyright 2019- <rec-lang>
+@rem Copyright 2019- <rooster-lang>
 @rem Apache License Version 2.0
 
 @echo off
@@ -14,31 +14,31 @@ set LLVM_VERSION=llvmorg-9.0.1
 set BOOST_VERSION=boost-1.70.0
 
 @rem init third party library
-echo [rec] prepare catchorg/Catch2 %CATCH2_VERSION%
+echo [rooster] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2
 )
-echo [rec] prepare catchorg/Catch2 %CATCH2_VERSION% - done
-echo [rec] prepare gabime/spdlog %SPDLOG_VERSION%
+echo [rooster] prepare catchorg/Catch2 %CATCH2_VERSION% - done
+echo [rooster] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog
 )
-echo [rec] prepare gabime/spdlog %SPDLOG_VERSION% - done
-echo [rec] prepare fmtlib/fmt %FMTLIB_VERSION%
+echo [rooster] prepare gabime/spdlog %SPDLOG_VERSION% - done
+echo [rooster] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
 )
-echo [rec] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-echo [rec] prepare aantron/better-enums %ENUM_VERSION%
+echo [rooster] prepare fmtlib/fmt %FMTLIB_VERSION% - done
+echo [rooster] prepare aantron/better-enums %ENUM_VERSION%
 if not exist %ROOT%\src\better-enums (
     cd %ROOT%\src
     git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
 )
-echo [rec] prepare aantron/better-enums %ENUM_VERSION% - done
-echo [rec] prepare boostorg/boost %BOOST_VERSION%
+echo [rooster] prepare aantron/better-enums %ENUM_VERSION% - done
+echo [rooster] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
     git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
@@ -66,8 +66,8 @@ if not exist %ROOT%\src\boost\stage (
     cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
     cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
 )
-echo [rec] prepare boostorg/boost %BOOST_VERSION% - done
-echo [rec] prepare llvm/llvm-project %LLVM_VERSION%
+echo [rooster] prepare boostorg/boost %BOOST_VERSION% - done
+echo [rooster] prepare llvm/llvm-project %LLVM_VERSION%
 if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
@@ -79,9 +79,9 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -A x64 ..
     cmake --build . --config Release --target INSTALL
 )
-echo [rec] prepare llvm/llvm-project %LLVM_VERSION% - done
+echo [rooster] prepare llvm/llvm-project %LLVM_VERSION% - done
 
-echo [rec] build
+echo [rooster] build
 cd %ROOT%\src
 if exist Token.yy.cpp (
     rm Token.yy.cpp
@@ -100,4 +100,4 @@ cd %MSVC%
 cmake -DCMAKE_BUILD_TYPE=Release -A x64 ..
 cmake --build . --config Release
 cd %ROOT%
-echo [rec] build - done
+echo [rooster] build - done

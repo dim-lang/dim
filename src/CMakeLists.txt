@@ -1,7 +1,7 @@
-# Copyright 2019- <rec-lang>
+# Copyright 2019- <rooster-lang>
 # Apache License Version 2.0
 
-project(rec VERSION 0.0.2 LANGUAGES CXX)
+project(rooster VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -30,15 +30,15 @@ set(RECC
     Dump.cpp
     Ir.cpp
 )
-set(REC
-    rec.cpp
+set(RSRC
+    rooster.cpp
 )
 
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
-    #set(Boost_DEBUG ON)
+    set(Boost_DEBUG ON)
     set(Boost_DETAILED_FAILURE_MSG ON)
     set(Boost_THREADAPI win32)
     set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/boost")
@@ -120,12 +120,12 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${RINC})
 link_directories(${RLIB_DIR})
 
-add_library(recc STATIC ${RECC})
-target_include_directories(recc PRIVATE ${RINC})
-target_link_libraries(recc ${RLIB})
-set_target_properties(recc PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(roosterc STATIC ${RECC})
+target_include_directories(roosterc PRIVATE ${RINC})
+target_link_libraries(roosterc ${RLIB})
+set_target_properties(roosterc PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rec ${REC})
-target_include_directories(rec PRIVATE ${RINC})
-target_link_libraries(rec ${RLIB} recc)
-set_target_properties(rec PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(rooster ${RSRC})
+target_include_directories(rooster PRIVATE ${RINC})
+target_link_libraries(rooster ${RLIB} roosterc)
+set_target_properties(rooster PROPERTIES VERSION ${PROJECT_VERSION})

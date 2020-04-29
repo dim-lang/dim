@@ -1,10 +1,10 @@
-# rec programming languge
+# rooster programming languge
 
-rec - a modern, object-oriented, high performance programming language.
+rooster - a modern, object-oriented, high performance programming language.
 
-## Why rec?
+## Why rooster?
 
-rec is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+rooster is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
 #### Object-Oriented
 #### Functional Programming
@@ -123,8 +123,8 @@ func main():i32 {
 
 | Platform     | Build                                                                                          |
 |--------------|------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/rec-lang/rec.git && cd rec && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/rec-lang/rec.git && cd rec && .\build.bat`                     |
+| Linux & UNIX | `$ git clone https://github.com/rooster-lang/rooster.git && cd rooster && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/rooster-lang/rooster.git && cd rooster && .\build.bat`                     |
 
 Fix issue while installation:
 1. Download source code instead of slowly git clone on windows:

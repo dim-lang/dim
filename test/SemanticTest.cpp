@@ -1,4 +1,4 @@
-// Copyright 2019- <rec-lang>
+// Copyright 2019- <rooster-lang>
 // Apache License Version 2.0
 
 #include "Semantic.h"
@@ -21,7 +21,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Semant", "[Semant]") {
   SECTION("build & check") {
-    go("test/case/Parser1.rec");
-    go("test/case/Parser2.rec");
+    go("test/case/Parser1.ro");
+    go("test/case/Parser2.ro");
   }
 }

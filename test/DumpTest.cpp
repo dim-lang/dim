@@ -1,4 +1,4 @@
-// Copyright 2019- <rec-lang>
+// Copyright 2019- <rooster-lang>
 // Apache License Version 2.0
 
 #include "Dump.h"
@@ -33,8 +33,8 @@ static void testIr(const char *fileName) {
 
 TEST_CASE("Dump", "[Dump]") {
   SECTION("dump Ast/Symbol/Type") {
-    testAST("test/case/Parser1.rec");
-    testAST("test/case/Parser2.rec");
+    testAST("test/case/Parser1.ro");
+    testAST("test/case/Parser2.ro");
   }
-  SECTION("dump Ir") { testIr("test/case/IrTest1.rec"); }
+  SECTION("dump Ir") { testIr("test/case/IrTest1.ro"); }
 }
