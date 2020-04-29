@@ -49,22 +49,14 @@ if not exist %ROOT%\src\boost (
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c bootstrap.bat
-    cmd /c b2 address-model=64 link=shared runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --build-type=complete stage
+    cmd /c b2 address-model=64 link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --build-type=complete stage
     cd %ROOT%\src\boost\stage\lib
-    cp boost_program_options-vc*-mt-x64-*.dll boost_program_options-mt-x64.dll
-    cp boost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
-    cp boost_program_options-vc*-mt-gd-x64-*.dll boost_program_options-mt-gd-x64.dll
-    cp boost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
-
-    cp boost_system-vc*-mt-x64-*.dll boost_system-mt-x64.dll
-    cp boost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
-    cp boost_system-vc*-mt-gd-x64-*.dll boost_system-mt-gd-x64.dll
-    cp boost_system-vc*-mt-gd-x64-*.lib boost_system-mt-gd-x64.lib
-
-    cp boost_filesystem-vc*-mt-x64-*.dll boost_filesystem-mt-x64.dll
-    cp boost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
-    cp boost_filesystem-vc*-mt-gd-x64-*.dll boost_filesystem-mt-gd-x64.dll
-    cp boost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
+    cp libboost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
+    cp libboost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
+    cp libboost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
+    cp libboost_system-vc*-mt-gd-x64-*.lib boost_system-mt-gd-x64.lib
+    cp libboost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
+    cp libboost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
 )
 echo [rooster] prepare boostorg/boost %BOOST_VERSION% - done
 echo [rooster] prepare llvm/llvm-project %LLVM_VERSION%
