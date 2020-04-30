@@ -1,4 +1,4 @@
-// Copyright 2019- <rooster-lang>
+// Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
 #include "Parser.h"
@@ -19,7 +19,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
-    go("test/case/Parser1.ro");
-    go("test/case/Parser2.ro");
+    go("test/case/Parser1.shp");
+    go("test/case/Parser2.shp");
   }
 }

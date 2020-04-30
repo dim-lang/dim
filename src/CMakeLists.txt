@@ -1,11 +1,11 @@
-# Copyright 2019- <rooster-lang>
+# Copyright 2019- <shepherd-lang>
 # Apache License Version 2.0
 
-project(rooster VERSION 0.0.2 LANGUAGES CXX)
+project(shepherdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
-set(RECC
+set(SHEPHERD
     Log.cpp
     Option.cpp
     Timer.cpp
@@ -30,8 +30,8 @@ set(RECC
     Dump.cpp
     Ir.cpp
 )
-set(RSRC
-    rooster.cpp
+set(SHEPHERDC
+    shepherdc.cpp
 )
 
 if(WIN32)
@@ -53,15 +53,15 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
-    set(RINC
+    set(SHEPHERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(RLIB
+    set(SHEPHERD_LIB
         Threads::Threads
         )
-    set(RLIB_DIR
+    set(SHEPHERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -75,8 +75,8 @@ endif(WIN32)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
-set(RINC
-    ${RINC}
+set(SHEPHERD_INC
+    ${SHEPHERD_INC}
     .
     spdlog/include
     fmt/include
@@ -84,13 +84,13 @@ set(RINC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(RLIB
-    ${RLIB}
+set(SHEPHERD_LIB
+    ${SHEPHERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     )
-set(RLIB_DIR
-    ${RLIB_DIR}
+set(SHEPHERD_LIB_DIR
+    ${SHEPHERD_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
@@ -105,9 +105,9 @@ message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
 message(llvm_libraries: ${llvm_libraries})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(RINC: ${RINC})
-message(RLIB: ${RLIB})
-message(RLIB_DIR: ${RLIB_DIR})
+message(SHEPHERD_INC: ${SHEPHERD_INC})
+message(SHEPHERD_LIB: ${SHEPHERD_LIB})
+message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
 
 #add_definitions(-DBOOST_ALL_NO_LIB)
 #add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
@@ -117,15 +117,15 @@ add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${RINC})
-link_directories(${RLIB_DIR})
+include_directories(${SHEPHERD_INC})
+link_directories(${SHEPHERD_LIB_DIR})
 
-add_library(roosterc STATIC ${RECC})
-target_include_directories(roosterc PRIVATE ${RINC})
-target_link_libraries(roosterc ${RLIB})
-set_target_properties(roosterc PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(shepherd STATIC ${SHEPHERD})
+target_include_directories(shepherd PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd ${SHEPHERD_LIB})
+set_target_properties(shepherd PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rooster ${RSRC})
-target_include_directories(rooster PRIVATE ${RINC})
-target_link_libraries(rooster ${RLIB} roosterc)
-set_target_properties(rooster PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherdc ${SHEPHERDC})
+target_include_directories(shepherdc PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherdc ${SHEPHERD_LIB} shepherd)
+set_target_properties(shepherdc PROPERTIES VERSION ${PROJECT_VERSION})

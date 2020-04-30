@@ -1,4 +1,4 @@
-// Copyright 2019- <rooster-lang>
+// Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
 #include "container/LinkedHashMap.h"

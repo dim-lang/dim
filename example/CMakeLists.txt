@@ -1,7 +1,7 @@
-# Copyright 2019- <rooster-lang>
+# Copyright 2019- <shepherd-lang>
 # Apache License Version 2.0
 
-project(rooster-example VERSION 0.0.2 LANGUAGES CXX)
+project(shepherd-example VERSION 0.0.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -26,15 +26,15 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
-    set(RINC
+    set(SHEPHERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(RLIB
+    set(SHEPHERD_LIB
         Threads::Threads
         )
-    set(RLIB_DIR
+    set(SHEPHERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -49,21 +49,21 @@ find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
 
-set(RINC
-    ${RINC}
+set(SHEPHERD_INC
+    ${SHEPHERD_INC}
     .
     ../src/spdlog/include
     ../src/fmt/include
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(RLIB
-    ${RLIB}
+set(SHEPHERD_LIB
+    ${SHEPHERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     )
-set(RLIB_DIR
-    ${RLIB_DIR}
+set(SHEPHERD_LIB_DIR
+    ${SHEPHERD_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
@@ -78,9 +78,9 @@ message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
 message(llvm_libraries: ${llvm_libraries})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(RINC: ${RINC})
-message(RLIB: ${RLIB})
-message(RLIB_DIR: ${RLIB_DIR})
+message(SHEPHERD_INC: ${SHEPHERD_INC})
+message(SHEPHERD_LIB: ${SHEPHERD_LIB})
+message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
 
 #add_definitions(-DBOOST_ALL_NO_LIB)
 #add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
@@ -90,25 +90,25 @@ add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${RINC})
-link_directories(${RLIB_DIR})
+include_directories(${SHEPHERD_INC})
+link_directories(${SHEPHERD_LIB_DIR})
 
-add_executable(rooster-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rooster-llvm_IRBuilder_Add PRIVATE ${RINC})
-target_link_libraries(rooster-llvm_IRBuilder_Add ${RLIB})
-set_target_properties(rooster-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherd-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(shepherd-llvm_IRBuilder_Add PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd-llvm_IRBuilder_Add ${SHEPHERD_LIB})
+set_target_properties(shepherd-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rooster-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rooster-llvm_IRBuilder_Sub PRIVATE ${RINC})
-target_link_libraries(rooster-llvm_IRBuilder_Sub ${RLIB})
-set_target_properties(rooster-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherd-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(shepherd-llvm_IRBuilder_Sub PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd-llvm_IRBuilder_Sub ${SHEPHERD_LIB})
+set_target_properties(shepherd-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rooster-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rooster-llvm_IRBuilder_Mul PRIVATE ${RINC})
-target_link_libraries(rooster-llvm_IRBuilder_Mul ${RLIB})
-set_target_properties(rooster-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherd-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(shepherd-llvm_IRBuilder_Mul PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd-llvm_IRBuilder_Mul ${SHEPHERD_LIB})
+set_target_properties(shepherd-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(rooster-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(rooster-llvm_IRBuilder_Div PRIVATE ${RINC})
-target_link_libraries(rooster-llvm_IRBuilder_Div ${RLIB})
-set_target_properties(rooster-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherd-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(shepherd-llvm_IRBuilder_Div PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd-llvm_IRBuilder_Div ${SHEPHERD_LIB})
+set_target_properties(shepherd-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})

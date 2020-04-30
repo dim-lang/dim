@@ -1,11 +1,11 @@
-# Copyright 2019- <rooster-lang>
+# Copyright 2019- <shepherd-lang>
 # Apache License Version 2.0
 
-project(rooster-test VERSION 0.0.2 LANGUAGES CXX)
+project(shepherd-test VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/../src/Configure.h.in ${PROJECT_SOURCE_DIR}/../src/Configure.h)
 
 set(CMAKE_CXX_STANDARD 14)
-set(RTEST
+set(SHEPHERD_TEST
     MainTest.cpp
     LogTest.cpp
     ConfigureTest.cpp
@@ -41,15 +41,15 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     find_package(Threads REQUIRED)
-    set(RINC
+    set(SHEPHERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(RLIB
+    set(SHEPHERD_LIB
         Threads::Threads
         )
-    set(RLIB_DIR
+    set(SHEPHERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -63,8 +63,8 @@ endif(WIN32)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
-set(RINC
-    ${RINC}
+set(SHEPHERD_INC
+    ${SHEPHERD_INC}
     .
     ../src
     ../src/spdlog/include
@@ -74,13 +74,13 @@ set(RINC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(RLIB
-    ${RLIB}
+set(SHEPHERD_LIB
+    ${SHEPHERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libraries}
     )
-set(RLIB_DIR
-    ${RLIB_DIR}
+set(SHEPHERD_LIB_DIR
+    ${SHEPHERD_LIB_DIR}
     .
     ../src
     ${Boost_LIBRARY_DIRS}
@@ -96,9 +96,9 @@ message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
 message(llvm_libraries: ${llvm_libraries})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(RINC: ${RINC})
-message(RLIB: ${RLIB})
-message(RLIB_DIR: ${RLIB_DIR})
+message(SHEPHERD_INC: ${SHEPHERD_INC})
+message(SHEPHERD_LIB: ${SHEPHERD_LIB})
+message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
 
 #add_definitions(-DBOOST_ALL_NO_LIB)
 #add_definitions(-DBOOST_FILESYSTEM_DYN_LINK)
@@ -108,10 +108,10 @@ add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${RINC})
-link_directories(${RLIB_DIR})
+include_directories(${SHEPHERD_INC})
+link_directories(${SHEPHERD_LIB_DIR})
 
-add_executable(rooster-test ${RTEST})
-target_include_directories(rooster-test PRIVATE ${RINC})
-target_link_libraries(rooster-test ${RLIB} roosterc)
-set_target_properties(rooster-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(shepherd-test ${SHEPHERD_TEST})
+target_include_directories(shepherd-test PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd-test ${SHEPHERD_LIB} shepherdc)
+set_target_properties(shepherd-test PROPERTIES VERSION ${PROJECT_VERSION})

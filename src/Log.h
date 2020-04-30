@@ -1,4 +1,4 @@
-// Copyright 2019- <rooster-lang>
+// Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
 #pragma once
@@ -11,7 +11,7 @@
 
 class Log {
 public:
-  static void initialize(const std::string &logName = "rooster",
+  static void initialize(const std::string &logName = "shepherd",
                          const std::string &logPath = ".");
 };
 

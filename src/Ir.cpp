@@ -1,4 +1,4 @@
-// Copyright 2019- <rooster-lang>
+// Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
 #include "Ir.h"
@@ -27,7 +27,7 @@
 /* ir context */
 IrContext::IrContext()
     : context_(), builder_(context_), module_(nullptr), symtable_() {
-  module_ = new llvm::Module("rooster jit", context_);
+  module_ = new llvm::Module("shepherd jit", context_);
 }
 
 IrContext::~IrContext() {

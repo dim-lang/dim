@@ -1,10 +1,10 @@
-// Copyright 2019- <rooster-lang>
+// Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
 #include "Token.h"
 #include "Log.h"
 
-#define TOKEN_FILE_EXT ".ro"
+#define TOKEN_FILE_EXT ".shp"
 #ifndef YY_BUF_SIZE
 #define YY_BUF_SIZE 32768
 #endif
