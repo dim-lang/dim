@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-# Copyright 2019- <rooster-lang>
+# Copyright 2019- <shepherd-lang>
 # Apache License Version 2.0
 
 ROOT=`pwd`
@@ -18,26 +18,26 @@ function build_generate() {
     FMTLIB_VERSION=5.3.0
     ENUM_VERSION=0.11.2
     cd $ROOT
-    echo [rooster] prepare catchorg/Catch2 $CATCH2_VERSION
+    echo [shepherd] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
         cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2 && cd $ROOT
     fi
-    echo [rooster] prepare catchorg/Catch2 $CATCH2_VERSION - done
-    echo [rooster] prepare gabime/spdlog $SPDLOG_VERSION
+    echo [shepherd] prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo [shepherd] prepare gabime/spdlog $SPDLOG_VERSION
     if [ ! -d src/spdlog ]; then
         cd src && git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog && cd $ROOT
     fi
-    echo [rooster] prepare gabime/spdlog $SPDLOG_VERSION - done
-    echo [rooster] prepare fmtlib/fmt $FMTLIB_VERSION
+    echo [shepherd] prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo [shepherd] prepare fmtlib/fmt $FMTLIB_VERSION
     if [ ! -d src/fmt ]; then
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
-    echo [rooster] prepare fmtlib/fmt $FMTLIB_VERSION - done
-    echo [rooster] prepare aantron/better-enums $ENUM_VERSION
+    echo [shepherd] prepare fmtlib/fmt $FMTLIB_VERSION - done
+    echo [shepherd] prepare aantron/better-enums $ENUM_VERSION
     if [ ! -d src/better-enums ]; then
         cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums && cd $ROOT
     fi
-    echo [rooster] prepare aantron/better-enums $ENUM_VERSION - done
+    echo [shepherd] prepare aantron/better-enums $ENUM_VERSION - done
 
     cd $ROOT/src
     if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
@@ -58,7 +58,7 @@ function build_generate() {
             bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
             ;;
         *)
-            echo [rooster] unknown build_generate argument "$1"
+            echo [shepherd] unknown build_generate argument "$1"
             exit 3
             ;;
     esac
@@ -82,13 +82,13 @@ function build_make() {
 # $2: job number
 function build_routine() {
     case "$FOS" in
-      solaris*) echo "[rooster] solaris not support!" && exit 3 ;;
+      solaris*) echo "[shepherd] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[rooster] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[shepherd] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [rooster] build for $FOS, mode=$1, job=$2
+    echo [shepherd] build for $FOS, mode=$1, job=$2
     build_generate $1
     build_make $1 $2
 }
@@ -96,13 +96,13 @@ function build_routine() {
 # $1: install path
 function build_install() {
     case "$FOS" in
-      solaris*) echo "[rooster] solaris not support!" && exit 3 ;;
+      solaris*) echo "[shepherd] solaris not support!" && exit 3 ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[rooster] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[shepherd] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [rooster] install for $FOS, INSTALL_PATH=$1
+    echo [shepherd] install for $FOS, INSTALL_PATH=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cd release
@@ -110,7 +110,7 @@ function build_install() {
 }
 
 function build_help() {
-    echo [rooster] help message:
+    echo [shepherd] help message:
     echo   build -h/--help              - show help message.
     echo   build -r/--release           - build release.
     echo   build -d/--debug             - build debug.
@@ -141,7 +141,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -t|--test)
-            debug/test/rooster-test
+            debug/test/shepherd-test
             exit 0
             ;;
         -d|--debug)
