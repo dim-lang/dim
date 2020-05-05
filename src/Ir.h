@@ -5,11 +5,15 @@
 #include "Ast.h"
 #include "Log.h"
 #include "boost/core/noncopyable.hpp"
+#include "container/LinkedHashMap.h"
+#include "container/LinkedHashMap.hpp"
 #include "enum.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include <deque>
 #include <unordered_map>
+#include <vector>
 
 /*================ type from start 4000 ================*/
 BETTER_ENUM(IrType, int,
@@ -100,14 +104,14 @@ public:
   const llvm::IRBuilder<> &builder() const;
   llvm::Module *&module();
   const llvm::Module *module() const;
-  std::unordered_map<std::string, llvm::Value *> &symtable();
-  const std::unordered_map<std::string, llvm::Value *> &symtable() const;
+  LinkedHashMap<std::string, llvm::Value *> &symtable();
+  const LinkedHashMap<std::string, llvm::Value *> &symtable() const;
 
 private:
   llvm::LLVMContext context_;
   llvm::IRBuilder<> builder_;
   llvm::Module *module_;
-  std::unordered_map<std::string, llvm::Value *> symtable_;
+  LinkedHashMap<std::string, llvm::Value *> symtable_;
 };
 
 class Ir : public Namely, public Stringify, private boost::noncopyable {
@@ -117,7 +121,7 @@ public:
   virtual std::string name() const;
   virtual std::string toString() const = 0;
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
 
 protected:
   std::string name_;
@@ -128,7 +132,7 @@ public:
   IrExpression(const std::string &name);
   virtual ~IrExpression() = default;
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
 };
 
 class IrStatement : public Ir {
@@ -136,7 +140,7 @@ public:
   IrStatement(const std::string &name);
   virtual ~IrStatement() = default;
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
 };
 
 class IrDeclaration : public IrStatement {
@@ -144,7 +148,7 @@ public:
   IrDeclaration(const std::string &name);
   virtual ~IrDeclaration() = default;
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
 };
 
 namespace detail {
@@ -160,8 +164,7 @@ public:
     items_.clear();
   }
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) { return nullptr; }
-  virtual std::vector<llvm::Value *> codeGenList(IrContext *context) = 0;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
   virtual std::string toString() const {
     std::stringstream ss;
     ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
@@ -197,35 +200,47 @@ public:
   IrExpressionList();
   virtual ~IrExpressionList() = default;
   virtual IrType type() const;
-  virtual std::vector<llvm::Value *> codeGenList(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class IrStatementList : public detail::IrList<IrStatement> {
+public:
+  IrStatementList();
+  virtual ~IrStatementList() = default;
+  virtual IrType type() const;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class IrDeclarationList : public detail::IrList<IrDeclaration> {
+public:
+  IrDeclarationList();
+  virtual ~IrDeclarationList() = default;
+  virtual IrType type() const;
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
 };
 
 /* translate unit */
-class IrTranslateUnit : public detail::IrList<Ir> {
+class IrTranslateUnit : public detail::IrList<IrDeclaration> {
 public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
   virtual IrType type() const;
-  virtual std::vector<llvm::Value *> codeGenList(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
+
+protected:
+  virtual std::string stringify() const;
 
 private:
   AstTranslateUnit *node_;
-};
-
-/* expression */
-class IrExpression : public Ir {
-public:
-  IrExpression(AstExpression *node);
-  virtual ~IrExpression() = default;
-  virtual std::string toString() const;
-  virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
-
-private:
-  AstExpression *node_;
 };
 
 /* identifier constant */
@@ -235,7 +250,7 @@ public:
   virtual ~IrIdentifierConstant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstIdentifierConstant *node_;
@@ -248,7 +263,7 @@ public:
   virtual ~IrI8Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstI8Constant *node_;
@@ -261,7 +276,7 @@ public:
   virtual ~IrU8Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstU8Constant *node_;
@@ -274,7 +289,7 @@ public:
   virtual ~IrI16Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstI16Constant *node_;
@@ -287,7 +302,7 @@ public:
   virtual ~IrU16Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstU16Constant *node_;
@@ -300,7 +315,7 @@ public:
   virtual ~IrI32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstI32Constant *node_;
@@ -313,7 +328,7 @@ public:
   virtual ~IrU32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstU32Constant *node_;
@@ -326,7 +341,7 @@ public:
   virtual ~IrI64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstI64Constant *node_;
@@ -339,7 +354,7 @@ public:
   virtual ~IrU64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstU64Constant *node_;
@@ -352,7 +367,7 @@ public:
   virtual ~IrF32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstF32Constant *node_;
@@ -365,7 +380,7 @@ public:
   virtual ~IrF64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstF64Constant *node_;
@@ -378,7 +393,7 @@ public:
   virtual ~IrStringConstant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstStringConstant *node_;
@@ -391,7 +406,7 @@ public:
   virtual ~IrBooleanConstant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstBooleanConstant *node_;
@@ -404,7 +419,7 @@ public:
   virtual ~IrCallExpression() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstCallExpression *node_;
@@ -417,7 +432,7 @@ public:
   virtual ~IrUnaryExpression() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstUnaryExpression *node_;
@@ -431,7 +446,7 @@ public:
   virtual ~IrBinaryExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstBinaryExpression *node_;
@@ -446,7 +461,7 @@ public:
   virtual ~IrConditionalExpression() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstConditionalExpression *node_;
@@ -459,7 +474,7 @@ public:
   virtual ~IrAssignmentExpression() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstAssignmentExpression *node_;
@@ -472,7 +487,7 @@ public:
   virtual ~IrSequelExpression() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstSequelExpression *node_;
@@ -485,7 +500,7 @@ public:
   virtual ~IrExpressionStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstExpressionStatement *node_;
@@ -498,7 +513,7 @@ public:
   virtual ~IrCompoundStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstCompoundStatement *node_;
@@ -511,7 +526,7 @@ public:
   virtual ~IrIfStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstIfStatement *node_;
@@ -524,7 +539,7 @@ public:
   virtual ~IrWhileStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstWhileStatement *node_;
@@ -537,7 +552,7 @@ public:
   virtual ~IrForStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstForStatement *node_;
@@ -550,7 +565,7 @@ public:
   virtual ~IrContinueStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstContinueStatement *node_;
@@ -563,7 +578,7 @@ public:
   virtual ~IrBreakStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstBreakStatement *node_;
@@ -576,7 +591,7 @@ public:
   virtual ~IrReturnStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstReturnStatement *node_;
@@ -589,7 +604,7 @@ public:
   virtual ~IrEmptyStatement() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstEmptyStatement *node_;
@@ -602,7 +617,7 @@ public:
   virtual ~IrVariableDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstVariableDeclaration *node_;
@@ -615,7 +630,7 @@ public:
   virtual ~IrVariableInitialDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstVariableInitialDeclaration *node_;
@@ -628,7 +643,7 @@ public:
   virtual ~IrFunctionDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstFunctionDeclaration *node_;
@@ -641,7 +656,7 @@ public:
   virtual ~IrFunctionSignatureDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstFunctionSignatureDeclaration *node_;
@@ -654,7 +669,7 @@ public:
   virtual ~IrFunctionArgumentDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGen(IrContext *context);
 
 private:
   AstFunctionArgumentDeclaration *node_;

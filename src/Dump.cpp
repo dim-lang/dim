@@ -352,20 +352,14 @@ static std::string dumpLLVMValue(llvm::Value *v) {
 
 std::string dumpIr(Ir *ir, IrContext *context) {
   LOG_ASSERT(ir, "ir is null");
-  if (ir->type() == (+IrType::TranslateUnit)) {
-    IrTranslateUnit *irt = dynamic_cast<IrTranslateUnit *>(ir);
-    std::stringstream ss;
-    for (int i = 0; i < irt->size(); i++) {
-      Ir *ir = irt->get(i);
-      llvm::Value *v = ir->codeGen(context);
       ss << dumpLLVMValue(v);
       ss << "\n";
-    }
-    return ss.str();
-  } else {
-    llvm::Value *v = ir->codeGen(context);
-    return dumpLLVMValue(v);
+  LOG_ASSERT(context, "context is null");
+  std::stringstream ss;
+    ss << dumpLLVMValue(v);
+    ss << "\n";
   }
+  return ss.str();
 }
 
 #undef DS
