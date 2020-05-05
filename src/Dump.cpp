@@ -350,12 +350,12 @@ static std::string dumpLLVMValue(llvm::Value *v) {
   return os.str();
 }
 
-std::string dumpIr(Ir *ir, IrContext *context) {
+std::string dumpLLVMValue(const std::vector<llvm::Value *> values) {
   LOG_ASSERT(ir, "ir is null");
-      ss << dumpLLVMValue(v);
-      ss << "\n";
   LOG_ASSERT(context, "context is null");
   std::stringstream ss;
+  for (int i = 0; i < (int)values.size(); i++) {
+    llvm::Value *v = values[i];
     ss << dumpLLVMValue(v);
     ss << "\n";
   }
