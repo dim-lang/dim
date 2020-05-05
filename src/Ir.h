@@ -34,8 +34,11 @@ BETTER_ENUM(IrType, int,
             TranslateUnit, Expression, Statement, Declaration)
 
 /*================ class ================*/
-// basic interface
+// interface
 class Ir;
+class IrExpression;
+class IrStatement;
+class IrDeclaration;
 
 // translate unit
 class IrTranslateUnit;
@@ -61,7 +64,6 @@ class IrStringConstant;
 class IrBooleanConstant;
 
 // expression
-class IrExpression;
 class IrCallExpression;
 class IrUnaryExpression;
 class IrBinaryExpression;
@@ -70,7 +72,6 @@ class IrAssignmentExpression;
 class IrSequelExpression;
 
 // statement
-class IrStatement;
 class IrExpressionStatement;
 class IrCompoundStatement;
 class IrIfStatement;
@@ -82,7 +83,6 @@ class IrReturnStatement;
 class IrEmptyStatement;
 
 // declaration
-class IrDeclaration;
 class IrVariableDeclaration;
 class IrVariableInitialDeclaration;
 class IrFunctionDeclaration;
@@ -123,6 +123,30 @@ protected:
   std::string name_;
 };
 
+class IrExpression : public Ir {
+public:
+  IrExpression(const std::string &name);
+  virtual ~IrExpression() = default;
+  virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
+};
+
+class IrStatement : public Ir {
+public:
+  IrStatement(const std::string &name);
+  virtual ~IrStatement() = default;
+  virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
+};
+
+class IrDeclaration : public IrStatement {
+public:
+  IrDeclaration(const std::string &name);
+  virtual ~IrDeclaration() = default;
+  virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
+};
+
 namespace detail {
 
 template <class T> class IrList : public Ir {
@@ -136,7 +160,8 @@ public:
     items_.clear();
   }
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
+  virtual llvm::Value *codeGen(IrContext *context) { return nullptr; }
+  virtual std::vector<llvm::Value *> codeGenList(IrContext *context) = 0;
   virtual std::string toString() const {
     std::stringstream ss;
     ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
@@ -167,13 +192,24 @@ protected:
 
 } // namespace detail
 
+class IrExpressionList : public detail::IrList<IrExpression> {
+public:
+  IrExpressionList();
+  virtual ~IrExpressionList() = default;
+  virtual IrType type() const;
+  virtual std::vector<llvm::Value *> codeGenList(IrContext *context);
+
+protected:
+  virtual std::string stringify() const;
+};
+
 /* translate unit */
 class IrTranslateUnit : public detail::IrList<Ir> {
 public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
   virtual IrType type() const;
-  virtual llvm::Value *codeGen(IrContext *context);
+  virtual std::vector<llvm::Value *> codeGenList(IrContext *context);
 
 private:
   AstTranslateUnit *node_;
