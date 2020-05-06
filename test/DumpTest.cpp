@@ -29,8 +29,7 @@ static void testIr(const char *fileName) {
   REQUIRE(scanner.parse() == 0);
   IrContext context;
   IrTranslateUnit tunit(scanner.translateUnit());
-  std::vector<llvm::Value *> values = tunit.codeGen(&context);
-  LOG_INFO("dump ir: {} {}", fileName, dumpLLVMValue(values));
+  tunit.dumpCodeGen(&context);
 }
 
 TEST_CASE("Dump", "[Dump]") {

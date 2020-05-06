@@ -343,17 +343,25 @@ static std::string dumpTypeImpl(Type *ty, int depth) {
 
 std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
 
-std::string dumpLLVMValue(const std::vector<llvm::Value *> values) {
+std::string dumpLLVMValue(llvm::Value *v) {
   std::stringstream ss;
-  for (int i = 0; i < (int)values.size(); i++) {
-    llvm::Value *v = values[i];
-    LOG_ASSERT(v, "v is null");
-    std::string tmp;
-    llvm::raw_string_ostream os(tmp);
-    v->print(os, true);
-    ss << os.str();
-    ss << "\n";
-  }
+  LOG_ASSERT(v, "v is null");
+  std::string tmp;
+  llvm::raw_string_ostream os(tmp);
+  v->print(os);
+  ss << os.str();
+  ss << "\n";
+  return ss.str();
+}
+
+std::string dumpLLVMFunction(llvm::Function *f) {
+  std::stringstream ss;
+  LOG_ASSERT(f, "v is null");
+  std::string tmp;
+  llvm::raw_string_ostream os(tmp);
+  f->print(os);
+  ss << os.str();
+  ss << "\n";
   return ss.str();
 }
 

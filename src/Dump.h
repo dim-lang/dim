@@ -14,4 +14,6 @@ std::string dumpSymbol(Symbol *sym);
 
 std::string dumpType(Type *ty);
 
-std::string dumpLLVMValue(const std::vector<llvm::Value *> values);
+std::string dumpLLVMValue(llvm::Value *v);
+
+std::string dumpLLVMFunction(llvm::Function *f);

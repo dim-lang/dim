@@ -3,6 +3,7 @@
 
 #include "Type.h"
 #include "Log.h"
+#include "container/LinkedHashMap.hpp"
 #include <sstream>
 
 Tytab::Tytab(Tytab *enclosingScope) : enclosingScope_(enclosingScope) {}

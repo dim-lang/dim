@@ -5,7 +5,6 @@
 #include "Symbol.h"
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
-#include "container/LinkedHashMap.hpp"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include <string>

@@ -23,9 +23,9 @@ BETTER_ENUM(AstType, int,
             AssignmentExpression, SequelExpression, CallExpression,
             UnaryExpression, BinaryExpression, ConditionalExpression,
             // statement
-            ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
-            ForStatement, ContinueStatement, BreakStatement, ReturnStatement,
-            EmptyStatement,
+            ExpressionStatement, IfStatement, WhileStatement, ForStatement,
+            ContinueStatement, BreakStatement, ReturnStatement, EmptyStatement,
+            CompoundStatement,
             // declaration
             VariableDeclaration, VariableInitialDeclaration,
             FunctionDeclaration, FunctionSignatureDeclaration,
