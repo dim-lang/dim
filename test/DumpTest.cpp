@@ -38,7 +38,8 @@ TEST_CASE("Dump", "[Dump]") {
     testAST("test/case/Parser2.shp");
   }
   SECTION("dump Ir") {
-    testIr("test/case/IrTest1.shp");
-    testIr("test/case/IrTest2.shp");
+    // testIr("test/case/IrTest1.shp");
+    // testIr("test/case/IrTest2.shp");
+    testIr("test/case/IrTest3.shp");
   }
 }

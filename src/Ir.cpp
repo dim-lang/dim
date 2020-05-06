@@ -793,7 +793,7 @@ IrType IrFunctionSignatureDeclaration::type() const {
 llvm::Function *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
   AstDeclarationList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
-      args->size(), llvm::Type::getDoubleTy(context->context()));
+      args ? args->size() : 0, llvm::Type::getDoubleTy(context->context()));
   // result, parameters
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context->context()), doubleArgs, false);
@@ -803,6 +803,8 @@ llvm::Function *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
   // set function arg names
   int i = 0;
   for (auto &a : f->args()) {
+    LOG_ASSERT(args, "args is null");
+    LOG_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDeclaration *ast =
         DC(AstFunctionArgumentDeclaration, args->get(i++));
     a.setName(ast->value());

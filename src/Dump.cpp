@@ -356,7 +356,7 @@ std::string dumpLLVMValue(llvm::Value *v) {
 
 std::string dumpLLVMFunction(llvm::Function *f) {
   std::stringstream ss;
-  LOG_ASSERT(f, "v is null");
+  LOG_ASSERT(f, "f is null");
   std::string tmp;
   llvm::raw_string_ostream os(tmp);
   f->print(os);
