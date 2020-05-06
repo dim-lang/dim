@@ -24,11 +24,13 @@ static void testAST(const char *fileName) {
 }
 
 static void testIr(const char *fileName) {
-  // Scanner scanner;
-  // IrContext context;
-  // scanner.pushBuffer(fileName);
-  // REQUIRE(scanner.parse() == 0);
-  // LOG_INFO("dump ir: {} {}", fileName, dumpIr(scanner.translateUnit()));
+  Scanner scanner;
+  scanner.pushBuffer(fileName);
+  REQUIRE(scanner.parse() == 0);
+  IrContext context;
+  IrTranslateUnit tunit(scanner.translateUnit());
+  std::vector<llvm::Value *> values = tunit.codeGen(&context);
+  LOG_INFO("dump ir: {} {}", fileName, dumpLLVMValue(values));
 }
 
 TEST_CASE("Dump", "[Dump]") {
@@ -36,5 +38,8 @@ TEST_CASE("Dump", "[Dump]") {
     testAST("test/case/Parser1.shp");
     testAST("test/case/Parser2.shp");
   }
-  SECTION("dump Ir") { testIr("test/case/IrTest1.shp"); }
+  SECTION("dump Ir") {
+    testIr("test/case/IrTest1.shp");
+    testIr("test/case/IrTest2.shp");
+  }
 }
