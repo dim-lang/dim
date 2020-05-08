@@ -177,23 +177,25 @@ IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
 
 IrType IrTranslateUnit::type() const { return IrType::TranslateUnit; }
 
-void IrTranslateUnit::dumpCodeGen(IrContext *context) {
+std::string IrTranslateUnit::dumpCodeGen(IrContext *context) {
   LOG_ASSERT(context, "context is null");
+  std::stringstream ss;
   for (int i = 0; i < size(); i++) {
     IrDeclaration *ir = get(i);
     switch (ir->type()) {
     case IrType::VariableDeclaration: {
       llvm::Value *v = DC(IrVariableDeclaration, ir)->codeGen(context);
-      dumpLLVMValue(v);
+      ss << dumpLLVMValue(v);
     } break;
     case IrType::FunctionDeclaration: {
       llvm::Function *f = DC(IrFunctionDeclaration, ir)->codeGen(context);
-      dumpLLVMFunction(f);
+      ss << dumpLLVMFunction(f);
     } break;
     default:
       LOG_ASSERT(false, "invalid ir:{}", ir->toString());
     }
   }
+  return ss.str();
 }
 
 std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }

@@ -345,7 +345,10 @@ std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
 
 std::string dumpLLVMValue(llvm::Value *v) {
   std::stringstream ss;
-  LOG_ASSERT(v, "v is null");
+  if (!v) {
+    ss << "LLVM::Value nil\n";
+    return ss.str();
+  }
   std::string tmp;
   llvm::raw_string_ostream os(tmp);
   v->print(os);
@@ -356,7 +359,10 @@ std::string dumpLLVMValue(llvm::Value *v) {
 
 std::string dumpLLVMFunction(llvm::Function *f) {
   std::stringstream ss;
-  LOG_ASSERT(f, "f is null");
+  if (!f) {
+    ss << "LLVM::Function nil\n";
+    return ss.str();
+  }
   std::string tmp;
   llvm::raw_string_ostream os(tmp);
   f->print(os);

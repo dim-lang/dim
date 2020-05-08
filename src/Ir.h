@@ -233,7 +233,7 @@ public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
   virtual IrType type() const;
-  virtual void dumpCodeGen(IrContext *context);
+  virtual std::string dumpCodeGen(IrContext *context);
 
 protected:
   virtual std::string stringify() const;
