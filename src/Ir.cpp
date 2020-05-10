@@ -28,13 +28,22 @@
 
 /* ir context */
 IrContext::IrContext()
-    : context_(), builder_(context_), module_(nullptr), symtable_() {
+    : context_(), builder_(context_), module_(nullptr), symtable_(),
+      functionPassManager_(nullptr) {
   module_ = new llvm::Module("shepherd jit", context_);
+  functionPassManager_ = new llvm::FunctionPassManager(module_);
+  functionPassManager_->add(llvm::createInstructionCombiningPass());
+  functionPassManager_->add(llvm::createReassociatePass());
+  functionPassManager_->add(llvm::createGVNPass());
+  functionPassManager_->add(llvm::createCFGSimplificationPass());
+  functionPassManager_->doInitialization();
 }
 
 IrContext::~IrContext() {
   delete module_;
   module_ = nullptr;
+  delete functionPassManager_;
+  functionPassManager_ = nullptr;
 }
 
 llvm::LLVMContext &IrContext::context() { return context_; }
@@ -55,6 +64,14 @@ LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() {
 
 const LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() const {
   return symtable_;
+}
+
+llvm::FunctionPassManager *&IrContext::functionPassManager() {
+  return functionPassManager_;
+}
+
+const llvm::FunctionPassManager *IrContext::functionPassManager() const {
+  return functionPassManager_;
 }
 
 static Ir *createIr(Ast *node) {
@@ -768,6 +785,7 @@ llvm::Function *IrFunctionDeclaration::codeGen(IrContext *context) {
   if (ret) {
     context->builder().CreateRet(ret);
     llvm::verifyFunction(*f);
+    context->functionPassManager()->run(*f);
     return f;
   }
   f->eraseFromParent();

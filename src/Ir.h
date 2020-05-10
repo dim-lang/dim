@@ -96,12 +96,15 @@ public:
   const llvm::Module *module() const;
   LinkedHashMap<std::string, llvm::Value *> &symtable();
   const LinkedHashMap<std::string, llvm::Value *> &symtable() const;
+  llvm::FunctionPassManager *&functionPassManager();
+  const llvm::FunctionPassManager *functionPassManager() const;
 
 private:
   llvm::LLVMContext context_;
   llvm::IRBuilder<> builder_;
   llvm::Module *module_;
   LinkedHashMap<std::string, llvm::Value *> symtable_;
+  llvm::FunctionPassManager *functionPassManager_;
 };
 
 class IrLLVMValue {
