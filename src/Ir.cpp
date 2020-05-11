@@ -632,13 +632,58 @@ std::string IrSequelExpression::toString() const {
 
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(AstExpressionStatement *node)
-    : IrStatement(nameGen("IrExpressionStatement")), node_(node) {}
+    : IrStatement(nameGen("IrExpressionStatement")), node_(node),
+      expr_(DC(IrExpression, createIr(node))) {}
+
+IrExpressionStatement::~IrExpressionStatement() {
+  delete expr_;
+  expr_ = nullptr;
+}
 
 IrType IrExpressionStatement::type() const {
   return IrType::ExpressionStatement;
 }
 
 llvm::Value *IrExpressionStatement::codeGen(IrContext *context) {
+  switch (expr_->type()) {
+  case IrType::I8Constant:
+    return DC(IrI8Constant, expr_)->codeGen(context);
+  case IrType::U8Constant:
+    return DC(IrU8Constant, expr_)->codeGen(context);
+  case IrType::I16Constant:
+    return DC(IrI16Constant, expr_)->codeGen(context);
+  case IrType::U16Constant:
+    return DC(IrU16Constant, expr_)->codeGen(context);
+  case IrType::I32Constant:
+    return DC(IrI32Constant, expr_)->codeGen(context);
+  case IrType::U32Constant:
+    return DC(IrU32Constant, expr_)->codeGen(context);
+  case IrType::I64Constant:
+    return DC(IrI64Constant, expr_)->codeGen(context);
+  case IrType::U64Constant:
+    return DC(IrU64Constant, expr_)->codeGen(context);
+  case IrType::IdentifierConstant:
+    return DC(IrIdentifierConstant, expr_)->codeGen(context);
+  case IrType::StringConstant:
+    return DC(IrStringConstant, expr_)->codeGen(context);
+  case IrType::BooleanConstant:
+    return DC(IrBooleanConstant, expr_)->codeGen(context);
+  case IrType::CallExpression:
+    return DC(IrCallExpression, expr_)->codeGen(context);
+  case IrType::UnaryExpression:
+    return DC(IrUnaryExpression, expr_)->codeGen(context);
+  case IrType::BinaryExpression:
+    return DC(IrBinaryExpression, expr_)->codeGen(context);
+  case IrType::ConditionalExpression:
+    return DC(IrConditionalExpression, expr_)->codeGen(context);
+  case IrType::AssignmentExpression:
+    return DC(IrAssignmentExpression, expr_)->codeGen(context);
+  case IrType::SequelExpression:
+    return DC(IrSequelExpression, expr_)->codeGen(context);
+  default:
+    LOG_ASSERT(false, "invalid ir type:{}, ast type:{}",
+               expr_->type()._to_string(), node_->type()._to_string());
+  }
   return nullptr;
 }
 
@@ -648,7 +693,27 @@ std::string IrExpressionStatement::toString() const {
 
 /* compound statement */
 IrCompoundStatement::IrCompoundStatement(AstCompoundStatement *node)
-    : IrStatement(nameGen("IrCompoundStatement")), node_(node) {}
+    : IrStatement(nameGen("IrCompoundStatement")), node_(node),
+      statementList_(nullptr) {
+  if (node_->statementList()) {
+    statementList_ = new IrStatementList();
+    for (int i = 0; i < node_->statementList()->size(); i++) {
+      Ast *ast = node_->statementList()->get(i);
+      statementList_->add(DC(IrStatement, createIr(ast)));
+    }
+  }
+}
+
+IrCompoundStatement::~IrCompoundStatement() {
+  if (statementList_) {
+    for (int i = 0; i < statementList_->size(); i++) {
+      Ir *ir = statementList_->get(i);
+      delete ir;
+    }
+    delete statementList_;
+    statementList_ = nullptr;
+  }
+}
 
 IrType IrCompoundStatement::type() const { return IrType::CompoundStatement; }
 
@@ -662,11 +727,61 @@ std::string IrCompoundStatement::toString() const {
 
 /* if statement */
 IrIfStatement::IrIfStatement(AstIfStatement *node)
-    : IrStatement(nameGen("IrIfStatement")), node_(node) {}
+    : IrStatement(nameGen("IrIfStatement")), node_(node),
+      condition_(DC(IrExpression, createIr(node->condition()))),
+      thens_(DC(IrStatement, createIr(node->thens()))),
+      elses_(DC(IrStatement, createIr(node->elses()))) {}
+
+IrIfStatement::~IrIfStatement() {
+  delete condition_;
+  condition_ = nullptr;
+  delete thens_;
+  thens_ = nullptr;
+  delete elses_;
+  elses_ = nullptr;
+}
 
 IrType IrIfStatement::type() const { return IrType::IfStatement; }
 
-llvm::Value *IrIfStatement::codeGen(IrContext *context) { return nullptr; }
+llvm::Value *IrIfStatement::codeGen(IrContext *context) {
+  llvm::Value *condV = condition_->codeGen(context);
+  if (!condV) {
+    return nullptr;
+  }
+  condV = context->builder().CreateFCmpONE(
+      condV, llvm::ConstantFP::get(context->context(), llvm::APFloat(0.0)),
+      "ifcond");
+  llvm::Function *f = context->builder().GetInsertBlock()->getParent();
+  llvm::BasicBlock *thenBlock =
+      llvm::BasicBlock::Create(context->context(), "then", f);
+  llvm::BasicBlock *elseBlock =
+      llvm::BasicBlock::Create(context->context(), "else");
+  llvm::BasicBlock *mergeBlock =
+      llvm::BasicBlock::Create(context->context(), "ifcont");
+  context->builder().CreateCondBr(condV, thenBlock, elseBlock);
+  context->builder().SetInsertPoint(thenBlock);
+  llvm::Value *thenV = thens_->codeGen(context);
+  if (!thenV) {
+    return nullptr;
+  }
+  context->builder().CreateBr(mergeBlock);
+  thenBlock = context->builder().GetInsertBlock();
+  f->getBasicBlockList().push_back(elseBlock);
+  context->builder().SetInsertPoint(elseBlock);
+  llvm::Value *elseV = elses_->codeGen(context);
+  if (!elseV) {
+    return nullptr;
+  }
+  context->builder()->CreateBr(mergeBlock);
+  elseBlock = context->builder().GetInsertBlock();
+  f->getBasicBlockList().push_back(mergeBlock);
+  context->builder().SetInsertPoint(mergeBlock);
+  llvm::PHINode *pn = context->builder().CreatePHI(
+      llvm::Type::getDoubleTy(context->context()), 2, "iftmp");
+  pn->addIncoming(thenV, thenBlock);
+  pn->addIncoming(elseV, elseBlock);
+  return pn;
+}
 
 std::string IrIfStatement::toString() const {
   return fmt::format("[ @IrIfStatement node_:{} ]", node_->toString());

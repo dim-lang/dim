@@ -48,7 +48,6 @@ class IrStatementList;
 class IrDeclarationList;
 
 // constant
-class IrIdentifierConstant;
 class IrI8Constant;
 class IrU8Constant;
 class IrI16Constant;
@@ -61,6 +60,7 @@ class IrF32Constant;
 class IrF64Constant;
 class IrStringConstant;
 class IrBooleanConstant;
+class IrIdentifierConstant;
 
 // expression
 class IrCallExpression;
@@ -495,39 +495,44 @@ private:
 class IrExpressionStatement : public IrStatement {
 public:
   IrExpressionStatement(AstExpressionStatement *node);
-  virtual ~IrExpressionStatement() = default;
+  virtual ~IrExpressionStatement();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstExpressionStatement *node_;
+  IrExpression *expr_;
 };
 
 /* compound statement */
 class IrCompoundStatement : public IrStatement {
 public:
   IrCompoundStatement(AstCompoundStatement *node);
-  virtual ~IrCompoundStatement() = default;
+  virtual ~IrCompoundStatement();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstCompoundStatement *node_;
+  IrStatementList *statementList_;
 };
 
 /* if statement */
 class IrIfStatement : public IrStatement {
 public:
   IrIfStatement(AstIfStatement *node);
-  virtual ~IrIfStatement() = default;
+  virtual ~IrIfStatement();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstIfStatement *node_;
+  IrExpression *condition_;
+  IrStatement *thens_;
+  IrStatement *elses_;
 };
 
 /* while statement */
