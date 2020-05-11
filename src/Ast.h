@@ -475,20 +475,20 @@ private:
 /* ternary conditional expression */
 class AstConditionalExpression : public AstExpression {
 public:
-  AstConditionalExpression(AstExpression *condition, AstExpression *hit,
-                           AstExpression *miss);
+  AstConditionalExpression(AstExpression *condition, AstExpression *thens,
+                           AstExpression *elses);
   virtual ~AstConditionalExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *condition() const;
-  virtual AstExpression *hit() const;
-  virtual AstExpression *miss() const;
+  virtual AstExpression *thens() const;
+  virtual AstExpression *elses() const;
 
 private:
   AstExpression *condition_;
-  AstExpression *hit_;
-  AstExpression *miss_;
+  AstExpression *thens_;
+  AstExpression *elses_;
 };
 
 /* assignment expression */
@@ -554,20 +554,20 @@ private:
 /* selection statement - if else */
 class AstIfStatement : public AstStatement {
 public:
-  AstIfStatement(AstExpression *condition, AstStatement *hit,
-                 AstStatement *miss);
+  AstIfStatement(AstExpression *condition, AstStatement *thens,
+                 AstStatement *elses);
   virtual ~AstIfStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *condition() const;
-  virtual AstStatement *hit() const;
-  virtual AstStatement *miss() const;
+  virtual AstStatement *thens() const;
+  virtual AstStatement *elses() const;
 
 private:
   AstExpression *condition_;
-  AstStatement *hit_;
-  AstStatement *miss_;
+  AstStatement *thens_;
+  AstStatement *elses_;
 };
 
 /* iteration statement - while */

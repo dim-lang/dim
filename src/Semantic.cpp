@@ -119,11 +119,11 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
     if (e->condition()) {
       build(symtable, e->condition());
     }
-    if (e->hit()) {
-      build(symtable, e->hit());
+    if (e->thens()) {
+      build(symtable, e->thens());
     }
-    if (e->miss()) {
-      build(symtable, e->miss());
+    if (e->elses()) {
+      build(symtable, e->elses());
     }
   } break;
   case AstType::WhileStatement: {
@@ -223,8 +223,8 @@ void Semantic::check(SymbolTable *symtable, Ast *node) {
   case AstType::ConditionalExpression: {
     AstConditionalExpression *e = DC(AstConditionalExpression, node);
     check(symtable, e->condition());
-    check(symtable, e->hit());
-    check(symtable, e->miss());
+    check(symtable, e->thens());
+    check(symtable, e->elses());
   } break;
   case AstType::AssignmentExpression: {
     AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
@@ -254,9 +254,9 @@ void Semantic::check(SymbolTable *symtable, Ast *node) {
   case AstType::IfStatement: {
     AstIfStatement *e = DC(AstIfStatement, node);
     check(symtable, e->condition());
-    check(symtable, e->hit());
-    if (e->miss()) {
-      check(symtable, e->miss());
+    check(symtable, e->thens());
+    if (e->elses()) {
+      check(symtable, e->elses());
     }
   } break;
   case AstType::WhileStatement: {

@@ -57,8 +57,10 @@ static std::string dumpAstImpl(Ast *node, int depth) {
            dumpAstImpl(DC(AstBinaryExpression, node)->right(), depth);
   case AstType::ConditionalExpression:
     return dumpAstImpl(DC(AstConditionalExpression, node)->condition(), depth) +
-           "?" + dumpAstImpl(DC(AstConditionalExpression, node)->hit(), depth) +
-           ":" + dumpAstImpl(DC(AstConditionalExpression, node)->miss(), depth);
+           "?" +
+           dumpAstImpl(DC(AstConditionalExpression, node)->thens(), depth) +
+           ":" +
+           dumpAstImpl(DC(AstConditionalExpression, node)->elses(), depth);
   case AstType::AssignmentExpression:
     return dumpAstImpl(DC(AstAssignmentExpression, node)->variable(), depth) +
            "=" + dumpAstImpl(DC(AstAssignmentExpression, node)->value(), depth);
@@ -95,11 +97,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstIfStatement *is = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    LOG_ASSERT(is->hit(), "is#hit is null");
+    LOG_ASSERT(is->thens(), "is#thens is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
-       << dumpAstImpl(is->hit(), depth + 1);
-    if (is->miss()) {
-      ss << DS << "else\n" << dumpAstImpl(is->miss(), depth + 1);
+       << dumpAstImpl(is->thens(), depth + 1);
+    if (is->elses()) {
+      ss << DS << "else\n" << dumpAstImpl(is->elses(), depth + 1);
     }
     return ss.str();
   }

@@ -274,18 +274,18 @@ int AstBinaryExpression::token() const { return token_; }
 AstExpression *AstBinaryExpression::right() const { return right_; }
 
 AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
-                                                   AstExpression *hit,
-                                                   AstExpression *miss)
-    : AstExpression(nameGen("A_CondExp")), condition_(condition), hit_(hit),
-      miss_(miss) {}
+                                                   AstExpression *thens,
+                                                   AstExpression *elses)
+    : AstExpression(nameGen("A_CondExp")), condition_(condition), thens_(thens),
+      elses_(elses) {}
 
 AstConditionalExpression::~AstConditionalExpression() {
   delete condition_;
   condition_ = nullptr;
-  delete hit_;
-  hit_ = nullptr;
-  delete miss_;
-  miss_ = nullptr;
+  delete thens_;
+  thens_ = nullptr;
+  delete elses_;
+  elses_ = nullptr;
 }
 
 AstType AstConditionalExpression::type() const {
@@ -294,20 +294,20 @@ AstType AstConditionalExpression::type() const {
 
 std::string AstConditionalExpression::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string hitStr = hit_ ? hit_->toString() : "null";
-  std::string missStr = miss_ ? miss_->toString() : "null";
+  std::string thensStr = thens_ ? thens_->toString() : "null";
+  std::string elsesStr = elses_ ? elses_->toString() : "null";
   return fmt::format(
-      "[ @AstConditionalExpression condition_:{}, hit_:{}, miss_:{} ]", condStr,
-      hitStr, missStr);
+      "[ @AstConditionalExpression condition_:{}, thens_:{}, elses_:{} ]",
+      condStr, thensStr, elsesStr);
 }
 
 AstExpression *AstConditionalExpression::condition() const {
   return condition_;
 }
 
-AstExpression *AstConditionalExpression::hit() const { return hit_; }
+AstExpression *AstConditionalExpression::thens() const { return thens_; }
 
-AstExpression *AstConditionalExpression::miss() const { return miss_; }
+AstExpression *AstConditionalExpression::elses() const { return elses_; }
 
 AstAssignmentExpression::AstAssignmentExpression(AstExpression *variable,
                                                  int token,
@@ -401,35 +401,35 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *hit,
-                               AstStatement *miss)
-    : AstStatement(nameGen("A_If")), condition_(condition), hit_(hit),
-      miss_(miss) {}
+AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *thens,
+                               AstStatement *elses)
+    : AstStatement(nameGen("A_If")), condition_(condition), thens_(thens),
+      elses_(elses) {}
 
 AstIfStatement::~AstIfStatement() {
   delete condition_;
   condition_ = nullptr;
-  delete hit_;
-  hit_ = nullptr;
-  delete miss_;
-  miss_ = nullptr;
+  delete thens_;
+  thens_ = nullptr;
+  delete elses_;
+  elses_ = nullptr;
 }
 
 AstType AstIfStatement::type() const { return AstType::IfStatement; }
 
 std::string AstIfStatement::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string hStr = hit_ ? hit_->toString() : "null";
-  std::string mStr = miss_ ? miss_->toString() : "null";
-  return fmt::format("[ @AstIfStatement condition_:{}, hit_:{}, miss_:{} ]",
-                     condStr, hStr, mStr);
+  std::string thenStr = thens_ ? thens_->toString() : "null";
+  std::string elseStr = elses_ ? elses_->toString() : "null";
+  return fmt::format("[ @AstIfStatement condition_:{}, thens_:{}, elses_:{} ]",
+                     condStr, thenStr, elseStr);
 }
 
 AstExpression *AstIfStatement::condition() const { return condition_; }
 
-AstStatement *AstIfStatement::hit() const { return hit_; }
+AstStatement *AstIfStatement::thens() const { return thens_; }
 
-AstStatement *AstIfStatement::miss() const { return miss_; }
+AstStatement *AstIfStatement::elses() const { return elses_; }
 
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement)
