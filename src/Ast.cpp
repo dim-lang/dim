@@ -64,115 +64,115 @@ std::string AstIdentifierConstant::toString() const {
 
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
-AstI8Constant::AstI8Constant(const int8_t &value)
+AstInt8Constant::AstInt8Constant(const int8_t &value)
     : AstExpression(nameGenWith(value, "A_i8")), value_(value) {}
 
-AstType AstI8Constant::type() const { return AstType::I8Constant; }
+AstType AstInt8Constant::type() const { return AstType::Int8Constant; }
 
-std::string AstI8Constant::toString() const {
-  return fmt::format("[ @AstI8Constant value_:{} ]", (int)value_);
+std::string AstInt8Constant::toString() const {
+  return fmt::format("[ @AstInt8Constant value_:{} ]", (int)value_);
 }
 
-const int8_t &AstI8Constant::value() const { return value_; }
+const int8_t &AstInt8Constant::value() const { return value_; }
 
-AstU8Constant::AstU8Constant(const uint8_t &value)
+AstUInt8Constant::AstUInt8Constant(const uint8_t &value)
     : AstExpression(nameGenWith(value, "A_u8")), value_(value) {}
 
-AstType AstU8Constant::type() const { return AstType::U8Constant; }
+AstType AstUInt8Constant::type() const { return AstType::UInt8Constant; }
 
-std::string AstU8Constant::toString() const {
-  return fmt::format("[ @AstU8Constant value_:{} ]", (int)value_);
+std::string AstUInt8Constant::toString() const {
+  return fmt::format("[ @AstUInt8Constant value_:{} ]", (int)value_);
 }
 
-const uint8_t &AstU8Constant::value() const { return value_; }
+const uint8_t &AstUInt8Constant::value() const { return value_; }
 
-AstI16Constant::AstI16Constant(const int16_t &value)
+AstInt16Constant::AstInt16Constant(const int16_t &value)
     : AstExpression(nameGenWith(value, "A_i16")), value_(value) {}
 
-AstType AstI16Constant::type() const { return AstType::I16Constant; }
+AstType AstInt16Constant::type() const { return AstType::Int16Constant; }
 
-std::string AstI16Constant::toString() const {
-  return fmt::format("[ @AstI16Constant value_:{} ]", value_);
+std::string AstInt16Constant::toString() const {
+  return fmt::format("[ @AstInt16Constant value_:{} ]", value_);
 }
 
-const int16_t &AstI16Constant::value() const { return value_; }
+const int16_t &AstInt16Constant::value() const { return value_; }
 
-AstU16Constant::AstU16Constant(const uint16_t &value)
+AstUInt16Constant::AstUInt16Constant(const uint16_t &value)
     : AstExpression(nameGenWith(value, "A_u16")), value_(value) {}
 
-AstType AstU16Constant::type() const { return AstType::U16Constant; }
+AstType AstUInt16Constant::type() const { return AstType::UInt16Constant; }
 
-std::string AstU16Constant::toString() const {
-  return fmt::format("[ @AstU16Constant value_:{} ]", value_);
+std::string AstUInt16Constant::toString() const {
+  return fmt::format("[ @AstUInt16Constant value_:{} ]", value_);
 }
 
-const uint16_t &AstU16Constant::value() const { return value_; }
+const uint16_t &AstUInt16Constant::value() const { return value_; }
 
-AstI32Constant::AstI32Constant(const int32_t &value)
+AstInt32Constant::AstInt32Constant(const int32_t &value)
     : AstExpression(nameGenWith(value, "A_i32")), value_(value) {}
 
-AstType AstI32Constant::type() const { return AstType::I32Constant; }
+AstType AstInt32Constant::type() const { return AstType::Int32Constant; }
 
-std::string AstI32Constant::toString() const {
-  return fmt::format("[ @AstI32Constant value_:{} ]", value_);
+std::string AstInt32Constant::toString() const {
+  return fmt::format("[ @AstInt32Constant value_:{} ]", value_);
 }
 
-const int32_t &AstI32Constant::value() const { return value_; }
+const int32_t &AstInt32Constant::value() const { return value_; }
 
-AstU32Constant::AstU32Constant(const uint32_t &value)
+AstUInt32Constant::AstUInt32Constant(const uint32_t &value)
     : AstExpression(nameGenWith(value, "A_u32")), value_(value) {}
 
-AstType AstU32Constant::type() const { return AstType::U32Constant; }
+AstType AstUInt32Constant::type() const { return AstType::UInt32Constant; }
 
-std::string AstU32Constant::toString() const {
-  return fmt::format("[ @AstU32Constant value_:{} ]", value_);
+std::string AstUInt32Constant::toString() const {
+  return fmt::format("[ @AstUInt32Constant value_:{} ]", value_);
 }
 
-const uint32_t &AstU32Constant::value() const { return value_; }
+const uint32_t &AstUInt32Constant::value() const { return value_; }
 
-AstI64Constant::AstI64Constant(const int64_t &value)
+AstInt64Constant::AstInt64Constant(const int64_t &value)
     : AstExpression(nameGenWith(value, "A_i64")), value_(value) {}
 
-AstType AstI64Constant::type() const { return AstType::I64Constant; }
+AstType AstInt64Constant::type() const { return AstType::Int64Constant; }
 
-std::string AstI64Constant::toString() const {
-  return fmt::format("[ @AstI64Constant value_:{} ]", value_);
+std::string AstInt64Constant::toString() const {
+  return fmt::format("[ @AstInt64Constant value_:{} ]", value_);
 }
 
-const int64_t &AstI64Constant::value() const { return value_; }
+const int64_t &AstInt64Constant::value() const { return value_; }
 
-AstU64Constant::AstU64Constant(const uint64_t &value)
+AstUInt64Constant::AstUInt64Constant(const uint64_t &value)
     : AstExpression(nameGenWith(value, "A_u64")), value_(value) {}
 
-AstType AstU64Constant::type() const { return AstType::U64Constant; }
+AstType AstUInt64Constant::type() const { return AstType::UInt64Constant; }
 
-std::string AstU64Constant::toString() const {
-  return fmt::format("[ @AstU64Constant value_:{} ]", value_);
+std::string AstUInt64Constant::toString() const {
+  return fmt::format("[ @AstUInt64Constant value_:{} ]", value_);
 }
 
-const uint64_t &AstU64Constant::value() const { return value_; }
+const uint64_t &AstUInt64Constant::value() const { return value_; }
 
-AstF32Constant::AstF32Constant(const float &value)
+AstFloat32Constant::AstFloat32Constant(const float &value)
     : AstExpression(nameGenWith(value, "A_f32")), value_(value) {}
 
-AstType AstF32Constant::type() const { return AstType::F32Constant; }
+AstType AstFloat32Constant::type() const { return AstType::Float32Constant; }
 
-std::string AstF32Constant::toString() const {
-  return fmt::format("[ @AstF32Constant value_:{} ]", value_);
+std::string AstFloat32Constant::toString() const {
+  return fmt::format("[ @AstFloat32Constant value_:{} ]", value_);
 }
 
-const float &AstF32Constant::value() const { return value_; }
+const float &AstFloat32Constant::value() const { return value_; }
 
-AstF64Constant::AstF64Constant(const double &value)
+AstFloat64Constant::AstFloat64Constant(const double &value)
     : AstExpression(nameGenWith(value, "A_f64")), value_(value) {}
 
-AstType AstF64Constant::type() const { return AstType::F64Constant; }
+AstType AstFloat64Constant::type() const { return AstType::Float64Constant; }
 
-std::string AstF64Constant::toString() const {
-  return fmt::format("[ @AstF64Constant value_:{} ]", value_);
+std::string AstFloat64Constant::toString() const {
+  return fmt::format("[ @AstFloat64Constant value_:{} ]", value_);
 }
 
-const double &AstF64Constant::value() const { return value_; }
+const double &AstFloat64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
     : AstExpression(nameGenWith(value, "A_string")), value_(value) {}

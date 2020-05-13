@@ -30,7 +30,7 @@ public:
 #define LOG_ASSERT(cond, ...)                                                  \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      const char *msg = fmt::format(__VA_ARGS__).c_str();                      \
+      std::string msg = fmt::format(__VA_ARGS__);                              \
       fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}", __FILE__,  \
                  __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg);       \
       throw fmt::format("Assert Fail! {}:{} {} - Condition:{}, Result:{}",     \

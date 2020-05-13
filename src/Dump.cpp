@@ -20,16 +20,16 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     return "null";
   switch (node->type()) {
   case AstType::IdentifierConstant:
-  case AstType::I8Constant:
-  case AstType::U8Constant:
-  case AstType::I16Constant:
-  case AstType::U16Constant:
-  case AstType::I32Constant:
-  case AstType::U32Constant:
-  case AstType::I64Constant:
-  case AstType::U64Constant:
-  case AstType::F32Constant:
-  case AstType::F64Constant:
+  case AstType::Int8Constant:
+  case AstType::UInt8Constant:
+  case AstType::Int16Constant:
+  case AstType::UInt16Constant:
+  case AstType::Int32Constant:
+  case AstType::UInt32Constant:
+  case AstType::Int64Constant:
+  case AstType::UInt64Constant:
+  case AstType::Float32Constant:
+  case AstType::Float64Constant:
   case AstType::StringConstant:
   case AstType::BooleanConstant:
     return node->name();

@@ -45,10 +45,10 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
     VariableSymbol *vs = new VariableSymbol(e->identifier());
     symtable->css()->define(vs);
     switch (e->expression()->type()) {
-    case AstType::I64Constant:
+    case AstType::Int64Constant:
       symtable->cts()->define(vs, BuiltinType::ty_i64());
       break;
-    case AstType::F64Constant:
+    case AstType::Float64Constant:
       symtable->cts()->define(vs, BuiltinType::ty_f64());
       break;
     case AstType::StringConstant:

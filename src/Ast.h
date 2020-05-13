@@ -16,9 +16,10 @@
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstType, int,
             // constant
-            IdentifierConstant = 1000, F32Constant, F64Constant, StringConstant,
-            I8Constant, U8Constant, I16Constant, U16Constant, I32Constant,
-            U32Constant, I64Constant, U64Constant, BooleanConstant,
+            IdentifierConstant = 1000, Float32Constant, Float64Constant,
+            StringConstant, Int8Constant, UInt8Constant, Int16Constant,
+            UInt16Constant, Int32Constant, UInt32Constant, Int64Constant,
+            UInt64Constant, BooleanConstant,
             // expression
             AssignmentExpression, SequelExpression, CallExpression,
             UnaryExpression, BinaryExpression, ConditionalExpression,
@@ -50,16 +51,16 @@ class AstDeclarationList;
 
 /* constant */
 class AstIdentifierConstant;
-class AstI8Constant;
-class AstU8Constant;
-class AstI16Constant;
-class AstU16Constant;
-class AstI32Constant;
-class AstU32Constant;
-class AstI64Constant;
-class AstU64Constant;
-class AstF32Constant;
-class AstF64Constant;
+class AstInt8Constant;
+class AstUInt8Constant;
+class AstInt16Constant;
+class AstUInt16Constant;
+class AstInt32Constant;
+class AstUInt32Constant;
+class AstInt64Constant;
+class AstUInt64Constant;
+class AstFloat32Constant;
+class AstFloat64Constant;
 class AstStringConstant;
 class AstBooleanConstant;
 
@@ -253,11 +254,11 @@ private:
   std::string value_;
 };
 
-/* constant expression - T_I8_CONSTANT */
-class AstI8Constant : public AstExpression {
+/* constant expression - T_INT8_CONSTANT */
+class AstInt8Constant : public AstExpression {
 public:
-  AstI8Constant(const int8_t &value);
-  virtual ~AstI8Constant() = default;
+  AstInt8Constant(const int8_t &value);
+  virtual ~AstInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -267,11 +268,11 @@ private:
   int8_t value_;
 };
 
-/* constant expression - T_U8_CONSTANT */
-class AstU8Constant : public AstExpression {
+/* constant expression - T_UINT8_CONSTANT */
+class AstUInt8Constant : public AstExpression {
 public:
-  AstU8Constant(const uint8_t &value);
-  virtual ~AstU8Constant() = default;
+  AstUInt8Constant(const uint8_t &value);
+  virtual ~AstUInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -281,11 +282,11 @@ private:
   uint8_t value_;
 };
 
-/* constant expression - T_I16_CONSTANT */
-class AstI16Constant : public AstExpression {
+/* constant expression - T_INT16_CONSTANT */
+class AstInt16Constant : public AstExpression {
 public:
-  AstI16Constant(const int16_t &value);
-  virtual ~AstI16Constant() = default;
+  AstInt16Constant(const int16_t &value);
+  virtual ~AstInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -295,11 +296,11 @@ private:
   int16_t value_;
 };
 
-/* constant expression - T_U16_CONSTANT */
-class AstU16Constant : public AstExpression {
+/* constant expression - T_UINT16_CONSTANT */
+class AstUInt16Constant : public AstExpression {
 public:
-  AstU16Constant(const uint16_t &value);
-  virtual ~AstU16Constant() = default;
+  AstUInt16Constant(const uint16_t &value);
+  virtual ~AstUInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -309,11 +310,11 @@ private:
   uint16_t value_;
 };
 
-/* constant expression - T_I32_CONSTANT */
-class AstI32Constant : public AstExpression {
+/* constant expression - T_INT32_CONSTANT */
+class AstInt32Constant : public AstExpression {
 public:
-  AstI32Constant(const int32_t &value);
-  virtual ~AstI32Constant() = default;
+  AstInt32Constant(const int32_t &value);
+  virtual ~AstInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -323,11 +324,11 @@ private:
   int32_t value_;
 };
 
-/* constant expression - T_U32_CONSTANT */
-class AstU32Constant : public AstExpression {
+/* constant expression - T_UINT32_CONSTANT */
+class AstUInt32Constant : public AstExpression {
 public:
-  AstU32Constant(const uint32_t &value);
-  virtual ~AstU32Constant() = default;
+  AstUInt32Constant(const uint32_t &value);
+  virtual ~AstUInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -337,11 +338,11 @@ private:
   uint32_t value_;
 };
 
-/* constant expression - T_I64_CONSTANT */
-class AstI64Constant : public AstExpression {
+/* constant expression - T_INT64_CONSTANT */
+class AstInt64Constant : public AstExpression {
 public:
-  AstI64Constant(const int64_t &value);
-  virtual ~AstI64Constant() = default;
+  AstInt64Constant(const int64_t &value);
+  virtual ~AstInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -351,11 +352,11 @@ private:
   int64_t value_;
 };
 
-/* constant expression - T_U64_CONSTANT */
-class AstU64Constant : public AstExpression {
+/* constant expression - T_UINT64_CONSTANT */
+class AstUInt64Constant : public AstExpression {
 public:
-  AstU64Constant(const uint64_t &value);
-  virtual ~AstU64Constant() = default;
+  AstUInt64Constant(const uint64_t &value);
+  virtual ~AstUInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -365,11 +366,11 @@ private:
   uint64_t value_;
 };
 
-/* constant expression - T_F32_CONSTANT */
-class AstF32Constant : public AstExpression {
+/* constant expression - T_FLOAT32_CONSTANT */
+class AstFloat32Constant : public AstExpression {
 public:
-  AstF32Constant(const float &value);
-  virtual ~AstF32Constant() = default;
+  AstFloat32Constant(const float &value);
+  virtual ~AstFloat32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -379,11 +380,11 @@ private:
   float value_;
 };
 
-/* constant expression - T_F64_CONSTANT */
-class AstF64Constant : public AstExpression {
+/* constant expression - T_FLOAT64_CONSTANT */
+class AstFloat64Constant : public AstExpression {
 public:
-  AstF64Constant(const double &value);
-  virtual ~AstF64Constant() = default;
+  AstFloat64Constant(const double &value);
+  virtual ~AstFloat64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 

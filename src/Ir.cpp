@@ -64,28 +64,28 @@ static Ir *createIr(Ast *node) {
   switch (node->type()) {
   case AstType::IdentifierConstant:
     return new IrIdentifierConstant(DC(AstIdentifierConstant, node));
-  case AstType::F32Constant:
-    return new IrF32Constant(DC(AstF32Constant, node));
-  case AstType::F64Constant:
-    return new IrF64Constant(DC(AstF64Constant, node));
+  case AstType::Float32Constant:
+    return new IrFloat32Constant(DC(AstFloat32Constant, node));
+  case AstType::Float64Constant:
+    return new IrFloat64Constant(DC(AstFloat64Constant, node));
   case AstType::StringConstant:
     return new IrStringConstant(DC(AstStringConstant, node));
-  case AstType::I8Constant:
-    return new IrI8Constant(DC(AstI8Constant, node));
-  case AstType::U8Constant:
-    return new IrU8Constant(DC(AstU8Constant, node));
-  case AstType::I16Constant:
-    return new IrI16Constant(DC(AstI16Constant, node));
-  case AstType::U16Constant:
-    return new IrU16Constant(DC(AstU16Constant, node));
-  case AstType::I32Constant:
-    return new IrI32Constant(DC(AstI32Constant, node));
-  case AstType::U32Constant:
-    return new IrU32Constant(DC(AstU32Constant, node));
-  case AstType::I64Constant:
-    return new IrI64Constant(DC(AstI64Constant, node));
-  case AstType::U64Constant:
-    return new IrU64Constant(DC(AstU64Constant, node));
+  case AstType::Int8Constant:
+    return new IrInt8Constant(DC(AstInt8Constant, node));
+  case AstType::UInt8Constant:
+    return new IrUInt8Constant(DC(AstUInt8Constant, node));
+  case AstType::Int16Constant:
+    return new IrInt16Constant(DC(AstInt16Constant, node));
+  case AstType::UInt16Constant:
+    return new IrUInt16Constant(DC(AstUInt16Constant, node));
+  case AstType::Int32Constant:
+    return new IrInt32Constant(DC(AstInt32Constant, node));
+  case AstType::UInt32Constant:
+    return new IrUInt32Constant(DC(AstUInt32Constant, node));
+  case AstType::Int64Constant:
+    return new IrInt64Constant(DC(AstInt64Constant, node));
+  case AstType::UInt64Constant:
+    return new IrUInt64Constant(DC(AstUInt64Constant, node));
   case AstType::BooleanConstant:
     return new IrBooleanConstant(DC(AstBooleanConstant, node));
   case AstType::AssignmentExpression:
@@ -219,153 +219,153 @@ std::string IrIdentifierConstant::toString() const {
 }
 
 /* i8 constant */
-IrI8Constant::IrI8Constant(AstI8Constant *node)
-    : IrExpression(nameGen("IrI8Constant")), node_(node) {}
+IrInt8Constant::IrInt8Constant(AstInt8Constant *node)
+    : IrExpression(nameGen("IrInt8Constant")), node_(node) {}
 
-IrType IrI8Constant::type() const { return IrType::I8Constant; }
+IrType IrInt8Constant::type() const { return IrType::Int8Constant; }
 
-llvm::Value *IrI8Constant::codeGen(IrContext *context) {
+llvm::Value *IrInt8Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(context->context(),
                                 llvm::APInt(8, (uint64_t)node_->value(), true));
 }
 
-std::string IrI8Constant::toString() const {
-  return fmt::format("[ @IrI8Constant node_:{} ]", node_->toString());
+std::string IrInt8Constant::toString() const {
+  return fmt::format("[ @IrInt8Constant node_:{} ]", node_->toString());
 }
 
 /* u8 constant */
-IrU8Constant::IrU8Constant(AstU8Constant *node)
-    : IrExpression(nameGen("IrU8Constant")), node_(node) {}
+IrUInt8Constant::IrUInt8Constant(AstUInt8Constant *node)
+    : IrExpression(nameGen("IrUInt8Constant")), node_(node) {}
 
-IrType IrU8Constant::type() const { return IrType::U8Constant; }
+IrType IrUInt8Constant::type() const { return IrType::UInt8Constant; }
 
-llvm::Value *IrU8Constant::codeGen(IrContext *context) {
+llvm::Value *IrUInt8Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(8, (uint64_t)node_->value(), false));
 }
 
-std::string IrU8Constant::toString() const {
-  return fmt::format("[ @IrU8Constant node_:{} ]", node_->toString());
+std::string IrUInt8Constant::toString() const {
+  return fmt::format("[ @IrUInt8Constant node_:{} ]", node_->toString());
 }
 
 /* i16 constant */
-IrI16Constant::IrI16Constant(AstI16Constant *node)
-    : IrExpression(nameGen("IrI16Constant")), node_(node) {}
+IrInt16Constant::IrInt16Constant(AstInt16Constant *node)
+    : IrExpression(nameGen("IrInt16Constant")), node_(node) {}
 
-IrType IrI16Constant::type() const { return IrType::I16Constant; }
+IrType IrInt16Constant::type() const { return IrType::Int16Constant; }
 
-llvm::Value *IrI16Constant::codeGen(IrContext *context) {
+llvm::Value *IrInt16Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(16, (uint64_t)node_->value(), true));
 }
 
-std::string IrI16Constant::toString() const {
-  return fmt::format("[ @IrI16Constant node_:{} ]", node_->toString());
+std::string IrInt16Constant::toString() const {
+  return fmt::format("[ @IrInt16Constant node_:{} ]", node_->toString());
 }
 
 /* u16 constant */
-IrU16Constant::IrU16Constant(AstU16Constant *node)
-    : IrExpression(nameGen("IrU16Constant")), node_(node) {}
+IrUInt16Constant::IrUInt16Constant(AstUInt16Constant *node)
+    : IrExpression(nameGen("IrUInt16Constant")), node_(node) {}
 
-IrType IrU16Constant::type() const { return IrType::U16Constant; }
+IrType IrUInt16Constant::type() const { return IrType::UInt16Constant; }
 
-llvm::Value *IrU16Constant::codeGen(IrContext *context) {
+llvm::Value *IrUInt16Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(16, (uint64_t)node_->value(), false));
 }
 
-std::string IrU16Constant::toString() const {
-  return fmt::format("[ @IrU16Constant node_:{} ]", node_->toString());
+std::string IrUInt16Constant::toString() const {
+  return fmt::format("[ @IrUInt16Constant node_:{} ]", node_->toString());
 }
 
 /* i32 constant */
-IrI32Constant::IrI32Constant(AstI32Constant *node)
-    : IrExpression(nameGen("IrI32Constant")), node_(node) {}
+IrInt32Constant::IrInt32Constant(AstInt32Constant *node)
+    : IrExpression(nameGen("IrInt32Constant")), node_(node) {}
 
-IrType IrI32Constant::type() const { return IrType::I32Constant; }
+IrType IrInt32Constant::type() const { return IrType::Int32Constant; }
 
-llvm::Value *IrI32Constant::codeGen(IrContext *context) {
+llvm::Value *IrInt32Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(32, (uint64_t)node_->value(), true));
 }
 
-std::string IrI32Constant::toString() const {
-  return fmt::format("[ @IrI32Constant node_:{} ]", node_->toString());
+std::string IrInt32Constant::toString() const {
+  return fmt::format("[ @IrInt32Constant node_:{} ]", node_->toString());
 }
 
 /* u32 constant */
-IrU32Constant::IrU32Constant(AstU32Constant *node)
-    : IrExpression(nameGen("IrU32Constant")), node_(node) {}
+IrUInt32Constant::IrUInt32Constant(AstUInt32Constant *node)
+    : IrExpression(nameGen("IrUInt32Constant")), node_(node) {}
 
-IrType IrU32Constant::type() const { return IrType::U32Constant; }
+IrType IrUInt32Constant::type() const { return IrType::UInt32Constant; }
 
-llvm::Value *IrU32Constant::codeGen(IrContext *context) {
+llvm::Value *IrUInt32Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(32, (uint64_t)node_->value(), false));
 }
 
-std::string IrU32Constant::toString() const {
-  return fmt::format("[ @IrU32Constant node_:{} ]", node_->toString());
+std::string IrUInt32Constant::toString() const {
+  return fmt::format("[ @IrUInt32Constant node_:{} ]", node_->toString());
 }
 
 /* i64 constant */
-IrI64Constant::IrI64Constant(AstI64Constant *node)
-    : IrExpression(nameGen("IrI64Constant")), node_(node) {}
+IrInt64Constant::IrInt64Constant(AstInt64Constant *node)
+    : IrExpression(nameGen("IrInt64Constant")), node_(node) {}
 
-IrType IrI64Constant::type() const { return IrType::I64Constant; }
+IrType IrInt64Constant::type() const { return IrType::Int64Constant; }
 
-llvm::Value *IrI64Constant::codeGen(IrContext *context) {
+llvm::Value *IrInt64Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(64, (uint64_t)node_->value(), true));
 }
 
-std::string IrI64Constant::toString() const {
-  return fmt::format("[ @IrI64Constant node_:{} ]", node_->toString());
+std::string IrInt64Constant::toString() const {
+  return fmt::format("[ @IrInt64Constant node_:{} ]", node_->toString());
 }
 
 /* u64 constant */
-IrU64Constant::IrU64Constant(AstU64Constant *node)
-    : IrExpression(nameGen("IrU64Constant")), node_(node) {}
+IrUInt64Constant::IrUInt64Constant(AstUInt64Constant *node)
+    : IrExpression(nameGen("IrUInt64Constant")), node_(node) {}
 
-IrType IrU64Constant::type() const { return IrType::U64Constant; }
+IrType IrUInt64Constant::type() const { return IrType::UInt64Constant; }
 
-llvm::Value *IrU64Constant::codeGen(IrContext *context) {
+llvm::Value *IrUInt64Constant::codeGen(IrContext *context) {
   return llvm::ConstantInt::get(
       context->context(), llvm::APInt(64, (uint64_t)node_->value(), false));
 }
 
-std::string IrU64Constant::toString() const {
-  return fmt::format("[ @IrU64Constant node_:{} ]", node_->toString());
+std::string IrUInt64Constant::toString() const {
+  return fmt::format("[ @IrUInt64Constant node_:{} ]", node_->toString());
 }
 
 /* f32 constant */
-IrF32Constant::IrF32Constant(AstF32Constant *node)
-    : IrExpression(nameGen("IrF32Constant")), node_(node) {}
+IrFloat32Constant::IrFloat32Constant(AstFloat32Constant *node)
+    : IrExpression(nameGen("IrFloat32Constant")), node_(node) {}
 
-IrType IrF32Constant::type() const { return IrType::F32Constant; }
+IrType IrFloat32Constant::type() const { return IrType::Float32Constant; }
 
-llvm::Value *IrF32Constant::codeGen(IrContext *context) {
+llvm::Value *IrFloat32Constant::codeGen(IrContext *context) {
   return llvm::ConstantFP::get(context->context(),
                                llvm::APFloat((float)node_->value()));
 }
 
-std::string IrF32Constant::toString() const {
-  return fmt::format("[ @IrF32Constant node_:{} ]", node_->toString());
+std::string IrFloat32Constant::toString() const {
+  return fmt::format("[ @IrFloat32Constant node_:{} ]", node_->toString());
 }
 
 /* f64 constant */
-IrF64Constant::IrF64Constant(AstF64Constant *node)
-    : IrExpression(nameGen("IrF64Constant")), node_(node) {}
+IrFloat64Constant::IrFloat64Constant(AstFloat64Constant *node)
+    : IrExpression(nameGen("IrFloat64Constant")), node_(node) {}
 
-IrType IrF64Constant::type() const { return IrType::F64Constant; }
+IrType IrFloat64Constant::type() const { return IrType::Float64Constant; }
 
-llvm::Value *IrF64Constant::codeGen(IrContext *context) {
+llvm::Value *IrFloat64Constant::codeGen(IrContext *context) {
   return llvm::ConstantFP::get(context->context(),
                                llvm::APFloat((double)node_->value()));
 }
 
-std::string IrF64Constant::toString() const {
-  return fmt::format("[ @IrF64Constant node_:{} ]", node_->toString());
+std::string IrFloat64Constant::toString() const {
+  return fmt::format("[ @IrFloat64Constant node_:{} ]", node_->toString());
 }
 
 /* string constant */
@@ -646,22 +646,22 @@ IrType IrExpressionStatement::type() const {
 
 llvm::Value *IrExpressionStatement::codeGen(IrContext *context) {
   switch (expr_->type()) {
-  case IrType::I8Constant:
-    return DC(IrI8Constant, expr_)->codeGen(context);
-  case IrType::U8Constant:
-    return DC(IrU8Constant, expr_)->codeGen(context);
-  case IrType::I16Constant:
-    return DC(IrI16Constant, expr_)->codeGen(context);
-  case IrType::U16Constant:
-    return DC(IrU16Constant, expr_)->codeGen(context);
-  case IrType::I32Constant:
-    return DC(IrI32Constant, expr_)->codeGen(context);
-  case IrType::U32Constant:
-    return DC(IrU32Constant, expr_)->codeGen(context);
-  case IrType::I64Constant:
-    return DC(IrI64Constant, expr_)->codeGen(context);
-  case IrType::U64Constant:
-    return DC(IrU64Constant, expr_)->codeGen(context);
+  case IrType::Int8Constant:
+    return DC(IrInt8Constant, expr_)->codeGen(context);
+  case IrType::UInt8Constant:
+    return DC(IrUInt8Constant, expr_)->codeGen(context);
+  case IrType::Int16Constant:
+    return DC(IrInt16Constant, expr_)->codeGen(context);
+  case IrType::UInt16Constant:
+    return DC(IrUInt16Constant, expr_)->codeGen(context);
+  case IrType::Int32Constant:
+    return DC(IrInt32Constant, expr_)->codeGen(context);
+  case IrType::UInt32Constant:
+    return DC(IrUInt32Constant, expr_)->codeGen(context);
+  case IrType::Int64Constant:
+    return DC(IrInt64Constant, expr_)->codeGen(context);
+  case IrType::UInt64Constant:
+    return DC(IrUInt64Constant, expr_)->codeGen(context);
   case IrType::IdentifierConstant:
     return DC(IrIdentifierConstant, expr_)->codeGen(context);
   case IrType::StringConstant:

@@ -43,17 +43,20 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* union */
 %token <token> T_EOF
-%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
+%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL 
+%token <token> T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
-%token <token> T_I8 T_U8 T_I16 T_U16 T_I32 T_U32 T_I64 T_U64 T_I128 T_U128 T_F32 T_F64 T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_PUBLIC T_PROTECT T_PRIVATE
-%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_UNDERLINE T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
+%token <token> T_INT8 T_UINT8 T_INT16 T_UINT16 T_INT32 T_UINT32 T_INT64 T_UINT64 T_INT128 T_UINT128 T_FLOAT32 T_FLOAT64 
+%token <token> T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_PUBLIC T_PROTECT T_PRIVATE
+%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_UNDERLINE 
+%token <token> T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
-%token <literal> T_IDENTIFIER T_I8_CONSTANT T_U8_CONSTANT T_I16_CONSTANT T_U16_CONSTANT T_I32_CONSTANT T_U32_CONSTANT
-%token <literal> T_I64_CONSTANT T_U64_CONSTANT T_F32_CONSTANT T_F64_CONSTANT T_STRING_CONSTANT T_CHAR_CONSTANT
+%token <literal> T_IDENTIFIER T_INT8_CONSTANT T_UINT8_CONSTANT T_INT16_CONSTANT T_UINT16_CONSTANT T_INT32_CONSTANT T_UINT32_CONSTANT
+%token <literal> T_INT64_CONSTANT T_UINT64_CONSTANT T_FLOAT32_CONSTANT T_FLOAT64_CONSTANT T_STRING_CONSTANT T_CHAR_CONSTANT
 
 %type <expr> postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression  sequel_expression
@@ -119,16 +122,16 @@ join_string_helper : T_STRING_CONSTANT {
                    ;
 
 primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::free($1); }
-                   /*| T_I8_CONSTANT { $$ = new AstI8Constant((int8_t)std::stoi($1)); std::free($1); }*/
-                   /*| T_U8_CONSTANT { $$ = new AstU8Constant((uint8_t)std::stoul($1)); std::free($1); }*/
-                   /*| T_I16_CONSTANT { $$ = new AstI16Constant((int16_t)std::stoi($1)); std::free($1); }*/
-                   /*| T_U16_CONSTANT { $$ = new AstU16Constant((uint16_t)std::stoul($1)); std::free($1); }*/
-                   /*| T_I32_CONSTANT { $$ = new AstI32Constant((int32_t)std::stol($1)); std::free($1); }*/
-                   /*| T_U32_CONSTANT { $$ = new AstU32Constant((uint32_t)std::stoul($1)); std::free($1); }*/
-                   | T_I64_CONSTANT { $$ = new AstI64Constant((int64_t)std::stoll($1)); std::free($1); }
-                   /*| T_U64_CONSTANT { $$ = new AstU64Constant((uint64_t)std::stoull($1)); std::free($1); }*/
-                   /*| T_F32_CONSTANT { $$ = new AstF32Constant((float)std::stof($1)); std::free($1); }*/
-                   | T_F64_CONSTANT { $$ = new AstF64Constant((double)std::stod($1)); std::free($1); }
+                   /*| T_INT8_CONSTANT { $$ = new AstInt8Constant((int8_t)std::stoi($1)); std::free($1); }*/
+                   /*| T_UINT8_CONSTANT { $$ = new AstUInt8Constant((uint8_t)std::stoul($1)); std::free($1); }*/
+                   /*| T_INT16_CONSTANT { $$ = new AstInt16Constant((int16_t)std::stoi($1)); std::free($1); }*/
+                   /*| T_UINT16_CONSTANT { $$ = new AstUInt16Constant((uint16_t)std::stoul($1)); std::free($1); }*/
+                   /*| T_INT32_CONSTANT { $$ = new AstInt32Constant((int32_t)std::stol($1)); std::free($1); }*/
+                   /*| T_UINT32_CONSTANT { $$ = new AstUInt32Constant((uint32_t)std::stoul($1)); std::free($1); }*/
+                   | T_INT64_CONSTANT { $$ = new AstInt64Constant((int64_t)std::stoll($1)); std::free($1); }
+                   /*| T_UINT64_CONSTANT { $$ = new AstUInt64Constant((uint64_t)std::stoull($1)); std::free($1); }*/
+                   /*| T_FLOAT32_CONSTANT { $$ = new AstFloat32Constant((float)std::stof($1)); std::free($1); }*/
+                   | T_FLOAT64_CONSTANT { $$ = new AstFloat64Constant((double)std::stod($1)); std::free($1); }
                    | join_string_helper { $$ = $1; }
                    | T_TRUE { $$ = new AstBooleanConstant(true); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); }
