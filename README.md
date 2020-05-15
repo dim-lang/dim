@@ -131,6 +131,6 @@ Fix issue while installation:
     * [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release.
     * [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge.
 2. Fix version incompatible on macOS:
-    * flex: `$ echo 'export PATH="/usr/local/opt/flex/bin:$PATH"' >> ~/.bash_profile`.
-    * bison: `$ echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile`.
+    * flex: `$ echo 'export PATH=/usr/local/opt/flex/bin:$PATH' >> ~/.bash_profile`.
+    * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
     * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
