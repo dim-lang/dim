@@ -1,10 +1,10 @@
-# rooster programming languge
+# shepherd programming languge
 
-rooster - a modern, object-oriented, high performance programming language.
+shepherd - a modern, object-oriented, high performance programming language.
 
-## Why rooster?
+## Why shepherd?
 
-rooster is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+shepherd is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
 #### Object-Oriented
 #### Functional Programming
@@ -123,8 +123,8 @@ func main():int32 {
 
 | Platform     | Build                                                                                          |
 |--------------|------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/rooster-lang/rooster.git && cd rooster && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/rooster-lang/rooster.git && cd rooster && .\build.bat`                     |
+| Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build init && ./build release` |
+| Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat`                     |
 
 Fix issue while installation:
 1. Download source code instead of slowly git clone on windows:
