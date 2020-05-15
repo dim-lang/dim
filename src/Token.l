@@ -166,7 +166,7 @@ HEXEXP ([pP][-+]?[0-9]+)
  /* decimal integer: 102813 */
 {INT}                                   { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
 {INT}[Uu]                               { T_SAVE_TOKEN; return T_UINT32_CONSTANT; }
-{INT}{Ll}                               { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
+{INT}[Ll]                               { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
 {INT}[UL|ul]                            { T_SAVE_TOKEN; return T_UINT64_CONSTANT; }
  /* heximal integer: 0x03ff */
 0[xX]{HEX}+                             { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
