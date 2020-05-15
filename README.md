@@ -101,8 +101,8 @@ func main():int32 {
 
 | Platform          |  Dependencies                                                                               |
 |-------------------|---------------------------------------------------------------------------------------------|
-| MacOS             | Install Xcode, git, homebrew<br>`$ brew install cmake flex bison boost llvm`                |
-| BSD               | Install pkg, bash<br>`$ sudo pkg install -y git cmake flex bison boost-all llvm`            |
+| MacOS             | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`              |
+| BSD               | `$ sudo pkg install -y bash git cmake flex bison boost-all llvm`                            |
 | Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake flex bison libboost-all-dev llvm-dev`       |
 | Fedora            | `$ sudo dnf install -y git clang make cmake flex bison boost-devel llvm-devel`              |
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                               |
