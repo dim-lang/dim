@@ -121,10 +121,10 @@ func main():int32 {
 
 #### Build
 
-| Platform     | Build                                                                                          |
-|--------------|------------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build init && ./build release` |
-| Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat`                     |
+| Platform     | Build                                                                                     |
+|--------------|-------------------------------------------------------------------------------------------|
+| Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build -r`  |
+| Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat` |
 
 Fix issue while installation:
 1. Download source code instead of slowly git clone on windows:
