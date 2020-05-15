@@ -11,7 +11,8 @@ func abs() {
 func World(x, y) {
     x = 1;
     y = 2;
-    var z = x + y;
+    var z = 2U;
+    z = x + y;
     return z + 10 / 4;
 }
 
