@@ -106,6 +106,8 @@ HEXEXP ([pP][-+]?[0-9]+)
 "public"     { return T_TOKEN(T_PUBLIC); }
 "protect"    { return T_TOKEN(T_PROTECT); }
 "private"    { return T_TOKEN(T_PRIVATE); }
+"nan"        { return T_TOKEN(T_NAN); }
+"inf"        { return T_TOKEN(T_INF); }
 
  /* punctuators */
 "+"    { return T_TOKEN(T_ADD); }
