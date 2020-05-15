@@ -106,7 +106,7 @@ func main():int32 {
 | Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake flex bison libboost-all-dev llvm-dev` |
 | Fedora            | `$ sudo dnf install -y git clang make cmake flex bison boost-devel llvm-devel`        |
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                         |
-| OpenSUSE          | `$ sudo zypper install -y git clang make cmake flex bison libboost*-devel llvm-devel` |
+| OpenSUSE          | `$ sudo zypper install -y git clang cmake flex bison libboost*devel llvm-devel`       |
 
 #### Install dependencies on windows
 
