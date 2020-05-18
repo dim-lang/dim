@@ -18,31 +18,36 @@ Here is an example:
 ```
 /* declare an interface */
 interface People {
-    func age(): int64;
-    func name(): String;
+    func age(): &int32;
+    func name(): &String;
 }
 
 /* declare a class implement the interface above */
 class Student: People {
-    age:int64;
+    age:int32;
     name:String;
-    score:&int64[];
+    score:&uint32[];
 
     func Student() {
-        age = 0; name = "student"; 
-        score = new int64[10];
+        age = 0;
+        name = "student"; 
+        score = new uint32[10];
         for (var i = 0; i < 10; i++) {
-            score[i] = 100 - i;
+            score[i] = (uint32)i;
         }
     }
-    func Student(age:int64, name:String, score:&int64[]) { this.age = age; this.name = name; this.score = score; }
-    func age(): int64 { return age; }
-    func name(): String { return name; }
-    func score(): &int64[] { return score; }
+    func Student(age:int32, name:String, score:&uint32[]) { 
+        this.age = age; 
+        this.name = name; 
+        this.score = score; 
+    }
+    func age(): &int32 { return &age; }
+    func name(): &String { return &name; }
+    func score(): &&uint32[] { return &score; }
 }
 
 /* declare a function, which 2nd parameter is another function */
-func select(s:&int64[], len:int64, compare:func(int64, int64):boolean):int64 => {
+func select(s:&int32[], len:int32, compare:func(int32, int32):boolean):int32 => {
     var r = 0;
     for (var i = 0; i < len; i++) {
         r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
@@ -72,20 +77,6 @@ func main():int32 {
         ss2[i].age = i;
         ss2[i].name = "" + i;
     }
-    var ss4:&(&(&Student)[])[] = new (&Student[])[10];
-    for (var i = 0; i < 10; i++) {
-        ss4[i] = new (&Student)[10];
-        for (var j = 0; j < 10; j++) {
-            ss4[i][j] = new Student(i, "" + j);
-        }
-    }
-    var ss5:Student[][] = Student[10][10];
-    for (var i = 0; i < 10; i++) {
-        for (var j = 0; j < 10; j++) {
-            ss5[i][j] = Student(i, "" + j);
-        }
-    }
-
     val mymax:func(int64, int64):int64 = func(a:int64, b:int64):int64 => a > b ? a : b;
     val mymin = func(a:int64, b:int64):int64 => { if (a < b) { return a; } else { return b; } };
     val myavg = func(a:int64, b:int64):int64 => (a + b) / 2;
