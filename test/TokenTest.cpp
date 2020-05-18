@@ -15,12 +15,13 @@ static void go(const char *fileName) {
   LOG_INFO("go start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;
   while ((t = scanner.tokenize()), std::get<0>(t) != 0) {
-    if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_I32_CONSTANT ||
-        std::get<0>(t) == T_I8_CONSTANT || std::get<0>(t) == T_U8_CONSTANT ||
-        std::get<0>(t) == T_I16_CONSTANT || std::get<0>(t) == T_U16_CONSTANT ||
-        std::get<0>(t) == T_U32_CONSTANT || std::get<0>(t) == T_I64_CONSTANT ||
-        std::get<0>(t) == T_U64_CONSTANT || std::get<0>(t) == T_F32_CONSTANT ||
-        std::get<0>(t) == T_F64_CONSTANT || std::get<0>(t) == T_STRING) {
+    if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_INT32_CONSTANT ||
+        std::get<0>(t) == T_UINT32_CONSTANT ||
+        std::get<0>(t) == T_INT64_CONSTANT ||
+        std::get<0>(t) == T_UINT64_CONSTANT ||
+        std::get<0>(t) == T_FLOAT32_CONSTANT ||
+        std::get<0>(t) == T_FLOAT64_CONSTANT ||
+        std::get<0>(t) == T_STRING_CONSTANT) {
       LOG_INFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
       std::free(std::get<1>(t).literal);
     } else {

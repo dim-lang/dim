@@ -21,6 +21,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/Support/Casting.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
 
@@ -520,13 +521,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context->builder().CreateSDiv(l, r, "divtmp");
+      return context->builder().CreateFDiv(l, r, "divtmp");
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context->builder().CreateSDiv(l, r, "divtmp");
+        return context->builder().CreateFDiv(l, r, "divtmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
         return context->builder().CreateSDiv(l, r, "divtmp");
@@ -744,43 +745,43 @@ IrIfStatement::~IrIfStatement() {
 IrType IrIfStatement::type() const { return IrType::IfStatement; }
 
 llvm::Value *IrIfStatement::codeGen(IrContext *context) {
-  llvm::Value *condV = condition_->codeGen(context);
-  if (!condV) {
-    return nullptr;
-  }
-  condV = context->builder().CreateFCmpONE(
-      condV, llvm::ConstantFP::get(context->context(), llvm::APFloat(0.0)),
-      "ifcond");
-  llvm::Function *f = context->builder().GetInsertBlock()->getParent();
-  llvm::BasicBlock *thenBlock =
-      llvm::BasicBlock::Create(context->context(), "then", f);
-  llvm::BasicBlock *elseBlock =
-      llvm::BasicBlock::Create(context->context(), "else");
-  llvm::BasicBlock *mergeBlock =
-      llvm::BasicBlock::Create(context->context(), "ifcont");
-  context->builder().CreateCondBr(condV, thenBlock, elseBlock);
-  context->builder().SetInsertPoint(thenBlock);
-  llvm::Value *thenV = thens_->codeGen(context);
-  if (!thenV) {
-    return nullptr;
-  }
-  context->builder().CreateBr(mergeBlock);
-  thenBlock = context->builder().GetInsertBlock();
-  f->getBasicBlockList().push_back(elseBlock);
-  context->builder().SetInsertPoint(elseBlock);
-  llvm::Value *elseV = elses_->codeGen(context);
-  if (!elseV) {
-    return nullptr;
-  }
-  context->builder()->CreateBr(mergeBlock);
-  elseBlock = context->builder().GetInsertBlock();
-  f->getBasicBlockList().push_back(mergeBlock);
-  context->builder().SetInsertPoint(mergeBlock);
-  llvm::PHINode *pn = context->builder().CreatePHI(
-      llvm::Type::getDoubleTy(context->context()), 2, "iftmp");
-  pn->addIncoming(thenV, thenBlock);
-  pn->addIncoming(elseV, elseBlock);
-  return pn;
+  // llvm::Value *condV = condition_->codeGen(context);
+  // if (!condV) {
+  return nullptr;
+  //}
+  // condV = context->builder().CreateFCmpONE(
+  // condV, llvm::ConstantFP::get(context->context(), llvm::APFloat(0.0)),
+  //"ifcond");
+  // llvm::Function *f = context->builder().GetInsertBlock()->getParent();
+  // llvm::BasicBlock *thenBlock =
+  // llvm::BasicBlock::Create(context->context(), "then", f);
+  // llvm::BasicBlock *elseBlock =
+  // llvm::BasicBlock::Create(context->context(), "else");
+  // llvm::BasicBlock *mergeBlock =
+  // llvm::BasicBlock::Create(context->context(), "ifcont");
+  // context->builder().CreateCondBr(condV, thenBlock, elseBlock);
+  // context->builder().SetInsertPoint(thenBlock);
+  // llvm::Value *thenV = thens_->codeGen(context);
+  // if (!thenV) {
+  // return nullptr;
+  //}
+  // context->builder().CreateBr(mergeBlock);
+  // thenBlock = context->builder().GetInsertBlock();
+  // f->getBasicBlockList().push_back(elseBlock);
+  // context->builder().SetInsertPoint(elseBlock);
+  // llvm::Value *elseV = elses_->codeGen(context);
+  // if (!elseV) {
+  // return nullptr;
+  //}
+  // context->builder()->CreateBr(mergeBlock);
+  // elseBlock = context->builder().GetInsertBlock();
+  // f->getBasicBlockList().push_back(mergeBlock);
+  // context->builder().SetInsertPoint(mergeBlock);
+  // llvm::PHINode *pn = context->builder().CreatePHI(
+  // llvm::Type::getDoubleTy(context->context()), 2, "iftmp");
+  // pn->addIncoming(thenV, thenBlock);
+  // pn->addIncoming(elseV, elseBlock);
+  // return pn;
 }
 
 std::string IrIfStatement::toString() const {

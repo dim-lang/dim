@@ -60,6 +60,8 @@ HEXEXP ([pP][-+]?[0-9]+)
 "true"       { return T_TOKEN(T_TRUE); }
 "false"      { return T_TOKEN(T_FALSE); }
 "let"        { return T_TOKEN(T_LET); }
+"try"        { return T_TOKEN(T_TRY); }
+"catch"      { return T_TOKEN(T_CATCH); }
 "var"        { return T_TOKEN(T_VAR); }
 "val"        { return T_TOKEN(T_VAL); }
 "nil"        { return T_TOKEN(T_NIL); }
