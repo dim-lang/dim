@@ -90,14 +90,15 @@ func main():int32 {
 
 #### Install dependencies on Linux & UNIX
 
-| Platform          |  Dependencies                                                                               |
-|-------------------|---------------------------------------------------------------------------------------------|
-| MacOS             | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`              |
-| BSD               | `$ sudo pkg install -y bash git cmake flex bison boost-all llvm`                            |
-| Debian/Ubuntu     | `$ sudo apt-get install -y git clang make cmake flex bison libboost-all-dev llvm-dev`       |
-| Fedora            | `$ sudo dnf install -y git clang make cmake flex bison boost-devel llvm-devel`              |
-| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                               |
-| OpenSUSE          | `$ sudo zypper install -y git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel` |
+| Platform            |  Dependencies                                                                            |
+|---------------------|------------------------------------------------------------------------------------------|
+| MacOS               | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`           |
+| *BSD/Oracle Solaris | `$ sudo pkg install bash clang git cmake flex bison boost-all llvm`                      |
+| Debian/Ubuntu       | `$ sudo apt-get install git clang make cmake flex bison libboost-all-dev llvm-dev`       |
+| Fedora              | `$ sudo dnf install git clang make cmake flex bison boost-devel llvm-devel`              |
+| CentOS              | `$ sudo yum install git clang make cmake flex bison boost-devel llvm-devel`              |
+| Archlinux/Manjaro   | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                            |
+| OpenSUSE            | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel` |
 
 #### Install dependencies on windows
 
