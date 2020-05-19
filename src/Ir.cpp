@@ -555,7 +555,7 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
         return context->builder().CreateFRem(l, r, "modtmp");
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        llvm::Value *d = context->builder().CreateSRem(l, r, "modtmp");
+        return context->builder().CreateSRem(l, r, "modtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -567,20 +567,102 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
                  l->getType()->getTypeID());
     }
   } break;
-  case T_BIT_LSHIFT:
-  case T_BIT_RSHIFT:
-  case T_BIT_ARSHIFT:
-  case T_EQ:
-  case T_NEQ:
-  case T_LE:
-  case T_LT:
-  case T_GE:
-  case T_GT:
-  case T_BIT_AND:
-  case T_BIT_OR:
-  case T_BIT_XOR:
-  case T_LOGIC_AND:
-  case T_LOGIC_OR:
+  case T_BIT_LSHIFT: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateShl(l, r, "shltmp");
+  } break;
+  case T_BIT_RSHIFT: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateLShr(l, r, "lshrtmp");
+  } break;
+  case T_BIT_ARSHIFT: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateAShr(l, r, "ashrtmp");
+  } break;
+  case T_EQ: {
+  } break;
+  case T_NEQ: {
+  } break;
+  case T_LE: {
+  } break;
+  case T_LT: {
+  } break;
+  case T_GE: {
+  } break;
+  case T_GT: {
+  } break;
+  case T_BIT_AND: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateAnd(l, r, "andtmp");
+  } break;
+  case T_BIT_OR: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateOr(l, r, "ortmp");
+  } break;
+  case T_BIT_XOR: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    return context->builder().CreateXor(l, r, "xortmp");
+  } break;
+  case T_LOGIC_AND: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
+    llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
+    LOG_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
+               lc->getBitWidth());
+    LOG_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
+               rc->getBitWidth());
+    return context->builder().CreateAnd(l, r, "logic_andtmp");
+  } break;
+  case T_LOGIC_OR: {
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
+    llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
+    llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
+    LOG_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
+               lc->getBitWidth());
+    LOG_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
+               rc->getBitWidth());
+    return context->builder().CreateOr(l, r, "logic_ortmp");
+  } break;
   default:
     LOG_ASSERT(false, "token {} invalid", node_->token());
   }
