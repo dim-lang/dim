@@ -6,10 +6,10 @@
 
 class Counter {
 public:
-  Counter(const long long &value = 1LL);
+  Counter(const unsigned long long &value = 0ULL);
   virtual ~Counter() = default;
-  virtual long long count();
+  virtual unsigned long long count();
 
 private:
-  std::atomic_llong value_;
+  std::atomic_ullong value_;
 };
