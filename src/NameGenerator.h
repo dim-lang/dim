@@ -8,8 +8,6 @@
 
 namespace detail {
 
-long long nameCount();
-
 template <typename T> std::string nameGenImpl(T t) {
   std::stringstream ss;
   ss << t;
@@ -24,15 +22,21 @@ template <typename T, typename... R> std::string nameGenImpl(T t, R... r) {
 
 } // namespace detail
 
-template <typename... Args> std::string nameGen(Args... args) {
-  std::stringstream ss;
-  ss << detail::nameGenImpl(args...) << "_" << detail::nameCount();
-  return ss.str();
-}
+class NameGenerator {
+public:
+  template <typename... Args> std::string generate(Args... args) {
+    std::stringstream ss;
+    ss << detail::nameGenImpl(args...) << "_" << counter_.count();
+    return ss.str();
+  }
 
-template <typename V, typename... Args>
-std::string nameGenWith(V v, Args... args) {
-  std::stringstream ss;
-  ss << v << "@" << detail::nameGenImpl(args...) << "_" << detail::nameCount();
-  return ss.str();
-}
+  template <typename V, typename... Args>
+  std::string generateWith(V v, Args... args) {
+    std::stringstream ss;
+    ss << v << "@" << detail::nameGenImpl(args...) << "_" << counter_.count();
+    return ss.str();
+  }
+
+private:
+  Counter counter_;
+};
