@@ -90,15 +90,16 @@ func main():int32 {
 
 #### Install dependencies on Linux & UNIX
 
-| Platform            |  Dependencies                                                                            |
-|---------------------|------------------------------------------------------------------------------------------|
-| MacOS               | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`           |
-| *BSD/Oracle Solaris | `$ sudo pkg install bash clang git cmake flex bison boost-all llvm`                      |
-| Debian/Ubuntu       | `$ sudo apt-get install git clang make cmake flex bison libboost-all-dev llvm-dev`       |
-| Fedora              | `$ sudo dnf install git clang make cmake flex bison boost-devel llvm-devel`              |
-| CentOS              | `$ sudo yum install git clang make cmake flex bison boost-devel llvm-devel`              |
-| Archlinux/Manjaro   | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                            |
-| OpenSUSE            | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel` |
+| Platform          |  Dependencies                                                                            |
+|-------------------|------------------------------------------------------------------------------------------|
+| MacOS             | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`           |
+| *BSD              | `$ sudo pkg install bash clang git cmake flex bison boost-all llvm`                      |
+| Oracle Solaris    | `$ sudo pkg install bash clang git cmake flex bison llvm`                                |
+| Debian/Ubuntu     | `$ sudo apt-get install git clang make cmake flex bison libboost-all-dev llvm-dev`       |
+| Fedora            | `$ sudo dnf install git clang make cmake flex bison boost-devel llvm-devel`              |
+| CentOS            | `$ sudo yum install git clang make cmake flex bison boost-devel llvm-devel`              |
+| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                            |
+| OpenSUSE          | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel` |
 
 #### Install dependencies on windows
 
@@ -119,10 +120,9 @@ func main():int32 {
 | Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat` |
 
 Fix issue while installation:
-1. Download source code instead of slowly git clone on windows:
-    * [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release.
-    * [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge.
-2. Fix version incompatible on macOS:
+1. Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows if git clone is too slow.
+2. Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows/Solaris if git clone is too slow.
+3. Fix version incompatible on macOS:
     * flex: `$ echo 'export PATH=/usr/local/opt/flex/bin:$PATH' >> ~/.bash_profile`.
     * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
     * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
