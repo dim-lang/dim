@@ -15,6 +15,52 @@ Ast::Ast(const std::string &name) : name_(name) {}
 
 std::string Ast::name() const { return name_; }
 
+bool Ast::isFloat(const Ast *node) {
+  switch (node->type()) {
+  case AstType::Float32Constant:
+  case AstType::Float64Constant:
+    return true;
+  }
+  return false;
+}
+
+bool Ast::isInteger(const Ast *node) {
+  switch (node->type()) {
+  case AstType::Int8Constant:
+  case AstType::UInt8Constant:
+  case AstType::Int16Constant:
+  case AstType::UInt16Constant:
+  case AstType::Int32Constant:
+  case AstType::UInt32Constant:
+  case AstType::Int64Constant:
+  case AstType::UInt64Constant:
+    return true;
+  }
+  return false;
+}
+
+bool Ast::isSignedInteger(const Ast *node) {
+  switch (node->type()) {
+  case AstType::Int8Constant:
+  case AstType::Int16Constant:
+  case AstType::Int32Constant:
+  case AstType::Int64Constant:
+    return true;
+  }
+  return false;
+}
+
+bool Ast::isUnsignedInteger(const Ast *node) {
+  switch (node->type()) {
+  case AstType::UInt8Constant:
+  case AstType::UInt16Constant:
+  case AstType::UInt32Constant:
+  case AstType::UInt64Constant:
+    return true;
+  }
+  return false;
+}
+
 AstExpression::AstExpression(const std::string &name) : Ast(name) {}
 
 AstStatement::AstStatement(const std::string &name) : Ast(name) {}

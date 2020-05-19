@@ -544,13 +544,18 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
   } break;
   case T_MOD: {
     switch (l->getType()->getTypeID()) {
+    case llvm::Type::TypeID::FloatTyID:
+    case llvm::Type::TypeID::DoubleTyID: {
+      return context->builder().CreateFRem(l, r, "modtmp");
+    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
+      case llvm::Type::TypeID::FloatTyID:
+      case llvm::Type::TypeID::DoubleTyID: {
+        return context->builder().CreateFRem(l, r, "modtmp");
+      } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        // first do div
-        llvm::Value *d = context->builder().CreateSDiv(l, r, "divtmp");
-        // second do sub
-        return context->builder().CreateSub(l, d, "subtmp");
+        llvm::Value *d = context->builder().CreateSRem(l, r, "modtmp");
       } break;
       default:
         LOG_ASSERT(false, "r->getType->getTypeID {} invalid",

@@ -104,6 +104,11 @@ public:
   virtual std::string toString() const = 0;
   virtual std::string name() const;
 
+  static bool isFloat(const Ast *node);
+  static bool isInteger(const Ast *node);
+  static bool isSignedInteger(const Ast *node);
+  static bool isUnsignedInteger(const Ast *node);
+
 private:
   std::string name_;
 };
