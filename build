@@ -5,6 +5,13 @@
 ROOT=`pwd`
 FOS=$(bash -c "echo \$OSTYPE")
 
+function check_return() {
+    if [ $1 -ne 0 ]; then
+        echo [shepherd] $2
+        exit $1
+    fi
+}
+
 function clean_all() {
     cd $ROOT
     rm *.log >>/dev/null 2>&1
@@ -47,15 +54,21 @@ function build_generate() {
     case "$1" in
         release)
             flex -o Token.yy.cpp Token.l
+            check_return $? 'flex process Token.l failed!'
             bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+            check_return $? 'bison process Parser.y failed!'
             ;;
         debug)
             flex -o Token.yy.cpp Token.l
+            check_return $? 'flex process Token.l failed!'
             bison -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+            check_return $? 'bison process Parser.y failed!'
             ;;
         trace)
             flex --debug -o Token.yy.cpp Token.l
+            check_return $? 'flex process Token.l failed!'
             bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+            check_return $? 'bison process Parser.y failed!'
             ;;
         *)
             echo [shepherd] unknown build_generate argument "$1"
