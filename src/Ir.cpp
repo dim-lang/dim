@@ -606,8 +606,9 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     case llvm::Type::TypeID::DoubleTyID: {
       return context->builder().CreateFCmpOEQ(l, r);
     } break;
-    case llvm::Type::TypeID::IntegerTyID:
-    IntegerTyID : { return context->builder().CreateICmpEQ(l, r); } break;
+    case llvm::Type::TypeID::IntegerTyID: {
+      return context->builder().CreateICmpEQ(l, r);
+    } break;
     default:
       LOG_ASSERT(false, "l->getType->getTypeID {} invalid",
                  l->getType()->getTypeID());
