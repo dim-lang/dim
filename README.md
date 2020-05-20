@@ -1,10 +1,10 @@
-# shepherd programming languge
+# Shepherd Programming Languge
 
-shepherd - a modern, object-oriented, high performance programming language.
+Shepherd - a modern, object-oriented, high performance programming language.
 
 ## Why shepherd?
 
-shepherd is a programming language crossed multiple platforms with friendly features and high performance. Grammar is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+Shepherd is a programming language crossed multiple platforms with friendly features and high performance. Shepherd is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
 #### Object-Oriented
 #### Functional Programming
