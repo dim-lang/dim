@@ -27,7 +27,7 @@ static void testIr(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  IrContext context;
+  IrContext context(fileName);
   IrTranslateUnit tunit(scanner.translateUnit());
   LOG_INFO("dump ir:{} {}", fileName, tunit.dumpCodeGen(&context));
 }

@@ -30,9 +30,10 @@ static NameGenerator nameGenerator;
 #define DC(x, y) dynamic_cast<x *>(y)
 
 /* ir context */
-IrContext::IrContext()
+IrContext::IrContext(const std::string &moduleName)
     : context_(), builder_(context_), module_(nullptr), symtable_() {
-  module_ = new llvm::Module("shepherd jit", context_);
+  module_ =
+      new llvm::Module(std::string("shepherd_module_") + moduleName, context_);
 }
 
 IrContext::~IrContext() {

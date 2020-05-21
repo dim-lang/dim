@@ -87,7 +87,7 @@ class IrFunctionSignatureDeclaration;
 
 class IrContext : protected boost::noncopyable {
 public:
-  IrContext();
+  IrContext(const std::string &moduleName);
   virtual ~IrContext();
   llvm::LLVMContext &context();
   const llvm::LLVMContext &context() const;
