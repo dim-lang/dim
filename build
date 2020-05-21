@@ -95,7 +95,7 @@ function build_make() {
 # $2: job number
 function build_routine() {
     case "$FOS" in
-      solaris*) echo "[shepherd] solaris not support!" && exit 3 ;;
+      solaris*) ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
@@ -109,7 +109,7 @@ function build_routine() {
 # $1: install path
 function build_install() {
     case "$FOS" in
-      solaris*) echo "[shepherd] solaris not support!" && exit 3 ;;
+      solaris*) ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
