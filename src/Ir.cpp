@@ -132,7 +132,7 @@ IrExpression::IrExpression(const std::string &name) : Ir(name) {}
 
 IrStatement::IrStatement(const std::string &name) : Ir(name) {}
 
-IrDeclaration::IrDeclaration(const std::string &name) : Ir(name) {}
+IrDeclaration::IrDeclaration(const std::string &name) : IrStatement(name) {}
 
 /* list */
 IrExpressionList::IrExpressionList()
@@ -192,7 +192,8 @@ std::string IrTranslateUnit::dumpCodeGen(IrContext *context) {
       ss << dumpLLVMValue(v);
     } break;
     case IrType::FunctionDeclaration: {
-      llvm::Function *f = DC(IrFunctionDeclaration, ir)->codeGen(context);
+      llvm::Function *f = llvm::dyn_cast<llvm::Function>(
+          DC(IrFunctionDeclaration, ir)->codeGen(context));
       ss << dumpLLVMFunction(f);
     } break;
     default:
@@ -1046,11 +1047,11 @@ IrType IrFunctionDeclaration::type() const {
   return IrType::FunctionDeclaration;
 }
 
-llvm::Function *IrFunctionDeclaration::codeGen(IrContext *context) {
+llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
   llvm::Function *f =
       context->module()->getFunction(node_->signature()->identifier());
   if (!f) {
-    f = signature_->codeGen(context);
+    f = llvm::dyn_cast<llvm::Function>(signature_->codeGen(context));
   }
   if (!f) {
     return nullptr;
@@ -1068,7 +1069,7 @@ llvm::Function *IrFunctionDeclaration::codeGen(IrContext *context) {
   if (ret) {
     context->builder().CreateRet(ret);
     llvm::verifyFunction(*f);
-    return f;
+    return llvm::dyn_cast<llvm::Value>(f);
   }
   f->eraseFromParent();
   return nullptr;
@@ -1093,7 +1094,7 @@ IrType IrFunctionSignatureDeclaration::type() const {
   return IrType::FunctionSignatureDeclaration;
 }
 
-llvm::Function *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
+llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
   AstDeclarationList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
       args ? args->size() : 0, llvm::Type::getDoubleTy(context->context()));
@@ -1112,7 +1113,7 @@ llvm::Function *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
         DC(AstFunctionArgumentDeclaration, args->get(i++));
     a.setName(ast->value());
   }
-  return f;
+  return llvm::dyn_cast<llvm::Value>(f);
 }
 
 #undef DC

@@ -105,21 +105,6 @@ private:
   LinkedHashMap<std::string, llvm::Value *> symtable_;
 };
 
-class IrLLVMValue {
-public:
-  virtual llvm::Value *codeGen(IrContext *context) = 0;
-};
-
-class IrLLVMValueList {
-public:
-  virtual std::vector<llvm::Value *> codeGen(IrContext *context) = 0;
-};
-
-class IrLLVMFunction {
-public:
-  virtual llvm::Function *codeGen(IrContext *context) = 0;
-};
-
 class Ir : public Namely, public Stringify, private boost::noncopyable {
 public:
   Ir(const std::string &name);
@@ -127,12 +112,13 @@ public:
   virtual std::string name() const;
   virtual std::string toString() const = 0;
   virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
 
 protected:
   std::string name_;
 };
 
-class IrExpression : public Ir, public IrLLVMValue {
+class IrExpression : public Ir {
 public:
   IrExpression(const std::string &name);
   virtual ~IrExpression() = default;
@@ -140,7 +126,7 @@ public:
   virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
 
-class IrStatement : public Ir, public IrLLVMValue {
+class IrStatement : public Ir {
 public:
   IrStatement(const std::string &name);
   virtual ~IrStatement() = default;
@@ -148,11 +134,12 @@ public:
   virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
 
-class IrDeclaration : public Ir {
+class IrDeclaration : public IrStatement {
 public:
   IrDeclaration(const std::string &name);
   virtual ~IrDeclaration() = default;
   virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
 
 namespace detail {
@@ -168,6 +155,7 @@ public:
     items_.clear();
   }
   virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) { return nullptr; }
   virtual std::string toString() const {
     std::stringstream ss;
     ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
@@ -563,7 +551,7 @@ private:
 };
 
 /* variable declaration */
-class IrVariableDeclaration : public IrDeclaration, public IrLLVMValue {
+class IrVariableDeclaration : public IrDeclaration {
 public:
   IrVariableDeclaration(AstVariableDeclaration *node);
   virtual ~IrVariableDeclaration() = default;
@@ -576,13 +564,13 @@ private:
 };
 
 /* function declaration */
-class IrFunctionDeclaration : public IrDeclaration, IrLLVMFunction {
+class IrFunctionDeclaration : public IrDeclaration {
 public:
   IrFunctionDeclaration(AstFunctionDeclaration *node);
   virtual ~IrFunctionDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Function *codeGen(IrContext *context);
+  virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstFunctionDeclaration *node_;
@@ -591,14 +579,13 @@ private:
 };
 
 /* function signature declaration */
-class IrFunctionSignatureDeclaration : public IrDeclaration,
-                                       public IrLLVMFunction {
+class IrFunctionSignatureDeclaration : public IrDeclaration {
 public:
   IrFunctionSignatureDeclaration(AstFunctionSignatureDeclaration *node);
   virtual ~IrFunctionSignatureDeclaration() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
-  virtual llvm::Function *codeGen(IrContext *context);
+  virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstFunctionSignatureDeclaration *node_;
