@@ -8,24 +8,25 @@
 #include "Parser.tab.hpp"
 #include "container/LinkedHashMap.hpp"
 #include "fmt/format.h"
-#include "llvm/ADT/APFloat.h"
-#include "llvm/ADT/APInt.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/GlobalValue.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
 
 static NameGenerator nameGenerator;
+static NameGenerator irNameGenerator;
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
@@ -129,6 +130,45 @@ Ir::Ir(const std::string &name) : name_(name) {}
 
 std::string Ir::name() const { return name_; }
 
+static std::string toIrNameImpl(const std::string &name,
+                                const std::string prefix) {
+  LOG_ASSERT(name.length() > 0, "name {} length {} <= 0", name, name.length());
+  std::string tmp(name);
+  for (int i = 0; i < (int)tmp.length(); i++) {
+    if (tmp[i] == '_') {
+      tmp[i] = '.';
+    }
+  }
+  return prefix + tmp;
+}
+
+static std::string fromIrNameImpl(const std::string &name,
+                                  const std::string prefix) {
+  LOG_ASSERT(name.length() > prefix.length(),
+             "name {} length {} <= prefix {} length {}", name, name.length(),
+             prefix, prefix.length());
+  std::string tmp(
+      name.substr(prefix.length(), name.length() - prefix.length()));
+  for (int i = 0; i < (int)tmp.length(); i++) {
+    if (tmp[i] == '.') {
+      tmp[i] = '_';
+    }
+  }
+  return tmp;
+}
+
+#define SHP_IR std::string("shp.ir.")
+
+std::string Ir::toIrName(const std::string &name) {
+  return toIrNameImpl(name, SHP_IR);
+}
+
+std::string Ir::fromIrName(const std::string &name) {
+  return fromIrNameImpl(name, SHP_IR);
+}
+
+#undef SHP_IR
+
 IrExpression::IrExpression(const std::string &name) : Ir(name) {}
 
 IrStatement::IrStatement(const std::string &name) : Ir(name) {}
@@ -215,7 +255,7 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 llvm::Value *IrIdentifierConstant::codeGen(IrContext *context) {
   LOG_ASSERT(context, "context is null");
   LOG_ASSERT(node_, "node_ is null");
-  llvm::Value *v = context->symtable()[node_->value()];
+  llvm::Value *v = context->symtable()[Ir::toIrName(node_->value())];
   llvm::Value *vec{v};
   return vec;
 }
@@ -929,43 +969,45 @@ IrIfStatement::~IrIfStatement() {
 IrType IrIfStatement::type() const { return IrType::IfStatement; }
 
 llvm::Value *IrIfStatement::codeGen(IrContext *context) {
-  // llvm::Value *condV = condition_->codeGen(context);
-  // if (!condV) {
-  return nullptr;
-  //}
-  // condV = context->builder().CreateFCmpONE(
-  // condV, llvm::ConstantFP::get(context->context(), llvm::APFloat(0.0)),
-  //"ifcond");
-  // llvm::Function *f = context->builder().GetInsertBlock()->getParent();
-  // llvm::BasicBlock *thenBlock =
-  // llvm::BasicBlock::Create(context->context(), "then", f);
-  // llvm::BasicBlock *elseBlock =
-  // llvm::BasicBlock::Create(context->context(), "else");
-  // llvm::BasicBlock *mergeBlock =
-  // llvm::BasicBlock::Create(context->context(), "ifcont");
-  // context->builder().CreateCondBr(condV, thenBlock, elseBlock);
-  // context->builder().SetInsertPoint(thenBlock);
-  // llvm::Value *thenV = thens_->codeGen(context);
-  // if (!thenV) {
-  // return nullptr;
-  //}
-  // context->builder().CreateBr(mergeBlock);
-  // thenBlock = context->builder().GetInsertBlock();
-  // f->getBasicBlockList().push_back(elseBlock);
-  // context->builder().SetInsertPoint(elseBlock);
-  // llvm::Value *elseV = elses_->codeGen(context);
-  // if (!elseV) {
-  // return nullptr;
-  //}
-  // context->builder()->CreateBr(mergeBlock);
-  // elseBlock = context->builder().GetInsertBlock();
-  // f->getBasicBlockList().push_back(mergeBlock);
-  // context->builder().SetInsertPoint(mergeBlock);
-  // llvm::PHINode *pn = context->builder().CreatePHI(
-  // llvm::Type::getDoubleTy(context->context()), 2, "iftmp");
-  // pn->addIncoming(thenV, thenBlock);
-  // pn->addIncoming(elseV, elseBlock);
-  // return pn;
+  llvm::Value *condV = condition_->codeGen(context);
+  if (!condV) {
+    return nullptr;
+  }
+  condV = context->builder().CreateICmpNE(
+      condV,
+      llvm::ConstantInt::get(context->context(),
+                             llvm::APInt(1, (uint64_t)0, false)),
+      irNameGenerator.generate("ifcond"));
+  llvm::Function *f = context->builder().GetInsertBlock()->getParent();
+  llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(
+      context->context(), irNameGenerator.generate("then"), f);
+  llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(
+      context->context(), irNameGenerator.generate("else"));
+  llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(
+      context->context(), irNameGenerator.generate("ifcont"));
+  context->builder().CreateCondBr(condV, thenBlock, elseBlock);
+  context->builder().SetInsertPoint(thenBlock);
+  llvm::Value *thenV = thens_->codeGen(context);
+  if (!thenV) {
+    return nullptr;
+  }
+  context->builder().CreateBr(mergeBlock);
+  thenBlock = context->builder().GetInsertBlock();
+  f->getBasicBlockList().push_back(elseBlock);
+  context->builder().SetInsertPoint(elseBlock);
+  llvm::Value *elseV = elses_->codeGen(context);
+  if (!elseV) {
+    return nullptr;
+  }
+  context->builder().CreateBr(mergeBlock);
+  elseBlock = context->builder().GetInsertBlock();
+  f->getBasicBlockList().push_back(mergeBlock);
+  context->builder().SetInsertPoint(mergeBlock);
+  llvm::PHINode *pn = context->builder().CreatePHI(
+      llvm::Type::getDoubleTy(context->context()), 2, "iftmp");
+  pn->addIncoming(thenV, thenBlock);
+  pn->addIncoming(elseV, elseBlock);
+  return pn;
 }
 
 std::string IrIfStatement::toString() const {
@@ -1049,8 +1091,8 @@ IrType IrFunctionDeclaration::type() const {
 }
 
 llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
-  llvm::Function *f =
-      context->module()->getFunction(node_->signature()->identifier());
+  llvm::Function *f = context->module()->getFunction(
+      Ir::toIrName(node_->signature()->identifier()));
   if (!f) {
     f = llvm::dyn_cast<llvm::Function>(signature_->codeGen(context));
   }
@@ -1060,7 +1102,7 @@ llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
   LOG_ASSERT(f->empty(), "Function {} cannot be redefined!",
              node_->signature()->identifier());
   llvm::BasicBlock *bb =
-      llvm::BasicBlock::Create(context->context(), "entry", f);
+      llvm::BasicBlock::Create(context->context(), "shp.ir.func.entry", f);
   context->builder().SetInsertPoint(bb);
   context->symtable().clear();
   for (auto &a : f->args()) {
@@ -1102,9 +1144,9 @@ llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
   // result, parameters
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context->context()), doubleArgs, false);
-  llvm::Function *f =
-      llvm::Function::Create(ft, llvm::Function::ExternalLinkage,
-                             node_->identifier(), context->module());
+  llvm::Function *f = llvm::Function::Create(
+      ft, llvm::Function::ExternalLinkage, Ir::toIrName(node_->identifier()),
+      context->module());
   // set function arg names
   int i = 0;
   for (auto &a : f->args()) {
@@ -1112,7 +1154,7 @@ llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
     LOG_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDeclaration *ast =
         DC(AstFunctionArgumentDeclaration, args->get(i++));
-    a.setName(ast->value());
+    a.setName(Ir::toIrName(ast->value()));
   }
   return llvm::dyn_cast<llvm::Value>(f);
 }
