@@ -2,8 +2,13 @@
 # Apache License Version 2.0
 
 project(shepherd-example VERSION 0.0.2 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
+    #set(CMAKE_C_COMPILER cl)
+    #set(CMAKE_CXX_COMPILER cl)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
+    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
     #set(Boost_DEBUG ON)
     #set(Boost_DETAILED_FAILURE_MSG ON)
     set(Boost_THREADAPI win32)
@@ -13,6 +18,9 @@ if(WIN32)
     set(Boost_COMPILER "-vc")
     set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src/llvm-project/llvm/install/lib/cmake/llvm")
 else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    find_package(Threads REQUIRED)
     set(SHEPHERD_INC
         Threads::Threads
         /usr/include

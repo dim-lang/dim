@@ -3,6 +3,7 @@
 
 project(shepherdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
+set(CMAKE_CXX_STANDARD 14)
 
 set(SHEPHERD
     Log.cpp
@@ -34,6 +35,10 @@ set(SHEPHERDC
 )
 
 if(WIN32)
+    #set(CMAKE_C_COMPILER cl)
+    #set(CMAKE_CXX_COMPILER cl)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
+    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
     #set(Boost_DEBUG ON)
     #set(Boost_DETAILED_FAILURE_MSG ON)
     set(Boost_THREADAPI win32)
@@ -43,6 +48,9 @@ if(WIN32)
     set(Boost_COMPILER "-vc")
     set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm-project/llvm/install/lib/cmake/llvm")
 else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    find_package(Threads REQUIRED)
     set(SHEPHERD_INC
         Threads::Threads
         /usr/include
