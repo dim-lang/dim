@@ -63,9 +63,7 @@ const LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() const {
 }
 
 static Ir *createIr(Ast *node) {
-  if (!node) {
-    return nullptr;
-  }
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::IdentifierConstant:
     return new IrIdentifierConstant(DC(AstIdentifierConstant, node));
@@ -970,9 +968,7 @@ IrType IrIfStatement::type() const { return IrType::IfStatement; }
 
 llvm::Value *IrIfStatement::codeGen(IrContext *context) {
   llvm::Value *condV = condition_->codeGen(context);
-  if (!condV) {
-    return nullptr;
-  }
+  LOG_ASSERT(condV, "condV is null");
   condV = context->builder().CreateICmpNE(
       condV,
       llvm::ConstantInt::get(context->context(),
@@ -988,17 +984,13 @@ llvm::Value *IrIfStatement::codeGen(IrContext *context) {
   context->builder().CreateCondBr(condV, thenBlock, elseBlock);
   context->builder().SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen(context);
-  if (!thenV) {
-    return nullptr;
-  }
+  LOG_ASSERT(thenV, "thenV is null");
   context->builder().CreateBr(mergeBlock);
   thenBlock = context->builder().GetInsertBlock();
   f->getBasicBlockList().push_back(elseBlock);
   context->builder().SetInsertPoint(elseBlock);
   llvm::Value *elseV = elses_->codeGen(context);
-  if (!elseV) {
-    return nullptr;
-  }
+  LOG_ASSERT(elseV, "elseV is null");
   context->builder().CreateBr(mergeBlock);
   elseBlock = context->builder().GetInsertBlock();
   f->getBasicBlockList().push_back(mergeBlock);
@@ -1028,11 +1020,29 @@ std::string IrWhileStatement::toString() const {
 
 /* for statement */
 IrForStatement::IrForStatement(AstForStatement *node)
-    : IrStatement(nameGenerator.generate("IrForStatement")), node_(node) {}
+    : IrStatement(nameGenerator.generate("IrForStatement")), node_(node),
+      initial_(DC(IrStatement, createIr(node->initial()))),
+      condition_(DC(IrStatement, createIr(node->condition()))),
+      post_(DC(IrStatement, createIr(node->post()))),
+      statement_(DC(IrStatement, createIr(node->statement()))) {}
+
+IrForStatement::~IrForStatement() {
+  delete initial_;
+  initial_ = nullptr;
+  delete condition_;
+  condition_ = nullptr;
+  delete post_;
+  post_ = nullptr;
+  delete statement_;
+  statement_ = nullptr;
+}
 
 IrType IrForStatement::type() const { return IrType::ForStatement; }
 
-llvm::Value *IrForStatement::codeGen(IrContext *context) { return nullptr; }
+llvm::Value *IrForStatement::codeGen(IrContext *context) {
+  llvm::Value *initialV = initial_->codeGen(context);
+  LOG_ASSERT(initialV, "initialV is null");
+}
 
 std::string IrForStatement::toString() const {
   return fmt::format("[ @IrForStatement node_:{} ]", node_->toString());

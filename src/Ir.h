@@ -558,6 +558,10 @@ public:
 
 private:
   AstForStatement *node_;
+  IrStatement *initial_;
+  IrStatement *condition_;
+  IrStatement *post_;
+  IrStatement *statement_;
 };
 
 /* variable declaration */
