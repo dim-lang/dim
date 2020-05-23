@@ -1021,18 +1021,18 @@ std::string IrWhileStatement::toString() const {
 /* for statement */
 IrForStatement::IrForStatement(AstForStatement *node)
     : IrStatement(nameGenerator.generate("IrForStatement")), node_(node),
-      initial_(DC(IrStatement, createIr(node->initial()))),
-      condition_(DC(IrStatement, createIr(node->condition()))),
-      post_(DC(IrStatement, createIr(node->post()))),
+      start_(DC(IrStatement, createIr(node->start()))),
+      step_(DC(IrStatement, createIr(node->step()))),
+      end_(DC(IrStatement, createIr(node->end()))),
       statement_(DC(IrStatement, createIr(node->statement()))) {}
 
 IrForStatement::~IrForStatement() {
-  delete initial_;
-  initial_ = nullptr;
-  delete condition_;
-  condition_ = nullptr;
-  delete post_;
-  post_ = nullptr;
+  delete start_;
+  start_ = nullptr;
+  delete step_;
+  step_ = nullptr;
+  delete end_;
+  end_ = nullptr;
   delete statement_;
   statement_ = nullptr;
 }
@@ -1040,8 +1040,44 @@ IrForStatement::~IrForStatement() {
 IrType IrForStatement::type() const { return IrType::ForStatement; }
 
 llvm::Value *IrForStatement::codeGen(IrContext *context) {
-  llvm::Value *initialV = initial_->codeGen(context);
-  LOG_ASSERT(initialV, "initialV is null");
+  llvm::Value *startV = start_->codeGen(context);
+  LOG_ASSERT(startV, "startV is null");
+  llvm::Function *f = context->builder().GetInsertBlock()->getParent();
+  llvm::BasicBlock *preheaderBB = context->builder().GetInsertBlock();
+  llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(
+      context->context(), irNameGenerator.generate("loop"), f);
+  context->builder().CreateBr(loopBB);
+  context->builder().SetInsertPoint(loopBB);
+
+  llvm::PHINode *variable =
+      context->builder().CreatePHI(llvm::Type::getDoubleTy(context->context()),
+                                   2, irNameGenerator.generate("loop.phi"));
+  variable->addIncoming(startV, preheaderBB);
+  llvm::Value *bodyV = statement_->codeGen(context);
+  LOG_ASSERT(bodyV, "bodyV is null");
+  llvm::Value *stepV = nullptr;
+  if (step_) {
+    stepV = step_->codeGen(context);
+    LOG_ASSERT(stepV, "stepV is null");
+  } else {
+    stepV = llvm::ConstantInt::get(context->context(),
+                                   llvm::APInt(1, (uint64_t)1, false));
+  }
+  llvm::Value *nextV = context->builder().CreateAdd(
+      variable, stepV, irNameGenerator.generate("nextvar"));
+  llvm::Value *endCond = end_->codeGen(context);
+  LOG_ASSERT(endCond, "endCond is null");
+  endCond = context->builder().CreateICmpNE(
+      endCond, llvm::ConstantInt::get(context->context(),
+                                      llvm::APInt(1, (uint64_t)0, false)));
+  llvm::BasicBlock *loopEndBB = context->builder().GetInsertBlock();
+  llvm::BasicBlock *afterBB = llvm::BasicBlock::Create(
+      context->context(), irNameGenerator.generate("afterloop"), f);
+  context->builder().CreateCondBr(endCond, loopBB, afterBB);
+  context->builder().SetInsertPoint(afterBB);
+  variable->addIncoming(nextV, loopEndBB);
+  return llvm::Constant::getNullValue(
+      llvm::Type::getDoubleTy(context->context()));
 }
 
 std::string IrForStatement::toString() const {

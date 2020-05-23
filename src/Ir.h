@@ -558,9 +558,9 @@ public:
 
 private:
   AstForStatement *node_;
-  IrStatement *initial_;
-  IrStatement *condition_;
-  IrStatement *post_;
+  IrStatement *start_;
+  IrStatement *step_;
+  IrStatement *end_;
   IrStatement *statement_;
 };
 

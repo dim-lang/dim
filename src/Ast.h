@@ -601,15 +601,15 @@ public:
   virtual AstType type() const;
   virtual std::string toString() const;
 
-  virtual AstStatement *initial() const;
-  virtual AstStatement *condition() const;
-  virtual AstExpression *post() const;
+  virtual AstStatement *start() const;
+  virtual AstStatement *step() const;
+  virtual AstExpression *end() const;
   virtual AstStatement *statement() const;
 
 private:
-  AstStatement *initial_;
-  AstStatement *condition_;
-  AstExpression *post_;
+  AstStatement *start_;
+  AstStatement *step_;
+  AstExpression *end_;
   AstStatement *statement_;
 };
 
