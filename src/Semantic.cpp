@@ -139,7 +139,7 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
     symtable->cts()->define(ls, lt);
     symtable->pushSymbol(ls);
     symtable->pushType(lt);
-    build(symtable, e->initial());
+    build(symtable, e->start());
     build(symtable, e->statement());
     symtable->popSymbol();
     symtable->popType();
@@ -266,9 +266,9 @@ void Semantic::check(SymbolTable *symtable, Ast *node) {
   } break;
   case AstType::ForStatement: {
     AstForStatement *e = DC(AstForStatement, node);
-    check(symtable, e->initial());
-    check(symtable, e->condition());
-    check(symtable, e->post());
+    check(symtable, e->start());
+    check(symtable, e->step());
+    check(symtable, e->end());
     check(symtable, e->statement());
   } break;
   case AstType::ReturnStatement: {

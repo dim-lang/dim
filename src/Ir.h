@@ -551,7 +551,7 @@ private:
 class IrForStatement : public IrStatement {
 public:
   IrForStatement(AstForStatement *node);
-  virtual ~IrForStatement() = default;
+  virtual ~IrForStatement();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);

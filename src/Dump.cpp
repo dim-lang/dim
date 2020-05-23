@@ -116,9 +116,8 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   case AstType::ForStatement: {
     AstForStatement *fs = DC(AstForStatement, node);
     std::stringstream ss;
-    ss << DS << "for (" << dumpAstImpl(fs->initial(), depth)
-       << dumpAstImpl(fs->condition(), depth)
-       << dumpAstImpl(fs->post(), depth) + ") "
+    ss << DS << "for (" << dumpAstImpl(fs->start(), depth)
+       << dumpAstImpl(fs->step(), depth) << dumpAstImpl(fs->end(), depth) + ") "
        << dumpAstImpl(fs->statement(), depth) << "\n";
     return ss.str();
   }
