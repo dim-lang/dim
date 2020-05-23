@@ -17,7 +17,8 @@ TEST_CASE("Log", "[Log]") {
   }
   SECTION("exception") {
     try {
-      LOG_ASSERT(false, "assert false");
+      LOG_ASSERT(false,
+                 "not worry about this, it's just an example for LOG_ASSERT");
     } catch (const std::string &ex) {
       LOG_ERROR("catch assert: {}", ex);
     }
