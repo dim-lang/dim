@@ -525,18 +525,18 @@ AstExpression *AstWhileStatement::condition() const { return condition_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
-AstForStatement::AstForStatement(AstStatement *initial, AstStatement *condition,
-                                 AstExpression *post, AstStatement *statement)
-    : AstStatement(nameGenerator.generate("A_For")), initial_(initial),
-      condition_(condition), post_(post), statement_(statement) {}
+AstForStatement::AstForStatement(AstStatement *start, AstStatement *step,
+                                 AstExpression *end, AstStatement *statement)
+    : AstStatement(nameGenerator.generate("A_For")), start_(start), step_(step),
+      end_(end), statement_(statement) {}
 
 AstForStatement::~AstForStatement() {
-  delete initial_;
-  initial_ = nullptr;
-  delete condition_;
-  condition_ = nullptr;
-  delete post_;
-  post_ = nullptr;
+  delete start_;
+  start_ = nullptr;
+  delete step_;
+  step_ = nullptr;
+  delete end_;
+  end_ = nullptr;
   delete statement_;
   statement_ = nullptr;
 }
@@ -544,20 +544,20 @@ AstForStatement::~AstForStatement() {
 AstType AstForStatement::type() const { return AstType::ForStatement; }
 
 std::string AstForStatement::toString() const {
-  std::string initStr = initial_ ? initial_->toString() : "null";
-  std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string postStr = post_ ? post_->toString() : "null";
+  std::string startStr = start_ ? start_->toString() : "null";
+  std::string stepStr = step_ ? step_->toString() : "null";
+  std::string endStr = end_ ? end_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstForStatement initial_:{}, condition_:{}, "
-                     "post_:{}, statement_:{} ]",
-                     initStr, condStr, postStr, stmtStr);
+  return fmt::format(
+      "[ @AstForStatement start_:{}, step_:{}, end_:{}, statement_:{} ]",
+      startStr, stepStr, endStr, stmtStr);
 }
 
-AstStatement *AstForStatement::initial() const { return initial_; }
+AstStatement *AstForStatement::start() const { return start_; }
 
-AstStatement *AstForStatement::condition() const { return condition_; }
+AstStatement *AstForStatement::step() const { return step_; }
 
-AstExpression *AstForStatement::post() const { return post_; }
+AstExpression *AstForStatement::end() const { return end_; }
 
 AstStatement *AstForStatement::statement() const { return statement_; }
 
