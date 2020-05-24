@@ -167,24 +167,24 @@ HEXEXP ([pP][-+]?[0-9]+)
  /* integer constants */
  /* decimal integer: 102813 */
 {INT}                                   { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
-{INT}[Uu]                               { T_SAVE_TOKEN; return T_UINT32_CONSTANT; }
-{INT}[Ll]                               { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
-{INT}[UL|ul]                            { T_SAVE_TOKEN; return T_UINT64_CONSTANT; }
+{INT}[Uu]                               { T_SAVE_TOKEN_X(0, 1); return T_UINT32_CONSTANT; }
+{INT}[Ll]                               { T_SAVE_TOKEN_X(0, 1); return T_INT64_CONSTANT; }
+{INT}[UL|ul]                            { T_SAVE_TOKEN_X(0, 2); return T_UINT64_CONSTANT; }
  /* heximal integer: 0x03ff */
 0[xX]{HEX}+                             { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
-0[xX]{HEX}+[Uu]                         { T_SAVE_TOKEN; return T_UINT32_CONSTANT; }
-0[xX]{HEX}+[Ll]                         { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
-0[xX]{HEX}+[UL|ul]                      { T_SAVE_TOKEN; return T_UINT64_CONSTANT; }
+0[xX]{HEX}+[Uu]                         { T_SAVE_TOKEN_X(0, 1); return T_UINT32_CONSTANT; }
+0[xX]{HEX}+[Ll]                         { T_SAVE_TOKEN_X(0, 1); return T_INT64_CONSTANT; }
+0[xX]{HEX}+[UL|ul]                      { T_SAVE_TOKEN_X(0, 2); return T_UINT64_CONSTANT; }
  /* octal integer: 0o27121 */
 0[oO][0-7]+                             { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
-0[oO][0-7]+[Uu]                         { T_SAVE_TOKEN; return T_UINT32_CONSTANT; }
-0[oO][0-7]+[Ll]                         { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
-0[oO][0-7]+[UL|ul]                      { T_SAVE_TOKEN; return T_UINT64_CONSTANT; }
+0[oO][0-7]+[Uu]                         { T_SAVE_TOKEN_X(0, 1); return T_UINT32_CONSTANT; }
+0[oO][0-7]+[Ll]                         { T_SAVE_TOKEN_X(0, 1); return T_INT64_CONSTANT; }
+0[oO][0-7]+[UL|ul]                      { T_SAVE_TOKEN_X(0, 2); return T_UINT64_CONSTANT; }
  /* binary integer: 0b10011 */
 0[bB][01]+                              { T_SAVE_TOKEN; return T_INT32_CONSTANT; }
-0[bB][01]+[Uu]                          { T_SAVE_TOKEN; return T_UINT32_CONSTANT; }
-0[bB][01]+[Ll]                          { T_SAVE_TOKEN; return T_INT64_CONSTANT; }
-0[bB][01]+[UL|ul]                       { T_SAVE_TOKEN; return T_UINT64_CONSTANT; }
+0[bB][01]+[Uu]                          { T_SAVE_TOKEN_X(0, 1); return T_UINT32_CONSTANT; }
+0[bB][01]+[Ll]                          { T_SAVE_TOKEN_X(0, 1); return T_INT64_CONSTANT; }
+0[bB][01]+[UL|ul]                       { T_SAVE_TOKEN_X(0, 2); return T_UINT64_CONSTANT; }
 
  /* floating constants */
  /* floating number: 92.312, 92.312e-10, 102e+91 */

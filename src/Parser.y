@@ -128,25 +128,10 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
                    /*| T_UINT16_CONSTANT { $$ = new AstUInt16Constant((uint16_t)std::stoul($1)); std::free($1); }*/
                    | T_INT32_CONSTANT { $$ = new AstInt32Constant((int32_t)std::stol($1)); std::free($1); }
                    | T_UINT32_CONSTANT { $$ = new AstUInt32Constant((uint32_t)std::stoul($1)); std::free($1); }
-                   | T_INT64_CONSTANT { 
-                        // end with L|l
-                        std::string tmp($1); 
-                        $$ = new AstInt64Constant((int64_t)std::stoll(tmp.substr(0, tmp.length()-1))); 
-                        std::free($1); 
-                    }
-                   | T_UINT64_CONSTANT { 
-                        // end with UL|ul
-                        std::string tmp($1);
-                        $$ = new AstUInt64Constant((uint64_t)std::stoull(tmp.substr(0, tmp.length()-2))); 
-                        std::free($1); 
-                    }
+                   | T_INT64_CONSTANT { $$ = new AstInt64Constant((int64_t)std::stoll($1)); std::free($1); }
+                   | T_UINT64_CONSTANT { $$ = new AstUInt64Constant((uint64_t)std::stoull($1)); std::free($1); }
                    | T_FLOAT32_CONSTANT { $$ = new AstFloat32Constant((float)std::stof($1)); std::free($1); }
-                   | T_FLOAT64_CONSTANT { 
-                        // end with Dd
-                        std::string tmp($1);
-                        $$ = new AstFloat64Constant((double)std::stod(tmp.substr(0, tmp.length()-1))); 
-                        std::free($1); 
-                    }
+                   | T_FLOAT64_CONSTANT { $$ = new AstFloat64Constant((double)std::stod($1)); std::free($1); }
                    | join_string_helper { $$ = $1; }
                    | T_TRUE { $$ = new AstBooleanConstant(true); }
                    | T_FALSE { $$ = new AstBooleanConstant(false); }
