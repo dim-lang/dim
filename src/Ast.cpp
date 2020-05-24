@@ -115,7 +115,7 @@ AstType AstIdentifierConstant::type() const {
 }
 
 std::string AstIdentifierConstant::toString() const {
-  return fmt::format("[ @AstIdentifierConstant value_:{} ]", value_);
+  return fmt::format("[@AstIdentifierConstant value_:{}]", value_);
 }
 
 const std::string &AstIdentifierConstant::value() const { return value_; }
@@ -126,7 +126,7 @@ AstInt8Constant::AstInt8Constant(const int8_t &value)
 AstType AstInt8Constant::type() const { return AstType::Int8Constant; }
 
 std::string AstInt8Constant::toString() const {
-  return fmt::format("[ @AstInt8Constant value_:{} ]", (int)value_);
+  return fmt::format("[@AstInt8Constant value_:{}]", (int)value_);
 }
 
 const int8_t &AstInt8Constant::value() const { return value_; }
@@ -137,7 +137,7 @@ AstUInt8Constant::AstUInt8Constant(const uint8_t &value)
 AstType AstUInt8Constant::type() const { return AstType::UInt8Constant; }
 
 std::string AstUInt8Constant::toString() const {
-  return fmt::format("[ @AstUInt8Constant value_:{} ]", (int)value_);
+  return fmt::format("[@AstUInt8Constant value_:{}]", (int)value_);
 }
 
 const uint8_t &AstUInt8Constant::value() const { return value_; }
@@ -149,7 +149,7 @@ AstInt16Constant::AstInt16Constant(const int16_t &value)
 AstType AstInt16Constant::type() const { return AstType::Int16Constant; }
 
 std::string AstInt16Constant::toString() const {
-  return fmt::format("[ @AstInt16Constant value_:{} ]", value_);
+  return fmt::format("[@AstInt16Constant value_:{}]", value_);
 }
 
 const int16_t &AstInt16Constant::value() const { return value_; }
@@ -161,7 +161,7 @@ AstUInt16Constant::AstUInt16Constant(const uint16_t &value)
 AstType AstUInt16Constant::type() const { return AstType::UInt16Constant; }
 
 std::string AstUInt16Constant::toString() const {
-  return fmt::format("[ @AstUInt16Constant value_:{} ]", value_);
+  return fmt::format("[@AstUInt16Constant value_:{}]", value_);
 }
 
 const uint16_t &AstUInt16Constant::value() const { return value_; }
@@ -173,7 +173,7 @@ AstInt32Constant::AstInt32Constant(const int32_t &value)
 AstType AstInt32Constant::type() const { return AstType::Int32Constant; }
 
 std::string AstInt32Constant::toString() const {
-  return fmt::format("[ @AstInt32Constant value_:{} ]", value_);
+  return fmt::format("[@AstInt32Constant value_:{}]", value_);
 }
 
 const int32_t &AstInt32Constant::value() const { return value_; }
@@ -185,7 +185,7 @@ AstUInt32Constant::AstUInt32Constant(const uint32_t &value)
 AstType AstUInt32Constant::type() const { return AstType::UInt32Constant; }
 
 std::string AstUInt32Constant::toString() const {
-  return fmt::format("[ @AstUInt32Constant value_:{} ]", value_);
+  return fmt::format("[@AstUInt32Constant value_:{}]", value_);
 }
 
 const uint32_t &AstUInt32Constant::value() const { return value_; }
@@ -197,7 +197,7 @@ AstInt64Constant::AstInt64Constant(const int64_t &value)
 AstType AstInt64Constant::type() const { return AstType::Int64Constant; }
 
 std::string AstInt64Constant::toString() const {
-  return fmt::format("[ @AstInt64Constant value_:{} ]", value_);
+  return fmt::format("[@AstInt64Constant value_:{}]", value_);
 }
 
 const int64_t &AstInt64Constant::value() const { return value_; }
@@ -209,7 +209,7 @@ AstUInt64Constant::AstUInt64Constant(const uint64_t &value)
 AstType AstUInt64Constant::type() const { return AstType::UInt64Constant; }
 
 std::string AstUInt64Constant::toString() const {
-  return fmt::format("[ @AstUInt64Constant value_:{} ]", value_);
+  return fmt::format("[@AstUInt64Constant value_:{}]", value_);
 }
 
 const uint64_t &AstUInt64Constant::value() const { return value_; }
@@ -221,7 +221,7 @@ AstFloat32Constant::AstFloat32Constant(const float &value)
 AstType AstFloat32Constant::type() const { return AstType::Float32Constant; }
 
 std::string AstFloat32Constant::toString() const {
-  return fmt::format("[ @AstFloat32Constant value_:{} ]", value_);
+  return fmt::format("[@AstFloat32Constant value_:{}]", value_);
 }
 
 const float &AstFloat32Constant::value() const { return value_; }
@@ -233,7 +233,7 @@ AstFloat64Constant::AstFloat64Constant(const double &value)
 AstType AstFloat64Constant::type() const { return AstType::Float64Constant; }
 
 std::string AstFloat64Constant::toString() const {
-  return fmt::format("[ @AstFloat64Constant value_:{} ]", value_);
+  return fmt::format("[@AstFloat64Constant value_:{}]", value_);
 }
 
 const double &AstFloat64Constant::value() const { return value_; }
@@ -245,7 +245,7 @@ AstStringConstant::AstStringConstant(const char *value)
 AstType AstStringConstant::type() const { return AstType::StringConstant; }
 
 std::string AstStringConstant::toString() const {
-  return fmt::format("[ @AstStringConstant value_:{} ]", value_);
+  return fmt::format("[@AstStringConstant value_:{}]", value_);
 }
 
 const std::string &AstStringConstant::value() const { return value_; }
@@ -262,7 +262,7 @@ AstBooleanConstant::AstBooleanConstant(const bool &value)
 AstType AstBooleanConstant::type() const { return AstType::BooleanConstant; }
 
 std::string AstBooleanConstant::toString() const {
-  return fmt::format("[ @AstBooleanConstant value_:{} ]", value_);
+  return fmt::format("[@AstBooleanConstant value_:{}]", value_);
 }
 
 const bool &AstBooleanConstant::value() const { return value_; }
@@ -280,7 +280,7 @@ AstCallExpression::~AstCallExpression() {
 AstType AstCallExpression::type() const { return AstType::CallExpression; }
 
 std::string AstCallExpression::toString() const {
-  return fmt::format("[ @AstCallExpression identifier_:{}, argumentList_:{} ]",
+  return fmt::format("[@AstCallExpression identifier_:{}, argumentList_:{}]",
                      identifier_,
                      argumentList_ ? argumentList_->toString() : "null");
 }
@@ -304,7 +304,7 @@ AstType AstUnaryExpression::type() const { return AstType::UnaryExpression; }
 
 std::string AstUnaryExpression::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format("[ @AstUnaryExpression token_:{}, expression_:{} ]",
+  return fmt::format("[@AstUnaryExpression token_:{}, expression_:{}]",
                      tokenName(token_), exprStr);
 }
 
@@ -329,7 +329,7 @@ AstType AstBinaryExpression::type() const { return AstType::BinaryExpression; }
 std::string AstBinaryExpression::toString() const {
   std::string leftStr = left_ ? left_->toString() : "null";
   std::string rightStr = right_ ? right_->toString() : "null";
-  return fmt::format("[ @AstBinaryExpression left_:{}, token_:{}, right_:{} ]",
+  return fmt::format("[@AstBinaryExpression left_:{}, token_:{}, right_:{}]",
                      leftStr, tokenName(token_), rightStr);
 }
 
@@ -363,7 +363,7 @@ std::string AstConditionalExpression::toString() const {
   std::string thensStr = thens_ ? thens_->toString() : "null";
   std::string elsesStr = elses_ ? elses_->toString() : "null";
   return fmt::format(
-      "[ @AstConditionalExpression condition_:{}, thens_:{}, elses_:{} ]",
+      "[@AstConditionalExpression condition_:{}, thens_:{}, elses_:{}]",
       condStr, thensStr, elsesStr);
 }
 
@@ -396,7 +396,7 @@ std::string AstAssignmentExpression::toString() const {
   std::string varStr = variable_ ? variable_->toString() : "null";
   std::string valStr = value_ ? value_->toString() : "null";
   return fmt::format(
-      "[ @AstAssignmentExpression variable_:{}, token_:{}, value_:{} ]", varStr,
+      "[@AstAssignmentExpression variable_:{}, token_:{}, value_:{}]", varStr,
       tokenName(token_), valStr);
 }
 
@@ -418,7 +418,7 @@ AstSequelExpression::~AstSequelExpression() {
 AstType AstSequelExpression::type() const { return AstType::SequelExpression; }
 
 std::string AstSequelExpression::toString() const {
-  return fmt::format("[ @AstSequelExpression expressionList_:{} ]",
+  return fmt::format("[@AstSequelExpression expressionList_:{}]",
                      expressionList_ ? expressionList_->toString() : "null");
 }
 
@@ -441,7 +441,7 @@ AstType AstExpressionStatement::type() const {
 
 std::string AstExpressionStatement::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format("[ @AstExpressionStatement expression_:{} ]", exprStr);
+  return fmt::format("[@AstExpressionStatement expression_:{}]", exprStr);
 }
 
 AstExpression *AstExpressionStatement::expression() const {
@@ -462,7 +462,7 @@ AstType AstCompoundStatement::type() const {
 }
 
 std::string AstCompoundStatement::toString() const {
-  return fmt::format("[ @AstCompoundStatement statementList_:{} ]",
+  return fmt::format("[@AstCompoundStatement statementList_:{}]",
                      statementList_ ? statementList_->toString() : "null");
 }
 
@@ -490,7 +490,7 @@ std::string AstIfStatement::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
   std::string thenStr = thens_ ? thens_->toString() : "null";
   std::string elseStr = elses_ ? elses_->toString() : "null";
-  return fmt::format("[ @AstIfStatement condition_:{}, thens_:{}, elses_:{} ]",
+  return fmt::format("[@AstIfStatement condition_:{}, thens_:{}, elses_:{}]",
                      condStr, thenStr, elseStr);
 }
 
@@ -517,7 +517,7 @@ AstType AstWhileStatement::type() const { return AstType::WhileStatement; }
 std::string AstWhileStatement::toString() const {
   std::string condStr = condition_ ? condition_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
-  return fmt::format("[ @AstWhileStatement condition_:{}, statement_:{} ]",
+  return fmt::format("[@AstWhileStatement condition_:{}, statement_:{}]",
                      condStr, stmtStr);
 }
 
@@ -549,7 +549,7 @@ std::string AstForStatement::toString() const {
   std::string endStr = end_ ? end_->toString() : "null";
   std::string stmtStr = statement_ ? statement_->toString() : "null";
   return fmt::format(
-      "[ @AstForStatement start_:{}, step_:{}, end_:{}, statement_:{} ]",
+      "[@AstForStatement start_:{}, step_:{}, end_:{}, statement_:{}]",
       startStr, stepStr, endStr, stmtStr);
 }
 
@@ -571,7 +571,7 @@ AstType AstContinueStatement::type() const {
 }
 
 std::string AstContinueStatement::toString() const {
-  return fmt::format("[ @AstContinueStatement ]");
+  return fmt::format("[@AstContinueStatement ]");
 }
 
 AstBreakStatement::AstBreakStatement()
@@ -582,7 +582,7 @@ AstBreakStatement::~AstBreakStatement() {}
 AstType AstBreakStatement::type() const { return AstType::BreakStatement; }
 
 std::string AstBreakStatement::toString() const {
-  return fmt::format("[ @AstBreakStatement ]");
+  return fmt::format("[@AstBreakStatement ]");
 }
 
 AstReturnStatement::AstReturnStatement(AstExpression *expression)
@@ -598,7 +598,7 @@ AstType AstReturnStatement::type() const { return AstType::ReturnStatement; }
 
 std::string AstReturnStatement::toString() const {
   std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format("[ @AstReturnStatement expression_:{} ]", exprStr);
+  return fmt::format("[@AstReturnStatement expression_:{}]", exprStr);
 }
 
 AstExpression *AstReturnStatement::expression() const { return expression_; }
@@ -611,7 +611,7 @@ AstEmptyStatement::~AstEmptyStatement() {}
 AstType AstEmptyStatement::type() const { return AstType::EmptyStatement; }
 
 std::string AstEmptyStatement::toString() const {
-  return fmt::format("[ @AstEmptyStatement ]");
+  return fmt::format("[@AstEmptyStatement ]");
 }
 
 AstVariableDeclaration::AstVariableDeclaration(
@@ -629,7 +629,7 @@ AstType AstVariableDeclaration::type() const {
 }
 
 std::string AstVariableDeclaration::toString() const {
-  return fmt::format("[ @AstVariableDeclaration declarationList_:{} ]",
+  return fmt::format("[@AstVariableDeclaration declarationList_:{}]",
                      declarationList_ ? declarationList_->toString() : "null");
 }
 
@@ -654,7 +654,7 @@ AstType AstVariableInitialDeclaration::type() const {
 std::string AstVariableInitialDeclaration::toString() const {
   std::string expr = expression_ ? expression_->toString() : "null";
   return fmt::format(
-      "[ @AstVariableInitialDeclaration identifier_:{}, expression_:{} ]",
+      "[@AstVariableInitialDeclaration identifier_:{}, expression_:{}]",
       identifier_, expr);
 }
 
@@ -684,7 +684,7 @@ AstType AstFunctionDeclaration::type() const {
 }
 
 std::string AstFunctionDeclaration::toString() const {
-  return fmt::format("[ @AstFunctionDeclaration signature_:{}, statement_:{} ]",
+  return fmt::format("[@AstFunctionDeclaration signature_:{}, statement_:{}]",
                      signature_ ? signature_->toString() : "null",
                      statement_ ? statement_->toString() : "null");
 }
@@ -725,8 +725,8 @@ AstType AstFunctionSignatureDeclaration::type() const {
 }
 
 std::string AstFunctionSignatureDeclaration::toString() const {
-  return fmt::format("[ @AstFunctionSignatureDeclaration identifier_:{}, "
-                     "argumentList_:{}, result_:{} ]",
+  return fmt::format("[@AstFunctionSignatureDeclaration identifier_:{}, "
+                     "argumentList_:{}, result_:{}]",
                      identifier_,
                      argumentList_ ? argumentList_->toString() : "null",
                      result_ ? result_->toString() : "null");
@@ -744,7 +744,7 @@ AstType AstFunctionArgumentDeclaration::type() const {
 }
 
 std::string AstFunctionArgumentDeclaration::toString() const {
-  return fmt::format("[ @AstFunctionArgumentDeclaration value_:{} ]", value_);
+  return fmt::format("[@AstFunctionArgumentDeclaration value_:{}]", value_);
 }
 
 const std::string &AstFunctionArgumentDeclaration::value() const {
