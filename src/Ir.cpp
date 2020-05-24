@@ -259,7 +259,7 @@ llvm::Value *IrIdentifierConstant::codeGen(IrContext *context) {
 }
 
 std::string IrIdentifierConstant::toString() const {
-  return fmt::format("[ @IrIdentifierConstant node_:{} ]", node_->toString());
+  return fmt::format("[@IrIdentifierConstant node_:{}]", node_->toString());
 }
 
 /* i8 constant */
@@ -274,7 +274,7 @@ llvm::Value *IrInt8Constant::codeGen(IrContext *context) {
 }
 
 std::string IrInt8Constant::toString() const {
-  return fmt::format("[ @IrInt8Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrInt8Constant node_:{}]", node_->toString());
 }
 
 /* u8 constant */
@@ -289,7 +289,7 @@ llvm::Value *IrUInt8Constant::codeGen(IrContext *context) {
 }
 
 std::string IrUInt8Constant::toString() const {
-  return fmt::format("[ @IrUInt8Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrUInt8Constant node_:{}]", node_->toString());
 }
 
 /* i16 constant */
@@ -304,7 +304,7 @@ llvm::Value *IrInt16Constant::codeGen(IrContext *context) {
 }
 
 std::string IrInt16Constant::toString() const {
-  return fmt::format("[ @IrInt16Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrInt16Constant node_:{}]", node_->toString());
 }
 
 /* u16 constant */
@@ -319,7 +319,7 @@ llvm::Value *IrUInt16Constant::codeGen(IrContext *context) {
 }
 
 std::string IrUInt16Constant::toString() const {
-  return fmt::format("[ @IrUInt16Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrUInt16Constant node_:{}]", node_->toString());
 }
 
 /* i32 constant */
@@ -334,7 +334,7 @@ llvm::Value *IrInt32Constant::codeGen(IrContext *context) {
 }
 
 std::string IrInt32Constant::toString() const {
-  return fmt::format("[ @IrInt32Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrInt32Constant node_:{}]", node_->toString());
 }
 
 /* u32 constant */
@@ -349,7 +349,7 @@ llvm::Value *IrUInt32Constant::codeGen(IrContext *context) {
 }
 
 std::string IrUInt32Constant::toString() const {
-  return fmt::format("[ @IrUInt32Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrUInt32Constant node_:{}]", node_->toString());
 }
 
 /* i64 constant */
@@ -364,7 +364,7 @@ llvm::Value *IrInt64Constant::codeGen(IrContext *context) {
 }
 
 std::string IrInt64Constant::toString() const {
-  return fmt::format("[ @IrInt64Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrInt64Constant node_:{}]", node_->toString());
 }
 
 /* u64 constant */
@@ -379,7 +379,7 @@ llvm::Value *IrUInt64Constant::codeGen(IrContext *context) {
 }
 
 std::string IrUInt64Constant::toString() const {
-  return fmt::format("[ @IrUInt64Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrUInt64Constant node_:{}]", node_->toString());
 }
 
 /* f32 constant */
@@ -394,7 +394,7 @@ llvm::Value *IrFloat32Constant::codeGen(IrContext *context) {
 }
 
 std::string IrFloat32Constant::toString() const {
-  return fmt::format("[ @IrFloat32Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrFloat32Constant node_:{}]", node_->toString());
 }
 
 /* f64 constant */
@@ -409,7 +409,7 @@ llvm::Value *IrFloat64Constant::codeGen(IrContext *context) {
 }
 
 std::string IrFloat64Constant::toString() const {
-  return fmt::format("[ @IrFloat64Constant node_:{} ]", node_->toString());
+  return fmt::format("[@IrFloat64Constant node_:{}]", node_->toString());
 }
 
 /* string constant */
@@ -421,7 +421,7 @@ IrType IrStringConstant::type() const { return IrType::StringConstant; }
 llvm::Value *IrStringConstant::codeGen(IrContext *context) { return nullptr; }
 
 std::string IrStringConstant::toString() const {
-  return fmt::format("[ @IrStringConstant node_:{} ]", node_->toString());
+  return fmt::format("[@IrStringConstant node_:{}]", node_->toString());
 }
 
 /* boolean constant */
@@ -437,7 +437,7 @@ llvm::Value *IrBooleanConstant::codeGen(IrContext *context) {
 }
 
 std::string IrBooleanConstant::toString() const {
-  return fmt::format("[ @IrBooleanConstant node_:{} ]", node_->toString());
+  return fmt::format("[@IrBooleanConstant node_:{}]", node_->toString());
 }
 
 /* call expression */
@@ -449,7 +449,7 @@ IrType IrCallExpression::type() const { return IrType::CallExpression; }
 llvm::Value *IrCallExpression::codeGen(IrContext *context) { return nullptr; }
 
 std::string IrCallExpression::toString() const {
-  return fmt::format("[ @IrCallExpression node_:{} ]", node_->toString());
+  return fmt::format("[@IrCallExpression node_:{}]", node_->toString());
 }
 
 /* unary expression */
@@ -461,7 +461,7 @@ IrType IrUnaryExpression::type() const { return IrType::UnaryExpression; }
 llvm::Value *IrUnaryExpression::codeGen(IrContext *context) { return nullptr; }
 
 std::string IrUnaryExpression::toString() const {
-  return fmt::format("[ @IrUnaryExpression node_:{} ]", node_->toString());
+  return fmt::format("[@IrUnaryExpression node_:{}]", node_->toString());
 }
 
 /* binary expression */
@@ -803,7 +803,7 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
 }
 
 std::string IrBinaryExpression::toString() const {
-  return fmt::format("[ @IrBinaryExpression node_:{} ]", node_->toString());
+  return fmt::format("[@IrBinaryExpression node_:{}]", node_->toString());
 }
 
 /* conditional expression */
@@ -820,8 +820,7 @@ llvm::Value *IrConditionalExpression::codeGen(IrContext *context) {
 }
 
 std::string IrConditionalExpression::toString() const {
-  return fmt::format("[ @IrConditionalExpression node_:{} ]",
-                     node_->toString());
+  return fmt::format("[@IrConditionalExpression node_:{}]", node_->toString());
 }
 
 /* assignment expression */
@@ -838,7 +837,7 @@ llvm::Value *IrAssignmentExpression::codeGen(IrContext *context) {
 }
 
 std::string IrAssignmentExpression::toString() const {
-  return fmt::format("[ @IrAssignmentExpression node_:{} ]", node_->toString());
+  return fmt::format("[@IrAssignmentExpression node_:{}]", node_->toString());
 }
 
 /* sequel expression */
@@ -850,7 +849,7 @@ IrType IrSequelExpression::type() const { return IrType::SequelExpression; }
 llvm::Value *IrSequelExpression::codeGen(IrContext *context) { return nullptr; }
 
 std::string IrSequelExpression::toString() const {
-  return fmt::format("[ @IrSequelExpression node_:{} ]", node_->toString());
+  return fmt::format("[@IrSequelExpression node_:{}]", node_->toString());
 }
 
 /* expression statement */
@@ -911,7 +910,7 @@ llvm::Value *IrExpressionStatement::codeGen(IrContext *context) {
 }
 
 std::string IrExpressionStatement::toString() const {
-  return fmt::format("[ @IrExpressionStatement node_:{} ]", node_->toString());
+  return fmt::format("[@IrExpressionStatement node_:{}]", node_->toString());
 }
 
 /* compound statement */
@@ -945,7 +944,7 @@ llvm::Value *IrCompoundStatement::codeGen(IrContext *context) {
 }
 
 std::string IrCompoundStatement::toString() const {
-  return fmt::format("[ @IrCompoundStatement node_:{} ]", node_->toString());
+  return fmt::format("[@IrCompoundStatement node_:{}]", node_->toString());
 }
 
 /* if statement */
@@ -1003,7 +1002,7 @@ llvm::Value *IrIfStatement::codeGen(IrContext *context) {
 }
 
 std::string IrIfStatement::toString() const {
-  return fmt::format("[ @IrIfStatement node_:{} ]", node_->toString());
+  return fmt::format("[@IrIfStatement node_:{}]", node_->toString());
 }
 
 /* while statement */
@@ -1015,7 +1014,7 @@ IrType IrWhileStatement::type() const { return IrType::WhileStatement; }
 llvm::Value *IrWhileStatement::codeGen(IrContext *context) { return nullptr; }
 
 std::string IrWhileStatement::toString() const {
-  return fmt::format("[ @IrWhileStatement node_:{} ]", node_->toString());
+  return fmt::format("[@IrWhileStatement node_:{}]", node_->toString());
 }
 
 /* for statement */
@@ -1081,7 +1080,7 @@ llvm::Value *IrForStatement::codeGen(IrContext *context) {
 }
 
 std::string IrForStatement::toString() const {
-  return fmt::format("[ @IrForStatement node_:{} ]", node_->toString());
+  return fmt::format("[@IrForStatement node_:{}]", node_->toString());
 }
 
 /* variable declaration */
@@ -1098,7 +1097,7 @@ llvm::Value *IrVariableDeclaration::codeGen(IrContext *context) {
 }
 
 std::string IrVariableDeclaration::toString() const {
-  return fmt::format("[ @IrVariableDeclaration node_:{} ]", node_->toString());
+  return fmt::format("[@IrVariableDeclaration node_:{}]", node_->toString());
 }
 
 /* function declaration */
@@ -1165,7 +1164,7 @@ llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
 }
 
 std::string IrFunctionDeclaration::toString() const {
-  return fmt::format("[ @IrFunctionDeclaration node_:{} ]", node_->toString());
+  return fmt::format("[@IrFunctionDeclaration node_:{}]", node_->toString());
 }
 
 /* function signature declaration */
@@ -1175,7 +1174,7 @@ IrFunctionSignatureDeclaration::IrFunctionSignatureDeclaration(
       node_(node) {}
 
 std::string IrFunctionSignatureDeclaration::toString() const {
-  return fmt::format("[ @IrFunctionSignatureDeclaration node_:{} ]",
+  return fmt::format("[@IrFunctionSignatureDeclaration node_:{}]",
                      node_->toString());
 }
 
