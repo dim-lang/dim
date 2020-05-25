@@ -52,17 +52,16 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release -- -j $2
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
-        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1 -j $2
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1
     fi
     cd $ROOT
 }
 
 # $1: trace/debug/release
-# $2: job number
 function build_routine() {
     case "$FOS" in
       solaris*) ;;
@@ -71,9 +70,9 @@ function build_routine() {
       *bsd*)    ;;
       *)        echo "[shepherd] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [shepherd] build for $FOS, mode=$1, job=$2
+    echo [shepherd] build for $FOS, mode=$1
     build_generate $1
-    build_make $1 $2
+    build_make $1
 }
 
 # $1: install path
@@ -98,7 +97,6 @@ function build_help() {
     echo   build -r/--release           - build release.
     echo   build -d/--debug             - build debug.
     echo   build --trace                - build trace.
-    echo   build -j/--job [n]           - build with [n] worker threads.
     echo   build -i/--install           - install, install path is /usr/local by default.
     echo   build -p/--path [path]       - custom install path.
     echo   build -t/--test              - run unit tests for debug/trace.
@@ -108,7 +106,6 @@ function build_help() {
 # ---- main ----
 
 BUILD_TYPE=release
-BUILD_JOB=1
 INSTALL=0
 INSTALL_PATH=/usr/local
 
@@ -139,11 +136,6 @@ while [[ $# -gt 0 ]]; do
             BUILD_TYPE=release
             shift
             ;;
-        -j|--job)
-            shift
-            BUILD_JOB=$1
-            shift
-            ;;
         -i|--install)
             INSTALL=1
             ;;
@@ -159,7 +151,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-build_routine $BUILD_TYPE $BUILD_JOB
+build_routine $BUILD_TYPE
 if [[ $INSTALL -gt 0 ]]; then
     build_install $INSTALL_PATH
 fi
