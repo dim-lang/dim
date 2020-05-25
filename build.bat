@@ -52,11 +52,8 @@ if not exist %ROOT%\src\boost\stage (
     cmd /c b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem
     cd %ROOT%\src\boost\stage\lib
     cp libboost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
-    cp libboost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
     cp libboost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
-    cp libboost_system-vc*-mt-gd-x64-*.lib boost_system-mt-gd-x64.lib
     cp libboost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
-    cp libboost_filesystem-vc*-mt-gd-x64-*.lib boost_filesystem-mt-gd-x64.lib
 )
 echo [shepherd] prepare boostorg/boost %BOOST_VERSION% - done
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION%
