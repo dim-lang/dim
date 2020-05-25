@@ -11,7 +11,7 @@ set FMTLIB_VERSION=5.3.0
 set ENUM_VERSION=0.11.2
 set CATCH2_VERSION=v2.9.1
 set LLVM_VERSION=llvmorg-9.0.1
-set BOOST_VERSION=boost-1.70.0
+set BOOST_VERSION=boost-1.68.0
 
 @rem init third party library
 echo [shepherd] prepare catchorg/Catch2 %CATCH2_VERSION%
@@ -49,7 +49,7 @@ if not exist %ROOT%\src\boost (
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c bootstrap.bat
-    cmd /c b2 address-model=64 link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --build-type=complete stage
+    cmd /c b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem
     cd %ROOT%\src\boost\stage\lib
     cp libboost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
     cp libboost_program_options-vc*-mt-gd-x64-*.lib boost_program_options-mt-gd-x64.lib
@@ -68,7 +68,7 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     cd %ROOT%\src\llvm-project\llvm
     mkdir build
     cd build
-    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -A x64 ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -A x64 ..
     cmake --build . --config Release --target INSTALL
 )
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
