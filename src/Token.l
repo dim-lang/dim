@@ -29,6 +29,7 @@ IS ((u|U)|(u|U)?(l|L))
 
 #define T_LITERAL_TOKEN         (Y_LVAL->literal = Strings::copy(Y_TEXT, Y_LENG))
 #define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::copy(Y_TEXT+(p), Y_LENG-(p)-(q)))
+#define T_INTEGER_TOKEN(t)      (Y_LVAL->token = t)
 
 #define YY_USER_ACTION                                                      \
     Y_LLOC->first_line = Y_LLOC->last_line;                                 \
@@ -57,112 +58,112 @@ IS ((u|U)|(u|U)?(l|L))
 "//".*\n                { /* skip everything until end of line */ }
 
  /* keywords */
-"true"       { T_LITERAL_TOKEN; return T_TRUE; }
-"false"      { T_LITERAL_TOKEN; return T_FALSE; }
-"let"        { T_LITERAL_TOKEN; return T_LET; }
-"try"        { T_LITERAL_TOKEN; return T_TRY; }
-"catch"      { T_LITERAL_TOKEN; return T_CATCH; }
-"var"        { T_LITERAL_TOKEN; return T_VAR; }
-"val"        { T_LITERAL_TOKEN; return T_VAL; }
-"nil"        { T_LITERAL_TOKEN; return T_NIL; }
-"if"         { T_LITERAL_TOKEN; return T_IF; }
-"else"       { T_LITERAL_TOKEN; return T_ELSE; }
-"switch"     { T_LITERAL_TOKEN; return T_SWITCH; }
-"case"       { T_LITERAL_TOKEN; return T_CASE; }
-"match"      { T_LITERAL_TOKEN; return T_MATCH; }
-"default"    { T_LITERAL_TOKEN; return T_DEFAULT; }
-"for"        { T_LITERAL_TOKEN; return T_FOR; }
-"foreach"    { T_LITERAL_TOKEN; return T_FOREACH; }
-"in"         { T_LITERAL_TOKEN; return T_IN; }
-"while"      { T_LITERAL_TOKEN; return T_WHILE; }
-"break"      { T_LITERAL_TOKEN; return T_BREAK; }
-"continue"   { T_LITERAL_TOKEN; return T_CONTINUE; }
-"func"       { T_LITERAL_TOKEN; return T_FUNC; }
-"class"      { T_LITERAL_TOKEN; return T_CLASS; }
-"type"       { T_LITERAL_TOKEN; return T_TYPE; }
-"is"         { T_LITERAL_TOKEN; return T_IS; }
-"isinstance" { T_LITERAL_TOKEN; return T_ISINSTANCE; }
-"import"     { T_LITERAL_TOKEN; return T_IMPORT; }
-"return"     { T_LITERAL_TOKEN; return T_RETURN; }
-"void"       { T_LITERAL_TOKEN; return T_VOID; }
-"and"        { T_LITERAL_TOKEN; return T_LOGIC_AND; }
-"or"         { T_LITERAL_TOKEN; return T_LOGIC_OR; }
-"not"        { T_LITERAL_TOKEN; return T_LOGIC_NOT; }
-"int8"       { T_LITERAL_TOKEN; return T_INT8; }
-"uint8"      { T_LITERAL_TOKEN; return T_UINT8; }
-"int16"      { T_LITERAL_TOKEN; return T_INT16; }
-"uint16"     { T_LITERAL_TOKEN; return T_UINT16; }
-"int32"      { T_LITERAL_TOKEN; return T_INT32; }
-"uint32"     { T_LITERAL_TOKEN; return T_UINT32; }
-"int64"      { T_LITERAL_TOKEN; return T_INT64; }
-"uint64"     { T_LITERAL_TOKEN; return T_UINT64; }
-"int128"     { T_LITERAL_TOKEN; return T_INT128; }
-"uint128"    { T_LITERAL_TOKEN; return T_UINT128; }
-"float32"    { T_LITERAL_TOKEN; return T_FLOAT32; }
-"float64"    { T_LITERAL_TOKEN; return T_FLOAT64; }
-"float128"   { T_LITERAL_TOKEN; return T_FLOAT128; }
-"string"     { T_LITERAL_TOKEN; return T_STRING; }
-"boolean"    { T_LITERAL_TOKEN; return T_BOOLEAN; }
-"async"      { T_LITERAL_TOKEN; return T_ASYNC; }
-"await"      { T_LITERAL_TOKEN; return T_AWAIT; }
-"public"     { T_LITERAL_TOKEN; return T_PUBLIC; }
-"protect"    { T_LITERAL_TOKEN; return T_PROTECT; }
-"private"    { T_LITERAL_TOKEN; return T_PRIVATE; }
-"nan"        { T_LITERAL_TOKEN; return T_NAN; }
-"inf"        { T_LITERAL_TOKEN; return T_INF; }
+"true"       { return T_INTEGER_TOKEN(T_TRUE); }
+"false"      { return T_INTEGER_TOKEN(T_FALSE); }
+"let"        { return T_INTEGER_TOKEN(T_LET); }
+"try"        { return T_INTEGER_TOKEN(T_TRY); }
+"catch"      { return T_INTEGER_TOKEN(T_CATCH); }
+"var"        { return T_INTEGER_TOKEN(T_VAR); }
+"val"        { return T_INTEGER_TOKEN(T_VAL); }
+"nil"        { return T_INTEGER_TOKEN(T_NIL); }
+"if"         { return T_INTEGER_TOKEN(T_IF); }
+"else"       { return T_INTEGER_TOKEN(T_ELSE); }
+"switch"     { return T_INTEGER_TOKEN(T_SWITCH); }
+"case"       { return T_INTEGER_TOKEN(T_CASE); }
+"match"      { return T_INTEGER_TOKEN(T_MATCH); }
+"default"    { return T_INTEGER_TOKEN(T_DEFAULT); }
+"for"        { return T_INTEGER_TOKEN(T_FOR); }
+"foreach"    { return T_INTEGER_TOKEN(T_FOREACH); }
+"in"         { return T_INTEGER_TOKEN(T_IN); }
+"while"      { return T_INTEGER_TOKEN(T_WHILE); }
+"break"      { return T_INTEGER_TOKEN(T_BREAK); }
+"continue"   { return T_INTEGER_TOKEN(T_CONTINUE); }
+"func"       { return T_INTEGER_TOKEN(T_FUNC); }
+"class"      { return T_INTEGER_TOKEN(T_CLASS); }
+"type"       { return T_INTEGER_TOKEN(T_TYPE); }
+"is"         { return T_INTEGER_TOKEN(T_IS); }
+"isinstance" { return T_INTEGER_TOKEN(T_ISINSTANCE); }
+"import"     { return T_INTEGER_TOKEN(T_IMPORT); }
+"return"     { return T_INTEGER_TOKEN(T_RETURN); }
+"void"       { return T_INTEGER_TOKEN(T_VOID); }
+"and"        { return T_INTEGER_TOKEN(T_LOGIC_AND); }
+"or"         { return T_INTEGER_TOKEN(T_LOGIC_OR); }
+"not"        { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
+"int8"       { return T_INTEGER_TOKEN(T_INT8); }
+"uint8"      { return T_INTEGER_TOKEN(T_UINT8); }
+"int16"      { return T_INTEGER_TOKEN(T_INT16); }
+"uint16"     { return T_INTEGER_TOKEN(T_UINT16); }
+"int32"      { return T_INTEGER_TOKEN(T_INT32); }
+"uint32"     { return T_INTEGER_TOKEN(T_UINT32); }
+"int64"      { return T_INTEGER_TOKEN(T_INT64); }
+"uint64"     { return T_INTEGER_TOKEN(T_UINT64); }
+"int128"     { return T_INTEGER_TOKEN(T_INT128); }
+"uint128"    { return T_INTEGER_TOKEN(T_UINT128); }
+"float32"    { return T_INTEGER_TOKEN(T_FLOAT32); }
+"float64"    { return T_INTEGER_TOKEN(T_FLOAT64); }
+"float128"   { return T_INTEGER_TOKEN(T_FLOAT128); }
+"string"     { return T_INTEGER_TOKEN(T_STRING); }
+"boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
+"async"      { return T_INTEGER_TOKEN(T_ASYNC); }
+"await"      { return T_INTEGER_TOKEN(T_AWAIT); }
+"public"     { return T_INTEGER_TOKEN(T_PUBLIC); }
+"protect"    { return T_INTEGER_TOKEN(T_PROTECT); }
+"private"    { return T_INTEGER_TOKEN(T_PRIVATE); }
+"nan"        { return T_INTEGER_TOKEN(T_NAN); }
+"inf"        { return T_INTEGER_TOKEN(T_INF); }
 
  /* punctuators */
-"+"    { T_LITERAL_TOKEN; return T_ADD; }
-"-"    { T_LITERAL_TOKEN; return T_SUB; }
-"*"    { T_LITERAL_TOKEN; return T_MUL; }
-"/"    { T_LITERAL_TOKEN; return T_DIV; }
-"%"    { T_LITERAL_TOKEN; return T_MOD; }
-"_"    { T_LITERAL_TOKEN; return T_UNDERLINE; }
-"++"   { T_LITERAL_TOKEN; return T_ADD2; }
-"--"   { T_LITERAL_TOKEN; return T_SUB2; }
-"**"   { T_LITERAL_TOKEN; return T_MUL2; }
-"//"   { T_LITERAL_TOKEN; return T_DIV2; }
-"%%"   { T_LITERAL_TOKEN; return T_MOD2; }
-"&&"   { T_LITERAL_TOKEN; return T_LOGIC_AND; }
-"||"   { T_LITERAL_TOKEN; return T_LOGIC_OR; }
-"!"    { T_LITERAL_TOKEN; return T_LOGIC_NOT; }
-"&"    { T_LITERAL_TOKEN; return T_BIT_AND; }
-"|"    { T_LITERAL_TOKEN; return T_BIT_OR; }
-"~"    { T_LITERAL_TOKEN; return T_BIT_NOT; }
-"^"    { T_LITERAL_TOKEN; return T_BIT_XOR; }
-"<<"   { T_LITERAL_TOKEN; return T_BIT_LSHIFT; }
-">>"   { T_LITERAL_TOKEN; return T_BIT_RSHIFT; }
-">>>"  { T_LITERAL_TOKEN; return T_BIT_ARSHIFT; }
-"="    { T_LITERAL_TOKEN; return T_ASSIGN; }
-"+="   { T_LITERAL_TOKEN; return T_ADD_ASSIGN; }
-"-="   { T_LITERAL_TOKEN; return T_SUB_ASSIGN; }
-"*="   { T_LITERAL_TOKEN; return T_MUL_ASSIGN; }
-"/="   { T_LITERAL_TOKEN; return T_DIV_ASSIGN; }
-"%="   { T_LITERAL_TOKEN; return T_MOD_ASSIGN; }
-"&="   { T_LITERAL_TOKEN; return T_BIT_AND_ASSIGN; }
-"|="   { T_LITERAL_TOKEN; return T_BIT_OR_ASSIGN; }
-"^="   { T_LITERAL_TOKEN; return T_BIT_XOR_ASSIGN; }
-"<<="  { T_LITERAL_TOKEN; return T_BIT_LSHIFT_ASSIGN; }
-">>="  { T_LITERAL_TOKEN; return T_BIT_RSHIFT_ASSIGN; }
-">>>=" { T_LITERAL_TOKEN; return T_BIT_ARSHIFT_ASSIGN; }
-"=="   { T_LITERAL_TOKEN; return T_EQ; }
-"!="   { T_LITERAL_TOKEN; return T_NEQ; }
-"<"    { T_LITERAL_TOKEN; return T_LT; }
-"<="   { T_LITERAL_TOKEN; return T_LE; }
-">"    { T_LITERAL_TOKEN; return T_GT; }
-">="   { T_LITERAL_TOKEN; return T_GE; }
-"("    { T_LITERAL_TOKEN; return T_LPAREN; }
-")"    { T_LITERAL_TOKEN; return T_RPAREN; }
-"["    { T_LITERAL_TOKEN; return T_LBRACKET; }
-"]"    { T_LITERAL_TOKEN; return T_RBRACKET; }
-"{"    { T_LITERAL_TOKEN; return T_LBRACE; }
-"}"    { T_LITERAL_TOKEN; return T_RBRACE; }
-","    { T_LITERAL_TOKEN; return T_COMMA; }
-";"    { T_LITERAL_TOKEN; return T_SEMI; }
-"?"    { T_LITERAL_TOKEN; return T_QUESTION; }
-":"    { T_LITERAL_TOKEN; return T_COLON; }
-"."    { T_LITERAL_TOKEN; return T_DOT; }
-"=>"   { T_LITERAL_TOKEN; return T_BIG_ARROW; }
+"+"    { return T_INTEGER_TOKEN(T_ADD); }
+"-"    { return T_INTEGER_TOKEN(T_SUB); }
+"*"    { return T_INTEGER_TOKEN(T_MUL); }
+"/"    { return T_INTEGER_TOKEN(T_DIV); }
+"%"    { return T_INTEGER_TOKEN(T_MOD); }
+"_"    { return T_INTEGER_TOKEN(T_UNDERLINE); }
+"++"   { return T_INTEGER_TOKEN(T_ADD2); }
+"--"   { return T_INTEGER_TOKEN(T_SUB2); }
+"**"   { return T_INTEGER_TOKEN(T_MUL2); }
+"//"   { return T_INTEGER_TOKEN(T_DIV2); }
+"%%"   { return T_INTEGER_TOKEN(T_MOD2); }
+"&&"   { return T_INTEGER_TOKEN(T_LOGIC_AND); }
+"||"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
+"!"    { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
+"&"    { return T_INTEGER_TOKEN(T_BIT_AND); }
+"|"    { return T_INTEGER_TOKEN(T_BIT_OR); }
+"~"    { return T_INTEGER_TOKEN(T_BIT_NOT); }
+"^"    { return T_INTEGER_TOKEN(T_BIT_XOR); }
+"<<"   { return T_INTEGER_TOKEN(T_BIT_LSHIFT); }
+">>"   { return T_INTEGER_TOKEN(T_BIT_RSHIFT); }
+">>>"  { return T_INTEGER_TOKEN(T_BIT_ARSHIFT); }
+"="    { return T_INTEGER_TOKEN(T_ASSIGN); }
+"+="   { return T_INTEGER_TOKEN(T_ADD_ASSIGN); }
+"-="   { return T_INTEGER_TOKEN(T_SUB_ASSIGN); }
+"*="   { return T_INTEGER_TOKEN(T_MUL_ASSIGN); }
+"/="   { return T_INTEGER_TOKEN(T_DIV_ASSIGN); }
+"%="   { return T_INTEGER_TOKEN(T_MOD_ASSIGN); }
+"&="   { return T_INTEGER_TOKEN(T_BIT_AND_ASSIGN); }
+"|="   { return T_INTEGER_TOKEN(T_BIT_OR_ASSIGN); }
+"^="   { return T_INTEGER_TOKEN(T_BIT_XOR_ASSIGN); }
+"<<="  { return T_INTEGER_TOKEN(T_BIT_LSHIFT_ASSIGN); }
+">>="  { return T_INTEGER_TOKEN(T_BIT_RSHIFT_ASSIGN); }
+">>>=" { return T_INTEGER_TOKEN(T_BIT_ARSHIFT_ASSIGN); }
+"=="   { return T_INTEGER_TOKEN(T_EQ); }
+"!="   { return T_INTEGER_TOKEN(T_NEQ); }
+"<"    { return T_INTEGER_TOKEN(T_LT); }
+"<="   { return T_INTEGER_TOKEN(T_LE); }
+">"    { return T_INTEGER_TOKEN(T_GT); }
+">="   { return T_INTEGER_TOKEN(T_GE); }
+"("    { return T_INTEGER_TOKEN(T_LPAREN); }
+")"    { return T_INTEGER_TOKEN(T_RPAREN); }
+"["    { return T_INTEGER_TOKEN(T_LBRACKET); }
+"]"    { return T_INTEGER_TOKEN(T_RBRACKET); }
+"{"    { return T_INTEGER_TOKEN(T_LBRACE); }
+"}"    { return T_INTEGER_TOKEN(T_RBRACE); }
+","    { return T_INTEGER_TOKEN(T_COMMA); }
+";"    { return T_INTEGER_TOKEN(T_SEMI); }
+"?"    { return T_INTEGER_TOKEN(T_QUESTION); }
+":"    { return T_INTEGER_TOKEN(T_COLON); }
+"."    { return T_INTEGER_TOKEN(T_DOT); }
+"=>"   { return T_INTEGER_TOKEN(T_BIG_ARROW); }
 
  /* integer constants */
  /* decimal integer: 102813(u|U|l|L|ul|UL) */
