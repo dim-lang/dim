@@ -5,3 +5,4 @@
 #include <string>
 
 std::string tokenName(int token);
+bool tokenNameExist(int token);

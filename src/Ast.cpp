@@ -293,7 +293,10 @@ AstExpressionList *AstCallExpression::argumentList() const {
 
 AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression)
     : AstExpression(nameGenerator.generate("A_UnrExp")), token_(token),
-      expression_(expression) {}
+      expression_(expression) {
+  LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, expression:{}", token_,
+             expression_->toString());
+}
 
 AstUnaryExpression::~AstUnaryExpression() {
   delete expression_;
@@ -315,7 +318,10 @@ AstExpression *AstUnaryExpression::expression() const { return expression_; }
 AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
                                          AstExpression *right)
     : AstExpression(nameGenerator.generate("A_BinExp")), left_(left),
-      token_(token), right_(right) {}
+      token_(token), right_(right) {
+  LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, left_:{}, right_:{}",
+             token_, left_->toString(), right_->toString());
+}
 
 AstBinaryExpression::~AstBinaryExpression() {
   delete left_;
@@ -379,7 +385,11 @@ AstAssignmentExpression::AstAssignmentExpression(AstExpression *variable,
                                                  int token,
                                                  AstExpression *value)
     : AstExpression(nameGenerator.generate("A_AssExp")), variable_(variable),
-      token_(token), value_(value) {}
+      token_(token), value_(value) {
+  LOG_ASSERT(tokenNameExist(token_),
+             "invalid token_:{}, variable_:{}, value_:{}", token_,
+             variable_->toString(), value_->toString());
+}
 
 AstAssignmentExpression::~AstAssignmentExpression() {
   delete variable_;
