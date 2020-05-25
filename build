@@ -45,36 +45,6 @@ function build_generate() {
         cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums && cd $ROOT
     fi
     echo [shepherd] prepare aantron/better-enums $ENUM_VERSION - done
-
-    cd $ROOT/src
-    if [ -f Token.yy.cpp ]; then rm Token.yy.cpp; fi
-    if [ -f Parser.tab.hpp ]; then rm Parser.tab.hpp; fi
-    if [ -f Parser.tab.cpp ]; then rm Parser.tab.cpp; fi
-    if [ -f Parser.output ]; then rm Parser.output; fi
-    case "$1" in
-        release)
-            flex -o Token.yy.cpp Token.l
-            check_return $? 'flex process Token.l failed!'
-            bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
-            check_return $? 'bison process Parser.y failed!'
-            ;;
-        debug)
-            flex -o Token.yy.cpp Token.l
-            check_return $? 'flex process Token.l failed!'
-            bison -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
-            check_return $? 'bison process Parser.y failed!'
-            ;;
-        trace)
-            flex --debug -o Token.yy.cpp Token.l
-            check_return $? 'flex process Token.l failed!'
-            bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
-            check_return $? 'bison process Parser.y failed!'
-            ;;
-        *)
-            echo [shepherd] unknown build_generate argument "$1"
-            exit 3
-            ;;
-    esac
 }
 
 function build_make() {

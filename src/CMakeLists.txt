@@ -5,35 +5,6 @@ project(shepherdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
-set(SHEPHERD
-    Log.cpp
-    Option.cpp
-    Timer.cpp
-    DateTime.cpp
-    File.cpp
-    Strings.cpp
-    Hash.cpp
-    Random.cpp
-    Approximate.cpp
-    NameGenerator.cpp
-    TokenName.cpp
-    Token.cpp
-    Token.yy.cpp
-    Parser.tab.cpp
-    Scanner.cpp
-    Ast.cpp
-    Symbol.cpp
-    Type.cpp
-    SymbolTable.cpp
-    Semantic.cpp
-    Counter.cpp
-    Dump.cpp
-    Ir.cpp
-)
-set(SHEPHERDC
-    shepherdc.cpp
-)
-
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
@@ -70,6 +41,12 @@ endif(WIN32)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
+find_package(FLEX)
+find_package(BISON)
+FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
+BISON_TARGET(ShepherdParser Parser.y ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp 
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.hpp)
+ADD_FLEX_BISON_DEPENDENCY(ShepherdTokenizer ShepherdParser)
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
@@ -91,6 +68,37 @@ set(SHEPHERD_LIB_DIR
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
+set(SHEPHERD
+    Log.cpp
+    Option.cpp
+    Timer.cpp
+    DateTime.cpp
+    File.cpp
+    Strings.cpp
+    Hash.cpp
+    Random.cpp
+    Approximate.cpp
+    NameGenerator.cpp
+    TokenName.cpp
+    Token.cpp
+    #Token.yy.cpp
+    #Parser.tab.cpp
+    Scanner.cpp
+    Ast.cpp
+    Symbol.cpp
+    Type.cpp
+    SymbolTable.cpp
+    Semantic.cpp
+    Counter.cpp
+    Dump.cpp
+    Ir.cpp
+    ${BISON_ShepherdParser_OUTPUTS}
+    ${FLEX_ShepherdTokenizer_OUTPUTS}
+)
+set(SHEPHERDC
+    shepherdc.cpp
+)
+
 
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})

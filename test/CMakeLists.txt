@@ -5,23 +5,6 @@ project(shepherd-test VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/../src/Configure.h.in ${PROJECT_SOURCE_DIR}/../src/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
-set(SHEPHERD_TEST
-    MainTest.cpp
-    LogTest.cpp
-    ConfigureTest.cpp
-    TimerTest.cpp
-    RandomTest.cpp
-    FileTest.cpp
-    ApproximateTest.cpp
-    HashTest.cpp
-    TokenTest.cpp
-    ParserTest.cpp
-    SemanticTest.cpp
-    DumpTest.cpp
-    NameGeneratorTest.cpp
-    container/LinkedHashMapTest.cpp
-)
-
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
@@ -82,6 +65,23 @@ set(SHEPHERD_LIB_DIR
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
+set(SHEPHERD_TEST
+    MainTest.cpp
+    LogTest.cpp
+    ConfigureTest.cpp
+    TimerTest.cpp
+    RandomTest.cpp
+    FileTest.cpp
+    ApproximateTest.cpp
+    HashTest.cpp
+    TokenTest.cpp
+    ParserTest.cpp
+    SemanticTest.cpp
+    DumpTest.cpp
+    NameGeneratorTest.cpp
+    container/LinkedHashMapTest.cpp
+)
+
 
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
