@@ -155,9 +155,9 @@ public:
   virtual AstType type() const = 0;
   virtual std::string toString() const {
     std::stringstream ss;
-    ss << fmt::format("[ @{} size:{}", stringify(), items_.size());
+    ss << fmt::format("[@{} size:{}", stringify(), items_.size());
     if (items_.empty()) {
-      ss << " ]";
+      ss << "]";
       return ss.str();
     }
     ss << ", ";
@@ -168,7 +168,7 @@ public:
         ss << ",";
       }
     }
-    ss << " ]";
+    ss << "]";
     return ss.str();
   }
   virtual bool empty() const { return items_.empty(); }
