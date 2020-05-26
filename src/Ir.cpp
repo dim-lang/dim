@@ -855,7 +855,7 @@ std::string IrSequelExpression::toString() const {
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(AstExpressionStatement *node)
     : IrStatement(nameGenerator.generate("IrExpressionStatement")), node_(node),
-      expr_(DC(IrExpression, createIr(node))) {}
+      expr_(DC(IrExpression, createIr(node->expression()))) {}
 
 IrExpressionStatement::~IrExpressionStatement() {
   delete expr_;
