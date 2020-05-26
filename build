@@ -92,15 +92,15 @@ function build_install() {
 }
 
 function build_help() {
-    echo [shepherd] help message:
-    echo   build -h/--help              - show help message.
-    echo   build -r/--release           - build release.
-    echo   build -d/--debug             - build debug.
-    echo   build --trace                - build trace.
-    echo   build -i/--install           - install, install path is /usr/local by default.
-    echo   build -p/--path [path]       - custom install path.
-    echo   build -t/--test              - run unit tests for debug/trace.
-    echo   build -c/--clean             - clean objects.
+    echo '[shepherd] build help message:'
+    echo '  ./build -h/--help           show help message.'
+    echo '  ./build -r/--release        build release.'
+    echo '  ./build -d/--debug          build debug.'
+    echo '  ./build --trace             build trace.'
+    echo '  ./build -i/--install        install, install path is /usr/local by default.'
+    echo '  ./build -p/--path [path]    custom install path.'
+    echo '  ./build -t/--test           run unit tests for debug/trace.'
+    echo '  ./build -c/--clean          clean objects.'
 }
 
 # ---- main ----
