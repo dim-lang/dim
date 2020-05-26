@@ -24,7 +24,7 @@ BETTER_ENUM(IrType, int,
             ConditionalExpression, AssignmentExpression, SequelExpression,
             // statement
             ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
-            ForStatement,
+            ForStatement, ReturnStatement,
             // declaration
             VariableDeclaration, FunctionDeclaration,
             FunctionSignatureDeclaration,
@@ -77,6 +77,7 @@ class IrCompoundStatement;
 class IrIfStatement;
 class IrWhileStatement;
 class IrForStatement;
+class IrReturnStatement;
 
 // declaration
 class IrVariableDeclaration;
@@ -562,6 +563,20 @@ private:
   IrStatement *step_;
   IrStatement *end_;
   IrStatement *statement_;
+};
+
+/* return statement */
+class IrReturnStatement : public IrStatement {
+public:
+  IrReturnStatement(AstReturnStatement *node);
+  virtual ~IrReturnStatement();
+  virtual std::string toString() const;
+  virtual IrType type() const;
+  virtual llvm::Value *codeGen(IrContext *context);
+
+private:
+  AstReturnStatement *node_;
+  IrExpression *expression_;
 };
 
 /* variable declaration */

@@ -113,6 +113,8 @@ static Ir *createIr(Ast *node) {
     return new IrForStatement(DC(AstForStatement, node));
   case AstType::CompoundStatement:
     return new IrCompoundStatement(DC(AstCompoundStatement, node));
+  case AstType::ReturnStatement:
+    return new IrReturnStatement(DC(AstReturnStatement, node));
   case AstType::VariableDeclaration:
     return new IrVariableDeclaration(DC(AstVariableDeclaration, node));
   case AstType::FunctionDeclaration:
@@ -1082,6 +1084,24 @@ llvm::Value *IrForStatement::codeGen(IrContext *context) {
 std::string IrForStatement::toString() const {
   return fmt::format("[@IrForStatement node_:{}]", node_->toString());
 }
+
+/* return statement */
+IrReturnStatement::IrReturnStatement(AstReturnStatement *node)
+    : IrStatement(nameGenerator.generate("IrReturnStatement")), node_(node),
+      expression_(DC(IrExpression, createIr(node->expression()))) {}
+
+IrReturnStatement::~IrReturnStatement() {
+  delete expression_;
+  expression_ = nullptr;
+}
+
+std::string IrReturnStatement::toString() const {
+  return fmt::format("[@IrReturnStatement node_:{}]", node_->toString());
+}
+
+IrType IrReturnStatement::type() const { return IrType::ReturnStatement; }
+
+llvm::Value *IrReturnStatement::codeGen(IrContext *context) { return nullptr; }
 
 /* variable declaration */
 IrVariableDeclaration::IrVariableDeclaration(AstVariableDeclaration *node)
