@@ -23,16 +23,16 @@ BETTER_ENUM(AstType, int,
             // expression
             AssignmentExpression, SequelExpression, CallExpression,
             UnaryExpression, BinaryExpression, ConditionalExpression,
+            VoidExpression,
             // statement
             ExpressionStatement, IfStatement, WhileStatement, ForStatement,
             ContinueStatement, BreakStatement, ReturnStatement, EmptyStatement,
             CompoundStatement,
-            // declaration
-            VariableDeclaration, VariableInitialDeclaration,
-            FunctionDeclaration, FunctionSignatureDeclaration,
-            FunctionArgumentDeclaration,
+            // definition
+            VariableDefinition, VariableInitialDefinition, FunctionDefinition,
+            FunctionSignatureDefinition, FunctionArgumentDefinition,
             // list
-            ExpressionList, StatementList, DeclarationList,
+            ExpressionList, StatementList, DefinitionList,
             // translate unit
             TranslateUnit)
 
@@ -47,9 +47,10 @@ class AstTranslateUnit;
 /* list */
 class AstExpressionList;
 class AstStatementList;
-class AstDeclarationList;
+class AstDefinitionList;
 
 /* constant */
+class AstConstant;
 class AstIdentifierConstant;
 class AstInt8Constant;
 class AstUInt8Constant;
@@ -72,6 +73,7 @@ class AstBinaryExpression;
 class AstConditionalExpression;
 class AstAssignmentExpression;
 class AstSequelExpression;
+class AstVoidExpression;
 
 /* statement */
 class AstStatement;
@@ -85,15 +87,15 @@ class AstBreakStatement;
 class AstReturnStatement;
 class AstEmptyStatement;
 
-/* declaration */
-class AstDeclaration;
-class AstVariableDeclaration;
-class AstVariableInitialDeclaration;
-class AstFunctionDeclaration;
-class AstFunctionSignatureDeclaration;
-class AstFunctionArgumentDeclaration;
+/* definition */
+class AstDefinition;
+class AstVariableDefinition;
+class AstVariableInitialDefinition;
+class AstFunctionDefinition;
+class AstFunctionSignatureDefinition;
+class AstFunctionArgumentDefinition;
 
-/*================ declaration ================*/
+/*================ definition ================*/
 
 /* base interface */
 class Ast : public Namely, public Stringify, private boost::noncopyable {
@@ -104,10 +106,14 @@ public:
   virtual std::string toString() const = 0;
   virtual std::string name() const;
 
-  static bool isFloat(const Ast *node);
-  static bool isInteger(const Ast *node);
-  static bool isSignedInteger(const Ast *node);
-  static bool isUnsignedInteger(const Ast *node);
+  static bool isConstant(const Ast *node);
+  static bool isFloatConstant(const Ast *node);
+  static bool isIntegerConstant(const Ast *node);
+  static bool isSignedIntegerConstant(const Ast *node);
+  static bool isUnsignedIntegerConstant(const Ast *node);
+  static bool isExpression(const Ast *node);
+  static bool isStatement(const Ast *node);
+  static bool isDefinition(const Ast *node);
 
 private:
   std::string name_;
@@ -122,6 +128,15 @@ public:
   virtual std::string toString() const = 0;
 };
 
+/* constant */
+class AstConstant : public AstExpression {
+public:
+  AstConstant(const std::string &name);
+  virtual ~AstConstant() = default;
+  virtual AstType type() const = 0;
+  virtual std::string toString() const = 0;
+};
+
 /* statement */
 class AstStatement : public Ast {
 public:
@@ -131,11 +146,11 @@ public:
   virtual std::string toString() const = 0;
 };
 
-/* declaration is statement */
-class AstDeclaration : public AstStatement {
+/* definition is statement */
+class AstDefinition : public AstStatement {
 public:
-  AstDeclaration(const std::string &name);
-  virtual ~AstDeclaration() = default;
+  AstDefinition(const std::string &name);
+  virtual ~AstDefinition() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
 };
@@ -213,10 +228,10 @@ private:
   virtual std::string stringify() const;
 };
 
-class AstDeclarationList : public detail::AstList<AstDeclaration> {
+class AstDefinitionList : public detail::AstList<AstDefinition> {
 public:
-  AstDeclarationList();
-  virtual ~AstDeclarationList() = default;
+  AstDefinitionList();
+  virtual ~AstDefinitionList() = default;
   virtual AstType type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
@@ -228,9 +243,9 @@ private:
   virtual std::string stringify() const;
 };
 
-/* translate unit is actually declaration list */
+/* translate unit is actually definition list */
 
-class AstTranslateUnit : public detail::AstList<AstDeclaration> {
+class AstTranslateUnit : public detail::AstList<AstDefinition> {
 public:
   AstTranslateUnit();
   virtual ~AstTranslateUnit() = default;
@@ -246,7 +261,7 @@ private:
 };
 
 /* constant expression - T_IDENTIFIER */
-class AstIdentifierConstant : public AstExpression {
+class AstIdentifierConstant : public AstConstant {
 public:
   AstIdentifierConstant(const char *value);
   virtual ~AstIdentifierConstant() = default;
@@ -260,7 +275,7 @@ private:
 };
 
 /* constant expression - T_INT8_CONSTANT */
-class AstInt8Constant : public AstExpression {
+class AstInt8Constant : public AstConstant {
 public:
   AstInt8Constant(const int8_t &value);
   virtual ~AstInt8Constant() = default;
@@ -274,7 +289,7 @@ private:
 };
 
 /* constant expression - T_UINT8_CONSTANT */
-class AstUInt8Constant : public AstExpression {
+class AstUInt8Constant : public AstConstant {
 public:
   AstUInt8Constant(const uint8_t &value);
   virtual ~AstUInt8Constant() = default;
@@ -288,7 +303,7 @@ private:
 };
 
 /* constant expression - T_INT16_CONSTANT */
-class AstInt16Constant : public AstExpression {
+class AstInt16Constant : public AstConstant {
 public:
   AstInt16Constant(const int16_t &value);
   virtual ~AstInt16Constant() = default;
@@ -302,7 +317,7 @@ private:
 };
 
 /* constant expression - T_UINT16_CONSTANT */
-class AstUInt16Constant : public AstExpression {
+class AstUInt16Constant : public AstConstant {
 public:
   AstUInt16Constant(const uint16_t &value);
   virtual ~AstUInt16Constant() = default;
@@ -316,7 +331,7 @@ private:
 };
 
 /* constant expression - T_INT32_CONSTANT */
-class AstInt32Constant : public AstExpression {
+class AstInt32Constant : public AstConstant {
 public:
   AstInt32Constant(const int32_t &value);
   virtual ~AstInt32Constant() = default;
@@ -330,7 +345,7 @@ private:
 };
 
 /* constant expression - T_UINT32_CONSTANT */
-class AstUInt32Constant : public AstExpression {
+class AstUInt32Constant : public AstConstant {
 public:
   AstUInt32Constant(const uint32_t &value);
   virtual ~AstUInt32Constant() = default;
@@ -344,7 +359,7 @@ private:
 };
 
 /* constant expression - T_INT64_CONSTANT */
-class AstInt64Constant : public AstExpression {
+class AstInt64Constant : public AstConstant {
 public:
   AstInt64Constant(const int64_t &value);
   virtual ~AstInt64Constant() = default;
@@ -358,7 +373,7 @@ private:
 };
 
 /* constant expression - T_UINT64_CONSTANT */
-class AstUInt64Constant : public AstExpression {
+class AstUInt64Constant : public AstConstant {
 public:
   AstUInt64Constant(const uint64_t &value);
   virtual ~AstUInt64Constant() = default;
@@ -372,7 +387,7 @@ private:
 };
 
 /* constant expression - T_FLOAT32_CONSTANT */
-class AstFloat32Constant : public AstExpression {
+class AstFloat32Constant : public AstConstant {
 public:
   AstFloat32Constant(const float &value);
   virtual ~AstFloat32Constant() = default;
@@ -386,7 +401,7 @@ private:
 };
 
 /* constant expression - T_FLOAT64_CONSTANT */
-class AstFloat64Constant : public AstExpression {
+class AstFloat64Constant : public AstConstant {
 public:
   AstFloat64Constant(const double &value);
   virtual ~AstFloat64Constant() = default;
@@ -400,7 +415,7 @@ private:
 };
 
 /* constant expression - T_STRING_CONSTANT */
-class AstStringConstant : public AstExpression {
+class AstStringConstant : public AstConstant {
 public:
   AstStringConstant(const char *value);
   virtual ~AstStringConstant() = default;
@@ -415,7 +430,7 @@ private:
 };
 
 /* constant expression - T_TRUE T_FALSE */
-class AstBooleanConstant : public AstExpression {
+class AstBooleanConstant : public AstConstant {
 public:
   AstBooleanConstant(const bool &value);
   virtual ~AstBooleanConstant() = default;
@@ -527,6 +542,15 @@ public:
 
 private:
   AstExpressionList *expressionList_;
+};
+
+/* void expression */
+class AstVoidExpression : public AstExpression {
+public:
+  AstVoidExpression();
+  virtual ~AstVoidExpression() = default;
+  virtual AstType type() const;
+  virtual std::string toString() const;
 };
 
 /* expression statement */
@@ -659,25 +683,25 @@ public:
 private:
 };
 
-/* variable declaration */
-class AstVariableDeclaration : public AstDeclaration {
+/* variable definition */
+class AstVariableDefinition : public AstDefinition {
 public:
-  AstVariableDeclaration(AstDeclarationList *declarationList);
-  virtual ~AstVariableDeclaration();
+  AstVariableDefinition(AstDefinitionList *definitionList);
+  virtual ~AstVariableDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
-  virtual AstDeclarationList *declarationList() const;
+  virtual AstDefinitionList *definitionList() const;
 
 private:
-  AstDeclarationList *declarationList_;
+  AstDefinitionList *definitionList_;
 };
 
-/* variable initial declaration */
-class AstVariableInitialDeclaration : public AstDeclaration {
+/* variable initial definition */
+class AstVariableInitialDefinition : public AstDefinition {
 public:
-  AstVariableInitialDeclaration(const char *identifier,
-                                AstExpression *expression);
-  virtual ~AstVariableInitialDeclaration();
+  AstVariableInitialDefinition(const char *identifier,
+                               AstExpression *expression);
+  virtual ~AstVariableInitialDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
   virtual const std::string &identifier() const;
@@ -688,48 +712,48 @@ private:
   AstExpression *expression_;
 };
 
-/* function declaration */
-class AstFunctionDeclaration : public AstDeclaration {
+/* function definition */
+class AstFunctionDefinition : public AstDefinition {
 public:
-  AstFunctionDeclaration(AstFunctionSignatureDeclaration *signature,
-                         AstStatement *statement);
-  virtual ~AstFunctionDeclaration();
+  AstFunctionDefinition(AstFunctionSignatureDefinition *signature,
+                        AstStatement *statement);
+  virtual ~AstFunctionDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
 
-  virtual AstFunctionSignatureDeclaration *signature() const;
+  virtual AstFunctionSignatureDefinition *signature() const;
   virtual AstStatement *statement() const;
 
 private:
-  AstFunctionSignatureDeclaration *signature_;
+  AstFunctionSignatureDefinition *signature_;
   AstStatement *statement_;
 };
 
-/* function signature declaration */
-class AstFunctionSignatureDeclaration : public AstDeclaration {
+/* function signature definition */
+class AstFunctionSignatureDefinition : public AstDefinition {
 public:
-  AstFunctionSignatureDeclaration(const char *identifier,
-                                  AstDeclarationList *argumentList,
-                                  AstExpression *result);
-  virtual ~AstFunctionSignatureDeclaration();
+  AstFunctionSignatureDefinition(const char *identifier,
+                                 AstDefinitionList *argumentList,
+                                 AstExpression *result);
+  virtual ~AstFunctionSignatureDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
-  virtual AstDeclarationList *argumentList() const;
+  virtual AstDefinitionList *argumentList() const;
   virtual AstExpression *result() const;
 
 private:
   std::string identifier_;
-  AstDeclarationList *argumentList_;
+  AstDefinitionList *argumentList_;
   AstExpression *result_;
 };
 
-/* function argument declaration */
-class AstFunctionArgumentDeclaration : public AstDeclaration {
+/* function argument definition */
+class AstFunctionArgumentDefinition : public AstDefinition {
 public:
-  AstFunctionArgumentDeclaration(const char *value);
-  virtual ~AstFunctionArgumentDeclaration();
+  AstFunctionArgumentDefinition(const char *value);
+  virtual ~AstFunctionArgumentDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
 

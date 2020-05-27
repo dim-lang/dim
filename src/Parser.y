@@ -18,10 +18,10 @@
 class Scanner;
 class AstExpressionList;
 class AstStatementList;
-class AstDeclarationList;
+class AstDefinitionList;
 class AstExpression;
 class AstStatement;
-class AstDeclaration;
+class AstDefinition;
 class AstStringConstant;
 using yyscan_t = void *;
 using YY_EXTRA_TYPE = Scanner *;
@@ -32,10 +32,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %union {
     AstExpressionList *exprList;
     AstStatementList *stmtList;
-    AstDeclarationList *declList;
+    AstDefinitionList *declList;
     AstExpression *expr;
     AstStatement *stmt;
-    AstDeclaration *decl;
+    AstDefinition *decl;
     AstStringConstant *str;
     char *literal;
     int token;
@@ -66,9 +66,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <stmt> statement
 %type <stmtList> statement_list
 
-%type <decl> variable_declaration function_declaration function_signature_declaration variable_assignment_declaration function_argument_declaration
-%type <decl> declaration
-%type <declList> variable_assignment_declaration_list translation_unit function_argument_declaration_list
+%type <decl> variable_definition function_definition function_signature_definition variable_assignment_definition function_argument_definition
+%type <decl> definition
+%type <declList> variable_assignment_definition_list translation_unit function_argument_definition_list
 
 %type <str> join_string_helper
 
@@ -157,7 +157,7 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1); std::fre
 
 postfix_expression : primary_expression { $$ = $1; }
                    /*| postfix_expression '[' expression ']'*/
-                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, nullptr); std::free($1); }
+                   | T_IDENTIFIER T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, new AstExpressionList()); std::free($1); }
                    | T_IDENTIFIER T_LPAREN argument_expression_list T_RPAREN { $$ = new AstCallExpression($1, $3); std::free($1); }
                    /*| postfix_expression '.' T_IDENTIFIER */
                    ;
@@ -233,10 +233,10 @@ expression : sequel_expression { $$ = $1; }
 constant_expression : conditional_expression { $$ = $1; }
                     ;
 
- /* part-2 declaration */
+ /* part-2 definition */
 
-declaration : function_declaration { $$ = $1; }
-            | variable_declaration { $$ = $1; }
+definition : function_definition { $$ = $1; }
+            | variable_definition { $$ = $1; }
             /*| import_module { $$ = $1; }*/
             ;
 
@@ -255,14 +255,14 @@ import_module_list : T_IDENTIFIER
   * var x:i64 = 100;
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
-variable_declaration : T_VAR variable_assignment_declaration_list T_SEMI { $$ = new AstVariableDeclaration($2); }
+variable_definition : T_VAR variable_assignment_definition_list T_SEMI { $$ = new AstVariableDefinition($2); }
                      ;
 
-variable_assignment_declaration_list : variable_assignment_declaration { $$ = new AstDeclarationList(); $$->add($1); }
-                                     | variable_assignment_declaration T_COMMA variable_assignment_declaration_list { $3->add($1); $$ = $3; }
+variable_assignment_definition_list : variable_assignment_definition { $$ = new AstDefinitionList(); $$->add($1); }
+                                     | variable_assignment_definition T_COMMA variable_assignment_definition_list { $3->add($1); $$ = $3; }
                                      ;
 
-variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableInitialDeclaration($1, $3); }
+variable_assignment_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableInitialDefinition($1, $3); }
                                 ;
 
  /**
@@ -274,33 +274,33 @@ variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * func max(a: i64, b: i64): i64 => a > b ? a : b;
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
-function_declaration : function_signature_declaration compound_statement {
-                            $$ = new AstFunctionDeclaration(dynamic_cast<AstFunctionSignatureDeclaration*>($1), $2);
+function_definition : function_signature_definition compound_statement {
+                            $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2);
                         }
-                     | function_signature_declaration T_BIG_ARROW statement {
-                            $$ = new AstFunctionDeclaration(dynamic_cast<AstFunctionSignatureDeclaration*>($1), $3);
+                     | function_signature_definition T_BIG_ARROW statement {
+                            $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3);
                         }
                      ;
 
-function_signature_declaration : T_FUNC T_IDENTIFIER T_LPAREN function_argument_declaration_list T_RPAREN {
-                                    $$ = new AstFunctionSignatureDeclaration($2, $4, nullptr);
+function_signature_definition : T_FUNC T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
+                                    $$ = new AstFunctionSignatureDefinition($2, $4, nullptr);
                                     std::free($2);
                                 }
                                | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN {
-                                    $$ = new AstFunctionSignatureDeclaration($2, nullptr, nullptr);
+                                    $$ = new AstFunctionSignatureDefinition($2, new AstDefinitionList(), nullptr);
                                     std::free($2);
                                 }
                                ;
 
-function_argument_declaration_list : function_argument_declaration { $$ = new AstDeclarationList(); $$->add($1); }
-                                   | function_argument_declaration T_COMMA function_argument_declaration_list { $3->add($1); $$ = $3; }
+function_argument_definition_list : function_argument_definition { $$ = new AstDefinitionList(); $$->add($1); }
+                                   | function_argument_definition T_COMMA function_argument_definition_list { $3->add($1); $$ = $3; }
                                    ;
 
-function_argument_declaration : T_IDENTIFIER { $$ = new AstFunctionArgumentDeclaration($1); std::free($1); }
+function_argument_definition : T_IDENTIFIER { $$ = new AstFunctionArgumentDefinition($1); std::free($1); }
                               ;
 
  /* part-3 statement */
-compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(nullptr); }
+compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(new AstStatementList()); }
                    | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2); }
                    ;
 
@@ -318,10 +318,10 @@ statement : if_statement { $$ = $1; }
           /*| switch_body_statement { $$ = $1; }*/
           /*| match_statement { $$ = $1; }*/
           /*| match_body_statement { $$ = $1; }*/
-          | declaration { $$ = $1; }
+          | definition { $$ = $1; }
           ;
 
-if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, nullptr); }
+if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement()); }
              | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7); }
              ;
 
@@ -346,25 +346,25 @@ expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1); 
                      ;
 
 iteration_statement : T_WHILE T_LPAREN expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5); }
-                    | T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, nullptr, $6); }
+                    | T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, new AstVoidExpression(), $6); }
                     | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7); }
                     ;
 
 jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(); }
                | T_BREAK T_SEMI { $$ = new AstBreakStatement(); }
-               | T_RETURN T_SEMI { $$ = new AstReturnStatement(nullptr); }
+               | T_RETURN T_SEMI { $$ = new AstReturnStatement(new AstVoidExpression()); }
                | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2); }
                ;
 
 empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(); }
                 ;
 
-translation_unit : declaration {
+translation_unit : definition {
                         LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
                         LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
-                 | declaration translation_unit {
+                 | definition translation_unit {
                         LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
                         LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);

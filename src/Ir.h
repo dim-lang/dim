@@ -486,13 +486,14 @@ private:
 class IrSequelExpression : public IrExpression {
 public:
   IrSequelExpression(AstSequelExpression *node);
-  virtual ~IrSequelExpression() = default;
+  virtual ~IrSequelExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstSequelExpression *node_;
+  IrExpressionList *expressionList_;
 };
 
 /* expression statement */
@@ -506,7 +507,7 @@ public:
 
 private:
   AstExpressionStatement *node_;
-  IrExpression *expr_;
+  IrExpression *expression_;
 };
 
 /* compound statement */
