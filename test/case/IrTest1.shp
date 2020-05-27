@@ -6,20 +6,7 @@
 /*var a11 = 1228u;*/
 /*var a18 = 123.901;*/
 
-func Hello(x, y) {
-    var a = 1;
-    var b = 2;
-    a = a + b;
-    return a;
-
-    if (a < b)
-        print(x);
-    else
-        print(y);
-
-    while (a < b)
-        print(x+y);
-}
+func Hello(x, y) => return x + y;
 
 // this is a line comment */ is for testing block comment ending
 
@@ -29,7 +16,7 @@ func Hello(x, y) {
  * integer: 10243+e31
  */
 
-func ok(y) { var x = 1; return x%y; }
+func ok(y) => return 1 % y;
 
 func testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing programming language");

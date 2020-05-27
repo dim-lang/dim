@@ -964,7 +964,11 @@ IrCompoundStatement::~IrCompoundStatement() {
 IrType IrCompoundStatement::type() const { return IrType::CompoundStatement; }
 
 llvm::Value *IrCompoundStatement::codeGen(IrContext *context) {
-  return nullptr;
+  if (!statementList_) {
+    return nullptr;
+  }
+  for (int i = 0; i < statementList_->size(); i++) {
+  }
 }
 
 std::string IrCompoundStatement::toString() const {
@@ -1149,6 +1153,10 @@ IrFunctionDeclaration::IrFunctionDeclaration(AstFunctionDeclaration *node)
       signature_(new IrFunctionSignatureDeclaration(node->signature())),
       statement_(nullptr) {
   switch (node_->statement()->type()) {
+  case AstType::ReturnStatement: {
+    statement_ =
+        new IrReturnStatement(DC(AstReturnStatement, node_->statement()));
+  } break;
   case AstType::ExpressionStatement: {
     statement_ = new IrExpressionStatement(
         DC(AstExpressionStatement, node_->statement()));

@@ -274,7 +274,7 @@ variable_assignment_declaration : T_IDENTIFIER T_ASSIGN constant_expression { $$
   * func max(a: i64, b: i64): i64 => a > b ? a : b;
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
-function_declaration : function_signature_declaration statement {
+function_declaration : function_signature_declaration compound_statement {
                             $$ = new AstFunctionDeclaration(dynamic_cast<AstFunctionSignatureDeclaration*>($1), $2);
                         }
                      | function_signature_declaration T_BIG_ARROW statement {
