@@ -24,6 +24,10 @@
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
 
 static NameGenerator nameGenerator;
 static NameGenerator irNameGenerator;
@@ -35,11 +39,20 @@ IrContext::IrContext(const std::string &moduleName)
     : context_(), builder_(context_), module_(nullptr), symtable_() {
   module_ =
       new llvm::Module(std::string("shepherd_module_") + moduleName, context_);
+  fpm_ = new llvm::legacy::FunctionPassManager(module_);
+  fpm_->add(llvm::createInstructionCombiningPass());
+  fpm_->add(llvm::createReassociatePass());
+  fpm_->add(llvm::createGVNPass());
+  fpm_->add(llvm::createCFGSimplificationPass());
+  fpm_->add(llvm::createPromoteMemoryToRegisterPass());
+  fpm_->doInitialization();
 }
 
 IrContext::~IrContext() {
   delete module_;
   module_ = nullptr;
+  delete fpm_;
+  fpm_ = nullptr;
 }
 
 llvm::LLVMContext &IrContext::context() { return context_; }
@@ -53,6 +66,15 @@ const llvm::IRBuilder<> &IrContext::builder() const { return builder_; }
 llvm::Module *&IrContext::module() { return module_; }
 
 const llvm::Module *IrContext::module() const { return module_; }
+
+llvm::legacy::FunctionPassManager *&IrContext::functionPassManager() {
+  return fpm_;
+}
+
+const llvm::legacy::FunctionPassManager *
+IrContext::functionPassManager() const {
+  return fpm_;
+}
 
 LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() {
   return symtable_;

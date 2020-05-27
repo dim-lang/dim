@@ -9,6 +9,7 @@
 #include "enum.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include <vector>
 
@@ -96,6 +97,8 @@ public:
   const llvm::IRBuilder<> &builder() const;
   llvm::Module *&module();
   const llvm::Module *module() const;
+  llvm::legacy::FunctionPassManager *&functionPassManager();
+  const llvm::legacy::FunctionPassManager *functionPassManager() const;
   LinkedHashMap<std::string, llvm::Value *> &symtable();
   const LinkedHashMap<std::string, llvm::Value *> &symtable() const;
 
@@ -103,6 +106,7 @@ private:
   llvm::LLVMContext context_;
   llvm::IRBuilder<> builder_;
   llvm::Module *module_;
+  llvm::legacy::FunctionPassManager *fpm_;
   LinkedHashMap<std::string, llvm::Value *> symtable_;
 };
 
