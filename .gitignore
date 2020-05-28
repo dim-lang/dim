@@ -37,6 +37,6 @@ llvm-project
 *.tab.cpp
 src/Configure.h
 
-# clion
-.idea
-cmake-build-debug
+# vscode
+compile_commands.json
+.clangd

@@ -6,6 +6,7 @@
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "container/LinkedHashMap.hpp"
+#include "fmt/core.h"
 #include "fmt/format.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
