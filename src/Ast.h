@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Log.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "interface/Namely.h"
@@ -188,8 +189,15 @@ public:
   }
   virtual bool empty() const { return items_.empty(); }
   virtual int size() const { return items_.size(); }
-  virtual T *get(int pos) const { return items_[pos]; }
-  virtual void add(T *item) { items_.push_front(item); }
+  virtual T *get(int pos) const {
+    LOG_ASSERT(pos >= 0, "pos {} >= 0");
+    LOG_ASSERT(items_[pos], "items_[{}] is null", pos);
+    return items_[pos];
+  }
+  virtual void add(T *item) {
+    LOG_ASSERT(item, "item is null");
+    items_.push_front(item);
+  }
 
 protected:
   virtual std::string stringify() const = 0;

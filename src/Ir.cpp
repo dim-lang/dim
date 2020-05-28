@@ -3,7 +3,6 @@
 
 #include "Ir.h"
 #include "Dump.h"
-#include "Log.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "container/LinkedHashMap.hpp"
@@ -84,7 +83,7 @@ const LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() const {
   return symtable_;
 }
 
-static Ir *createIr(Ast *node) {
+static Ir *createIrByAst(Ast *node) {
   LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::IdentifierConstant:
@@ -141,6 +140,9 @@ static Ir *createIr(Ast *node) {
     return new IrVariableDefinition(DC(AstVariableDefinition, node));
   case AstType::FunctionDefinition:
     return new IrFunctionDefinition(DC(AstFunctionDefinition, node));
+  case AstType::FunctionSignatureDefinition:
+    return new IrFunctionSignatureDefinition(
+        DC(AstFunctionSignatureDefinition, node));
   default:
     LOG_ASSERT(false, "invalid ast node: {}", node->toString());
   }
@@ -493,24 +495,17 @@ std::string IrUnaryExpression::toString() const {
 /* binary expression */
 IrBinaryExpression::IrBinaryExpression(AstBinaryExpression *node)
     : IrExpression(nameGenerator.generate("IrBinaryExpression")), node_(node),
-      left_(nullptr), right_(nullptr) {
-  if (node->left()) {
-    left_ = DC(IrExpression, createIr(node->left()));
-  }
-  if (node->right()) {
-    right_ = DC(IrExpression, createIr(node->right()));
-  }
+      left_(DC(IrExpression, createIrByAst(node->left()))),
+      right_(DC(IrExpression, createIrByAst(node->right()))) {
+  LOG_ASSERT(left_, "left_ is null");
+  LOG_ASSERT(right_, "right_ is null");
 }
 
 IrBinaryExpression::~IrBinaryExpression() {
-  if (left_) {
-    delete left_;
-    left_ = nullptr;
-  }
-  if (right_) {
-    delete right_;
-    right_ = nullptr;
-  }
+  delete left_;
+  left_ = nullptr;
+  delete right_;
+  right_ = nullptr;
 }
 
 IrType IrBinaryExpression::type() const { return IrType::BinaryExpression; }
@@ -879,21 +874,23 @@ std::string IrAssignmentExpression::toString() const {
 /* sequel expression */
 IrSequelExpression::IrSequelExpression(AstSequelExpression *node)
     : IrExpression(nameGenerator.generate("IrSequelExpression")), node_(node),
-      expressionList_(nullptr) {
-  if (node_->expressionList()) {
-    expressionList_ = new IrExpressionList();
-    for (int i = 0; i < node->expressionList()->size(); i++) {
-      AstExpression *ast = node->expressionList()->get(i);
-      LOG_ASSERT(ast, "the {} ast is null", i);
-    }
+      expressionList_(new IrExpressionList()) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->expressionList(), "node_->expressionList is null");
+  for (int i = 0; i < node->expressionList()->size(); i++) {
+    AstExpression *ast = node->expressionList()->get(i);
+    LOG_ASSERT(ast, "the {} ast is null", i);
+    expressionList_->add(DC(IrExpression, createIrByAst(ast)));
   }
 }
 
 IrSequelExpression::~IrSequelExpression() {
-  if (expressionList_) {
-    delete expressionList_;
-    expressionList_ = nullptr;
+  for (int i = 0; i < expressionList_->size(); i++) {
+    IrExpression *ir = expressionList_->get(i);
+    delete ir;
   }
+  delete expressionList_;
+  expressionList_ = nullptr;
 }
 
 IrType IrSequelExpression::type() const { return IrType::SequelExpression; }
@@ -907,17 +904,14 @@ std::string IrSequelExpression::toString() const {
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(AstExpressionStatement *node)
     : IrStatement(nameGenerator.generate("IrExpressionStatement")), node_(node),
-      expression_(nullptr) {
-  if (node->expression()) {
-    expression_ = DC(IrExpression, createIr(node->expression()));
-  }
+      expression_(DC(IrExpression, createIrByAst(node->expression()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(expression_, "expression_ is null");
 }
 
 IrExpressionStatement::~IrExpressionStatement() {
-  if (expression_) {
-    delete expression_;
-    expression_ = nullptr;
-  }
+  delete expression_;
+  expression_ = nullptr;
 }
 
 IrType IrExpressionStatement::type() const {
@@ -974,32 +968,29 @@ std::string IrExpressionStatement::toString() const {
 /* compound statement */
 IrCompoundStatement::IrCompoundStatement(AstCompoundStatement *node)
     : IrStatement(nameGenerator.generate("IrCompoundStatement")), node_(node),
-      statementList_(nullptr) {
-  if (node_->statementList()) {
-    statementList_ = new IrStatementList();
-    for (int i = 0; i < node_->statementList()->size(); i++) {
-      Ast *ast = node_->statementList()->get(i);
-      LOG_ASSERT(ast, "the {} ast is null", i);
-      statementList_->add(DC(IrStatement, createIr(ast)));
-    }
+      statementList_(new IrStatementList()) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->statementList(), "node_->statementList is null");
+  for (int i = 0; i < node_->statementList()->size(); i++) {
+    Ast *ast = node_->statementList()->get(i);
+    LOG_ASSERT(ast, "the {} ast is null", i);
+    statementList_->add(DC(IrStatement, createIrByAst(ast)));
   }
 }
 
 IrCompoundStatement::~IrCompoundStatement() {
-  if (statementList_) {
-    for (int i = 0; i < statementList_->size(); i++) {
-      Ir *ir = statementList_->get(i);
-      delete ir;
-    }
-    delete statementList_;
-    statementList_ = nullptr;
+  for (int i = 0; i < statementList_->size(); i++) {
+    IrStatement *ir = statementList_->get(i);
+    delete ir;
   }
+  delete statementList_;
+  statementList_ = nullptr;
 }
 
 IrType IrCompoundStatement::type() const { return IrType::CompoundStatement; }
 
 llvm::Value *IrCompoundStatement::codeGen(IrContext *context) {
-  if (!statementList_) {
+  if (statementList_->size() <= 0) {
     return nullptr;
   }
   for (int i = 0; i < statementList_->size(); i++) {
@@ -1013,31 +1004,22 @@ std::string IrCompoundStatement::toString() const {
 /* if statement */
 IrIfStatement::IrIfStatement(AstIfStatement *node)
     : IrStatement(nameGenerator.generate("IrIfStatement")), node_(node),
-      condition_(nullptr), thens_(nullptr), elses_(nullptr) {
-  if (node->condition()) {
-    condition_ = DC(IrExpression, createIr(node->condition()));
-  }
-  if (node->thens()) {
-    thens_ = DC(IrStatement, createIr(node->thens()));
-  }
-  if (node->elses()) {
-    elses_ = DC(IrStatement, createIr(node->elses()));
-  }
+      condition_(DC(IrExpression, createIrByAst(node->condition()))),
+      thens_(DC(IrStatement, createIrByAst(node->thens()))),
+      elses_(DC(IrStatement, createIrByAst(node->elses()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->condition(), "node_->condition is null");
+  LOG_ASSERT(node_->thens(), "node_->thens is null");
+  LOG_ASSERT(node_->elses(), "node_->elses is null");
 }
 
 IrIfStatement::~IrIfStatement() {
-  if (condition_) {
-    delete condition_;
-    condition_ = nullptr;
-  }
-  if (thens_) {
-    delete thens_;
-    thens_ = nullptr;
-  }
-  if (elses_) {
-    delete elses_;
-    elses_ = nullptr;
-  }
+  delete condition_;
+  condition_ = nullptr;
+  delete thens_;
+  thens_ = nullptr;
+  delete elses_;
+  elses_ = nullptr;
 }
 
 IrType IrIfStatement::type() const { return IrType::IfStatement; }
@@ -1084,7 +1066,9 @@ std::string IrIfStatement::toString() const {
 
 /* while statement */
 IrWhileStatement::IrWhileStatement(AstWhileStatement *node)
-    : IrStatement(nameGenerator.generate("IrWhileStatement")), node_(node) {}
+    : IrStatement(nameGenerator.generate("IrWhileStatement")), node_(node) {
+  LOG_ASSERT(node_, "node_ is null");
+}
 
 IrType IrWhileStatement::type() const { return IrType::WhileStatement; }
 
@@ -1097,38 +1081,26 @@ std::string IrWhileStatement::toString() const {
 /* for statement */
 IrForStatement::IrForStatement(AstForStatement *node)
     : IrStatement(nameGenerator.generate("IrForStatement")), node_(node),
-      start_(nullptr), step_(nullptr), end_(nullptr), statement_(nullptr) {
-  if (node->start()) {
-    start_ = DC(IrStatement, createIr(node->start()));
-  }
-  if (node->step()) {
-    step_ = DC(IrStatement, createIr(node->step()));
-  }
-  if (node->end()) {
-    end_ = DC(IrStatement, createIr(node->end()));
-  }
-  if (node->statement()) {
-    statement_ = DC(IrStatement, createIr(node->statement()));
-  }
+      start_(DC(IrStatement, createIrByAst(node->start()))),
+      step_(DC(IrStatement, createIrByAst(node->step()))),
+      end_(DC(IrStatement, createIrByAst(node->end()))),
+      statement_(DC(IrStatement, createIrByAst(node->statement()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->start(), "node_->start is null");
+  LOG_ASSERT(node_->step(), "node_->step is null");
+  LOG_ASSERT(node_->end(), "node_->end is null");
+  LOG_ASSERT(node_->statement(), "node_->statement is null");
 }
 
 IrForStatement::~IrForStatement() {
-  if (start_) {
-    delete start_;
-    start_ = nullptr;
-  }
-  if (step_) {
-    delete step_;
-    step_ = nullptr;
-  }
-  if (end_) {
-    delete end_;
-    end_ = nullptr;
-  }
-  if (statement_) {
-    delete statement_;
-    statement_ = nullptr;
-  }
+  delete start_;
+  start_ = nullptr;
+  delete step_;
+  step_ = nullptr;
+  delete end_;
+  end_ = nullptr;
+  delete statement_;
+  statement_ = nullptr;
 }
 
 IrType IrForStatement::type() const { return IrType::ForStatement; }
@@ -1181,17 +1153,14 @@ std::string IrForStatement::toString() const {
 /* return statement */
 IrReturnStatement::IrReturnStatement(AstReturnStatement *node)
     : IrStatement(nameGenerator.generate("IrReturnStatement")), node_(node),
-      expression_(nullptr) {
-  if (node->expression()) {
-    expression_ = DC(IrExpression, createIr(node->expression()));
-  }
+      expression_(DC(IrExpression, createIrByAst(node->expression()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->expression(), "node_->expression is null");
 }
 
 IrReturnStatement::~IrReturnStatement() {
-  if (expression_) {
-    delete expression_;
-    expression_ = nullptr;
-  }
+  delete expression_;
+  expression_ = nullptr;
 }
 
 std::string IrReturnStatement::toString() const {
@@ -1211,7 +1180,9 @@ llvm::Value *IrReturnStatement::codeGen(IrContext *context) {
 /* variable definition */
 IrVariableDefinition::IrVariableDefinition(AstVariableDefinition *node)
     : IrDefinition(nameGenerator.generate("IrVariableDefinition")),
-      node_(node) {}
+      node_(node) {
+  LOG_ASSERT(node_, "node_ is null");
+}
 
 IrType IrVariableDefinition::type() const { return IrType::VariableDefinition; }
 
@@ -1226,35 +1197,12 @@ std::string IrVariableDefinition::toString() const {
 /* function definition */
 IrFunctionDefinition::IrFunctionDefinition(AstFunctionDefinition *node)
     : IrDefinition(nameGenerator.generate("IrFunctionDefinition")), node_(node),
-      signature_(new IrFunctionSignatureDefinition(node->signature())),
-      statement_(nullptr) {
-  switch (node_->statement()->type()) {
-  case AstType::ReturnStatement: {
-    statement_ =
-        new IrReturnStatement(DC(AstReturnStatement, node_->statement()));
-  } break;
-  case AstType::ExpressionStatement: {
-    statement_ = new IrExpressionStatement(
-        DC(AstExpressionStatement, node_->statement()));
-  } break;
-  case AstType::IfStatement: {
-    statement_ = new IrIfStatement(DC(AstIfStatement, node_->statement()));
-  } break;
-  case AstType::WhileStatement: {
-    statement_ =
-        new IrWhileStatement(DC(AstWhileStatement, node_->statement()));
-  } break;
-  case AstType::ForStatement: {
-    statement_ = new IrForStatement(DC(AstForStatement, node_->statement()));
-  } break;
-  case AstType::CompoundStatement: {
-    statement_ =
-        new IrCompoundStatement(DC(AstCompoundStatement, node_->statement()));
-  } break;
-  default:
-    LOG_ASSERT(false, "invalid ast function body statement:{}",
-               node_->statement()->toString());
-  }
+      signature_(
+          DC(IrFunctionSignatureDefinition, createIrByAst(node->signature()))),
+      statement_(DC(IrStatement, createIrByAst(node->statement()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->signature(), "node_->signature is null");
+  LOG_ASSERT(node_->statement(), "node_->statement is null");
 }
 
 IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
@@ -1295,7 +1243,9 @@ std::string IrFunctionDefinition::toString() const {
 IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
     AstFunctionSignatureDefinition *node)
     : IrDefinition(nameGenerator.generate("IrFunctionSignatureDefinition")),
-      node_(node) {}
+      node_(node) {
+  LOG_ASSERT(node_, "node_ is null");
+}
 
 std::string IrFunctionSignatureDefinition::toString() const {
   return fmt::format("[@IrFunctionSignatureDefinition node_:{}]",
@@ -1309,7 +1259,7 @@ IrType IrFunctionSignatureDefinition::type() const {
 llvm::Value *IrFunctionSignatureDefinition::codeGen(IrContext *context) {
   AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
-      args ? args->size() : 0, llvm::Type::getDoubleTy(context->context()));
+      args->size(), llvm::Type::getDoubleTy(context->context()));
   // result, parameters
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context->context()), doubleArgs, false);

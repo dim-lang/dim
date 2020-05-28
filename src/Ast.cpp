@@ -3,7 +3,6 @@
 
 #include "Ast.h"
 #include "Counter.h"
-#include "Log.h"
 #include "NameGenerator.h"
 #include "TokenName.h"
 #include <algorithm>
