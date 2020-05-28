@@ -897,7 +897,14 @@ IrSequelExpression::~IrSequelExpression() {
 
 IrType IrSequelExpression::type() const { return IrType::SequelExpression; }
 
-llvm::Value *IrSequelExpression::codeGen(IrContext *context) { return nullptr; }
+IrExpressionList *IrSequelExpression::expressionList() {
+  return expressionList_;
+}
+
+llvm::Value *IrSequelExpression::codeGen(IrContext *context) {
+  LOG_ASSERT(false, "never reach here");
+  return nullptr;
+}
 
 std::string IrSequelExpression::toString() const {
   return fmt::format("[@IrSequelExpression node_:{}]", node_->toString());
@@ -933,46 +940,8 @@ IrType IrExpressionStatement::type() const {
 }
 
 llvm::Value *IrExpressionStatement::codeGen(IrContext *context) {
-  switch (expression_->type()) {
-  case IrType::Int8Constant:
-    return DC(IrInt8Constant, expression_)->codeGen(context);
-  case IrType::UInt8Constant:
-    return DC(IrUInt8Constant, expression_)->codeGen(context);
-  case IrType::Int16Constant:
-    return DC(IrInt16Constant, expression_)->codeGen(context);
-  case IrType::UInt16Constant:
-    return DC(IrUInt16Constant, expression_)->codeGen(context);
-  case IrType::Int32Constant:
-    return DC(IrInt32Constant, expression_)->codeGen(context);
-  case IrType::UInt32Constant:
-    return DC(IrUInt32Constant, expression_)->codeGen(context);
-  case IrType::Int64Constant:
-    return DC(IrInt64Constant, expression_)->codeGen(context);
-  case IrType::UInt64Constant:
-    return DC(IrUInt64Constant, expression_)->codeGen(context);
-  case IrType::IdentifierConstant:
-    return DC(IrIdentifierConstant, expression_)->codeGen(context);
-  case IrType::StringConstant:
-    return DC(IrStringConstant, expression_)->codeGen(context);
-  case IrType::BooleanConstant:
-    return DC(IrBooleanConstant, expression_)->codeGen(context);
-  case IrType::CallExpression:
-    return DC(IrCallExpression, expression_)->codeGen(context);
-  case IrType::UnaryExpression:
-    return DC(IrUnaryExpression, expression_)->codeGen(context);
-  case IrType::BinaryExpression:
-    return DC(IrBinaryExpression, expression_)->codeGen(context);
-  case IrType::ConditionalExpression:
-    return DC(IrConditionalExpression, expression_)->codeGen(context);
-  case IrType::AssignmentExpression:
-    return DC(IrAssignmentExpression, expression_)->codeGen(context);
-  case IrType::SequelExpression:
-    return DC(IrSequelExpression, expression_)->codeGen(context);
-  default:
-    LOG_ASSERT(false, "invalid ir:{}, ast:{}", expression_->toString(),
-               node_->toString());
-  }
-  return nullptr;
+  LOG_ASSERT(expression_, "expression_ is null");
+  return expression_->codeGen(context);
 }
 
 std::string IrExpressionStatement::toString() const {
@@ -1185,11 +1154,22 @@ IrType IrReturnStatement::type() const { return IrType::ReturnStatement; }
 
 llvm::Value *IrReturnStatement::codeGen(IrContext *context) {
   LOG_ASSERT(expression_, "expression_ is null");
-  if (expression_->type() == (+IrType::VoidExpression)) {
+  switch (expression_->type()) {
+  case IrType::VoidExpression:
     return context->builder().CreateRetVoid();
+  case IrType::SequelExpression: {
+    IrExpressionList *expressionList =
+        DC(IrSequelExpression, expression_)->expressionList();
+    LOG_ASSERT(expressionList->size() > 0, "expressionList->size {} > 0",
+               expressionList->size());
+    llvm::Value *exprV =
+        expressionList->get(expressionList->size() - 1)->codeGen(context);
+    return context->builder().CreateRet(exprV);
+  } break;
+  default:
+    LOG_ASSERT(false, "invalid expression_:{}", expression_->toString());
   }
-  llvm::Value *exprV = expression_->codeGen(context);
-  return context->builder().CreateRet(exprV);
+  return nullptr;
 }
 
 /* variable definition */

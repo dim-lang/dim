@@ -22,7 +22,8 @@ BETTER_ENUM(IrType, int,
             StringConstant, BooleanConstant,
             // expression
             CallExpression, UnaryExpression, BinaryExpression,
-            ConditionalExpression, AssignmentExpression, SequelExpression, VoidExpression,
+            ConditionalExpression, AssignmentExpression, SequelExpression,
+            VoidExpression,
             // statement
             ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
             ForStatement, ReturnStatement,
@@ -505,6 +506,7 @@ public:
   virtual ~IrSequelExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
+  virtual IrExpressionList *expressionList();
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
