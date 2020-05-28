@@ -21,6 +21,19 @@
             "cppStandard": "c++14",
             "intelliSenseMode": "clang-x64",
             "compilerArgs": []
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/example",
+                "${workspaceFolder}/src/spdlog/include",
+                "${workspaceFolder}/src/fmt/include",
+                "${workspaceFolder}/src/better-enums"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++14"
         }
     ],
     "version": 4
