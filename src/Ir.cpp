@@ -22,6 +22,7 @@
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
@@ -283,9 +284,7 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 llvm::Value *IrIdentifierConstant::codeGen(IrContext *context) {
   LOG_ASSERT(context, "context is null");
   LOG_ASSERT(node_, "node_ is null");
-  llvm::Value *v = context->symtable()[Ir::toIrName(node_->value())];
-  llvm::Value *vec{v};
-  return vec;
+  return context->symtable()[Ir::toIrName(node_->value())];
 }
 
 std::string IrIdentifierConstant::toString() const {
