@@ -186,7 +186,9 @@ AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
 AstIdentifierConstant::AstIdentifierConstant(const char *value)
-    : AstConstant(nameGenerator.generateWith(value, "A_id")), value_(value) {}
+    : AstConstant(nameGenerator.generateWith(value, "A_id")), value_(value) {
+  LOG_ASSERT(value, "value is null");
+}
 
 AstType AstIdentifierConstant::type() const {
   return AstType::IdentifierConstant;
@@ -310,7 +312,9 @@ const double &AstFloat64Constant::value() const { return value_; }
 
 AstStringConstant::AstStringConstant(const char *value)
     : AstConstant(nameGenerator.generateWith(value, "A_string")),
-      value_(value) {}
+      value_(value) {
+  LOG_ASSERT(value, "value is null");
+}
 
 AstType AstStringConstant::type() const { return AstType::StringConstant; }
 
@@ -341,6 +345,7 @@ AstCallExpression::AstCallExpression(const char *identifier,
                                      AstExpressionList *argumentList)
     : AstExpression(nameGenerator.generateWith(identifier, "A_Call")),
       identifier_(identifier), argumentList_(argumentList) {
+  LOG_ASSERT(identifier, "identifier is null");
   LOG_ASSERT(argumentList_, "argumentList_ is null");
 }
 
@@ -353,8 +358,7 @@ AstType AstCallExpression::type() const { return AstType::CallExpression; }
 
 std::string AstCallExpression::toString() const {
   return fmt::format("[@AstCallExpression identifier_:{}, argumentList_:{}]",
-                     identifier_,
-                     argumentList_ ? argumentList_->toString() : "null");
+                     identifier_, argumentList_->toString());
 }
 
 const std::string &AstCallExpression::identifier() const { return identifier_; }
@@ -366,6 +370,7 @@ AstExpressionList *AstCallExpression::argumentList() const {
 AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression)
     : AstExpression(nameGenerator.generate("A_UnrExp")), token_(token),
       expression_(expression) {
+  LOG_ASSERT(expression_, "expression_ is null");
   LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, expression:{}", token_,
              expression_->toString());
 }
@@ -378,9 +383,8 @@ AstUnaryExpression::~AstUnaryExpression() {
 AstType AstUnaryExpression::type() const { return AstType::UnaryExpression; }
 
 std::string AstUnaryExpression::toString() const {
-  std::string exprStr = expression_ ? expression_->toString() : "null";
   return fmt::format("[@AstUnaryExpression token_:{}, expression_:{}]",
-                     tokenName(token_), exprStr);
+                     tokenName(token_), expression_->toString());
 }
 
 int AstUnaryExpression::token() const { return token_; }
@@ -391,6 +395,8 @@ AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
                                          AstExpression *right)
     : AstExpression(nameGenerator.generate("A_BinExp")), left_(left),
       token_(token), right_(right) {
+  LOG_ASSERT(left_, "left_ is null");
+  LOG_ASSERT(right_, "right_ is null");
   LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, left_:{}, right_:{}",
              token_, left_->toString(), right_->toString());
 }
@@ -405,10 +411,8 @@ AstBinaryExpression::~AstBinaryExpression() {
 AstType AstBinaryExpression::type() const { return AstType::BinaryExpression; }
 
 std::string AstBinaryExpression::toString() const {
-  std::string leftStr = left_ ? left_->toString() : "null";
-  std::string rightStr = right_ ? right_->toString() : "null";
   return fmt::format("[@AstBinaryExpression left_:{}, token_:{}, right_:{}]",
-                     leftStr, tokenName(token_), rightStr);
+                     left_->toString(), tokenName(token_), right_->toString());
 }
 
 AstExpression *AstBinaryExpression::left() const { return left_; }
@@ -421,7 +425,11 @@ AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
                                                    AstExpression *thens,
                                                    AstExpression *elses)
     : AstExpression(nameGenerator.generate("A_CondExp")), condition_(condition),
-      thens_(thens), elses_(elses) {}
+      thens_(thens), elses_(elses) {
+  LOG_ASSERT(condition_, "condition_ is null");
+  LOG_ASSERT(thens_, "thens_ is null");
+  LOG_ASSERT(elses_, "elses_ is null");
+}
 
 AstConditionalExpression::~AstConditionalExpression() {
   delete condition_;
@@ -437,12 +445,9 @@ AstType AstConditionalExpression::type() const {
 }
 
 std::string AstConditionalExpression::toString() const {
-  std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string thensStr = thens_ ? thens_->toString() : "null";
-  std::string elsesStr = elses_ ? elses_->toString() : "null";
   return fmt::format(
       "[@AstConditionalExpression condition_:{}, thens_:{}, elses_:{}]",
-      condStr, thensStr, elsesStr);
+      condition_->toString(), thens_->toString(), elses_->toString());
 }
 
 AstExpression *AstConditionalExpression::condition() const {
@@ -458,6 +463,8 @@ AstAssignmentExpression::AstAssignmentExpression(AstExpression *variable,
                                                  AstExpression *value)
     : AstExpression(nameGenerator.generate("A_AssExp")), variable_(variable),
       token_(token), value_(value) {
+  LOG_ASSERT(variable_, "variable_ is null");
+  LOG_ASSERT(value_, "value_ is null");
   LOG_ASSERT(tokenNameExist(token_),
              "invalid token_:{}, variable_:{}, value_:{}", token_,
              variable_->toString(), value_->toString());
@@ -475,11 +482,9 @@ AstType AstAssignmentExpression::type() const {
 }
 
 std::string AstAssignmentExpression::toString() const {
-  std::string varStr = variable_ ? variable_->toString() : "null";
-  std::string valStr = value_ ? value_->toString() : "null";
   return fmt::format(
-      "[@AstAssignmentExpression variable_:{}, token_:{}, value_:{}]", varStr,
-      tokenName(token_), valStr);
+      "[@AstAssignmentExpression variable_:{}, token_:{}, value_:{}]",
+      variable_->toString(), tokenName(token_), value_->toString());
 }
 
 AstExpression *AstAssignmentExpression::variable() const { return variable_; }
@@ -490,7 +495,9 @@ AstExpression *AstAssignmentExpression::value() const { return value_; }
 
 AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
     : AstExpression(nameGenerator.generate("A_SeqExp")),
-      expressionList_(expressionList) {}
+      expressionList_(expressionList) {
+  LOG_ASSERT(expressionList_, "expressionList_ is null");
+}
 
 AstSequelExpression::~AstSequelExpression() {
   delete expressionList_;
@@ -501,7 +508,7 @@ AstType AstSequelExpression::type() const { return AstType::SequelExpression; }
 
 std::string AstSequelExpression::toString() const {
   return fmt::format("[@AstSequelExpression expressionList_:{}]",
-                     expressionList_ ? expressionList_->toString() : "null");
+                     expressionList_->toString());
 }
 
 AstExpressionList *AstSequelExpression::expressionList() const {
@@ -519,7 +526,9 @@ std::string AstVoidExpression::toString() const {
 
 AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
     : AstStatement(nameGenerator.generate("A_ExpStm")),
-      expression_(expression) {}
+      expression_(expression) {
+  LOG_ASSERT(expression_, "expression_ is null");
+}
 
 AstExpressionStatement::~AstExpressionStatement() {
   delete expression_;
@@ -531,8 +540,8 @@ AstType AstExpressionStatement::type() const {
 }
 
 std::string AstExpressionStatement::toString() const {
-  std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format("[@AstExpressionStatement expression_:{}]", exprStr);
+  return fmt::format("[@AstExpressionStatement expression_:{}]",
+                     expression_->toString());
 }
 
 AstExpression *AstExpressionStatement::expression() const {
@@ -556,7 +565,7 @@ AstType AstCompoundStatement::type() const {
 
 std::string AstCompoundStatement::toString() const {
   return fmt::format("[@AstCompoundStatement statementList_:{}]",
-                     statementList_ ? statementList_->toString() : "null");
+                     statementList_->toString());
 }
 
 AstStatementList *AstCompoundStatement::statementList() const {
@@ -584,11 +593,9 @@ AstIfStatement::~AstIfStatement() {
 AstType AstIfStatement::type() const { return AstType::IfStatement; }
 
 std::string AstIfStatement::toString() const {
-  std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string thenStr = thens_ ? thens_->toString() : "null";
-  std::string elseStr = elses_ ? elses_->toString() : "null";
   return fmt::format("[@AstIfStatement condition_:{}, thens_:{}, elses_:{}]",
-                     condStr, thenStr, elseStr);
+                     condition_->toString(), thens_->toString(),
+                     elses_->toString());
 }
 
 AstExpression *AstIfStatement::condition() const { return condition_; }
@@ -600,7 +607,10 @@ AstStatement *AstIfStatement::elses() const { return elses_; }
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement)
     : AstStatement(nameGenerator.generate("A_While")), condition_(condition),
-      statement_(statement) {}
+      statement_(statement) {
+  LOG_ASSERT(condition_, "condition_ is null");
+  LOG_ASSERT(statement_, "statement_ is null");
+}
 
 AstWhileStatement::~AstWhileStatement() {
   delete condition_;
@@ -612,10 +622,8 @@ AstWhileStatement::~AstWhileStatement() {
 AstType AstWhileStatement::type() const { return AstType::WhileStatement; }
 
 std::string AstWhileStatement::toString() const {
-  std::string condStr = condition_ ? condition_->toString() : "null";
-  std::string stmtStr = statement_ ? statement_->toString() : "null";
   return fmt::format("[@AstWhileStatement condition_:{}, statement_:{}]",
-                     condStr, stmtStr);
+                     condition_->toString(), statement_->toString());
 }
 
 AstExpression *AstWhileStatement::condition() const { return condition_; }
@@ -625,7 +633,12 @@ AstStatement *AstWhileStatement::statement() const { return statement_; }
 AstForStatement::AstForStatement(AstStatement *start, AstStatement *step,
                                  AstExpression *end, AstStatement *statement)
     : AstStatement(nameGenerator.generate("A_For")), start_(start), step_(step),
-      end_(end), statement_(statement) {}
+      end_(end), statement_(statement) {
+  LOG_ASSERT(start_, "start_ is null");
+  LOG_ASSERT(step_, "step_ is null");
+  LOG_ASSERT(end_, "end_ is null");
+  LOG_ASSERT(statement_, "statement_ is null");
+}
 
 AstForStatement::~AstForStatement() {
   delete start_;
@@ -641,13 +654,10 @@ AstForStatement::~AstForStatement() {
 AstType AstForStatement::type() const { return AstType::ForStatement; }
 
 std::string AstForStatement::toString() const {
-  std::string startStr = start_ ? start_->toString() : "null";
-  std::string stepStr = step_ ? step_->toString() : "null";
-  std::string endStr = end_ ? end_->toString() : "null";
-  std::string stmtStr = statement_ ? statement_->toString() : "null";
   return fmt::format(
       "[@AstForStatement start_:{}, step_:{}, end_:{}, statement_:{}]",
-      startStr, stepStr, endStr, stmtStr);
+      start_->toString(), step_->toString(), end_->toString(),
+      statement_->toString());
 }
 
 AstStatement *AstForStatement::start() const { return start_; }
@@ -661,8 +671,6 @@ AstStatement *AstForStatement::statement() const { return statement_; }
 AstContinueStatement::AstContinueStatement()
     : AstStatement(nameGenerator.generate("A_continue")) {}
 
-AstContinueStatement::~AstContinueStatement() {}
-
 AstType AstContinueStatement::type() const {
   return AstType::ContinueStatement;
 }
@@ -673,8 +681,6 @@ std::string AstContinueStatement::toString() const {
 
 AstBreakStatement::AstBreakStatement()
     : AstStatement(nameGenerator.generate("A_break")) {}
-
-AstBreakStatement::~AstBreakStatement() {}
 
 AstType AstBreakStatement::type() const { return AstType::BreakStatement; }
 
@@ -696,16 +702,14 @@ AstReturnStatement::~AstReturnStatement() {
 AstType AstReturnStatement::type() const { return AstType::ReturnStatement; }
 
 std::string AstReturnStatement::toString() const {
-  std::string exprStr = expression_ ? expression_->toString() : "null";
-  return fmt::format("[@AstReturnStatement expression_:{}]", exprStr);
+  return fmt::format("[@AstReturnStatement expression_:{}]",
+                     expression_->toString());
 }
 
 AstExpression *AstReturnStatement::expression() const { return expression_; }
 
 AstEmptyStatement::AstEmptyStatement()
     : AstStatement(nameGenerator.generate("A_EmpStm")) {}
-
-AstEmptyStatement::~AstEmptyStatement() {}
 
 AstType AstEmptyStatement::type() const { return AstType::EmptyStatement; }
 
@@ -715,7 +719,9 @@ std::string AstEmptyStatement::toString() const {
 
 AstVariableDefinition::AstVariableDefinition(AstDefinitionList *definitionList)
     : AstDefinition(nameGenerator.generate("A_VarDecl")),
-      definitionList_(definitionList) {}
+      definitionList_(definitionList) {
+  LOG_ASSERT(definitionList_, "definitionList_ is null");
+}
 
 AstVariableDefinition::~AstVariableDefinition() {
   delete definitionList_;
@@ -728,7 +734,7 @@ AstType AstVariableDefinition::type() const {
 
 std::string AstVariableDefinition::toString() const {
   return fmt::format("[@AstVariableDefinition definitionList_:{}]",
-                     definitionList_ ? definitionList_->toString() : "null");
+                     definitionList_->toString());
 }
 
 AstDefinitionList *AstVariableDefinition::definitionList() const {
@@ -738,7 +744,10 @@ AstDefinitionList *AstVariableDefinition::definitionList() const {
 AstVariableInitialDefinition::AstVariableInitialDefinition(
     const char *identifier, AstExpression *expression)
     : AstDefinition(nameGenerator.generate("A_VarAssDecl")),
-      identifier_(identifier), expression_(expression) {}
+      identifier_(identifier), expression_(expression) {
+  LOG_ASSERT(identifier, "identifier is null");
+  LOG_ASSERT(expression_, "expression_ is null");
+}
 
 AstVariableInitialDefinition::~AstVariableInitialDefinition() {
   delete expression_;
@@ -750,10 +759,9 @@ AstType AstVariableInitialDefinition::type() const {
 }
 
 std::string AstVariableInitialDefinition::toString() const {
-  std::string expr = expression_ ? expression_->toString() : "null";
   return fmt::format(
       "[@AstVariableInitialDefinition identifier_:{}, expression_:{}]",
-      identifier_, expr);
+      identifier_, expression_->toString());
 }
 
 const std::string &AstVariableInitialDefinition::identifier() const {
@@ -768,7 +776,10 @@ AstFunctionDefinition::AstFunctionDefinition(
     AstFunctionSignatureDefinition *signature, AstStatement *statement)
     : AstDefinition(nameGenerator.generateWith(
           (signature ? signature->identifier() : "null"), "A_FuncDecl")),
-      signature_(signature), statement_(statement) {}
+      signature_(signature), statement_(statement) {
+  LOG_ASSERT(signature_, "signature_ is null");
+  LOG_ASSERT(statement_, "statement_ is null");
+}
 
 AstFunctionDefinition::~AstFunctionDefinition() {
   delete signature_;
@@ -783,8 +794,7 @@ AstType AstFunctionDefinition::type() const {
 
 std::string AstFunctionDefinition::toString() const {
   return fmt::format("[@AstFunctionDefinition signature_:{}, statement_:{}]",
-                     signature_ ? signature_->toString() : "null",
-                     statement_ ? statement_->toString() : "null");
+                     signature_->toString(), statement_->toString());
 }
 
 AstFunctionSignatureDefinition *AstFunctionDefinition::signature() const {
@@ -798,6 +808,7 @@ AstFunctionSignatureDefinition::AstFunctionSignatureDefinition(
     AstExpression *result)
     : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncSignDecl")),
       identifier_(identifier), argumentList_(argumentList), result_(result) {
+  LOG_ASSERT(identifier, "identifier is null");
   LOG_ASSERT(argumentList_, "argumentList is null");
   // LOG_ASSERT(result_, "result_ is null");
 }
@@ -827,17 +838,15 @@ AstType AstFunctionSignatureDefinition::type() const {
 
 std::string AstFunctionSignatureDefinition::toString() const {
   return fmt::format("[@AstFunctionSignatureDefinition identifier_:{}, "
-                     "argumentList_:{}, result_:{}]",
-                     identifier_,
-                     argumentList_ ? argumentList_->toString() : "null",
-                     result_ ? result_->toString() : "null");
+                     "argumentList_:{}, result_:null]",
+                     identifier_, argumentList_->toString());
 }
 
 AstFunctionArgumentDefinition::AstFunctionArgumentDefinition(const char *value)
     : AstDefinition(nameGenerator.generateWith(value, "A_FuncArgDecl")),
-      value_(value) {}
-
-AstFunctionArgumentDefinition::~AstFunctionArgumentDefinition() {}
+      value_(value) {
+  LOG_ASSERT(value, "value is null");
+}
 
 AstType AstFunctionArgumentDefinition::type() const {
   return AstType::FunctionArgumentDefinition;

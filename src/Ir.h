@@ -36,6 +36,7 @@ BETTER_ENUM(IrType, int,
 /*================ class ================*/
 // interface
 class Ir;
+class IrConstant;
 class IrExpression;
 class IrStatement;
 class IrDefinition;
@@ -136,6 +137,14 @@ class IrExpression : public Ir {
 public:
   IrExpression(const std::string &name);
   virtual ~IrExpression() = default;
+  virtual IrType type() const = 0;
+  virtual llvm::Value *codeGen(IrContext *context) = 0;
+};
+
+class IrConstant : public IrExpression {
+public:
+  IrConstant(const std::string &name);
+  virtual ~IrConstant() = default;
   virtual IrType type() const = 0;
   virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
@@ -246,7 +255,7 @@ private:
 };
 
 /* identifier constant */
-class IrIdentifierConstant : public IrExpression {
+class IrIdentifierConstant : public IrConstant {
 public:
   IrIdentifierConstant(AstIdentifierConstant *node);
   virtual ~IrIdentifierConstant() = default;
@@ -259,7 +268,7 @@ private:
 };
 
 /* i8 constant */
-class IrInt8Constant : public IrExpression {
+class IrInt8Constant : public IrConstant {
 public:
   IrInt8Constant(AstInt8Constant *node);
   virtual ~IrInt8Constant() = default;
@@ -272,7 +281,7 @@ private:
 };
 
 /* u8 constant */
-class IrUInt8Constant : public IrExpression {
+class IrUInt8Constant : public IrConstant {
 public:
   IrUInt8Constant(AstUInt8Constant *node);
   virtual ~IrUInt8Constant() = default;
@@ -285,7 +294,7 @@ private:
 };
 
 /* i16 constant */
-class IrInt16Constant : public IrExpression {
+class IrInt16Constant : public IrConstant {
 public:
   IrInt16Constant(AstInt16Constant *node);
   virtual ~IrInt16Constant() = default;
@@ -298,7 +307,7 @@ private:
 };
 
 /* u16 constant */
-class IrUInt16Constant : public IrExpression {
+class IrUInt16Constant : public IrConstant {
 public:
   IrUInt16Constant(AstUInt16Constant *node);
   virtual ~IrUInt16Constant() = default;
@@ -311,7 +320,7 @@ private:
 };
 
 /* i32 constant */
-class IrInt32Constant : public IrExpression {
+class IrInt32Constant : public IrConstant {
 public:
   IrInt32Constant(AstInt32Constant *node);
   virtual ~IrInt32Constant() = default;
@@ -324,7 +333,7 @@ private:
 };
 
 /* u32 constant */
-class IrUInt32Constant : public IrExpression {
+class IrUInt32Constant : public IrConstant {
 public:
   IrUInt32Constant(AstUInt32Constant *node);
   virtual ~IrUInt32Constant() = default;
@@ -337,7 +346,7 @@ private:
 };
 
 /* i64 constant */
-class IrInt64Constant : public IrExpression {
+class IrInt64Constant : public IrConstant {
 public:
   IrInt64Constant(AstInt64Constant *node);
   virtual ~IrInt64Constant() = default;
@@ -350,7 +359,7 @@ private:
 };
 
 /* u64 constant */
-class IrUInt64Constant : public IrExpression {
+class IrUInt64Constant : public IrConstant {
 public:
   IrUInt64Constant(AstUInt64Constant *node);
   virtual ~IrUInt64Constant() = default;
@@ -363,7 +372,7 @@ private:
 };
 
 /* f32 constant */
-class IrFloat32Constant : public IrExpression {
+class IrFloat32Constant : public IrConstant {
 public:
   IrFloat32Constant(AstFloat32Constant *node);
   virtual ~IrFloat32Constant() = default;
@@ -376,7 +385,7 @@ private:
 };
 
 /* f64 constant */
-class IrFloat64Constant : public IrExpression {
+class IrFloat64Constant : public IrConstant {
 public:
   IrFloat64Constant(AstFloat64Constant *node);
   virtual ~IrFloat64Constant() = default;
@@ -389,7 +398,7 @@ private:
 };
 
 /* string constant */
-class IrStringConstant : public IrExpression {
+class IrStringConstant : public IrConstant {
 public:
   IrStringConstant(AstStringConstant *node);
   virtual ~IrStringConstant() = default;
@@ -402,7 +411,7 @@ private:
 };
 
 /* boolean constant */
-class IrBooleanConstant : public IrExpression {
+class IrBooleanConstant : public IrConstant {
 public:
   IrBooleanConstant(AstBooleanConstant *node);
   virtual ~IrBooleanConstant() = default;

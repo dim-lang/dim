@@ -193,6 +193,8 @@ std::string Ir::fromIrName(const std::string &name) {
 
 IrExpression::IrExpression(const std::string &name) : Ir(name) {}
 
+IrConstant::IrConstant(const std::string &name) : IrExpression(name) {}
+
 IrStatement::IrStatement(const std::string &name) : Ir(name) {}
 
 IrDefinition::IrDefinition(const std::string &name) : IrStatement(name) {}
@@ -270,7 +272,7 @@ std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(AstIdentifierConstant *node)
-    : IrExpression(nameGenerator.generate("Id")), node_(node) {}
+    : IrConstant(nameGenerator.generate("Id")), node_(node) {}
 
 IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
@@ -288,7 +290,7 @@ std::string IrIdentifierConstant::toString() const {
 
 /* i8 constant */
 IrInt8Constant::IrInt8Constant(AstInt8Constant *node)
-    : IrExpression(nameGenerator.generate("IrInt8Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrInt8Constant")), node_(node) {}
 
 IrType IrInt8Constant::type() const { return IrType::Int8Constant; }
 
@@ -303,7 +305,7 @@ std::string IrInt8Constant::toString() const {
 
 /* u8 constant */
 IrUInt8Constant::IrUInt8Constant(AstUInt8Constant *node)
-    : IrExpression(nameGenerator.generate("IrUInt8Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrUInt8Constant")), node_(node) {}
 
 IrType IrUInt8Constant::type() const { return IrType::UInt8Constant; }
 
@@ -318,7 +320,7 @@ std::string IrUInt8Constant::toString() const {
 
 /* i16 constant */
 IrInt16Constant::IrInt16Constant(AstInt16Constant *node)
-    : IrExpression(nameGenerator.generate("IrInt16Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrInt16Constant")), node_(node) {}
 
 IrType IrInt16Constant::type() const { return IrType::Int16Constant; }
 
@@ -333,7 +335,7 @@ std::string IrInt16Constant::toString() const {
 
 /* u16 constant */
 IrUInt16Constant::IrUInt16Constant(AstUInt16Constant *node)
-    : IrExpression(nameGenerator.generate("IrUInt16Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrUInt16Constant")), node_(node) {}
 
 IrType IrUInt16Constant::type() const { return IrType::UInt16Constant; }
 
@@ -348,7 +350,7 @@ std::string IrUInt16Constant::toString() const {
 
 /* i32 constant */
 IrInt32Constant::IrInt32Constant(AstInt32Constant *node)
-    : IrExpression(nameGenerator.generate("IrInt32Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrInt32Constant")), node_(node) {}
 
 IrType IrInt32Constant::type() const { return IrType::Int32Constant; }
 
@@ -363,7 +365,7 @@ std::string IrInt32Constant::toString() const {
 
 /* u32 constant */
 IrUInt32Constant::IrUInt32Constant(AstUInt32Constant *node)
-    : IrExpression(nameGenerator.generate("IrUInt32Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrUInt32Constant")), node_(node) {}
 
 IrType IrUInt32Constant::type() const { return IrType::UInt32Constant; }
 
@@ -378,7 +380,7 @@ std::string IrUInt32Constant::toString() const {
 
 /* i64 constant */
 IrInt64Constant::IrInt64Constant(AstInt64Constant *node)
-    : IrExpression(nameGenerator.generate("IrInt64Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrInt64Constant")), node_(node) {}
 
 IrType IrInt64Constant::type() const { return IrType::Int64Constant; }
 
@@ -393,7 +395,7 @@ std::string IrInt64Constant::toString() const {
 
 /* u64 constant */
 IrUInt64Constant::IrUInt64Constant(AstUInt64Constant *node)
-    : IrExpression(nameGenerator.generate("IrUInt64Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrUInt64Constant")), node_(node) {}
 
 IrType IrUInt64Constant::type() const { return IrType::UInt64Constant; }
 
@@ -408,7 +410,7 @@ std::string IrUInt64Constant::toString() const {
 
 /* f32 constant */
 IrFloat32Constant::IrFloat32Constant(AstFloat32Constant *node)
-    : IrExpression(nameGenerator.generate("IrFloat32Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrFloat32Constant")), node_(node) {}
 
 IrType IrFloat32Constant::type() const { return IrType::Float32Constant; }
 
@@ -423,7 +425,7 @@ std::string IrFloat32Constant::toString() const {
 
 /* f64 constant */
 IrFloat64Constant::IrFloat64Constant(AstFloat64Constant *node)
-    : IrExpression(nameGenerator.generate("IrFloat64Constant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrFloat64Constant")), node_(node) {}
 
 IrType IrFloat64Constant::type() const { return IrType::Float64Constant; }
 
@@ -438,7 +440,7 @@ std::string IrFloat64Constant::toString() const {
 
 /* string constant */
 IrStringConstant::IrStringConstant(AstStringConstant *node)
-    : IrExpression(nameGenerator.generate("IrStringConstant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrStringConstant")), node_(node) {}
 
 IrType IrStringConstant::type() const { return IrType::StringConstant; }
 
@@ -450,7 +452,7 @@ std::string IrStringConstant::toString() const {
 
 /* boolean constant */
 IrBooleanConstant::IrBooleanConstant(AstBooleanConstant *node)
-    : IrExpression(nameGenerator.generate("IrBooleanConstant")), node_(node) {}
+    : IrConstant(nameGenerator.generate("IrBooleanConstant")), node_(node) {}
 
 IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 

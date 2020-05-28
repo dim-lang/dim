@@ -40,6 +40,10 @@ BETTER_ENUM(AstType, int,
 
 /* base interface */
 class Ast;
+class AstConstant;
+class AstExpression;
+class AstStatement;
+class AstDefinition;
 
 /* translate unit */
 class AstTranslateUnit;
@@ -50,7 +54,6 @@ class AstStatementList;
 class AstDefinitionList;
 
 /* constant */
-class AstConstant;
 class AstIdentifierConstant;
 class AstInt8Constant;
 class AstUInt8Constant;
@@ -66,7 +69,6 @@ class AstStringConstant;
 class AstBooleanConstant;
 
 /* expression */
-class AstExpression;
 class AstCallExpression;
 class AstUnaryExpression;
 class AstBinaryExpression;
@@ -76,7 +78,6 @@ class AstSequelExpression;
 class AstVoidExpression;
 
 /* statement */
-class AstStatement;
 class AstExpressionStatement;
 class AstCompoundStatement;
 class AstIfStatement;
@@ -88,7 +89,6 @@ class AstReturnStatement;
 class AstEmptyStatement;
 
 /* definition */
-class AstDefinition;
 class AstVariableDefinition;
 class AstVariableInitialDefinition;
 class AstFunctionDefinition;
@@ -641,7 +641,7 @@ private:
 class AstContinueStatement : public AstStatement {
 public:
   AstContinueStatement();
-  virtual ~AstContinueStatement();
+  virtual ~AstContinueStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -652,7 +652,7 @@ private:
 class AstBreakStatement : public AstStatement {
 public:
   AstBreakStatement();
-  virtual ~AstBreakStatement();
+  virtual ~AstBreakStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -676,7 +676,7 @@ private:
 class AstEmptyStatement : public AstStatement {
 public:
   AstEmptyStatement();
-  virtual ~AstEmptyStatement();
+  virtual ~AstEmptyStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -753,7 +753,7 @@ private:
 class AstFunctionArgumentDefinition : public AstDefinition {
 public:
   AstFunctionArgumentDefinition(const char *value);
-  virtual ~AstFunctionArgumentDefinition();
+  virtual ~AstFunctionArgumentDefinition() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
