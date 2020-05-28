@@ -124,6 +124,8 @@ static Ir *createIrByAst(Ast *node) {
     return new IrBinaryExpression(DC(AstBinaryExpression, node));
   case AstType::ConditionalExpression:
     return new IrConditionalExpression(DC(AstConditionalExpression, node));
+  case AstType::VoidExpression:
+    return new IrVoidExpression(DC(AstVoidExpression, node));
   case AstType::ExpressionStatement:
     return new IrExpressionStatement(DC(AstExpressionStatement, node));
   case AstType::IfStatement:
@@ -901,6 +903,18 @@ std::string IrSequelExpression::toString() const {
   return fmt::format("[@IrSequelExpression node_:{}]", node_->toString());
 }
 
+IrVoidExpression::IrVoidExpression(AstVoidExpression *node)
+    : IrExpression(nameGenerator.generate("IrVoidExpression")), node_(node) {
+  LOG_ASSERT(node_, "node_ is null");
+}
+std::string IrVoidExpression::toString() const {
+  return fmt::format("[@IrVoidExpression node_:{}]", node_->toString());
+}
+
+IrType IrVoidExpression::type() const { return IrType::VoidExpression; }
+
+llvm::Value *IrVoidExpression::codeGen(IrContext *context) { return nullptr; }
+
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(AstExpressionStatement *node)
     : IrStatement(nameGenerator.generate("IrExpressionStatement")), node_(node),
@@ -1170,7 +1184,8 @@ std::string IrReturnStatement::toString() const {
 IrType IrReturnStatement::type() const { return IrType::ReturnStatement; }
 
 llvm::Value *IrReturnStatement::codeGen(IrContext *context) {
-  if (!expression_) {
+  LOG_ASSERT(expression_, "expression_ is null");
+  if (expression_->type() == (+IrType::VoidExpression)) {
     return context->builder().CreateRetVoid();
   }
   llvm::Value *exprV = expression_->codeGen(context);
