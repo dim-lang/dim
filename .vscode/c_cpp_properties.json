@@ -4,6 +4,11 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/example",
+                "${workspaceFolder}/src/spdlog/include",
+                "${workspaceFolder}/src/fmt/include",
+                "${workspaceFolder}/src/better-enums",
                 "/usr/local/opt/boost/include",
                 "/usr/local/opt/llvm/include"
             ],
