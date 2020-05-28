@@ -32,10 +32,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %union {
     AstExpressionList *exprList;
     AstStatementList *stmtList;
-    AstDefinitionList *declList;
+    AstDefinitionList *defList;
     AstExpression *expr;
     AstStatement *stmt;
-    AstDefinition *decl;
+    AstDefinition *def;
     AstStringConstant *str;
     char *literal;
     int token;
@@ -66,9 +66,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <stmt> statement
 %type <stmtList> statement_list
 
-%type <decl> variable_definition function_definition function_signature_definition variable_assignment_definition function_argument_definition
-%type <decl> definition
-%type <declList> variable_assignment_definition_list translation_unit function_argument_definition_list
+%type <def> variable_definition function_definition function_signature_definition variable_assignment_definition function_argument_definition
+%type <def> definition
+%type <defList> variable_assignment_definition_list translation_unit function_argument_definition_list
 
 %type <str> join_string_helper
 

@@ -131,27 +131,26 @@ static std::string dumpAstImpl(Ast *node, int depth) {
            ";\n";
   case AstType::EmptyStatement:
     return DS + DC(AstEmptyStatement, node)->name() + ";\n";
-  case AstType::VariableDeclaration: {
-    AstVariableDeclaration *vd = DC(AstVariableDeclaration, node);
+  case AstType::VariableDefinition: {
+    AstVariableDefinition *vd = DC(AstVariableDefinition, node);
     std::stringstream ss;
     ss << DS << vd->name() << ": ";
-    for (int i = 0; i < vd->declarationList()->size(); i++) {
-      ss << dumpAstImpl(vd->declarationList()->get(i), depth);
-      if (i < vd->declarationList()->size() - 1) {
+    for (int i = 0; i < vd->definitionList()->size(); i++) {
+      ss << dumpAstImpl(vd->definitionList()->get(i), depth);
+      if (i < vd->definitionList()->size() - 1) {
         ss << ", ";
       }
     }
     ss << ";\n";
     return ss.str();
   }
-  case AstType::VariableInitialDeclaration: {
-    AstVariableInitialDeclaration *vad =
-        DC(AstVariableInitialDeclaration, node);
+  case AstType::VariableInitialDefinition: {
+    AstVariableInitialDefinition *vad = DC(AstVariableInitialDefinition, node);
     return vad->identifier() + " = " + dumpAstImpl(vad->expression(), depth);
   }
-  case AstType::FunctionDeclaration: {
-    AstFunctionDeclaration *fd = DC(AstFunctionDeclaration, node);
-    AstFunctionSignatureDeclaration *fsd = fd->signature();
+  case AstType::FunctionDefinition: {
+    AstFunctionDefinition *fd = DC(AstFunctionDefinition, node);
+    AstFunctionSignatureDefinition *fsd = fd->signature();
     std::stringstream ss;
     ss << DS << fd->name() << "(";
     if (fsd->argumentList() && fsd->argumentList()->size() > 0) {
@@ -165,8 +164,8 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ") =>\n" << dumpAstImpl(fd->statement(), depth);
     return ss.str();
   }
-  case AstType::DeclarationList: {
-    AstDeclarationList *dl = DC(AstDeclarationList, node);
+  case AstType::DefinitionList: {
+    AstDefinitionList *dl = DC(AstDefinitionList, node);
     std::stringstream ss;
     ss << DS << dl->name() << "{\n";
     for (int i = 0; i < dl->size(); i++) {

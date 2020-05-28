@@ -26,20 +26,19 @@ BETTER_ENUM(IrType, int,
             // statement
             ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
             ForStatement, ReturnStatement,
-            // declaration
-            VariableDeclaration, FunctionDeclaration,
-            FunctionSignatureDeclaration,
+            // definition
+            VariableDefinition, FunctionDefinition, FunctionSignatureDefinition,
             // list
-            ExpressionList, StatementList, DeclarationList,
+            ExpressionList, StatementList, DefinitionList,
             // common
-            TranslateUnit, Expression, Statement, Declaration)
+            TranslateUnit, Expression, Statement, Definition)
 
 /*================ class ================*/
 // interface
 class Ir;
 class IrExpression;
 class IrStatement;
-class IrDeclaration;
+class IrDefinition;
 
 // translate unit
 class IrTranslateUnit;
@@ -47,7 +46,7 @@ class IrTranslateUnit;
 // list
 class IrExpressionList;
 class IrStatementList;
-class IrDeclarationList;
+class IrDefinitionList;
 
 // constant
 class IrInt8Constant;
@@ -80,12 +79,12 @@ class IrWhileStatement;
 class IrForStatement;
 class IrReturnStatement;
 
-// declaration
-class IrVariableDeclaration;
-class IrFunctionDeclaration;
-class IrFunctionSignatureDeclaration;
+// definition
+class IrVariableDefinition;
+class IrFunctionDefinition;
+class IrFunctionSignatureDefinition;
 
-/*================ declaration ================*/
+/*================ definition ================*/
 
 class IrContext : protected boost::noncopyable {
 public:
@@ -149,10 +148,10 @@ public:
   virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
 
-class IrDeclaration : public IrStatement {
+class IrDefinition : public IrStatement {
 public:
-  IrDeclaration(const std::string &name);
-  virtual ~IrDeclaration() = default;
+  IrDefinition(const std::string &name);
+  virtual ~IrDefinition() = default;
   virtual IrType type() const = 0;
   virtual llvm::Value *codeGen(IrContext *context) = 0;
 };
@@ -221,10 +220,10 @@ protected:
   virtual std::string stringify() const;
 };
 
-class IrDeclarationList : public detail::IrList<IrDeclaration> {
+class IrDefinitionList : public detail::IrList<IrDefinition> {
 public:
-  IrDeclarationList();
-  virtual ~IrDeclarationList() = default;
+  IrDefinitionList();
+  virtual ~IrDefinitionList() = default;
   virtual IrType type() const;
 
 protected:
@@ -232,7 +231,7 @@ protected:
 };
 
 /* translate unit */
-class IrTranslateUnit : public detail::IrList<IrDeclaration> {
+class IrTranslateUnit : public detail::IrList<IrDefinition> {
 public:
   IrTranslateUnit(AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
@@ -584,43 +583,43 @@ private:
   IrExpression *expression_;
 };
 
-/* variable declaration */
-class IrVariableDeclaration : public IrDeclaration {
+/* variable definition */
+class IrVariableDefinition : public IrDefinition {
 public:
-  IrVariableDeclaration(AstVariableDeclaration *node);
-  virtual ~IrVariableDeclaration() = default;
+  IrVariableDefinition(AstVariableDefinition *node);
+  virtual ~IrVariableDefinition() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
-  AstVariableDeclaration *node_;
+  AstVariableDefinition *node_;
 };
 
-/* function declaration */
-class IrFunctionDeclaration : public IrDeclaration {
+/* function definition */
+class IrFunctionDefinition : public IrDefinition {
 public:
-  IrFunctionDeclaration(AstFunctionDeclaration *node);
-  virtual ~IrFunctionDeclaration() = default;
+  IrFunctionDefinition(AstFunctionDefinition *node);
+  virtual ~IrFunctionDefinition() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
-  AstFunctionDeclaration *node_;
-  IrFunctionSignatureDeclaration *signature_;
+  AstFunctionDefinition *node_;
+  IrFunctionSignatureDefinition *signature_;
   IrStatement *statement_;
 };
 
-/* function signature declaration */
-class IrFunctionSignatureDeclaration : public IrDeclaration {
+/* function signature definition */
+class IrFunctionSignatureDefinition : public IrDefinition {
 public:
-  IrFunctionSignatureDeclaration(AstFunctionSignatureDeclaration *node);
-  virtual ~IrFunctionSignatureDeclaration() = default;
+  IrFunctionSignatureDefinition(AstFunctionSignatureDefinition *node);
+  virtual ~IrFunctionSignatureDefinition() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
-  AstFunctionSignatureDeclaration *node_;
+  AstFunctionSignatureDefinition *node_;
 };

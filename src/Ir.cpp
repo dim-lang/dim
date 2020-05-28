@@ -137,10 +137,10 @@ static Ir *createIr(Ast *node) {
     return new IrCompoundStatement(DC(AstCompoundStatement, node));
   case AstType::ReturnStatement:
     return new IrReturnStatement(DC(AstReturnStatement, node));
-  case AstType::VariableDeclaration:
-    return new IrVariableDeclaration(DC(AstVariableDeclaration, node));
-  case AstType::FunctionDeclaration:
-    return new IrFunctionDeclaration(DC(AstFunctionDeclaration, node));
+  case AstType::VariableDefinition:
+    return new IrVariableDefinition(DC(AstVariableDefinition, node));
+  case AstType::FunctionDefinition:
+    return new IrFunctionDefinition(DC(AstFunctionDefinition, node));
   default:
     LOG_ASSERT(false, "invalid ast node: {}", node->toString());
   }
@@ -195,7 +195,7 @@ IrExpression::IrExpression(const std::string &name) : Ir(name) {}
 
 IrStatement::IrStatement(const std::string &name) : Ir(name) {}
 
-IrDeclaration::IrDeclaration(const std::string &name) : IrStatement(name) {}
+IrDefinition::IrDefinition(const std::string &name) : IrStatement(name) {}
 
 /* list */
 IrExpressionList::IrExpressionList()
@@ -212,28 +212,28 @@ IrType IrStatementList::type() const { return IrType::StatementList; }
 
 std::string IrStatementList::stringify() const { return "IrStatementList"; }
 
-IrDeclarationList::IrDeclarationList()
-    : detail::IrList<IrDeclaration>(nameGenerator.generate("DeclList")) {}
+IrDefinitionList::IrDefinitionList()
+    : detail::IrList<IrDefinition>(nameGenerator.generate("DeclList")) {}
 
-IrType IrDeclarationList::type() const { return IrType::DeclarationList; }
+IrType IrDefinitionList::type() const { return IrType::DefinitionList; }
 
-std::string IrDeclarationList::stringify() const { return "IrDeclarationList"; }
+std::string IrDefinitionList::stringify() const { return "IrDefinitionList"; }
 
 /* translate unit */
 IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
-    : detail::IrList<IrDeclaration>(nameGenerator.generate("TUnit")),
+    : detail::IrList<IrDefinition>(nameGenerator.generate("TUnit")),
       node_(node) {
   for (int i = 0; i < node_->size(); i++) {
-    AstDeclaration *ast = node_->get(i);
+    AstDefinition *ast = node_->get(i);
     switch (ast->type()) {
-    case AstType::VariableDeclaration: {
-      IrVariableDeclaration *vd =
-          new IrVariableDeclaration(DC(AstVariableDeclaration, ast));
+    case AstType::VariableDefinition: {
+      IrVariableDefinition *vd =
+          new IrVariableDefinition(DC(AstVariableDefinition, ast));
       add(vd);
     } break;
-    case AstType::FunctionDeclaration: {
-      IrFunctionDeclaration *fd =
-          new IrFunctionDeclaration(DC(AstFunctionDeclaration, ast));
+    case AstType::FunctionDefinition: {
+      IrFunctionDefinition *fd =
+          new IrFunctionDefinition(DC(AstFunctionDefinition, ast));
       add(fd);
     } break;
     default:
@@ -248,15 +248,15 @@ std::string IrTranslateUnit::dumpCodeGen(IrContext *context) {
   LOG_ASSERT(context, "context is null");
   std::stringstream ss;
   for (int i = 0; i < size(); i++) {
-    IrDeclaration *ir = get(i);
+    IrDefinition *ir = get(i);
     switch (ir->type()) {
-    case IrType::VariableDeclaration: {
-      llvm::Value *v = DC(IrVariableDeclaration, ir)->codeGen(context);
+    case IrType::VariableDefinition: {
+      llvm::Value *v = DC(IrVariableDefinition, ir)->codeGen(context);
       ss << dumpLLVMValue(v);
     } break;
-    case IrType::FunctionDeclaration: {
+    case IrType::FunctionDefinition: {
       llvm::Function *f = llvm::dyn_cast<llvm::Function>(
-          DC(IrFunctionDeclaration, ir)->codeGen(context));
+          DC(IrFunctionDefinition, ir)->codeGen(context));
       ss << dumpLLVMFunction(f);
     } break;
     default:
@@ -1016,10 +1016,10 @@ IrIfStatement::IrIfStatement(AstIfStatement *node)
     condition_ = DC(IrExpression, createIr(node->condition()));
   }
   if (node->thens()) {
-    thens_ = DC(IrExpression, createIr(node->thens()));
+    thens_ = DC(IrStatement, createIr(node->thens()));
   }
   if (node->elses()) {
-    elses_ = DC(IrExpression, createIr(node->elses()));
+    elses_ = DC(IrStatement, createIr(node->elses()));
   }
 }
 
@@ -1206,28 +1206,25 @@ llvm::Value *IrReturnStatement::codeGen(IrContext *context) {
   return context->builder().CreateRet(exprV);
 }
 
-/* variable declaration */
-IrVariableDeclaration::IrVariableDeclaration(AstVariableDeclaration *node)
-    : IrDeclaration(nameGenerator.generate("IrVariableDeclaration")),
+/* variable definition */
+IrVariableDefinition::IrVariableDefinition(AstVariableDefinition *node)
+    : IrDefinition(nameGenerator.generate("IrVariableDefinition")),
       node_(node) {}
 
-IrType IrVariableDeclaration::type() const {
-  return IrType::VariableDeclaration;
-}
+IrType IrVariableDefinition::type() const { return IrType::VariableDefinition; }
 
-llvm::Value *IrVariableDeclaration::codeGen(IrContext *context) {
+llvm::Value *IrVariableDefinition::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrVariableDeclaration::toString() const {
-  return fmt::format("[@IrVariableDeclaration node_:{}]", node_->toString());
+std::string IrVariableDefinition::toString() const {
+  return fmt::format("[@IrVariableDefinition node_:{}]", node_->toString());
 }
 
-/* function declaration */
-IrFunctionDeclaration::IrFunctionDeclaration(AstFunctionDeclaration *node)
-    : IrDeclaration(nameGenerator.generate("IrFunctionDeclaration")),
-      node_(node),
-      signature_(new IrFunctionSignatureDeclaration(node->signature())),
+/* function definition */
+IrFunctionDefinition::IrFunctionDefinition(AstFunctionDefinition *node)
+    : IrDefinition(nameGenerator.generate("IrFunctionDefinition")), node_(node),
+      signature_(new IrFunctionSignatureDefinition(node->signature())),
       statement_(nullptr) {
   switch (node_->statement()->type()) {
   case AstType::ReturnStatement: {
@@ -1258,11 +1255,9 @@ IrFunctionDeclaration::IrFunctionDeclaration(AstFunctionDeclaration *node)
   }
 }
 
-IrType IrFunctionDeclaration::type() const {
-  return IrType::FunctionDeclaration;
-}
+IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 
-llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
+llvm::Value *IrFunctionDefinition::codeGen(IrContext *context) {
   llvm::Function *f = context->module()->getFunction(
       Ir::toIrName(node_->signature()->identifier()));
   if (!f) {
@@ -1290,27 +1285,27 @@ llvm::Value *IrFunctionDeclaration::codeGen(IrContext *context) {
   return nullptr;
 }
 
-std::string IrFunctionDeclaration::toString() const {
-  return fmt::format("[@IrFunctionDeclaration node_:{}]", node_->toString());
+std::string IrFunctionDefinition::toString() const {
+  return fmt::format("[@IrFunctionDefinition node_:{}]", node_->toString());
 }
 
-/* function signature declaration */
-IrFunctionSignatureDeclaration::IrFunctionSignatureDeclaration(
-    AstFunctionSignatureDeclaration *node)
-    : IrDeclaration(nameGenerator.generate("IrFunctionSignatureDeclaration")),
+/* function signature definition */
+IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
+    AstFunctionSignatureDefinition *node)
+    : IrDefinition(nameGenerator.generate("IrFunctionSignatureDefinition")),
       node_(node) {}
 
-std::string IrFunctionSignatureDeclaration::toString() const {
-  return fmt::format("[@IrFunctionSignatureDeclaration node_:{}]",
+std::string IrFunctionSignatureDefinition::toString() const {
+  return fmt::format("[@IrFunctionSignatureDefinition node_:{}]",
                      node_->toString());
 }
 
-IrType IrFunctionSignatureDeclaration::type() const {
-  return IrType::FunctionSignatureDeclaration;
+IrType IrFunctionSignatureDefinition::type() const {
+  return IrType::FunctionSignatureDefinition;
 }
 
-llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
-  AstDeclarationList *args = node_->argumentList();
+llvm::Value *IrFunctionSignatureDefinition::codeGen(IrContext *context) {
+  AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
       args ? args->size() : 0, llvm::Type::getDoubleTy(context->context()));
   // result, parameters
@@ -1324,8 +1319,8 @@ llvm::Value *IrFunctionSignatureDeclaration::codeGen(IrContext *context) {
   for (auto &a : f->args()) {
     LOG_ASSERT(args, "args is null");
     LOG_ASSERT(args->get(i), "args->get({}) is null", i);
-    AstFunctionArgumentDeclaration *ast =
-        DC(AstFunctionArgumentDeclaration, args->get(i++));
+    AstFunctionArgumentDefinition *ast =
+        DC(AstFunctionArgumentDefinition, args->get(i++));
     a.setName(Ir::toIrName(ast->value()));
   }
   return llvm::dyn_cast<llvm::Value>(f);

@@ -32,16 +32,16 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
       build(symtable, e->get(i));
     }
   } break;
-  case AstType::VariableDeclaration: {
-    AstVariableDeclaration *e = DC(AstVariableDeclaration, node);
-    if (e->declarationList()) {
-      for (int i = 0; i < e->declarationList()->size(); i++) {
-        build(symtable, e->declarationList()->get(i));
+  case AstType::VariableDefinition: {
+    AstVariableDefinition *e = DC(AstVariableDefinition, node);
+    if (e->definitionList()) {
+      for (int i = 0; i < e->definitionList()->size(); i++) {
+        build(symtable, e->definitionList()->get(i));
       }
     }
   } break;
-  case AstType::VariableInitialDeclaration: {
-    AstVariableInitialDeclaration *e = DC(AstVariableInitialDeclaration, node);
+  case AstType::VariableInitialDefinition: {
+    AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
     VariableSymbol *vs = new VariableSymbol(e->identifier());
     symtable->css()->define(vs);
     switch (e->expression()->type()) {
@@ -62,15 +62,15 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
       break;
     }
   } break;
-  case AstType::FunctionDeclaration: {
-    AstFunctionDeclaration *e = DC(AstFunctionDeclaration, node);
-    AstFunctionSignatureDeclaration *e1 = e->signature();
+  case AstType::FunctionDefinition: {
+    AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
+    AstFunctionSignatureDefinition *e1 = e->signature();
     FunctionSymbol *fs = new FunctionSymbol(e1->identifier(), symtable->css());
     std::vector<std::pair<Symbol *, Type *>> argumentTypeList;
     if (e1->argumentList()) {
       for (int i = 0; i < e1->argumentList()->size(); i++) {
-        AstFunctionArgumentDeclaration *fa =
-            DC(AstFunctionArgumentDeclaration, e1->argumentList()->get(i));
+        AstFunctionArgumentDefinition *fa =
+            DC(AstFunctionArgumentDefinition, e1->argumentList()->get(i));
         argumentTypeList.push_back(std::make_pair(
             new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_void()));
       }
@@ -91,9 +91,8 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
     symtable->popSymbol();
     symtable->popType();
   } break;
-  case AstType::FunctionArgumentDeclaration: {
-    AstFunctionArgumentDeclaration *e =
-        DC(AstFunctionArgumentDeclaration, node);
+  case AstType::FunctionArgumentDefinition: {
+    AstFunctionArgumentDefinition *e = DC(AstFunctionArgumentDefinition, node);
     FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->value());
     symtable->css()->define(fa);
     symtable->cts()->define(fa, BuiltinType::ty_void());
@@ -202,8 +201,8 @@ void Semantic::check(SymbolTable *symtable, Ast *node) {
                e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        AstFunctionArgumentDeclaration *fad =
-            DC(AstFunctionArgumentDeclaration, e->argumentList()->get(i));
+        AstFunctionArgumentDefinition *fad =
+            DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
         Symbol *fas = symtable->css()->resolve(fad->value());
         LOG_ASSERT(
             fas, "sematic check failure: function argument symbol {} not found",
