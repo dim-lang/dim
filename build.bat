@@ -88,5 +88,6 @@ if not exist %MSVC% md %MSVC%
 cd %MSVC%
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -A x64 ..
 cmake --build . --config Release
+cp compile_commands.json ..
 cd %ROOT%
 echo [shepherd] build - done
