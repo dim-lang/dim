@@ -86,7 +86,7 @@ win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
 if not exist %MSVC% md %MSVC%
 cd %MSVC%
-cmake -DCMAKE_BUILD_TYPE=Release -A x64 ..
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -A x64 ..
 cmake --build . --config Release
 cd %ROOT%
 echo [shepherd] build - done
