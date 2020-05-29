@@ -52,15 +52,12 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release .. 
-        cmake --build . --config Release
+        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
-        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. 
-        cmake --build . --config Debug -- VERBOSE=1
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1
     fi
-    cp compile_commands.json ..
     cd $ROOT
 }
 
@@ -91,8 +88,7 @@ function build_install() {
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cd release
-    cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. 
-    cmake --build . --config Release --target INSTALL -- -j $2
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. && cmake --build . --config Release --target INSTALL -- -j $2
 }
 
 function build_help() {
