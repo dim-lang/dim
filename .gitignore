@@ -32,11 +32,10 @@ boost
 llvm-project
 
 # auto generate source code
-*.yy.cpp
-*.tab.hpp
-*.tab.cpp
+Token.yy.cpp
+Parser.tab.hpp
+Parser.tab.cpp
 src/Configure.h
 
 # vscode
-compile_commands.json
 .clangd
