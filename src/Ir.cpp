@@ -977,7 +977,27 @@ llvm::Value *IrCompoundStatement::codeGen(IrContext *context) {
     return nullptr;
   }
   for (int i = 0; i < statementList_->size(); i++) {
+    IrStatement *ir = statementList_->get(0);
+    LOG_ASSERT(ir, "ir is null");
+    switch (ir->type()) {
+    case IrType::ExpressionStatement: {
+    } break;
+    case IrType::CompoundStatement: {
+    } break;
+    case IrType::IfStatement: {
+    } break;
+    case IrType::WhileStatement: {
+    } break;
+    case IrType::ForStatement: {
+    } break;
+    case IrType::ReturnStatement: {
+    } break;
+    default:
+      LOG_ASSERT(false, "invalid ir: {}", ir->toString());
+    }
   }
+  IrStatement *ir = statementList_->get(statementList_->size() - 1);
+  return ir->codeGen(context);
 }
 
 std::string IrCompoundStatement::toString() const {

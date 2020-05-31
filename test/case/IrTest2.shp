@@ -19,6 +19,6 @@ func World(x, y) {
 /* import test.Parser1; */
 
 func fail() {
-    print("This is the very end of Parser2");
-    print("Goodbye World!");
+    /* print("This is the very end of Parser2"); */
+    /* print("Goodbye World!"); */
 }

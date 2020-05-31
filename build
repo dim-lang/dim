@@ -52,11 +52,11 @@ function build_make() {
     if [ "$1" == "release" ]; then
         if [ ! -d release ]; then mkdir release; fi
         cd release
-        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release && cp compile_commands.json ..
+        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release && cp compile_commands.json ..
     else
         if [ ! -d debug ]; then mkdir debug; fi
         cd debug
-        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1 && cp compile_commands.json ..
+        cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1 && cp compile_commands.json ..
     fi
     cd $ROOT
 }
