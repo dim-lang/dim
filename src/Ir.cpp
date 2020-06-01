@@ -1275,7 +1275,6 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen(IrContext *context) {
   AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
       args->size(), llvm::Type::getDoubleTy(context->context()));
-  // result, parameters
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context->context()), doubleArgs, false);
   llvm::Function *f = llvm::Function::Create(
