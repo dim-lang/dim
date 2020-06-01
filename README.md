@@ -120,7 +120,7 @@ func main():int32 {
 
 Fix issue while installation:
 1. Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows if git clone is too slow.
-2. Download [boost_1_68_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.68.0/) from sourceforge for Windows/Solaris if git clone is too slow.
+2. Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows/Solaris if git clone is too slow.
 3. Fix version incompatible on macOS:
     * flex: `$ echo 'export PATH=/usr/local/opt/flex/bin:$PATH' >> ~/.bash_profile`.
     * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
