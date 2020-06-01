@@ -21,7 +21,4 @@ func World() => return;
 
 func ok(y) => return 1 % y;
 
-func main() {
-    World();
-    return ok(1) + Hello(2, 3);
-}
+func main() {}
