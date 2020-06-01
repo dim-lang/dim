@@ -50,13 +50,11 @@ function build_generate() {
 function build_make() {
     cd $ROOT
     if [ "$1" == "release" ]; then
-        if [ ! -d release ]; then mkdir release; fi
-        cd release
-        cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build . --config Release
+        cmake -DCMAKE_BUILD_TYPE=Release -B release
+        cd release && cmake --build . --config Release
     else
-        if [ ! -d debug ]; then mkdir debug; fi
-        cd debug
-        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON .. && cmake --build . --config Debug -- VERBOSE=1
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=ON -B debug
+        cd debug && cmake --build . --config Debug -- VERBOSE=1
     fi
     cd $ROOT
 }
@@ -87,8 +85,8 @@ function build_install() {
     echo [shepherd] install for $FOS, INSTALL_PATH=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
-    cd release
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 .. && cmake --build . --config Release --target INSTALL
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 -B release
+    cd release && cmake --build . --config Release --target INSTALL
 }
 
 function build_help() {

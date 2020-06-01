@@ -11,7 +11,7 @@ set FMTLIB_VERSION=5.3.0
 set ENUM_VERSION=0.11.2
 set CATCH2_VERSION=v2.9.1
 set LLVM_VERSION=llvmorg-9.0.1
-set BOOST_VERSION=boost-1.68.0
+set BOOST_VERSION=boost-1.70.0
 
 @rem init third party library
 echo [shepherd] prepare catchorg/Catch2 %CATCH2_VERSION%
@@ -84,9 +84,8 @@ if exist Parser.tab.cpp (
 win_flex -o Token.yy.cpp Token.l
 win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
-if not exist %MSVC% md %MSVC%
+cmake -DCMAKE_BUILD_TYPE=Release -A x64 -B %MSVC%
 cd %MSVC%
-cmake -DCMAKE_BUILD_TYPE=Release -A x64 ..
 cmake --build . --config Release
 cd %ROOT%
 echo [shepherd] build - done
