@@ -20,5 +20,3 @@ func World() => return;
  */
 
 func ok(y) => return 1 % y;
-
-func main() {}

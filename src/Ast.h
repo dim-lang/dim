@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Log.h"
+#include "Position.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "interface/Namely.h"
@@ -99,9 +100,14 @@ class AstFunctionArgumentDefinition;
 /*================ definition ================*/
 
 /* base interface */
-class Ast : public Namely, public Stringify, private boost::noncopyable {
+class Ast : public Namely,
+            public Stringify,
+            public Position,
+            private boost::noncopyable {
 public:
-  Ast(const std::string &name);
+  Ast(const std::string &name, int firstLine, int firstColumn, int lastLine,
+      int lastColumn);
+  Ast(const std::string &name, const Position &position);
   virtual ~Ast() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -123,7 +129,9 @@ private:
 /* expression */
 class AstExpression : public Ast {
 public:
-  AstExpression(const std::string &name);
+  AstExpression(const std::string &name, int firstLine, int firstColumn,
+                int lastLine, int lastColumn);
+  AstExpression(const std::string &name, const Position &position);
   virtual ~AstExpression() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -132,7 +140,9 @@ public:
 /* constant */
 class AstConstant : public AstExpression {
 public:
-  AstConstant(const std::string &name);
+  AstConstant(const std::string &name, int firstLine, int firstColumn,
+              int lastLine, int lastColumn);
+  AstConstant(const std::string &name, const Position &position);
   virtual ~AstConstant() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -141,7 +151,9 @@ public:
 /* statement */
 class AstStatement : public Ast {
 public:
-  AstStatement(const std::string &name);
+  AstStatement(const std::string &name, int firstLine, int firstColumn,
+               int lastLine, int lastColumn);
+  AstStatement(const std::string &name, const Position &position);
   virtual ~AstStatement() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -150,7 +162,9 @@ public:
 /* definition is statement */
 class AstDefinition : public AstStatement {
 public:
-  AstDefinition(const std::string &name);
+  AstDefinition(const std::string &name, int firstLine, int firstColumn,
+                int lastLine, int lastColumn);
+  AstDefinition(const std::string &name, const Position &position);
   virtual ~AstDefinition() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -160,7 +174,7 @@ namespace detail {
 
 template <class T> class AstList : public Ast {
 public:
-  AstList(const std::string &name) : Ast(name) {}
+  AstList(const std::string &name) : Ast(name, Position::invalid()) {}
   virtual ~AstList() {
     for (int i = 0; i < (int)items_.size(); i++) {
       delete items_[i];
@@ -196,6 +210,11 @@ public:
   }
   virtual void add(T *item) {
     LOG_ASSERT(item, "item is null");
+    Position *p = static_cast<Position *>(item);
+    updateFirstLine(p->firstLine());
+    updateFirstColumn(p->firstColumn());
+    updateLastLine(p->lastLine());
+    updateLastColumn(p->lastColumn());
     items_.push_front(item);
   }
 
@@ -271,7 +290,8 @@ private:
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstConstant {
 public:
-  AstIdentifierConstant(const char *value);
+  AstIdentifierConstant(const char *value, int firstLine, int firstColumn,
+                        int lastLine, int lastColumn);
   virtual ~AstIdentifierConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -285,7 +305,8 @@ private:
 /* constant expression - T_INT8_CONSTANT */
 class AstInt8Constant : public AstConstant {
 public:
-  AstInt8Constant(const int8_t &value);
+  AstInt8Constant(const int8_t &value, int firstLine, int firstColumn,
+                  int lastLine, int lastColumn);
   virtual ~AstInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -299,7 +320,8 @@ private:
 /* constant expression - T_UINT8_CONSTANT */
 class AstUInt8Constant : public AstConstant {
 public:
-  AstUInt8Constant(const uint8_t &value);
+  AstUInt8Constant(const uint8_t &value, int firstLine, int firstColumn,
+                   int lastLine, int lastColumn);
   virtual ~AstUInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -313,7 +335,8 @@ private:
 /* constant expression - T_INT16_CONSTANT */
 class AstInt16Constant : public AstConstant {
 public:
-  AstInt16Constant(const int16_t &value);
+  AstInt16Constant(const int16_t &value, int firstLine, int firstColumn,
+                   int lastLine, int lastColumn);
   virtual ~AstInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -327,7 +350,8 @@ private:
 /* constant expression - T_UINT16_CONSTANT */
 class AstUInt16Constant : public AstConstant {
 public:
-  AstUInt16Constant(const uint16_t &value);
+  AstUInt16Constant(const uint16_t &value, int firstLine, int firstColumn,
+                    int lastLine, int lastColumn);
   virtual ~AstUInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -341,7 +365,8 @@ private:
 /* constant expression - T_INT32_CONSTANT */
 class AstInt32Constant : public AstConstant {
 public:
-  AstInt32Constant(const int32_t &value);
+  AstInt32Constant(const int32_t &value, int firstLine, int firstColumn,
+                   int lastLine, int lastColumn);
   virtual ~AstInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -355,7 +380,8 @@ private:
 /* constant expression - T_UINT32_CONSTANT */
 class AstUInt32Constant : public AstConstant {
 public:
-  AstUInt32Constant(const uint32_t &value);
+  AstUInt32Constant(const uint32_t &value, int firstLine, int firstColumn,
+                    int lastLine, int lastColumn);
   virtual ~AstUInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
