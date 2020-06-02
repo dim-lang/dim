@@ -420,8 +420,7 @@ private:
 /* constant expression - T_FLOAT64_CONSTANT */
 class AstFloat64Constant : public AstConstant {
 public:
-  AstFloat64Constant(const double &value, int firstLine, int firstColumn,
-                     int lastLine, int lastColumn);
+  AstFloat64Constant(const double &value, const Position &position);
   virtual ~AstFloat64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -435,8 +434,7 @@ private:
 /* constant expression - T_STRING_CONSTANT */
 class AstStringConstant : public AstConstant {
 public:
-  AstStringConstant(const char *value, int firstLine, int firstColumn,
-                    int lastLine, int lastColumn);
+  AstStringConstant(const char *value, const Position &position);
   virtual ~AstStringConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -451,8 +449,7 @@ private:
 /* constant expression - T_TRUE T_FALSE */
 class AstBooleanConstant : public AstConstant {
 public:
-  AstBooleanConstant(const bool &value, int firstLine, int firstColumn,
-                     int lastLine, int lastColumn);
+  AstBooleanConstant(const bool &value, const Position &position);
   virtual ~AstBooleanConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;

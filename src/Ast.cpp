@@ -12,10 +12,6 @@
 
 static NameGenerator nameGenerator;
 
-Ast::Ast(const std::string &name, int firstLine, int firstColumn, int lastLine,
-         int lastColumn)
-    : Position(firstLine, firstColumn, lastLine, lastColumn), name_(name) {}
-
 Ast::Ast(const std::string &name, const Position &position)
     : Position(position), name_(name) {}
 
@@ -153,30 +149,14 @@ bool Ast::isUnsignedIntegerConstant(const Ast *node) {
   return false;
 }
 
-AstExpression::AstExpression(const std::string &name, int firstLine,
-                             int firstColumn, int lastLine, int lastColumn)
-    : Ast(name, firstLine, firstColumn, lastLine, lastColumn) {}
-
 AstExpression::AstExpression(const std::string &name, const Position &position)
     : Ast(name, position) {}
-
-AstConstant::AstConstant(const std::string &name, int firstLine,
-                         int firstColumn, int lastLine, int lastColumn)
-    : AstExpression(name, firstLine, firstColumn, lastLine, lastColumn) {}
 
 AstConstant::AstConstant(const std::string &name, const Position &position)
     : AstExpression(name, position) {}
 
-AstStatement::AstStatement(const std::string &name, int firstLine,
-                           int firstColumn, int lastLine, int lastColumn)
-    : Ast(name, firstLine, firstColumn, lastLine, lastColumn) {}
-
 AstStatement::AstStatement(const std::string &name, const Position &position)
     : Ast(name, position) {}
-
-AstDefinition::AstDefinition(const std::string &name, int firstLine,
-                             int firstColumn, int lastLine, int lastColumn)
-    : AstStatement(name, firstLine, firstColumn, lastLine, lastColumn) {}
 
 AstDefinition::AstDefinition(const std::string &name, const Position &position)
     : AstStatement(name, position) {}
@@ -209,11 +189,9 @@ AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
 
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
-AstIdentifierConstant::AstIdentifierConstant(const char *value, int firstLine,
-                                             int firstColumn, int lastLine,
-                                             int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_id"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstIdentifierConstant::AstIdentifierConstant(const char *value,
+                                             const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_id"), position),
       value_(value) {
   LOG_ASSERT(value, "value is null");
 }
@@ -228,10 +206,8 @@ std::string AstIdentifierConstant::toString() const {
 
 const std::string &AstIdentifierConstant::value() const { return value_; }
 
-AstInt8Constant::AstInt8Constant(const int8_t &value, int firstLine,
-                                 int firstColumn, int lastLine, int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_i8"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstInt8Constant::AstInt8Constant(const int8_t &value, const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_i8"), position),
       value_(value) {}
 
 AstType AstInt8Constant::type() const { return AstType::Int8Constant; }
@@ -242,11 +218,9 @@ std::string AstInt8Constant::toString() const {
 
 const int8_t &AstInt8Constant::value() const { return value_; }
 
-AstUInt8Constant::AstUInt8Constant(const uint8_t &value, int firstLine,
-                                   int firstColumn, int lastLine,
-                                   int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_u8"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstUInt8Constant::AstUInt8Constant(const uint8_t &value,
+                                   const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_u8"), position),
       value_(value) {}
 
 AstType AstUInt8Constant::type() const { return AstType::UInt8Constant; }
@@ -257,11 +231,9 @@ std::string AstUInt8Constant::toString() const {
 
 const uint8_t &AstUInt8Constant::value() const { return value_; }
 
-AstInt16Constant::AstInt16Constant(const int16_t &value, int firstLine,
-                                   int firstColumn, int lastLine,
-                                   int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_i16"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstInt16Constant::AstInt16Constant(const int16_t &value,
+                                   const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_i16"), position),
       value_(value) {}
 
 AstType AstInt16Constant::type() const { return AstType::Int16Constant; }
@@ -272,11 +244,9 @@ std::string AstInt16Constant::toString() const {
 
 const int16_t &AstInt16Constant::value() const { return value_; }
 
-AstUInt16Constant::AstUInt16Constant(const uint16_t &value, int firstLine,
-                                     int firstColumn, int lastLine,
-                                     int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_u16"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstUInt16Constant::AstUInt16Constant(const uint16_t &value,
+                                     const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_u16"), position),
       value_(value) {}
 
 AstType AstUInt16Constant::type() const { return AstType::UInt16Constant; }
@@ -287,11 +257,9 @@ std::string AstUInt16Constant::toString() const {
 
 const uint16_t &AstUInt16Constant::value() const { return value_; }
 
-AstInt32Constant::AstInt32Constant(const int32_t &value, int firstLine,
-                                   int firstColumn, int lastLine,
-                                   int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_i32"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstInt32Constant::AstInt32Constant(const int32_t &value,
+                                   const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_i32"), position),
       value_(value) {}
 
 AstType AstInt32Constant::type() const { return AstType::Int32Constant; }
@@ -302,11 +270,9 @@ std::string AstInt32Constant::toString() const {
 
 const int32_t &AstInt32Constant::value() const { return value_; }
 
-AstUInt32Constant::AstUInt32Constant(const uint32_t &value, int firstLine,
-                                     int firstColumn, int lastLine,
-                                     int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_u32"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstUInt32Constant::AstUInt32Constant(const uint32_t &value,
+                                     const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_u32"), position),
       value_(value) {}
 
 AstType AstUInt32Constant::type() const { return AstType::UInt32Constant; }
@@ -317,11 +283,9 @@ std::string AstUInt32Constant::toString() const {
 
 const uint32_t &AstUInt32Constant::value() const { return value_; }
 
-AstInt64Constant::AstInt64Constant(const int64_t &value, int firstLine,
-                                   int firstColumn, int lastLine,
-                                   int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_i64"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstInt64Constant::AstInt64Constant(const int64_t &value,
+                                   const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_i64"), position),
       value_(value) {}
 
 AstType AstInt64Constant::type() const { return AstType::Int64Constant; }
@@ -332,11 +296,9 @@ std::string AstInt64Constant::toString() const {
 
 const int64_t &AstInt64Constant::value() const { return value_; }
 
-AstUInt64Constant::AstUInt64Constant(const uint64_t &value, int firstLine,
-                                     int firstColumn, int lastLine,
-                                     int lastColumn)
-    : AstConstant(nameGenerator.generateWith(value, "A_u64"), firstLine,
-                  firstColumn, lastLine, lastColumn),
+AstUInt64Constant::AstUInt64Constant(const uint64_t &value,
+                                     const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_u64"), position),
       value_(value) {}
 
 AstType AstUInt64Constant::type() const { return AstType::UInt64Constant; }
@@ -347,8 +309,10 @@ std::string AstUInt64Constant::toString() const {
 
 const uint64_t &AstUInt64Constant::value() const { return value_; }
 
-AstFloat32Constant::AstFloat32Constant(const float &value)
-    : AstConstant(nameGenerator.generateWith(value, "A_f32")), value_(value) {}
+AstFloat32Constant::AstFloat32Constant(const float &value,
+                                       const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_f32"), position),
+      value_(value) {}
 
 AstType AstFloat32Constant::type() const { return AstType::Float32Constant; }
 
@@ -358,8 +322,10 @@ std::string AstFloat32Constant::toString() const {
 
 const float &AstFloat32Constant::value() const { return value_; }
 
-AstFloat64Constant::AstFloat64Constant(const double &value)
-    : AstConstant(nameGenerator.generateWith(value, "A_f64")), value_(value) {}
+AstFloat64Constant::AstFloat64Constant(const double &value,
+                                       const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_f64"), position),
+      value_(value) {}
 
 AstType AstFloat64Constant::type() const { return AstType::Float64Constant; }
 
@@ -369,8 +335,9 @@ std::string AstFloat64Constant::toString() const {
 
 const double &AstFloat64Constant::value() const { return value_; }
 
-AstStringConstant::AstStringConstant(const char *value)
-    : AstConstant(nameGenerator.generateWith(value, "A_string")),
+AstStringConstant::AstStringConstant(const char *value,
+                                     const Position &position)
+    : AstConstant(nameGenerator.generateWith(value, "A_string"), position),
       value_(value) {
   LOG_ASSERT(value, "value is null");
 }
