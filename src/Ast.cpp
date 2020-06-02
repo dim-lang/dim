@@ -317,8 +317,12 @@ std::string AstUInt32Constant::toString() const {
 
 const uint32_t &AstUInt32Constant::value() const { return value_; }
 
-AstInt64Constant::AstInt64Constant(const int64_t &value)
-    : AstConstant(nameGenerator.generateWith(value, "A_i64")), value_(value) {}
+AstInt64Constant::AstInt64Constant(const int64_t &value, int firstLine,
+                                   int firstColumn, int lastLine,
+                                   int lastColumn)
+    : AstConstant(nameGenerator.generateWith(value, "A_i64"), firstLine,
+                  firstColumn, lastLine, lastColumn),
+      value_(value) {}
 
 AstType AstInt64Constant::type() const { return AstType::Int64Constant; }
 
@@ -328,8 +332,12 @@ std::string AstInt64Constant::toString() const {
 
 const int64_t &AstInt64Constant::value() const { return value_; }
 
-AstUInt64Constant::AstUInt64Constant(const uint64_t &value)
-    : AstConstant(nameGenerator.generateWith(value, "A_u64")), value_(value) {}
+AstUInt64Constant::AstUInt64Constant(const uint64_t &value, int firstLine,
+                                     int firstColumn, int lastLine,
+                                     int lastColumn)
+    : AstConstant(nameGenerator.generateWith(value, "A_u64"), firstLine,
+                  firstColumn, lastLine, lastColumn),
+      value_(value) {}
 
 AstType AstUInt64Constant::type() const { return AstType::UInt64Constant; }
 

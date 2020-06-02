@@ -105,8 +105,6 @@ class Ast : public Namely,
             public Position,
             private boost::noncopyable {
 public:
-  Ast(const std::string &name, int firstLine, int firstColumn, int lastLine,
-      int lastColumn);
   Ast(const std::string &name, const Position &position);
   virtual ~Ast() = default;
   virtual AstType type() const = 0;
@@ -129,8 +127,6 @@ private:
 /* expression */
 class AstExpression : public Ast {
 public:
-  AstExpression(const std::string &name, int firstLine, int firstColumn,
-                int lastLine, int lastColumn);
   AstExpression(const std::string &name, const Position &position);
   virtual ~AstExpression() = default;
   virtual AstType type() const = 0;
@@ -140,8 +136,6 @@ public:
 /* constant */
 class AstConstant : public AstExpression {
 public:
-  AstConstant(const std::string &name, int firstLine, int firstColumn,
-              int lastLine, int lastColumn);
   AstConstant(const std::string &name, const Position &position);
   virtual ~AstConstant() = default;
   virtual AstType type() const = 0;
@@ -151,8 +145,6 @@ public:
 /* statement */
 class AstStatement : public Ast {
 public:
-  AstStatement(const std::string &name, int firstLine, int firstColumn,
-               int lastLine, int lastColumn);
   AstStatement(const std::string &name, const Position &position);
   virtual ~AstStatement() = default;
   virtual AstType type() const = 0;
@@ -162,8 +154,6 @@ public:
 /* definition is statement */
 class AstDefinition : public AstStatement {
 public:
-  AstDefinition(const std::string &name, int firstLine, int firstColumn,
-                int lastLine, int lastColumn);
   AstDefinition(const std::string &name, const Position &position);
   virtual ~AstDefinition() = default;
   virtual AstType type() const = 0;
@@ -290,8 +280,7 @@ private:
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstConstant {
 public:
-  AstIdentifierConstant(const char *value, int firstLine, int firstColumn,
-                        int lastLine, int lastColumn);
+  AstIdentifierConstant(const char *value, const Position &position);
   virtual ~AstIdentifierConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -305,8 +294,7 @@ private:
 /* constant expression - T_INT8_CONSTANT */
 class AstInt8Constant : public AstConstant {
 public:
-  AstInt8Constant(const int8_t &value, int firstLine, int firstColumn,
-                  int lastLine, int lastColumn);
+  AstInt8Constant(const int8_t &value, const Position &position);
   virtual ~AstInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -320,8 +308,7 @@ private:
 /* constant expression - T_UINT8_CONSTANT */
 class AstUInt8Constant : public AstConstant {
 public:
-  AstUInt8Constant(const uint8_t &value, int firstLine, int firstColumn,
-                   int lastLine, int lastColumn);
+  AstUInt8Constant(const uint8_t &value, const Position &position);
   virtual ~AstUInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -335,8 +322,7 @@ private:
 /* constant expression - T_INT16_CONSTANT */
 class AstInt16Constant : public AstConstant {
 public:
-  AstInt16Constant(const int16_t &value, int firstLine, int firstColumn,
-                   int lastLine, int lastColumn);
+  AstInt16Constant(const int16_t &value, const Position &position);
   virtual ~AstInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -350,8 +336,7 @@ private:
 /* constant expression - T_UINT16_CONSTANT */
 class AstUInt16Constant : public AstConstant {
 public:
-  AstUInt16Constant(const uint16_t &value, int firstLine, int firstColumn,
-                    int lastLine, int lastColumn);
+  AstUInt16Constant(const uint16_t &value, const Position &position);
   virtual ~AstUInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -365,8 +350,7 @@ private:
 /* constant expression - T_INT32_CONSTANT */
 class AstInt32Constant : public AstConstant {
 public:
-  AstInt32Constant(const int32_t &value, int firstLine, int firstColumn,
-                   int lastLine, int lastColumn);
+  AstInt32Constant(const int32_t &value, const Position &position);
   virtual ~AstInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -380,8 +364,7 @@ private:
 /* constant expression - T_UINT32_CONSTANT */
 class AstUInt32Constant : public AstConstant {
 public:
-  AstUInt32Constant(const uint32_t &value, int firstLine, int firstColumn,
-                    int lastLine, int lastColumn);
+  AstUInt32Constant(const uint32_t &value, const Position &position);
   virtual ~AstUInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -395,7 +378,7 @@ private:
 /* constant expression - T_INT64_CONSTANT */
 class AstInt64Constant : public AstConstant {
 public:
-  AstInt64Constant(const int64_t &value);
+  AstInt64Constant(const int64_t &value, const Position &position);
   virtual ~AstInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -409,7 +392,7 @@ private:
 /* constant expression - T_UINT64_CONSTANT */
 class AstUInt64Constant : public AstConstant {
 public:
-  AstUInt64Constant(const uint64_t &value);
+  AstUInt64Constant(const uint64_t &value, const Position &position);
   virtual ~AstUInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -423,7 +406,7 @@ private:
 /* constant expression - T_FLOAT32_CONSTANT */
 class AstFloat32Constant : public AstConstant {
 public:
-  AstFloat32Constant(const float &value);
+  AstFloat32Constant(const float &value, const Position &position);
   virtual ~AstFloat32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -437,7 +420,8 @@ private:
 /* constant expression - T_FLOAT64_CONSTANT */
 class AstFloat64Constant : public AstConstant {
 public:
-  AstFloat64Constant(const double &value);
+  AstFloat64Constant(const double &value, int firstLine, int firstColumn,
+                     int lastLine, int lastColumn);
   virtual ~AstFloat64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -451,7 +435,8 @@ private:
 /* constant expression - T_STRING_CONSTANT */
 class AstStringConstant : public AstConstant {
 public:
-  AstStringConstant(const char *value);
+  AstStringConstant(const char *value, int firstLine, int firstColumn,
+                    int lastLine, int lastColumn);
   virtual ~AstStringConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -466,7 +451,8 @@ private:
 /* constant expression - T_TRUE T_FALSE */
 class AstBooleanConstant : public AstConstant {
 public:
-  AstBooleanConstant(const bool &value);
+  AstBooleanConstant(const bool &value, int firstLine, int firstColumn,
+                     int lastLine, int lastColumn);
   virtual ~AstBooleanConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
