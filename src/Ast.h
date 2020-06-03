@@ -532,8 +532,8 @@ private:
 /* assignment expression */
 class AstAssignmentExpression : public AstExpression {
 public:
-  AstAssignmentExpression(AstExpression *variable, int token,
-                          AstExpression *value);
+  AstAssignmentExpression(AstExpression *variable, AstExpression *value,
+                          int token, const Position &position);
   virtual ~AstAssignmentExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -564,7 +564,7 @@ private:
 /* void expression */
 class AstVoidExpression : public AstExpression {
 public:
-  AstVoidExpression();
+  AstVoidExpression(const Position &position);
   virtual ~AstVoidExpression() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
