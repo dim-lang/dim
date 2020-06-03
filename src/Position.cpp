@@ -2,45 +2,62 @@
 // Apache License Version 2.0
 
 #include "Position.h"
+#include "Log.h"
 
 #define INVALID -1
+#define IS_INVALID(x) (x < 0)
+
+Position::Position()
+    : firstLine_(INVALID), firstColumn_(INVALID), lastLine_(INVALID),
+      lastColumn_(INVALID) {}
 
 Position::Position(int firstLine, int firstColumn, int lastLine, int lastColumn)
-    : firstLine_(firstLine), firstColumn_(firstColumn), lastLine_(lastLine),
-      lastColumn_(lastColumn) {}
+    : firstLine(firstLine), firstColumn(firstColumn), lastLine(lastLine),
+      lastColumn(lastColumn) {}
 
-const int &Position::firstLine() const { return firstLine_; }
+Position &Position::updatePosition(const Position &position) {
+  updateFirstLine(position.firstLine());
+  updateFirstColumn(position.firstColumn());
+  updateLastLine(position.lastLine());
+  updateLastColumn(position.lastColumn());
+  return *this;
+}
 
-const int &Position::firstColumn() const { return firstColumn_; }
-
-const int &Position::lastLine() const { return lastLine_; }
-
-const int &Position::lastColumn() const { return lastColumn_; }
+Position &Position::updatePosition(const Position *position) {
+  LOG_ASSERT(position, "position is null");
+  updateFirstLine(position->firstLine());
+  updateFirstColumn(position->firstColumn());
+  updateLastLine(position->lastLine());
+  updateLastColumn(position->lastColumn());
+  return *this;
+}
 
 Position &Position::updateFirstLine(int value) {
-  firstLine_ =
-      firstLine_ < 0 ? value : (firstLine_ > value ? value : firstLine_);
+  firstLine_ = IS_INVALID(firstLine_)
+                   ? value
+                   : (firstLine_ > value ? value : firstLine_);
   return *this;
 }
 
 Position &Position::updateFirstColumn(int value) {
-  firstColumn_ =
-      firstColumn_ < 0 ? value : (firstColumn_ > value ? value : firstColumn_);
+  firstColumn_ = IS_INVALID(firstColumn_)
+                     ? value
+                     : (firstColumn_ > value ? value : firstColumn_);
   return *this;
 }
 
 Position &Position::updateLastLine(int value) {
-  lastLine_ = lastLine_ < 0 ? value : (lastLine_ > value ? lastLine_ : value);
+  lastLine_ =
+      IS_INVALID(lastLine_) ? value : (lastLine_ > value ? lastLine_ : value);
   return *this;
 }
 
 Position &Position::updateLastColumn(int value) {
-  lastColumn_ =
-      lastColumn_ < 0 ? value : (lastColumn_ > value ? lastColumn_ : value);
+  lastColumn_ = IS_INVALID(lastColumn_)
+                    ? value
+                    : (lastColumn_ > value ? lastColumn_ : value);
   return *this;
 }
 
-const Position &Position::invalid() {
-  static Position inv(-1, -1, -1, -1);
-  return inv;
-}
+#undef INVALID
+#undef IS_INVALID

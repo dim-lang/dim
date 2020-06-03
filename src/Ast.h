@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Log.h"
+#include "Position.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "interface/Namely.h"
@@ -99,9 +100,13 @@ class AstFunctionArgumentDefinition;
 /*================ definition ================*/
 
 /* base interface */
-class Ast : public Namely, public Stringify, private boost::noncopyable {
+class Ast : public Namely,
+            public Stringify,
+            public Position,
+            private boost::noncopyable {
 public:
   Ast(const std::string &name);
+  Ast(const std::string &name, const Position &position);
   virtual ~Ast() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -124,6 +129,7 @@ private:
 class AstExpression : public Ast {
 public:
   AstExpression(const std::string &name);
+  AstExpression(const std::string &name, const Position &position);
   virtual ~AstExpression() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -133,6 +139,7 @@ public:
 class AstConstant : public AstExpression {
 public:
   AstConstant(const std::string &name);
+  AstConstant(const std::string &name, const Position &position);
   virtual ~AstConstant() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -196,6 +203,7 @@ public:
   }
   virtual void add(T *item) {
     LOG_ASSERT(item, "item is null");
+    updatePosition(static_cast<Position *>(item));
     items_.push_front(item);
   }
 
@@ -271,7 +279,7 @@ private:
 /* constant expression - T_IDENTIFIER */
 class AstIdentifierConstant : public AstConstant {
 public:
-  AstIdentifierConstant(const char *value);
+  AstIdentifierConstant(const char *value, const Position &position);
   virtual ~AstIdentifierConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -285,7 +293,7 @@ private:
 /* constant expression - T_INT8_CONSTANT */
 class AstInt8Constant : public AstConstant {
 public:
-  AstInt8Constant(const int8_t &value);
+  AstInt8Constant(const int8_t &value, const Position &position);
   virtual ~AstInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -299,7 +307,7 @@ private:
 /* constant expression - T_UINT8_CONSTANT */
 class AstUInt8Constant : public AstConstant {
 public:
-  AstUInt8Constant(const uint8_t &value);
+  AstUInt8Constant(const uint8_t &value, const Position &position);
   virtual ~AstUInt8Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -313,7 +321,7 @@ private:
 /* constant expression - T_INT16_CONSTANT */
 class AstInt16Constant : public AstConstant {
 public:
-  AstInt16Constant(const int16_t &value);
+  AstInt16Constant(const int16_t &value, const Position &position);
   virtual ~AstInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -327,7 +335,7 @@ private:
 /* constant expression - T_UINT16_CONSTANT */
 class AstUInt16Constant : public AstConstant {
 public:
-  AstUInt16Constant(const uint16_t &value);
+  AstUInt16Constant(const uint16_t &value, const Position &position);
   virtual ~AstUInt16Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -341,7 +349,7 @@ private:
 /* constant expression - T_INT32_CONSTANT */
 class AstInt32Constant : public AstConstant {
 public:
-  AstInt32Constant(const int32_t &value);
+  AstInt32Constant(const int32_t &value, const Position &position);
   virtual ~AstInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -355,7 +363,7 @@ private:
 /* constant expression - T_UINT32_CONSTANT */
 class AstUInt32Constant : public AstConstant {
 public:
-  AstUInt32Constant(const uint32_t &value);
+  AstUInt32Constant(const uint32_t &value, const Position &position);
   virtual ~AstUInt32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -369,7 +377,7 @@ private:
 /* constant expression - T_INT64_CONSTANT */
 class AstInt64Constant : public AstConstant {
 public:
-  AstInt64Constant(const int64_t &value);
+  AstInt64Constant(const int64_t &value, const Position &position);
   virtual ~AstInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -383,7 +391,7 @@ private:
 /* constant expression - T_UINT64_CONSTANT */
 class AstUInt64Constant : public AstConstant {
 public:
-  AstUInt64Constant(const uint64_t &value);
+  AstUInt64Constant(const uint64_t &value, const Position &position);
   virtual ~AstUInt64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -397,7 +405,7 @@ private:
 /* constant expression - T_FLOAT32_CONSTANT */
 class AstFloat32Constant : public AstConstant {
 public:
-  AstFloat32Constant(const float &value);
+  AstFloat32Constant(const float &value, const Position &position);
   virtual ~AstFloat32Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -411,7 +419,7 @@ private:
 /* constant expression - T_FLOAT64_CONSTANT */
 class AstFloat64Constant : public AstConstant {
 public:
-  AstFloat64Constant(const double &value);
+  AstFloat64Constant(const double &value, const Position &position);
   virtual ~AstFloat64Constant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -425,7 +433,7 @@ private:
 /* constant expression - T_STRING_CONSTANT */
 class AstStringConstant : public AstConstant {
 public:
-  AstStringConstant(const char *value);
+  AstStringConstant(const char *value, const Position &position);
   virtual ~AstStringConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -440,7 +448,7 @@ private:
 /* constant expression - T_TRUE T_FALSE */
 class AstBooleanConstant : public AstConstant {
 public:
-  AstBooleanConstant(const bool &value);
+  AstBooleanConstant(const bool &value, const Position &position);
   virtual ~AstBooleanConstant() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -454,7 +462,8 @@ private:
 /* function call expression */
 class AstCallExpression : public AstExpression {
 public:
-  AstCallExpression(const char *identifier, AstExpressionList *expressionList);
+  AstCallExpression(const char *identifier, AstExpressionList *expressionList,
+                    const Position &identifierPosition);
   virtual ~AstCallExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -470,7 +479,8 @@ private:
 /* unary operation expression */
 class AstUnaryExpression : public AstExpression {
 public:
-  AstUnaryExpression(int token, AstExpression *expression);
+  AstUnaryExpression(int token, AstExpression *expression,
+                     const Position &tokenPosition);
   virtual ~AstUnaryExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -486,7 +496,8 @@ private:
 /* binary operation expression */
 class AstBinaryExpression : public AstExpression {
 public:
-  AstBinaryExpression(AstExpression *left, int token, AstExpression *right);
+  AstBinaryExpression(AstExpression *left, int token, AstExpression *right,
+                      const Position &tokenPosition);
   virtual ~AstBinaryExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -524,7 +535,7 @@ private:
 class AstAssignmentExpression : public AstExpression {
 public:
   AstAssignmentExpression(AstExpression *variable, int token,
-                          AstExpression *value);
+                          AstExpression *value, const Position &tokenPosition);
   virtual ~AstAssignmentExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -555,7 +566,7 @@ private:
 /* void expression */
 class AstVoidExpression : public AstExpression {
 public:
-  AstVoidExpression();
+  AstVoidExpression(const Position &position);
   virtual ~AstVoidExpression() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
