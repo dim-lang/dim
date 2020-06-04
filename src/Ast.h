@@ -149,6 +149,7 @@ public:
 class AstStatement : public Ast {
 public:
   AstStatement(const std::string &name);
+  AstStatement(const std::string &name, const Position &position);
   virtual ~AstStatement() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -158,6 +159,7 @@ public:
 class AstDefinition : public AstStatement {
 public:
   AstDefinition(const std::string &name);
+  AstDefinition(const std::string &name, const Position &position);
   virtual ~AstDefinition() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
@@ -439,7 +441,7 @@ public:
   virtual std::string toString() const;
 
   virtual const std::string &value() const;
-  virtual void add(const char *value);
+  virtual void add(const char *value, const Position &position);
 
 private:
   std::string value_;
@@ -566,7 +568,7 @@ private:
 /* void expression */
 class AstVoidExpression : public AstExpression {
 public:
-  AstVoidExpression(const Position &position);
+  AstVoidExpression();
   virtual ~AstVoidExpression() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -575,7 +577,8 @@ public:
 /* expression statement */
 class AstExpressionStatement : public AstStatement {
 public:
-  AstExpressionStatement(AstExpression *expression);
+  AstExpressionStatement(AstExpression *expression,
+                         const Position &semiTokenPosition);
   virtual ~AstExpressionStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -589,7 +592,9 @@ private:
 /* compound statement - { ... } */
 class AstCompoundStatement : public AstStatement {
 public:
-  AstCompoundStatement(AstStatementList *statementList);
+  AstCompoundStatement(AstStatementList *statementList,
+                       const Position &lparenTokenPosition,
+                       const Position &rparenTokenPosition);
   virtual ~AstCompoundStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -604,7 +609,7 @@ private:
 class AstIfStatement : public AstStatement {
 public:
   AstIfStatement(AstExpression *condition, AstStatement *thens,
-                 AstStatement *elses);
+                 AstStatement *elses, const Position &ifTokenPosition);
   virtual ~AstIfStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -622,7 +627,8 @@ private:
 /* iteration statement - while */
 class AstWhileStatement : public AstStatement {
 public:
-  AstWhileStatement(AstExpression *condition, AstStatement *statement);
+  AstWhileStatement(AstExpression *condition, AstStatement *statement,
+                    const Position &whileTokenPosition);
   virtual ~AstWhileStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -639,7 +645,8 @@ private:
 class AstForStatement : public AstStatement {
 public:
   AstForStatement(AstStatement *initial, AstStatement *condition,
-                  AstExpression *post, AstStatement *statement);
+                  AstExpression *post, AstStatement *statement,
+                  const Position &forTokenPosition);
   virtual ~AstForStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -659,7 +666,8 @@ private:
 /* jump statement - continue */
 class AstContinueStatement : public AstStatement {
 public:
-  AstContinueStatement();
+  AstContinueStatement(const Position &continueTokenPosition,
+                       const Position &semiTokenPosition);
   virtual ~AstContinueStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -670,7 +678,8 @@ private:
 /* jump statement - break */
 class AstBreakStatement : public AstStatement {
 public:
-  AstBreakStatement();
+  AstBreakStatement(const Position &breakTokenPosition,
+                    const Position &semiTokenPosition);
   virtual ~AstBreakStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -681,7 +690,9 @@ private:
 /* jump statement - return */
 class AstReturnStatement : public AstStatement {
 public:
-  AstReturnStatement(AstExpression *expression);
+  AstReturnStatement(AstExpression *expression,
+                     const Position &returnTokenPosition,
+                     const Position &semiTokenPosition);
   virtual ~AstReturnStatement();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -695,17 +706,18 @@ private:
 class AstEmptyStatement : public AstStatement {
 public:
   AstEmptyStatement();
+  AstEmptyStatement(const Position &semiTokenPosition);
   virtual ~AstEmptyStatement() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
-
-private:
 };
 
 /* variable definition */
 class AstVariableDefinition : public AstDefinition {
 public:
-  AstVariableDefinition(AstDefinitionList *definitionList);
+  AstVariableDefinition(AstDefinitionList *definitionList,
+                        const Position &varTokenPosition,
+                        const Position &semiTokenPosition);
   virtual ~AstVariableDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -719,7 +731,8 @@ private:
 class AstVariableInitialDefinition : public AstDefinition {
 public:
   AstVariableInitialDefinition(const char *identifier,
-                               AstExpression *expression);
+                               AstExpression *expression,
+                               const Position &identifierPosition);
   virtual ~AstVariableInitialDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -753,7 +766,9 @@ class AstFunctionSignatureDefinition : public AstDefinition {
 public:
   AstFunctionSignatureDefinition(const char *identifier,
                                  AstDefinitionList *argumentList,
-                                 AstExpression *result);
+                                 AstExpression *result,
+                                 const Position &funcTokenPosition,
+                                 const Position &identifierPosition);
   virtual ~AstFunctionSignatureDefinition();
   virtual AstType type() const;
   virtual std::string toString() const;
@@ -771,13 +786,14 @@ private:
 /* function argument definition */
 class AstFunctionArgumentDefinition : public AstDefinition {
 public:
-  AstFunctionArgumentDefinition(const char *value);
+  AstFunctionArgumentDefinition(const char *identifier,
+                                const Position &argumentPosition);
   virtual ~AstFunctionArgumentDefinition() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
-  virtual const std::string &value() const;
+  virtual const std::string &identifier() const;
 
 private:
-  std::string value_;
+  std::string identifier_;
 };

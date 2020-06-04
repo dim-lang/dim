@@ -343,33 +343,5 @@ static std::string dumpTypeImpl(Type *ty, int depth) {
 
 std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
 
-std::string dumpLLVMValue(llvm::Value *v) {
-  std::stringstream ss;
-  if (!v) {
-    ss << "LLVM::Value nil\n";
-    return ss.str();
-  }
-  std::string tmp;
-  llvm::raw_string_ostream os(tmp);
-  v->print(os);
-  ss << os.str();
-  ss << "\n";
-  return ss.str();
-}
-
-std::string dumpLLVMFunction(llvm::Function *f) {
-  std::stringstream ss;
-  if (!f) {
-    ss << "LLVM::Function nil\n";
-    return ss.str();
-  }
-  std::string tmp;
-  llvm::raw_string_ostream os(tmp);
-  f->print(os);
-  ss << os.str();
-  ss << "\n";
-  return ss.str();
-}
-
 #undef DS
 #undef DC

@@ -81,16 +81,16 @@ set(SHEPHERD
     NameGenerator.cpp
     TokenName.cpp
     Token.cpp
-    #Token.yy.cpp
-    #Parser.tab.cpp
     Scanner.cpp
     Ast.cpp
+    Position.cpp
     Symbol.cpp
     Type.cpp
     SymbolTable.cpp
     Semantic.cpp
     Counter.cpp
     Dump.cpp
+    Output.cpp
     Ir.cpp
     ${BISON_ShepherdParser_OUTPUTS}
     ${FLEX_ShepherdTokenizer_OUTPUTS}

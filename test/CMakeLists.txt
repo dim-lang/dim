@@ -78,6 +78,7 @@ set(SHEPHERD_TEST
     ParserTest.cpp
     SemanticTest.cpp
     DumpTest.cpp
+    OutputTest.cpp
     NameGeneratorTest.cpp
     container/LinkedHashMapTest.cpp
 )

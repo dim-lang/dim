@@ -252,28 +252,6 @@ IrTranslateUnit::IrTranslateUnit(AstTranslateUnit *node)
 
 IrType IrTranslateUnit::type() const { return IrType::TranslateUnit; }
 
-std::string IrTranslateUnit::dumpCodeGen(IrContext *context) {
-  LOG_ASSERT(context, "context is null");
-  std::stringstream ss;
-  for (int i = 0; i < size(); i++) {
-    IrDefinition *ir = get(i);
-    switch (ir->type()) {
-    case IrType::VariableDefinition: {
-      llvm::Value *v = DC(IrVariableDefinition, ir)->codeGen(context);
-      ss << dumpLLVMValue(v);
-    } break;
-    case IrType::FunctionDefinition: {
-      llvm::Function *f = llvm::dyn_cast<llvm::Function>(
-          DC(IrFunctionDefinition, ir)->codeGen(context));
-      ss << dumpLLVMFunction(f);
-    } break;
-    default:
-      LOG_ASSERT(false, "invalid ir:{}", ir->toString());
-    }
-  }
-  return ss.str();
-}
-
 std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 
 /* identifier constant */
@@ -1287,7 +1265,7 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen(IrContext *context) {
     LOG_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDefinition *ast =
         DC(AstFunctionArgumentDefinition, args->get(i++));
-    a.setName(Ir::toIrName(ast->value()));
+    a.setName(Ir::toIrName(ast->identifier()));
   }
   return llvm::dyn_cast<llvm::Value>(f);
 }

@@ -163,7 +163,13 @@ AstConstant::AstConstant(const std::string &name, const Position &position)
 
 AstStatement::AstStatement(const std::string &name) : Ast(name) {}
 
+AstStatement::AstStatement(const std::string &name, const Position &position)
+    : Ast(name, position) {}
+
 AstDefinition::AstDefinition(const std::string &name) : AstStatement(name) {}
+
+AstDefinition::AstDefinition(const std::string &name, const Position &position)
+    : AstStatement(name, position) {}
 
 AstExpressionList::AstExpressionList()
     : detail::AstList<AstExpression>(nameGenerator.generate("A_ExpList")) {}
@@ -354,8 +360,9 @@ std::string AstStringConstant::toString() const {
 
 const std::string &AstStringConstant::value() const { return value_; }
 
-void AstStringConstant::add(const char *value) {
+void AstStringConstant::add(const char *value, const Position &position) {
   value_ = std::string(value) + value_;
+  updatePosition(position);
 }
 
 AstBooleanConstant::AstBooleanConstant(const bool &value,
@@ -566,8 +573,8 @@ AstExpressionList *AstSequelExpression::expressionList() const {
   return expressionList_;
 }
 
-AstVoidExpression::AstVoidExpression(const Position &position)
-    : AstExpression(nameGenerator.generate("A_VoidExp"), position) {}
+AstVoidExpression::AstVoidExpression()
+    : AstExpression(nameGenerator.generate("A_VoidExp")) {}
 
 AstType AstVoidExpression::type() const { return AstType::VoidExpression; }
 
@@ -575,8 +582,9 @@ std::string AstVoidExpression::toString() const {
   return fmt::format("[@AstVoidExpression]");
 }
 
-AstExpressionStatement::AstExpressionStatement(AstExpression *expression)
-    : AstStatement(nameGenerator.generate("A_ExpStm")),
+AstExpressionStatement::AstExpressionStatement(
+    AstExpression *expression, const Position &semiTokenPosition)
+    : AstStatement(nameGenerator.generate("A_ExpStm"), semiTokenPosition),
       expression_(expression) {
   LOG_ASSERT(expression_, "expression_ is null");
   updatePosition(expression_);
@@ -600,10 +608,14 @@ AstExpression *AstExpressionStatement::expression() const {
   return expression_;
 }
 
-AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList)
+AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList,
+                                           const Position &lparenTokenPosition,
+                                           const Position &rparenTokenPosition)
     : AstStatement(nameGenerator.generate("A_Compound")),
       statementList_(statementList) {
   LOG_ASSERT(statementList_, "statementList_ is null");
+  updatePosition(lparenTokenPosition);
+  updatePosition(rparenTokenPosition);
   for (int i = 0; i < statementList_->size(); i++) {
     updatePosition(statementList_->get(i));
   }
@@ -628,9 +640,10 @@ AstStatementList *AstCompoundStatement::statementList() const {
 }
 
 AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *thens,
-                               AstStatement *elses)
-    : AstStatement(nameGenerator.generate("A_If")), condition_(condition),
-      thens_(thens), elses_(elses) {
+                               AstStatement *elses,
+                               const Position &ifTokenPosition)
+    : AstStatement(nameGenerator.generate("A_If"), ifTokenPosition),
+      condition_(condition), thens_(thens), elses_(elses) {
   LOG_ASSERT(condition_, "condition_ is null");
   LOG_ASSERT(thens_, "thens_ is null");
   LOG_ASSERT(elses_, "elses_ is null");
@@ -663,11 +676,14 @@ AstStatement *AstIfStatement::thens() const { return thens_; }
 AstStatement *AstIfStatement::elses() const { return elses_; }
 
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
-                                     AstStatement *statement)
-    : AstStatement(nameGenerator.generate("A_While")), condition_(condition),
-      statement_(statement) {
+                                     AstStatement *statement,
+                                     const Position &whileTokenPosition)
+    : AstStatement(nameGenerator.generate("A_While"), whileTokenPosition),
+      condition_(condition), statement_(statement) {
   LOG_ASSERT(condition_, "condition_ is null");
   LOG_ASSERT(statement_, "statement_ is null");
+  updatePosition(condition_);
+  updatePosition(statement_);
 }
 
 AstWhileStatement::~AstWhileStatement() {
@@ -689,13 +705,18 @@ AstExpression *AstWhileStatement::condition() const { return condition_; }
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
 AstForStatement::AstForStatement(AstStatement *start, AstStatement *step,
-                                 AstExpression *end, AstStatement *statement)
-    : AstStatement(nameGenerator.generate("A_For")), start_(start), step_(step),
-      end_(end), statement_(statement) {
+                                 AstExpression *end, AstStatement *statement,
+                                 const Position &forTokenPosition)
+    : AstStatement(nameGenerator.generate("A_For"), forTokenPosition),
+      start_(start), step_(step), end_(end), statement_(statement) {
   LOG_ASSERT(start_, "start_ is null");
   LOG_ASSERT(step_, "step_ is null");
   LOG_ASSERT(end_, "end_ is null");
   LOG_ASSERT(statement_, "statement_ is null");
+  updatePosition(start_);
+  updatePosition(step_);
+  updatePosition(end_);
+  updatePosition(statement_);
 }
 
 AstForStatement::~AstForStatement() {
@@ -726,8 +747,12 @@ AstExpression *AstForStatement::end() const { return end_; }
 
 AstStatement *AstForStatement::statement() const { return statement_; }
 
-AstContinueStatement::AstContinueStatement()
-    : AstStatement(nameGenerator.generate("A_continue")) {}
+AstContinueStatement::AstContinueStatement(
+    const Position &continueTokenPosition, const Position &semiTokenPosition)
+    : AstStatement(nameGenerator.generate("A_continue"),
+                   continueTokenPosition) {
+  updatePosition(semiTokenPosition);
+}
 
 AstType AstContinueStatement::type() const {
   return AstType::ContinueStatement;
@@ -737,8 +762,11 @@ std::string AstContinueStatement::toString() const {
   return fmt::format("[@AstContinueStatement ]");
 }
 
-AstBreakStatement::AstBreakStatement()
-    : AstStatement(nameGenerator.generate("A_break")) {}
+AstBreakStatement::AstBreakStatement(const Position &breakTokenPosition,
+                                     const Position &semiTokenPosition)
+    : AstStatement(nameGenerator.generate("A_break"), breakTokenPosition) {
+  updatePosition(semiTokenPosition);
+}
 
 AstType AstBreakStatement::type() const { return AstType::BreakStatement; }
 
@@ -746,10 +774,14 @@ std::string AstBreakStatement::toString() const {
   return fmt::format("[@AstBreakStatement ]");
 }
 
-AstReturnStatement::AstReturnStatement(AstExpression *expression)
-    : AstStatement(nameGenerator.generate("A_return")),
+AstReturnStatement::AstReturnStatement(AstExpression *expression,
+                                       const Position &returnTokenPosition,
+                                       const Position &semiTokenPosition)
+    : AstStatement(nameGenerator.generate("A_return"), returnTokenPosition),
       expression_(expression) {
   LOG_ASSERT(expression_, "expression_ is null");
+  updatePosition(expression_);
+  updatePosition(semiTokenPosition);
 }
 
 AstReturnStatement::~AstReturnStatement() {
@@ -769,16 +801,25 @@ AstExpression *AstReturnStatement::expression() const { return expression_; }
 AstEmptyStatement::AstEmptyStatement()
     : AstStatement(nameGenerator.generate("A_EmpStm")) {}
 
+AstEmptyStatement::AstEmptyStatement(const Position &semiTokenPosition)
+    : AstStatement(nameGenerator.generate("A_EmpStm"), semiTokenPosition) {}
+
 AstType AstEmptyStatement::type() const { return AstType::EmptyStatement; }
 
 std::string AstEmptyStatement::toString() const {
   return fmt::format("[@AstEmptyStatement]");
 }
 
-AstVariableDefinition::AstVariableDefinition(AstDefinitionList *definitionList)
-    : AstDefinition(nameGenerator.generate("A_VarDecl")),
+AstVariableDefinition::AstVariableDefinition(AstDefinitionList *definitionList,
+                                             const Position &varTokenPosition,
+                                             const Position &semiTokenPosition)
+    : AstDefinition(nameGenerator.generate("A_VarDecl"), varTokenPosition),
       definitionList_(definitionList) {
   LOG_ASSERT(definitionList_, "definitionList_ is null");
+  updatePosition(semiTokenPosition);
+  for (int i = 0; i < definitionList_->size(); i++) {
+    updatePosition(definitionList_->get(i));
+  }
 }
 
 AstVariableDefinition::~AstVariableDefinition() {
@@ -800,11 +841,13 @@ AstDefinitionList *AstVariableDefinition::definitionList() const {
 }
 
 AstVariableInitialDefinition::AstVariableInitialDefinition(
-    const char *identifier, AstExpression *expression)
-    : AstDefinition(nameGenerator.generate("A_VarAssDecl")),
+    const char *identifier, AstExpression *expression,
+    const Position &identifierPosition)
+    : AstDefinition(nameGenerator.generate("A_VarAssDecl"), identifierPosition),
       identifier_(identifier), expression_(expression) {
   LOG_ASSERT(identifier, "identifier is null");
   LOG_ASSERT(expression_, "expression_ is null");
+  updatePosition(expression_);
 }
 
 AstVariableInitialDefinition::~AstVariableInitialDefinition() {
@@ -832,11 +875,13 @@ AstExpression *AstVariableInitialDefinition::expression() const {
 
 AstFunctionDefinition::AstFunctionDefinition(
     AstFunctionSignatureDefinition *signature, AstStatement *statement)
-    : AstDefinition(nameGenerator.generateWith(
-          (signature ? signature->identifier() : "null"), "A_FuncDecl")),
+    : AstDefinition(
+          nameGenerator.generateWith((signature->identifier()), "A_FuncDecl")),
       signature_(signature), statement_(statement) {
   LOG_ASSERT(signature_, "signature_ is null");
   LOG_ASSERT(statement_, "statement_ is null");
+  updatePosition(signature_);
+  updatePosition(statement_);
 }
 
 AstFunctionDefinition::~AstFunctionDefinition() {
@@ -863,12 +908,18 @@ AstStatement *AstFunctionDefinition::statement() const { return statement_; }
 
 AstFunctionSignatureDefinition::AstFunctionSignatureDefinition(
     const char *identifier, AstDefinitionList *argumentList,
-    AstExpression *result)
-    : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncSignDecl")),
+    AstExpression *result, const Position &funcTokenPosition,
+    const Position &identifierPosition)
+    : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncSignDecl"),
+                    funcTokenPosition),
       identifier_(identifier), argumentList_(argumentList), result_(result) {
   LOG_ASSERT(identifier, "identifier is null");
   LOG_ASSERT(argumentList_, "argumentList is null");
   // LOG_ASSERT(result_, "result_ is null");
+  updatePosition(identifierPosition);
+  for (int i = 0; i < argumentList_->size(); i++) {
+    updatePosition(argumentList_->get(i));
+  }
 }
 
 AstFunctionSignatureDefinition::~AstFunctionSignatureDefinition() {
@@ -900,10 +951,12 @@ std::string AstFunctionSignatureDefinition::toString() const {
                      identifier_, argumentList_->toString());
 }
 
-AstFunctionArgumentDefinition::AstFunctionArgumentDefinition(const char *value)
-    : AstDefinition(nameGenerator.generateWith(value, "A_FuncArgDecl")),
-      value_(value) {
-  LOG_ASSERT(value, "value is null");
+AstFunctionArgumentDefinition::AstFunctionArgumentDefinition(
+    const char *identifier, const Position &identifierPosition)
+    : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncArgDecl"),
+                    identifierPosition),
+      identifier_(identifier) {
+  LOG_ASSERT(identifier, "identifier is null");
 }
 
 AstType AstFunctionArgumentDefinition::type() const {
@@ -911,9 +964,10 @@ AstType AstFunctionArgumentDefinition::type() const {
 }
 
 std::string AstFunctionArgumentDefinition::toString() const {
-  return fmt::format("[@AstFunctionArgumentDefinition value_:{}]", value_);
+  return fmt::format("[@AstFunctionArgumentDefinition identifier_:{}]",
+                     identifier_);
 }
 
-const std::string &AstFunctionArgumentDefinition::value() const {
-  return value_;
+const std::string &AstFunctionArgumentDefinition::identifier() const {
+  return identifier_;
 }

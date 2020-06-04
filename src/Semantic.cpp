@@ -71,8 +71,9 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
       for (int i = 0; i < e1->argumentList()->size(); i++) {
         AstFunctionArgumentDefinition *fa =
             DC(AstFunctionArgumentDefinition, e1->argumentList()->get(i));
-        argumentTypeList.push_back(std::make_pair(
-            new FunctionArgumentSymbol(fa->value()), BuiltinType::ty_void()));
+        argumentTypeList.push_back(
+            std::make_pair(new FunctionArgumentSymbol(fa->identifier()),
+                           BuiltinType::ty_void()));
       }
     }
     FunctionType *ft = new FunctionType(
@@ -93,7 +94,7 @@ void Semantic::build(SymbolTable *symtable, Ast *node) {
   } break;
   case AstType::FunctionArgumentDefinition: {
     AstFunctionArgumentDefinition *e = DC(AstFunctionArgumentDefinition, node);
-    FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->value());
+    FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->identifier());
     symtable->css()->define(fa);
     symtable->cts()->define(fa, BuiltinType::ty_void());
   } break;
@@ -203,10 +204,10 @@ void Semantic::check(SymbolTable *symtable, Ast *node) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
         AstFunctionArgumentDefinition *fad =
             DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
-        Symbol *fas = symtable->css()->resolve(fad->value());
+        Symbol *fas = symtable->css()->resolve(fad->identifier());
         LOG_ASSERT(
             fas, "sematic check failure: function argument symbol {} not found",
-            fad->value());
+            fad->identifier());
       }
     }
   } break;

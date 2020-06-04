@@ -23,23 +23,9 @@ static void testAST(const char *fileName) {
   LOG_INFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
 }
 
-static void testIr(const char *fileName) {
-  Scanner scanner;
-  scanner.pushBuffer(fileName);
-  REQUIRE(scanner.parse() == 0);
-  IrContext context(fileName);
-  IrTranslateUnit tunit(scanner.translateUnit());
-  LOG_INFO("dump ir:{}\n\n{}", fileName, tunit.dumpCodeGen(&context));
-}
-
 TEST_CASE("Dump", "[Dump]") {
   SECTION("dump Ast/Symbol/Type") {
     testAST("test/case/Parser1.shp");
     testAST("test/case/Parser2.shp");
-  }
-  SECTION("dump Ir") {
-    testIr("test/case/IrTest1.shp");
-    testIr("test/case/IrTest2.shp");
-    testIr("test/case/IrTest3.shp");
   }
 }
