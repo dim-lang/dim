@@ -10,18 +10,26 @@
 #include "catch2/catch.hpp"
 
 static void testIr(const char *fileName) {
-  Scanner scanner;
-  scanner.pushBuffer(fileName);
-  REQUIRE(scanner.parse() == 0);
-  IrContext context(fileName);
-  IrTranslateUnit tunit(scanner.translateUnit());
-  LOG_INFO("output string ir:{}\n\n{}", fileName,
-           output_string(&tunit, &context));
-  std::string llFileName = std::string(fileName) + std::string("ll");
-  std::error_code errcode = output_fd(&tunit, &context, llFileName);
-  LOG_INFO("output fd ir:{}, errcode value:{}, category:{}, message:{}",
-           llFileName, errcode.value(), errcode.category().name(),
-           errcode.message());
+  {
+    Scanner scanner;
+    scanner.pushBuffer(fileName);
+    REQUIRE(scanner.parse() == 0);
+    IrContext context(fileName);
+    IrTranslateUnit tunit(scanner.translateUnit());
+    LOG_INFO("output string ir:{}\n\n{}", fileName,
+             output_string(&tunit, &context));
+  }
+  {
+    Scanner scanner;
+    scanner.pushBuffer(fileName);
+    REQUIRE(scanner.parse() == 0);
+    IrContext context(fileName);
+    IrTranslateUnit tunit(scanner.translateUnit());
+    std::error_code errcode = output_fd(&tunit, &context, fileName);
+    LOG_INFO("output fd ir:{}, errcode value:{}, category:{}, message:{}",
+             fileName, errcode.value(), errcode.category().name(),
+             errcode.message());
+  }
 }
 
 TEST_CASE("Output", "[Output]") {

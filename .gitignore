@@ -8,6 +8,7 @@
 *.out
 *.output
 core
+*.ll
 
 # cmake
 release

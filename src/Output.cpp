@@ -9,13 +9,15 @@
 #include <sstream>
 
 std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
-                          const std::string &fileName) {
+                          const std::string &sourceFileName) {
   LOG_ASSERT(tunit, "tunit is null");
   LOG_ASSERT(context, "context is null");
-  LOG_ASSERT(!fileName.empty(), "fileName.empty false: {}", fileName);
+  LOG_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
+             sourceFileName);
 
   std::error_code errcode;
-  llvm::raw_fd_ostream fd(fileName, errcode);
+  std::string llFileName = sourceFileName + std::string(".ll");
+  llvm::raw_fd_ostream fd(llFileName, errcode);
   if (errcode) {
     return errcode;
   }
