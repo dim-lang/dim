@@ -100,10 +100,7 @@ class AstFunctionArgumentDefinition;
 /*================ definition ================*/
 
 /* base interface */
-class Ast : public Namely,
-            public Stringify,
-            public Position,
-            private boost::noncopyable {
+class Ast : public Namely, public Position, private boost::noncopyable {
 public:
   Ast(const std::string &name);
   Ast(const std::string &name, const Position &position);
@@ -180,7 +177,8 @@ public:
   virtual AstType type() const = 0;
   virtual std::string toString() const {
     std::stringstream ss;
-    ss << fmt::format("[@{} size:{}", stringify(), items_.size());
+    ss << fmt::format("[@{} {} size:{}", stringify(), Position::toString(),
+                      items_.size());
     if (items_.empty()) {
       ss << "]";
       return ss.str();
@@ -205,7 +203,7 @@ public:
   }
   virtual void add(T *item) {
     LOG_ASSERT(item, "item is null");
-    updatePosition(static_cast<Position *>(item));
+    updatePosition(*(static_cast<Position *>(item)));
     items_.push_front(item);
   }
 

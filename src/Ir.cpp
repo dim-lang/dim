@@ -148,7 +148,9 @@ static Ir *createIrByAst(Ast *node) {
     return new IrFunctionSignatureDefinition(
         DC(AstFunctionSignatureDefinition, node));
   default:
-    LOG_ASSERT(false, "invalid ast node: {}", node->toString());
+    LOG_ASSERT(false, "invalid ast node: {}, position:{}:{}-{}:{}",
+               node->toString(), node->firstLine, node->firstColumn,
+               node->lastLine, node->lastColumn);
   }
   return nullptr;
 }
@@ -935,7 +937,14 @@ IrCompoundStatement::IrCompoundStatement(AstCompoundStatement *node)
   for (int i = 0; i < node_->statementList()->size(); i++) {
     Ast *ast = node_->statementList()->get(i);
     LOG_ASSERT(ast, "the {} ast is null", i);
-    statementList_->add(DC(IrStatement, createIrByAst(ast)));
+    IrStatement *ir = DC(IrStatement, createIrByAst(ast));
+    if (!ir) {
+      LOG_ASSERT(ast->type() == (+AstType::EmptyStatement),
+                 "ast->type {} is not AstType::EmptyStatement",
+                 ast->type()._to_string());
+      continue;
+    }
+    statementList_->add(ir);
   }
 }
 

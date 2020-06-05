@@ -3,6 +3,7 @@
 
 #include "Position.h"
 #include "Log.h"
+#include "fmt/format.h"
 
 #define INVALID -1
 #define IS_INVALID(x) (x < 0)
@@ -11,24 +12,16 @@ Position::Position()
     : firstLine(INVALID), firstColumn(INVALID), lastLine(INVALID),
       lastColumn(INVALID) {}
 
-Position::Position(int firstLine, int firstColumn, int lastLine, int lastColumn)
-    : firstLine(firstLine), firstColumn(firstColumn), lastLine(lastLine),
-      lastColumn(lastColumn) {}
+Position::Position(int a_firstLine, int a_firstColumn, int a_lastLine,
+                   int a_lastColumn)
+    : firstLine(a_firstLine), firstColumn(a_firstColumn), lastLine(a_lastLine),
+      lastColumn(a_lastColumn) {}
 
 Position &Position::updatePosition(const Position &position) {
   updateFirstLine(position.firstLine);
   updateFirstColumn(position.firstColumn);
   updateLastLine(position.lastLine);
   updateLastColumn(position.lastColumn);
-  return *this;
-}
-
-Position &Position::updatePosition(const Position *position) {
-  LOG_ASSERT(position, "position is null");
-  updateFirstLine(position->firstLine);
-  updateFirstColumn(position->firstColumn);
-  updateLastLine(position->lastLine);
-  updateLastColumn(position->lastColumn);
   return *this;
 }
 
@@ -68,6 +61,11 @@ Position &Position::updateLastColumn(int value) {
                    ? value
                    : (lastColumn > value ? lastColumn : value);
   return *this;
+}
+
+std::string Position::toString() const {
+  return fmt::format("{}:{}-{}:{}", firstLine, firstColumn, lastLine,
+                     lastColumn);
 }
 
 #undef INVALID

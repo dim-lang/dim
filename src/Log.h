@@ -31,9 +31,10 @@ public:
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg = fmt::format(__VA_ARGS__);                              \
-      fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}", __FILE__,  \
-                 __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg);       \
-      throw fmt::format("Assert Fail! {}:{} {} - Condition:{}, Result:{}",     \
+      fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}\n",          \
+                 __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond),   \
+                 msg);                                                         \
+      throw fmt::format("Assert Fail! {}:{} {} - Condition:{}, Result:{}\n",   \
                         __FILE__, __LINE__, __FUNCTION__,                      \
                         BOOST_PP_STRINGIZE(cond), msg);                        \
     }                                                                          \
