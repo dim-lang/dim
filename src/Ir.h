@@ -273,6 +273,7 @@ public:
 
 private:
   AstIdentifierConstant *node_;
+  int ssaVersion_;
 };
 
 /* i8 constant */
@@ -489,13 +490,15 @@ private:
 class IrAssignmentExpression : public IrExpression {
 public:
   IrAssignmentExpression(AstAssignmentExpression *node);
-  virtual ~IrAssignmentExpression() = default;
+  virtual ~IrAssignmentExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen(IrContext *context);
 
 private:
   AstAssignmentExpression *node_;
+  IrExpression *variable_;
+  IrExpression *value_;
 };
 
 /* sequel expression */

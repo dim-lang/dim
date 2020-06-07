@@ -258,7 +258,9 @@ std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(AstIdentifierConstant *node)
-    : IrConstant(nameGenerator.generate("Id")), node_(node) {}
+    : IrConstant(nameGenerator.generate("Id")), node_(node), ssaVersion_(0) {
+  LOG_ASSERT(node_, "node_ is null");
+}
 
 IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
@@ -839,7 +841,19 @@ std::string IrConditionalExpression::toString() const {
 /* assignment expression */
 IrAssignmentExpression::IrAssignmentExpression(AstAssignmentExpression *node)
     : IrExpression(nameGenerator.generate("IrAssignmentExpression")),
-      node_(node) {}
+      node_(node), variable_(DC(IrExpression, createIrByAst(node->variable()))),
+      value_(DC(IrExpression, createIrByAst(node->value()))) {
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(variable_, "variable_ is null");
+  LOG_ASSERT(value_, "value_ is null");
+}
+
+IrAssignmentExpression::~IrAssignmentExpression() {
+  delete variable_;
+  variable_ = nullptr;
+  delete value_;
+  value_ = nullptr;
+}
 
 IrType IrAssignmentExpression::type() const {
   return IrType::AssignmentExpression;
