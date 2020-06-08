@@ -15,7 +15,7 @@ void Symtab::define(const SymNode &snode) {
              "symbol or type or ast is null");
   LOG_ASSERT(hashtab_.find(snode.symbol->name()) == hashtab_.end(),
              "symbol {} already exist", snode.symbol->name());
-  hashtab_.insert(std::make_pair(snode.symbol->name(), snode.symbol));
+  hashtab_.insert(std::make_pair(snode.symbol->name(), snode));
 }
 
 SymNode Symtab::resolve(const std::string &name) {
@@ -200,25 +200,25 @@ SymType ClassSymbol::type() const { return SymType::Class; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
-GlobalSymtab::GlobalSymtab() : Symtab(nullptr) {}
+// symbol end
 
-std::string GlobalSymtab::name() const {
-  static std::string globalSymtabName = "GlobalSymtab";
+GlobalScope::GlobalScope() : Symtab(nullptr) {}
+
+std::string GlobalScope::name() const {
+  static std::string globalSymtabName = "GlobalScope";
   return globalSymtabName;
 }
 
-SymType GlobalSymtab::type() const { return SymType::Global; }
+SymType GlobalScope::type() const { return SymType::Global; }
 
-std::string GlobalSymtab::stringify() const { return "GlobalSymtab"; }
+std::string GlobalScope::stringify() const { return "GlobalScope"; }
 
-LocalSymtab::LocalSymtab(const std::string &localSymtabName,
-                         Symtab *enclosingScope)
-    : Symtab(enclosingScope), localSymtabName_(localSymtabName) {}
+LocalScope::LocalScope(const std::string &localScopeName,
+                       Symtab *enclosingScope)
+    : Symtab(enclosingScope), localScopeName_(localScopeName) {}
 
-std::string LocalSymtab::name() const { return localSymtabName_; }
+std::string LocalScope::name() const { return localScopeName_; }
 
-SymType LocalSymtab::type() const { return SymType::Local; }
+SymType LocalScope::type() const { return SymType::Local; }
 
-std::string LocalSymtab::stringify() const { return "LocalSymtab"; }
-
-// symbol end
+std::string LocalScope::stringify() const { return "LocalScope"; }

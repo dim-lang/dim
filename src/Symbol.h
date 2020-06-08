@@ -198,27 +198,27 @@ protected:
   std::string className_;
 };
 
-class GlobalSymtab : public Symtab {
-public:
-  GlobalSymtab();
-  virtual ~GlobalSymtab() = default;
-  virtual std::string name() const;
-  virtual SymType type() const;
-
-protected:
-  virtual std::string stringify() const;
-};
-
-class LocalSymtab : public Symtab {
-public:
-  LocalSymtab(const std::string &localSymtabName, Symtab *enclosingScope);
-  virtual ~LocalSymtab() = default;
-  virtual std::string name() const;
-  virtual SymType type() const;
-
-protected:
-  virtual std::string stringify() const;
-  std::string localSymtabName_;
-};
-
 // symbol end
+
+class GlobalScope : public Symtab {
+public:
+  GlobalScope();
+  virtual ~GlobalScope() = default;
+  virtual std::string name() const;
+  virtual SymType type() const;
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class LocalScope : public Symtab {
+public:
+  LocalScope(const std::string &localScopeName, Symtab *enclosingScope);
+  virtual ~LocalScope() = default;
+  virtual std::string name() const;
+  virtual SymType type() const;
+
+protected:
+  virtual std::string stringify() const;
+  std::string localScopeName_;
+};
