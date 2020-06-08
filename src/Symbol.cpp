@@ -128,14 +128,7 @@ BuiltinType *BuiltinType::ty_void() {
 ClassType::ClassType(const std::string &classType,
                      const std::vector<std::pair<Symbol *, Type *>> &memberList,
                      const std::vector<std::pair<Symbol *, Type *>> &methodList)
-    : classType_(classType) {
-  for (int i = 0; i < (int)memberList.size(); i++) {
-    define(memberList[i].first, memberList[i].second);
-  }
-  for (int i = 0; i < (int)methodList.size(); i++) {
-    define(methodList[i].first, methodList[i].second);
-  }
-}
+    : classType_(classType) {}
 
 std::string ClassType::name() const { return classType_; }
 
@@ -144,9 +137,8 @@ TyType ClassType::type() const { return TyType::Class; }
 std::string ClassType::stringify() const { return "ClassType"; }
 
 FunctionType::FunctionType(
-    const std::vector<std::pair<Symbol *, Type *>> &argumentList, Type *result,
-    Tytab *enclosingScope)
-    : Tytab(enclosingScope) {
+    const std::vector<std::pair<Symbol *, Type *>> &argumentList,
+    Type *result) {
   LOG_ASSERT(result, "result is null");
   std::stringstream ss;
   ss << "func(";
@@ -158,9 +150,6 @@ FunctionType::FunctionType(
   }
   ss << "):" << result->name();
   functionType_ = ss.str();
-  for (int i = 0; i < (int)argumentList.size(); i++) {
-    define(argumentList[i].first, argumentList[i].second);
-  }
 }
 
 std::string FunctionType::name() const { return functionType_; }
