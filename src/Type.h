@@ -32,8 +32,9 @@ public:
 
 class Tytab : public Type, public Stringify {
 public:
-  using Iterator = LinkedHashMap<Symbol *, Type *>::Iterator;
-  using CIterator = LinkedHashMap<Symbol *, Type *>::CIterator;
+  using LHM = LinkedHashMap<Symbol *, Type *>;
+  using Iterator = LHM::Iterator;
+  using CIterator = LHM::CIterator;
 
   Tytab(Tytab *enclosingScope);
   virtual ~Tytab() = default;
@@ -54,7 +55,7 @@ protected:
   virtual std::string stringify() const = 0;
 
   Tytab *enclosingScope_;
-  LinkedHashMap<Symbol *, Type *> hashtab_;
+  LHM hashtab_;
 };
 
 class BuiltinType : public Type {

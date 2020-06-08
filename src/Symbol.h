@@ -30,8 +30,9 @@ public:
 
 class Symtab : public Symbol, public Stringify {
 public:
-  using Iterator = LinkedHashMap<std::string, Symbol *>::Iterator;
-  using CIterator = LinkedHashMap<std::string, Symbol *>::CIterator;
+  using LHM = LinkedHashMap<std::string, Symbol *>;
+  using Iterator = LHM::Iterator;
+  using CIterator = LHM::CIterator;
 
   Symtab(Symtab *enclosingScope);
   virtual ~Symtab() = default;
@@ -52,7 +53,7 @@ protected:
   virtual std::string stringify() const = 0;
 
   Symtab *enclosingScope_;
-  LinkedHashMap<std::string, Symbol *> hashtab_;
+  LHM hashtab_;
 };
 
 class VariableSymbol : public Symbol {
