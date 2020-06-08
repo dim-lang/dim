@@ -86,7 +86,7 @@ set(SHEPHERD
     Position.cpp
     Symbol.cpp
     # Type.cpp
-    SymbolTable.cpp
+    SymbolManager.cpp
     Semantic.cpp
     Counter.cpp
     Dump.cpp

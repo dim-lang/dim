@@ -6,6 +6,7 @@
 #include "container/LinkedHashMap.hpp"
 #include <cctype>
 #include <numeric>
+#include <sstream>
 #include <utility>
 
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
@@ -56,53 +57,53 @@ std::string BuiltinType::name() const { return builtinTypeName_; }
 TyType BuiltinType::type() const { return TyType::Builtin; }
 
 BuiltinType *BuiltinType::ty_int8() {
-  static BuiltinType *type_i8 = new BuiltinType("int8");
-  return type_i8;
+  static BuiltinType *type_int8 = new BuiltinType("int8");
+  return type_int8;
 }
 
 BuiltinType *BuiltinType::ty_uint8() {
-  static BuiltinType *type_u8 = new BuiltinType("uint8");
-  return type_u8;
+  static BuiltinType *type_uint8 = new BuiltinType("uint8");
+  return type_uint8;
 }
 
 BuiltinType *BuiltinType::ty_int16() {
-  static BuiltinType *type_i16 = new BuiltinType("int16");
-  return type_i16;
+  static BuiltinType *type_int16 = new BuiltinType("int16");
+  return type_int16;
 }
 
 BuiltinType *BuiltinType::ty_uint16() {
-  static BuiltinType *type_u16 = new BuiltinType("uint16");
-  return type_u16;
+  static BuiltinType *type_uint16 = new BuiltinType("uint16");
+  return type_uint16;
 }
 
 BuiltinType *BuiltinType::ty_int32() {
-  static BuiltinType *type_i32 = new BuiltinType("int32");
-  return type_i32;
+  static BuiltinType *type_int32 = new BuiltinType("int32");
+  return type_int32;
 }
 
 BuiltinType *BuiltinType::ty_uint32() {
-  static BuiltinType *type_u32 = new BuiltinType("uint32");
-  return type_u32;
+  static BuiltinType *type_uint32 = new BuiltinType("uint32");
+  return type_uint32;
 }
 
 BuiltinType *BuiltinType::ty_int64() {
-  static BuiltinType *type_i64 = new BuiltinType("int64");
-  return type_i64;
+  static BuiltinType *type_int64 = new BuiltinType("int64");
+  return type_int64;
 }
 
 BuiltinType *BuiltinType::ty_uint64() {
-  static BuiltinType *type_u64 = new BuiltinType("uint64");
-  return type_u64;
+  static BuiltinType *type_uint64 = new BuiltinType("uint64");
+  return type_uint64;
 }
 
 BuiltinType *BuiltinType::ty_float32() {
-  static BuiltinType *type_f32 = new BuiltinType("float32");
-  return type_f32;
+  static BuiltinType *type_float32 = new BuiltinType("float32");
+  return type_float32;
 }
 
 BuiltinType *BuiltinType::ty_float64() {
-  static BuiltinType *type_f64 = new BuiltinType("float64");
-  return type_f64;
+  static BuiltinType *type_float64 = new BuiltinType("float64");
+  return type_float64;
 }
 
 BuiltinType *BuiltinType::ty_boolean() {
@@ -136,15 +137,14 @@ TyType ClassType::type() const { return TyType::Class; }
 
 std::string ClassType::stringify() const { return "ClassType"; }
 
-FunctionType::FunctionType(
-    const std::vector<std::pair<Symbol *, Type *>> &argumentList,
-    Type *result) {
+FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
+                           Type *result) {
   LOG_ASSERT(result, "result is null");
   std::stringstream ss;
   ss << "func(";
-  for (int i = 0; i < (int)argumentList.size(); i++) {
-    ss << argumentList[i].second->name();
-    if (i < (int)argumentList.size() - 1) {
+  for (int i = 0; i < (int)argTypeList.size(); i++) {
+    ss << argTypeList[i]->name();
+    if (i < (int)argTypeList.size() - 1) {
       ss << ",";
     }
   }

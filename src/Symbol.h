@@ -137,8 +137,7 @@ protected:
 
 class FunctionType {
 public:
-  FunctionType(const std::vector<std::pair<Symbol *, Type *>> &argumentList,
-               Type *result);
+  FunctionType(const std::vector<Type *> &argTypeList, Type *result);
   virtual ~FunctionType() = default;
   virtual std::string name() const;
   virtual TyType type() const;
