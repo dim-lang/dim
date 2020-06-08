@@ -16,6 +16,14 @@ BETTER_ENUM(SymType, int,
             // symbol scope
             Global, Local)
 
+/*================ type start from 3000 ================*/
+BETTER_ENUM(TyType, int,
+            // type
+            Builtin = 3000, Class, Function,
+            // type scope
+            Global, Local)
+
+class Ast;
 class Symtab;
 
 class Symbol : public Namely, private boost::noncopyable {
@@ -23,14 +31,43 @@ public:
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
+};
 
-  static void push(Symtab *&global, Symtab *&current, Symtab *scope);
-  static void pop(Symtab *&global, Symtab *&current);
+class Type : public Namely, private boost::noncopyable {
+public:
+  virtual ~Type() = default;
+  virtual std::string name() const = 0;
+  virtual TyType type() const = 0;
+};
+
+class SymNode {
+public:
+  SymNode() : symbol(nullptr), type(nullptr), ast(nullptr) {}
+  SymNode(Symbol *a_symbol, Type *a_type, Ast *a_ast)
+      : symbol(a_symbol), type(a_type), ast(a_ast) {}
+  virtual ~SymNode() = default;
+  SymNode(const SymNode &) = default;
+  SymNode &operator=(const SymNode &) = default;
+
+  bool operator==(const SymNode &other) {
+    if (this == &other)
+      return true;
+    return symbol == other.symbol && type == other.type && ast == other.ast;
+  }
+  bool operator!=(const SymNode &other) {
+    if (this == &other)
+      return false;
+    return symbol != other.symbol || type != other.type || ast != other.ast;
+  }
+
+  Symbol *symbol;
+  Type *type;
+  Ast *ast;
 };
 
 class Symtab : public Symbol, public Stringify {
 public:
-  using LHM = LinkedHashMap<std::string, Symbol *>;
+  using LHM = LinkedHashMap<std::string, SymNode>;
   using Iterator = LHM::Iterator;
   using CIterator = LHM::CIterator;
 
@@ -38,8 +75,8 @@ public:
   virtual ~Symtab() = default;
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
-  virtual void define(Symbol *sym);
-  virtual Symbol *resolve(const std::string &name);
+  virtual void define(const SymNode &snode);
+  virtual SymNode resolve(const std::string &name);
   virtual Symtab *enclosingScope();
   virtual std::string toString() const;
   virtual Iterator begin();
@@ -55,6 +92,65 @@ protected:
   Symtab *enclosingScope_;
   LHM hashtab_;
 };
+
+// type start
+
+class BuiltinType : public Type {
+public:
+  virtual ~BuiltinType() = default;
+  virtual std::string name() const;
+  virtual TyType type() const;
+
+  static BuiltinType *ty_int8();
+  static BuiltinType *ty_uint8();
+  static BuiltinType *ty_int16();
+  static BuiltinType *ty_uint16();
+  static BuiltinType *ty_int32();
+  static BuiltinType *ty_uint32();
+  static BuiltinType *ty_int64();
+  static BuiltinType *ty_uint64();
+  static BuiltinType *ty_float32();
+  static BuiltinType *ty_float64();
+  static BuiltinType *ty_boolean();
+  static BuiltinType *ty_string();
+  static BuiltinType *ty_nil();
+  static BuiltinType *ty_void();
+
+private:
+  BuiltinType(const std::string &name);
+  std::string builtinTypeName_;
+};
+
+class ClassType {
+public:
+  ClassType(const std::string &classType,
+            const std::vector<std::pair<Symbol *, Type *>> &memberList,
+            const std::vector<std::pair<Symbol *, Type *>> &methodList);
+  virtual ~ClassType() = default;
+  virtual std::string name() const;
+  virtual TyType type() const;
+
+protected:
+  virtual std::string stringify() const;
+  std::string classType_;
+};
+
+class FunctionType {
+public:
+  FunctionType(const std::vector<std::pair<Symbol *, Type *>> &argumentList,
+               Type *result);
+  virtual ~FunctionType() = default;
+  virtual std::string name() const;
+  virtual TyType type() const;
+
+protected:
+  virtual std::string stringify() const;
+  std::string functionType_;
+};
+
+// type end
+
+// symbol start
 
 class VariableSymbol : public Symbol {
 public:
@@ -84,10 +180,6 @@ public:
   virtual ~FunctionSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
-  // virtual void define(Symbol *sym);
-  // virtual Symbol *resolve(const std::string &name);
-  // virtual Symtab *enclosingScope();
-  // virtual std::string toString() const;
 
 protected:
   virtual std::string stringify() const;
@@ -100,10 +192,6 @@ public:
   virtual ~ClassSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
-  // virtual void define(Symbol *sym);
-  // virtual Symbol *resolve(const std::string &name);
-  // virtual Symtab *enclosingScope();
-  // virtual std::string toString() const;
 
 protected:
   virtual std::string stringify() const;
@@ -116,10 +204,6 @@ public:
   virtual ~GlobalSymtab() = default;
   virtual std::string name() const;
   virtual SymType type() const;
-  // virtual void define(Symbol *sym);
-  // virtual Symbol *resolve(const std::string &name);
-  // virtual Symtab *enclosingScope();
-  // virtual std::string toString() const;
 
 protected:
   virtual std::string stringify() const;
@@ -131,12 +215,10 @@ public:
   virtual ~LocalSymtab() = default;
   virtual std::string name() const;
   virtual SymType type() const;
-  // virtual void define(Symbol *sym);
-  // virtual Symbol *resolve(const std::string &name);
-  // virtual Symtab *enclosingScope();
-  // virtual std::string toString() const;
 
 protected:
   virtual std::string stringify() const;
   std::string localSymtabName_;
 };
+
+// symbol end

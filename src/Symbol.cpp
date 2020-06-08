@@ -8,33 +8,23 @@
 #include <numeric>
 #include <utility>
 
-void Symbol::push(Symtab *&global, Symtab *&current, Symtab *s) {
-  current = s;
-  if (!global) {
-    global = s;
-  }
-}
-
-void Symbol::pop(Symtab *&global, Symtab *&current) {
-  current = current->enclosingScope();
-}
-
 Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
 
-void Symtab::define(Symbol *sym) {
-  LOG_ASSERT(sym, "symbol is null");
-  LOG_ASSERT(hashtab_.find(sym->name()) == hashtab_.end(),
-             "symbol {} already exist", sym->name());
-  hashtab_.insert(std::make_pair(sym->name(), sym));
+void Symtab::define(const SymNode &snode) {
+  LOG_ASSERT(snode.symbol && snode.type && snode.ast,
+             "symbol or type or ast is null");
+  LOG_ASSERT(hashtab_.find(snode.symbol->name()) == hashtab_.end(),
+             "symbol {} already exist", snode.symbol->name());
+  hashtab_.insert(std::make_pair(snode.symbol->name(), snode.symbol));
 }
 
-Symbol *Symtab::resolve(const std::string &name) {
+SymNode Symtab::resolve(const std::string &name) {
   LOG_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
   if (hashtab_.find(name) != hashtab_.end())
     return hashtab_[name];
   if (enclosingScope_)
     return enclosingScope_->resolve(name);
-  return nullptr;
+  return SymNode();
 }
 
 Symtab *Symtab::enclosingScope() { return enclosingScope_; }
@@ -56,6 +46,132 @@ Symtab::CIterator Symtab::end() const { return hashtab_.end(); }
 int Symtab::size() const { return (int)hashtab_.size(); }
 
 bool Symtab::empty() const { return hashtab_.empty(); }
+
+// type start
+
+BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
+
+std::string BuiltinType::name() const { return builtinTypeName_; }
+
+TyType BuiltinType::type() const { return TyType::Builtin; }
+
+BuiltinType *BuiltinType::ty_int8() {
+  static BuiltinType *type_i8 = new BuiltinType("int8");
+  return type_i8;
+}
+
+BuiltinType *BuiltinType::ty_uint8() {
+  static BuiltinType *type_u8 = new BuiltinType("uint8");
+  return type_u8;
+}
+
+BuiltinType *BuiltinType::ty_int16() {
+  static BuiltinType *type_i16 = new BuiltinType("int16");
+  return type_i16;
+}
+
+BuiltinType *BuiltinType::ty_uint16() {
+  static BuiltinType *type_u16 = new BuiltinType("uint16");
+  return type_u16;
+}
+
+BuiltinType *BuiltinType::ty_int32() {
+  static BuiltinType *type_i32 = new BuiltinType("int32");
+  return type_i32;
+}
+
+BuiltinType *BuiltinType::ty_uint32() {
+  static BuiltinType *type_u32 = new BuiltinType("uint32");
+  return type_u32;
+}
+
+BuiltinType *BuiltinType::ty_int64() {
+  static BuiltinType *type_i64 = new BuiltinType("int64");
+  return type_i64;
+}
+
+BuiltinType *BuiltinType::ty_uint64() {
+  static BuiltinType *type_u64 = new BuiltinType("uint64");
+  return type_u64;
+}
+
+BuiltinType *BuiltinType::ty_float32() {
+  static BuiltinType *type_f32 = new BuiltinType("float32");
+  return type_f32;
+}
+
+BuiltinType *BuiltinType::ty_float64() {
+  static BuiltinType *type_f64 = new BuiltinType("float64");
+  return type_f64;
+}
+
+BuiltinType *BuiltinType::ty_boolean() {
+  static BuiltinType *type_boolean = new BuiltinType("boolean");
+  return type_boolean;
+}
+
+BuiltinType *BuiltinType::ty_string() {
+  static BuiltinType *type_string = new BuiltinType("string");
+  return type_string;
+}
+
+BuiltinType *BuiltinType::ty_nil() {
+  static BuiltinType *type_nil = new BuiltinType("nil");
+  return type_nil;
+}
+
+BuiltinType *BuiltinType::ty_void() {
+  static BuiltinType *type_void = new BuiltinType("void");
+  return type_void;
+}
+
+ClassType::ClassType(const std::string &classType,
+                     const std::vector<std::pair<Symbol *, Type *>> &memberList,
+                     const std::vector<std::pair<Symbol *, Type *>> &methodList)
+    : classType_(classType) {
+  for (int i = 0; i < (int)memberList.size(); i++) {
+    define(memberList[i].first, memberList[i].second);
+  }
+  for (int i = 0; i < (int)methodList.size(); i++) {
+    define(methodList[i].first, methodList[i].second);
+  }
+}
+
+std::string ClassType::name() const { return classType_; }
+
+TyType ClassType::type() const { return TyType::Class; }
+
+std::string ClassType::stringify() const { return "ClassType"; }
+
+FunctionType::FunctionType(
+    const std::vector<std::pair<Symbol *, Type *>> &argumentList, Type *result,
+    Tytab *enclosingScope)
+    : Tytab(enclosingScope) {
+  LOG_ASSERT(result, "result is null");
+  std::stringstream ss;
+  ss << "func(";
+  for (int i = 0; i < (int)argumentList.size(); i++) {
+    ss << argumentList[i].second->name();
+    if (i < (int)argumentList.size() - 1) {
+      ss << ",";
+    }
+  }
+  ss << "):" << result->name();
+  functionType_ = ss.str();
+  for (int i = 0; i < (int)argumentList.size(); i++) {
+    define(argumentList[i].first, argumentList[i].second);
+  }
+}
+
+std::string FunctionType::name() const { return functionType_; }
+
+TyType FunctionType::type() const { return TyType::Function; }
+
+std::string FunctionType::stringify() const { return "FunctionType"; }
+
+// type end
+
+// symbol start
 
 VariableSymbol::VariableSymbol(const std::string &variableName)
     : variableName_(variableName) {}
@@ -115,3 +231,5 @@ std::string LocalSymtab::name() const { return localSymtabName_; }
 SymType LocalSymtab::type() const { return SymType::Local; }
 
 std::string LocalSymtab::stringify() const { return "LocalSymtab"; }
+
+// symbol end
