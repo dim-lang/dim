@@ -21,6 +21,8 @@ public:
   LinkedNode<K, V> *seq_prev;
   LinkedNode<K, V> *seq_next;
   std::pair<const K, V> value;
+
+  const K &key() const;
 };
 
 // linked list

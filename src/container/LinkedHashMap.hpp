@@ -24,6 +24,10 @@ template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
   seq_next = nullptr;
 }
 
+template <typename K, typename V> const K &LinkedNode<K, V>::key() const {
+  return value.first;
+}
+
 // linked list
 
 template <typename K, typename V>
@@ -471,7 +475,7 @@ LinkedHt<K, V, H, E>::find(const K &key) {
   int b = getBucket(key, bucket_);
   LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->value.first, key)) {
+    if (equal_(e->key(), key)) {
       return LinkedHt<K, V, H, E>::Iterator(e);
     }
     e = e->next;
@@ -488,7 +492,7 @@ LinkedHt<K, V, H, E>::find(const K &key) const {
   int b = getBucket(key, bucket_);
   const LinkedNode<K, V> *e = ht_[b].next;
   while (e != CCLN(&ht_[b])) {
-    if (equal_(e->value.first, key)) {
+    if (equal_(e->key(), key)) {
       return LinkedHt<K, V, H, E>::CIterator(e);
     }
     e = e->next;
@@ -505,7 +509,7 @@ int LinkedHt<K, V, H, E>::remove(
   int b = getBucket(position->first, bucket_);
   LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->value.first, position->first)) {
+    if (equal_(e->key(), position->first)) {
       ht_[b].remove(e);
       head_.seq_remove(e);
       delete e;
@@ -529,7 +533,7 @@ int LinkedHt<K, V, H, E>::remove(
   int b = getBucket(position->first, bucket_);
   LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->value.first, position->first)) {
+    if (equal_(e->key(), position->first)) {
       ht_[b].remove(e);
       head_.seq_remove(e);
       delete e;
@@ -604,7 +608,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     for (int i = 0; i < bucket_; i++) {
       while (count_[i] > 0) {
         LinkedNode<K, V> *e = ht_[i].removeHead();
-        int b = getBucket(e->value.first, n);
+        int b = getBucket(e->key(), n);
         newHt[b].insertHead(e);
         --count_[i];
         ++newCount[b];
