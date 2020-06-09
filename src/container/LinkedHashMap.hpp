@@ -2,97 +2,74 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Exception.h"
 #include "LinkedHashMap.h"
-#include "Log.h"
 
 #define CLN(x) ((LinkedNode<K, V> *)x)
+#define CCLN(x) ((const LinkedNode<K, V> *)x)
 
 namespace detail {
+
+// linked node
+
+template <typename K, typename V>
+LinkedNode<K, V>::LinkedNode(const std::pair<const K, V> &value)
+    : prev(nullptr), next(nullptr), seq_prev(nullptr), seq_next(nullptr),
+      value(value) {}
+
+template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
+  prev = nullptr;
+  next = nullptr;
+  seq_prev = nullptr;
+  seq_next = nullptr;
+}
 
 // linked list
 
 template <typename K, typename V>
 LinkedList<K, V>::LinkedList()
-    : prev_(CLN(this)), next_(CLN(this)), seq_prev_(CLN(this)),
-      seq_next_(CLN(this)) {}
+    : prev(CLN(this)), next(CLN(this)), seq_prev(CLN(this)),
+      seq_next(CLN(this)) {}
 
 template <typename K, typename V> LinkedList<K, V>::~LinkedList() {
-  prev_ = nullptr;
-  next_ = nullptr;
-  seq_prev_ = nullptr;
-  seq_next_ = nullptr;
-}
-
-template <typename K, typename V> LinkedNode<K, V> *&LinkedList<K, V>::prev() {
-  return prev_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedList<K, V>::prev() const {
-  return prev_;
-}
-
-template <typename K, typename V> LinkedNode<K, V> *&LinkedList<K, V>::next() {
-  return next_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedList<K, V>::next() const {
-  return next_;
-}
-
-template <typename K, typename V>
-LinkedNode<K, V> *&LinkedList<K, V>::seq_prev() {
-  return seq_prev_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedList<K, V>::seq_prev() const {
-  return seq_prev_;
-}
-
-template <typename K, typename V>
-LinkedNode<K, V> *&LinkedList<K, V>::seq_next() {
-  return seq_next_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedList<K, V>::seq_next() const {
-  return seq_next_;
+  prev = nullptr;
+  next = nullptr;
+  seq_prev = nullptr;
+  seq_next = nullptr;
 }
 
 template <typename K, typename V> LinkedNode<K, V> *&LinkedList<K, V>::head() {
-  return next_;
+  return next;
 }
 
 template <typename K, typename V>
 const LinkedNode<K, V> *LinkedList<K, V>::head() const {
-  return next_;
+  return next;
 }
 
 template <typename K, typename V> LinkedNode<K, V> *&LinkedList<K, V>::tail() {
-  return prev_;
+  return prev;
 }
 
 template <typename K, typename V>
 const LinkedNode<K, V> *LinkedList<K, V>::tail() const {
-  return prev_;
+  return prev;
 }
 
 template <typename K, typename V>
 void LinkedList<K, V>::insertTail(LinkedNode<K, V> *e) {
-  e->prev() = prev_;
-  e->next() = CLN(this);
-  prev_->next() = e;
-  prev_ = e;
+  e->prev = prev;
+  e->next = CLN(this);
+  prev->next = e;
+  prev = e;
 }
 
 template <typename K, typename V>
 void LinkedList<K, V>::insertHead(LinkedNode<K, V> *e) {
-  e->next() = next_;
-  e->prev() = CLN(this);
-  next_->prev() = e;
-  next_ = e;
+  e->next = next;
+  e->prev = CLN(this);
+  next->prev = e;
+  next = e;
 }
 
 template <typename K, typename V>
@@ -100,9 +77,9 @@ LinkedNode<K, V> *LinkedList<K, V>::removeTail() {
   if (empty()) {
     return CLN(this);
   }
-  LinkedNode<K, V> *e = prev_;
-  prev_->prev()->next() = CLN(this);
-  prev_ = prev_->prev();
+  LinkedNode<K, V> *e = prev;
+  prev->prev->next = CLN(this);
+  prev = prev->prev;
   return e;
 }
 
@@ -111,9 +88,9 @@ LinkedNode<K, V> *LinkedList<K, V>::removeHead() {
   if (empty()) {
     return CLN(this);
   }
-  LinkedNode<K, V> *e = next_;
-  next_->next()->prev() = CLN(this);
-  next_ = next_->next();
+  LinkedNode<K, V> *e = next;
+  next->next->prev = CLN(this);
+  next = next->next;
   return e;
 }
 
@@ -122,18 +99,18 @@ void LinkedList<K, V>::remove(LinkedNode<K, V> *e) {
   if (empty()) {
     return;
   }
-  e->prev()->next() = e->next();
-  e->next()->prev() = e->prev();
-  e->prev() = nullptr;
-  e->next() = nullptr;
+  e->prev->next = e->next;
+  e->next->prev = e->prev;
+  e->prev = nullptr;
+  e->next = nullptr;
 }
 
 template <typename K, typename V>
 void LinkedList<K, V>::seq_insert(LinkedNode<K, V> *e) {
-  e->seq_prev() = seq_prev_;
-  e->seq_next() = CLN(this);
-  seq_prev_->seq_next() = e;
-  seq_prev_ = e;
+  e->seq_prev = seq_prev;
+  e->seq_next = CLN(this);
+  seq_prev->seq_next = e;
+  seq_prev = e;
 }
 
 template <typename K, typename V>
@@ -141,104 +118,30 @@ void LinkedList<K, V>::seq_remove(LinkedNode<K, V> *e) {
   if (seq_empty()) {
     return;
   }
-  e->seq_prev()->seq_next() = e->seq_next();
-  e->seq_next()->seq_prev() = e->seq_prev();
-  e->seq_prev() = nullptr;
-  e->seq_next() = nullptr;
+  e->seq_prev->seq_next = e->seq_next;
+  e->seq_next->seq_prev = e->seq_prev;
+  e->seq_prev = nullptr;
+  e->seq_next = nullptr;
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::empty() const {
-  LOG_ASSERT(prev_ && next_, "prev_ {}, next_ {} is null", (void *)prev_,
-             (void *)next_);
-  LOG_ASSERT((prev_ == CLN(this) && next_ == CLN(this)) ||
-                 (prev_ != CLN(this) && next_ != CLN(this)),
-             "this: {}, prev_: {}, next_: {}", (void *)this, (void *)prev_,
-             (void *)next_);
-  return prev_ == CLN(this) && next_ == CLN(this);
+  X_ASSERT(prev && next, "prev {}, next {} is null", (void *)prev,
+           (void *)next);
+  X_ASSERT((prev == CLN(this) && next == CLN(this)) ||
+               (prev != CLN(this) && next != CLN(this)),
+           "this: {}, prev: {}, next: {}", (void *)this, (void *)prev,
+           (void *)next);
+  return prev == CLN(this) && next == CLN(this);
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::seq_empty() const {
-  LOG_ASSERT(seq_prev_ && seq_next_, "seq_prev_ {}, seq_next_ {} is null",
-             (void *)prev_, (void *)next_);
-  LOG_ASSERT((seq_prev_ == CLN(this) && seq_next_ == CLN(this)) ||
-                 (seq_prev_ != CLN(this) && seq_next_ != CLN(this)),
-             "this: {}, seq_prev_: {}, seq_next_: {}", (void *)this,
-             (void *)seq_prev_, (void *)seq_next_);
-  return seq_prev_ == CLN(this) && seq_next_ == CLN(this);
-}
-
-// linked node
-
-template <typename K, typename V>
-LinkedNode<K, V>::LinkedNode(const std::pair<const K, V> &value)
-    : prev_(nullptr), next_(nullptr), seq_prev_(nullptr), seq_next_(nullptr),
-      value_(value) {}
-
-template <typename K, typename V> LinkedNode<K, V>::~LinkedNode() {
-  prev_ = nullptr;
-  next_ = nullptr;
-  seq_prev_ = nullptr;
-  seq_next_ = nullptr;
-}
-
-template <typename K, typename V> const K &LinkedNode<K, V>::key() const {
-  return value_.first;
-}
-
-template <typename K, typename V> V &LinkedNode<K, V>::mapped() {
-  return value_.second;
-}
-
-template <typename K, typename V> const V &LinkedNode<K, V>::mapped() const {
-  return value_.second;
-}
-
-template <typename K, typename V>
-const std::pair<const K, V> &LinkedNode<K, V>::value() const {
-  return value_;
-}
-
-template <typename K, typename V>
-std::pair<const K, V> &LinkedNode<K, V>::value() {
-  return value_;
-}
-
-template <typename K, typename V> LinkedNode<K, V> *&LinkedNode<K, V>::prev() {
-  return prev_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::prev() const {
-  return prev_;
-}
-
-template <typename K, typename V> LinkedNode<K, V> *&LinkedNode<K, V>::next() {
-  return next_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::next() const {
-  return next_;
-}
-
-template <typename K, typename V>
-LinkedNode<K, V> *&LinkedNode<K, V>::seq_prev() {
-  return seq_prev_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::seq_prev() const {
-  return seq_prev_;
-}
-
-template <typename K, typename V>
-LinkedNode<K, V> *&LinkedNode<K, V>::seq_next() {
-  return seq_next_;
-}
-
-template <typename K, typename V>
-const LinkedNode<K, V> *LinkedNode<K, V>::seq_next() const {
-  return seq_next_;
+  X_ASSERT(seq_prev && seq_next, "seq_prev {}, seq_next {} is null",
+           (void *)prev, (void *)next);
+  X_ASSERT((seq_prev == CLN(this) && seq_next == CLN(this)) ||
+               (seq_prev != CLN(this) && seq_next != CLN(this)),
+           "this: {}, seq_prev: {}, seq_next: {}", (void *)this,
+           (void *)seq_prev, (void *)seq_next);
+  return seq_prev == CLN(this) && seq_next == CLN(this);
 }
 
 // linked iterator
@@ -270,47 +173,42 @@ LinkedIterator<K, V, T>::operator=(const LinkedIterator<K, V, T> &other) {
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T>::LinkedIterator(const LinkedRIterator<K, V, T> &other)
-    : node_(other.get()) {}
+    : node_(other.node_) {}
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> &
 LinkedIterator<K, V, T>::operator=(const LinkedRIterator<K, V, T> &other) {
-  if (node_ == other.get()) {
+  if (node_ == other.node_) {
     return *this;
   }
-  node_ = other.get();
+  node_ = other.node_;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> &LinkedIterator<K, V, T>::operator++() {
-  node_ = node_->seq_next();
+  node_ = node_->seq_next;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> &LinkedIterator<K, V, T>::operator--() {
-  node_ = node_->seq_prev();
+  node_ = node_->seq_prev;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> LinkedIterator<K, V, T>::operator++(int) {
   LinkedIterator<K, V, T> save = node_;
-  node_ = node_->seq_next();
+  node_ = node_->seq_next;
   return LinkedIterator<K, V, T>(save);
 }
 
 template <typename K, typename V, typename T>
 LinkedIterator<K, V, T> LinkedIterator<K, V, T>::operator--(int) {
   LinkedIterator<K, V, T> save = node_;
-  node_ = node_->seq_prev();
+  node_ = node_->seq_prev;
   return LinkedIterator<K, V, T>(save);
-}
-
-template <typename K, typename V, typename T>
-T LinkedIterator<K, V, T>::get() const {
-  return node_;
 }
 
 template <typename K, typename V, typename T>
@@ -331,27 +229,27 @@ bool LinkedIterator<K, V, T>::operator!() const {
 
 template <typename K, typename V, typename T>
 std::pair<const K, V> &LinkedIterator<K, V, T>::operator*() {
-  return node_->value();
+  return (std::pair<const K, V> &)node_->value;
 }
 
 template <typename K, typename V, typename T>
 const std::pair<const K, V> &LinkedIterator<K, V, T>::operator*() const {
-  return node_->value();
+  return (const std::pair<const K, V> &)node_->value;
 }
 
 template <typename K, typename V, typename T>
 std::pair<const K, V> *LinkedIterator<K, V, T>::operator->() {
-  return &(node_->value());
+  return (std::pair<const K, V> *)&(node_->value);
 }
 
 template <typename K, typename V, typename T>
 const std::pair<const K, V> *LinkedIterator<K, V, T>::operator->() const {
-  return &(node_->value());
+  return (const std::pair<const K, V> *)&(node_->value);
 }
 
 template <typename K, typename V, typename T>
 std::string LinkedIterator<K, V, T>::toString() const {
-  return fmt::format("[ @LinkedIterator node_:{} ]", (void *)node_);
+  return fmt::format("[@LinkedIterator node_:{}]", (void *)node_);
 }
 
 // linked reverse iterator
@@ -383,47 +281,42 @@ LinkedRIterator<K, V, T>::operator=(const LinkedRIterator<K, V, T> &other) {
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T>::LinkedRIterator(const LinkedIterator<K, V, T> &other)
-    : node_(other.get()) {}
+    : node_(other.node_) {}
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> &
 LinkedRIterator<K, V, T>::operator=(const LinkedIterator<K, V, T> &other) {
-  if (node_ == &other.get()) {
+  if (node_ == &other.node_) {
     return *this;
   }
-  node_ = other.get();
+  node_ = other.node_;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> &LinkedRIterator<K, V, T>::operator++() {
-  node_ = node_->seq_prev();
+  node_ = node_->seq_prev;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> &LinkedRIterator<K, V, T>::operator--() {
-  node_ = node_->seq_next();
+  node_ = node_->seq_next;
   return *this;
 }
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> LinkedRIterator<K, V, T>::operator++(int) {
   LinkedRIterator<K, V, T> save = node_;
-  node_ = node_->seq_prev();
+  node_ = node_->seq_prev;
   return LinkedRIterator<K, V, T>(save);
 }
 
 template <typename K, typename V, typename T>
 LinkedRIterator<K, V, T> LinkedRIterator<K, V, T>::operator--(int) {
   LinkedRIterator<K, V, T> save = node_;
-  node_ = node_->seq_next();
+  node_ = node_->seq_next;
   return LinkedRIterator<K, V, T>(save);
-}
-
-template <typename K, typename V, typename T>
-T LinkedRIterator<K, V, T>::get() const {
-  return node_;
 }
 
 template <typename K, typename V, typename T>
@@ -445,27 +338,27 @@ bool LinkedRIterator<K, V, T>::operator!() const {
 
 template <typename K, typename V, typename T>
 std::pair<const K, V> &LinkedRIterator<K, V, T>::operator*() {
-  return node_->value();
+  return (std::pair<const K, V> &)node_->value;
 }
 
 template <typename K, typename V, typename T>
 const std::pair<const K, V> &LinkedRIterator<K, V, T>::operator*() const {
-  return node_->value();
+  return (const std::pair<const K, V> &)node_->value;
 }
 
 template <typename K, typename V, typename T>
 std::pair<const K, V> *LinkedRIterator<K, V, T>::operator->() {
-  return &(node_->value());
+  return (std::pair<const K, V> *)&(node_->value);
 }
 
 template <typename K, typename V, typename T>
 const std::pair<const K, V> *LinkedRIterator<K, V, T>::operator->() const {
-  return &(node_->value());
+  return (const std::pair<const K, V> *)&(node_->value);
 }
 
 template <typename K, typename V, typename T>
 std::string LinkedRIterator<K, V, T>::toString() const {
-  return fmt::format("[ @LinkedRIterator node_:{} ]", (void *)node_);
+  return fmt::format("[@LinkedRIterator node_:{}]", (void *)node_);
 }
 
 // linked hashtable
@@ -477,7 +370,7 @@ LinkedHt<K, V, H, E>::LinkedHt()
 
 template <typename K, typename V, typename H, typename E>
 LinkedHt<K, V, H, E>::LinkedHt(int bucket) : LinkedHt() {
-  LOG_ASSERT(bucket > 0, "bucket {} > 0", bucket);
+  X_ASSERT(bucket > 0, "bucket {} > 0", bucket);
   extend(bucket);
 }
 
@@ -488,10 +381,10 @@ LinkedHt<K, V, H, E>::~LinkedHt() {
 
 template <typename K, typename V, typename H, typename E>
 bool LinkedHt<K, V, H, E>::empty() const {
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  LOG_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
-             "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
-             (void *)count_, size_, bucket_);
+  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  X_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
+           "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
+           (void *)count_, size_, bucket_);
   return size_ == 0;
 }
 
@@ -526,7 +419,7 @@ void LinkedHt<K, V, H, E>::release() {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    LOG_ASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
+    X_ASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
     delete[] ht_;
     delete[] count_;
     ht_ = nullptr;
@@ -543,8 +436,8 @@ void LinkedHt<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   int b = getBucket(value.first, bucket_);
   ht_[b].insertHead(e);
   head_.seq_insert(e);
-  LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   ++count_[b];
   ++size_;
 }
@@ -558,8 +451,8 @@ int LinkedHt<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
     int b = getBucket(value.first, bucket_);
     ht_[b].insertHead(e);
     head_.seq_insert(e);
-    LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+    X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     ++count_[b];
     ++size_;
     return 1;
@@ -576,12 +469,12 @@ LinkedHt<K, V, H, E>::find(const K &key) {
     return end();
   }
   int b = getBucket(key, bucket_);
-  LinkedNode<K, V> *e = ht_[b].next();
+  LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->key(), key)) {
+    if (equal_(e->value.first, key)) {
       return LinkedHt<K, V, H, E>::Iterator(e);
     }
-    e = e->next();
+    e = e->next;
   }
   return end();
 }
@@ -593,12 +486,12 @@ LinkedHt<K, V, H, E>::find(const K &key) const {
     return end();
   }
   int b = getBucket(key, bucket_);
-  LinkedNode<K, V> *e = ht_[b].next();
-  while (e != CLN(&ht_[b])) {
-    if (equal_(e->key(), key)) {
+  const LinkedNode<K, V> *e = ht_[b].next;
+  while (e != CCLN(&ht_[b])) {
+    if (equal_(e->value.first, key)) {
       return LinkedHt<K, V, H, E>::CIterator(e);
     }
-    e = e->next();
+    e = e->next;
   }
   return end();
 }
@@ -610,19 +503,19 @@ int LinkedHt<K, V, H, E>::remove(
     return -1;
   }
   int b = getBucket(position->first, bucket_);
-  LinkedNode<K, V> *e = ht_[b].next();
+  LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->key(), position->first)) {
+    if (equal_(e->value.first, position->first)) {
       ht_[b].remove(e);
       head_.seq_remove(e);
       delete e;
       --count_[b];
       --size_;
-      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
-    e = e->next();
+    e = e->next;
   }
   return -1;
 }
@@ -634,31 +527,31 @@ int LinkedHt<K, V, H, E>::remove(
     return -1;
   }
   int b = getBucket(position->first, bucket_);
-  LinkedNode<K, V> *e = ht_[b].next();
+  LinkedNode<K, V> *e = ht_[b].next;
   while (e != CLN(&ht_[b])) {
-    if (equal_(e->key(), position->first)) {
+    if (equal_(e->value.first, position->first)) {
       ht_[b].remove(e);
       head_.seq_remove(e);
       delete e;
       --count_[b];
       --size_;
-      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
-    e = e->next();
+    e = e->next;
   }
   return -1;
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::Iterator LinkedHt<K, V, H, E>::begin() {
-  return typename LinkedHt<K, V, H, E>::Iterator(CLN(head_.seq_next()));
+  return typename LinkedHt<K, V, H, E>::Iterator(CLN(head_.seq_next));
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::CIterator LinkedHt<K, V, H, E>::begin() const {
-  return typename LinkedHt<K, V, H, E>::CIterator(CLN(head_.seq_next()));
+  return typename LinkedHt<K, V, H, E>::CIterator(CCLN(head_.seq_next));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -668,17 +561,17 @@ typename LinkedHt<K, V, H, E>::Iterator LinkedHt<K, V, H, E>::end() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::CIterator LinkedHt<K, V, H, E>::end() const {
-  return typename LinkedHt<K, V, H, E>::CIterator(CLN(&head_));
+  return typename LinkedHt<K, V, H, E>::CIterator(CCLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::RIterator LinkedHt<K, V, H, E>::rbegin() {
-  return typename LinkedHt<K, V, H, E>::RIterator(CLN(head_.seq_prev()));
+  return typename LinkedHt<K, V, H, E>::RIterator(CLN(head_.seq_prev));
 }
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::CRIterator LinkedHt<K, V, H, E>::rbegin() const {
-  return typename LinkedHt<K, V, H, E>::CRIterator(CLN(head_.seq_prev()));
+  return typename LinkedHt<K, V, H, E>::CRIterator(CCLN(head_.seq_prev));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -688,22 +581,22 @@ typename LinkedHt<K, V, H, E>::RIterator LinkedHt<K, V, H, E>::rend() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHt<K, V, H, E>::CRIterator LinkedHt<K, V, H, E>::rend() const {
-  return typename LinkedHt<K, V, H, E>::CRIterator(CLN(&head_));
+  return typename LinkedHt<K, V, H, E>::CRIterator(CCLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::extend(int n) {
-  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  LOG_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
+  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  X_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   if (!empty() && load() < 4.0) {
     return;
   }
   n = alignBucket(n);
-  LOG_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
+  X_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
   LinkedList<K, V> *newHt = new LinkedList<K, V>[n];
   int *newCount = new int[n];
-  LOG_ASSERT(newHt, "newHt is null");
-  LOG_ASSERT(newCount, "newCount is null");
+  X_ASSERT(newHt, "newHt is null");
+  X_ASSERT(newCount, "newCount is null");
   std::memset(newCount, 0, n * sizeof(int));
 
   // first try rehash old hashtable
@@ -711,7 +604,7 @@ void LinkedHt<K, V, H, E>::extend(int n) {
     for (int i = 0; i < bucket_; i++) {
       while (count_[i] > 0) {
         LinkedNode<K, V> *e = ht_[i].removeHead();
-        int b = getBucket(e->key(), n);
+        int b = getBucket(e->value.first, n);
         newHt[b].insertHead(e);
         --count_[i];
         ++newCount[b];
@@ -735,17 +628,17 @@ void LinkedHt<K, V, H, E>::extend(int n) {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHt<K, V, H, E>::destroyList(int i) {
-  while (ht_[i].next() != CLN(&ht_[i])) {
+  while (ht_[i].next != CLN(&ht_[i])) {
     LinkedNode<K, V> *e = ht_[i].removeTail();
     head_.seq_remove(e);
     delete e;
     --count_[i];
     --size_;
-    LOG_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
-    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    X_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
+    X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
-  LOG_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
-  LOG_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
+  X_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
+  X_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -918,3 +811,4 @@ const V &LinkedHashMap<K, V, H, E>::operator[](const K &key) const {
 }
 
 #undef CLN
+#undef CCLN

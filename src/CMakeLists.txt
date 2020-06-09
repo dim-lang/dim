@@ -70,6 +70,7 @@ set(SHEPHERD_LIB_DIR
     )
 set(SHEPHERD
     Log.cpp
+    Exception.cpp
     Option.cpp
     Timer.cpp
     DateTime.cpp

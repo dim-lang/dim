@@ -8,7 +8,20 @@
 
 namespace detail {
 
-template <typename K, typename V> class LinkedNode;
+// linked node
+template <typename K, typename V>
+class LinkedNode : private boost::noncopyable {
+public:
+  LinkedNode(const std::pair<const K, V> &value);
+  ~LinkedNode();
+
+  // attribute
+  LinkedNode<K, V> *prev;
+  LinkedNode<K, V> *next;
+  LinkedNode<K, V> *seq_prev;
+  LinkedNode<K, V> *seq_next;
+  std::pair<const K, V> value;
+};
 
 // linked list
 template <typename K, typename V>
@@ -18,14 +31,10 @@ public:
   ~LinkedList();
 
   // attribute
-  LinkedNode<K, V> *&prev();
-  const LinkedNode<K, V> *prev() const;
-  LinkedNode<K, V> *&next();
-  const LinkedNode<K, V> *next() const;
-  LinkedNode<K, V> *&seq_prev();
-  const LinkedNode<K, V> *seq_prev() const;
-  LinkedNode<K, V> *&seq_next();
-  const LinkedNode<K, V> *seq_next() const;
+  LinkedNode<K, V> *prev;
+  LinkedNode<K, V> *next;
+  LinkedNode<K, V> *seq_prev;
+  LinkedNode<K, V> *seq_next;
 
   LinkedNode<K, V> *&head();
   const LinkedNode<K, V> *head() const;
@@ -40,42 +49,6 @@ public:
   void seq_remove(LinkedNode<K, V> *e);
   bool empty() const;
   bool seq_empty() const;
-
-private:
-  LinkedNode<K, V> *prev_;
-  LinkedNode<K, V> *next_;
-  LinkedNode<K, V> *seq_prev_;
-  LinkedNode<K, V> *seq_next_;
-};
-
-// linked node
-template <typename K, typename V>
-class LinkedNode : private boost::noncopyable {
-public:
-  LinkedNode(const std::pair<const K, V> &value);
-  ~LinkedNode();
-
-  // attribute
-  const K &key() const;
-  V &mapped();
-  const V &mapped() const;
-  const std::pair<const K, V> &value() const;
-  std::pair<const K, V> &value();
-  LinkedNode<K, V> *&prev();
-  const LinkedNode<K, V> *prev() const;
-  LinkedNode<K, V> *&next();
-  const LinkedNode<K, V> *next() const;
-  LinkedNode<K, V> *&seq_prev();
-  const LinkedNode<K, V> *seq_prev() const;
-  LinkedNode<K, V> *&seq_next();
-  const LinkedNode<K, V> *seq_next() const;
-
-private:
-  LinkedNode<K, V> *prev_;
-  LinkedNode<K, V> *next_;
-  LinkedNode<K, V> *seq_prev_;
-  LinkedNode<K, V> *seq_next_;
-  std::pair<const K, V> value_;
 };
 
 template <typename K, typename V, typename T> class LinkedRIterator;
@@ -95,7 +68,6 @@ public:
   LinkedIterator<K, V, T> &operator--();
   LinkedIterator<K, V, T> operator++(int);
   LinkedIterator<K, V, T> operator--(int);
-  T get() const;
   bool operator==(const LinkedIterator<K, V, T> &other) const;
   bool operator!=(const LinkedIterator<K, V, T> &other) const;
   bool operator!() const;
@@ -124,7 +96,6 @@ public:
   LinkedRIterator<K, V, T> &operator--();
   LinkedRIterator<K, V, T> operator++(int);
   LinkedRIterator<K, V, T> operator--(int);
-  T get() const;
   bool operator==(const LinkedRIterator<K, V, T> &other) const;
   bool operator!=(const LinkedRIterator<K, V, T> &other) const;
   bool operator!() const;

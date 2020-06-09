@@ -11,12 +11,12 @@ public:
   SymbolManager();
   virtual ~SymbolManager();
 
-  void push(Symtab *st);
+  void push(Scope *sc);
   void pop();
   int depth() const;
 
-  Symtab *global;  // global symbol scope
-  Symtab *current; // current symbol scope
+  Scope *global;  // global symbol scope
+  Scope *current; // current symbol scope
 
 private:
   int depth_; // symbol stack depth

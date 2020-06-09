@@ -14,7 +14,7 @@ FS (d|D)
 IS ((u|U)|(u|U)?(l|L))
 
 %{
-#include "Log.h"
+#include "Exception.h"
 #include "Token.h"
 #include "Ast.h"
 #include "Parser.tab.hpp"
@@ -50,7 +50,7 @@ IS ((u|U)|(u|U)?(l|L))
 <COMMENT>"*/"           { BEGIN INITIAL; }
 <COMMENT>([^*]|\n)+|.   { /* skip everything */ }
 <COMMENT><<EOF>>        {
-                            LOG_ASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer(), Y_LINENO);
+                            X_ASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer(), Y_LINENO);
                             return 0;
                         }
 
@@ -201,7 +201,7 @@ IS ((u|U)|(u|U)?(l|L))
                                         BEGIN INITIAL;
                                     }
 <IMPORT>.|\n                        {
-                                        LOG_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                        X_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                         BEGIN INITIAL;
                                     }
 <<EOF>>                             {
@@ -211,7 +211,7 @@ IS ((u|U)|(u|U)?(l|L))
 
  /* invalid token */
 .                           {
-                                LOG_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
+                                X_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
                             }
 
 %%

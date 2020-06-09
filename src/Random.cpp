@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Random.h"
-#include "Log.h"
 #include <algorithm>
 #include <cstring>
 #include <functional>
@@ -50,16 +49,16 @@ static char nextCharImpl(const std::vector<std::pair<int, int>> &range, int n,
     int p = range[i].second - range[i].first;
     if (c + p > position) {
       int r = position - c + range[i].first;
-      LOG_ASSERT(r >= range[0].first, "r {} >= range[0].first {}", r,
-              range[0].first);
-      LOG_ASSERT(r < range[range.size() - 1].second,
-              "r {} < range[range.size()-1].second {}", r,
-              range[range.size() - 1].second);
+      X_ASSERT(r >= range[0].first, "r {} >= range[0].first {}", r,
+               range[0].first);
+      X_ASSERT(r < range[range.size() - 1].second,
+               "r {} < range[range.size()-1].second {}", r,
+               range[range.size() - 1].second);
       return (char)r;
     }
     c += p;
   }
-  LOG_ASSERT(false, "must not come here, position:{} c:{}", position, c);
+  X_ASSERT(false, "must not come here, position:{} c:{}", position, c);
   return (char)0;
 }
 

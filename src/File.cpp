@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "File.h"
-#include "Log.h"
+#include "Exception.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -11,16 +11,16 @@
 
 std::string File::read(const std::string &fileName) {
   FILE *fp = std::fopen(fileName.c_str(), "r");
-  LOG_ASSERT(fp, "fp is null: {}", (void *)fp);
+  X_ASSERT(fp, "fp is null: {}", (void *)fp);
   int len = F_BUF_SIZE, n = 0, tot = 0;
   char *data = (char *)std::malloc(len * sizeof(char));
-  LOG_ASSERT(data, "malloc error! data is null: {}", (void *)data);
+  X_ASSERT(data, "malloc error! data is null: {}", (void *)data);
 
   do {
     if (data == nullptr || tot >= len) {
       len *= 2;
       data = (char *)std::realloc(data, len * sizeof(char));
-      LOG_ASSERT(data, "realloc error! data {} is null", (void *)data);
+      X_ASSERT(data, "realloc error! data {} is null", (void *)data);
     }
 
     n = std::fread(data + tot, 1, len - tot, fp);
@@ -35,10 +35,10 @@ std::string File::read(const std::string &fileName) {
 
 std::vector<std::string> File::readline(const std::string &fileName) {
   FILE *fp = std::fopen(fileName.c_str(), "r");
-  LOG_ASSERT(fp, "fp is null: {}", (void *)fp);
+  X_ASSERT(fp, "fp is null: {}", (void *)fp);
   int len = F_BUF_SIZE;
   char *data = (char *)malloc(len * sizeof(char));
-  LOG_ASSERT(data, "realloc error! data is null: {}", (void *)data);
+  X_ASSERT(data, "realloc error! data is null: {}", (void *)data);
   std::vector<std::string> ret;
 
   while (true) {
@@ -50,15 +50,15 @@ std::vector<std::string> File::readline(const std::string &fileName) {
         goto end_of_readline;
       }
       dataLen = std::strlen(data);
-      LOG_ASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
-      LOG_ASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
+      X_ASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
+      X_ASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
       if (dataLen < len - 1) {
         ret.push_back(std::string(data, dataLen));
         break;
       } else {
         len *= 2;
         data = (char *)realloc(data, sizeof(char) * len);
-        LOG_ASSERT(data, "realloc error! data is null: {}", (void *)data);
+        X_ASSERT(data, "realloc error! data is null: {}", (void *)data);
         pos = dataLen;
       }
     }
@@ -73,7 +73,7 @@ end_of_readline:
 static int writeImpl(const std::string &fileName,
                      const std::vector<std::string> &texts, const char *perm) {
   FILE *fp = std::fopen(fileName.c_str(), perm);
-  LOG_ASSERT(fp, "open file error! fp is null: {}", (void *)fp);
+  X_ASSERT(fp, "open file error! fp is null: {}", (void *)fp);
   int n = 0;
   for (int i = 0; i < (int)texts.size(); i++) {
     n += (int)std::fwrite(texts[i].c_str(), 1, texts[i].length(), fp);

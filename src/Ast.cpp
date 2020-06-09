@@ -20,7 +20,7 @@ Ast::Ast(const std::string &name, const Position &position)
 std::string Ast::name() const { return name_; }
 
 bool Ast::isConstant(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::Int8Constant:
   case AstType::UInt8Constant:
@@ -43,7 +43,7 @@ bool Ast::isConstant(const Ast *node) {
 }
 
 bool Ast::isExpression(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::CallExpression:
   case AstType::UnaryExpression:
@@ -60,7 +60,7 @@ bool Ast::isExpression(const Ast *node) {
 }
 
 bool Ast::isStatement(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::ExpressionStatement:
   case AstType::CompoundStatement:
@@ -79,7 +79,7 @@ bool Ast::isStatement(const Ast *node) {
 }
 
 bool Ast::isDefinition(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::VariableDefinition:
   case AstType::VariableInitialDefinition:
@@ -94,7 +94,7 @@ bool Ast::isDefinition(const Ast *node) {
 }
 
 bool Ast::isFloatConstant(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::Float32Constant:
   case AstType::Float64Constant:
@@ -106,7 +106,7 @@ bool Ast::isFloatConstant(const Ast *node) {
 }
 
 bool Ast::isIntegerConstant(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::Int8Constant:
   case AstType::UInt8Constant:
@@ -124,7 +124,7 @@ bool Ast::isIntegerConstant(const Ast *node) {
 }
 
 bool Ast::isSignedIntegerConstant(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::Int8Constant:
   case AstType::Int16Constant:
@@ -138,7 +138,7 @@ bool Ast::isSignedIntegerConstant(const Ast *node) {
 }
 
 bool Ast::isUnsignedIntegerConstant(const Ast *node) {
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::UInt8Constant:
   case AstType::UInt16Constant:
@@ -203,7 +203,7 @@ AstIdentifierConstant::AstIdentifierConstant(const char *value,
                                              const Position &position)
     : AstConstant(nameGenerator.generateWith(value, "A_id"), position),
       value_(value) {
-  LOG_ASSERT(value, "value is null");
+  X_ASSERT(value, "value is null");
 }
 
 AstType AstIdentifierConstant::type() const {
@@ -360,7 +360,7 @@ AstStringConstant::AstStringConstant(const char *value,
                                      const Position &position)
     : AstConstant(nameGenerator.generateWith(value, "A_string"), position),
       value_(value) {
-  LOG_ASSERT(value, "value is null");
+  X_ASSERT(value, "value is null");
 }
 
 AstType AstStringConstant::type() const { return AstType::StringConstant; }
@@ -399,8 +399,8 @@ AstCallExpression::AstCallExpression(const char *identifier,
     : AstExpression(nameGenerator.generateWith(identifier, "A_Call"),
                     identifierPosition),
       identifier_(identifier), argumentList_(argumentList) {
-  LOG_ASSERT(identifier, "identifier is null");
-  LOG_ASSERT(argumentList_, "argumentList_ is null");
+  X_ASSERT(identifier, "identifier is null");
+  X_ASSERT(argumentList_, "argumentList_ is null");
   for (int i = 0; i < argumentList_->size(); i++) {
     updatePosition(*argumentList_->get(i));
   }
@@ -429,9 +429,9 @@ AstUnaryExpression::AstUnaryExpression(int token, AstExpression *expression,
                                        const Position &tokenPosition)
     : AstExpression(nameGenerator.generate("A_UnrExp"), tokenPosition),
       token_(token), expression_(expression) {
-  LOG_ASSERT(expression_, "expression_ is null");
-  LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, expression:{}", token_,
-             expression_->toString());
+  X_ASSERT(expression_, "expression_ is null");
+  X_ASSERT(tokenNameExist(token_), "invalid token_:{}, expression:{}", token_,
+            expression_->toString());
   updatePosition(*expression_);
 }
 
@@ -457,10 +457,10 @@ AstBinaryExpression::AstBinaryExpression(AstExpression *left, int token,
                                          const Position &tokenPosition)
     : AstExpression(nameGenerator.generate("A_BinExp"), tokenPosition),
       left_(left), token_(token), right_(right) {
-  LOG_ASSERT(left_, "left_ is null");
-  LOG_ASSERT(right_, "right_ is null");
-  LOG_ASSERT(tokenNameExist(token_), "invalid token_:{}, left_:{}, right_:{}",
-             token_, left_->toString(), right_->toString());
+  X_ASSERT(left_, "left_ is null");
+  X_ASSERT(right_, "right_ is null");
+  X_ASSERT(tokenNameExist(token_), "invalid token_:{}, left_:{}, right_:{}",
+            token_, left_->toString(), right_->toString());
   updatePosition(*left_);
   updatePosition(*right_);
 }
@@ -491,9 +491,9 @@ AstConditionalExpression::AstConditionalExpression(AstExpression *condition,
                                                    AstExpression *elses)
     : AstExpression(nameGenerator.generate("A_CondExp")), condition_(condition),
       thens_(thens), elses_(elses) {
-  LOG_ASSERT(condition_, "condition_ is null");
-  LOG_ASSERT(thens_, "thens_ is null");
-  LOG_ASSERT(elses_, "elses_ is null");
+  X_ASSERT(condition_, "condition_ is null");
+  X_ASSERT(thens_, "thens_ is null");
+  X_ASSERT(elses_, "elses_ is null");
   updatePosition(*condition_);
   updatePosition(*thens_);
   updatePosition(*elses_);
@@ -533,11 +533,11 @@ AstAssignmentExpression::AstAssignmentExpression(AstExpression *variable,
                                                  const Position &tokenPosition)
     : AstExpression(nameGenerator.generate("A_AssExp"), tokenPosition),
       variable_(variable), token_(token), value_(value) {
-  LOG_ASSERT(variable_, "variable_ is null");
-  LOG_ASSERT(value_, "value_ is null");
-  LOG_ASSERT(tokenNameExist(token_),
-             "invalid token_:{}, variable_:{}, value_:{}", token_,
-             variable_->toString(), value_->toString());
+  X_ASSERT(variable_, "variable_ is null");
+  X_ASSERT(value_, "value_ is null");
+  X_ASSERT(tokenNameExist(token_),
+            "invalid token_:{}, variable_:{}, value_:{}", token_,
+            variable_->toString(), value_->toString());
   updatePosition(*variable_);
   updatePosition(*value_);
 }
@@ -569,7 +569,7 @@ AstExpression *AstAssignmentExpression::value() const { return value_; }
 AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
     : AstExpression(nameGenerator.generate("A_SeqExp")),
       expressionList_(expressionList) {
-  LOG_ASSERT(expressionList_, "expressionList_ is null");
+  X_ASSERT(expressionList_, "expressionList_ is null");
   for (int i = 0; i < expressionList_->size(); i++) {
     updatePosition(*expressionList_->get(i));
   }
@@ -604,7 +604,7 @@ AstExpressionStatement::AstExpressionStatement(
     AstExpression *expression, const Position &semiTokenPosition)
     : AstStatement(nameGenerator.generate("A_ExpStm"), semiTokenPosition),
       expression_(expression) {
-  LOG_ASSERT(expression_, "expression_ is null");
+  X_ASSERT(expression_, "expression_ is null");
   updatePosition(*expression_);
 }
 
@@ -631,7 +631,7 @@ AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList,
                                            const Position &rparenTokenPosition)
     : AstStatement(nameGenerator.generate("A_Compound")),
       statementList_(statementList) {
-  LOG_ASSERT(statementList_, "statementList_ is null");
+  X_ASSERT(statementList_, "statementList_ is null");
   updatePosition(lparenTokenPosition);
   updatePosition(rparenTokenPosition);
   for (int i = 0; i < statementList_->size(); i++) {
@@ -662,9 +662,9 @@ AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *thens,
                                const Position &ifTokenPosition)
     : AstStatement(nameGenerator.generate("A_If"), ifTokenPosition),
       condition_(condition), thens_(thens), elses_(elses) {
-  LOG_ASSERT(condition_, "condition_ is null");
-  LOG_ASSERT(thens_, "thens_ is null");
-  LOG_ASSERT(elses_, "elses_ is null");
+  X_ASSERT(condition_, "condition_ is null");
+  X_ASSERT(thens_, "thens_ is null");
+  X_ASSERT(elses_, "elses_ is null");
   updatePosition(*condition_);
   updatePosition(*thens_);
   updatePosition(*elses_);
@@ -698,8 +698,8 @@ AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      const Position &whileTokenPosition)
     : AstStatement(nameGenerator.generate("A_While"), whileTokenPosition),
       condition_(condition), statement_(statement) {
-  LOG_ASSERT(condition_, "condition_ is null");
-  LOG_ASSERT(statement_, "statement_ is null");
+  X_ASSERT(condition_, "condition_ is null");
+  X_ASSERT(statement_, "statement_ is null");
   updatePosition(*condition_);
   updatePosition(*statement_);
 }
@@ -728,10 +728,10 @@ AstForStatement::AstForStatement(AstStatement *start, AstStatement *step,
                                  const Position &forTokenPosition)
     : AstStatement(nameGenerator.generate("A_For"), forTokenPosition),
       start_(start), step_(step), end_(end), statement_(statement) {
-  LOG_ASSERT(start_, "start_ is null");
-  LOG_ASSERT(step_, "step_ is null");
-  LOG_ASSERT(end_, "end_ is null");
-  LOG_ASSERT(statement_, "statement_ is null");
+  X_ASSERT(start_, "start_ is null");
+  X_ASSERT(step_, "step_ is null");
+  X_ASSERT(end_, "end_ is null");
+  X_ASSERT(statement_, "statement_ is null");
   updatePosition(*start_);
   updatePosition(*step_);
   updatePosition(*end_);
@@ -798,7 +798,7 @@ AstReturnStatement::AstReturnStatement(AstExpression *expression,
                                        const Position &semiTokenPosition)
     : AstStatement(nameGenerator.generate("A_return"), returnTokenPosition),
       expression_(expression) {
-  LOG_ASSERT(expression_, "expression_ is null");
+  X_ASSERT(expression_, "expression_ is null");
   updatePosition(*expression_);
   updatePosition(semiTokenPosition);
 }
@@ -834,7 +834,7 @@ AstVariableDefinition::AstVariableDefinition(AstDefinitionList *definitionList,
                                              const Position &semiTokenPosition)
     : AstDefinition(nameGenerator.generate("A_VarDecl"), varTokenPosition),
       definitionList_(definitionList) {
-  LOG_ASSERT(definitionList_, "definitionList_ is null");
+  X_ASSERT(definitionList_, "definitionList_ is null");
   updatePosition(semiTokenPosition);
   for (int i = 0; i < definitionList_->size(); i++) {
     updatePosition(*definitionList_->get(i));
@@ -864,8 +864,8 @@ AstVariableInitialDefinition::AstVariableInitialDefinition(
     const Position &identifierPosition)
     : AstDefinition(nameGenerator.generate("A_VarAssDecl"), identifierPosition),
       identifier_(identifier), expression_(expression) {
-  LOG_ASSERT(identifier, "identifier is null");
-  LOG_ASSERT(expression_, "expression_ is null");
+  X_ASSERT(identifier, "identifier is null");
+  X_ASSERT(expression_, "expression_ is null");
   updatePosition(*expression_);
 }
 
@@ -897,8 +897,8 @@ AstFunctionDefinition::AstFunctionDefinition(
     : AstDefinition(
           nameGenerator.generateWith((signature->identifier()), "A_FuncDecl")),
       signature_(signature), statement_(statement) {
-  LOG_ASSERT(signature_, "signature_ is null");
-  LOG_ASSERT(statement_, "statement_ is null");
+  X_ASSERT(signature_, "signature_ is null");
+  X_ASSERT(statement_, "statement_ is null");
   updatePosition(*signature_);
   updatePosition(*statement_);
 }
@@ -933,9 +933,9 @@ AstFunctionSignatureDefinition::AstFunctionSignatureDefinition(
     : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncSignDecl"),
                     funcTokenPosition),
       identifier_(identifier), argumentList_(argumentList), result_(result) {
-  LOG_ASSERT(identifier, "identifier is null");
-  LOG_ASSERT(argumentList_, "argumentList is null");
-  // LOG_ASSERT(result_, "result_ is null");
+  X_ASSERT(identifier, "identifier is null");
+  X_ASSERT(argumentList_, "argumentList is null");
+  // X_ASSERT(result_, "result_ is null");
   updatePosition(identifierPosition);
   for (int i = 0; i < argumentList_->size(); i++) {
     updatePosition(*argumentList_->get(i));
@@ -977,7 +977,7 @@ AstFunctionArgumentDefinition::AstFunctionArgumentDefinition(
     : AstDefinition(nameGenerator.generateWith(identifier, "A_FuncArgDecl"),
                     identifierPosition),
       identifier_(identifier) {
-  LOG_ASSERT(identifier, "identifier is null");
+  X_ASSERT(identifier, "identifier is null");
 }
 
 AstType AstFunctionArgumentDefinition::type() const {

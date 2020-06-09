@@ -8,6 +8,7 @@
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include <string>
+#include <tuple>
 
 /*================ type start from 2000 ================*/
 BETTER_ENUM(SymType, int,
@@ -19,12 +20,10 @@ BETTER_ENUM(SymType, int,
 /*================ type start from 3000 ================*/
 BETTER_ENUM(TyType, int,
             // type
-            Builtin = 3000, Class, Function,
-            // type scope
-            Global, Local)
+            Builtin = 3000, Class, Function)
 
 class Ast;
-class Symtab;
+class Scope;
 
 class Symbol : public Namely, private boost::noncopyable {
 public:
@@ -40,44 +39,20 @@ public:
   virtual TyType type() const = 0;
 };
 
-class SymNode {
+class Scope : public Symbol, public Stringify {
 public:
-  SymNode() : symbol(nullptr), type(nullptr), ast(nullptr) {}
-  SymNode(Symbol *a_symbol, Type *a_type, Ast *a_ast)
-      : symbol(a_symbol), type(a_type), ast(a_ast) {}
-  virtual ~SymNode() = default;
-  SymNode(const SymNode &) = default;
-  SymNode &operator=(const SymNode &) = default;
+  using SNode = std::tuple<Symbol *, Type *, Ast *>;
+  using SMap = LinkedHashMap<std::string, SNode>;
+  using Iterator = SMap::Iterator;
+  using CIterator = SMap::CIterator;
 
-  bool operator==(const SymNode &other) {
-    if (this == &other)
-      return true;
-    return symbol == other.symbol && type == other.type && ast == other.ast;
-  }
-  bool operator!=(const SymNode &other) {
-    if (this == &other)
-      return false;
-    return symbol != other.symbol || type != other.type || ast != other.ast;
-  }
-
-  Symbol *symbol;
-  Type *type;
-  Ast *ast;
-};
-
-class Symtab : public Symbol, public Stringify {
-public:
-  using LHM = LinkedHashMap<std::string, SymNode>;
-  using Iterator = LHM::Iterator;
-  using CIterator = LHM::CIterator;
-
-  Symtab(Symtab *enclosingScope);
-  virtual ~Symtab() = default;
+  Scope(Scope *enclosingScope);
+  virtual ~Scope() = default;
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
-  virtual void define(const SymNode &snode);
-  virtual SymNode resolve(const std::string &name);
-  virtual Symtab *enclosingScope();
+  virtual void define(const SNode &snode);
+  virtual SNode resolve(const std::string &name);
+  virtual Scope *enclosingScope();
   virtual std::string toString() const;
   virtual Iterator begin();
   virtual CIterator begin() const;
@@ -86,11 +61,19 @@ public:
   virtual int size() const;
   virtual bool empty() const;
 
+  static const Symbol *sym(const SNode &snode);
+  static Symbol *&sym(SNode &snode);
+  static const Type *ty(const SNode &snode);
+  static Type *&ty(SNode &snode);
+  static const Ast *ast(const SNode &snode);
+  static Ast *&ast(SNode &snode);
+  static SNode make_snode(Symbol *s, Type *t, Ast *a);
+
 protected:
   virtual std::string stringify() const = 0;
 
-  Symtab *enclosingScope_;
-  LHM hashtab_;
+  Scope *enclosingScope_;
+  SMap map_;
 };
 
 // type start
@@ -121,7 +104,7 @@ private:
   std::string builtinTypeName_;
 };
 
-class ClassType {
+class ClassType : public Type {
 public:
   ClassType(const std::string &classType,
             const std::vector<std::pair<Symbol *, Type *>> &memberList,
@@ -135,7 +118,7 @@ protected:
   std::string classType_;
 };
 
-class FunctionType {
+class FunctionType : public Type {
 public:
   FunctionType(const std::vector<Type *> &argTypeList, Type *result);
   virtual ~FunctionType() = default;
@@ -173,9 +156,9 @@ private:
   std::string functionArgumentName_;
 };
 
-class FunctionSymbol : public Symtab {
+class FunctionSymbol : public Scope {
 public:
-  FunctionSymbol(const std::string &functionName, Symtab *enclosingScope);
+  FunctionSymbol(const std::string &functionName, Scope *enclosingScope);
   virtual ~FunctionSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
@@ -185,9 +168,9 @@ protected:
   std::string functionName_;
 };
 
-class ClassSymbol : public Symtab {
+class ClassSymbol : public Scope {
 public:
-  ClassSymbol(const std::string &className, Symtab *enclosingScope);
+  ClassSymbol(const std::string &className, Scope *enclosingScope);
   virtual ~ClassSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
@@ -199,7 +182,7 @@ protected:
 
 // symbol end
 
-class GlobalScope : public Symtab {
+class GlobalScope : public Scope {
 public:
   GlobalScope();
   virtual ~GlobalScope() = default;
@@ -210,9 +193,9 @@ protected:
   virtual std::string stringify() const;
 };
 
-class LocalScope : public Symtab {
+class LocalScope : public Scope {
 public:
-  LocalScope(const std::string &localScopeName, Symtab *enclosingScope);
+  LocalScope(const std::string &localScopeName, Scope *enclosingScope);
   virtual ~LocalScope() = default;
   virtual std::string name() const;
   virtual SymType type() const;

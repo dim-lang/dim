@@ -2,29 +2,15 @@
 // Apache License Version 2.0
 
 #include "Semantic.h"
+#include "Exception.h"
 #include "Log.h"
 #include "container/LinkedHashMap.hpp"
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
-/**
- * A_TRANSLATE_UNIT
- *
- * A_VARIABLE_DECLARATION
- * A_VARIABLE_ASSIGNMENT_DECLARATION
- * A_FUNCTION_DECLARATION
- * A_FUNCTION_ARGUMENT_DECLARATION
- *
- * A_COMPOUND_STATEMENT
- * A_IF_STATEMENT
- * A_WHILE_STATEMENT
- * A_FOR_STATEMENT
- * A_RETURN_STATEMENT
- * A_EXPRESSION_STATEMENT
- */
 void Semantic::build(SymbolManager *smanager, Ast *node) {
-  LOG_ASSERT(smanager, "smanager is null");
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(smanager, "smanager is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -61,7 +47,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
       varty = BuiltinType::ty_void();
       break;
     }
-    smanager->current->define(SymNode(varsym, varty, e));
+    smanager->current->define(Scope::make_snode(varsym, varty, e));
   } break;
   case AstType::FunctionDefinition: {
     AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
@@ -69,120 +55,85 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
     FunctionSymbol *funcsym =
         new FunctionSymbol(signe->identifier(), smanager->current);
     std::vector<Type *> fargTypeList;
-    LOG_ASSERT(signe->argumentList(), "signe->argumentList is null");
+    X_ASSERT(signe->argumentList(), "signe->argumentList is null");
     for (int i = 0; i < signe->argumentList()->size(); i++) {
       AstFunctionArgumentDefinition *arge =
           DC(AstFunctionArgumentDefinition, signe->argumentList()->get(i));
-      LOG_ASSERT(arge, "arge is null");
-      fargTypeList.push_back(BuiltinType.ty_void());
+      X_ASSERT(arge, "arge is null");
+      fargTypeList.push_back(BuiltinType::ty_void());
     }
-    FunctionType *ft = new FunctionType(fargTypeList, BuiltinType::ty_void(),
-                                        smanager->current);
-    smanager->css()->define(fs);
-    smanager->cts()->define(fs, ft);
-    smanager->pushSymbol(fs);
-    smanager->pushType(ft);
-    if (e1->argumentList()) {
-      for (int i = 0; i < e1->argumentList()->size(); i++) {
-        build(smanager, e1->argumentList()->get(i));
+    FunctionType *functy =
+        new FunctionType(fargTypeList, BuiltinType::ty_void());
+    smanager->current->define(Scope::make_snode(funcsym, functy, e));
+    smanager->push(funcsym);
+    if (signe->argumentList()) {
+      for (int i = 0; i < signe->argumentList()->size(); i++) {
+        build(smanager, signe->argumentList()->get(i));
       }
     }
-    LOG_ASSERT(e->statement(), "e#statement is null");
+    X_ASSERT(e->statement(), "e#statement is null");
     build(smanager, e->statement());
-    smanager->popSymbol();
-    smanager->popType();
+    smanager->pop();
   } break;
   case AstType::FunctionArgumentDefinition: {
     AstFunctionArgumentDefinition *e = DC(AstFunctionArgumentDefinition, node);
-    FunctionArgumentSymbol *fa = new FunctionArgumentSymbol(e->identifier());
-    smanager->css()->define(fa);
-    smanager->cts()->define(fa, BuiltinType::ty_void());
+    FunctionArgumentSymbol *fargsym =
+        new FunctionArgumentSymbol(e->identifier());
+    smanager->current->define(
+        Scope::make_snode(fargsym, BuiltinType::ty_void(), e));
   } break;
   case AstType::CompoundStatement: {
     AstCompoundStatement *e = DC(AstCompoundStatement, node);
-    LocalSymtab *ls = new LocalSymtab(e->name(), smanager->css());
-    LocalTytab *lt = new LocalTytab(e->name(), smanager->cts());
-    smanager->css()->define(ls);
-    smanager->cts()->define(ls, lt);
-    smanager->pushSymbol(ls);
-    smanager->pushType(lt);
+    LocalScope *loc = new LocalScope(e->name(), smanager->current);
+    smanager->current->define(Scope::make_snode(loc, nullptr, e));
+    smanager->push(loc);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
         build(smanager, e->statementList()->get(i));
       }
     }
-    smanager->popSymbol();
-    smanager->popType();
+    smanager->pop();
   } break;
   case AstType::IfStatement: {
     AstIfStatement *e = DC(AstIfStatement, node);
-    if (e->condition()) {
-      build(smanager, e->condition());
-    }
-    if (e->thens()) {
-      build(smanager, e->thens());
-    }
-    if (e->elses()) {
-      build(smanager, e->elses());
-    }
+    build(smanager, e->condition());
+    build(smanager, e->thens());
+    build(smanager, e->elses());
   } break;
   case AstType::WhileStatement: {
     AstWhileStatement *e = DC(AstWhileStatement, node);
-    LOG_ASSERT(e->statement(), "e->statement is null");
+    X_ASSERT(e->statement(), "e->statement is null");
     build(smanager, e->statement());
   } break;
   case AstType::ForStatement: {
     AstForStatement *e = DC(AstForStatement, node);
-    LocalSymtab *ls = new LocalSymtab(e->name(), smanager->css());
-    LocalTytab *lt = new LocalTytab(e->name(), smanager->cts());
-    smanager->css()->define(ls);
-    smanager->cts()->define(ls, lt);
-    smanager->pushSymbol(ls);
-    smanager->pushType(lt);
+    LocalScope *loc = new LocalScope(e->name(), smanager->current);
+    smanager->current->define(Scope::make_snode(loc, nullptr, e));
+    smanager->push(loc);
     build(smanager, e->start());
+    build(smanager, e->step());
+    build(smanager, e->end());
     build(smanager, e->statement());
-    smanager->popSymbol();
-    smanager->popType();
+    smanager->pop();
   } break;
   case AstType::ReturnStatement: {
     AstReturnStatement *e = DC(AstReturnStatement, node);
-    if (e->expression()) {
-      build(smanager, e->expression());
-    }
+    build(smanager, e->expression());
   } break;
   case AstType::ExpressionStatement: {
     AstExpressionStatement *e = DC(AstExpressionStatement, node);
-    if (e->expression()) {
-      build(smanager, e->expression());
-    }
+    build(smanager, e->expression());
   } break;
   default:
-    LOG_INFO("do nothing for node:{}", node->toString());
+    X_ASSERT(false, "invalid node:{}", node->toString());
+    /* LOG_INFO("do nothing for node:{}", node->toString()); */
     break;
   }
 }
 
-/**
- * A_TRANSLATE_UNIT
- *
- * A_IDENTIFIER_CONSTANT
- * A_CALL_EXPRESSION
- * A_UNARY_EXPRESSION
- * A_BINARY_EXPRESSION
- * A_CONDITIONAL_EXPRESSION
- * A_ASSIGNMENT_EXPRESSION
- * A_SEQUEL_EXPERSSION
- *
- * A_EXPRESSION_STATEMENT
- * A_COMPOUND_STATEMENT
- * A_IF_STATEMENT
- * A_WHILE_STATEMENT
- * A_FOR_STATEMENT
- * A_RETURN_STATEMENT
- */
 void Semantic::check(SymbolManager *smanager, Ast *node) {
-  LOG_ASSERT(smanager, "smanager is null");
-  LOG_ASSERT(node, "node is null");
+  X_ASSERT(smanager, "smanager is null");
+  X_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -192,22 +143,26 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
   } break;
   case AstType::IdentifierConstant: {
     AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
-    Symbol *s = smanager->css()->resolve(e->value());
-    LOG_ASSERT(s, "sematic check failure: symbol {} not found", e->value());
+    Scope::SNode snode = smanager->current->resolve(e->value());
+    X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+             "sematic check failure: identifier symbol {} not found",
+             e->value());
   } break;
   case AstType::CallExpression: {
     AstCallExpression *e = DC(AstCallExpression, node);
-    Symbol *fs = smanager->css()->resolve(e->identifier());
-    LOG_ASSERT(fs, "sematic check failure: function symbol {} not found",
-               e->identifier());
+    Scope::SNode snode = smanager->current->resolve(e->identifier());
+    X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+             "sematic check failure: function symbol {} not found",
+             e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        AstFunctionArgumentDefinition *fad =
+        AstFunctionArgumentDefinition *farge =
             DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
-        Symbol *fas = smanager->css()->resolve(fad->identifier());
-        LOG_ASSERT(
-            fas, "sematic check failure: function argument symbol {} not found",
-            fad->identifier());
+        Scope::SNode argnode = smanager->current->resolve(farge->identifier());
+        X_ASSERT(Scope::sym(argnode) && Scope::ty(argnode) &&
+                     Scope::ast(argnode),
+                 "sematic check failure: function argument symbol {} not found",
+                 farge->identifier());
       }
     }
   } break;
@@ -255,9 +210,7 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     AstIfStatement *e = DC(AstIfStatement, node);
     check(smanager, e->condition());
     check(smanager, e->thens());
-    if (e->elses()) {
-      check(smanager, e->elses());
-    }
+    check(smanager, e->elses());
   } break;
   case AstType::WhileStatement: {
     AstWhileStatement *e = DC(AstWhileStatement, node);
@@ -276,7 +229,7 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     check(smanager, e->expression());
   } break;
   default:
-    LOG_INFO("do nothing for node: {}", node->toString());
+    X_ASSERT(false, "invalid node: {}", node->toString());
     break;
   }
 }

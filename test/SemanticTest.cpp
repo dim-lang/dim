@@ -14,9 +14,9 @@ static void go(const char *fileName) {
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   LOG_INFO("translateUnit: {}", scanner.translateUnit()->toString());
-  SymbolTable symtable;
-  Semantic::build(&symtable, scanner.translateUnit());
-  Semantic::check(&symtable, scanner.translateUnit());
+  SymbolManager smanager;
+  Semantic::build(&smanager, scanner.translateUnit());
+  Semantic::check(&smanager, scanner.translateUnit());
 }
 
 TEST_CASE("Semant", "[Semant]") {

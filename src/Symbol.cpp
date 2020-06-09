@@ -9,44 +9,59 @@
 #include <sstream>
 #include <utility>
 
-Symtab::Symtab(Symtab *enclosingScope) : enclosingScope_(enclosingScope) {}
+Scope::Scope(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
 
-void Symtab::define(const SymNode &snode) {
-  LOG_ASSERT(snode.symbol && snode.type && snode.ast,
-             "symbol or type or ast is null");
-  LOG_ASSERT(hashtab_.find(snode.symbol->name()) == hashtab_.end(),
-             "symbol {} already exist", snode.symbol->name());
-  hashtab_.insert(std::make_pair(snode.symbol->name(), snode));
+void Scope::define(const Scope::SNode &snode) {
+  X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+           "symbol or type or ast is null");
+  X_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
+           "symbol {} already exist", Scope::sym(snode)->name());
+  map_.insert(std::make_pair(Scope::sym(snode)->name(), snode));
 }
 
-SymNode Symtab::resolve(const std::string &name) {
-  LOG_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
-  if (hashtab_.find(name) != hashtab_.end())
-    return hashtab_[name];
+Scope::SNode Scope::resolve(const std::string &name) {
+  X_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
+  if (map_.find(name) != map_.end())
+    return map_[name];
   if (enclosingScope_)
     return enclosingScope_->resolve(name);
-  return SymNode();
+  return std::make_tuple<Symbol *, Type *, Ast *>(nullptr, nullptr, nullptr);
 }
 
-Symtab *Symtab::enclosingScope() { return enclosingScope_; }
+Scope *Scope::enclosingScope() { return enclosingScope_; }
 
-std::string Symtab::toString() const {
-  return fmt::format("[ @{} name_:{}, enclosingScope_:{}, hashtab_#size:{} ]",
-                     stringify(), name(), enclosingScope_->name(),
-                     hashtab_.size());
+std::string Scope::toString() const {
+  return fmt::format("[ @{} name_:{}, enclosingScope_:{}, map_#size:{} ]",
+                     stringify(), name(), enclosingScope_->name(), map_.size());
 }
 
-Symtab::Iterator Symtab::begin() { return hashtab_.begin(); }
+Scope::Iterator Scope::begin() { return map_.begin(); }
 
-Symtab::CIterator Symtab::begin() const { return hashtab_.begin(); }
+Scope::CIterator Scope::begin() const { return map_.begin(); }
 
-Symtab::Iterator Symtab::end() { return hashtab_.end(); }
+Scope::Iterator Scope::end() { return map_.end(); }
 
-Symtab::CIterator Symtab::end() const { return hashtab_.end(); }
+Scope::CIterator Scope::end() const { return map_.end(); }
 
-int Symtab::size() const { return (int)hashtab_.size(); }
+int Scope::size() const { return (int)map_.size(); }
 
-bool Symtab::empty() const { return hashtab_.empty(); }
+bool Scope::empty() const { return map_.empty(); }
+
+const Symbol *Scope::sym(const SNode &snode) { return std::get<0>(snode); }
+
+Symbol *&Scope::sym(SNode &snode) { return std::get<0>(snode); }
+
+const Type *Scope::ty(const SNode &snode) { return std::get<1>(snode); }
+
+Type *&Scope::ty(SNode &snode) { return std::get<1>(snode); }
+
+const Ast *Scope::ast(const SNode &snode) { return std::get<2>(snode); }
+
+Ast *&Scope::ast(SNode &snode) { return std::get<2>(snode); }
+
+Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a) {
+  return std::make_tuple(s, t, a);
+}
 
 // type start
 
@@ -139,7 +154,7 @@ std::string ClassType::stringify() const { return "ClassType"; }
 
 FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
                            Type *result) {
-  LOG_ASSERT(result, "result is null");
+  X_ASSERT(result, "result is null");
   std::stringstream ss;
   ss << "func(";
   for (int i = 0; i < (int)argTypeList.size(); i++) {
@@ -182,8 +197,8 @@ SymType FunctionArgumentSymbol::type() const {
 }
 
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
-                               Symtab *enclosingScope)
-    : Symtab(enclosingScope), functionName_(functionName) {}
+                               Scope *enclosingScope)
+    : Scope(enclosingScope), functionName_(functionName) {}
 
 std::string FunctionSymbol::name() const { return functionName_; }
 
@@ -191,8 +206,8 @@ SymType FunctionSymbol::type() const { return SymType::Function; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
-ClassSymbol::ClassSymbol(const std::string &className, Symtab *enclosingScope)
-    : Symtab(enclosingScope), className_(className) {}
+ClassSymbol::ClassSymbol(const std::string &className, Scope *enclosingScope)
+    : Scope(enclosingScope), className_(className) {}
 
 std::string ClassSymbol::name() const { return className_; }
 
@@ -202,20 +217,19 @@ std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
 // symbol end
 
-GlobalScope::GlobalScope() : Symtab(nullptr) {}
+GlobalScope::GlobalScope() : Scope(nullptr) {}
 
 std::string GlobalScope::name() const {
-  static std::string globalSymtabName = "GlobalScope";
-  return globalSymtabName;
+  static std::string globalScopeName = "GlobalScope";
+  return globalScopeName;
 }
 
 SymType GlobalScope::type() const { return SymType::Global; }
 
 std::string GlobalScope::stringify() const { return "GlobalScope"; }
 
-LocalScope::LocalScope(const std::string &localScopeName,
-                       Symtab *enclosingScope)
-    : Symtab(enclosingScope), localScopeName_(localScopeName) {}
+LocalScope::LocalScope(const std::string &localScopeName, Scope *enclosingScope)
+    : Scope(enclosingScope), localScopeName_(localScopeName) {}
 
 std::string LocalScope::name() const { return localScopeName_; }
 
