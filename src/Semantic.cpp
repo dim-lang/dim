@@ -125,8 +125,8 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
     build(smanager, e->expression());
   } break;
   default:
-    EX_ASSERT(false, "invalid node:{}", node->toString());
-    /* LOG_INFO("do nothing for node:{}", node->toString()); */
+    /* EX_ASSERT(false, "invalid node:{}", node->toString()); */
+    LOG_INFO("do nothing for node:{}", node->toString());
     break;
   }
 }
@@ -228,8 +228,15 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     AstReturnStatement *e = DC(AstReturnStatement, node);
     check(smanager, e->expression());
   } break;
+  case AstType::VariableDefinition:
+  case AstType::VariableInitialDefinition:
+  case AstType::FunctionDefinition:
+  case AstType::FunctionSignatureDefinition:
+  case AstType::FunctionArgumentDefinition:
+    break;
   default:
     EX_ASSERT(false, "invalid node: {}", node->toString());
+    /* LOG_INFO("do nothing for node:{}", node->toString()); */
     break;
   }
 }

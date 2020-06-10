@@ -70,6 +70,7 @@ public:
   static const Ast *ast(const SNode &snode);
   static Ast *&ast(SNode &snode);
   static SNode make_snode(Symbol *s, Type *t, Ast *a);
+  static const SNode &invalid_snode();
 
 protected:
   virtual std::string stringify() const = 0;

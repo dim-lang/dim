@@ -63,7 +63,14 @@ const Ast *Scope::ast(const SNode &snode) { return std::get<2>(snode); }
 Ast *&Scope::ast(SNode &snode) { return std::get<2>(snode); }
 
 Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a) {
+  EX_ASSERT(s && t && a, "s {} or t {} or a {} is null", (void *)s, (void *)t,
+            (void *)a);
   return std::make_tuple(s, t, a);
+}
+
+const Scope::SNode &Scope::invalid_snode() {
+  static Scope::SNode inv = std::make_tuple(nullptr, nullptr, nullptr);
+  return inv;
 }
 
 // type start
