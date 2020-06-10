@@ -4,9 +4,12 @@
 #pragma once
 #include "Ast.h"
 #include "Ir.h"
+#include "Position.h"
 #include "Symbol.h"
 #include <string>
 
 std::string dumpAst(Ast *node);
 
 std::string dumpScope(const Scope::SNode &snode);
+
+std::string dumpSource(const std::string &fileName, const Position &position);

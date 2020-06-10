@@ -13,7 +13,7 @@ template <typename K, typename V>
 class LinkedNode : private boost::noncopyable {
 public:
   LinkedNode(const std::pair<const K, V> &value);
-  ~LinkedNode();
+  virtual ~LinkedNode();
 
   // attribute
   LinkedNode<K, V> *prev;
@@ -30,7 +30,7 @@ template <typename K, typename V>
 class LinkedList : private boost::noncopyable {
 public:
   LinkedList();
-  ~LinkedList();
+  virtual ~LinkedList();
 
   // attribute
   LinkedNode<K, V> *prev;
@@ -64,7 +64,7 @@ template <typename K, typename V, typename NodePtr>
 class LinkedIterator : public Stringify {
 public:
   LinkedIterator(NodePtr node = nullptr);
-  ~LinkedIterator() = default;
+  virtual ~LinkedIterator() = default;
 
   // convert with other iterators
   LinkedIterator(const LinkedIterator<K, V, NodePtr> &other);
@@ -100,7 +100,7 @@ template <typename K, typename V, typename NodePtr>
 class LinkedConstIterator : public Stringify {
 public:
   LinkedConstIterator(const NodePtr node = nullptr);
-  ~LinkedConstIterator() = default;
+  virtual ~LinkedConstIterator() = default;
 
   // convert with other iterators
   LinkedConstIterator(const LinkedIterator<K, V, NodePtr> &other);
@@ -136,7 +136,7 @@ template <typename K, typename V, typename NodePtr>
 class LinkedReverseIterator : public Stringify {
 public:
   LinkedReverseIterator(NodePtr node = nullptr);
-  ~LinkedReverseIterator() = default;
+  virtual ~LinkedReverseIterator() = default;
 
   // convert to other iterators
   LinkedReverseIterator(const LinkedIterator<K, V, NodePtr> &other);
@@ -172,7 +172,7 @@ template <typename K, typename V, typename NodePtr>
 class LinkedConstReverseIterator : public Stringify {
 public:
   LinkedConstReverseIterator(const NodePtr node = nullptr);
-  ~LinkedConstReverseIterator() = default;
+  virtual ~LinkedConstReverseIterator() = default;
 
   // convert to other iterators
   LinkedConstReverseIterator(const LinkedIterator<K, V, NodePtr> &other);
@@ -215,7 +215,7 @@ public:
 
   LinkedHM();
   LinkedHM(int bucket);
-  ~LinkedHM();
+  virtual ~LinkedHM();
 
   bool empty() const;
   int size() const;
@@ -272,7 +272,7 @@ public:
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
-  ~LinkedHashMap();
+  virtual ~LinkedHashMap();
 
   bool empty() const;
   int size() const;

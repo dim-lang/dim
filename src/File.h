@@ -6,6 +6,45 @@
 #include <string>
 #include <vector>
 
+namespace detail {
+
+class FileWriterIterator {};
+
+class FileInfo {
+public:
+  FileInfo(const std::string &fileName);
+  // close fp_
+  virtual ~FileInfo();
+  const std::string &fileName() const;
+
+protected:
+  std::string fileName_;
+  FILE *fp_;
+};
+
+} // namespace detail
+
+class FileReader : public detail::FileInfo {
+public:
+  FileReader(const std::string &fileName);
+  virtual ~FileReader();
+
+  // reset reading status
+  void reset();
+};
+
+class FileWriter : public detail::FileInfo {
+public:
+  FileWriter(const std::string &fileName);
+  virtual ~FileWriter();
+};
+
+class FileAppender : public detail::FileInfo {
+public:
+  FileAppender(const std::string &fileName);
+  virtual ~FileAppender();
+};
+
 class File {
 public:
   // read all into one string

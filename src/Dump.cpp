@@ -292,3 +292,8 @@ std::string dumpScope(const Scope::SNode &snode) {
 
 #undef DS
 #undef DC
+
+std::string dumpSource(const std::string &fileName, const Position &position) {
+  std::string result;
+  return result;
+}
