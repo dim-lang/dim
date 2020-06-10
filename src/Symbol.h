@@ -20,7 +20,9 @@ BETTER_ENUM(SymType, int,
 /*================ type start from 3000 ================*/
 BETTER_ENUM(TyType, int,
             // type
-            Builtin = 3000, Class, Function)
+            Builtin = 3000, Class, Function,
+            // scope type
+            Scope)
 
 class Ast;
 class Scope;
@@ -114,7 +116,6 @@ public:
   virtual TyType type() const;
 
 protected:
-  virtual std::string stringify() const;
   std::string classType_;
 };
 
@@ -126,8 +127,21 @@ public:
   virtual TyType type() const;
 
 protected:
-  virtual std::string stringify() const;
   std::string functionType_;
+};
+
+class ScopeType : public Type {
+public:
+  virtual ~ScopeType() = default;
+  virtual std::string name() const;
+  virtual TyType type() const;
+
+  static ScopeType *ty_local();
+  static ScopeType *ty_global();
+
+protected:
+  ScopeType(const std::string &scopeTypeName);
+  std::string scopeTypeName_;
 };
 
 // type end

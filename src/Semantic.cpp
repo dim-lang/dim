@@ -85,7 +85,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   case AstType::CompoundStatement: {
     AstCompoundStatement *e = DC(AstCompoundStatement, node);
     LocalScope *loc = new LocalScope(e->name(), smanager->current);
-    smanager->current->define(Scope::make_snode(loc, nullptr, e));
+    smanager->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
     smanager->push(loc);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
@@ -108,7 +108,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   case AstType::ForStatement: {
     AstForStatement *e = DC(AstForStatement, node);
     LocalScope *loc = new LocalScope(e->name(), smanager->current);
-    smanager->current->define(Scope::make_snode(loc, nullptr, e));
+    smanager->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
     smanager->push(loc);
     build(smanager, e->start());
     build(smanager, e->step());
@@ -145,24 +145,24 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
     Scope::SNode snode = smanager->current->resolve(e->value());
     EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
-             "sematic check failure: identifier symbol {} not found",
-             e->value());
+              "sematic check failure: identifier symbol {} not found",
+              e->value());
   } break;
   case AstType::CallExpression: {
     AstCallExpression *e = DC(AstCallExpression, node);
     Scope::SNode snode = smanager->current->resolve(e->identifier());
     EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
-             "sematic check failure: function symbol {} not found",
-             e->identifier());
+              "sematic check failure: function symbol {} not found",
+              e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
         AstFunctionArgumentDefinition *farge =
             DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
         Scope::SNode argnode = smanager->current->resolve(farge->identifier());
-        EX_ASSERT(Scope::sym(argnode) && Scope::ty(argnode) &&
-                     Scope::ast(argnode),
-                 "sematic check failure: function argument symbol {} not found",
-                 farge->identifier());
+        EX_ASSERT(
+            Scope::sym(argnode) && Scope::ty(argnode) && Scope::ast(argnode),
+            "sematic check failure: function argument symbol {} not found",
+            farge->identifier());
       }
     }
   } break;

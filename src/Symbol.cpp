@@ -13,9 +13,9 @@ Scope::Scope(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
 
 void Scope::define(const Scope::SNode &snode) {
   EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
-           "symbol or type or ast is null");
+            "symbol or type or ast is null");
   EX_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
-           "symbol {} already exist", Scope::sym(snode)->name());
+            "symbol {} already exist", Scope::sym(snode)->name());
   map_.insert(std::make_pair(Scope::sym(snode)->name(), snode));
 }
 
@@ -150,8 +150,6 @@ std::string ClassType::name() const { return classType_; }
 
 TyType ClassType::type() const { return TyType::Class; }
 
-std::string ClassType::stringify() const { return "ClassType"; }
-
 FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
                            Type *result) {
   EX_ASSERT(result, "result is null");
@@ -171,7 +169,22 @@ std::string FunctionType::name() const { return functionType_; }
 
 TyType FunctionType::type() const { return TyType::Function; }
 
-std::string FunctionType::stringify() const { return "FunctionType"; }
+ScopeType::ScopeType(const std::string &scopeTypeName)
+    : scopeTypeName_(scopeTypeName) {}
+
+std::string ScopeType::name() const { return scopeTypeName_; }
+
+TyType ScopeType::type() const { return TyType::Scope; }
+
+ScopeType *ScopeType::ty_local() {
+  static ScopeType *ty_local = new ScopeType("LocalScopeType");
+  return ty_local;
+}
+
+ScopeType *ScopeType::ty_global() {
+  static ScopeType *ty_global = new ScopeType("GlobalScopeType");
+  return ty_global;
+}
 
 // type end
 
