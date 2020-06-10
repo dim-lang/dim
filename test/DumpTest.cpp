@@ -16,11 +16,12 @@ static void testAST(const char *fileName) {
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   LOG_INFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
-  SymbolTable symtable;
-  Semantic::build(&symtable, scanner.translateUnit());
-  Semantic::check(&symtable, scanner.translateUnit());
-  LOG_INFO("dump symbol:{} {}", fileName, dumpSymbol(symtable.gss()));
-  LOG_INFO("dump type:{} {}", fileName, dumpType(symtable.gts()));
+  SymbolManager smanager;
+  Semantic::build(&smanager, scanner.translateUnit());
+  Semantic::check(&smanager, scanner.translateUnit());
+  LOG_INFO("dump symbol:{} {}", fileName,
+           dumpScope(Scope::make_snode(smanager.global, nullptr,
+                                       scanner.translateUnit())));
 }
 
 TEST_CASE("Dump", "[Dump]") {

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
-#include "Log.h"
+#include "Exception.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
 #include "llvm/IR/IRBuilder.h"
@@ -97,7 +97,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstIfStatement *is = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    LOG_ASSERT(is->thens(), "is#thens is null");
+    X_ASSERT(is->thens(), "is#thens is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
        << dumpAstImpl(is->thens(), depth + 1);
     if (is->elses()) {
@@ -188,32 +188,40 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   // return DC(AstExpressionList, node)->name();
   //}
   default: {
-    LOG_ASSERT(false, "invalid node:{}", node->toString());
+    X_ASSERT(false, "invalid node:{}", node->toString());
   }
   }
 }
 
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
-#define IS_SYMTAB(x)                                                           \
-  ((x)->type() == (+SymType::Function) || (x)->type() == (+SymType::Class) ||  \
-   (x)->type() == (+SymType::Global) || (x)->type() == (+SymType::Local))
+#define IS_SCOPE(x)                                                            \
+  ((Scope::sym(x))->type() == (+SymType::Function) ||                          \
+   (Scope::sym(x))->type() == (+SymType::Class) ||                             \
+   (Scope::sym(x))->type() == (+SymType::Global) ||                            \
+   (Scope::sym(x))->type() == (+SymType::Local))
 
-static std::string dumpSymbolImpl(Symbol *sym, int depth) {
-  if (!sym)
+static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
+  const Symbol *s = Scope::sym(snode);
+  const Type *t = Scope::ty(snode);
+  const Ast *a = Scope::ast(snode);
+  if (!s)
     return "null";
-  switch (sym->type()) {
+  X_ASSERT(s && t && a, "snode is null: {} {} {}", (void *)s, (void *)t,
+           (void *)a);
+  switch (s->type()) {
   case SymType::Variable:
-    return "var " + DC(VariableSymbol, sym)->name();
+    return std::string("var ") + s->name() + ":" + t->name();
   case SymType::Function: {
-    FunctionSymbol *fs = DC(FunctionSymbol, sym);
+    const FunctionSymbol *funcsym = DC(const FunctionSymbol, s);
     std::stringstream ss;
-    ss << "func " << fs->name() << " {";
-    if (!fs->empty()) {
-      for (auto i = fs->begin(); i != fs->end(); i++) {
+    ss << "func " << funcsym->name() << " {";
+    if (!funcsym->empty()) {
+      for (FunctionSymbol::CIterator i = funcsym->begin(); i != funcsym->end();
+           i++) {
         ss << "\n" << DS << i->first;
-        if (IS_SYMTAB(i->second)) {
-          ss << " => " << dumpSymbolImpl(i->second, depth + 1);
+        if (IS_SCOPE(i->second)) {
+          ss << " => " << dumpScopeImpl(i->second, depth + 1);
         }
       }
       ss << "\n" << std::string(depth - 1, ' ');
@@ -222,16 +230,17 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   case SymType::FunctionArgument:
-    return DC(FunctionArgumentSymbol, sym)->name();
+    return std::string("var ") + s->name() + ":" + t->name();
   case SymType::Class: {
-    ClassSymbol *e = DC(ClassSymbol, sym);
+    const ClassSymbol *clssym = DC(const ClassSymbol, s);
     std::stringstream ss;
-    ss << DS << "class " << e->name() << " {";
-    if (!e->empty()) {
-      for (auto i = e->begin(); i != e->end(); i++) {
+    ss << DS << "class " << clssym->name() << " {";
+    if (!clssym->empty()) {
+      for (ClassSymbol::CIterator i = clssym->begin(); i != clssym->end();
+           i++) {
         ss << "\n" << DS << i->first;
-        if (IS_SYMTAB(i->second)) {
-          ss << " => " << dumpSymbolImpl(i->second, depth + 1);
+        if (IS_SCOPE(i->second)) {
+          ss << " => " << dumpScopeImpl(i->second, depth + 1);
         }
       }
       ss << "\n" << std::string(depth - 1, ' ');
@@ -240,13 +249,13 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   case SymType::Local: {
-    LocalSymtab *e = DC(LocalSymtab, sym);
+    const LocalScope *locsym = DC(const LocalScope, s);
     std::stringstream ss;
-    ss << "local " << e->name() << " {";
-    if (!e->empty()) {
-      for (auto i = e->begin(); i != e->end(); i++) {
+    ss << "local " << locsym->name() << " {";
+    if (!locsym->empty()) {
+      for (LocalScope::CIterator i = locsym->begin(); i != locsym->end(); i++) {
         ss << "\n"
-           << DS << i->first << " => " << dumpSymbolImpl(i->second, depth + 1);
+           << DS << i->first << " => " << dumpScopeImpl(i->second, depth + 1);
       }
       ss << "\n" << std::string(depth - 1, ' ');
     }
@@ -254,14 +263,15 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   case SymType::Global: {
-    GlobalSymtab *e = DC(GlobalSymtab, sym);
+    const GlobalScope *glbsym = DC(const GlobalScope, s);
     std::stringstream ss;
-    ss << DS << e->name() << " {";
-    if (!e->empty()) {
-      for (auto i = e->begin(); i != e->end(); i++) {
+    ss << DS << glbsym->name() << " {";
+    if (!glbsym->empty()) {
+      for (GlobalScope::CIterator i = glbsym->begin(); i != glbsym->end();
+           i++) {
         ss << "\n" << DS << i->first;
-        if (IS_SYMTAB(i->second)) {
-          ss << " => " << dumpSymbolImpl(i->second, depth + 1);
+        if (IS_SCOPE(i->second)) {
+          ss << " => " << dumpScopeImpl(i->second, depth + 1);
         }
       }
       ss << "\n" << DS;
@@ -270,78 +280,15 @@ static std::string dumpSymbolImpl(Symbol *sym, int depth) {
     return ss.str();
   }
   default:
-    LOG_ASSERT(false, "invalid symbol: {} {}", sym->name(), sym->type());
+    X_ASSERT(false, "invalid symbol: {} {}", s->name(), s->type()._to_string());
   }
 }
 
-#undef IS_SYMTAB
+#undef IS_SCOPE
 
-std::string dumpSymbol(Symbol *sym) { return dumpSymbolImpl(sym, 0); }
-
-#define IS_TYTAB(x)                                                            \
-  ((x)->type() == (+TyType::Function) || (x)->type() == (+TyType::Class) ||    \
-   (x)->type() == (+TyType::Global) || (x)->type() == (+TyType::Local))
-
-static std::string dumpTypeImpl(Type *ty, int depth) {
-  if (!ty)
-    return "null";
-  switch (ty->type()) {
-  case TyType::Builtin:
-    return DC(BuiltinType, ty)->name();
-  case TyType::Function: {
-    FunctionType *ft = DC(FunctionType, ty);
-    std::stringstream ss;
-    ss << ft->name() << ": {";
-    for (auto i = ft->begin(); i != ft->end(); i++) {
-      ss << "\n"
-         << DS << i->first->name() << " => "
-         << dumpTypeImpl(i->second, depth + 1);
-    }
-    ss << "\n}\n";
-    return ss.str();
-  }
-  case TyType::Class: {
-    ClassType *ct = DC(ClassType, ty);
-    std::stringstream ss;
-    ss << ct->name() << ": {";
-    for (auto i = ct->begin(); i != ct->end(); i++) {
-      ss << "\n"
-         << DS << i->first->name() << ", "
-         << dumpTypeImpl(i->second, depth + 1);
-    }
-    ss << "\n}\n";
-    return ss.str();
-  }
-  case TyType::Local: {
-    LocalTytab *lt = DC(LocalTytab, ty);
-    std::stringstream ss;
-    ss << lt->name() << ": {";
-    for (auto i = lt->begin(); i != lt->end(); i++) {
-      ss << "\n"
-         << DS << i->first->name() << " => "
-         << dumpTypeImpl(i->second, depth + 1);
-    }
-    ss << "\n}\n";
-    return ss.str();
-  }
-  case TyType::Global: {
-    GlobalTytab *gt = DC(GlobalTytab, ty);
-    std::stringstream ss;
-    ss << gt->name() << ": {";
-    for (auto i = gt->begin(); i != gt->end(); i++) {
-      ss << "\n"
-         << DS << i->first->name() << ", "
-         << dumpTypeImpl(i->second, depth + 1);
-    }
-    ss << "\n}\n";
-    return ss.str();
-  }
-  default:
-    LOG_ASSERT(false, "invalid type: {} {}", ty->name(), ty->type());
-  }
+std::string dumpScope(const Scope::SNode &snode) {
+  return dumpScopeImpl(snode, 0);
 }
-
-std::string dumpType(Type *ty) { return dumpTypeImpl(ty, 0); }
 
 #undef DS
 #undef DC

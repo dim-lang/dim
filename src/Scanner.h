@@ -4,10 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Parser.tab.hpp"
-#include "Symbol.h"
-#include "SymbolTable.h"
 #include "Token.h"
-#include "Type.h"
 #include <string>
 #include <tuple>
 #include <utility>

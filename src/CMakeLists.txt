@@ -70,6 +70,7 @@ set(SHEPHERD_LIB_DIR
     )
 set(SHEPHERD
     Log.cpp
+    Exception.cpp
     Option.cpp
     Timer.cpp
     DateTime.cpp
@@ -85,8 +86,8 @@ set(SHEPHERD
     Ast.cpp
     Position.cpp
     Symbol.cpp
-    Type.cpp
-    SymbolTable.cpp
+    # Type.cpp
+    SymbolManager.cpp
     Semantic.cpp
     Counter.cpp
     Dump.cpp

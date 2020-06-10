@@ -5,7 +5,7 @@
 %code top {
 #include <cstdarg>
 #include <cstdio>
-#include "Log.h"
+#include "Exception.h"
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
@@ -353,13 +353,13 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(Y_POSITION(@1)); }
                 ;
 
 translation_unit : definition {
-                        LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        X_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        X_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  | definition translation_unit {
-                        LOG_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        LOG_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        X_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        X_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  ;

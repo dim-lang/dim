@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Log.h"
+#include "fmt/format.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include <ctime>

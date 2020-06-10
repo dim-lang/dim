@@ -10,9 +10,9 @@
 
 std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
                           const std::string &sourceFileName) {
-  LOG_ASSERT(tunit, "tunit is null");
-  LOG_ASSERT(context, "context is null");
-  LOG_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
+  X_ASSERT(tunit, "tunit is null");
+  X_ASSERT(context, "context is null");
+  X_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
              sourceFileName);
 
   std::error_code errcode;
@@ -24,7 +24,7 @@ std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
   for (int i = 0; i < tunit->size(); i++) {
     IrDefinition *ir = tunit->get(i);
     llvm::Value *v = ir->codeGen(context);
-    LOG_ASSERT(v, "v is null");
+    X_ASSERT(v, "v is null");
     v->print(fd);
   }
   fd.close();
@@ -32,14 +32,14 @@ std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
 }
 
 std::string output_string(IrTranslateUnit *tunit, IrContext *context) {
-  LOG_ASSERT(tunit, "tunit is null");
-  LOG_ASSERT(context, "context is null");
+  X_ASSERT(tunit, "tunit is null");
+  X_ASSERT(context, "context is null");
 
   std::stringstream ss;
   for (int i = 0; i < tunit->size(); i++) {
     IrDefinition *ir = tunit->get(i);
     llvm::Value *v = ir->codeGen(context);
-    LOG_ASSERT(v, "v is null");
+    X_ASSERT(v, "v is null");
     std::string tmp;
     llvm::raw_string_ostream sos(tmp);
     v->print(sos);

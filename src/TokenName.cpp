@@ -87,7 +87,7 @@ static std::unordered_map<int, std::string> TokenNameMap = {
 };
 
 std::string tokenName(int token) {
-  LOG_ASSERT(TokenNameMap.find(token) != TokenNameMap.end(),
+  X_ASSERT(TokenNameMap.find(token) != TokenNameMap.end(),
              "token not exist: {}", token);
   return TokenNameMap[token];
 }

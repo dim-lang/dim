@@ -1,7 +1,7 @@
 // Copyright 2019- <rooster-lang>
 // Apache License Version 2.0
 
-#include "exception/Exception.h"
+#include "Exception.h"
 
 Exception::Exception(const char *fileName, int lineNumber,
                      const char *functionName, const std::string &message)
@@ -20,3 +20,5 @@ std::string Exception::toString() const {
   return fmt::format("[{}:{}] {} - {}", fileName_, lineNumber_, functionName_,
                      message_);
 }
+
+std::string Exception::stringify() const { return "Exception"; }

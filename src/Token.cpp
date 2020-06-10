@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Token.h"
-#include "Log.h"
+#include "Exception.h"
 
 #define TOKEN_FILE_EXT ".shp"
 #ifndef YY_BUF_SIZE
@@ -39,17 +39,17 @@ std::string Buffer::fileToModule(const std::string &name) {
 Buffer::Buffer(const std::string &a_fileName, yyscan_t yy_scaninfo)
     : yyBufferState(nullptr), fileName(a_fileName), lineNo(1), fp(nullptr),
       yy_scaninfo_(yy_scaninfo) {
-  LOG_ASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
+  X_ASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
   fp = std::fopen(fileName.c_str(), "r");
   if (!fp) {
     release();
-    LOG_ASSERT(fp, "file {} cannot open!", fileName);
+    X_ASSERT(fp, "file {} cannot open!", fileName);
   }
   yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yy_scaninfo_);
   if (!yyBufferState) {
     release();
-    LOG_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}",
-               fileName, (void *)yy_scaninfo_);
+    X_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName,
+             (void *)yy_scaninfo_);
   }
 }
 
@@ -72,8 +72,8 @@ BufferStack::BufferStack(yyscan_t yy_scaninfo)
 
 BufferStack::~BufferStack() {
   yy_scaninfo_ = nullptr;
-  LOG_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
-             bufferStack_.size());
+  X_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
+           bufferStack_.size());
 }
 
 int BufferStack::push(const std::string &fileName) {
@@ -93,9 +93,9 @@ int BufferStack::push(const std::string &fileName) {
 }
 
 int BufferStack::pop() {
-  LOG_ASSERT(!bufferStack_.empty(),
-             "bufferStack_ must not empty! current file:{}",
-             bufferStack_.top()->fileName);
+  X_ASSERT(!bufferStack_.empty(),
+           "bufferStack_ must not empty! current file:{}",
+           bufferStack_.top()->fileName);
   Buffer *tb = bufferStack_.top();
   bufferStack_.pop();
   delete tb;

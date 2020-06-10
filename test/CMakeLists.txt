@@ -68,6 +68,7 @@ set(SHEPHERD_LIB_DIR
 set(SHEPHERD_TEST
     MainTest.cpp
     LogTest.cpp
+    ExceptionTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
     RandomTest.cpp

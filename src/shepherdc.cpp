@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  SymbolTable symtable;
+  SymbolManager smanager;
   if (conf.hasFileNames()) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
@@ -39,9 +39,9 @@ int main(int argc, char **argv) {
       int p = scanner.parse();
       LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
                scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
-      LOG_ASSERT(p == 0, "parse fail:{}", p);
-      Semantic::build(&symtable, scanner.translateUnit());
-      Semantic::check(&symtable, scanner.translateUnit());
+      X_ASSERT(p == 0, "parse fail:{}", p);
+      Semantic::build(&smanager, scanner.translateUnit());
+      Semantic::check(&smanager, scanner.translateUnit());
     }
   }
 
