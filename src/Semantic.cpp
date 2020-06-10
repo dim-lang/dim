@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "Semantic.h"
-#include "Exception.h"
 #include "Log.h"
 #include "container/LinkedHashMap.hpp"
+#include "exception/Exception.h"
 
 #define DC(x, y) dynamic_cast<x *>(y)
 

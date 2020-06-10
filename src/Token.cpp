@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Token.h"
-#include "Exception.h"
+#include "exception/Exception.h"
 
 #define TOKEN_FILE_EXT ".shp"
 #ifndef YY_BUF_SIZE

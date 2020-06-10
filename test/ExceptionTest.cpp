@@ -1,7 +1,7 @@
 // Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
-#include "Exception.h"
+#include "exception/Exception.h"
 #include "Log.h"
 #include "catch2/catch.hpp"
 

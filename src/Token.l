@@ -14,12 +14,12 @@ FS (d|D)
 IS ((u|U)|(u|U)?(l|L))
 
 %{
-#include "Exception.h"
 #include "Token.h"
 #include "Ast.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
 #include "Strings.h"
+#include "exception/Exception.h"
 
 #define Y_LENG          yyget_leng(yyextra->yy_scaninfo())
 #define Y_TEXT          yyget_text(yyextra->yy_scaninfo())

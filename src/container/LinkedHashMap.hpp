@@ -2,11 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Exception.h"
 #include "LinkedHashMap.h"
+#include "exception/Exception.h"
 
 #define CLN(x) ((LinkedNode<K, V> *)x)
-#define CCLN(x) ((const LinkedNode<K, V> *)x)
 
 namespace detail {
 
@@ -1144,4 +1143,3 @@ const V &LinkedHashMap<K, V, H, E>::operator[](const K &key) const {
 }
 
 #undef CLN
-#undef CCLN

@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
-#include "Exception.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
+#include "exception/Exception.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/raw_ostream.h"

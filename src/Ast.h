@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Exception.h"
 #include "Position.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
+#include "exception/Exception.h"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include <cctype>

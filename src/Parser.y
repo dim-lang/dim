@@ -5,13 +5,13 @@
 %code top {
 #include <cstdarg>
 #include <cstdio>
-#include "Exception.h"
 #include "Ast.h"
 #include "Token.h"
 #include "Parser.h"
 #include "Scanner.h"
 #include "Semantic.h"
 #include "Position.h"
+#include "exception/Exception.h"
 #define Y_EXTRA yyget_extra(yyscanner)
 #define Y_POSITION(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
