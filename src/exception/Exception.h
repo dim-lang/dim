@@ -52,16 +52,6 @@ protected:
     }                                                                          \
   } while (0)
 
-#define XX_ASSERT(x, cond, ...)                                                \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::string exmsg =                                                      \
-          fmt::format("Assert Fail! Condition:{}, Result:{}\n",                \
-                      BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
-      throw x(__FILE__, __LINE__, __FUNCTION__, exmsg);                        \
-    }                                                                          \
-  } while (0)
-
 #else
 
 #define X_ASSERT(cond, ...)                                                    \
@@ -75,20 +65,6 @@ protected:
           fmt::format("Assert Fail! Condition:{}, Result:{}\n",                \
                       BOOST_PP_STRINGIZE(cond), msg);                          \
       throw Exception(__FILE__, __LINE__, __FUNCTION__, exmsg);                \
-    }                                                                          \
-  } while (0)
-
-#define XX_ASSERT(x, cond, ...)                                                \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::string msg = fmt::format(__VA_ARGS__);                              \
-      fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}\n",          \
-                 __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond),   \
-                 msg);                                                         \
-      std::string exmsg =                                                      \
-          fmt::format("Assert Fail! Condition:{}, Result:{}\n",                \
-                      BOOST_PP_STRINGIZE(cond), msg);                          \
-      throw x(__FILE__, __LINE__, __FUNCTION__, exmsg);                        \
     }                                                                          \
   } while (0)
 
