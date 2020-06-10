@@ -198,7 +198,7 @@ LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
 template <typename K, typename V, typename NodePtr>
 LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
     const LinkedReverseIterator<K, V, NodePtr> &other) {
-  if (node_ == other.node_) {
+  if (this == &other) {
     return *this;
   }
   node_ = other.node_;
@@ -208,7 +208,7 @@ LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
 template <typename K, typename V, typename NodePtr>
 LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
     const LinkedConstReverseIterator<K, V, NodePtr> &other) {
-  if (node_ == other.node_) {
+  if (this == &other) {
     return *this;
   }
   node_ = other.node_;
@@ -475,7 +475,7 @@ template <typename K, typename V, typename NodePtr>
 LinkedReverseIterator<K, V, NodePtr> &
 LinkedReverseIterator<K, V, NodePtr>::operator=(
     const LinkedReverseIterator<K, V, NodePtr> &other) {
-  if (node_ == &other.node_) {
+  if (this == &other) {
     return *this;
   }
   node_ = other.node_;
@@ -486,7 +486,7 @@ template <typename K, typename V, typename NodePtr>
 LinkedReverseIterator<K, V, NodePtr> &
 LinkedReverseIterator<K, V, NodePtr>::operator=(
     const LinkedConstReverseIterator<K, V, NodePtr> &other) {
-  if (node_ == &other.node_) {
+  if (this == &other) {
     return *this;
   }
   node_ = other.node_;
@@ -819,8 +819,8 @@ LinkedHM<K, V, H, E>::find(const K &key) const {
     return end();
   }
   int b = getBucket(key, bucket_);
-  const LinkedNode<K, V> *e = ht_[b].next;
-  while (e != CCLN(&ht_[b])) {
+  LinkedNode<K, V> *e = ht_[b].next;
+  while (e != CLN(&ht_[b])) {
     if (equal_(e->key(), key)) {
       return LinkedHM<K, V, H, E>::CIterator(e);
     }
@@ -884,7 +884,7 @@ typename LinkedHM<K, V, H, E>::Iterator LinkedHM<K, V, H, E>::begin() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHM<K, V, H, E>::CIterator LinkedHM<K, V, H, E>::begin() const {
-  return typename LinkedHM<K, V, H, E>::CIterator(CCLN(head_.seq_next));
+  return typename LinkedHM<K, V, H, E>::CIterator(CLN(head_.seq_next));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -894,7 +894,7 @@ typename LinkedHM<K, V, H, E>::Iterator LinkedHM<K, V, H, E>::end() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHM<K, V, H, E>::CIterator LinkedHM<K, V, H, E>::end() const {
-  return typename LinkedHM<K, V, H, E>::CIterator(CCLN(&head_));
+  return typename LinkedHM<K, V, H, E>::CIterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -904,7 +904,7 @@ typename LinkedHM<K, V, H, E>::RIterator LinkedHM<K, V, H, E>::rbegin() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHM<K, V, H, E>::CRIterator LinkedHM<K, V, H, E>::rbegin() const {
-  return typename LinkedHM<K, V, H, E>::CRIterator(CCLN(head_.seq_prev));
+  return typename LinkedHM<K, V, H, E>::CRIterator(CLN(head_.seq_prev));
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -914,7 +914,7 @@ typename LinkedHM<K, V, H, E>::RIterator LinkedHM<K, V, H, E>::rend() {
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHM<K, V, H, E>::CRIterator LinkedHM<K, V, H, E>::rend() const {
-  return typename LinkedHM<K, V, H, E>::CRIterator(CCLN(&head_));
+  return typename LinkedHM<K, V, H, E>::CRIterator(CLN(&head_));
 }
 
 template <typename K, typename V, typename H, typename E>

@@ -88,9 +88,7 @@ public:
   bool operator!=(const LinkedIterator<K, V, NodePtr> &other) const;
   bool operator!() const;
   std::pair<const K, V> &operator*();
-  /* const std::pair<const K, V> &operator*() const; */
   std::pair<const K, V> *operator->();
-  /* const std::pair<const K, V> *operator->() const; */
   virtual std::string toString() const;
 
 private:
@@ -125,14 +123,12 @@ public:
   bool operator==(const LinkedConstIterator<K, V, NodePtr> &other) const;
   bool operator!=(const LinkedConstIterator<K, V, NodePtr> &other) const;
   bool operator!() const;
-  /* std::pair<const K, V> &operator*(); */
   const std::pair<const K, V> &operator*() const;
-  /* std::pair<const K, V> *operator->(); */
   const std::pair<const K, V> *operator->() const;
   virtual std::string toString() const;
 
 private:
-  const NodePtr node_;
+  NodePtr node_;
 };
 
 // linked reverse iterator
@@ -205,7 +201,7 @@ public:
   virtual std::string toString() const;
 
 private:
-  const NodePtr node_;
+  NodePtr node_;
 };
 
 // linked hashmap
