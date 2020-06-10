@@ -20,7 +20,7 @@ static void testAST(const char *fileName) {
   Semantic::build(&smanager, scanner.translateUnit());
   Semantic::check(&smanager, scanner.translateUnit());
   LOG_INFO("dump symbol:{} {}", fileName,
-           dumpScope(Scope::make_snode(smanager.global, nullptr,
+           dumpScope(Scope::make_snode(smanager.global, ScopeType::ty_global(),
                                        scanner.translateUnit())));
 }
 

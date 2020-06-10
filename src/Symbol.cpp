@@ -12,8 +12,11 @@
 Scope::Scope(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
 
 void Scope::define(const Scope::SNode &snode) {
-  EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
-            "symbol or type or ast is null");
+  const Symbol *s = Scope::sym(snode);
+  const Type *t = Scope::ty(snode);
+  const Ast *a = Scope::ast(snode);
+  EX_ASSERT(s && t && a, "symbol {} or type {} or ast {} is null", (void *)s,
+            (void *)t, (void *)a);
   EX_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
             "symbol {} already exist", Scope::sym(snode)->name());
   map_.insert(std::make_pair(Scope::sym(snode)->name(), snode));
