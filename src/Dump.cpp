@@ -207,8 +207,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
   const Ast *a = Scope::ast(snode);
   if (!s)
     return "null";
-  EX_ASSERT(s && t && a, "snode is null: {} {} {}", (void *)s, (void *)t,
-           (void *)a);
+  EX_ASSERT(s, "snode is null");
   switch (s->type()) {
   case SymType::Variable:
     return std::string("var ") + s->name() + ":" + t->name();
@@ -280,7 +279,8 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   default:
-    EX_ASSERT(false, "invalid symbol: {} {}", s->name(), s->type()._to_string());
+    EX_ASSERT(false, "invalid symbol: {} {}", s->name(),
+              s->type()._to_string());
   }
 }
 

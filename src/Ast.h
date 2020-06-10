@@ -186,7 +186,8 @@ public:
     ss << ", ";
     for (int i = 0; i < (int)items_.size(); i++) {
       Ast *item = dynamic_cast<Ast *>(items_[i]);
-      ss << fmt::format("{}:{}", i, item ? item->toString() : "null");
+      EX_ASSERT(item, "item is null");
+      ss << fmt::format("{}:{}", i, item->toString());
       if (i < (int)items_.size() - 1) {
         ss << ",";
       }
