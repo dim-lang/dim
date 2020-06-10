@@ -53,76 +53,173 @@ public:
   bool seq_empty() const;
 };
 
-template <typename K, typename V, typename T> class LinkedRIterator;
+template <typename K, typename V, typename NodePtr> class LinkedIterator;
+template <typename K, typename V, typename NodePtr> class LinkedConstIterator;
+template <typename K, typename V, typename NodePtr> class LinkedReverseIterator;
+template <typename K, typename V, typename NodePtr>
+class LinkedConstReverseIterator;
 
 // linked iterator
-template <typename K, typename V, typename T>
+template <typename K, typename V, typename NodePtr>
 class LinkedIterator : public Stringify {
 public:
-  LinkedIterator();
-  LinkedIterator(T node);
-  ~LinkedIterator();
-  LinkedIterator(const LinkedIterator<K, V, T> &other);
-  LinkedIterator<K, V, T> &operator=(const LinkedIterator<K, V, T> &other);
-  LinkedIterator(const LinkedRIterator<K, V, T> &other);
-  LinkedIterator<K, V, T> &operator=(const LinkedRIterator<K, V, T> &other);
-  LinkedIterator<K, V, T> &operator++();
-  LinkedIterator<K, V, T> &operator--();
-  LinkedIterator<K, V, T> operator++(int);
-  LinkedIterator<K, V, T> operator--(int);
-  bool operator==(const LinkedIterator<K, V, T> &other) const;
-  bool operator!=(const LinkedIterator<K, V, T> &other) const;
+  LinkedIterator(NodePtr node = nullptr);
+  ~LinkedIterator() = default;
+
+  // convert with other iterators
+  LinkedIterator(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedIterator(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedIterator(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedIterator(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+  LinkedIterator<K, V, NodePtr> &
+  operator=(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedIterator<K, V, NodePtr> &
+  operator=(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedIterator<K, V, NodePtr> &
+  operator=(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedIterator<K, V, NodePtr> &
+  operator=(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+
+  LinkedIterator<K, V, NodePtr> &operator++();
+  LinkedIterator<K, V, NodePtr> &operator--();
+  LinkedIterator<K, V, NodePtr> operator++(int);
+  LinkedIterator<K, V, NodePtr> operator--(int);
+  bool operator==(const LinkedIterator<K, V, NodePtr> &other) const;
+  bool operator!=(const LinkedIterator<K, V, NodePtr> &other) const;
   bool operator!() const;
   std::pair<const K, V> &operator*();
-  const std::pair<const K, V> &operator*() const;
+  /* const std::pair<const K, V> &operator*() const; */
   std::pair<const K, V> *operator->();
+  /* const std::pair<const K, V> *operator->() const; */
+  virtual std::string toString() const;
+
+private:
+  NodePtr node_;
+};
+
+// linked const iterator
+template <typename K, typename V, typename NodePtr>
+class LinkedConstIterator : public Stringify {
+public:
+  LinkedConstIterator(const NodePtr node = nullptr);
+  ~LinkedConstIterator() = default;
+
+  // convert with other iterators
+  LinkedConstIterator(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedConstIterator(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedConstIterator(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedConstIterator(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+  LinkedConstIterator<K, V, NodePtr> &
+  operator=(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedConstIterator<K, V, NodePtr> &
+  operator=(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedConstIterator<K, V, NodePtr> &
+  operator=(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedConstIterator<K, V, NodePtr> &
+  operator=(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+
+  LinkedConstIterator<K, V, NodePtr> &operator++();
+  LinkedConstIterator<K, V, NodePtr> &operator--();
+  LinkedConstIterator<K, V, NodePtr> operator++(int);
+  LinkedConstIterator<K, V, NodePtr> operator--(int);
+  bool operator==(const LinkedConstIterator<K, V, NodePtr> &other) const;
+  bool operator!=(const LinkedConstIterator<K, V, NodePtr> &other) const;
+  bool operator!() const;
+  /* std::pair<const K, V> &operator*(); */
+  const std::pair<const K, V> &operator*() const;
+  /* std::pair<const K, V> *operator->(); */
   const std::pair<const K, V> *operator->() const;
   virtual std::string toString() const;
 
 private:
-  T node_;
+  const NodePtr node_;
 };
 
 // linked reverse iterator
-template <typename K, typename V, typename T>
-class LinkedRIterator : public Stringify {
+template <typename K, typename V, typename NodePtr>
+class LinkedReverseIterator : public Stringify {
 public:
-  LinkedRIterator();
-  LinkedRIterator(T node);
-  ~LinkedRIterator();
-  LinkedRIterator(const LinkedRIterator<K, V, T> &other);
-  LinkedRIterator<K, V, T> &operator=(const LinkedRIterator<K, V, T> &other);
-  LinkedRIterator(const LinkedIterator<K, V, T> &other);
-  LinkedRIterator<K, V, T> &operator=(const LinkedIterator<K, V, T> &other);
-  LinkedRIterator<K, V, T> &operator++();
-  LinkedRIterator<K, V, T> &operator--();
-  LinkedRIterator<K, V, T> operator++(int);
-  LinkedRIterator<K, V, T> operator--(int);
-  bool operator==(const LinkedRIterator<K, V, T> &other) const;
-  bool operator!=(const LinkedRIterator<K, V, T> &other) const;
+  LinkedReverseIterator(NodePtr node = nullptr);
+  ~LinkedReverseIterator() = default;
+
+  // convert to other iterators
+  LinkedReverseIterator(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+
+  LinkedReverseIterator<K, V, NodePtr> &operator++();
+  LinkedReverseIterator<K, V, NodePtr> &operator--();
+  LinkedReverseIterator<K, V, NodePtr> operator++(int);
+  LinkedReverseIterator<K, V, NodePtr> operator--(int);
+  bool operator==(const LinkedReverseIterator<K, V, NodePtr> &other) const;
+  bool operator!=(const LinkedReverseIterator<K, V, NodePtr> &other) const;
   bool operator!() const;
   std::pair<const K, V> &operator*();
-  const std::pair<const K, V> &operator*() const;
   std::pair<const K, V> *operator->();
+  virtual std::string toString() const;
+
+private:
+  NodePtr node_;
+};
+
+// linked const reverse iterator
+template <typename K, typename V, typename NodePtr>
+class LinkedConstReverseIterator : public Stringify {
+public:
+  LinkedConstReverseIterator(const NodePtr node = nullptr);
+  ~LinkedConstReverseIterator() = default;
+
+  // convert to other iterators
+  LinkedConstReverseIterator(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator(
+      const LinkedConstReverseIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedConstIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedReverseIterator<K, V, NodePtr> &other);
+  LinkedConstReverseIterator<K, V, NodePtr> &
+  operator=(const LinkedConstReverseIterator<K, V, NodePtr> &other);
+
+  LinkedConstReverseIterator<K, V, NodePtr> &operator++();
+  LinkedConstReverseIterator<K, V, NodePtr> &operator--();
+  LinkedConstReverseIterator<K, V, NodePtr> operator++(int);
+  LinkedConstReverseIterator<K, V, NodePtr> operator--(int);
+  bool operator==(const LinkedConstReverseIterator<K, V, NodePtr> &other) const;
+  bool operator!=(const LinkedConstReverseIterator<K, V, NodePtr> &other) const;
+  bool operator!() const;
+  const std::pair<const K, V> &operator*() const;
   const std::pair<const K, V> *operator->() const;
   virtual std::string toString() const;
 
 private:
-  T node_;
+  const NodePtr node_;
 };
 
-// linked hashtable
+// linked hashmap
 template <typename K, typename V, typename H, typename E>
-class LinkedHt : private boost::noncopyable {
+class LinkedHM : private boost::noncopyable {
 public:
   using Iterator = LinkedIterator<K, V, LinkedNode<K, V> *>;
-  using CIterator = LinkedIterator<K, V, const LinkedNode<K, V> *>;
-  using RIterator = LinkedRIterator<K, V, LinkedNode<K, V> *>;
-  using CRIterator = LinkedRIterator<K, V, const LinkedNode<K, V> *>;
+  using CIterator = LinkedConstIterator<K, V, LinkedNode<K, V> *>;
+  using RIterator = LinkedReverseIterator<K, V, LinkedNode<K, V> *>;
+  using CRIterator = LinkedConstReverseIterator<K, V, LinkedNode<K, V> *>;
 
-  LinkedHt();
-  LinkedHt(int bucket);
-  ~LinkedHt();
+  LinkedHM();
+  LinkedHM(int bucket);
+  ~LinkedHM();
 
   bool empty() const;
   int size() const;
@@ -159,10 +256,10 @@ private:
   H hasher_;
   E equal_;
   LinkedList<K, V> head_;
-  LinkedList<K, V> *ht_; // hash table head node
+  LinkedList<K, V> *ht_; // hash map head node
   int *count_;           // node count in list
-  int bucket_;           // hash table array capacity
-  int size_;             // hash table node count
+  int bucket_;           // hash map array capacity
+  int size_;             // hash map node count
 };
 
 } // namespace detail
@@ -172,10 +269,10 @@ template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
 class LinkedHashMap : private boost::noncopyable {
 public:
-  using Iterator = typename detail::LinkedHt<K, V, H, E>::Iterator;
-  using CIterator = typename detail::LinkedHt<K, V, H, E>::CIterator;
-  using RIterator = typename detail::LinkedHt<K, V, H, E>::RIterator;
-  using CRIterator = typename detail::LinkedHt<K, V, H, E>::CRIterator;
+  using Iterator = typename detail::LinkedHM<K, V, H, E>::Iterator;
+  using CIterator = typename detail::LinkedHM<K, V, H, E>::CIterator;
+  using RIterator = typename detail::LinkedHM<K, V, H, E>::RIterator;
+  using CRIterator = typename detail::LinkedHM<K, V, H, E>::CRIterator;
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
@@ -221,5 +318,5 @@ public:
   const V &operator[](const K &key) const;
 
 private:
-  detail::LinkedHt<K, V, H, E> hm_;
+  detail::LinkedHM<K, V, H, E> hm_;
 };
