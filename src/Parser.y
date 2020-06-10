@@ -11,7 +11,7 @@
 #include "Scanner.h"
 #include "Semantic.h"
 #include "Position.h"
-#include "exception/Exception.h"
+#include "Exception.h"
 #define Y_EXTRA yyget_extra(yyscanner)
 #define Y_POSITION(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
@@ -353,13 +353,13 @@ empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(Y_POSITION(@1)); }
                 ;
 
 translation_unit : definition {
-                        X_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        X_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  | definition translation_unit {
-                        X_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        X_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                        EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                        EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
                         Y_EXTRA->translateUnit()->add($1);
                     }
                  ;

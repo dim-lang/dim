@@ -42,7 +42,7 @@ protected:
 
 #ifdef NDEBUG
 
-#define X_ASSERT(cond, ...)                                                    \
+#define EX_ASSERT(cond, ...)                                                    \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string exmsg =                                                      \
@@ -54,7 +54,7 @@ protected:
 
 #else
 
-#define X_ASSERT(cond, ...)                                                    \
+#define EX_ASSERT(cond, ...)                                                    \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg = fmt::format(__VA_ARGS__);                              \

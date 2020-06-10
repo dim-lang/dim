@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
       int p = scanner.parse();
       LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
                scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
-      X_ASSERT(p == 0, "parse fail:{}", p);
+      EX_ASSERT(p == 0, "parse fail:{}", p);
       Semantic::build(&smanager, scanner.translateUnit());
       Semantic::check(&smanager, scanner.translateUnit());
     }

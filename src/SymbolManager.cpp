@@ -11,7 +11,7 @@ SymbolManager::SymbolManager()
 
 SymbolManager::~SymbolManager() {
   pop();
-  X_ASSERT(depth_ == 0, "depth_ {} != 0", depth_);
+  EX_ASSERT(depth_ == 0, "depth_ {} != 0", depth_);
   if (global) {
     delete global;
     global = nullptr;
@@ -20,18 +20,18 @@ SymbolManager::~SymbolManager() {
 }
 
 void SymbolManager::push(Scope *sc) {
-  X_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   current = sc;
   ++depth_;
 }
 
 void SymbolManager::pop() {
-  X_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   if (depth_ > 0) {
     current = current->enclosingScope();
     --depth_;
   }
-  X_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
 }
 
 int SymbolManager::depth() const { return depth_; }

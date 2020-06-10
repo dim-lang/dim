@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Timer.h"
-#include "exception/Exception.h"
+#include "Exception.h"
 
 Timer::Timer()
     : timestamp_(std::chrono::system_clock::now()),
@@ -16,7 +16,7 @@ int Timer::elapse() {
 }
 
 void Timer::stop() {
-  X_ASSERT(!stop_, "stop_ {} is false", stop_);
+  EX_ASSERT(!stop_, "stop_ {} is false", stop_);
   std::chrono::system_clock::time_point tmp = std::chrono::system_clock::now();
   count_ +=
       std::chrono::duration_cast<std::chrono::milliseconds>(tmp - timestamp_);
@@ -25,7 +25,7 @@ void Timer::stop() {
 }
 
 void Timer::resume() {
-  X_ASSERT(stop_, "stop_ {} is true", stop_);
+  EX_ASSERT(stop_, "stop_ {} is true", stop_);
   stop_ = false;
   timestamp_ = std::chrono::system_clock::now();
 }

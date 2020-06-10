@@ -12,15 +12,15 @@
 Scope::Scope(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
 
 void Scope::define(const Scope::SNode &snode) {
-  X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+  EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
            "symbol or type or ast is null");
-  X_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
+  EX_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
            "symbol {} already exist", Scope::sym(snode)->name());
   map_.insert(std::make_pair(Scope::sym(snode)->name(), snode));
 }
 
 Scope::SNode Scope::resolve(const std::string &name) {
-  X_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
+  EX_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
   if (map_.find(name) != map_.end())
     return map_[name];
   if (enclosingScope_)
@@ -154,7 +154,7 @@ std::string ClassType::stringify() const { return "ClassType"; }
 
 FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
                            Type *result) {
-  X_ASSERT(result, "result is null");
+  EX_ASSERT(result, "result is null");
   std::stringstream ss;
   ss << "func(";
   for (int i = 0; i < (int)argTypeList.size(); i++) {

@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Exception.h"
 #include "LinkedHashMap.h"
-#include "exception/Exception.h"
 
 #define CLN(x) ((LinkedNode<K, V> *)x)
 
@@ -128,9 +128,9 @@ void LinkedList<K, V>::seq_remove(LinkedNode<K, V> *e) {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::empty() const {
-  X_ASSERT(prev && next, "prev {}, next {} is null", (void *)prev,
+  EX_ASSERT(prev && next, "prev {}, next {} is null", (void *)prev,
            (void *)next);
-  X_ASSERT((prev == CLN(this) && next == CLN(this)) ||
+  EX_ASSERT((prev == CLN(this) && next == CLN(this)) ||
                (prev != CLN(this) && next != CLN(this)),
            "this: {}, prev: {}, next: {}", (void *)this, (void *)prev,
            (void *)next);
@@ -138,9 +138,9 @@ template <typename K, typename V> bool LinkedList<K, V>::empty() const {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::seq_empty() const {
-  X_ASSERT(seq_prev && seq_next, "seq_prev {}, seq_next {} is null",
+  EX_ASSERT(seq_prev && seq_next, "seq_prev {}, seq_next {} is null",
            (void *)prev, (void *)next);
-  X_ASSERT((seq_prev == CLN(this) && seq_next == CLN(this)) ||
+  EX_ASSERT((seq_prev == CLN(this) && seq_next == CLN(this)) ||
                (seq_prev != CLN(this) && seq_next != CLN(this)),
            "this: {}, seq_prev: {}, seq_next: {}", (void *)this,
            (void *)seq_prev, (void *)seq_next);
@@ -702,7 +702,7 @@ LinkedHM<K, V, H, E>::LinkedHM()
 
 template <typename K, typename V, typename H, typename E>
 LinkedHM<K, V, H, E>::LinkedHM(int bucket) : LinkedHM() {
-  X_ASSERT(bucket > 0, "bucket {} > 0", bucket);
+  EX_ASSERT(bucket > 0, "bucket {} > 0", bucket);
   extend(bucket);
 }
 
@@ -713,8 +713,8 @@ LinkedHM<K, V, H, E>::~LinkedHM() {
 
 template <typename K, typename V, typename H, typename E>
 bool LinkedHM<K, V, H, E>::empty() const {
-  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  X_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
+  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
            "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
            (void *)count_, size_, bucket_);
   return size_ == 0;
@@ -751,7 +751,7 @@ void LinkedHM<K, V, H, E>::release() {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    X_ASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
+    EX_ASSERT(head_.seq_empty(), "head_#seq_empty: {}", head_.seq_empty());
     delete[] ht_;
     delete[] count_;
     ht_ = nullptr;
@@ -768,8 +768,8 @@ void LinkedHM<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   int b = getBucket(value.first, bucket_);
   ht_[b].insertHead(e);
   head_.seq_insert(e);
-  X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   ++count_[b];
   ++size_;
 }
@@ -783,8 +783,8 @@ int LinkedHM<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
     int b = getBucket(value.first, bucket_);
     ht_[b].insertHead(e);
     head_.seq_insert(e);
-    X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-    X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     ++count_[b];
     ++size_;
     return 1;
@@ -843,8 +843,8 @@ int LinkedHM<K, V, H, E>::remove(
       delete e;
       --count_[b];
       --size_;
-      X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
     e = e->next;
@@ -867,8 +867,8 @@ int LinkedHM<K, V, H, E>::remove(
       delete e;
       --count_[b];
       --size_;
-      X_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return 0;
     }
     e = e->next;
@@ -918,17 +918,17 @@ typename LinkedHM<K, V, H, E>::CRIterator LinkedHM<K, V, H, E>::rend() const {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHM<K, V, H, E>::extend(int n) {
-  X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  X_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
+  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   if (!empty() && load() < 4.0) {
     return;
   }
   n = alignBucket(n);
-  X_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
+  EX_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
   LinkedList<K, V> *newHt = new LinkedList<K, V>[n];
   int *newCount = new int[n];
-  X_ASSERT(newHt, "newHt is null");
-  X_ASSERT(newCount, "newCount is null");
+  EX_ASSERT(newHt, "newHt is null");
+  EX_ASSERT(newCount, "newCount is null");
   std::memset(newCount, 0, n * sizeof(int));
 
   // first try rehash old hashmap
@@ -966,11 +966,11 @@ void LinkedHM<K, V, H, E>::destroyList(int i) {
     delete e;
     --count_[i];
     --size_;
-    X_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
-    X_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    EX_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
+    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
-  X_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
-  X_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
+  EX_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
+  EX_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 
 template <typename K, typename V, typename H, typename E>

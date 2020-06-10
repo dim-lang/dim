@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Exception.h"
 #include "Position.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
-#include "exception/Exception.h"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
 #include <cctype>
@@ -197,12 +197,12 @@ public:
   virtual bool empty() const { return items_.empty(); }
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const {
-    X_ASSERT(pos >= 0, "pos {} >= 0");
-    X_ASSERT(items_[pos], "items_[{}] is null", pos);
+    EX_ASSERT(pos >= 0, "pos {} >= 0");
+    EX_ASSERT(items_[pos], "items_[{}] is null", pos);
     return items_[pos];
   }
   virtual void add(T *item) {
-    X_ASSERT(item, "item is null");
+    EX_ASSERT(item, "item is null");
     updatePosition(*(static_cast<Position *>(item)));
     items_.push_front(item);
   }

@@ -2,15 +2,15 @@
 // Apache License Version 2.0
 
 #include "Semantic.h"
+#include "Exception.h"
 #include "Log.h"
 #include "container/LinkedHashMap.hpp"
-#include "exception/Exception.h"
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
 void Semantic::build(SymbolManager *smanager, Ast *node) {
-  X_ASSERT(smanager, "smanager is null");
-  X_ASSERT(node, "node is null");
+  EX_ASSERT(smanager, "smanager is null");
+  EX_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -55,11 +55,11 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
     FunctionSymbol *funcsym =
         new FunctionSymbol(signe->identifier(), smanager->current);
     std::vector<Type *> fargTypeList;
-    X_ASSERT(signe->argumentList(), "signe->argumentList is null");
+    EX_ASSERT(signe->argumentList(), "signe->argumentList is null");
     for (int i = 0; i < signe->argumentList()->size(); i++) {
       AstFunctionArgumentDefinition *arge =
           DC(AstFunctionArgumentDefinition, signe->argumentList()->get(i));
-      X_ASSERT(arge, "arge is null");
+      EX_ASSERT(arge, "arge is null");
       fargTypeList.push_back(BuiltinType::ty_void());
     }
     FunctionType *functy =
@@ -71,7 +71,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
         build(smanager, signe->argumentList()->get(i));
       }
     }
-    X_ASSERT(e->statement(), "e#statement is null");
+    EX_ASSERT(e->statement(), "e#statement is null");
     build(smanager, e->statement());
     smanager->pop();
   } break;
@@ -102,7 +102,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   } break;
   case AstType::WhileStatement: {
     AstWhileStatement *e = DC(AstWhileStatement, node);
-    X_ASSERT(e->statement(), "e->statement is null");
+    EX_ASSERT(e->statement(), "e->statement is null");
     build(smanager, e->statement());
   } break;
   case AstType::ForStatement: {
@@ -125,15 +125,15 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
     build(smanager, e->expression());
   } break;
   default:
-    X_ASSERT(false, "invalid node:{}", node->toString());
+    EX_ASSERT(false, "invalid node:{}", node->toString());
     /* LOG_INFO("do nothing for node:{}", node->toString()); */
     break;
   }
 }
 
 void Semantic::check(SymbolManager *smanager, Ast *node) {
-  X_ASSERT(smanager, "smanager is null");
-  X_ASSERT(node, "node is null");
+  EX_ASSERT(smanager, "smanager is null");
+  EX_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
@@ -144,14 +144,14 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
   case AstType::IdentifierConstant: {
     AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
     Scope::SNode snode = smanager->current->resolve(e->value());
-    X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+    EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
              "sematic check failure: identifier symbol {} not found",
              e->value());
   } break;
   case AstType::CallExpression: {
     AstCallExpression *e = DC(AstCallExpression, node);
     Scope::SNode snode = smanager->current->resolve(e->identifier());
-    X_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+    EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
              "sematic check failure: function symbol {} not found",
              e->identifier());
     if (e->argumentList()) {
@@ -159,7 +159,7 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
         AstFunctionArgumentDefinition *farge =
             DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
         Scope::SNode argnode = smanager->current->resolve(farge->identifier());
-        X_ASSERT(Scope::sym(argnode) && Scope::ty(argnode) &&
+        EX_ASSERT(Scope::sym(argnode) && Scope::ty(argnode) &&
                      Scope::ast(argnode),
                  "sematic check failure: function argument symbol {} not found",
                  farge->identifier());
@@ -229,7 +229,7 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     check(smanager, e->expression());
   } break;
   default:
-    X_ASSERT(false, "invalid node: {}", node->toString());
+    EX_ASSERT(false, "invalid node: {}", node->toString());
     break;
   }
 }

@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
+#include "Exception.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
-#include "exception/Exception.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/raw_ostream.h"
@@ -97,7 +97,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstIfStatement *is = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    X_ASSERT(is->thens(), "is#thens is null");
+    EX_ASSERT(is->thens(), "is#thens is null");
     ss << dumpAstImpl(is->condition(), depth) << ") \n"
        << dumpAstImpl(is->thens(), depth + 1);
     if (is->elses()) {
@@ -188,7 +188,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   // return DC(AstExpressionList, node)->name();
   //}
   default: {
-    X_ASSERT(false, "invalid node:{}", node->toString());
+    EX_ASSERT(false, "invalid node:{}", node->toString());
   }
   }
 }
@@ -207,7 +207,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
   const Ast *a = Scope::ast(snode);
   if (!s)
     return "null";
-  X_ASSERT(s && t && a, "snode is null: {} {} {}", (void *)s, (void *)t,
+  EX_ASSERT(s && t && a, "snode is null: {} {} {}", (void *)s, (void *)t,
            (void *)a);
   switch (s->type()) {
   case SymType::Variable:
@@ -280,7 +280,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   default:
-    X_ASSERT(false, "invalid symbol: {} {}", s->name(), s->type()._to_string());
+    EX_ASSERT(false, "invalid symbol: {} {}", s->name(), s->type()._to_string());
   }
 }
 
