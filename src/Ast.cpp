@@ -193,7 +193,7 @@ std::string AstDefinitionList::stringify() const { return "AstDefinitionList"; }
 AstType AstDefinitionList::type() const { return AstType::DefinitionList; }
 
 AstTranslateUnit::AstTranslateUnit()
-    : detail::AstList<AstDefinition>(nameGenerator.generate("A_Unit")) {}
+    : detail::AstList<AstDefinition>(nameGenerator.generate("A_TUnit")) {}
 
 AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
 
@@ -211,7 +211,7 @@ AstType AstIdentifierConstant::type() const {
 }
 
 std::string AstIdentifierConstant::toString() const {
-  return fmt::format("[@AstIdentifierConstant {} value_:{} {}]",
+  return fmt::format("[@AstIdentifierConstant {} value_:{}]",
                      Position::toString(), value_);
 }
 
