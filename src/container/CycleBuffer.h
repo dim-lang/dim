@@ -18,11 +18,11 @@ public:
   virtual bool full() const;
 
   // next position start from <position>
-  virtual char *next(char *position) const;
-  virtual const char *next(const char *position) const;
+  virtual char *next(char *position, int distance = 1) const;
+  virtual const char *next(const char *position, int distance = 1) const;
   // previous position start from <position>
-  virtual char *prev(char *position) const;
-  virtual const char *prev(const char *position) const;
+  virtual char *prev(char *position, int distance = 1) const;
+  virtual const char *prev(const char *position, int distance = 1) const;
 
   virtual char *begin();
   virtual const char *begin() const;
@@ -36,27 +36,37 @@ public:
 
   virtual bool contain(const char *position) const;
 
-  // write at most <n> bytes from <buf> to CycleBuffer
-  // @return    bytes really write
-  virtual int write(const char *buf, int n) = 0;
-  // read at most <n> bytes to <buf> from CycleBuffer
-  // @return    bytes really read
-  virtual int read(char *buf, int n) = 0;
-
-  // write at most <n> bytes from <fp> to CycleBuffer
-  // @return    bytes really write
-  virtual int writeFile(FILE *fp, int n) = 0;
-
-  // read at most <n> bytes to <fp> from CycleBuffer
-  // @return    bytes really read
-  virtual int readFile(FILE *fp, int n) = 0;
-
   virtual std::string toString() const;
 
+  // write at most <n> bytes to <buf>
+  // @return    bytes really write
+  virtual int write(char *buf, int n);
+
+  // read at most <n> bytes from <buf>
+  // @return    bytes really read
+  virtual int read(const char *buf, int n);
+
+  // write all bytes to <fp>
+  // @return    bytes really write
+  virtual int fwrite(FILE *fp);
+
+  // write at most <n> bytes to <fp>
+  virtual int fwrite(FILE *fp, int n);
+
+  // read all bytes from <fp>
+  // @return    bytes really read
+  virtual int fread(FILE *fp);
+
+  // read at most <n> bytes from <fp>
+  // @return    bytes really read
+  virtual int fread(FILE *fp, int n);
+
 protected:
-  virtual char *nextImpl(char *position) const;
-  virtual char *prevImpl(char *position) const;
+  virtual char *nextImpl(char *position, int distance = 1) const;
+  virtual char *prevImpl(char *position, int distance = 1) const;
   virtual void release();
+  virtual int expand(int n) = 0;
+  virtual bool dynamic() const = 0;
 
   char *buf_;
   char *head_;
@@ -70,47 +80,20 @@ class DynamicBuffer : public detail::CycleBuffer {
 public:
   DynamicBuffer(int capacity = 0);
   virtual ~DynamicBuffer() = default;
-
-  // write at most <n> bytes from <buf> to CycleBuffer
-  // @return    bytes really write
-  virtual int write(const char *buf, int n);
-  // read at most <n> bytes to <buf> from CycleBuffer
-  // @return    bytes really read
-  virtual int read(char *buf, int n);
-
-  // write at most <n> bytes from <fp> to CycleBuffer
-  // @return    bytes really write
-  virtual int writeFile(FILE *fp, int n);
-
-  // read at most <n> bytes to <fp> from CycleBuffer
-  // @return    bytes really read
-  virtual int readFile(FILE *fp, int n);
-
   virtual std::string toString() const;
 
-private:
+protected:
   virtual int expand(int n);
+  virtual bool dynamic() const;
 };
 
 class FixedBuffer : public detail::CycleBuffer {
 public:
   FixedBuffer(int capacity);
   virtual ~FixedBuffer() = default;
-
-  // write at most <n> bytes from <buf> to CycleBuffer
-  // @return    bytes really write
-  virtual int write(const char *buf, int n);
-  // read at most <n> bytes to <buf> from CycleBuffer
-  // @return    bytes really read
-  virtual int read(char *buf, int n);
-
-  // write at most <n> bytes from <fp> to CycleBuffer
-  // @return    bytes really write
-  virtual int writeFile(FILE *fp, int n);
-
-  // read at most <n> bytes to <fp> from CycleBuffer
-  // @return    bytes really read
-  virtual int readFile(FILE *fp, int n);
-
   virtual std::string toString() const;
+
+protected:
+  virtual int expand(int n);
+  virtual bool dynamic() const;
 };

@@ -3,6 +3,7 @@
 
 #include "container/CycleBuffer.h"
 #include "Exception.h"
+#include "fmt/format.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -18,6 +19,8 @@
 
 // when positive direction
 #define P_SIZE (tail_ - head_)
+#define P_LEFT_SIZE (head_ - buf_)
+#define P_RIGHT_SIZE (BUF_END - tail_)
 #define P_IN(p) (p >= head_ && p < tail_)
 
 // when negative direction
@@ -27,6 +30,7 @@
 #define N_RIGHT_IN(p) (p >= head_ && p < BUF_END)
 
 #define ALIGN(n) (n < 8 ? 8 : (n % 8 == 0 ? n : ((n / 8 + 1) * 8)))
+#define MIN(a, b) (std::min<int>(a, b))
 
 namespace detail {
 
@@ -52,36 +56,64 @@ bool CycleBuffer::full() const {
   return (head_ == buf_ && tail_ == BUF_END) || (tail_ + 1 == head_);
 }
 
-char *CycleBuffer::nextImpl(char *position) const {
+char *CycleBuffer::nextImpl(char *position, int distance) const {
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
-  if (NEGATIVE_DIRECTION && N_RIGHT_IN(position)) {
-    return position + 1 == BUF_END ? buf_ : position + 1;
+  EX_ASSERT(distance >= 0, "distance {} < 0", distance);
+  char *np = position + distance;
+  if (POSITIVE_DIRECTION) {
+    return np >= tail_ ? (char *)end() : np;
   } else {
-    return position + 1;
+    if (N_LEFT_IN(position)) {
+      return np >= tail_ ? (char *)end() : np;
+    } else {
+      EX_ASSERT(N_RIGHT_IN(position), "position {} must in right part {}",
+                (void *)position, toString());
+      if (np < BUF_END) {
+        return np;
+      }
+      np = (char *)buf_ + (distance - (BUF_END - position));
+      return np >= tail_ ? (char *)end() : np;
+    }
   }
 }
 
-char *CycleBuffer::next(char *position) const { return nextImpl(position); }
-
-const char *CycleBuffer::next(const char *position) const {
-  return nextImpl((char *)position);
+char *CycleBuffer::next(char *position, int distance) const {
+  return nextImpl(position, distance);
 }
 
-char *CycleBuffer::prevImpl(char *position) const {
+const char *CycleBuffer::next(const char *position, int distance) const {
+  return nextImpl((char *)position, distance);
+}
+
+char *CycleBuffer::prevImpl(char *position, int distance) const {
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
-  if (NEGATIVE_DIRECTION && N_LEFT_IN(position)) {
-    return position == buf_ ? BUF_END - 1 : position - 1;
+  EX_ASSERT(distance >= 0, "distance {} < 0", distance);
+  char *np = position - distance;
+  if (POSITIVE_DIRECTION) {
+    return np < head_ ? (char *)rend() : np;
   } else {
-    return position - 1;
+    if (N_LEFT_IN(position)) {
+      if (np < buf_) {
+        return np;
+      }
+      np = (char *)BUF_END - (distance - (position - buf_));
+      return np < head_ ? (char *)rend() : np;
+    } else {
+      EX_ASSERT(N_RIGHT_IN(position), "position {} must in right part {}",
+                (void *)position, toString());
+      return np < head_ ? (char *)rend() : np;
+    }
   }
 }
 
-char *CycleBuffer::prev(char *position) const { return prevImpl(position); }
+char *CycleBuffer::prev(char *position, int distance) const {
+  return prevImpl(position, distance);
+}
 
-const char *CycleBuffer::prev(const char *position) const {
-  return prevImpl((char *)position);
+const char *CycleBuffer::prev(const char *position, int distance) const {
+  return prevImpl((char *)position, distance);
 }
 
 char *CycleBuffer::begin() { return head_; }
@@ -107,11 +139,165 @@ bool CycleBuffer::contain(const char *position) const {
                             : (N_LEFT_IN(position) || N_RIGHT_IN(position));
 }
 
+std::string CycleBuffer::toString() const {
+  return fmt::format("buf_:{}, head_:{}, tail_:{}, capacity_:{}", (void *)buf_,
+                     (void *)head_, (void *)tail_, capacity_);
+}
+
 void CycleBuffer::release() {
   if (buf_) {
     std::free(buf_);
     buf_ = nullptr;
   }
+}
+
+int CycleBuffer::write(char *buf, int n) {
+  EX_ASSERT(n >= 0, "n {} < 0", n);
+  if (!buf || !n) {
+    return 0;
+  }
+  if (empty()) {
+    return 0;
+  }
+  int writen = 0;
+  if (POSITIVE_DIRECTION) {
+    int fn = MIN(size(), n);
+    std::memcpy(buf, head_, fn);
+    head_ = next(head_, fn);
+    writen += fn;
+  } else {
+    int fn = MIN(BUF_END - head_, n);
+    std::memcpy(buf, head_, fn);
+    head_ = next(head_, fn);
+    writen += fn;
+    if (n > writen) {
+      int sn = MIN(n - writen, N_LEFT_SIZE);
+      std::memcpy(buf + writen, head_, sn);
+      head_ = next(head_, fn);
+      writen += sn;
+    }
+  }
+  return writen;
+}
+
+int CycleBuffer::fwrite(FILE *fp, int n) {
+  EX_ASSERT(n >= 0, "n {} < 0", n);
+  if (!fp || !n) {
+    return 0;
+  }
+  if (empty()) {
+    return 0;
+  }
+  int writen = 0;
+  if (POSITIVE_DIRECTION) {
+    int fn = MIN(size(), n);
+    size_t fnr = std::fwrite(head_, 1, fn, fp);
+    head_ = next(head_, fnr);
+    writen += fnr;
+  } else {
+    int fn = MIN(BUF_END - head_, n);
+    size_t fnr = std::fwrite(head_, 1, fn, fp);
+    head_ = next(head_, fnr);
+    writen += fnr;
+    // fnr == fn indicate write success
+    if (fnr == fn && n > writen) {
+      int sn = MIN(n - writen, N_LEFT_SIZE);
+      size_t snr = std::fwrite(buf_, 1, sn, fp);
+      head_ = next(head_, snr);
+      writen += snr;
+    }
+  }
+  return writen;
+}
+
+int CycleBuffer::fwrite(FILE *fp) {
+  int n = 0;
+  int tmp = 0;
+  do {
+    tmp = fwrite(fp, 1024);
+    n += tmp;
+  } while (tmp > 0);
+  return n;
+}
+
+int CycleBuffer::read(const char *buf, int n) {
+  EX_ASSERT(n >= 0, "n {} < 0", n);
+  if (!buf || !n) {
+    return 0;
+  }
+  if (dynamic()) {
+    if (capacity() - size() < n) {
+      expand(ALIGN(capacity_ + n + 1) * 2);
+    }
+  }
+  if (full()) {
+    return 0;
+  }
+  int readn = 0;
+  if (POSITIVE_DIRECTION) {
+    int fn = MIN(BUF_END - tail_, n);
+    std::memcpy(tail_, buf, fn);
+    tail_ = buf_;
+    readn += fn;
+    if (n > readn) {
+      int sn = MIN(n - readn, head_ - buf_);
+      std::memcpy(tail_, buf, sn);
+      tail_ += sn;
+      readn += sn;
+    }
+  } else {
+    int fn = MIN(n, head_ - tail_);
+    std::memcpy(tail_, buf, fn);
+    tail_ += fn;
+    readn += fn;
+  }
+  return readn;
+}
+
+int CycleBuffer::fread(FILE *fp, int n) {
+  EX_ASSERT(n >= 0, "n {} < 0", n);
+  if (!fp || !n) {
+    return 0;
+  }
+  if (dynamic()) {
+    if (capacity() - size() < n) {
+      expand(ALIGN(capacity_ + n + 1) * 2);
+    }
+  }
+  if (full()) {
+    return 0;
+  }
+  int readn = 0;
+  if (POSITIVE_DIRECTION) {
+    int fn = MIN(BUF_END - tail_, n);
+    size_t fnr = std::fread(tail_, 1, fn, fp);
+    tail_ += fnr;
+    readn += fnr;
+    if (fn == fnr && n > readn) {
+      EX_ASSERT(tail_ == BUF_END, "tail_ {} == BUF_END {}", (void *)tail_,
+                (void *)BUF_END);
+      int sn = MIN(n - readn, head_ - buf_);
+      size_t snr = std::fread(buf_, 1, sn, fp);
+      tail_ = buf_ + snr;
+      readn += snr;
+    }
+  } else {
+    int fn = MIN(n, head_ - tail_);
+    size_t fnr = std::fread(tail_, 1, fn, fp);
+    tail_ += fnr;
+    readn += fnr;
+  }
+  return readn;
+}
+
+int CycleBuffer::fread(FILE *fp) {
+  int n = 0;
+  int tmp = 0;
+  do {
+    tmp = fread(fp, 1024);
+    n += tmp;
+  } while (tmp > 0);
+  return n;
 }
 
 } // namespace detail
@@ -122,70 +308,9 @@ DynamicBuffer::DynamicBuffer(int capacity) {
   }
 }
 
-int DynamicBuffer::write(const char *buf, int n) {
-  EX_ASSERT(n >= 0, "n {} < 0", n);
-  if (!buf || !n) {
-    return 0;
-  }
-  if (capacity() - size() <= n) {
-    expand(ALIGN(capacity_ + n + 1) * 2);
-  }
-  if (full()) {
-    return 0;
-  }
-  int writen = 0;
-  if (POSITIVE_DIRECTION) {
-    int fn = std::min(BUF_END - tail_, n);
-    std::memcpy(tail_, buf, fn);
-    tail_ = buf_;
-    writen += fn;
-    if (n > writen) {
-      int sn = std::min(n - writen, head_ - buf_);
-      std::memcpy(tail_, buf, sn);
-      tail_ += sn;
-      writen += sn;
-    }
-  } else {
-    int fn = std::min(n, head_ - tail_);
-    std::memcpy(tail_, buf, fn);
-    tail_ = tail_ + fn;
-    writen += fn;
-  }
-  return writen;
+std::string DynamicBuffer::toString() const {
+  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer::toString());
 }
-
-int DynamicBuffer::read(char *buf, int n) {
-  EX_ASSERT(n >= 0, "n {} < 0", n);
-  if (!buf || !n) {
-    return 0;
-  }
-  if (empty()) {
-    return 0;
-  }
-  int readn = 0;
-  if (POSITIVE_DIRECTION) {
-    int fn = std::min(size(), n);
-    std::memcpy(buf, head_, fn);
-    head_ += fn;
-    readn += fn;
-  } else {
-    int fn = std::min(BUF_END - head_, n);
-    std::memcpy(buf, head_, fn);
-    head_ = buf_;
-    readn += fn;
-    if (n > readn) {
-      int sn = std::min(n - readn, size());
-      std::memcpy(buf + readn, head_, sn);
-      head_ += sn;
-      readn += sn;
-    }
-  }
-  return readn;
-}
-
-int DynamicBuffer::writeFile(FILE *fp, int n) {}
-
-int DynamicBuffer::readFile(FILE *fp, int n) {}
 
 int DynamicBuffer::expand(int n) {
   EX_ASSERT(n >= 0, "n {} >= 0", n);
@@ -211,3 +336,24 @@ int DynamicBuffer::expand(int n) {
   tail_ = buf_ + size();
   return 0;
 }
+
+bool DynamicBuffer::dynamic() const { return true; }
+
+FixedBuffer::FixedBuffer(int capacity) {
+  capacity = ALIGN(capacity);
+  buf_ = (char *)std::malloc(capacity);
+  if (!buf_) {
+    return;
+  }
+  capacity_ = capacity;
+  head_ = buf_;
+  tail_ = buf_;
+}
+
+std::string FixedBuffer::toString() const {
+  return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer::toString());
+}
+
+int FixedBuffer::expand(int n) { return 0; }
+
+bool FixedBuffer::dynamic() const { return false; }
