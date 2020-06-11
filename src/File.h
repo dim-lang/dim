@@ -3,6 +3,7 @@
 
 #pragma once
 #include "boost/filesystem.hpp"
+#include "container/CycleBuffer.h"
 #include "enum.h"
 #include <string>
 #include <vector>
@@ -13,6 +14,8 @@ BETTER_ENUM(FileModeType, int,
             Read = 4000, Write, Append, ReadUpdate, WriteUpdate, AppendUpdate)
 
 class FileReader;
+class FileWriter;
+class FileAppender;
 
 namespace detail {
 
@@ -29,7 +32,6 @@ private:
   FileReaderLineIterator(FILE *fp);
   friend class FileReader;
   FILE *fp_;
-  char *buffer_;
 };
 
 // read char by char
@@ -68,12 +70,10 @@ public:
   // close fp_
   virtual ~FileInfo();
   const std::string &fileName() const;
-  FileModeType mode() const;
 
 protected:
   std::string fileName_;
   FILE *fp_;
-  FileModeType mode_;
 };
 
 } // namespace detail
@@ -99,18 +99,27 @@ public:
   friend class detail::FileReaderLineIterator;
   friend class detail::FileReaderCharIterator;
   friend class detail::FileReaderBufferIterator;
+
+private:
+  DynamicBuffer buffer_;
 };
 
 class FileWriter : public detail::FileInfo {
 public:
   FileWriter(const std::string &fileName);
   virtual ~FileWriter();
+
+private:
+  DynamicBuffer buffer_;
 };
 
 class FileAppender : public detail::FileInfo {
 public:
   FileAppender(const std::string &fileName);
   virtual ~FileAppender();
+
+private:
+  DynamicBuffer buffer_;
 };
 
 class File {

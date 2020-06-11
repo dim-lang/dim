@@ -16,6 +16,7 @@ public:
   virtual int size() const;
   virtual bool empty() const;
   virtual bool full() const;
+  virtual void reset();
 
   // next position start from <position>
   virtual char *next(char *position, int distance = 1) const;

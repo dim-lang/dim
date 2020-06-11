@@ -37,12 +37,7 @@ namespace detail {
 CycleBuffer::CycleBuffer()
     : buf_(nullptr), head_(nullptr), tail_(nullptr), capacity_(0) {}
 
-CycleBuffer::~CycleBuffer() {
-  release();
-  head_ = nullptr;
-  tail_ = nullptr;
-  capacity_ = 0;
-}
+CycleBuffer::~CycleBuffer() { reset(); }
 
 int CycleBuffer::capacity() const { return capacity_; }
 
@@ -54,6 +49,13 @@ bool CycleBuffer::empty() const { return head_ == tail_; }
 
 bool CycleBuffer::full() const {
   return (head_ == buf_ && tail_ == BUF_END) || (tail_ + 1 == head_);
+}
+
+void CycleBuffer::reset() {
+  release();
+  head_ = nullptr;
+  tail_ = nullptr;
+  capacity_ = 0;
 }
 
 char *CycleBuffer::nextImpl(char *position, int distance) const {

@@ -116,10 +116,7 @@ FileInfo::~FileInfo() {
 
 const std::string &FileInfo::fileName() const { return fileName_; }
 
-FileModeType FileInfo::mode() const { return mode_; }
-
-FileReaderLineIterator::FileReaderLineIterator(FILE *fp)
-    : fp_(fp), buffer_(nullptr) {}
+FileReaderLineIterator::FileReaderLineIterator(FILE *fp) : fp_(fp) {}
 
 std::string FileReaderLineIterator::operator*() {}
 
