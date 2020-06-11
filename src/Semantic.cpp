@@ -240,5 +240,3 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     break;
   }
 }
-
-#undef DC

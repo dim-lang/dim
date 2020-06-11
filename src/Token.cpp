@@ -48,8 +48,8 @@ Buffer::Buffer(const std::string &a_fileName, yyscan_t yy_scaninfo)
   yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yy_scaninfo_);
   if (!yyBufferState) {
     release();
-    EX_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}", fileName,
-             (void *)yy_scaninfo_);
+    EX_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}",
+              fileName, (void *)yy_scaninfo_);
   }
 }
 
@@ -73,7 +73,7 @@ BufferStack::BufferStack(yyscan_t yy_scaninfo)
 BufferStack::~BufferStack() {
   yy_scaninfo_ = nullptr;
   EX_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
-           bufferStack_.size());
+            bufferStack_.size());
 }
 
 int BufferStack::push(const std::string &fileName) {
@@ -94,8 +94,8 @@ int BufferStack::push(const std::string &fileName) {
 
 int BufferStack::pop() {
   EX_ASSERT(!bufferStack_.empty(),
-           "bufferStack_ must not empty! current file:{}",
-           bufferStack_.top()->fileName);
+            "bufferStack_ must not empty! current file:{}",
+            bufferStack_.top()->fileName);
   Buffer *tb = bufferStack_.top();
   bufferStack_.pop();
   delete tb;

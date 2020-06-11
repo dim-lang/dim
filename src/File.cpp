@@ -102,4 +102,29 @@ int File::appendline(const std::string &fileName,
   return writeImpl(fileName, lines, "a");
 }
 
-#undef F_BUF_SIZE
+namespace detail {
+
+FileInfo::FileInfo(const std::string &fileName)
+    : fileName_(fileName), fp_(nullptr) {}
+
+FileInfo::~FileInfo() {
+  if (fp_) {
+    std::fclose(fp_);
+    fp_ = nullptr;
+  }
+}
+
+const std::string &FileInfo::fileName() const { return fileName_; }
+
+FileModeType FileInfo::mode() const { return mode_; }
+
+FileReaderLineIterator::FileReaderLineIterator(FILE *fp)
+    : fp_(fp), buffer_(nullptr) {}
+
+std::string FileReaderLineIterator::operator*() {}
+
+FileReaderLineIterator &FileReaderLineIterator::operator++() {}
+
+FileReaderLineIterator FileReaderLineIterator::operator++(int) {}
+
+} // namespace detail

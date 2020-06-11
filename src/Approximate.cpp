@@ -33,7 +33,3 @@ bool Approximate::lt(float a, float b, float epsilon) {
 bool Approximate::lt(double a, double b, double epsilon) {
   return (b - a) > ((FABS(a) < FABS(b) ? FABS(b) : FABS(a)) * epsilon);
 }
-
-#undef FABS
-#undef FMAX
-#undef FMIN

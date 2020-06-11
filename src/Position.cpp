@@ -67,6 +67,3 @@ std::string Position::toString() const {
   return fmt::format("{}:{}-{}:{}", firstLine, firstColumn, lastLine,
                      lastColumn);
 }
-
-#undef INVALID
-#undef IS_INVALID

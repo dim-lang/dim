@@ -50,10 +50,10 @@ static char nextCharImpl(const std::vector<std::pair<int, int>> &range, int n,
     if (c + p > position) {
       int r = position - c + range[i].first;
       EX_ASSERT(r >= range[0].first, "r {} >= range[0].first {}", r,
-               range[0].first);
+                range[0].first);
       EX_ASSERT(r < range[range.size() - 1].second,
-               "r {} < range[range.size()-1].second {}", r,
-               range[range.size() - 1].second);
+                "r {} < range[range.size()-1].second {}", r,
+                range[range.size() - 1].second);
       return (char)r;
     }
     c += p;
@@ -136,8 +136,6 @@ std::string RandomString::nextSpace(int n) { NEXT_STRING_IMPL(nextSpace, n); }
 std::string RandomString::nextCtrl(int n) { NEXT_STRING_IMPL(nextCtrl, n); }
 
 std::string RandomString::nextAscii(int n) { NEXT_STRING_IMPL(nextAscii, n); }
-
-#undef NEXT_STRING_IMPL
 
 std::string RandomString::next(const char *candidates, int c, int n) {
   std::stringstream ss;

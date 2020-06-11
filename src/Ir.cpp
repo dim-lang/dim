@@ -149,8 +149,8 @@ static Ir *createIrByAst(Ast *node) {
         DC(AstFunctionSignatureDefinition, node));
   default:
     EX_ASSERT(false, "invalid ast node: {}, position:{}:{}-{}:{}",
-               node->toString(), node->firstLine, node->firstColumn,
-               node->lastLine, node->lastColumn);
+              node->toString(), node->firstLine, node->firstColumn,
+              node->lastLine, node->lastColumn);
   }
   return nullptr;
 }
@@ -175,8 +175,8 @@ static std::string toIrNameImpl(const std::string &name,
 static std::string fromIrNameImpl(const std::string &name,
                                   const std::string prefix) {
   EX_ASSERT(name.length() > prefix.length(),
-             "name {} length {} <= prefix {} length {}", name, name.length(),
-             prefix, prefix.length());
+            "name {} length {} <= prefix {} length {}", name, name.length(),
+            prefix, prefix.length());
   std::string tmp(
       name.substr(prefix.length(), name.length() - prefix.length()));
   for (int i = 0; i < (int)tmp.length(); i++) {
@@ -196,8 +196,6 @@ std::string Ir::toIrName(const std::string &name) {
 std::string Ir::fromIrName(const std::string &name) {
   return fromIrNameImpl(name, SHP_IR);
 }
-
-#undef SHP_IR
 
 IrExpression::IrExpression(const std::string &name) : Ir(name) {}
 
@@ -517,12 +515,12 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                   r->getType()->getTypeID());
+                  r->getType()->getTypeID());
       }
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_SUB: {
@@ -542,12 +540,12 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                   r->getType()->getTypeID());
+                  r->getType()->getTypeID());
       }
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_MUL: {
@@ -567,12 +565,12 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                   r->getType()->getTypeID());
+                  r->getType()->getTypeID());
       }
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_DIV: {
@@ -592,12 +590,12 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                   r->getType()->getTypeID());
+                  r->getType()->getTypeID());
       }
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_MOD: {
@@ -617,45 +615,45 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                   r->getType()->getTypeID());
+                  r->getType()->getTypeID());
       }
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_BIT_LSHIFT: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateShl(l, r);
   } break;
   case T_BIT_RSHIFT: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateLShr(l, r);
   } break;
   case T_BIT_ARSHIFT: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateAShr(l, r);
   } break;
   case T_EQ: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -666,13 +664,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_NEQ: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -683,13 +681,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_LE: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -700,13 +698,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_LT: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -717,13 +715,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_GE: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -734,13 +732,13 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_GT: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-               "l->getType->getTypeID {} != r->getType->getTypeID {}",
-               l->getType()->getTypeID(), r->getType()->getTypeID());
+              "l->getType->getTypeID {} != r->getType->getTypeID {}",
+              l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
@@ -751,64 +749,64 @@ llvm::Value *IrBinaryExpression::codeGen(IrContext *context) {
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                 l->getType()->getTypeID());
+                l->getType()->getTypeID());
     }
   } break;
   case T_BIT_AND: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateAnd(l, r, "andtmp");
   } break;
   case T_BIT_OR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateOr(l, r, "ortmp");
   } break;
   case T_BIT_XOR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     return context->builder().CreateXor(l, r, "xortmp");
   } break;
   case T_LOGIC_AND: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
     llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
     EX_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
-               lc->getBitWidth());
+              lc->getBitWidth());
     EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
-               rc->getBitWidth());
+              rc->getBitWidth());
     return context->builder().CreateAnd(l, r, "logic_andtmp");
   } break;
   case T_LOGIC_OR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "l->getType->getTypeID {} not integer",
-               l->getType()->getTypeID());
+              "l->getType->getTypeID {} not integer",
+              l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-               "r->getType->getTypeID {} not integer",
-               r->getType()->getTypeID());
+              "r->getType->getTypeID {} not integer",
+              r->getType()->getTypeID());
     llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
     llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
     EX_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
-               lc->getBitWidth());
+              lc->getBitWidth());
     EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
-               rc->getBitWidth());
+              rc->getBitWidth());
     return context->builder().CreateOr(l, r, "logic_ortmp");
   } break;
   default:
@@ -954,8 +952,8 @@ IrCompoundStatement::IrCompoundStatement(AstCompoundStatement *node)
     IrStatement *ir = DC(IrStatement, createIrByAst(ast));
     if (!ir) {
       EX_ASSERT(ast->type() == (+AstType::EmptyStatement),
-                 "ast->type {} is not AstType::EmptyStatement",
-                 ast->type()._to_string());
+                "ast->type {} is not AstType::EmptyStatement",
+                ast->type()._to_string());
       continue;
     }
     statementList_->add(ir);
@@ -1182,7 +1180,7 @@ llvm::Value *IrReturnStatement::codeGen(IrContext *context) {
     IrExpressionList *expressionList =
         DC(IrSequelExpression, expression_)->expressionList();
     EX_ASSERT(expressionList->size() > 0, "expressionList->size {} > 0",
-               expressionList->size());
+              expressionList->size());
     llvm::Value *exprV =
         expressionList->get(expressionList->size() - 1)->codeGen(context);
     return context->builder().CreateRet(exprV);
@@ -1233,7 +1231,7 @@ llvm::Value *IrFunctionDefinition::codeGen(IrContext *context) {
     return nullptr;
   }
   EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
-             node_->signature()->identifier());
+            node_->signature()->identifier());
   llvm::BasicBlock *bb =
       llvm::BasicBlock::Create(context->context(), "shp.ir.func.entry", f);
   context->builder().SetInsertPoint(bb);
@@ -1292,5 +1290,3 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen(IrContext *context) {
   }
   return llvm::dyn_cast<llvm::Value>(f);
 }
-
-#undef DC

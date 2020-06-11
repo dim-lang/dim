@@ -42,14 +42,14 @@ int Scanner::popBuffer() {
 const std::string &Scanner::currentBuffer() const {
   EX_ASSERT(bufferStack_, "bufferStack_ is null");
   EX_ASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
-          bufferStack_->size());
+            bufferStack_->size());
   return bufferStack_->top()->fileName;
 }
 
 Buffer *Scanner::top() const {
   EX_ASSERT(bufferStack_, "bufferStack_ is null");
   EX_ASSERT(!bufferStack_->empty(), "bufferStack_ is empty: {}!",
-          bufferStack_->size());
+            bufferStack_->size());
   return bufferStack_->top();
 }
 

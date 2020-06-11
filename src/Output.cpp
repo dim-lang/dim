@@ -13,7 +13,7 @@ std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
   EX_ASSERT(tunit, "tunit is null");
   EX_ASSERT(context, "context is null");
   EX_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
-             sourceFileName);
+            sourceFileName);
 
   std::error_code errcode;
   std::string llFileName = sourceFileName + std::string(".ll");

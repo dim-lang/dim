@@ -3,12 +3,64 @@
 
 #pragma once
 #include "boost/filesystem.hpp"
+#include "enum.h"
 #include <string>
 #include <vector>
 
+/*================ type start from 3000 ================*/
+BETTER_ENUM(FileModeType, int,
+            // type
+            Read = 4000, Write, Append, ReadUpdate, WriteUpdate, AppendUpdate)
+
+class FileReader;
+
 namespace detail {
 
-class FileWriterIterator {};
+// read line by line terminate with '\0'
+class FileReaderLineIterator {
+public:
+  virtual ~FileReaderLineIterator() = default;
+
+  std::string operator*();
+  FileReaderLineIterator &operator++();
+  FileReaderLineIterator operator++(int);
+
+private:
+  FileReaderLineIterator(FILE *fp);
+  friend class FileReader;
+  FILE *fp_;
+  char *buffer_;
+};
+
+// read char by char
+class FileReaderCharIterator {
+public:
+  virtual ~FileReaderCharIterator() = default;
+
+  char operator*();
+  FileReaderCharIterator &operator++();
+  FileReaderCharIterator operator++(int);
+
+private:
+  FileReaderCharIterator(FILE *fp);
+  friend class FileReader;
+  FILE *fp_;
+};
+
+// read buffer by buffer
+class FileReaderBufferIterator {
+public:
+  virtual ~FileReaderBufferIterator() = default;
+
+  const char *operator*();
+  FileReaderBufferIterator &operator++();
+  FileReaderBufferIterator operator++(int);
+
+private:
+  FileReaderBufferIterator(FILE *fp);
+  friend class FileReader;
+  FILE *fp_;
+};
 
 class FileInfo {
 public:
@@ -16,21 +68,37 @@ public:
   // close fp_
   virtual ~FileInfo();
   const std::string &fileName() const;
+  FileModeType mode() const;
 
 protected:
   std::string fileName_;
   FILE *fp_;
+  FileModeType mode_;
 };
 
 } // namespace detail
 
 class FileReader : public detail::FileInfo {
 public:
+  using LineIterator = detail::FileReaderLineIterator;
+  using CharIterator = detail::FileReaderCharIterator;
+  using BufferIterator = detail::FileReaderBufferIterator;
+
   FileReader(const std::string &fileName);
   virtual ~FileReader();
 
   // reset reading status
   void reset();
+  LineIterator beginLine();
+  CharIterator beginChar();
+  BufferIterator beginBuffer();
+  LineIterator endLine();
+  CharIterator endChar();
+  BufferIterator endBuffer();
+
+  friend class detail::FileReaderLineIterator;
+  friend class detail::FileReaderCharIterator;
+  friend class detail::FileReaderBufferIterator;
 };
 
 class FileWriter : public detail::FileInfo {

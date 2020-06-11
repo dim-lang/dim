@@ -62,13 +62,3 @@ std::vector<std::string> Option::fileNames() const {
 }
 
 bool Option::debug() const { return varMap_.count(OPT_DEBUG); }
-
-#undef OPT
-#undef OPT_HELP
-#undef OPT_H
-#undef OPT_VERSION
-#undef OPT_V
-#undef OPT_FILE
-#undef OPT_F
-#undef OPT_DEBUG
-#undef OPT_D

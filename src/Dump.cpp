@@ -284,16 +284,11 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
   }
 }
 
-#undef IS_SCOPE
-
 std::string dumpScope(const Scope::SNode &snode) {
   return dumpScopeImpl(snode, 0);
 }
 
-#undef DS
-#undef DC
-
 std::string dumpSource(const std::string &fileName, const Position &position) {
-  std::string result;
-  return result;
+  std::stringstream ss;
+  return ss.str();
 }
