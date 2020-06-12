@@ -34,31 +34,37 @@
 
 namespace detail {
 
-CycleBuffer::CycleBuffer()
+template <unsigned int D>
+CycleBuffer<D>::CycleBuffer()
     : buf_(nullptr), head_(nullptr), tail_(nullptr), capacity_(0) {}
 
-CycleBuffer::~CycleBuffer() { reset(); }
+template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
-int CycleBuffer::capacity() const { return capacity_; }
+template <unsigned int D> int CycleBuffer<D>::capacity() const {
+  return capacity_;
+}
 
-int CycleBuffer::size() const {
+template <unsigned int D> int CycleBuffer<D>::size() const {
   return POSITIVE_DIRECTION ? P_SIZE : (N_LEFT_SIZE + N_RIGHT_SIZE);
 }
 
-bool CycleBuffer::empty() const { return head_ == tail_; }
+template <unsigned int D> bool CycleBuffer<D>::empty() const {
+  return head_ == tail_;
+}
 
-bool CycleBuffer::full() const {
+template <unsigned int D> bool CycleBuffer<D>::full() const {
   return (head_ == buf_ && tail_ == BUF_END) || (tail_ + 1 == head_);
 }
 
-void CycleBuffer::reset() {
+template <unsigned int D> void CycleBuffer<D>::reset() {
   release();
   head_ = nullptr;
   tail_ = nullptr;
   capacity_ = 0;
 }
 
-char *CycleBuffer::nextImpl(char *position, int distance) const {
+template <unsigned int D>
+char *CycleBuffer<D>::nextImpl(char *position, int distance) const {
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
   EX_ASSERT(distance >= 0, "distance {} < 0", distance);
@@ -80,15 +86,18 @@ char *CycleBuffer::nextImpl(char *position, int distance) const {
   }
 }
 
-char *CycleBuffer::next(char *position, int distance) const {
+template <unsigned int D>
+char *CycleBuffer<D>::next(char *position, int distance) const {
   return nextImpl(position, distance);
 }
 
-const char *CycleBuffer::next(const char *position, int distance) const {
+template <unsigned int D>
+const char *CycleBuffer<D>::next(const char *position, int distance) const {
   return nextImpl((char *)position, distance);
 }
 
-char *CycleBuffer::prevImpl(char *position, int distance) const {
+template <unsigned int D>
+char *CycleBuffer<D>::prevImpl(char *position, int distance) const {
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
   EX_ASSERT(distance >= 0, "distance {} < 0", distance);
@@ -110,50 +119,61 @@ char *CycleBuffer::prevImpl(char *position, int distance) const {
   }
 }
 
-char *CycleBuffer::prev(char *position, int distance) const {
+template <unsigned int D>
+char *CycleBuffer<D>::prev(char *position, int distance) const {
   return prevImpl(position, distance);
 }
 
-const char *CycleBuffer::prev(const char *position, int distance) const {
+template <unsigned int D>
+const char *CycleBuffer<D>::prev(const char *position, int distance) const {
   return prevImpl((char *)position, distance);
 }
 
-char *CycleBuffer::begin() { return head_; }
+template <unsigned int D> char *CycleBuffer<D>::begin() { return head_; }
 
-const char *CycleBuffer::begin() const { return head_; }
+template <unsigned int D> const char *CycleBuffer<D>::begin() const {
+  return head_;
+}
 
-char *CycleBuffer::rbegin() { return tail_ == buf_ ? BUF_END - 1 : tail_ - 1; }
-
-const char *CycleBuffer::rbegin() const {
+template <unsigned int D> char *CycleBuffer<D>::rbegin() {
   return tail_ == buf_ ? BUF_END - 1 : tail_ - 1;
 }
 
-char *CycleBuffer::end() { return tail_; }
+template <unsigned int D> const char *CycleBuffer<D>::rbegin() const {
+  return tail_ == buf_ ? BUF_END - 1 : tail_ - 1;
+}
 
-const char *CycleBuffer::end() const { return tail_; }
+template <unsigned int D> char *CycleBuffer<D>::end() { return tail_; }
 
-char *CycleBuffer::rend() { return head_ - 1; }
+template <unsigned int D> const char *CycleBuffer<D>::end() const {
+  return tail_;
+}
 
-const char *CycleBuffer::rend() const { return head_ - 1; }
+template <unsigned int D> char *CycleBuffer<D>::rend() { return head_ - 1; }
 
-bool CycleBuffer::contain(const char *position) const {
+template <unsigned int D> const char *CycleBuffer<D>::rend() const {
+  return head_ - 1;
+}
+
+template <unsigned int D>
+bool CycleBuffer<D>::contain(const char *position) const {
   return POSITIVE_DIRECTION ? P_IN(position)
                             : (N_LEFT_IN(position) || N_RIGHT_IN(position));
 }
 
-std::string CycleBuffer::toString() const {
+template <unsigned int D> std::string CycleBuffer<D>::toString() const {
   return fmt::format("buf_:{}, head_:{}, tail_:{}, capacity_:{}", (void *)buf_,
                      (void *)head_, (void *)tail_, capacity_);
 }
 
-void CycleBuffer::release() {
+template <unsigned int D> void CycleBuffer<D>::release() {
   if (buf_) {
     std::free(buf_);
     buf_ = nullptr;
   }
 }
 
-int CycleBuffer::write(char *buf, int n) {
+template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!buf || !n) {
     return 0;
@@ -182,7 +202,7 @@ int CycleBuffer::write(char *buf, int n) {
   return writen;
 }
 
-int CycleBuffer::fwrite(FILE *fp, int n) {
+template <unsigned int D> int CycleBuffer<D>::fwrite(FILE *fp, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
@@ -212,7 +232,7 @@ int CycleBuffer::fwrite(FILE *fp, int n) {
   return writen;
 }
 
-int CycleBuffer::fwrite(FILE *fp) {
+template <unsigned int D> int CycleBuffer<D>::fwrite(FILE *fp) {
   int n = 0;
   int tmp = 0;
   do {
@@ -222,12 +242,12 @@ int CycleBuffer::fwrite(FILE *fp) {
   return n;
 }
 
-int CycleBuffer::read(const char *buf, int n) {
+template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!buf || !n) {
     return 0;
   }
-  if (dynamic()) {
+  if (D) {
     if (capacity() - size() < n) {
       expand(ALIGN(capacity_ + n + 1) * 2);
     }
@@ -256,12 +276,12 @@ int CycleBuffer::read(const char *buf, int n) {
   return readn;
 }
 
-int CycleBuffer::fread(FILE *fp, int n) {
+template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
   }
-  if (dynamic()) {
+  if (D) {
     if (capacity() - size() < n) {
       expand(ALIGN(capacity_ + n + 1) * 2);
     }
@@ -292,7 +312,7 @@ int CycleBuffer::fread(FILE *fp, int n) {
   return readn;
 }
 
-int CycleBuffer::fread(FILE *fp) {
+template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp) {
   int n = 0;
   int tmp = 0;
   do {
@@ -311,7 +331,7 @@ DynamicBuffer::DynamicBuffer(int capacity) {
 }
 
 std::string DynamicBuffer::toString() const {
-  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer::toString());
+  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer<1>::toString());
 }
 
 int DynamicBuffer::expand(int n) {
@@ -339,8 +359,6 @@ int DynamicBuffer::expand(int n) {
   return 0;
 }
 
-bool DynamicBuffer::dynamic() const { return true; }
-
 FixedBuffer::FixedBuffer(int capacity) {
   capacity = ALIGN(capacity);
   buf_ = (char *)std::malloc(capacity);
@@ -353,9 +371,7 @@ FixedBuffer::FixedBuffer(int capacity) {
 }
 
 std::string FixedBuffer::toString() const {
-  return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer::toString());
+  return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer<0>::toString());
 }
 
 int FixedBuffer::expand(int n) { return 0; }
-
-bool FixedBuffer::dynamic() const { return false; }

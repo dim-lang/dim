@@ -69,6 +69,7 @@ set(SHEPHERD_TEST
     MainTest.cpp
     LogTest.cpp
     ExceptionTest.cpp
+    container/CycleBufferTest.cpp
     ConfigureTest.cpp
     TimerTest.cpp
     RandomTest.cpp

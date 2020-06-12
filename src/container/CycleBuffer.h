@@ -7,7 +7,7 @@
 
 namespace detail {
 
-class CycleBuffer : public Stringify {
+template <unsigned int D> class CycleBuffer : public Stringify {
 public:
   CycleBuffer();
   virtual ~CycleBuffer();
@@ -67,7 +67,6 @@ protected:
   virtual char *prevImpl(char *position, int distance = 1) const;
   virtual void release();
   virtual int expand(int n) = 0;
-  virtual bool dynamic() const = 0;
 
   char *buf_;
   char *head_;
@@ -77,7 +76,7 @@ protected:
 
 } // namespace detail
 
-class DynamicBuffer : public detail::CycleBuffer {
+class DynamicBuffer : public detail::CycleBuffer<1> {
 public:
   DynamicBuffer(int capacity = 0);
   virtual ~DynamicBuffer() = default;
@@ -85,10 +84,9 @@ public:
 
 protected:
   virtual int expand(int n);
-  virtual bool dynamic() const;
 };
 
-class FixedBuffer : public detail::CycleBuffer {
+class FixedBuffer : public detail::CycleBuffer<0> {
 public:
   FixedBuffer(int capacity);
   virtual ~FixedBuffer() = default;
@@ -96,5 +94,4 @@ public:
 
 protected:
   virtual int expand(int n);
-  virtual bool dynamic() const;
 };
