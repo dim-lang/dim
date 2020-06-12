@@ -10,10 +10,6 @@
 #define BUF_SIZE 100
 
 TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
-  SECTION("constructor") {
-    DynamicBuffer db;
-    FixedBuffer fb(BUF_SIZE);
-  }
   SECTION("attribute") {
     {
       DynamicBuffer db;
@@ -37,28 +33,71 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       REQUIRE(!fb.full());
     }
   }
-  SECTION("DynamicBuffer foreach") {
-    DynamicBuffer db;
-    LOG_INFO("db-1: {}", db.toString());
-    char c;
-    for (int i = C_MIN; i < C_MAX; i++) {
-      c = (char)i;
-      REQUIRE(db.write(&c, 1) == 0);
+  SECTION("foreach") {
+    {
+      DynamicBuffer db;
+      LOG_INFO("db-1: {}", db.toString());
+      char c;
+      for (int i = C_MIN; i < C_MAX; i++) {
+        c = (char)i;
+        REQUIRE(db.write(&c, 1) == 0);
+      }
+      for (int i = C_MIN; i < C_MAX; i++) {
+        c = (char)i;
+        REQUIRE(db.read(&c, 1) == 1);
+      }
+      LOG_INFO("db-2: {}", db.toString());
+      const char *cp = db.begin();
+      for (int i = C_MIN; i < C_MAX; i++) {
+        REQUIRE((int)*cp == i);
+        cp = db.next(cp);
+      }
+      cp = db.rbegin();
+      for (int i = C_MAX - 1; i >= C_MIN; i--) {
+        REQUIRE((int)*cp == i);
+        cp = db.prev(cp);
+      }
+      int i = C_MAX - 1;
+      for (char *mp = db.begin(); mp != db.end(); mp = db.next(mp), i--) {
+        *mp = (char)i;
+      }
+      for (int i = C_MAX - 1; i >= 0; i--) {
+        REQUIRE(db.write(&c, 1) == 1);
+        REQUIRE((int)c == i);
+      }
     }
-    for (int i = C_MIN; i < C_MAX; i++) {
-      c = (char)i;
-      REQUIRE(db.read(&c, 1) == 1);
-    }
-    LOG_INFO("db-2: {}", db.toString());
-    const char *cp = db.begin();
-    for (int i = C_MIN; i < C_MAX; i++) {
-      REQUIRE((int)*cp == i);
-      cp = db.next(cp);
-    }
-    cp = db.rbegin();
-    for (int i = C_MAX - 1; i >= C_MIN; i--) {
-      REQUIRE((int)*cp == i);
-      cp = db.prev(cp);
+    {
+      FixedBuffer fb(C_MAX + 1);
+      LOG_INFO("fb-1: {}", fb.toString());
+      char c;
+      for (int i = C_MIN; i < C_MAX; i++) {
+        c = (char)i;
+        REQUIRE(fb.write(&c, 1) == 0);
+      }
+      for (int i = C_MIN; i < C_MAX; i++) {
+        c = (char)i;
+        REQUIRE(fb.read(&c, 1) == 1);
+      }
+      LOG_INFO("fb-2: {}", fb.toString());
+      const char *cp = fb.begin();
+      for (int i = C_MIN; i < C_MAX; i++) {
+        REQUIRE((int)*cp == i);
+        cp = fb.next(cp);
+      }
+      cp = fb.rbegin();
+      for (int i = C_MAX - 1; i >= C_MIN; i--) {
+        REQUIRE((int)*cp == i);
+        cp = fb.prev(cp);
+      }
+      int i = C_MAX - 1;
+      for (char *mp = fb.begin(); mp != fb.end(); mp = fb.next(mp), i--) {
+        *mp = (char)i;
+      }
+      for (int i = C_MAX - 1; i >= 0; i--) {
+        REQUIRE(fb.write(&c, 1) == 1);
+        REQUIRE((int)c == i);
+      }
     }
   }
+  SECTION("read/write") {}
 }
