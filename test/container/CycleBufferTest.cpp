@@ -14,6 +14,29 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
     DynamicBuffer db;
     FixedBuffer fb(BUF_SIZE);
   }
+  SECTION("attribute") {
+    {
+      DynamicBuffer db;
+      REQUIRE(db.capacity() == 0);
+      REQUIRE(db.size() == 0);
+      REQUIRE(db.empty());
+      REQUIRE(!db.full());
+    }
+    {
+      DynamicBuffer db(BUF_SIZE);
+      REQUIRE(db.capacity() >= BUF_SIZE);
+      REQUIRE(db.size() == 0);
+      REQUIRE(db.empty());
+      REQUIRE(!db.full());
+    }
+    {
+      FixedBuffer fb(BUF_SIZE);
+      REQUIRE(fb.capacity() == BUF_SIZE);
+      REQUIRE(fb.size() == 0);
+      REQUIRE(fb.empty());
+      REQUIRE(!fb.full());
+    }
+  }
   SECTION("DynamicBuffer foreach") {
     DynamicBuffer db;
     LOG_INFO("db-1: {}", db.toString());

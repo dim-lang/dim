@@ -379,14 +379,16 @@ int DynamicBuffer::expand(int n) {
 }
 
 FixedBuffer::FixedBuffer(int capacity) {
-  capacity = ALIGN(capacity);
-  buf_ = (char *)std::malloc(capacity);
-  if (!buf_) {
-    return;
+  // precise capacity
+  if (capacity > 0) {
+    buf_ = (char *)std::malloc(capacity);
+    if (!buf_) {
+      return;
+    }
+    capacity_ = capacity;
+    head_ = buf_;
+    tail_ = buf_;
   }
-  capacity_ = capacity;
-  head_ = buf_;
-  tail_ = buf_;
 }
 
 std::string FixedBuffer::toString() const {
