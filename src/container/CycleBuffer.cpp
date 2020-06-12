@@ -9,18 +9,11 @@
 #include <cstring>
 #include <tuple>
 
-#define CBT std::tuple<char *, int>
-#define CBT_BUF(cbt) std::get<0>(cbt)
-#define CBT_CAP(cbt) std::get<1>(cbt)
-
 #define POSITIVE_DIRECTION (tail_ >= head_)
-#define NEGATIVE_DIRECTION (tail_ < head_)
 #define BUF_END (buf_ + capacity_)
 
 // when positive direction
 #define P_SIZE (tail_ - head_)
-#define P_LEFT_SIZE (head_ - buf_)
-#define P_RIGHT_SIZE (BUF_END - tail_)
 #define P_IN(p) (p >= head_ && p < tail_)
 
 // when negative direction
@@ -41,20 +34,24 @@ CycleBuffer<D>::CycleBuffer()
 
 template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
-template <unsigned int D> int CycleBuffer<D>::capacity() const {
-  return capacity_;
-}
+template <unsigned int D> int CycleBuffer<D>::capacity() const { return capacity_; }
 
 template <unsigned int D> int CycleBuffer<D>::size() const {
-  return POSITIVE_DIRECTION ? P_SIZE : (N_LEFT_SIZE + N_RIGHT_SIZE);
+  bool positive_direction = POSITIVE_DIRECTION;
+  int p_size = P_SIZE;
+  int n_size = N_LEFT_SIZE + N_RIGHT_SIZE;
+  return positive_direction ? p_size : n_size;
 }
 
 template <unsigned int D> bool CycleBuffer<D>::empty() const {
-  return head_ == tail_;
+  bool ep = head_ == tail_;
+  return ep;
 }
 
 template <unsigned int D> bool CycleBuffer<D>::full() const {
-  return (head_ == buf_ && tail_ == BUF_END) || (tail_ + 1 == head_);
+  bool f1 = head_ == buf_ && tail_ == BUF_END;
+  bool f2 = tail_ + 1 == head_;
+  return f1 || f2;
 }
 
 template <unsigned int D> void CycleBuffer<D>::reset() {
