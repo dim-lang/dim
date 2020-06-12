@@ -99,5 +99,58 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       }
     }
   }
-  SECTION("read/write") {}
-}
+  SECTION("read/write") {
+    {
+      // DynamicBuffer single byte read
+      DynamicBuffer db;
+      for (int i = C_MIN; i < C_MAX; i++) {
+        char c = (char)i;
+        REQUIRE(db.read(&c, 1) == 1);
+      }
+      const char *cp = db.begin();
+      for (int i = C_MIN; i < C_MAX; i++) {
+        REQUIRE((int)*cp == i);
+      }
+      cp = db.rbegin();
+      for (int i = C_MAX - 1; i >= C_MIN; i--) {
+        REQUIRE((int)*cp == i);
+      }
+    }
+    {
+      // DynamicBuffer block bytes read
+      DynamicBuffer db;
+      for (int i = C_MIN; i < C_MAX; i++) {
+        char buf[i + 1];
+        for (int j = 0; j < i + 1; j++) {
+          buf[j] = (char)i;
+        }
+        REQUIRE(db.read(buf, i + 1) == i + 1);
+      }
+      const char *cp = db.begin();
+      for (int i = C_MIN; i < C_MAX; i++) {
+        for (int j = 0; j < i + 1; j++) {
+          REQUIRE((int)*cp == i);
+          cp = db.next(cp);
+        }
+      }
+      for (int i = C_MIN; i < C_MAX; i++) {
+        for (int j = 0; j < i + 1; j++) {
+          char c;
+          REQUIRE(db.write(&c, 1) == 1);
+          REQUIRE((int)c == i);
+        }
+      }
+    }
+    {
+      // FixedBuffer single byte read
+      FixedBuffer fb(C_MAX + 1);
+      for (int i = C_MIN; i < C_MAX; i++) {
+      }
+    }
+    {
+      // FixedBuffer block bytes read
+      FixedBuffer fb(C_MAX + 1);
+      for (int i = C_MIN; i < C_MAX; i++) {
+      }
+    }
+  }
