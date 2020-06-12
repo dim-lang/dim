@@ -31,6 +31,7 @@
 
 #define ALIGN(n) (n < 8 ? 8 : (n % 8 == 0 ? n : ((n / 8 + 1) * 8)))
 #define MIN(a, b) (std::min<int>(a, b))
+#define BUF_SIZE 1024
 
 namespace detail {
 
@@ -202,7 +203,7 @@ template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
   return writen;
 }
 
-template <unsigned int D> int CycleBuffer<D>::fwrite(FILE *fp, int n) {
+template <unsigned int D> int CycleBuffer<D>::fpwrite(FILE *fp, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
@@ -232,11 +233,11 @@ template <unsigned int D> int CycleBuffer<D>::fwrite(FILE *fp, int n) {
   return writen;
 }
 
-template <unsigned int D> int CycleBuffer<D>::fwrite(FILE *fp) {
+template <unsigned int D> int CycleBuffer<D>::fpwrite(FILE *fp) {
   int n = 0;
   int tmp = 0;
   do {
-    tmp = fwrite(fp, 1024);
+    tmp = fpwrite(fp, BUF_SIZE);
     n += tmp;
   } while (tmp > 0);
   return n;
@@ -259,10 +260,15 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   if (POSITIVE_DIRECTION) {
     int fn = MIN(BUF_END - tail_, n);
     std::memcpy(tail_, buf, fn);
-    tail_ = buf_;
+    tail_ += fn;
     readn += fn;
+    if (tail_ == BUF_END) {
+      tail_ = buf_;
+    }
     if (n > readn) {
-      int sn = MIN(n - readn, head_ - buf_);
+      EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
+                (void *)buf_);
+      int sn = MIN(n - readn, head_ - tail_);
       std::memcpy(tail_, buf, sn);
       tail_ += sn;
       readn += sn;
@@ -276,7 +282,7 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   return readn;
 }
 
-template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp, int n) {
+template <unsigned int D> int CycleBuffer<D>::fpread(FILE *fp, int n) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
@@ -295,12 +301,15 @@ template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp, int n) {
     size_t fnr = std::fread(tail_, 1, fn, fp);
     tail_ += fnr;
     readn += fnr;
+    if (tail_ == BUF_END) {
+      tail_ = buf_;
+    }
     if (fn == fnr && n > readn) {
-      EX_ASSERT(tail_ == BUF_END, "tail_ {} == BUF_END {}", (void *)tail_,
-                (void *)BUF_END);
-      int sn = MIN(n - readn, head_ - buf_);
-      size_t snr = std::fread(buf_, 1, sn, fp);
-      tail_ = buf_ + snr;
+      EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
+                (void *)buf_);
+      int sn = MIN(n - readn, head_ - tail_);
+      size_t snr = std::fread(tail_, 1, sn, fp);
+      tail_ += snr;
       readn += snr;
     }
   } else {
@@ -312,11 +321,11 @@ template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp, int n) {
   return readn;
 }
 
-template <unsigned int D> int CycleBuffer<D>::fread(FILE *fp) {
+template <unsigned int D> int CycleBuffer<D>::fpread(FILE *fp) {
   int n = 0;
   int tmp = 0;
   do {
-    tmp = fread(fp, 1024);
+    tmp = fpread(fp, BUF_SIZE);
     n += tmp;
   } while (tmp > 0);
   return n;
@@ -343,19 +352,18 @@ int DynamicBuffer::expand(int n) {
   if (!newbuf) {
     return -1;
   }
+  int sz = size();
   if (POSITIVE_DIRECTION) {
     std::memcpy(newbuf, head_, P_SIZE);
-    newbuf[P_SIZE] = 0;
   } else {
     std::memcpy(newbuf, head_, N_RIGHT_SIZE);
     std::memcpy(newbuf + N_RIGHT_SIZE, buf_, N_LEFT_SIZE);
-    newbuf[N_LEFT_SIZE + N_RIGHT_SIZE] = 0;
   }
   release();
   buf_ = newbuf;
   capacity_ = n;
   head_ = buf_;
-  tail_ = buf_ + size();
+  tail_ = buf_ + sz;
   return 0;
 }
 
