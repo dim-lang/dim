@@ -49,18 +49,18 @@ public:
 
   // write all bytes to <fp>
   // @return    bytes really write
-  virtual int fpwrite(FILE *fp);
+  virtual int writefile(FILE *fp);
 
   // write at most <n> bytes to <fp>
-  virtual int fpwrite(FILE *fp, int n);
+  virtual int writefile(FILE *fp, int n);
 
   // read all bytes from <fp>
   // @return    bytes really read
-  virtual int fpread(FILE *fp);
+  virtual int readfile(FILE *fp);
 
   // read at most <n> bytes from <fp>
   // @return    bytes really read
-  virtual int fpread(FILE *fp, int n);
+  virtual int readfile(FILE *fp, int n);
 
 protected:
   virtual char *nextImpl(char *position, int distance = 1) const;
