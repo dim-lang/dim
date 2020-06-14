@@ -7,7 +7,6 @@
 
 #define C_MIN 0
 #define C_MAX 100
-#define BUF_SIZE 100
 
 TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
   SECTION("attribute") {
@@ -26,7 +25,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       REQUIRE(!db.full());
     }
     {
-      FixedBuffer fb(BUF_SIZE);
+      FixedBuffer fb(C_MAX);
       REQUIRE(fb.capacity() == BUF_SIZE);
       REQUIRE(fb.size() == 0);
       REQUIRE(fb.empty());
@@ -67,7 +66,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       }
     }
     {
-      FixedBuffer fb(C_MAX + 1);
+      FixedBuffer fb(C_MAX);
       LOG_INFO("fb-1: {}", fb.toString());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
@@ -145,7 +144,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
     }
     {
       // FixedBuffer single byte read
-      FixedBuffer fb(C_MAX + 1);
+      FixedBuffer fb(C_MAX);
       for (int i = C_MIN; i < C_MAX; i++) {
         char c = (char)i;
         REQUIRE(fb.read(&c, 1) == 1);
@@ -163,26 +162,59 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
     }
     {
       // FixedBuffer block bytes read
-      FixedBuffer fb(C_MAX + 1);
+      int count = 0;
+      FixedBuffer fb(C_MAX);
       for (int i = C_MIN; i < C_MAX; i++) {
         char buf[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
-        REQUIRE(fb.read(buf, i + 1) == i + 1);
+        if (count + i + 1 <= fb.capacity()) {
+          REQUIRE(fb.read(buf, i + 1) == i + 1);
+          count += i + 1;
+        } else {
+          int oldcap = fb.capacity();
+          REQUIRE(fb.read(buf, i + 1) == oldcap - count);
+          count += oldcap - count;
+          REQUIRE(count == C_MAX + 1);
+          break;
+        }
       }
       const char *cp = fb.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
+        char buf[i + 1];
         for (int j = 0; j < i + 1; j++) {
+          buf[j] = (char)i;
+        }
+        for (int j = 0; j < i + 1; j++) {
+          count -= 1;
+          if (count < 0) {
+            break;
+          }
           REQUIRE((int)*cp == i);
           cp = fb.next(cp);
         }
       }
+      count = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
+        char buf[i + 1];
         for (int j = 0; j < i + 1; j++) {
-          char c;
-          REQUIRE(fb.write(&c, 1) == 1);
-          REQUIRE((int)c == i);
+          buf[j] = (char)i;
+        }
+        if (fb.size() > i + 1) {
+          REQUIRE(fb.write(buf, i + 1) == i + 1);
+          for (int j = 0; j < i + 1; j++) {
+            REQUIRE((int)buf[j] == i);
+          }
+          count += i + 1;
+        } else {
+          int oldsz = fb.size();
+          REQUIRE(fb.write(buf, i + 1) == oldsz);
+          for (int j = 0; j < i + 1; j++) {
+            REQUIRE((int)buf[j] == i);
+          }
+          REQUIRE(count + oldsz == C_MAX + 1);
+          break;
         }
       }
     }

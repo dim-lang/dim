@@ -35,7 +35,7 @@ CycleBuffer<D>::CycleBuffer()
 template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
 template <unsigned int D> int CycleBuffer<D>::capacity() const {
-  return capacity_;
+  return capacity_ - 1;
 }
 
 template <unsigned int D> int CycleBuffer<D>::size() const {
@@ -346,7 +346,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp) {
 
 DynamicBuffer::DynamicBuffer(int capacity) {
   if (capacity > 0) {
-    expand(ALIGN(capacity));
+    expand(ALIGN(capacity + 1));
   }
 }
 
@@ -381,7 +381,7 @@ int DynamicBuffer::expand(int n) {
 FixedBuffer::FixedBuffer(int capacity) {
   // precise capacity
   if (capacity > 0) {
-    buf_ = (char *)std::malloc(capacity);
+    buf_ = (char *)std::malloc(capacity + 1);
     if (!buf_) {
       return;
     }
