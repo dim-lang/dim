@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Ast.h"
+#include "Buffer.h"
 #include "Parser.tab.hpp"
-#include "Token.h"
 #include <string>
 #include <tuple>
 #include <utility>

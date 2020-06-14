@@ -1,7 +1,7 @@
 // Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
-#include "Token.h"
+#include "Buffer.h"
 #include "Exception.h"
 
 #define TOKEN_FILE_EXT ".shp"

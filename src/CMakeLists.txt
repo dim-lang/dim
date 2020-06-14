@@ -82,7 +82,7 @@ set(SHEPHERD
     Approximate.cpp
     NameGenerator.cpp
     TokenName.cpp
-    Token.cpp
+    Buffer.cpp
     Scanner.cpp
     Ast.cpp
     Position.cpp

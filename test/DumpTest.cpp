@@ -3,12 +3,12 @@
 
 #include "Dump.h"
 #include "Ast.h"
+#include "Buffer.h"
 #include "Ir.h"
 #include "Log.h"
 #include "Parser.h"
 #include "Scanner.h"
 #include "Semantic.h"
-#include "Token.h"
 #include "catch2/catch.hpp"
 
 static void testAST(const char *fileName) {

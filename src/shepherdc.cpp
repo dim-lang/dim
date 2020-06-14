@@ -2,13 +2,13 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
+#include "Buffer.h"
 #include "Log.h"
 #include "Option.h"
 #include "Parser.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
 #include "Semantic.h"
-#include "Token.h"
 #include <iostream>
 #include <string>
 #include <vector>

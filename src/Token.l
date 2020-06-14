@@ -14,8 +14,8 @@ FS (d|D)
 IS ((u|U)|(u|U)?(l|L))
 
 %{
-#include "Token.h"
 #include "Ast.h"
+#include "Buffer.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
 #include "Strings.h"

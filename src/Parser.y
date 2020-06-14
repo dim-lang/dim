@@ -6,7 +6,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include "Ast.h"
-#include "Token.h"
+#include "Buffer.h"
 #include "Parser.h"
 #include "Scanner.h"
 #include "Semantic.h"

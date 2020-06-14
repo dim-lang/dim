@@ -2,11 +2,11 @@
 // Apache License Version 2.0
 
 #include "Output.h"
+#include "Buffer.h"
 #include "Log.h"
 #include "Parser.h"
 #include "Scanner.h"
 #include "Semantic.h"
-#include "Token.h"
 #include "catch2/catch.hpp"
 
 static void testIr(const char *fileName) {

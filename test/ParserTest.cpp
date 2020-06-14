@@ -3,10 +3,10 @@
 
 #include "Parser.h"
 #include "Ast.h"
+#include "Buffer.h"
 #include "Log.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
-#include "Token.h"
 #include "catch2/catch.hpp"
 #include <cstdio>
 
