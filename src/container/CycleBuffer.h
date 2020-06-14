@@ -66,7 +66,7 @@ protected:
   virtual char *nextImpl(char *position, int distance = 1) const;
   virtual char *prevImpl(char *position, int distance = 1) const;
   virtual void release();
-  virtual int expand(int n) = 0;
+  virtual int expand(int n);
 
   char *buf_;
   char *head_;
@@ -81,9 +81,6 @@ public:
   DynamicBuffer(int capacity = 0);
   virtual ~DynamicBuffer() = default;
   virtual std::string toString() const;
-
-protected:
-  virtual int expand(int n);
 };
 
 class FixedBuffer : public detail::CycleBuffer<0> {
@@ -91,7 +88,4 @@ public:
   FixedBuffer(int capacity);
   virtual ~FixedBuffer() = default;
   virtual std::string toString() const;
-
-protected:
-  virtual int expand(int n);
 };

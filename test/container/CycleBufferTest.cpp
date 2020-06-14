@@ -4,6 +4,7 @@
 #include "container/CycleBuffer.h"
 #include "Log.h"
 #include "catch2/catch.hpp"
+#include "fmt/format.h"
 
 #define C_MIN 0
 #define C_MAX 100
@@ -18,15 +19,15 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       REQUIRE(!db.full());
     }
     {
-      DynamicBuffer db(BUF_SIZE);
-      REQUIRE(db.capacity() >= BUF_SIZE);
+      DynamicBuffer db(C_MAX);
+      REQUIRE(db.capacity() >= C_MAX);
       REQUIRE(db.size() == 0);
       REQUIRE(db.empty());
       REQUIRE(!db.full());
     }
     {
       FixedBuffer fb(C_MAX);
-      REQUIRE(fb.capacity() == BUF_SIZE);
+      REQUIRE(fb.capacity() == C_MAX + 1);
       REQUIRE(fb.size() == 0);
       REQUIRE(fb.empty());
       REQUIRE(!fb.full());
@@ -75,6 +76,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       }
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
+        fmt::format("i:{}", i);
         REQUIRE(fb.read(&c, 1) == 1);
       }
       LOG_INFO("fb-2: {}", fb.toString());

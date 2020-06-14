@@ -35,7 +35,7 @@ CycleBuffer<D>::CycleBuffer()
 template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
 template <unsigned int D> int CycleBuffer<D>::capacity() const {
-  return capacity_ - 1;
+  return capacity_;
 }
 
 template <unsigned int D> int CycleBuffer<D>::size() const {
@@ -51,9 +51,7 @@ template <unsigned int D> bool CycleBuffer<D>::empty() const {
 }
 
 template <unsigned int D> bool CycleBuffer<D>::full() const {
-  bool f1 = head_ == buf_ && tail_ == BUF_END - 1;
-  bool f2 = tail_ + 1 == head_;
-  return f1 || f2;
+  return (head_ == buf_ && tail_ == BUF_END - 1) || (tail_ + 1 == head_);
 }
 
 template <unsigned int D> void CycleBuffer<D>::reset() {
@@ -257,7 +255,7 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   }
   int readn = 0;
   if (POSITIVE_DIRECTION) {
-    int fn = MIN(BUF_END - tail_, n);
+    int fn = MIN(BUF_END - tail_-1, n);
     std::memcpy(tail_, buf, fn);
     tail_ += fn;
     readn += fn;
@@ -302,7 +300,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
   }
   int readn = 0;
   if (POSITIVE_DIRECTION) {
-    int fn = MIN(BUF_END - tail_, n);
+    int fn = MIN(BUF_END - tail_-1, n);
     size_t fnr = std::fread(tail_, 1, fn, fp);
     tail_ += fnr;
     readn += fnr;
@@ -342,19 +340,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp) {
   return n;
 }
 
-} // namespace detail
-
-DynamicBuffer::DynamicBuffer(int capacity) {
-  if (capacity > 0) {
-    expand(ALIGN(capacity + 1));
-  }
-}
-
-std::string DynamicBuffer::toString() const {
-  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer<1>::toString());
-}
-
-int DynamicBuffer::expand(int n) {
+template <unsigned int D> int CycleBuffer<D>::expand(int n) {
   EX_ASSERT(n >= 0, "n {} >= 0", n);
   if (n <= capacity_) {
     return 0;
@@ -378,21 +364,25 @@ int DynamicBuffer::expand(int n) {
   return 0;
 }
 
+} // namespace detail
+
+DynamicBuffer::DynamicBuffer(int capacity) {
+  if (capacity > 0) {
+    expand(ALIGN(capacity + 1));
+  }
+}
+
+std::string DynamicBuffer::toString() const {
+  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer<1>::toString());
+}
+
 FixedBuffer::FixedBuffer(int capacity) {
   // precise capacity
   if (capacity > 0) {
-    buf_ = (char *)std::malloc(capacity + 1);
-    if (!buf_) {
-      return;
-    }
-    capacity_ = capacity;
-    head_ = buf_;
-    tail_ = buf_;
+    expand(capacity + 1);
   }
 }
 
 std::string FixedBuffer::toString() const {
   return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer<0>::toString());
 }
-
-int FixedBuffer::expand(int n) { return 0; }
