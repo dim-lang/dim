@@ -110,10 +110,12 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       const char *cp = db.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
         REQUIRE((int)*cp == i);
+        cp = db.next(cp);
       }
       cp = db.rbegin();
       for (int i = C_MAX - 1; i >= C_MIN; i--) {
         REQUIRE((int)*cp == i);
+        cp = db.prev(cp);
       }
     }
     {
@@ -151,10 +153,12 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       const char *cp = fb.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
         REQUIRE((int)*cp == i);
+        cp = fb.next(cp);
       }
       cp = fb.rbegin();
       for (int i = C_MAX - 1; i >= C_MIN; i--) {
         REQUIRE((int)*cp == i);
+        cp = fb.prev(cp);
       }
     }
     {
