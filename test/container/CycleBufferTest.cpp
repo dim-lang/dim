@@ -90,9 +90,9 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         REQUIRE((int)*cp == i);
         cp = fb.prev(cp);
       }
-      int i = C_MAX - 1;
-      for (char *mp = fb.begin(); mp != fb.end(); mp = fb.next(mp), i--) {
-        *mp = (char)i;
+      int v = C_MAX - 1;
+      for (char *mp = fb.begin(); mp != fb.end(); mp = fb.next(mp), v--) {
+        *mp = (char)v;
       }
       for (int i = C_MAX - 1; i >= 0; i--) {
         REQUIRE(fb.write(&c, 1) == 1);

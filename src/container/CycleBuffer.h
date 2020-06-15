@@ -85,7 +85,6 @@ protected:
   char *head_;
   char *tail_;
   int capacity_;
-  int size_;
 };
 
 } // namespace detail

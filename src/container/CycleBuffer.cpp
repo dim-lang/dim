@@ -16,122 +16,116 @@
 namespace detail {
 
 template <unsigned int D> char *CycleBuffer<D>::bufEnd() {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return buf_ + capacity();
+  return buf_ + capacity_;
 }
 
 template <unsigned int D> const char *CycleBuffer<D>::bufEnd() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return buf_ + capacity();
+  return buf_ + capacity_;
 }
 
 // is positive direction
 template <unsigned int D> bool CycleBuffer<D>::positive() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return capacity() > 0 && !full() && tail_ >= head_;
+  return tail_ >= head_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::pSize() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return tail_ - head_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::pContain(const char *position) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return position >= head_ && position < tail_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nLeftSize() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
+  EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return tail_ - buf_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nRightSize() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
+  EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
+            (void *)head_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return bufEnd() - head_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::nLeftContain(const char *position) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
+  EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return position >= buf_ && position < tail_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::nRightContain(const char *position) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
+            (void *)head_, positive());
+  EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
+            (void *)head_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return position >= head_ && position < bufEnd();
 }
 
 template <unsigned int D>
 CycleBuffer<D>::CycleBuffer()
-    : buf_(nullptr), head_(nullptr), tail_(nullptr), capacity_(0), size_(0) {}
+    : buf_(nullptr), head_(nullptr), tail_(nullptr), capacity_(0) {}
 
 template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
 template <unsigned int D> int CycleBuffer<D>::capacity() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return capacity_;
 }
 
 template <unsigned int D> int CycleBuffer<D>::size() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(head_ != tail_, "head_ {} != tail_ {}", (void *)head_,
+            (void *)tail_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return size_;
+  return positive() ? pSize() : (nLeftSize() + nRightSize());
 }
 
 template <unsigned int D> bool CycleBuffer<D>::empty() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(head_ != tail_, "head_ {} != tail_ {}", (void *)head_,
+            (void *)tail_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return size() == 0;
 }
 
 template <unsigned int D> bool CycleBuffer<D>::full() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(head_ != tail_, "head_ {} != tail_ {}", (void *)head_,
+            (void *)tail_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return size() == capacity();
+  return size() + 1 == capacity();
 }
 
 template <unsigned int D> void CycleBuffer<D>::reset() {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  EX_ASSERT(head_ != tail_, "head_ {} != tail_ {}", (void *)head_,
+            (void *)tail_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   release();
   head_ = nullptr;
   tail_ = nullptr;
   capacity_ = 0;
-  size_ = 0;
 }
 
 template <unsigned int D>
 char *CycleBuffer<D>::nextImpl(char *position, int distance) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
   EX_ASSERT(distance >= 0, "distance {} < 0", distance);
@@ -165,9 +159,7 @@ const char *CycleBuffer<D>::next(const char *position, int distance) const {
 
 template <unsigned int D>
 char *CycleBuffer<D>::prevImpl(char *position, int distance) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
             toString());
   EX_ASSERT(distance >= 0, "distance {} < 0", distance);
@@ -229,9 +221,7 @@ template <unsigned int D> const char *CycleBuffer<D>::rend() const {
 
 template <unsigned int D>
 bool CycleBuffer<D>::contain(const char *position) const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   return positive() ? pContain(position)
                     : (nLeftContain(position) || nRightContain(position));
 }
@@ -252,13 +242,10 @@ template <unsigned int D> void CycleBuffer<D>::release() {
   do {                                                                         \
     head_ = next(head_, n);                                                    \
     writen += n;                                                               \
-    size_ -= n;                                                                \
   } while (0)
 
 template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!buf || !n) {
     return 0;
@@ -273,9 +260,7 @@ template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
     writeinc(fn);
     EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   } else {
     int fn = MIN(bufEnd() - head_, n);
     std::memcpy(buf, head_, fn);
@@ -283,30 +268,24 @@ template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
     EX_ASSERT(head_ == buf_ || head_ < bufEnd(),
               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
               (void *)buf_, (void *)head_, (void *)bufEnd());
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
     if (n > writen) {
       EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
                 (void *)buf_);
       int sn = MIN(n - writen, nLeftSize());
       std::memcpy(buf + writen, head_, sn);
       writeinc(fn);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-      EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_,
                 capacity_);
-      EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
-                (void *)tail_);
+                EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
+                          (void *)tail_);
     }
   }
   return writen;
 }
 
 template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
@@ -321,9 +300,7 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
     writeinc(fnr);
     EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   } else {
     int fn = MIN(bufEnd() - head_, n);
     size_t fnr = std::fwrite(head_, 1, fn, fp);
@@ -331,9 +308,7 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
     EX_ASSERT(head_ == buf_ || head_ < bufEnd(),
               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
               (void *)buf_, (void *)head_, (void *)bufEnd());
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
     if (n > writen) {
       // fnr == fn indicate write success
       EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
@@ -342,10 +317,7 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
       int sn = MIN(n - writen, nLeftSize());
       size_t snr = std::fwrite(buf_, 1, sn, fp);
       writeinc(snr);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-      EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_,
-                capacity_);
       EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
                 (void *)tail_);
     }
@@ -367,13 +339,10 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp) {
   do {                                                                         \
     tail_ += n;                                                                \
     readn += n;                                                                \
-    size_ += n;                                                                \
   } while (0)
 
 template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!buf || !n) {
     return 0;
@@ -397,9 +366,7 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
     }
     EX_ASSERT(head_ <= tail_, "head_ {} <= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
     if (n > readn) {
       EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
                 (void *)buf_);
@@ -408,10 +375,7 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
       readinc(sn);
       EX_ASSERT(head_ >= tail_, "head_ {} >= tail_ {}", (void *)head_,
                 (void *)tail_);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-      EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_,
-                capacity_);
     }
   } else {
     int fn = MIN(n, head_ - tail_);
@@ -419,17 +383,13 @@ template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
     readinc(fn);
     EX_ASSERT(head_ >= tail_, "head_ {} >= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   }
   return readn;
 }
 
 template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-  EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!fp || !n) {
     return 0;
@@ -452,9 +412,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
               (void *)tail_);
     EX_ASSERT(head_ >= tail_, "head_ {} >= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
     if (tail_ == bufEnd()) {
       tail_ = buf_;
     }
@@ -469,10 +427,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
       readinc(snr);
       EX_ASSERT(head_ >= tail_, "head_ {} >= tail_ {}", (void *)head_,
                 (void *)tail_);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-      EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_,
-                capacity_);
     }
   } else {
     int fn = MIN(n, head_ - tail_);
@@ -480,9 +435,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
     readinc(fnr);
     EX_ASSERT(head_ >= tail_, "head_ {} >= tail_ {}", (void *)head_,
               (void *)tail_);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
-    EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
   }
   return readn;
 }
