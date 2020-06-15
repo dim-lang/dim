@@ -81,6 +81,11 @@ protected:
   virtual bool nLeftContain(const char *position) const;
   virtual bool nRightContain(const char *position) const;
 
+  virtual int writeImpl(void *src, int n,
+                        int (*writeHandler)(void *, void *, int));
+  virtual int readImpl(void *src, int n,
+                       int (*readHandler)(void *, void *, int, int));
+
   char *buf_;
   char *head_;
   char *tail_;
