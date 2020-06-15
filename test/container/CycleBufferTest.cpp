@@ -178,7 +178,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           int oldcap = fb.capacity();
           REQUIRE(fb.read(buf, i + 1) == oldcap - count);
           count += oldcap - count;
-          REQUIRE(count == C_MAX + 1);
+          REQUIRE(count == C_MAX);
           break;
         }
       }
@@ -215,7 +215,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           for (int j = 0; j < i + 1; j++) {
             REQUIRE((int)buf[j] == i);
           }
-          REQUIRE(count + oldsz == C_MAX + 1);
+          REQUIRE(count + oldsz == C_MAX);
           break;
         }
       }

@@ -34,7 +34,7 @@ template <unsigned int D> bool CycleBuffer<D>::positive() const {
   EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   EX_ASSERT(capacity_ >= 0, "capacity_ {} >= 0", capacity_);
   EX_ASSERT(size_ <= capacity_, "size_ {} <= capacity_ {}", size_, capacity_);
-  return tail_ >= head_;
+  return capacity() > 0 && !full() && tail_ >= head_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::pSize() const {
