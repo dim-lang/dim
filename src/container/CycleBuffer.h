@@ -68,10 +68,24 @@ protected:
   virtual void release();
   virtual int expand(int n);
 
+  virtual char *bufEnd();
+  virtual const char *bufEnd() const;
+  // if positive direction
+  virtual bool positive() const;
+  // positive direction
+  virtual long pSize() const;
+  virtual bool pContain(const char *position) const;
+  // negative direction
+  virtual long nLeftSize() const;
+  virtual long nRightSize() const;
+  virtual bool nLeftContain(const char *position) const;
+  virtual bool nRightContain(const char *position) const;
+
   char *buf_;
   char *head_;
   char *tail_;
   int capacity_;
+  int size_;
 };
 
 } // namespace detail

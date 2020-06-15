@@ -16,7 +16,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       REQUIRE(db.capacity() == 0);
       REQUIRE(db.size() == 0);
       REQUIRE(db.empty());
-      REQUIRE(!db.full());
+      REQUIRE(db.full());
     }
     {
       DynamicBuffer db(C_MAX);
@@ -27,7 +27,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
     }
     {
       FixedBuffer fb(C_MAX);
-      REQUIRE(fb.capacity() == C_MAX + 1);
+      REQUIRE(fb.capacity() == C_MAX);
       REQUIRE(fb.size() == 0);
       REQUIRE(fb.empty());
       REQUIRE(!fb.full());
