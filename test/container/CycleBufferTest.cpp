@@ -7,7 +7,6 @@
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
 #include <algorithm>
-#include <deque>
 
 #define C_MIN 0
 #define C_MAX 100
@@ -257,49 +256,59 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
   }
   SECTION("random read/write") {
     {
-      std::deque<char> dq;
+      std::vector<char> v;
       DynamicBuffer db;
       RandomInt<int> randint(C_MIN, C_MAX);
+      int rc = 0, wc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
         int rn = randint.next();
-        char *rbuf = new char[rn];
+        std::vector<char> rbuf(rn);
+        //        char *rbuf = new char[rn];
         for (int j = 0; j < rn; j++) {
           rbuf[j] = (char)rn;
-          dq.push_back((char)rn);
+          v.push_back(rbuf[j]);
+          rc++;
+          LOG_INFO("DynamicBuffer random rbuf[{}]:{}", rc, (int)rbuf[j]);
         }
-        REQUIRE(db.read(rbuf, rn) == rn);
+        REQUIRE(db.read(rbuf.data(), rn) == rn);
         int wn = std::min(randint.next(), rn);
-        char *wbuf = new char[wn];
-        REQUIRE(db.write(wbuf, wn) == wn);
+        //        char *wbuf = new char[wn];
+        std::vector<char> wbuf(wn);
+        REQUIRE(db.write(wbuf.data(), wn) == wn);
         for (int j = 0; j < wn; j++) {
-          REQUIRE(wbuf[j] == dq.front());
-          REQUIRE(!dq.empty());
-          dq.pop_front();
+          LOG_INFO("DynamicBuffer random wbuf[{}]:{}", wc, (int)wbuf[j]);
+          if (wbuf[j] != v[wc]) {
+            LOG_INFO("DynamicBuffer random wbuf[{}]:{}", wc, (int)wbuf[j]);
+          }
+          REQUIRE(wbuf[j] == v[wc]);
+          wc++;
         }
-        delete[] rbuf;
-        delete[] wbuf;
+        //        delete[] rbuf;
+        //        delete[] wbuf;
       }
     }
     {
-      std::deque<char> dq;
+      std::vector<char> v;
       FixedBuffer fb(C_MAX);
       RandomInt<int> randint(C_MIN, C_MAX);
+      int rc = 0, wc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
-        int rn = randint.next();
-        rn = std::min(randint.next(), fb.capacity() - fb.size());
+        int rn = std::min(randint.next(), fb.capacity() - fb.size());
         char *rbuf = new char[rn];
         for (int j = 0; j < rn; j++) {
           rbuf[j] = (char)rn;
-          dq.push_back((char)rn);
+          v.push_back(rbuf[j]);
+          rc++;
+          LOG_INFO("FixedBuffer random rbuf[{}]:{}", rc, (int)rbuf[j]);
         }
         REQUIRE(fb.read(rbuf, rn) == rn);
         int wn = std::min(randint.next(), rn);
         char *wbuf = new char[wn];
         REQUIRE(fb.write(wbuf, wn) == wn);
         for (int j = 0; j < wn; j++) {
-          REQUIRE(wbuf[j] == dq.front());
-          REQUIRE(!dq.empty());
-          dq.pop_front();
+          LOG_INFO("FixedBuffer random wbuf[{}]:{}", wc, (int)wbuf[j]);
+          REQUIRE(wbuf[j] == v[wc]);
+          wc++;
         }
         delete[] rbuf;
         delete[] wbuf;
