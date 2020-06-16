@@ -324,9 +324,9 @@ int CycleBuffer<D>::readImpl(void *src, int n,
   }
   if (D) {
     if (capacity() - size() < n) {
-      expand(ALIGN(((capacity() + n) > (capacity() * 2))
-                       ? (capacity() + n + 1)
-                       : (capacity() * 2 + 1)));
+      int e1 = capacity() + n + 1;
+      int e2 = capacity() * 2 + 1;
+      expand(e1 > e2 ? ALIGN(e1) : ALIGN(e2));
     }
   }
   if (full()) {
