@@ -29,28 +29,28 @@ template <unsigned int D> bool CycleBuffer<D>::positive() const {
 }
 
 template <unsigned int D> long CycleBuffer<D>::pSize() const {
-  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   return tail_ - head_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::pContain(const char *position) const {
-  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   return position >= head_ && position < tail_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nLeftSize() const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   return tail_ - buf_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nRightSize() const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
             (void *)head_);
   return bufEnd() - head_;
@@ -58,16 +58,16 @@ template <unsigned int D> long CycleBuffer<D>::nRightSize() const {
 
 template <unsigned int D>
 bool CycleBuffer<D>::nLeftContain(const char *position) const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   return position >= buf_ && position < tail_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::nRightContain(const char *position) const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}", (void *)tail_,
-            (void *)head_, positive());
+  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+            (void *)tail_, (void *)head_, positive(), toString());
   EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
             (void *)head_);
   return position >= head_ && position < bufEnd();
@@ -269,7 +269,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
       EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
       EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
                 (void *)buf_);
-      int sn = MIN(n - writen, nLeftSize());
+      int sn = MIN(n - writen, pSize());
       int snr = writeHandler(src, head_, sn);
       WINC(snr);
       EX_ASSERT(positive(), "positive:{}", positive());
