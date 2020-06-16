@@ -102,6 +102,7 @@ template <unsigned int D> bool CycleBuffer<D>::full() const {
 }
 
 template <unsigned int D> void CycleBuffer<D>::reset() {
+  EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   release();
   head_ = nullptr;
   tail_ = nullptr;
@@ -213,10 +214,8 @@ bool CycleBuffer<D>::contain(const char *position) const {
 }
 
 template <unsigned int D> std::string CycleBuffer<D>::toString() const {
-  return fmt::format(
-      "buf_:{}, head_:{}, tail_:{}, capacity_:{}, size:{}, positive:{}",
-      (void *)buf_, (void *)head_, (void *)tail_, capacity_, size(),
-      positive());
+  return fmt::format("buf_:{}, head_:{}, tail_:{}, capacity_:{}", (void *)buf_,
+                     (void *)head_, (void *)tail_, capacity_);
 }
 
 template <unsigned int D> void CycleBuffer<D>::release() {
@@ -258,6 +257,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
     int fnr = writeHandler(src, head_, fn);
     WINC(fnr);
     EX_ASSERT(positive(), "positive:{}", positive());
+    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   } else {
     int fn = MIN(bufEnd() - head_, n);
     int fnr = writeHandler(src, head_, fn);
@@ -265,6 +265,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
     EX_ASSERT(head_ == buf_ || head_ < bufEnd(),
               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
               (void *)buf_, (void *)head_, (void *)bufEnd());
+    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     if (n > writen) {
       EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
       EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
@@ -273,6 +274,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
       int snr = writeHandler(src, head_, sn);
       WINC(snr);
       EX_ASSERT(positive(), "positive:{}", positive());
+      EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
   }
   return writen;
@@ -339,6 +341,7 @@ int CycleBuffer<D>::readImpl(void *src, int n,
     if (tail_ == bufEnd()) {
       tail_ = buf_;
     }
+    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     if (n > readn && head_ != buf_) {
       EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
       EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
@@ -347,12 +350,14 @@ int CycleBuffer<D>::readImpl(void *src, int n,
       int snr = readHandler(src, tail_, sn, readn);
       RINC(snr);
       EX_ASSERT(!positive(), "!positive: {}", !positive());
+      EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
   } else {
     int fn = MIN(n, head_ - tail_ - 1);
     int fnr = readHandler(src, tail_, fn, readn);
     RINC(fnr);
     EX_ASSERT(!positive(), "!positive: {}", !positive());
+    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   }
   return readn;
 }
