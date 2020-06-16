@@ -7,6 +7,71 @@
 
 namespace detail {
 
+/**
+ * CycleBuffer memory status
+ *
+ * positive: tail >= head
+ * 1)
+ * buf = head = tail = nullptr
+ *
+ * 2)
+ * head                    tail
+ * |                       |
+ * |-----------------------||
+ * |
+ * buf
+ *
+ * 3)
+ *           head
+ *           |
+ * |---------||-------------|
+ * |          |
+ * buf        tail
+ *
+ * 4)
+ *      head            tail
+ *      |               |
+ * |----|---------------|---|
+ * |
+ * buf
+ *
+ * negative: tail < head
+ * 1)
+ *      tail            head
+ *      |               |
+ * |----|---------------|---|
+ * |
+ * buf
+ *
+ * 2)
+ * tail             head
+ * |                |
+ * |----------------|-------|
+ * |
+ * buf
+ *
+ * 3)
+ *      tail               head
+ *      |                  |
+ * |----|------------------||
+ * |
+ * buf
+ *
+ * 4)
+ * tail                    head
+ * |                       |
+ * |-----------------------||
+ * |
+ * buf
+ *
+ * impossible)
+ * tail                     head
+ * |                        |
+ * |------------------------|
+ * |
+ * buf
+ */
+
 template <unsigned int D> class CycleBuffer : public Stringify {
 public:
   CycleBuffer();
