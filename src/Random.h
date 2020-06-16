@@ -30,7 +30,9 @@ private:
 
 template <typename T> class RandomReal {
 public:
-  RandomReal(T b = std::numeric_limits<T>::max()) : RandomReal((T)0.0, b) {}
+  // [0.0, b)
+  RandomReal(T b = (T)1.0) : RandomReal((T)0.0, b) {}
+  // [a, b)
   RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
     EX_ASSERT(b >= a, "b {} >= a {}", b, a);
   }

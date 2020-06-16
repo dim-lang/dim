@@ -33,7 +33,7 @@
     for (int i = 0; i < TEST_MAX; i++) {                                       \
       T t = r1.next();                                                         \
       REQUIRE(t >= (T)0.0);                                                    \
-      REQUIRE(t <= std::numeric_limits<T>::max());                             \
+      REQUIRE(t <= (T)1.0);                                                    \
     }                                                                          \
     RandomReal<T> r2(a, b);                                                    \
     for (int i = 0; i < TEST_MAX; i++) {                                       \

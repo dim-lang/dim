@@ -3,8 +3,11 @@
 
 #include "container/CycleBuffer.h"
 #include "Log.h"
+#include "Random.h"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
+#include <algorithm>
+#include <deque>
 
 #define C_MIN 0
 #define C_MAX 100
@@ -249,6 +252,57 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         for (int j = 0; j < i + 1; j++) {
           REQUIRE((int)buf[j] == i);
         }
+      }
+    }
+  }
+  SECTION("random read/write") {
+    {
+      std::deque<char> dq;
+      DynamicBuffer db;
+      RandomInt<int> randint(C_MIN, C_MAX);
+      for (int i = C_MIN; i < C_MAX; i++) {
+        int rn = randint.next();
+        char *rbuf = new char[rn];
+        for (int j = 0; j < rn; j++) {
+          rbuf[j] = (char)rn;
+          dq.push_back((char)rn);
+        }
+        REQUIRE(db.read(rbuf, rn) == rn);
+        int wn = std::min(randint.next(), rn);
+        char *wbuf = new char[wn];
+        REQUIRE(db.write(wbuf, wn) == wn);
+        for (int j = 0; j < wn; j++) {
+          REQUIRE(wbuf[j] == dq.front());
+          REQUIRE(!dq.empty());
+          dq.pop_front();
+        }
+        delete[] rbuf;
+        delete[] wbuf;
+      }
+    }
+    {
+      std::deque<char> dq;
+      FixedBuffer fb(C_MAX);
+      RandomInt<int> randint(C_MIN, C_MAX);
+      for (int i = C_MIN; i < C_MAX; i++) {
+        int rn = randint.next();
+        rn = std::min(randint.next(), fb.capacity() - fb.size());
+        char *rbuf = new char[rn];
+        for (int j = 0; j < rn; j++) {
+          rbuf[j] = (char)rn;
+          dq.push_back((char)rn);
+        }
+        REQUIRE(fb.read(rbuf, rn) == rn);
+        int wn = std::min(randint.next(), rn);
+        char *wbuf = new char[wn];
+        REQUIRE(fb.write(wbuf, wn) == wn);
+        for (int j = 0; j < wn; j++) {
+          REQUIRE(wbuf[j] == dq.front());
+          REQUIRE(!dq.empty());
+          dq.pop_front();
+        }
+        delete[] rbuf;
+        delete[] wbuf;
       }
     }
   }
