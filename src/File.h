@@ -69,10 +69,10 @@ private:
  * }
  * </code>
  */
-class FileReaderBufferIterator {
+class FileReaderBlockIterator {
 public:
-  FileReaderBufferIterator(FileReader *reader);
-  virtual ~FileReaderBufferIterator() = default;
+  FileReaderBlockIterator(FileReader *reader);
+  virtual ~FileReaderBlockIterator() = default;
   std::string next(int n);
   bool hasNext(int n);
 
@@ -114,7 +114,7 @@ class FileReader : public detail::FileInfo {
 public:
   using LineIterator = detail::FileReaderLineIterator;
   using CharIterator = detail::FileReaderCharIterator;
-  using BufferIterator = detail::FileReaderBufferIterator;
+  using BlockIterator = detail::FileReaderBlockIterator;
 
   FileReader(const std::string &fileName);
   virtual ~FileReader() = default;
@@ -124,14 +124,16 @@ public:
   virtual void reset(int offset = 0);
 
   // reader iterator
-  virtual LineIterator beginLine();
-  virtual CharIterator beginChar();
-  virtual BufferIterator beginBuffer();
+  virtual LineIterator lineIterator();
+  virtual CharIterator charIterator();
+  virtual BlockIterator blockIterator();
+
+  virtual std::string read();
 
 private:
   friend class detail::FileReaderLineIterator;
   friend class detail::FileReaderCharIterator;
-  friend class detail::FileReaderBufferIterator;
+  friend class detail::FileReaderBlockIterator;
 
   DynamicBuffer buffer_;
 };

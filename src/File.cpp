@@ -70,16 +70,16 @@ bool FileReaderCharIterator::hasNext() {
   return false;
 }
 
-FileReaderBufferIterator::FileReaderBufferIterator(FileReader *reader)
+FileReaderBlockIterator::FileReaderBlockIterator(FileReader *reader)
     : reader_(reader) {}
 
-std::string FileReaderBufferIterator::next(int n) {
+std::string FileReaderBlockIterator::next(int n) {
   EX_ASSERT(reader_->buffer_.size() >= n, "read_->buffer.size {} >= n {}",
             reader_->buffer_.size(), n);
   return reader_->buffer_.write(n);
 }
 
-bool FileReaderBufferIterator::hasNext(int n) {
+bool FileReaderBlockIterator::hasNext(int n) {
   if (reader_->buffer_.size() >= n) {
     return true;
   }
@@ -135,16 +135,22 @@ void FileReader::reset(int offset) {
   EX_ASSERT(r == 0, "r {} == 0", r);
 }
 
-FileReader::LineIterator FileReader::beginLine() {
+FileReader::LineIterator FileReader::lineIterator() {
   return FileReader::LineIterator(this);
 }
 
-FileReader::CharIterator FileReader::beginChar() {
+FileReader::CharIterator FileReader::charIterator() {
   return FileReader::CharIterator(this);
 }
 
-FileReader::BufferIterator FileReader::beginBuffer() {
-  return FileReader::BufferIterator(this);
+FileReader::BlockIterator FileReader::blockIterator() {
+  return FileReader::BlockIterator(this);
+}
+
+std::string FileReader::read() {
+  int n = buffer_.readfile(fp_);
+  EX_ASSERT(n >= 0, "n {} >= 0", n);
+  return buffer_.write(buffer_.size());
 }
 
 FileWriter::FileWriter(const std::string &fileName)
