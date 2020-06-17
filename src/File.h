@@ -92,6 +92,22 @@ protected:
   FILE *fp_;
 };
 
+class FileWriterImpl : public FileInfo {
+public:
+  FileWriterImpl(const std::string &fileName);
+  virtual ~FileWriterImpl() = default;
+
+  // reset writing offset
+  virtual void reset(int offset);
+  // flush buffer
+  virtual void flush();
+  virtual void write(const char *buf, int n);
+  virtual void write(const std::string &buf);
+
+protected:
+  DynamicBuffer buffer_;
+};
+
 } // namespace detail
 
 class FileReader : public detail::FileInfo {
@@ -102,9 +118,10 @@ public:
 
   FileReader(const std::string &fileName);
   virtual ~FileReader() = default;
+  virtual FileModeType mode() const;
 
-  // reset reading status
-  virtual void reset();
+  // reset reading offset
+  virtual void reset(int offset = 0);
 
   // reader iterator
   virtual LineIterator beginLine();
@@ -119,48 +136,18 @@ private:
   DynamicBuffer buffer_;
 };
 
-class FileWriter : public detail::FileInfo {
+class FileWriter : public detail::FileWriterImpl {
 public:
   FileWriter(const std::string &fileName);
   virtual ~FileWriter() = default;
-
-  virtual void reset();
-  virtual void flush();
-  virtual int write(const char *buf, int n);
-  virtual int write(const std::string &buf);
-
-private:
-  DynamicBuffer buffer_;
+  virtual FileModeType mode() const;
+  virtual void reset(int offset = 0);
 };
 
-class FileAppender : public detail::FileInfo {
+class FileAppender : public detail::FileWriterImpl {
 public:
   FileAppender(const std::string &fileName);
-  virtual ~FileAppender();
-
-private:
-  DynamicBuffer buffer_;
-};
-
-class File {
-public:
-  // read all into one string
-  static std::string read(const std::string &fileName);
-
-  // read all to line by line
-  static std::vector<std::string> readline(const std::string &fileName);
-
-  // write all into one file
-  static int write(const std::string &fileName, const std::string &text);
-
-  // write all lines into one file
-  static int writeline(const std::string &fileName,
-                       const std::vector<std::string> &lines);
-
-  // write all into one file
-  static int append(const std::string &fileName, const std::string &text);
-
-  // write all lines into one file
-  static int appendline(const std::string &fileName,
-                        const std::vector<std::string> &lines);
+  virtual ~FileAppender() = default;
+  virtual FileModeType mode() const;
+  virtual void reset(int offset = 0);
 };

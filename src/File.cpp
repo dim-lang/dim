@@ -4,103 +4,8 @@
 #include "File.h"
 #include "Exception.h"
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 
-#define F_BUF_SIZE 1024
-
-std::string File::read(const std::string &fileName) {
-  FILE *fp = std::fopen(fileName.c_str(), "r");
-  EX_ASSERT(fp, "fp is null: {}", (void *)fp);
-  int len = F_BUF_SIZE, n = 0, tot = 0;
-  char *data = (char *)std::malloc(len * sizeof(char));
-  EX_ASSERT(data, "malloc error! data is null: {}", (void *)data);
-
-  do {
-    if (data == nullptr || tot >= len) {
-      len *= 2;
-      data = (char *)std::realloc(data, len * sizeof(char));
-      EX_ASSERT(data, "realloc error! data {} is null", (void *)data);
-    }
-
-    n = std::fread(data + tot, 1, len - tot, fp);
-    tot += n;
-  } while (n > 0);
-
-  std::fclose(fp);
-  std::string ret = std::string(data, tot);
-  std::free(data);
-  return ret;
-}
-
-std::vector<std::string> File::readline(const std::string &fileName) {
-  FILE *fp = std::fopen(fileName.c_str(), "r");
-  EX_ASSERT(fp, "fp is null: {}", (void *)fp);
-  int len = F_BUF_SIZE;
-  char *data = (char *)malloc(len * sizeof(char));
-  EX_ASSERT(data, "realloc error! data is null: {}", (void *)data);
-  std::vector<std::string> ret;
-
-  while (true) {
-    int pos = 0;
-    int32_t dataLen;
-    while (true) {
-      char *r = std::fgets(data + pos, len - pos, fp);
-      if (!r) {
-        goto end_of_readline;
-      }
-      dataLen = std::strlen(data);
-      EX_ASSERT(dataLen > 0, "dataLen {} > 0", dataLen);
-      EX_ASSERT(dataLen < len, "dataLen {} < len {}", dataLen, len);
-      if (dataLen < len - 1) {
-        ret.push_back(std::string(data, dataLen));
-        break;
-      } else {
-        len *= 2;
-        data = (char *)realloc(data, sizeof(char) * len);
-        EX_ASSERT(data, "realloc error! data is null: {}", (void *)data);
-        pos = dataLen;
-      }
-    }
-  }
-
-end_of_readline:
-  std::fclose(fp);
-  std::free(data);
-  return ret;
-}
-
-static int writeImpl(const std::string &fileName,
-                     const std::vector<std::string> &texts, const char *perm) {
-  FILE *fp = std::fopen(fileName.c_str(), perm);
-  EX_ASSERT(fp, "open file error! fp is null: {}", (void *)fp);
-  int n = 0;
-  for (int i = 0; i < (int)texts.size(); i++) {
-    n += (int)std::fwrite(texts[i].c_str(), 1, texts[i].length(), fp);
-  }
-  std::fclose(fp);
-  return n;
-}
-
-int File::write(const std::string &fileName, const std::string &text) {
-  std::vector<std::string> ts = {text};
-  return writeImpl(fileName, ts, "w");
-}
-
-int File::writeline(const std::string &fileName,
-                    const std::vector<std::string> &lines) {
-  return writeImpl(fileName, lines, "w");
-}
-
-int File::append(const std::string &fileName, const std::string &text) {
-  std::vector<std::string> ts = {text};
-  return writeImpl(fileName, ts, "a");
-}
-
-int File::appendline(const std::string &fileName,
-                     const std::vector<std::string> &lines) {
-  return writeImpl(fileName, lines, "a");
-}
+#define BUF_SIZE 1024
 
 namespace detail {
 
@@ -131,7 +36,7 @@ bool FileReaderLineIterator::hasNext() {
   }
   int n = 0;
   do {
-    n = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    n = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
     linePosition_ = reader_->buffer_.search('\n');
     if (linePosition_) {
       return true;
@@ -157,7 +62,7 @@ bool FileReaderCharIterator::hasNext() {
   }
   int n = 0;
   do {
-    n = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    n = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
     if (!reader_->buffer_.empty()) {
       return true;
     }
@@ -180,12 +85,39 @@ bool FileReaderBufferIterator::hasNext(int n) {
   }
   int c = 0;
   do {
-    c = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    c = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
     if (reader_->buffer_.size() >= n) {
       return true;
     }
   } while (c > 0);
   return false;
+}
+
+FileWriterImpl::FileWriterImpl(const std::string &fileName)
+    : FileInfo(fileName) {}
+
+void FileWriterImpl::reset(int offset) {
+  int r = std::fseek(fp_, offset, SEEK_SET);
+  EX_ASSERT(r == 0, "r {} == 0", r);
+}
+
+void FileWriterImpl::flush() {
+  int sz = buffer_.size();
+  int r = buffer_.writefile(fp_);
+  EX_ASSERT(r == sz, "r {} == sz {}", r, sz);
+}
+
+void FileWriterImpl::write(const char *buf, int n) {
+  int r = buffer_.read(buf, n);
+  EX_ASSERT(r == n, "r {} == n {}", r, n);
+  if (buffer_.size() >= BUF_SIZE) {
+    r = buffer_.writefile(fp_, BUF_SIZE);
+    EX_ASSERT(r == BUF_SIZE, "r {} == BUF_SIZE {}", r, BUF_SIZE);
+  }
+}
+
+void FileWriterImpl::write(const std::string &buf) {
+  write(buf.data(), buf.length());
 }
 
 } // namespace detail
@@ -196,8 +128,10 @@ FileReader::FileReader(const std::string &fileName)
   EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
-void FileReader::reset() {
-  int r = std::fseek(fp_, 0, SEEK_SET);
+FileModeType FileReader::mode() const { return FileModeType::Read; }
+
+void FileReader::reset(int offset) {
+  int r = std::fseek(fp_, offset, SEEK_SET);
   EX_ASSERT(r == 0, "r {} == 0", r);
 }
 
@@ -212,3 +146,23 @@ FileReader::CharIterator FileReader::beginChar() {
 FileReader::BufferIterator FileReader::beginBuffer() {
   return FileReader::BufferIterator(this);
 }
+
+FileWriter::FileWriter(const std::string &fileName)
+    : detail::FileWriterImpl(fileName) {
+  fp_ = std::fopen(fileName.c_str(), "w");
+  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+}
+
+FileModeType FileWriter::mode() const { return FileModeType::Write; }
+
+void FileWriter::reset(int offset) { detail::FileWriterImpl::reset(offset); }
+
+FileAppender::FileAppender(const std::string &fileName)
+    : detail::FileWriterImpl(fileName) {
+  fp_ = std::fopen(fileName.c_str(), "a");
+  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+}
+
+void FileAppender::reset(int offset) { detail::FileWriterImpl::reset(offset); }
+
+FileModeType FileAppender::mode() const { return FileModeType::Append; }
