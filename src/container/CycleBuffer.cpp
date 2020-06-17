@@ -351,6 +351,16 @@ template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
   return writeImpl(buf, n, writeMemHandler);
 }
 
+template <unsigned int D> std::string CycleBuffer<D>::write(int n) {
+  char *buf = (char *)std::malloc(n + 1);
+  std::memset(buf, 0, '\0');
+  int c = writeImpl(buf, n, writeMemHandler);
+  EX_ASSERT(c <= n, "c {} <= n {}", c, n);
+  std::string r(buf, n);
+  std::free(buf);
+  return r;
+}
+
 template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
   return writeImpl(fp, n, writeFileHandler);
 }
@@ -367,6 +377,10 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp) {
 
 template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   return readImpl((void *)buf, n, readMemHandler);
+}
+
+template <unsigned int D> int CycleBuffer<D>::read(const std::string &buf) {
+  return readImpl((void *)buf.data(), buf.length(), readMemHandler);
 }
 
 template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {
@@ -405,6 +419,144 @@ template <unsigned int D> int CycleBuffer<D>::expand(int n) {
   head_ = buf_;
   tail_ = buf_ + sz;
   return 0;
+}
+
+template <unsigned int D> char *CycleBuffer<D>::search(char c) {
+  if (size() == 0) {
+    return nullptr;
+  }
+  for (char *i = begin(); i != end(); i = next(i)) {
+    EX_ASSERT(i, "i is null");
+    if (*i == c) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D> const char *CycleBuffer<D>::search(char c) const {
+  if (size() == 0) {
+    return nullptr;
+  }
+  for (const char *i = begin(); i != end(); i = next(i)) {
+    EX_ASSERT(i, "i is null");
+    if (*i == c) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D> char *CycleBuffer<D>::search(char *s, int n) {
+  if (size() == 0 || !s) {
+    return nullptr;
+  }
+  for (char *i = begin(); i != end(); i = next(i)) {
+    EX_ASSERT(i, "i is null");
+    int k = 0;
+    bool match = true;
+    for (char *j = i; j != end() && k < n; j = next(j), k++) {
+      if (*j != s[k]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D>
+const char *CycleBuffer<D>::search(const char *s, int n) const {
+  if (size() == 0 || !s) {
+    return nullptr;
+  }
+  for (const char *i = begin(); i != end(); i = next(i)) {
+    EX_ASSERT(i, "i is null");
+    int k = 0;
+    bool match = true;
+    for (const char *j = i; j != end() && k < n; j = next(j), k++) {
+      if (*j != s[k]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D> char *CycleBuffer<D>::rsearch(char c) {
+  if (size() == 0) {
+    return nullptr;
+  }
+  for (char *i = rbegin(); i != rend(); i = prev(i)) {
+    EX_ASSERT(i, "i is null");
+    if (*i == c) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D> const char *CycleBuffer<D>::rsearch(char c) const {
+  if (size() == 0) {
+    return nullptr;
+  }
+  for (const char *i = rbegin(); i != rend(); i = prev(i)) {
+    EX_ASSERT(i, "i is null");
+    if (*i == c) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D> char *CycleBuffer<D>::rsearch(char *s, int n) {
+  if (size() == 0 || !s) {
+    return nullptr;
+  }
+  for (char *i = rbegin(); i != rend(); i = prev(i)) {
+    EX_ASSERT(i, "i is null");
+    int k = 0;
+    bool match = true;
+    for (char *j = i; j != rend() && k < n; j = prev(j), k++) {
+      if (*j != s[k]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+template <unsigned int D>
+const char *CycleBuffer<D>::rsearch(const char *s, int n) const {
+  if (size() == 0 || !s) {
+    return nullptr;
+  }
+  for (const char *i = rbegin(); i != rend(); i = prev(i)) {
+    EX_ASSERT(i, "i is null");
+    int k = 0;
+    bool match = true;
+    for (const char *j = i; j != rend() && k < n; j = prev(j), k++) {
+      if (*j != s[k]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      return i;
+    }
+  }
+  return nullptr;
 }
 
 } // namespace detail

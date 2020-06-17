@@ -116,12 +116,99 @@ FileInfo::~FileInfo() {
 
 const std::string &FileInfo::fileName() const { return fileName_; }
 
-FileReaderLineIterator::FileReaderLineIterator(FILE *fp) : fp_(fp) {}
+FileReaderLineIterator::FileReaderLineIterator(FileReader *reader)
+    : reader_(reader), linePosition_(nullptr) {}
 
-std::string FileReaderLineIterator::operator*() {}
+std::string FileReaderLineIterator::next() {
+  EX_ASSERT(linePosition_, "linePosition_ is null");
+  int len = linePosition_ - reader_->buffer_.begin();
+  return reader_->buffer_.write(len);
+}
 
-FileReaderLineIterator &FileReaderLineIterator::operator++() {}
+bool FileReaderLineIterator::hasNext() {
+  if (linePosition_) {
+    return true;
+  }
+  int n = 0;
+  do {
+    n = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    linePosition_ = reader_->buffer_.search('\n');
+    if (linePosition_) {
+      return true;
+    }
+  } while (n > 0);
+  return false;
+}
 
-FileReaderLineIterator FileReaderLineIterator::operator++(int) {}
+FileReaderCharIterator::FileReaderCharIterator(FileReader *reader)
+    : reader_(reader) {}
+
+char FileReaderCharIterator::next() {
+  EX_ASSERT(!reader_->buffer_.empty(), "reader_->buffer_ is empty");
+  char c;
+  int writen = reader_->buffer_.write(&c, 1);
+  EX_ASSERT(writen == 1, "writen {} == 1", writen);
+  return c;
+}
+
+bool FileReaderCharIterator::hasNext() {
+  if (!reader_->buffer_.empty()) {
+    return true;
+  }
+  int n = 0;
+  do {
+    n = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    if (!reader_->buffer_.empty()) {
+      return true;
+    }
+  } while (n > 0);
+  return false;
+}
+
+FileReaderBufferIterator::FileReaderBufferIterator(FileReader *reader)
+    : reader_(reader) {}
+
+std::string FileReaderBufferIterator::next(int n) {
+  EX_ASSERT(reader_->buffer_.size() >= n, "read_->buffer.size {} >= n {}",
+            reader_->buffer_.size(), n);
+  return reader_->buffer_.write(n);
+}
+
+bool FileReaderBufferIterator::hasNext(int n) {
+  if (reader_->buffer_.size() >= n) {
+    return true;
+  }
+  int c = 0;
+  do {
+    c = reader_->buffer_.readfile(reader_->fp_, F_BUF_SIZE);
+    if (reader_->buffer_.size() >= n) {
+      return true;
+    }
+  } while (c > 0);
+  return false;
+}
 
 } // namespace detail
+
+FileReader::FileReader(const std::string &fileName)
+    : detail::FileInfo(fileName) {
+  fp_ = std::fopen(fileName.c_str(), "r");
+  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+}
+
+void FileReader::reset() {
+  int r = std::fseek(fp_, 0, SEEK_SET);
+  EX_ASSERT(r == 0, "r {} == 0", r);
+}
+
+FileReader::LineIterator FileReader::beginLine() {
+  return FileReader::LineIterator(this);
+}
+
+FileReader::CharIterator FileReader::beginChar() {
+  return FileReader::CharIterator(this);
+}
+
+FileReader::BufferIterator FileReader::beginBuffer() {
+  return FileReader::BufferIterator(this);
+}

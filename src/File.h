@@ -19,49 +19,65 @@ class FileAppender;
 
 namespace detail {
 
-// read line by line terminate with '\0'
+/**
+ * read line by line terminate with '\0', usage:
+ *
+ * <code>
+ * while (lineIterator.hasNext()) {
+ *   std::string line = lineIterator.next();
+ * }
+ * </code>
+ */
 class FileReaderLineIterator {
 public:
+  FileReaderLineIterator(FileReader *reader);
   virtual ~FileReaderLineIterator() = default;
-
-  std::string operator*();
-  FileReaderLineIterator &operator++();
-  FileReaderLineIterator operator++(int);
+  std::string next();
+  bool hasNext();
 
 private:
-  FileReaderLineIterator(FILE *fp);
-  friend class FileReader;
-  FILE *fp_;
+  FileReader *reader_;
+  char *linePosition_;
 };
 
-// read char by char
+/**
+ * read char by char, usage:
+ *
+ * <code>
+ * while (charIterator.hasNext()) {
+ *   char c = charIterator.next();
+ * }
+ * </code>
+ */
 class FileReaderCharIterator {
 public:
+  FileReaderCharIterator(FileReader *reader);
   virtual ~FileReaderCharIterator() = default;
-
-  char operator*();
-  FileReaderCharIterator &operator++();
-  FileReaderCharIterator operator++(int);
+  char next();
+  bool hasNext();
 
 private:
-  FileReaderCharIterator(FILE *fp);
-  friend class FileReader;
-  FILE *fp_;
+  FileReader *reader_;
 };
 
-// read buffer by buffer
+/**
+ * read buffer by buffer, usage:
+ *
+ * <code>
+ * while (bufferIterator.hasNext()) {
+ *   std::string buffer = bufferIterator.next(n);
+ * }
+ * </code>
+ */
 class FileReaderBufferIterator {
 public:
+  FileReaderBufferIterator(FileReader *reader);
   virtual ~FileReaderBufferIterator() = default;
-
-  const char *operator*();
-  FileReaderBufferIterator &operator++();
-  FileReaderBufferIterator operator++(int);
+  std::string next(int n);
+  bool hasNext(int n);
 
 private:
-  FileReaderBufferIterator(FILE *fp);
-  friend class FileReader;
-  FILE *fp_;
+  FileReader *reader_;
 };
 
 class FileInfo {
@@ -85,29 +101,33 @@ public:
   using BufferIterator = detail::FileReaderBufferIterator;
 
   FileReader(const std::string &fileName);
-  virtual ~FileReader();
+  virtual ~FileReader() = default;
 
   // reset reading status
-  void reset();
-  LineIterator beginLine();
-  CharIterator beginChar();
-  BufferIterator beginBuffer();
-  LineIterator endLine();
-  CharIterator endChar();
-  BufferIterator endBuffer();
+  virtual void reset();
 
+  // reader iterator
+  virtual LineIterator beginLine();
+  virtual CharIterator beginChar();
+  virtual BufferIterator beginBuffer();
+
+private:
   friend class detail::FileReaderLineIterator;
   friend class detail::FileReaderCharIterator;
   friend class detail::FileReaderBufferIterator;
 
-private:
   DynamicBuffer buffer_;
 };
 
 class FileWriter : public detail::FileInfo {
 public:
   FileWriter(const std::string &fileName);
-  virtual ~FileWriter();
+  virtual ~FileWriter() = default;
+
+  virtual void reset();
+  virtual void flush();
+  virtual int write(const char *buf, int n);
+  virtual int write(const std::string &buf);
 
 private:
   DynamicBuffer buffer_;

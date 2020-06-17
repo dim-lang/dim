@@ -102,15 +102,29 @@ public:
 
   virtual bool contain(const char *position) const;
 
+  virtual char *search(char c);
+  virtual const char *search(char c) const;
+
+  virtual char *search(char *s, int n);
+  virtual const char *search(const char *s, int n) const;
+
+  virtual char *rsearch(char c);
+  virtual const char *rsearch(char c) const;
+
+  virtual char *rsearch(char *s, int n);
+  virtual const char *rsearch(const char *s, int n) const;
+
   virtual std::string toString() const;
 
   // write at most <n> bytes to <buf>
   // @return    bytes really write
   virtual int write(char *buf, int n);
+  virtual std::string write(int n);
 
   // read at most <n> bytes from <buf>
   // @return    bytes really read
   virtual int read(const char *buf, int n);
+  virtual int read(const std::string &buf);
 
   // write all bytes to <fp>
   // @return    bytes really write
