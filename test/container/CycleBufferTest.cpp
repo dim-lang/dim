@@ -303,7 +303,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           q.push_back(rbuf[j]);
         }
         REQUIRE(fb.read(rbuf.data(), rn) == rn);
-        int wn = std::min(randint[randc++], rn);
+        int wn = std::min(randint[randc++], fb.size());
         std::vector<char> wbuf(wn);
         REQUIRE(fb.write(wbuf.data(), wn) == wn);
         for (int j = 0; j < wn; j++) {
