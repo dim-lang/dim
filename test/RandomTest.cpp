@@ -2,12 +2,10 @@
 // Apache License Version 2.0
 
 #include "Random.h"
-#include "Log.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <cstdint>
 
 #define TEST_MAX 1024
 
