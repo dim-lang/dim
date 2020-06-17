@@ -225,17 +225,31 @@ template <unsigned int D> void CycleBuffer<D>::release() {
   }
 }
 
-static int writeMemHandler(void *src, void *buf, int n) {
-  std::memcpy(src, buf, n);
+static int writeMemHandler(void *source, void *buffer, int n,
+                           int alreadyWrite) {
+  char *source2 = (char *)source + alreadyWrite;
+  std::memcpy(source2, buffer, n);
   return n;
 }
 
-static int writeFileHandler(void *src, void *buf, int n) {
-  size_t r = std::fwrite(buf, 1, n, (FILE *)src);
+static int writeFileHandler(void *source, void *buffer, int n,
+                            int alreadyWrite) {
+  size_t r = std::fwrite(buffer, 1, n, (FILE *)source);
   return (int)r;
 }
 
-#define WINC(n)                                                                \
+static int readMemHandler(void *source, void *buffer, int n, int alreadyRead) {
+  char *source2 = (char *)source + alreadyRead;
+  std::memcpy(buffer, source2, n);
+  return n;
+}
+
+static int readFileHandler(void *source, void *buffer, int n, int alreadyRead) {
+  size_t r = std::fread(buffer, 1, n, (FILE *)source);
+  return (int)r;
+}
+
+#define WRITE_MOVE(n)                                                          \
   do {                                                                         \
     head_ = next(head_, n);                                                    \
     writen += n;                                                               \
@@ -243,7 +257,7 @@ static int writeFileHandler(void *src, void *buf, int n) {
 
 template <unsigned int D>
 int CycleBuffer<D>::writeImpl(void *src, int n,
-                              int (*writeHandler)(void *, void *, int)) {
+                              int (*writeHandler)(void *, void *, int, int)) {
   EX_ASSERT(n >= 0, "n {} < 0", n);
   if (!src || !n) {
     return 0;
@@ -254,14 +268,14 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
   int writen = 0;
   if (positive()) {
     int fn = MIN(size(), n);
-    int fnr = writeHandler(src, head_, fn);
-    WINC(fnr);
+    int fnr = writeHandler(src, head_, fn, writen);
+    WRITE_MOVE(fnr);
     EX_ASSERT(positive(), "positive:{}", positive());
     EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   } else {
     int fn = MIN(bufEnd() - head_, n);
-    int fnr = writeHandler(src, head_, fn);
-    WINC(fnr);
+    int fnr = writeHandler(src, head_, fn, writen);
+    WRITE_MOVE(fnr);
     EX_ASSERT(head_ == buf_ || head_ < bufEnd(),
               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
               (void *)buf_, (void *)head_, (void *)bufEnd());
@@ -271,8 +285,8 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
       EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
                 (void *)buf_);
       int sn = MIN(n - writen, pSize());
-      int snr = writeHandler(src, head_, sn);
-      WINC(snr);
+      int snr = writeHandler(src, head_, sn, writen);
+      WRITE_MOVE(snr);
       EX_ASSERT(positive(), "positive:{}", positive());
       EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
@@ -280,40 +294,11 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
   return writen;
 }
 
-template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
-  return writeImpl(buf, n, writeMemHandler);
-}
-
-template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
-  return writeImpl(fp, n, writeFileHandler);
-}
-
-template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp) {
-  int n = 0;
-  int tmp;
-  do {
-    tmp = writefile(fp, BUF_SIZE);
-    n += tmp;
-  } while (tmp > 0);
-  return n;
-}
-
-#define RINC(n)                                                                \
+#define READ_MOVE(n)                                                           \
   do {                                                                         \
     tail_ += n;                                                                \
     readn += n;                                                                \
   } while (0)
-
-static int readMemHandler(void *src, void *buf, int n, int readn) {
-  char *src2 = (char *)src + readn;
-  std::memcpy(buf, src2, n);
-  return n;
-}
-
-static int readFileHandler(void *src, void *buf, int n, int readn) {
-  size_t r = std::fread(buf, 1, n, (FILE *)src);
-  return (int)r;
-}
 
 template <unsigned int D>
 int CycleBuffer<D>::readImpl(void *src, int n,
@@ -336,7 +321,7 @@ int CycleBuffer<D>::readImpl(void *src, int n,
   if (positive()) {
     int fn = MIN(bufEnd() - tail_ - (head_ == buf_ ? 1 : 0), n);
     int fnr = readHandler(src, tail_, fn, readn);
-    RINC(fnr);
+    READ_MOVE(fnr);
     EX_ASSERT(positive(), "positive: {}", positive());
     if (tail_ == bufEnd()) {
       tail_ = buf_;
@@ -348,19 +333,38 @@ int CycleBuffer<D>::readImpl(void *src, int n,
                 (void *)buf_);
       int sn = MIN(n - readn, head_ - tail_ - 1);
       int snr = readHandler(src, tail_, sn, readn);
-      RINC(snr);
+      READ_MOVE(snr);
       EX_ASSERT(!positive(), "!positive: {}", !positive());
       EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
   } else {
     int fn = MIN(n, head_ - tail_ - 1);
     int fnr = readHandler(src, tail_, fn, readn);
-    RINC(fnr);
+    READ_MOVE(fnr);
     EX_ASSERT(!positive(), "!positive: {}", !positive());
     EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   }
   return readn;
 }
+
+template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
+  return writeImpl(buf, n, writeMemHandler);
+}
+
+template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
+  return writeImpl(fp, n, writeFileHandler);
+}
+
+template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp) {
+  int n = 0;
+  int tmp;
+  do {
+    tmp = writefile(fp, BUF_SIZE);
+    n += tmp;
+  } while (tmp > 0);
+  return n;
+}
+
 template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
   return readImpl((void *)buf, n, readMemHandler);
 }

@@ -147,9 +147,11 @@ protected:
   virtual bool nRightContain(const char *position) const;
 
   virtual int writeImpl(void *src, int n,
-                        int (*writeHandler)(void *, void *, int));
+                        int (*writeHandler)(void *source, void *buffer, int n,
+                                            int alreadyWrite));
   virtual int readImpl(void *src, int n,
-                       int (*readHandler)(void *, void *, int, int));
+                       int (*readHandler)(void *source, void *buffer, int n,
+                                          int alreadyRead));
 
   char *buf_;
   char *head_;
