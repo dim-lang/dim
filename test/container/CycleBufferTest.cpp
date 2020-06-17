@@ -3,10 +3,10 @@
 
 #include "container/CycleBuffer.h"
 #include "Log.h"
-#include "Random.h"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
 #include <algorithm>
+#include <deque>
 
 #define C_MIN 0
 #define C_MAX 100
@@ -271,50 +271,44 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         82, 38, 39, 19, 9,  7,  19, 13, 39, 33, 15, 88,  85, 57, 18, 85, 57,
     };
     {
-      std::vector<char> v;
+      std::deque<char> q;
       DynamicBuffer db;
-      int randc = 0, rc = 0, wc = 0;
+      int randc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
         int rn = randint[randc++];
         std::vector<char> rbuf(rn);
         for (int j = 0; j < rn; j++) {
           rbuf[j] = (char)rn;
-          v.push_back(rbuf[j]);
-          rc++;
-          LOG_INFO("DynamicBuffer random rbuf[{}]:{}", rc, (int)rbuf[j]);
+          q.push_back(rbuf[j]);
         }
         REQUIRE(db.read(rbuf.data(), rn) == rn);
         int wn = std::min(randint[randc++], rn);
         std::vector<char> wbuf(wn);
         REQUIRE(db.write(wbuf.data(), wn) == wn);
         for (int j = 0; j < wn; j++) {
-          LOG_INFO("DynamicBuffer random wbuf[{}]:{}", wc, (int)wbuf[j]);
-          REQUIRE(wbuf[j] == v[wc]);
-          wc++;
+          REQUIRE(wbuf[j] == q.front());
+          q.pop_front();
         }
       }
     }
     {
-      std::vector<char> v;
+      std::deque<char> q;
       FixedBuffer fb(C_MAX);
-      int randc = 0, rc = 0, wc = 0;
+      int randc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
         int rn = std::min(randint[randc++], fb.capacity() - fb.size());
         std::vector<char> rbuf(rn);
         for (int j = 0; j < rn; j++) {
           rbuf[j] = (char)rn;
-          v.push_back(rbuf[j]);
-          rc++;
-          LOG_INFO("FixedBuffer random rbuf[{}]:{}", rc, (int)rbuf[j]);
+          q.push_back(rbuf[j]);
         }
         REQUIRE(fb.read(rbuf.data(), rn) == rn);
         int wn = std::min(randint[randc++], rn);
         std::vector<char> wbuf(wn);
         REQUIRE(fb.write(wbuf.data(), wn) == wn);
         for (int j = 0; j < wn; j++) {
-          LOG_INFO("FixedBuffer random wbuf[{}]:{}", wc, (int)wbuf[j]);
-          REQUIRE(wbuf[j] == v[wc]);
-          wc++;
+          REQUIRE(wbuf[j] == q.front());
+          q.pop_front();
         }
       }
     }
