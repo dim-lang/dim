@@ -289,6 +289,24 @@ std::string dumpScope(const Scope::SNode &snode) {
   return dumpScopeImpl(snode, 0);
 }
 
+static int whitespaceHeadCount(const std::string &line) {
+  for (int i = 0; i < (int)line.length(); i++) {
+    if (!std::isspace(line[i])) {
+      return i;
+    }
+  }
+  return line.length();
+}
+
+static int whitespaceTailCount(const std::string &line) {
+  for (int i = (int)line.length() - 1; i >= 0; i--) {
+    if (!std::isspace(line[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 std::string dumpSource(const std::string &fileName, const Position &position) {
   std::stringstream ss;
   ss << fmt::format("{}: {}:\n", fileName, position.toString());
@@ -302,10 +320,20 @@ std::string dumpSource(const std::string &fileName, const Position &position) {
     if (i < position.firstLine - 1) {
       continue;
     }
-    if (i > position.firstLine + 1) {
+    if (i > position.lastLine + 1) {
       break;
     }
-    ss << lineIterator.next();
+    std::string line = lineIterator.next();
+    ss << line;
+    if (i >= position.firstLine && i <= position.lastLine) {
+      int hc = whitespaceHeadCount(line);
+      int tc = whitespaceTailCount(line);
+      if (hc < line.length() && tc >= 0 && hc <= tc) {
+        ss << std::string(hc, ' ');
+        ss << std::string(tc - hc + 1, '^');
+      }
+      ss << "\n";
+    }
   }
   return ss.str();
 }
