@@ -100,7 +100,7 @@ class AstFunctionArgumentDefinition;
 /*================ definition ================*/
 
 /* base interface */
-class Ast : public Namely, public Position, private boost::noncopyable {
+class Ast : public Namely, private boost::noncopyable {
 public:
   Ast(const std::string &name);
   Ast(const std::string &name, const Position &position);
@@ -108,6 +108,7 @@ public:
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
   virtual std::string name() const;
+  virtual const Position &position() const;
 
   static bool isConstant(const Ast *node);
   static bool isFloatConstant(const Ast *node);
@@ -117,6 +118,9 @@ public:
   static bool isExpression(const Ast *node);
   static bool isStatement(const Ast *node);
   static bool isDefinition(const Ast *node);
+
+protected:
+  Position position_;
 
 private:
   std::string name_;
@@ -177,7 +181,7 @@ public:
   virtual AstType type() const = 0;
   virtual std::string toString() const {
     std::stringstream ss;
-    ss << fmt::format("[@{} {} size:{}", stringify(), Position::toString(),
+    ss << fmt::format("[@{} {} size:{}", stringify(), position_.toString(),
                       items_.size());
     if (items_.empty()) {
       ss << "]";
@@ -204,7 +208,7 @@ public:
   }
   virtual void add(T *item) {
     EX_ASSERT(item, "item is null");
-    updatePosition(*(static_cast<Position *>(item)));
+    position_.updatePosition(item->position());
     items_.push_front(item);
   }
 

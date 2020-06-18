@@ -148,9 +148,8 @@ static Ir *createIrByAst(Ast *node) {
     return new IrFunctionSignatureDefinition(
         DC(AstFunctionSignatureDefinition, node));
   default:
-    EX_ASSERT(false, "invalid ast node: {}, position:{}:{}-{}:{}",
-              node->toString(), node->firstLine, node->firstColumn,
-              node->lastLine, node->lastColumn);
+    EX_ASSERT(false, "invalid ast node: {}, position:{}", node->toString(),
+              node->position().toString());
   }
   return nullptr;
 }

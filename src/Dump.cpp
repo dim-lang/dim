@@ -3,6 +3,7 @@
 
 #include "Dump.h"
 #include "Exception.h"
+#include "File.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
 #include "llvm/IR/IRBuilder.h"
@@ -290,5 +291,21 @@ std::string dumpScope(const Scope::SNode &snode) {
 
 std::string dumpSource(const std::string &fileName, const Position &position) {
   std::stringstream ss;
+  ss << fmt::format("{}: {}:\n", fileName, position.toString());
+  FileReader fileReader(fileName);
+  FileReader::LineIterator lineIterator = fileReader.lineIterator();
+  for (int i = 1; i < position.lastLine; i++) {
+    if (!lineIterator.hasNext()) {
+      ss << fmt::format("\nError reading line {}!", i);
+      break;
+    }
+    if (i < position.firstLine - 1) {
+      continue;
+    }
+    if (i > position.firstLine + 1) {
+      break;
+    }
+    ss << lineIterator.next();
+  }
   return ss.str();
 }

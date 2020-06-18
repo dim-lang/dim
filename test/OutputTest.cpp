@@ -6,7 +6,6 @@
 #include "Log.h"
 #include "Parser.h"
 #include "Scanner.h"
-#include "Semantic.h"
 #include "catch2/catch.hpp"
 
 static void testIr(const char *fileName) {
