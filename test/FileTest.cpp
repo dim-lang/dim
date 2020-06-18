@@ -154,6 +154,7 @@ TEST_CASE("File", "[File]") {
     while (block1.hasNext(BLOCK_SIZE)) {
       t1 += block1.next(BLOCK_SIZE);
     }
+    t1 += block1.next(BLOCK_SIZE);
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
 
@@ -166,6 +167,7 @@ TEST_CASE("File", "[File]") {
     while (block2.hasNext(BLOCK_SIZE)) {
       t2 += block2.next(BLOCK_SIZE);
     }
+    t2 += block2.next(BLOCK_SIZE);
     REQUIRE(t2.length() == text2.length());
     REQUIRE(t2 == text2);
   }

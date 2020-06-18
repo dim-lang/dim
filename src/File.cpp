@@ -75,8 +75,7 @@ FileReaderBlockIterator::FileReaderBlockIterator(FileReader *reader)
     : reader_(reader) {}
 
 std::string FileReaderBlockIterator::next(int n) {
-  EX_ASSERT(reader_->buffer_.size() >= n, "read_->buffer.size {} >= n {}",
-            reader_->buffer_.size(), n);
+  EX_ASSERT(n >= 0, "n {} >= 0", n);
   return reader_->buffer_.write(n);
 }
 
@@ -99,24 +98,19 @@ FileWriterImpl::FileWriterImpl(const std::string &fileName)
 
 FileWriterImpl::~FileWriterImpl() { flush(); }
 
-void FileWriterImpl::reset(int offset) {
-  int r = std::fseek(fp_, offset, SEEK_SET);
-  EX_ASSERT(r == 0, "r {} == 0", r);
-}
+void FileWriterImpl::reset(int offset) { std::fseek(fp_, offset, SEEK_SET); }
 
 void FileWriterImpl::flush() {
-  int sz = buffer_.size();
-  int r = buffer_.writefile(fp_);
-  EX_ASSERT(r == sz, "r {} == sz {}", r, sz);
+  if (buffer_.size() > 0) {
+    buffer_.writefile(fp_);
+  }
   std::fflush(fp_);
 }
 
 void FileWriterImpl::write(const char *buf, int n) {
-  int r = buffer_.read(buf, n);
-  EX_ASSERT(r == n, "r {} == n {}", r, n);
+  buffer_.read(buf, n);
   if (buffer_.size() >= BUF_SIZE) {
-    r = buffer_.writefile(fp_, BUF_SIZE);
-    EX_ASSERT(r == BUF_SIZE, "r {} == BUF_SIZE {}", r, BUF_SIZE);
+    buffer_.writefile(fp_, BUF_SIZE);
   }
 }
 
@@ -134,10 +128,7 @@ FileReader::FileReader(const std::string &fileName)
 
 FileModeType FileReader::mode() const { return FileModeType::Read; }
 
-void FileReader::reset(int offset) {
-  int r = std::fseek(fp_, offset, SEEK_SET);
-  EX_ASSERT(r == 0, "r {} == 0", r);
-}
+void FileReader::reset(int offset) { std::fseek(fp_, offset, SEEK_SET); }
 
 FileReader::LineIterator FileReader::lineIterator() {
   return FileReader::LineIterator(this);
@@ -152,8 +143,7 @@ FileReader::BlockIterator FileReader::blockIterator() {
 }
 
 std::string FileReader::read() {
-  int n = buffer_.readfile(fp_);
-  EX_ASSERT(n >= 0, "n {} >= 0", n);
+  buffer_.readfile(fp_);
   return buffer_.write(buffer_.size());
 }
 

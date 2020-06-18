@@ -352,9 +352,9 @@ template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
 template <unsigned int D> std::string CycleBuffer<D>::write(int n) {
   char *buf = (char *)std::malloc(n + 1);
   std::memset(buf, 0, '\0');
-  int c = writeImpl(buf, n, writeMemHandler);
-  EX_ASSERT(c <= n, "c {} <= n {}", c, n);
-  std::string r(buf, n);
+  int wn = writeImpl(buf, n, writeMemHandler);
+  EX_ASSERT(wn <= n, "wn {} <= n {}", wn, n);
+  std::string r(buf, buf + wn);
   std::free(buf);
   return r;
 }
