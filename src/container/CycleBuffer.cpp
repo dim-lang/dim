@@ -11,7 +11,7 @@
 
 #define ALIGN(n) (n < 8 ? 8 : (n % 8 == 0 ? n : ((n / 8 + 1) * 8)))
 #define MIN(a, b) (std::min<int>(a, b))
-#define BUF_SIZE 1024
+#define BUF_SIZE 4096
 
 namespace detail {
 
@@ -280,8 +280,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
               (void *)buf_, (void *)head_, (void *)bufEnd());
     EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
-    if (n > writen) {
-      EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
+    if (n > writen && fn == fnr) {
       EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
                 (void *)buf_);
       int sn = MIN(n - writen, pSize());
@@ -327,8 +326,7 @@ int CycleBuffer<D>::readImpl(void *src, int n,
       tail_ = buf_;
     }
     EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
-    if (n > readn && head_ != buf_) {
-      EX_ASSERT(fnr == fn, "fnr {} == fn {}", fnr, fn);
+    if (n > readn && head_ != buf_ && fn == fnr) {
       EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
                 (void *)buf_);
       int sn = MIN(n - readn, head_ - tail_ - 1);

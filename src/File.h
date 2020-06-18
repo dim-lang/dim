@@ -95,7 +95,7 @@ protected:
 class FileWriterImpl : public FileInfo {
 public:
   FileWriterImpl(const std::string &fileName);
-  virtual ~FileWriterImpl() = default;
+  virtual ~FileWriterImpl();
 
   // reset writing offset
   virtual void reset(int offset);

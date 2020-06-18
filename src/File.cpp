@@ -5,7 +5,7 @@
 #include "Exception.h"
 #include <cstdio>
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 4096
 
 namespace detail {
 
@@ -26,7 +26,8 @@ FileReaderLineIterator::FileReaderLineIterator(FileReader *reader)
 
 std::string FileReaderLineIterator::next() {
   EX_ASSERT(linePosition_, "linePosition_ is null");
-  int len = linePosition_ - reader_->buffer_.begin();
+  int len = linePosition_ - reader_->buffer_.begin() + 1;
+  linePosition_ = nullptr;
   return reader_->buffer_.write(len);
 }
 
@@ -96,6 +97,8 @@ bool FileReaderBlockIterator::hasNext(int n) {
 FileWriterImpl::FileWriterImpl(const std::string &fileName)
     : FileInfo(fileName) {}
 
+FileWriterImpl::~FileWriterImpl() { flush(); }
+
 void FileWriterImpl::reset(int offset) {
   int r = std::fseek(fp_, offset, SEEK_SET);
   EX_ASSERT(r == 0, "r {} == 0", r);
@@ -105,6 +108,7 @@ void FileWriterImpl::flush() {
   int sz = buffer_.size();
   int r = buffer_.writefile(fp_);
   EX_ASSERT(r == sz, "r {} == sz {}", r, sz);
+  std::fflush(fp_);
 }
 
 void FileWriterImpl::write(const char *buf, int n) {
