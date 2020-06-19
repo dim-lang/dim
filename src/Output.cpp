@@ -8,10 +8,9 @@
 #include "llvm/Support/raw_ostream.h"
 #include <sstream>
 
-std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
+std::error_code output_fd(IrTranslateUnit *tunit,
                           const std::string &sourceFileName) {
   EX_ASSERT(tunit, "tunit is null");
-  EX_ASSERT(context, "context is null");
   EX_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
             sourceFileName);
 
@@ -23,7 +22,7 @@ std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
   }
   for (int i = 0; i < tunit->size(); i++) {
     IrDefinition *ir = tunit->get(i);
-    llvm::Value *v = ir->codeGen(context);
+    llvm::Value *v = ir->codeGen();
     EX_ASSERT(v, "v is null");
     v->print(fd);
   }
@@ -31,14 +30,13 @@ std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
   return errcode;
 }
 
-std::string output_string(IrTranslateUnit *tunit, IrContext *context) {
+std::string output_string(IrTranslateUnit *tunit) {
   EX_ASSERT(tunit, "tunit is null");
-  EX_ASSERT(context, "context is null");
 
   std::stringstream ss;
   for (int i = 0; i < tunit->size(); i++) {
     IrDefinition *ir = tunit->get(i);
-    llvm::Value *v = ir->codeGen(context);
+    llvm::Value *v = ir->codeGen();
     EX_ASSERT(v, "v is null");
     std::string tmp;
     llvm::raw_string_ostream sos(tmp);

@@ -20,9 +20,6 @@ static void testAST(const char *fileName) {
   LOG_INFO("dump symbol:{} {}", fileName,
            dumpScope(Scope::make_snode(smanager.global, ScopeType::ty_global(),
                                        scanner.translateUnit())));
-  std::printf(
-      "dump source:%s\n%s", fileName,
-      dumpSource(fileName, scanner.translateUnit()->position()).c_str());
   LOG_INFO("dump source:{}\n{}", fileName,
            dumpSource(fileName, scanner.translateUnit()->position()));
 }

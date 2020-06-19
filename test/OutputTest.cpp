@@ -14,17 +14,16 @@ static void testIr(const char *fileName) {
     scanner.pushBuffer(fileName);
     REQUIRE(scanner.parse() == 0);
     IrContext context(fileName);
-    IrTranslateUnit tunit(scanner.translateUnit());
-    LOG_INFO("output string ir:{}\n\n{}", fileName,
-             output_string(&tunit, &context));
+    IrTranslateUnit tunit(&context, scanner.translateUnit());
+    LOG_INFO("output string ir:{}\n\n{}", fileName, output_string(&tunit));
   }
   {
     Scanner scanner;
     scanner.pushBuffer(fileName);
     REQUIRE(scanner.parse() == 0);
     IrContext context(fileName);
-    IrTranslateUnit tunit(scanner.translateUnit());
-    std::error_code errcode = output_fd(&tunit, &context, fileName);
+    IrTranslateUnit tunit(&context, scanner.translateUnit());
+    std::error_code errcode = output_fd(&tunit, fileName);
     LOG_INFO("output fd ir:{}, errcode value:{}, category:{}, message:{}",
              fileName, errcode.value(), errcode.category().name(),
              errcode.message());

@@ -7,7 +7,6 @@
 #include <system_error>
 #include <utility>
 
-std::error_code output_fd(IrTranslateUnit *tunit, IrContext *context,
-                          const std::string &fileName);
+std::error_code output_fd(IrTranslateUnit *tunit, const std::string &fileName);
 
-std::string output_string(IrTranslateUnit *tunit, IrContext *context);
+std::string output_string(IrTranslateUnit *tunit);
