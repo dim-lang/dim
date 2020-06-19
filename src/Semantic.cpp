@@ -7,29 +7,30 @@
 #include "container/LinkedHashMap.hpp"
 
 #define DC(x, y) dynamic_cast<x *>(y)
+#define DCC(x, y) dynamic_cast<const x *>(y)
 
-void Semantic::build(SymbolManager *smanager, Ast *node) {
-  EX_ASSERT(smanager, "smanager is null");
+void Semantic::build(SymbolTable *symtab, Ast *node) {
+  EX_ASSERT(symtab, "symtab is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
-      build(smanager, e->get(i));
+      build(symtab, e->get(i));
     }
   } break;
   case AstType::VariableDefinition: {
     AstVariableDefinition *e = DC(AstVariableDefinition, node);
     if (e->definitionList()) {
       for (int i = 0; i < e->definitionList()->size(); i++) {
-        build(smanager, e->definitionList()->get(i));
+        build(symtab, e->definitionList()->get(i));
       }
     }
   } break;
   case AstType::VariableInitialDefinition: {
     AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
     VariableSymbol *varsym =
-        new VariableSymbol(e->identifier(), smanager->current);
+        new VariableSymbol(e->identifier(), symtab->current);
     BuiltinType *varty = nullptr;
     switch (e->expression()->type()) {
     case AstType::Int64Constant:
@@ -48,13 +49,13 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
       varty = BuiltinType::ty_void();
       break;
     }
-    smanager->current->define(Scope::make_snode(varsym, varty, e));
+    symtab->current->define(Scope::make_snode(varsym, varty, e));
   } break;
   case AstType::FunctionDefinition: {
     AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
     AstFunctionSignatureDefinition *signe = e->signature();
     FunctionSymbol *funcsym =
-        new FunctionSymbol(signe->identifier(), smanager->current);
+        new FunctionSymbol(signe->identifier(), symtab->current);
     std::vector<Type *> fargTypeList;
     EX_ASSERT(signe->argumentList(), "signe->argumentList is null");
     for (int i = 0; i < signe->argumentList()->size(); i++) {
@@ -65,65 +66,65 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
     }
     FunctionType *functy =
         new FunctionType(fargTypeList, BuiltinType::ty_void());
-    smanager->current->define(Scope::make_snode(funcsym, functy, e));
-    smanager->push(funcsym);
+    symtab->current->define(Scope::make_snode(funcsym, functy, e));
+    symtab->push(funcsym);
     if (signe->argumentList()) {
       for (int i = 0; i < signe->argumentList()->size(); i++) {
-        build(smanager, signe->argumentList()->get(i));
+        build(symtab, signe->argumentList()->get(i));
       }
     }
     EX_ASSERT(e->statement(), "e#statement is null");
-    build(smanager, e->statement());
-    smanager->pop();
+    build(symtab, e->statement());
+    symtab->pop();
   } break;
   case AstType::FunctionArgumentDefinition: {
     AstFunctionArgumentDefinition *e = DC(AstFunctionArgumentDefinition, node);
     FunctionArgumentSymbol *fargsym =
-        new FunctionArgumentSymbol(e->identifier(), smanager->current);
-    smanager->current->define(
+        new FunctionArgumentSymbol(e->identifier(), symtab->current);
+    symtab->current->define(
         Scope::make_snode(fargsym, BuiltinType::ty_void(), e));
   } break;
   case AstType::CompoundStatement: {
     AstCompoundStatement *e = DC(AstCompoundStatement, node);
-    LocalScope *loc = new LocalScope(e->name(), smanager->current);
-    smanager->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
-    smanager->push(loc);
+    LocalScope *loc = new LocalScope(e->name(), symtab->current);
+    symtab->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
+    symtab->push(loc);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
-        build(smanager, e->statementList()->get(i));
+        build(symtab, e->statementList()->get(i));
       }
     }
-    smanager->pop();
+    symtab->pop();
   } break;
   case AstType::IfStatement: {
     AstIfStatement *e = DC(AstIfStatement, node);
-    build(smanager, e->condition());
-    build(smanager, e->thens());
-    build(smanager, e->elses());
+    build(symtab, e->condition());
+    build(symtab, e->thens());
+    build(symtab, e->elses());
   } break;
   case AstType::WhileStatement: {
     AstWhileStatement *e = DC(AstWhileStatement, node);
     EX_ASSERT(e->statement(), "e->statement is null");
-    build(smanager, e->statement());
+    build(symtab, e->statement());
   } break;
   case AstType::ForStatement: {
     AstForStatement *e = DC(AstForStatement, node);
-    LocalScope *loc = new LocalScope(e->name(), smanager->current);
-    smanager->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
-    smanager->push(loc);
-    build(smanager, e->start());
-    build(smanager, e->step());
-    build(smanager, e->end());
-    build(smanager, e->statement());
-    smanager->pop();
+    LocalScope *loc = new LocalScope(e->name(), symtab->current);
+    symtab->current->define(Scope::make_snode(loc, ScopeType::ty_local(), e));
+    symtab->push(loc);
+    build(symtab, e->start());
+    build(symtab, e->step());
+    build(symtab, e->end());
+    build(symtab, e->statement());
+    symtab->pop();
   } break;
   case AstType::ReturnStatement: {
     AstReturnStatement *e = DC(AstReturnStatement, node);
-    build(smanager, e->expression());
+    build(symtab, e->expression());
   } break;
   case AstType::ExpressionStatement: {
     AstExpressionStatement *e = DC(AstExpressionStatement, node);
-    build(smanager, e->expression());
+    build(symtab, e->expression());
   } break;
   default:
     /* EX_ASSERT(false, "invalid node:{}", node->toString()); */
@@ -132,102 +133,102 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   }
 }
 
-void Semantic::check(SymbolManager *smanager, Ast *node) {
-  EX_ASSERT(smanager, "smanager is null");
+void Semantic::check(const SymbolTable *symtab, const Ast *node) {
+  EX_ASSERT(symtab, "symtab is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
   case AstType::TranslateUnit: {
-    AstTranslateUnit *e = DC(AstTranslateUnit, node);
+    const AstTranslateUnit *e = DCC(AstTranslateUnit, node);
     for (int i = 0; i < e->size(); i++) {
-      check(smanager, e->get(i));
+      check(symtab, e->get(i));
     }
   } break;
   case AstType::IdentifierConstant: {
-    AstIdentifierConstant *e = DC(AstIdentifierConstant, node);
-    Scope::SNode snode = smanager->current->resolve(e->value());
-    EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+    const AstIdentifierConstant *e = DCC(AstIdentifierConstant, node);
+    Scope::SNode snode = symtab->current->resolve(e->value());
+    EX_ASSERT(Scope::s(snode) && Scope::t(snode) && Scope::a(snode),
               "sematic check failure: identifier symbol {} not found",
               e->value());
   } break;
   case AstType::CallExpression: {
-    AstCallExpression *e = DC(AstCallExpression, node);
-    Scope::SNode snode = smanager->current->resolve(e->identifier());
-    EX_ASSERT(Scope::sym(snode) && Scope::ty(snode) && Scope::ast(snode),
+    const AstCallExpression *e = DCC(AstCallExpression, node);
+    Scope::SNode snode = symtab->current->resolve(e->identifier());
+    EX_ASSERT(Scope::s(snode) && Scope::t(snode) && Scope::a(snode),
               "sematic check failure: function symbol {} not found",
               e->identifier());
     if (e->argumentList()) {
       for (int i = 0; i < e->argumentList()->size(); i++) {
-        AstFunctionArgumentDefinition *farge =
-            DC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
-        Scope::SNode argnode = smanager->current->resolve(farge->identifier());
+        const AstFunctionArgumentDefinition *farge =
+            DCC(AstFunctionArgumentDefinition, e->argumentList()->get(i));
+        Scope::SNode argnode = symtab->current->resolve(farge->identifier());
         EX_ASSERT(
-            Scope::sym(argnode) && Scope::ty(argnode) && Scope::ast(argnode),
+            Scope::s(argnode) && Scope::t(argnode) && Scope::a(argnode),
             "sematic check failure: function argument symbol {} not found",
             farge->identifier());
       }
     }
   } break;
   case AstType::UnaryExpression: {
-    AstUnaryExpression *e = DC(AstUnaryExpression, node);
-    check(smanager, e->expression());
+    const AstUnaryExpression *e = DCC(AstUnaryExpression, node);
+    check(symtab, e->expression());
   } break;
   case AstType::BinaryExpression: {
-    AstBinaryExpression *e = DC(AstBinaryExpression, node);
-    check(smanager, e->left());
-    check(smanager, e->right());
+    const AstBinaryExpression *e = DCC(AstBinaryExpression, node);
+    check(symtab, e->left());
+    check(symtab, e->right());
   } break;
   case AstType::ConditionalExpression: {
-    AstConditionalExpression *e = DC(AstConditionalExpression, node);
-    check(smanager, e->condition());
-    check(smanager, e->thens());
-    check(smanager, e->elses());
+    const AstConditionalExpression *e = DCC(AstConditionalExpression, node);
+    check(symtab, e->condition());
+    check(symtab, e->thens());
+    check(symtab, e->elses());
   } break;
   case AstType::AssignmentExpression: {
-    AstAssignmentExpression *e = DC(AstAssignmentExpression, node);
-    check(smanager, e->variable());
-    check(smanager, e->value());
+    const AstAssignmentExpression *e = DCC(AstAssignmentExpression, node);
+    check(symtab, e->variable());
+    check(symtab, e->value());
   } break;
   case AstType::SequelExpression: {
-    AstSequelExpression *e = DC(AstSequelExpression, node);
+    const AstSequelExpression *e = DCC(AstSequelExpression, node);
     if (e->expressionList()) {
       for (int i = 0; i < e->expressionList()->size(); i++) {
-        check(smanager, e->expressionList()->get(i));
+        check(symtab, e->expressionList()->get(i));
       }
     }
   } break;
   case AstType::ExpressionStatement: {
-    AstExpressionStatement *e = DC(AstExpressionStatement, node);
-    check(smanager, e->expression());
+    const AstExpressionStatement *e = DCC(AstExpressionStatement, node);
+    check(symtab, e->expression());
   } break;
   case AstType::CompoundStatement: {
-    AstCompoundStatement *e = DC(AstCompoundStatement, node);
+    const AstCompoundStatement *e = DCC(AstCompoundStatement, node);
     if (e->statementList()) {
       for (int i = 0; i < e->statementList()->size(); i++) {
-        check(smanager, e->statementList()->get(i));
+        check(symtab, e->statementList()->get(i));
       }
     }
   } break;
   case AstType::IfStatement: {
-    AstIfStatement *e = DC(AstIfStatement, node);
-    check(smanager, e->condition());
-    check(smanager, e->thens());
-    check(smanager, e->elses());
+    const AstIfStatement *e = DCC(AstIfStatement, node);
+    check(symtab, e->condition());
+    check(symtab, e->thens());
+    check(symtab, e->elses());
   } break;
   case AstType::WhileStatement: {
-    AstWhileStatement *e = DC(AstWhileStatement, node);
-    check(smanager, e->condition());
-    check(smanager, e->statement());
+    const AstWhileStatement *e = DCC(AstWhileStatement, node);
+    check(symtab, e->condition());
+    check(symtab, e->statement());
   } break;
   case AstType::ForStatement: {
-    AstForStatement *e = DC(AstForStatement, node);
-    check(smanager, e->start());
-    check(smanager, e->step());
-    check(smanager, e->end());
-    check(smanager, e->statement());
+    const AstForStatement *e = DCC(AstForStatement, node);
+    check(symtab, e->start());
+    check(symtab, e->step());
+    check(symtab, e->end());
+    check(symtab, e->statement());
   } break;
   case AstType::ReturnStatement: {
-    AstReturnStatement *e = DC(AstReturnStatement, node);
-    check(smanager, e->expression());
+    const AstReturnStatement *e = DCC(AstReturnStatement, node);
+    check(symtab, e->expression());
   } break;
   case AstType::VariableDefinition:
   case AstType::VariableInitialDefinition:
@@ -237,7 +238,6 @@ void Semantic::check(SymbolManager *smanager, Ast *node) {
     break;
   default:
     EX_ASSERT(false, "invalid node: {}", node->toString());
-    /* LOG_INFO("do nothing for node:{}", node->toString()); */
     break;
   }
 }

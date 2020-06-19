@@ -1,15 +1,15 @@
 // Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
-#include "SymbolManager.h"
 #include "Log.h"
+#include "SymbolTable.h"
 
-SymbolManager::SymbolManager()
+SymbolTable::SymbolTable()
     : global(new GlobalScope()), current(nullptr), depth_(0) {
   push(global);
 }
 
-SymbolManager::~SymbolManager() {
+SymbolTable::~SymbolTable() {
   pop();
   EX_ASSERT(depth_ == 0, "depth_ {} != 0", depth_);
   if (global) {
@@ -19,13 +19,13 @@ SymbolManager::~SymbolManager() {
   current = nullptr;
 }
 
-void SymbolManager::push(Scope *sc) {
+void SymbolTable::push(Scope *sc) {
   EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   current = sc;
   ++depth_;
 }
 
-void SymbolManager::pop() {
+void SymbolTable::pop() {
   EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   if (depth_ > 0) {
     current = current->enclosingScope();
@@ -34,4 +34,4 @@ void SymbolManager::pop() {
   EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
 }
 
-int SymbolManager::depth() const { return depth_; }
+int SymbolTable::depth() const { return depth_; }

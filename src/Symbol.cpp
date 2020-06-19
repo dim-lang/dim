@@ -16,23 +16,24 @@ Scope *Symbol::enclosingScope() const { return enclosingScope_; }
 Scope::Scope(Scope *enclosingScope) : Symbol(enclosingScope) {}
 
 void Scope::define(const Scope::SNode &snode) {
-  const Symbol *s = Scope::sym(snode);
-  const Type *t = Scope::ty(snode);
-  const Ast *a = Scope::ast(snode);
-  EX_ASSERT(s && t && a, "symbol {} or type {} or ast {} is null", (void *)s,
-            (void *)t, (void *)a);
-  EX_ASSERT(map_.find(Scope::sym(snode)->name()) == map_.end(),
-            "symbol {} already exist", Scope::sym(snode)->name());
-  map_.insert(std::make_pair(Scope::sym(snode)->name(), snode));
+  const Symbol *s = Scope::s(snode);
+  const Type *t = Scope::t(snode);
+  const Ast *a = Scope::a(snode);
+  const llvm::Value *v = Scope::v(snode);
+  EX_ASSERT(snode != invalid_snode(), "snode s:{} t:{} a:{} v:{} is null",
+            (void *)s, (void *)t, (void *)a, (void *)v);
+  EX_ASSERT(map_.find(Scope::s(snode)->name()) == map_.end(),
+            "symbol {} already exist", Scope::s(snode)->name());
+  map_.insert(std::make_pair(Scope::s(snode)->name(), snode));
 }
 
-Scope::SNode Scope::resolve(const std::string &name) {
+Scope::SNode Scope::resolve(const std::string &name) const {
   EX_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
   if (map_.find(name) != map_.end())
     return map_[name];
   if (enclosingScope_)
     return enclosingScope_->resolve(name);
-  return std::make_tuple<Symbol *, Type *, Ast *>(nullptr, nullptr, nullptr);
+  return invalid_snode();
 }
 
 std::string Scope::toString() const {
@@ -52,26 +53,30 @@ int Scope::size() const { return (int)map_.size(); }
 
 bool Scope::empty() const { return map_.empty(); }
 
-const Symbol *Scope::sym(const SNode &snode) { return std::get<0>(snode); }
+const Symbol *Scope::s(const SNode &snode) { return std::get<0>(snode); }
 
-Symbol *&Scope::sym(SNode &snode) { return std::get<0>(snode); }
+Symbol *&Scope::s(SNode &snode) { return std::get<0>(snode); }
 
-const Type *Scope::ty(const SNode &snode) { return std::get<1>(snode); }
+const Type *Scope::t(const SNode &snode) { return std::get<1>(snode); }
 
-Type *&Scope::ty(SNode &snode) { return std::get<1>(snode); }
+Type *&Scope::t(SNode &snode) { return std::get<1>(snode); }
 
-const Ast *Scope::ast(const SNode &snode) { return std::get<2>(snode); }
+const Ast *Scope::a(const SNode &snode) { return std::get<2>(snode); }
 
-Ast *&Scope::ast(SNode &snode) { return std::get<2>(snode); }
+Ast *&Scope::a(SNode &snode) { return std::get<2>(snode); }
 
-Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a) {
-  EX_ASSERT(s && t && a, "s {} or t {} or a {} is null", (void *)s, (void *)t,
-            (void *)a);
-  return std::make_tuple(s, t, a);
+const llvm::Value *Scope::v(const SNode &snode) { return std::get<3>(snode); }
+
+llvm::Value *&Scope::v(SNode &snode) { return std::get<3>(snode); }
+
+Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a, llvm::Value *v) {
+  EX_ASSERT(s && t && a, "s {} or t {} or a {} or v {} is null", (void *)s,
+            (void *)t, (void *)a);
+  return std::make_tuple(s, t, a, v);
 }
 
 const Scope::SNode &Scope::invalid_snode() {
-  static Scope::SNode inv = std::make_tuple(nullptr, nullptr, nullptr);
+  static Scope::SNode inv = std::make_tuple(nullptr, nullptr, nullptr, nullptr);
   return inv;
 }
 

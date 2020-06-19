@@ -4,10 +4,10 @@
 #pragma once
 #include "Ast.h"
 #include "Symbol.h"
-#include "SymbolManager.h"
+#include "SymbolTable.h"
 
 class Semantic {
 public:
-  static void build(SymbolManager *smanager, Ast *node);
-  static void check(SymbolManager *smanager, Ast *node);
+  static void build(SymbolTable *smanager, Ast *node);
+  static void check(const SymbolTable *smanager, const Ast *node);
 };

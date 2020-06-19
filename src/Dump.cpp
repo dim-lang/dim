@@ -15,6 +15,7 @@
 
 #define DS std::string(depth, ' ')
 #define DC(x, y) dynamic_cast<x *>(y)
+#define DCC(x, y) dynamic_cast<const x *>(y)
 
 static std::string dumpAstImpl(Ast *node, int depth) {
   if (!node)
@@ -213,7 +214,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
   case SymType::Variable:
     return std::string("var ") + s->name() + ":" + t->name();
   case SymType::Function: {
-    const FunctionSymbol *funcsym = DC(const FunctionSymbol, s);
+    const FunctionSymbol *funcsym = DCC(FunctionSymbol, s);
     std::stringstream ss;
     ss << "func " << funcsym->name() << " {";
     if (!funcsym->empty()) {
@@ -232,7 +233,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
   case SymType::FunctionArgument:
     return std::string("var ") + s->name() + ":" + t->name();
   case SymType::Class: {
-    const ClassSymbol *clssym = DC(const ClassSymbol, s);
+    const ClassSymbol *clssym = DCC(ClassSymbol, s);
     std::stringstream ss;
     ss << DS << "class " << clssym->name() << " {";
     if (!clssym->empty()) {
@@ -249,7 +250,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   case SymType::Local: {
-    const LocalScope *locsym = DC(const LocalScope, s);
+    const LocalScope *locsym = DCC(LocalScope, s);
     std::stringstream ss;
     ss << "local " << locsym->name() << " {";
     if (!locsym->empty()) {
@@ -263,7 +264,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   case SymType::Global: {
-    const GlobalScope *glbsym = DC(const GlobalScope, s);
+    const GlobalScope *glbsym = DCC(GlobalScope, s);
     std::stringstream ss;
     ss << DS << glbsym->name() << " {";
     if (!glbsym->empty()) {

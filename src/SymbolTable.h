@@ -6,10 +6,10 @@
 #include "Symbol.h"
 #include "boost/core/noncopyable.hpp"
 
-class SymbolManager : private boost::noncopyable {
+class SymbolTable : private boost::noncopyable {
 public:
-  SymbolManager();
-  virtual ~SymbolManager();
+  SymbolTable();
+  virtual ~SymbolTable();
 
   void push(Scope *sc);
   void pop();

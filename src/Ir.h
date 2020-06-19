@@ -4,6 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Log.h"
+#include "SymbolTable.h"
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
 #include "enum.h"
@@ -102,8 +103,13 @@ public:
   const llvm::Module *module() const;
   llvm::legacy::FunctionPassManager *&functionPassManager();
   const llvm::legacy::FunctionPassManager *functionPassManager() const;
-  LinkedHashMap<std::string, llvm::Value *> &symtable();
-  const LinkedHashMap<std::string, llvm::Value *> &symtable() const;
+  /* LinkedHashMap<std::string, llvm::Value *> &symtable(); */
+  /* const LinkedHashMap<std::string, llvm::Value *> &symtable() const; */
+  SymbolTable *&symbolTable();
+  const SymbolTable *symbolTable() const;
+
+  IrTranslateUnit *build(const AstTranslateUnit *translateUnit);
+  void check(const AstTranslateUnit *translateUnit) const;
 
 private:
   std::string moduleName_;
@@ -111,7 +117,8 @@ private:
   llvm::IRBuilder<> builder_;
   llvm::Module *module_;
   llvm::legacy::FunctionPassManager *fpm_;
-  LinkedHashMap<std::string, llvm::Value *> symtable_;
+  SymbolTable *symbolTable_;
+  /* LinkedHashMap<std::string, llvm::Value *> symtable_; */
 };
 
 class Ir : public Namely, public Stringify, private boost::noncopyable {

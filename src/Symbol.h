@@ -7,6 +7,7 @@
 #include "enum.h"
 #include "interface/Namely.h"
 #include "interface/Stringify.h"
+#include "llvm/IR/Value.h"
 #include <string>
 #include <tuple>
 
@@ -65,7 +66,7 @@ public:
 
 class Scope : public Symbol, public Stringify {
 public:
-  using SNode = std::tuple<Symbol *, Type *, Ast *>;
+  using SNode = std::tuple<Symbol *, Type *, Ast *, llvm::Value *>;
   using SMap = LinkedHashMap<std::string, SNode>;
   using Iterator = SMap::Iterator;
   using CIterator = SMap::CIterator;
@@ -75,7 +76,7 @@ public:
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
   virtual void define(const SNode &snode);
-  virtual SNode resolve(const std::string &name);
+  virtual SNode resolve(const std::string &name) const;
   virtual std::string toString() const;
   virtual Iterator begin();
   virtual CIterator begin() const;
@@ -84,13 +85,15 @@ public:
   virtual int size() const;
   virtual bool empty() const;
 
-  static const Symbol *sym(const SNode &snode);
-  static Symbol *&sym(SNode &snode);
-  static const Type *ty(const SNode &snode);
-  static Type *&ty(SNode &snode);
-  static const Ast *ast(const SNode &snode);
-  static Ast *&ast(SNode &snode);
-  static SNode make_snode(Symbol *s, Type *t, Ast *a);
+  static const Symbol *s(const SNode &snode);
+  static Symbol *&s(SNode &snode);
+  static const Type *t(const SNode &snode);
+  static Type *&t(SNode &snode);
+  static const Ast *a(const SNode &snode);
+  static Ast *&a(SNode &snode);
+  static const llvm::Value *v(const SNode &snode);
+  static llvm::Value *&v(SNode &snode);
+  static SNode make_snode(Symbol *s, Type *t, Ast *a, llvm::Value *v = nullptr);
   static const SNode &invalid_snode();
 
 protected:

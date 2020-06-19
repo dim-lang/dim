@@ -38,7 +38,7 @@ static NameGenerator irNameGenerator;
 /* ir context */
 IrContext::IrContext(const std::string &moduleName)
     : moduleName_(moduleName), context_(), builder_(context_), module_(nullptr),
-      symtable_() {
+      symbolTable_(nullptr) {
   module_ =
       new llvm::Module(std::string("shepherd_module_") + moduleName, context_);
   fpm_ = new llvm::legacy::FunctionPassManager(module_);
@@ -48,6 +48,7 @@ IrContext::IrContext(const std::string &moduleName)
   fpm_->add(llvm::createCFGSimplificationPass());
   fpm_->add(llvm::createPromoteMemoryToRegisterPass());
   fpm_->doInitialization();
+  symbolTable_ = new SymbolTable();
 }
 
 IrContext::~IrContext() {
@@ -80,13 +81,16 @@ IrContext::functionPassManager() const {
   return fpm_;
 }
 
-LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() {
-  return symtable_;
+SymbolTable *&IrContext::symbolTable() { return symbolTable_; }
+
+const SymbolTable *IrContext::symbolTable() const { return symbolTable_; }
+
+IrTranslateUnit *IrContext::build(const AstTranslateUnit *translateUnit) {
+  IrTranslateUnit *ir = new IrTranslateUnit(this, translateUnit);
+  return ir;
 }
 
-const LinkedHashMap<std::string, llvm::Value *> &IrContext::symtable() const {
-  return symtable_;
-}
+void IrContext::check(const AstTranslateUnit *translateUnit) const {}
 
 static Ir *createIrByAst(IrContext *context, Ast *node) {
   EX_ASSERT(context, "context is null");
