@@ -312,18 +312,14 @@ std::string dumpSource(const std::string &fileName, const Position &position) {
   ss << fmt::format("{}: {}:\n", fileName, position.toString());
   FileReader fileReader(fileName);
   FileReader::LineIterator lineIterator = fileReader.lineIterator();
-  for (int i = 1; i < position.lastLine; i++) {
-    if (!lineIterator.hasNext()) {
-      ss << fmt::format("\nError reading line {}!", i);
-      break;
-    }
+  for (int i = 1; lineIterator.hasNext() && i <= position.lastLine + 2; i++) {
+    std::string line = lineIterator.next();
     if (i < position.firstLine - 1) {
       continue;
     }
     if (i > position.lastLine + 1) {
       break;
     }
-    std::string line = lineIterator.next();
     ss << line;
     if (i >= position.firstLine && i <= position.lastLine) {
       int hc = whitespaceHeadCount(line);
