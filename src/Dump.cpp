@@ -309,7 +309,7 @@ static int whitespaceTailCount(const std::string &line) {
 
 std::string dumpSource(const std::string &fileName, const Position &position) {
   std::stringstream ss;
-  ss << fmt::format("{}: {}:\n", fileName, position.toString());
+  ss << fmt::format("{}[{}]\n", fileName, position.toString());
   FileReader fileReader(fileName);
   FileReader::LineIterator lineIterator = fileReader.lineIterator();
   for (int i = 1; lineIterator.hasNext() && i <= position.lastLine + 2; i++) {
