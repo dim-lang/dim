@@ -9,7 +9,11 @@
 #include <sstream>
 #include <utility>
 
-Scope::Scope(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
+Symbol::Symbol(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
+
+Scope *Symbol::enclosingScope() const { return enclosingScope_; }
+
+Scope::Scope(Scope *enclosingScope) : Symbol(enclosingScope) {}
 
 void Scope::define(const Scope::SNode &snode) {
   const Symbol *s = Scope::sym(snode);
@@ -30,8 +34,6 @@ Scope::SNode Scope::resolve(const std::string &name) {
     return enclosingScope_->resolve(name);
   return std::make_tuple<Symbol *, Type *, Ast *>(nullptr, nullptr, nullptr);
 }
-
-Scope *Scope::enclosingScope() { return enclosingScope_; }
 
 std::string Scope::toString() const {
   return fmt::format("[ @{} name_:{}, enclosingScope_:{}, map_#size:{} ]",
@@ -200,16 +202,17 @@ ScopeType *ScopeType::ty_global() {
 
 // symbol start
 
-VariableSymbol::VariableSymbol(const std::string &variableName)
-    : variableName_(variableName) {}
+VariableSymbol::VariableSymbol(const std::string &variableName,
+                               Scope *enclosingScope)
+    : Symbol(enclosingScope), variableName_(variableName) {}
 
 std::string VariableSymbol::name() const { return variableName_; }
 
 SymType VariableSymbol::type() const { return SymType::Variable; }
 
 FunctionArgumentSymbol::FunctionArgumentSymbol(
-    const std::string &functionArgumentName)
-    : functionArgumentName_(functionArgumentName) {}
+    const std::string &functionArgumentName, Scope *enclosingScope)
+    : Symbol(enclosingScope), functionArgumentName_(functionArgumentName) {}
 
 std::string FunctionArgumentSymbol::name() const {
   return functionArgumentName_;
@@ -237,8 +240,6 @@ std::string ClassSymbol::name() const { return className_; }
 SymType ClassSymbol::type() const { return SymType::Class; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
-
-// symbol end
 
 GlobalScope::GlobalScope() : Scope(nullptr) {}
 

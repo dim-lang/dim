@@ -35,4 +35,3 @@ void SymbolManager::pop() {
 }
 
 int SymbolManager::depth() const { return depth_; }
-

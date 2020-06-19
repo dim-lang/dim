@@ -28,7 +28,8 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   } break;
   case AstType::VariableInitialDefinition: {
     AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
-    VariableSymbol *varsym = new VariableSymbol(e->identifier());
+    VariableSymbol *varsym =
+        new VariableSymbol(e->identifier(), smanager->current);
     BuiltinType *varty = nullptr;
     switch (e->expression()->type()) {
     case AstType::Int64Constant:
@@ -78,7 +79,7 @@ void Semantic::build(SymbolManager *smanager, Ast *node) {
   case AstType::FunctionArgumentDefinition: {
     AstFunctionArgumentDefinition *e = DC(AstFunctionArgumentDefinition, node);
     FunctionArgumentSymbol *fargsym =
-        new FunctionArgumentSymbol(e->identifier());
+        new FunctionArgumentSymbol(e->identifier(), smanager->current);
     smanager->current->define(
         Scope::make_snode(fargsym, BuiltinType::ty_void(), e));
   } break;

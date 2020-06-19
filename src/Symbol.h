@@ -27,11 +27,33 @@ BETTER_ENUM(TyType, int,
 class Ast;
 class Scope;
 
+// symbol
+class VariableSymbol;
+class FunctionArgumentSymbol;
+class FunctionSymbol;
+class ClassSymbol;
+// scope symbol
+class GlobalScope;
+class LocalScope;
+
+// type
+class BuiltinType;
+class ClassType;
+class FunctionType;
+class ScopeType;
+
+class Scope;
+
 class Symbol : public Namely, private boost::noncopyable {
 public:
+  Symbol(Scope *enclosingScope);
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
+  virtual Scope *enclosingScope() const;
+
+protected:
+  Scope *enclosingScope_;
 };
 
 class Type : public Namely, private boost::noncopyable {
@@ -54,7 +76,6 @@ public:
   virtual SymType type() const = 0;
   virtual void define(const SNode &snode);
   virtual SNode resolve(const std::string &name);
-  virtual Scope *enclosingScope();
   virtual std::string toString() const;
   virtual Iterator begin();
   virtual CIterator begin() const;
@@ -74,12 +95,8 @@ public:
 
 protected:
   virtual std::string stringify() const = 0;
-
-  Scope *enclosingScope_;
   SMap map_;
 };
-
-// type start
 
 class BuiltinType : public Type {
 public:
@@ -145,13 +162,9 @@ protected:
   std::string scopeTypeName_;
 };
 
-// type end
-
-// symbol start
-
 class VariableSymbol : public Symbol {
 public:
-  VariableSymbol(const std::string &variableName);
+  VariableSymbol(const std::string &variableName, Scope *enclosingScope);
   virtual ~VariableSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
@@ -162,7 +175,8 @@ private:
 
 class FunctionArgumentSymbol : public Symbol {
 public:
-  FunctionArgumentSymbol(const std::string &functionArgumentName);
+  FunctionArgumentSymbol(const std::string &functionArgumentName,
+                         Scope *enclosingScope);
   virtual ~FunctionArgumentSymbol() = default;
   virtual std::string name() const;
   virtual SymType type() const;
@@ -194,8 +208,6 @@ protected:
   virtual std::string stringify() const;
   std::string className_;
 };
-
-// symbol end
 
 class GlobalScope : public Scope {
 public:

@@ -1017,18 +1017,15 @@ llvm::Value *IrCompoundStatement::codeGen() {
     IrStatement *ir = statementList_->get(0);
     EX_ASSERT(ir, "ir is null");
     switch (ir->type()) {
-    case IrType::ExpressionStatement: {
-    } break;
-    case IrType::CompoundStatement: {
-    } break;
-    case IrType::IfStatement: {
-    } break;
-    case IrType::WhileStatement: {
-    } break;
-    case IrType::ForStatement: {
-    } break;
-    case IrType::ReturnStatement: {
-    } break;
+    case IrType::VariableDefinition:
+    case IrType::FunctionDefinition:
+    case IrType::ExpressionStatement:
+    case IrType::CompoundStatement:
+    case IrType::IfStatement:
+    case IrType::WhileStatement:
+    case IrType::ForStatement:
+    case IrType::ReturnStatement:
+      break;
     default:
       EX_ASSERT(false, "invalid ir: {}", ir->toString());
     }
