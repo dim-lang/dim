@@ -989,13 +989,11 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
   for (int i = 0; i < node_->statementList()->size(); i++) {
     Ast *ast = node_->statementList()->get(i);
     EX_ASSERT(ast, "the {} ast is null", i);
-    IrStatement *ir = DC(IrStatement, createIrByAst(context_, ast));
-    if (!ir) {
-      EX_ASSERT(ast->type() == (+AstType::EmptyStatement),
-                "ast->type {} is not AstType::EmptyStatement",
-                ast->type()._to_string());
+    if (ast->type() == (+AstType::EmptyStatement)) {
       continue;
     }
+    IrStatement *ir = DC(IrStatement, createIrByAst(context_, ast));
+    EX_ASSERT(ir, "ir is null, ast: {}", ast->toString());
     statementList_->add(ir);
   }
 }
