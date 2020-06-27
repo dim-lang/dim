@@ -285,7 +285,9 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
 llvm::Value *IrIdentifierConstant::codeGen() {
   EX_ASSERT(node_, "node_ is null");
-  return context_->symtable()[Ir::toIrName(node_->value())];
+  Scope::SNode snode =
+      context_->symbolTable()->current->resolve(Ir::toIrName(node_->value()));
+  return Scope::v(snode);
 }
 
 std::string IrIdentifierConstant::toString() const {
@@ -1266,8 +1268,8 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
 IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 
 llvm::Value *IrFunctionDefinition::codeGen() {
-  llvm::Function *f = context_->module()->getFunction(
-      Ir::toIrName(node_->signature()->identifier()));
+  std::string funcIrName = Ir::toIrName(node_->signature()->identifier());
+  llvm::Function *f = context_->module()->getFunction(funcIrName);
   if (!f) {
     f = llvm::dyn_cast<llvm::Function>(signature_->codeGen());
   }
@@ -1276,10 +1278,12 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   }
   EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
             node_->signature()->identifier());
-  llvm::BasicBlock *bb =
-      llvm::BasicBlock::Create(context_->context(), "shp.ir.func.entry", f);
+  llvm::BasicBlock *bb = llvm::BasicBlock::Create(
+      context_->context(), funcIrName + "block.entry", f);
   context_->builder().SetInsertPoint(bb);
-  context_->symtable().clear();
+  Scope::SNode snode =
+      context_->symtable()->current->resolve(node_->signature()->identifier());
+  /* context_->symtable().clear(); */
   for (auto &a : f->args()) {
     context_->symtable().insert(a.getName(), &a);
   }

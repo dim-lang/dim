@@ -5,7 +5,6 @@
 #include <cmath>
 #include <cstdlib>
 
-//#define FABS(x) ((x < 0.0) ? -x : x)
 #define FABS(x) std::abs(x)
 #define FMAX(a, b) ((a) > (b) ? (a) : (b))
 #define FMIN(a, b) ((a) < (b) ? (a) : (b))
