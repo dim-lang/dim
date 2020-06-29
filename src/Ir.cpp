@@ -1418,6 +1418,7 @@ IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 
 llvm::Value *IrFunctionDefinition::codeGen() {
   std::string funcIrName = Ir::toIrName(node_->signature()->identifier());
+
   llvm::Function *f = context_->module()->getFunction(funcIrName);
   if (!f) {
     f = llvm::dyn_cast<llvm::Function>(signature_->codeGen());
@@ -1428,20 +1429,39 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
             node_->signature()->identifier());
   llvm::BasicBlock *bb = llvm::BasicBlock::Create(
-      context_->context(), funcIrName + "block.entry", f);
+      context_->context(), funcIrName + ".block.entry", f);
   context_->builder().SetInsertPoint(bb);
-  /* Scope::SNode snode = context_->symbolTable()->current->resolve( */
-  /*     node_->signature()->identifier()); */
+
+  Scope::SNode funcNode = context_->symbolTable()->current->resolve(
+      node_->signature()->identifier());
+  context_->symbolTable()->push(DC(FunctionSymbol, Scope::s(funcNode)));
+
+  // check function argument symbol exist
   for (auto &a : f->args()) {
-    /* context_->symbolTable().insert(a.getName(), &a); */
+    Scope::SNode argNode =
+        context_->symbolTable()->current->resolve(Ir::fromIrName(a.getName()));
+    EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
   }
+  for (int i = 0; i < node_->signature()->argumentList()->size(); i++) {
+    AstFunctionArgumentDefinition *arg =
+        DC(AstFunctionArgumentDefinition,
+           node_->signature()->argumentList()->get(i));
+    Scope::SNode argNode =
+        context_->symbolTable()->current->resolve(arg->identifier());
+    EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
+  }
+
   llvm::Value *ret = statement_->codeGen();
+
   if (ret) {
     context_->builder().CreateRet(ret);
     llvm::verifyFunction(*f);
+    context_->symbolTable()->pop();
     return llvm::dyn_cast<llvm::Value>(f);
   }
+
   f->eraseFromParent();
+  context_->symbolTable()->pop();
   return nullptr;
 }
 
