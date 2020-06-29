@@ -11,7 +11,7 @@ TEST_CASE("Main", "[Main]") {
   Log::initialize("shepherd-test");
   SECTION("Main Initialize") {
     fmt::print(
-        "shepherd-test start at:{}",
+        "shepherd-test start at:{}\n",
         boost::filesystem::path(boost::filesystem::current_path()).string());
     LOG_INFO(
         "shepherd-test start at:{}",

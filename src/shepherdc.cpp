@@ -9,7 +9,6 @@
 #include "Parser.h"
 #include "Parser.tab.hpp"
 #include "Scanner.h"
-#include "Semantic.h"
 #include <iostream>
 #include <string>
 #include <vector>

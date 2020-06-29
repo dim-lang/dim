@@ -9,7 +9,6 @@
 #include "Buffer.h"
 #include "Parser.h"
 #include "Scanner.h"
-#include "Semantic.h"
 #include "Position.h"
 #include "Exception.h"
 #define Y_EXTRA yyget_extra(yyscanner)

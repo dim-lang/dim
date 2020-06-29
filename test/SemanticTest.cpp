@@ -9,7 +9,7 @@
 #include "Scanner.h"
 #include "catch2/catch.hpp"
 
-static void go(const char *fileName) {
+static void semantic(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
@@ -21,7 +21,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Semantic", "[Semantic]") {
   SECTION("buildSymbol") {
-    go("test/case/Parser1.shp");
-    go("test/case/Parser2.shp");
+    semantic("test/case/Parser1.shp");
+    semantic("test/case/Parser2.shp");
   }
 }
