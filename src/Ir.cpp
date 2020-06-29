@@ -295,9 +295,10 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
 llvm::Value *IrIdentifierConstant::codeGen() {
   EX_ASSERT(node_, "node_ is null");
-  Scope::SNode snode =
-      context_->symbolTable()->current->resolve(Ir::toIrName(node_->value()));
-  return Scope::v(snode);
+  Scope::SNode varNode =
+      context_->symbolTable()->current->resolve(node_->value());
+  EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
+  return Scope::v(varNode);
 }
 
 std::string IrIdentifierConstant::toString() const {
