@@ -28,7 +28,7 @@ protected:
   std::string functionName_;
 };
 
-#define X_DEF(x)                                                               \
+#define EX_DEFINE(x)                                                           \
   class x : public Exception {                                                 \
   public:                                                                      \
     x(const char *fileName, int lineNumber, const char *functionName,          \
@@ -42,7 +42,7 @@ protected:
 
 #ifdef NDEBUG
 
-#define EX_ASSERT(cond, ...)                                                    \
+#define EX_ASSERT(cond, ...)                                                   \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string exmsg =                                                      \
@@ -54,7 +54,7 @@ protected:
 
 #else
 
-#define EX_ASSERT(cond, ...)                                                    \
+#define EX_ASSERT(cond, ...)                                                   \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg = fmt::format(__VA_ARGS__);                              \

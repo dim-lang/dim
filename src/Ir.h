@@ -108,9 +108,6 @@ public:
   SymbolTable *&symbolTable();
   const SymbolTable *symbolTable() const;
 
-  IrTranslateUnit *build(const AstTranslateUnit *translateUnit);
-  void check(const AstTranslateUnit *translateUnit) const;
-
 private:
   std::string moduleName_;
   llvm::LLVMContext context_;
@@ -129,6 +126,8 @@ public:
   virtual std::string toString() const = 0;
   virtual IrType type() const = 0;
   virtual llvm::Value *codeGen() = 0;
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
   // source code function name translation rule, such as:
   // `format_print` to `shp.ir.format.print`
@@ -220,6 +219,16 @@ public:
     EX_ASSERT(item, "item is null");
     items_.push_back(item);
   }
+  virtual void buildSymbol() {
+    for (int i = 0; i < items_.size(); i++) {
+      items_[i]->buildSymbol();
+    }
+  }
+  virtual void checkSymbol() const {
+    for (int i = 0; i < items_.size(); i++) {
+      items_[i]->checkSymbol();
+    }
+  }
 
 protected:
   virtual std::string stringify() const = 0;
@@ -264,6 +273,8 @@ public:
   IrTranslateUnit(IrContext *context, AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
   virtual IrType type() const;
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 protected:
   virtual std::string stringify() const;
@@ -546,6 +557,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstExpressionStatement *node_;
@@ -560,6 +573,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstCompoundStatement *node_;
@@ -574,6 +589,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstIfStatement *node_;
@@ -590,9 +607,13 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstWhileStatement *node_;
+  IrExpression *condition_;
+  IrStatement *statement_;
 };
 
 /* for statement */
@@ -603,6 +624,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstForStatement *node_;
@@ -620,6 +643,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstReturnStatement *node_;
@@ -634,6 +659,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstVariableDefinition *node_;
@@ -647,6 +674,8 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
 
 private:
   AstFunctionDefinition *node_;

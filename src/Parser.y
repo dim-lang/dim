@@ -135,7 +135,7 @@ primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1, Y_POSITIO
                         std::string tmp($1);
                         if (tmp.length() >= 1 && (tmp.substr(tmp.length()-1, 1) == "D" || tmp.substr(tmp.length()-1, 1) == "d")) {
                             // D|d for float64
-                            $$ = new AstFloat32Constant((float)std::stod(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
+                            $$ = new AstFloat64Constant((double)std::stod(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
                         } else {
                             // otherwise for float32
                             $$ = new AstFloat32Constant((float)std::stof(tmp), Y_POSITION(@1));

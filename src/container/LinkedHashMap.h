@@ -93,6 +93,9 @@ public:
   virtual std::string toString() const;
 
 private:
+  friend class LinkedConstIterator<K, V, NodePtr>;
+  friend class LinkedReverseIterator<K, V, NodePtr>;
+  friend class LinkedConstReverseIterator<K, V, NodePtr>;
   NodePtr node_;
 };
 
@@ -129,6 +132,9 @@ public:
   virtual std::string toString() const;
 
 private:
+  friend class LinkedIterator<K, V, NodePtr>;
+  friend class LinkedReverseIterator<K, V, NodePtr>;
+  friend class LinkedConstReverseIterator<K, V, NodePtr>;
   NodePtr node_;
 };
 
@@ -165,6 +171,9 @@ public:
   virtual std::string toString() const;
 
 private:
+  friend class LinkedIterator<K, V, NodePtr>;
+  friend class LinkedConstIterator<K, V, NodePtr>;
+  friend class LinkedConstReverseIterator<K, V, NodePtr>;
   NodePtr node_;
 };
 
@@ -202,6 +211,9 @@ public:
   virtual std::string toString() const;
 
 private:
+  friend class LinkedIterator<K, V, NodePtr>;
+  friend class LinkedConstIterator<K, V, NodePtr>;
+  friend class LinkedReverseIterator<K, V, NodePtr>;
   NodePtr node_;
 };
 

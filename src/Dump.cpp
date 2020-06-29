@@ -198,15 +198,15 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
 #define IS_SCOPE(x)                                                            \
-  ((Scope::sym(x))->type() == (+SymType::Function) ||                          \
-   (Scope::sym(x))->type() == (+SymType::Class) ||                             \
-   (Scope::sym(x))->type() == (+SymType::Global) ||                            \
-   (Scope::sym(x))->type() == (+SymType::Local))
+  ((Scope::s(x))->type() == (+SymType::Function) ||                            \
+   (Scope::s(x))->type() == (+SymType::Class) ||                               \
+   (Scope::s(x))->type() == (+SymType::Global) ||                              \
+   (Scope::s(x))->type() == (+SymType::Local))
 
 static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
-  const Symbol *s = Scope::sym(snode);
-  const Type *t = Scope::ty(snode);
-  const Ast *a = Scope::ast(snode);
+  const Symbol *s = Scope::s(snode);
+  const Type *t = Scope::t(snode);
+  const Ast *a = Scope::a(snode);
   if (!s)
     return "null";
   EX_ASSERT(s, "snode is null");

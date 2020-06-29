@@ -3,6 +3,7 @@
 
 #include "Ast.h"
 #include "Buffer.h"
+#include "Ir.h"
 #include "Log.h"
 #include "Option.h"
 #include "Parser.h"
@@ -28,7 +29,6 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  SymbolManager smanager;
   if (conf.hasFileNames()) {
     std::vector<std::string> fileNameList = conf.fileNames();
     for (int i = 0; i < (int)fileNameList.size(); i++) {
@@ -40,8 +40,9 @@ int main(int argc, char **argv) {
       LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scaninfo: {}", p,
                scanner.currentBuffer(), (void *)scanner.yy_scaninfo());
       EX_ASSERT(p == 0, "parse fail:{}", p);
-      Semantic::build(&smanager, scanner.translateUnit());
-      Semantic::check(&smanager, scanner.translateUnit());
+      IrContext context(fileName);
+      IrTranslateUnit tunit(&context, scanner.translateUnit());
+      tunit.buildSymbol();
     }
   }
 

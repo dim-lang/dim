@@ -1,8 +1,9 @@
 // Copyright 2019- <shepherd-lang>
 // Apache License Version 2.0
 
-#include "Log.h"
 #include "SymbolTable.h"
+#include "Exception.h"
+#include "Log.h"
 
 SymbolTable::SymbolTable()
     : global(new GlobalScope()), current(nullptr), depth_(0) {

@@ -14,11 +14,12 @@ static void testAST(const char *fileName) {
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
   LOG_INFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
-  SymbolManager smanager;
-  Semantic::build(&smanager, scanner.translateUnit());
-  Semantic::check(&smanager, scanner.translateUnit());
+  IrContext context(fileName);
+  IrTranslateUnit tunit(&context, scanner.translateUnit());
+  tunit.buildSymbol();
   LOG_INFO("dump symbol:{} {}", fileName,
-           dumpScope(Scope::make_snode(smanager.global, ScopeType::ty_global(),
+           dumpScope(Scope::make_snode(context.symbolTable()->global,
+                                       ScopeType::ty_global(),
                                        scanner.translateUnit())));
   LOG_INFO("dump source:{}\n{}", fileName,
            dumpSource(fileName, scanner.translateUnit()->position()));

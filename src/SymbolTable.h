@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ir.h"
 #include "Symbol.h"
 #include "boost/core/noncopyable.hpp"
 
