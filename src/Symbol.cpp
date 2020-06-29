@@ -76,8 +76,9 @@ Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a, llvm::Value *v) {
 }
 
 const Scope::SNode &Scope::invalid_snode() {
-  static Scope::SNode inv = std::make_tuple(nullptr, nullptr, nullptr, nullptr);
-  return inv;
+  static Scope::SNode invalid =
+      std::make_tuple(nullptr, nullptr, nullptr, nullptr);
+  return invalid;
 }
 
 // type start

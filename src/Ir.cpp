@@ -298,6 +298,7 @@ llvm::Value *IrIdentifierConstant::codeGen() {
   Scope::SNode varNode =
       context_->symbolTable()->current->resolve(node_->value());
   EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
+  EX_ASSERT(Scope::v(varNode), "varNode.LLVMValue is null");
   return Scope::v(varNode);
 }
 
@@ -1429,8 +1430,8 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   }
   EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
             node_->signature()->identifier());
-  llvm::BasicBlock *bb = llvm::BasicBlock::Create(
-      context_->context(), funcIrName + ".block.entry", f);
+  llvm::BasicBlock *bb =
+      llvm::BasicBlock::Create(context_->context(), funcIrName + ".entry", f);
   context_->builder().SetInsertPoint(bb);
 
   Scope::SNode funcNode = context_->symbolTable()->current->resolve(
@@ -1442,14 +1443,7 @@ llvm::Value *IrFunctionDefinition::codeGen() {
     Scope::SNode argNode =
         context_->symbolTable()->current->resolve(Ir::fromIrName(a.getName()));
     EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
-  }
-  for (int i = 0; i < node_->signature()->argumentList()->size(); i++) {
-    AstFunctionArgumentDefinition *arg =
-        DC(AstFunctionArgumentDefinition,
-           node_->signature()->argumentList()->get(i));
-    Scope::SNode argNode =
-        context_->symbolTable()->current->resolve(arg->identifier());
-    EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
+    Scope::v(argNode) = &a;
   }
 
   llvm::Value *ret = statement_->codeGen();
