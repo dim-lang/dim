@@ -1452,20 +1452,79 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
     EX_ASSERT(enclose->type() == (+SymType::Global),
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
-    context_->module()->getOrInsertGlobal(
-        Ir::toIrName(ast->identifier()),
-        llvm::Type::getDoubleTy(context_->context()));
-    llvm::GlobalValue *gv =
-        context_->module()->getNamedGlobal(Ir::toIrName(ast->identifier()));
-    gv->setLinkage(llvm::GlobalValue::CommonLinkage);
+    llvm::GlobalValue *gv = new llvm::GlobalValue(
+        *context_->module(), llvm::Type::getDoubleTy(context_->context()),
+        llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
+        Ir::toIrName(ast->identifier()));
     ret = Scope::v(varNode) = gv;
   }
   return ret;
 }
 
-void IrGlobalVariableDefinition::buildSymbol() {}
+void IrGlobalVariableDefinition::buildSymbol() {
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    VariableSymbol *varsym =
+        new VariableSymbol(ast->identifier(), context_->symbolTable()->current);
+    BuiltinType *varty = nullptr;
+    switch (ast->expression()->type()) {
+    case AstType::Int8Constant:
+      varty = BuiltinType::ty_int8();
+    case AstType::UInt8Constant:
+      varty = BuiltinType::ty_uint8();
+    case AstType::Int16Constant:
+      varty = BuiltinType::ty_int16();
+    case AstType::UInt16Constant:
+      varty = BuiltinType::ty_uint16();
+    case AstType::Int32Constant:
+      varty = BuiltinType::ty_int32();
+    case AstType::UInt32Constant:
+      varty = BuiltinType::ty_uint32();
+    case AstType::Int64Constant:
+      varty = BuiltinType::ty_int64();
+    case AstType::UInt64Constant:
+      varty = BuiltinType::ty_uint64();
+    case AstType::Float32Constant:
+      varty = BuiltinType::ty_float32();
+    case AstType::Float64Constant:
+      varty = BuiltinType::ty_float64();
+    case AstType::BooleanConstant:
+      varty = BuiltinType::ty_boolean();
+    case AstType::StringConstant:
+      varty = BuiltinType::ty_string();
+    default:
+      LOG_WARN("warning default builtin type:{}", ast->toString());
+      varty = BuiltinType::ty_void();
+    }
+    context_->symbolTable()->current->define(
+        Scope::make_snode(varsym, varty, ast));
+  }
+}
 
 void IrGlobalVariableDefinition::checkSymbol() const {}
+
+/* local variable in function */
+IrLocalVariableDefinition::IrLocalVariableDefinition(
+    IrContext *context, AstVariableDefinition *node)
+    : IrDefinition(context,
+                   irNameGenerator.generate("IrLocalVariableDefinition")),
+      node_(node) {}
+
+std::string IrLocalVariableDefinition::toString() const {
+  return fmt::format("[@IrLocalVariableDefinition node_:{}]",
+                     node_->toString());
+}
+
+IrType IrLocalVariableDefinition::type() const {
+  return IrType::LocalVariableDefinition;
+}
+
+llvm::Value *IrLocalVariableDefinition::codeGen() { return nullptr; }
+
+void IrLocalVariableDefinition::buildSymbol() {}
+
+void IrLocalVariableDefinition::checkSymbol() const {}
 
 /* function definition */
 IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
