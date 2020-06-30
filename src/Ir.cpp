@@ -2,7 +2,9 @@
 // Apache License Version 2.0
 
 #include "Ir.h"
+#include "Ast.h"
 #include "Dump.h"
+#include "Exception.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
@@ -33,14 +35,14 @@
 static NameGenerator nameGenerator;
 static NameGenerator irNameGenerator;
 
+#define SHP_IR std::string("shp.ir.")
 #define DC(x, y) dynamic_cast<x *>(y)
 
 /* ir context */
 IrContext::IrContext(const std::string &moduleName)
     : moduleName_(moduleName), context_(), builder_(context_), module_(nullptr),
       symbolTable_(nullptr) {
-  module_ =
-      new llvm::Module(std::string("shepherd_module_") + moduleName, context_);
+  module_ = new llvm::Module(SHP_IR + moduleName, context_);
   fpm_ = new llvm::legacy::FunctionPassManager(module_);
   fpm_->add(llvm::createInstructionCombiningPass());
   fpm_->add(llvm::createReassociatePass());
@@ -195,8 +197,6 @@ static std::string fromIrNameImpl(const std::string &name,
   }
   return tmp;
 }
-
-#define SHP_IR std::string("shp.ir.")
 
 std::string Ir::toIrName(const std::string &name) {
   return toIrNameImpl(name, SHP_IR);
@@ -1121,11 +1121,11 @@ llvm::Value *IrIfStatement::codeGen() {
       irNameGenerator.generate("ifcond"));
   llvm::Function *f = context_->builder().GetInsertBlock()->getParent();
   llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(
-      context_->context(), irNameGenerator.generate("then"), f);
+      context_->context(), irNameGenerator.generate(SHP_IR + "then"), f);
   llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(
-      context_->context(), irNameGenerator.generate("else"));
+      context_->context(), irNameGenerator.generate(SHP_IR + "else"));
   llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(
-      context_->context(), irNameGenerator.generate("ifcont"));
+      context_->context(), irNameGenerator.generate(SHP_IR + "ifcont"));
   context_->builder().CreateCondBr(condV, thenBlock, elseBlock);
   context_->builder().SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen();
@@ -1361,13 +1361,111 @@ void IrVariableDefinition::buildSymbol() {
 
 IrType IrVariableDefinition::type() const { return IrType::VariableDefinition; }
 
-llvm::Value *IrVariableDefinition::codeGen() { return nullptr; }
+llvm::Value *IrVariableDefinition::codeGen() {
+  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    Scope::SNode varNode =
+        context_->symbolTable()->current->resolve(ast->identifier());
+    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
+    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
+              (void *)Scope::v(varNode));
+    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
+    Symbol *enclose = varSym;
+    while (enclose->enclosingScope()->type() == (+SymType::Local)) {
+      enclose = enclose->enclosingScope();
+    }
+    switch (enclose->type()) {
+    case SymType::Function: {
+      FunctionSymbol *funcSym = DC(FunctionSymbol, enclose);
+      Scope::SNode funcNode =
+          context_->symbolTable()->current->resolve(funcSym->name());
+      EX_ASSERT(funcNode != Scope::invalid_snode(), "funcNode is invalid");
+      llvm::Function *llvmFunc =
+          llvm::dyn_cast<llvm::Function>(Scope::v(funcNode));
+      EX_ASSERT(llvmFunc, "llvmFunc is null");
+      llvm::IRBuilder<> varBuilder(&llvmFunc->getEntryBlock(),
+                                   llvmFunc->getEntryBlock().begin());
+      // allocate all varaibles in function entry block
+      llvm::AllocaInst *valueAlloca =
+          varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->context()),
+                                  0, Ir::toIrName(ast->identifier()));
+      Scope::v(varNode) = valueAlloca;
+    } break;
+    case SymType::Global: {
+      GlobalScope *globSym = DC(GlobalScope, enclose);
+    } break;
+    case SymType::Class:
+      /* { ClassSymbol *clsSym = DC(ClassSymbol, enclose); } break; */
+    default:
+      EX_ASSERT(false, "invalid enclose:{}, enclose->type:{}, varSym:{}",
+                enclose->name(), enclose->type()._to_string(), varSym->name());
+    }
+  }
+  return nullptr;
+}
 
 std::string IrVariableDefinition::toString() const {
   return fmt::format("[@IrVariableDefinition node_:{}]", node_->toString());
 }
 
 void IrVariableDefinition::checkSymbol() const {}
+
+/* global variable */
+IrGlobalVariableDefinition::IrGlobalVariableDefinition(
+    IrContext *context, AstVariableDefinition *node)
+    : IrDefinition(context,
+                   nameGenerator.generate("IrGlobalVariableDefinition")),
+      node_(node) {}
+
+std::string IrGlobalVariableDefinition::toString() const {
+  return fmt::format("[@IrGlobalVariableDefinition node_:{}]",
+                     node_->toString());
+}
+
+IrType IrGlobalVariableDefinition::type() const {
+  return IrType::GlobalVariableDefinition;
+}
+
+static Symbol *variableScope(VariableSymbol *varSym) {
+  Symbol *scope = varSym;
+  while (scope->enclosingScope()->type() == (+SymType::Local)) {
+    scope = scope->enclosingScope();
+  }
+  return scope;
+}
+
+llvm::Value *IrGlobalVariableDefinition::codeGen() {
+  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
+  llvm::Value *ret = nullptr;
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    Scope::SNode varNode =
+        context_->symbolTable()->current->resolve(ast->identifier());
+    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
+    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
+              (void *)Scope::v(varNode));
+    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
+    Symbol *enclose = variableScope(varSym);
+    EX_ASSERT(enclose->type() == (+SymType::Global),
+              "enclosingScope type {} is not global",
+              enclose->type()._to_string());
+    context_->module()->getOrInsertGlobal(
+        Ir::toIrName(ast->identifier()),
+        llvm::Type::getDoubleTy(context_->context()));
+    llvm::GlobalValue *gv =
+        context_->module()->getNamedGlobal(Ir::toIrName(ast->identifier()));
+    gv->setLinkage(llvm::GlobalValue::CommonLinkage);
+    ret = Scope::v(varNode) = gv;
+  }
+  return ret;
+}
+
+void IrGlobalVariableDefinition::buildSymbol() {}
+
+void IrGlobalVariableDefinition::checkSymbol() const {}
 
 /* function definition */
 IrFunctionDefinition::IrFunctionDefinition(IrContext *context,

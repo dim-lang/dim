@@ -29,7 +29,9 @@ BETTER_ENUM(IrType, int,
             ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
             ForStatement, ReturnStatement,
             // definition
-            VariableDefinition, FunctionDefinition, FunctionSignatureDefinition,
+            GlobalVariableDefinition, LocalVariableDefinition,
+            MemberVariableDefinition, FunctionDefinition,
+            FunctionSignatureDefinition,
             // list
             ExpressionList, StatementList, DefinitionList,
             // common
@@ -84,7 +86,9 @@ class IrForStatement;
 class IrReturnStatement;
 
 // definition
-class IrVariableDefinition;
+class IrGlobalVariableDefinition; // global variable
+class IrLocalVariableDefinition;  // local variable in function
+class IrMemberVariableDefinition; // member variable in class
 class IrFunctionDefinition;
 class IrFunctionSignatureDefinition;
 
@@ -656,6 +660,51 @@ class IrVariableDefinition : public IrDefinition {
 public:
   IrVariableDefinition(IrContext *context, AstVariableDefinition *node);
   virtual ~IrVariableDefinition() = default;
+  virtual std::string toString() const;
+  virtual IrType type() const;
+  virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
+
+private:
+  AstVariableDefinition *node_;
+};
+
+/* global variable */
+class IrGlobalVariableDefinition : public IrDefinition {
+public:
+  IrGlobalVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrGlobalVariableDefinition() = default;
+  virtual std::string toString() const;
+  virtual IrType type() const;
+  virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
+
+private:
+  AstVariableDefinition *node_;
+};
+
+/* local variable in function */
+class IrLocalVariableDefinition : public IrDefinition {
+public:
+  IrLocalVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrLocalVariableDefinition() = default;
+  virtual std::string toString() const;
+  virtual IrType type() const;
+  virtual llvm::Value *codeGen();
+  virtual void buildSymbol();
+  virtual void checkSymbol() const;
+
+private:
+  AstVariableDefinition *node_;
+};
+
+/* member variable in class */
+class IrMemberVariableDefinition : public IrDefinition {
+public:
+  IrMemberVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrMemberVariableDefinition() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
