@@ -1393,6 +1393,47 @@ std::string IrVariableDefinition::toString() const {
 
 void IrVariableDefinition::checkSymbol() const {}
 
+static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
+                                          SymbolTable *symbolTable) {
+  for (int i = 0; i < node->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node->definitionList()->get(i));
+    VariableSymbol *varSym =
+        new VariableSymbol(ast->identifier(), symbolTable->current);
+    BuiltinType *varTy = nullptr;
+    switch (ast->expression()->type()) {
+    case AstType::Int8Constant:
+      varTy = BuiltinType::ty_int8();
+    case AstType::UInt8Constant:
+      varTy = BuiltinType::ty_uint8();
+    case AstType::Int16Constant:
+      varTy = BuiltinType::ty_int16();
+    case AstType::UInt16Constant:
+      varTy = BuiltinType::ty_uint16();
+    case AstType::Int32Constant:
+      varTy = BuiltinType::ty_int32();
+    case AstType::UInt32Constant:
+      varTy = BuiltinType::ty_uint32();
+    case AstType::Int64Constant:
+      varTy = BuiltinType::ty_int64();
+    case AstType::UInt64Constant:
+      varTy = BuiltinType::ty_uint64();
+    case AstType::Float32Constant:
+      varTy = BuiltinType::ty_float32();
+    case AstType::Float64Constant:
+      varTy = BuiltinType::ty_float64();
+    case AstType::BooleanConstant:
+      varTy = BuiltinType::ty_boolean();
+    case AstType::StringConstant:
+      varTy = BuiltinType::ty_string();
+    default:
+      LOG_WARN("warning default builtin type:{}", ast->toString());
+      varTy = BuiltinType::ty_void();
+    }
+    symbolTable->current->define(Scope::make_snode(varSym, varTy, ast));
+  }
+}
+
 /* global variable */
 IrGlobalVariableDefinition::IrGlobalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
@@ -1442,44 +1483,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
 }
 
 void IrGlobalVariableDefinition::buildSymbol() {
-  for (int i = 0; i < node_->definitionList()->size(); i++) {
-    AstVariableInitialDefinition *ast =
-        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    VariableSymbol *varSym =
-        new VariableSymbol(ast->identifier(), context_->symbolTable()->current);
-    BuiltinType *varTy = nullptr;
-    switch (ast->expression()->type()) {
-    case AstType::Int8Constant:
-      varTy = BuiltinType::ty_int8();
-    case AstType::UInt8Constant:
-      varTy = BuiltinType::ty_uint8();
-    case AstType::Int16Constant:
-      varTy = BuiltinType::ty_int16();
-    case AstType::UInt16Constant:
-      varTy = BuiltinType::ty_uint16();
-    case AstType::Int32Constant:
-      varTy = BuiltinType::ty_int32();
-    case AstType::UInt32Constant:
-      varTy = BuiltinType::ty_uint32();
-    case AstType::Int64Constant:
-      varTy = BuiltinType::ty_int64();
-    case AstType::UInt64Constant:
-      varTy = BuiltinType::ty_uint64();
-    case AstType::Float32Constant:
-      varTy = BuiltinType::ty_float32();
-    case AstType::Float64Constant:
-      varTy = BuiltinType::ty_float64();
-    case AstType::BooleanConstant:
-      varTy = BuiltinType::ty_boolean();
-    case AstType::StringConstant:
-      varTy = BuiltinType::ty_string();
-    default:
-      LOG_WARN("warning default builtin type:{}", ast->toString());
-      varTy = BuiltinType::ty_void();
-    }
-    context_->symbolTable()->current->define(
-        Scope::make_snode(varSym, varTy, ast));
-  }
+  VariableDefinitionBuildSymbol(node_, context_->symbolTable());
 }
 
 void IrGlobalVariableDefinition::checkSymbol() const {}
@@ -1502,44 +1506,7 @@ IrType IrLocalVariableDefinition::type() const {
 llvm::Value *IrLocalVariableDefinition::codeGen() { return nullptr; }
 
 void IrLocalVariableDefinition::buildSymbol() {
-  for (int i = 0; i < node_->definitionList()->size(); i++) {
-    AstVariableInitialDefinition *ast =
-        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    VariableSymbol *varSym =
-        new VariableSymbol(ast->identifier(), context_->symbolTable()->current);
-    BuiltinType *varTy = nullptr;
-    switch (ast->expression()->type()) {
-    case AstType::Int8Constant:
-      varTy = BuiltinType::ty_int8();
-    case AstType::UInt8Constant:
-      varTy = BuiltinType::ty_uint8();
-    case AstType::Int16Constant:
-      varTy = BuiltinType::ty_int16();
-    case AstType::UInt16Constant:
-      varTy = BuiltinType::ty_uint16();
-    case AstType::Int32Constant:
-      varTy = BuiltinType::ty_int32();
-    case AstType::UInt32Constant:
-      varTy = BuiltinType::ty_uint32();
-    case AstType::Int64Constant:
-      varTy = BuiltinType::ty_int64();
-    case AstType::UInt64Constant:
-      varTy = BuiltinType::ty_uint64();
-    case AstType::Float32Constant:
-      varTy = BuiltinType::ty_float32();
-    case AstType::Float64Constant:
-      varTy = BuiltinType::ty_float64();
-    case AstType::BooleanConstant:
-      varTy = BuiltinType::ty_boolean();
-    case AstType::StringConstant:
-      varTy = BuiltinType::ty_string();
-    default:
-      LOG_WARN("warning default builtin type:{}", ast->toString());
-      varTy = BuiltinType::ty_void();
-    }
-    context_->symbolTable()->current->define(
-        Scope::make_snode(varSym, varTy, ast));
-  }
+  VariableDefinitionBuildSymbol(node_, context_->symbolTable());
 }
 
 void IrLocalVariableDefinition::checkSymbol() const {}
