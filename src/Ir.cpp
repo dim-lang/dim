@@ -986,22 +986,10 @@ llvm::Value *IrCompoundStatement::codeGen() {
   if (statementList_->size() <= 0) {
     return nullptr;
   }
-  for (int i = 0; i < statementList_->size(); i++) {
+  for (int i = 0; i < statementList_->size() - 1; i++) {
     IrStatement *ir = statementList_->get(0);
     EX_ASSERT(ir, "ir is null");
-    switch (ir->type()) {
-    case IrType::VariableDefinition:
-    case IrType::FunctionDefinition:
-    case IrType::ExpressionStatement:
-    case IrType::CompoundStatement:
-    case IrType::IfStatement:
-    case IrType::WhileStatement:
-    case IrType::ForStatement:
-    case IrType::ReturnStatement:
-      break;
-    default:
-      EX_ASSERT(false, "invalid ir: {}", ir->toString());
-    }
+    ir->codeGen();
   }
   IrStatement *ir = statementList_->get(statementList_->size() - 1);
   return ir->codeGen();
@@ -1423,7 +1411,7 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
   EX_ASSERT(node_->signature(), "node_->signature is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
   signature_ = new IrFunctionSignatureDefinition(context_, node->signature());
-  statement_ = IrFactory::stmt(context_, node_->statement()));
+  statement_ = IrFactory::stmt(context_, node_->statement());
 }
 
 void IrFunctionDefinition::buildSymbol() {
