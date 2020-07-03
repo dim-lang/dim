@@ -5,6 +5,6 @@
 
 class Strings {
 public:
-  static char *copy(const char *s);
-  static char *copy(const char *s, int n);
+  static char *dup(const char *s);
+  static char *dup(const char *s, int n);
 };
