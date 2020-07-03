@@ -30,8 +30,7 @@ BETTER_ENUM(IrType, int,
             ForStatement, ReturnStatement,
             // definition
             GlobalVariableDefinition, LocalVariableDefinition,
-            MemberVariableDefinition, FunctionDefinition,
-            FunctionSignatureDefinition,
+            FunctionDefinition, FunctionSignatureDefinition,
             // list
             ExpressionList, StatementList, DefinitionList,
             // common
@@ -88,7 +87,6 @@ class IrReturnStatement;
 // definition
 class IrGlobalVariableDefinition; // global variable
 class IrLocalVariableDefinition;  // local variable in function
-class IrMemberVariableDefinition; // member variable in class
 class IrFunctionDefinition;
 class IrFunctionSignatureDefinition;
 
@@ -635,7 +633,7 @@ private:
   AstForStatement *node_;
   IrStatement *start_;
   IrStatement *step_;
-  IrStatement *end_;
+  IrExpression *end_;
   IrStatement *statement_;
 };
 
@@ -690,21 +688,6 @@ class IrLocalVariableDefinition : public IrDefinition {
 public:
   IrLocalVariableDefinition(IrContext *context, AstVariableDefinition *node);
   virtual ~IrLocalVariableDefinition() = default;
-  virtual std::string toString() const;
-  virtual IrType type() const;
-  virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
-
-private:
-  AstVariableDefinition *node_;
-};
-
-/* member variable in class */
-class IrMemberVariableDefinition : public IrDefinition {
-public:
-  IrMemberVariableDefinition(IrContext *context, AstVariableDefinition *node);
-  virtual ~IrMemberVariableDefinition() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();

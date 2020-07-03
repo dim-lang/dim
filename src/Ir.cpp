@@ -5,6 +5,7 @@
 #include "Ast.h"
 #include "Dump.h"
 #include "Exception.h"
+#include "IrFactory.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
@@ -85,78 +86,6 @@ IrContext::functionPassManager() const {
 SymbolTable *&IrContext::symbolTable() { return symbolTable_; }
 
 const SymbolTable *IrContext::symbolTable() const { return symbolTable_; }
-
-static Ir *createIrByAst(IrContext *context, Ast *node) {
-  EX_ASSERT(context, "context is null");
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case AstType::IdentifierConstant:
-    return new IrIdentifierConstant(context, DC(AstIdentifierConstant, node));
-  case AstType::Float32Constant:
-    return new IrFloat32Constant(context, DC(AstFloat32Constant, node));
-  case AstType::Float64Constant:
-    return new IrFloat64Constant(context, DC(AstFloat64Constant, node));
-  case AstType::StringConstant:
-    return new IrStringConstant(context, DC(AstStringConstant, node));
-  case AstType::Int8Constant:
-    return new IrInt8Constant(context, DC(AstInt8Constant, node));
-  case AstType::UInt8Constant:
-    return new IrUInt8Constant(context, DC(AstUInt8Constant, node));
-  case AstType::Int16Constant:
-    return new IrInt16Constant(context, DC(AstInt16Constant, node));
-  case AstType::UInt16Constant:
-    return new IrUInt16Constant(context, DC(AstUInt16Constant, node));
-  case AstType::Int32Constant:
-    return new IrInt32Constant(context, DC(AstInt32Constant, node));
-  case AstType::UInt32Constant:
-    return new IrUInt32Constant(context, DC(AstUInt32Constant, node));
-  case AstType::Int64Constant:
-    return new IrInt64Constant(context, DC(AstInt64Constant, node));
-  case AstType::UInt64Constant:
-    return new IrUInt64Constant(context, DC(AstUInt64Constant, node));
-  case AstType::BooleanConstant:
-    return new IrBooleanConstant(context, DC(AstBooleanConstant, node));
-  case AstType::AssignmentExpression:
-    return new IrAssignmentExpression(context,
-                                      DC(AstAssignmentExpression, node));
-  case AstType::SequelExpression:
-    return new IrSequelExpression(context, DC(AstSequelExpression, node));
-  case AstType::CallExpression:
-    return new IrCallExpression(context, DC(AstCallExpression, node));
-  case AstType::UnaryExpression:
-    return new IrUnaryExpression(context, DC(AstUnaryExpression, node));
-  case AstType::BinaryExpression:
-    return new IrBinaryExpression(context, DC(AstBinaryExpression, node));
-  case AstType::ConditionalExpression:
-    return new IrConditionalExpression(context,
-                                       DC(AstConditionalExpression, node));
-  case AstType::VoidExpression:
-    return new IrVoidExpression(context, DC(AstVoidExpression, node));
-  case AstType::ExpressionStatement:
-    return new IrExpressionStatement(context, DC(AstExpressionStatement, node));
-  case AstType::IfStatement:
-    return new IrIfStatement(context, DC(AstIfStatement, node));
-  case AstType::WhileStatement:
-    return new IrWhileStatement(context, DC(AstWhileStatement, node));
-  case AstType::ForStatement:
-    return new IrForStatement(context, DC(AstForStatement, node));
-  case AstType::CompoundStatement:
-    return new IrCompoundStatement(context, DC(AstCompoundStatement, node));
-  case AstType::ReturnStatement:
-    return new IrReturnStatement(context, DC(AstReturnStatement, node));
-  case AstType::VariableDefinition:
-    return new IrVariableDefinition(context, DC(AstVariableDefinition, node));
-  case AstType::FunctionDefinition:
-    return new IrFunctionDefinition(context, DC(AstFunctionDefinition, node));
-  case AstType::FunctionSignatureDefinition:
-    return new IrFunctionSignatureDefinition(
-        context, DC(AstFunctionSignatureDefinition, node));
-  default:
-    EX_ASSERT(false, "invalid ast node: {}, source:{}", node->toString(),
-              dumpSource(context->moduleName(), node->position()));
-  }
-  return nullptr;
-}
 
 /* interface */
 Ir::Ir(IrContext *context, const std::string &name)
@@ -246,16 +175,7 @@ IrTranslateUnit::IrTranslateUnit(IrContext *context, AstTranslateUnit *node)
   EX_ASSERT(node_, "node_ is null");
   for (int i = 0; i < node_->size(); i++) {
     AstDefinition *ast = node_->get(i);
-    switch (ast->type()) {
-    case AstType::VariableDefinition: {
-      add(new IrVariableDefinition(context, DC(AstVariableDefinition, ast)));
-    } break;
-    case AstType::FunctionDefinition: {
-      add(new IrFunctionDefinition(context, DC(AstFunctionDefinition, ast)));
-    } break;
-    default:
-      EX_ASSERT(false, "invalid ast:{}", ast->toString());
-    }
+    add(IrFactory::unit(context_, ast));
   }
 }
 
@@ -516,8 +436,8 @@ IrBinaryExpression::IrBinaryExpression(IrContext *context,
       node_(node), left_(nullptr), right_(nullptr) {
   EX_ASSERT(node_->left(), "node_->left is null");
   EX_ASSERT(node_->right(), "node_->right is null");
-  left_ = DC(IrExpression, createIrByAst(context_, node->left()));
-  right_ = DC(IrExpression, createIrByAst(context_, node->right()));
+  left_ = IrFactory::expr(context_, node->left());
+  right_ = IrFactory::expr(context_, node->right());
 }
 
 IrBinaryExpression::~IrBinaryExpression() {
@@ -880,8 +800,8 @@ IrAssignmentExpression::IrAssignmentExpression(IrContext *context,
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->variable(), "node_->variable is null");
   EX_ASSERT(node_->value(), "node_->value is null");
-  variable_ = DC(IrExpression, createIrByAst(context_, node->variable()));
-  value_ = DC(IrExpression, createIrByAst(context_, node->value()));
+  variable_ = IrFactory::expr(context_, node->variable());
+  value_ = IrFactory::expr(context_, node->value());
 }
 
 IrAssignmentExpression::~IrAssignmentExpression() {
@@ -912,7 +832,7 @@ IrSequelExpression::IrSequelExpression(IrContext *context,
   for (int i = 0; i < node->expressionList()->size(); i++) {
     AstExpression *ast = node->expressionList()->get(i);
     EX_ASSERT(ast, "the {} ast is null", i);
-    expressionList_->add(DC(IrExpression, createIrByAst(context_, ast)));
+    expressionList_->add(IrFactory::expr(context_, ast));
   }
 }
 
@@ -960,7 +880,7 @@ IrExpressionStatement::IrExpressionStatement(IrContext *context,
       node_(node), expression_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expression(), "node_->expression is null");
-  expression_ = DC(IrExpression, createIrByAst(context_, node->expression()));
+  expression_ = IrFactory::expr(context_, node->expression());
 }
 
 void IrExpressionStatement::buildSymbol() { expression_->buildSymbol(); }
@@ -999,7 +919,41 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
     if (ast->type() == (+AstType::EmptyStatement)) {
       continue;
     }
-    statementList_->add(DC(IrStatement, createIrByAst(context_, ast)));
+    IrStatement *ir = nullptr;
+    switch (ast->type()) {
+    case AstType::IfStatement:
+      ir = new IrIfStatement(context_, DC(AstIfStatement, ast));
+      break;
+    case AstType::CompoundStatement:
+      ir = new IrCompoundStatement(context_, DC(AstCompoundStatement, ast));
+      break;
+    case AstType::ExpressionStatement:
+      ir = new IrExpressionStatement(context_, DC(AstExpressionStatement, ast));
+      break;
+    case AstType::ForStatement:
+      ir = new IrForStatement(context_, DC(AstForStatement, ast));
+      break;
+    case AstType::WhileStatement:
+      ir = new IrWhileStatement(context_, DC(AstWhileStatement, ast));
+      break;
+    case AstType::ReturnStatement:
+      ir = new IrReturnStatement(context_, DC(AstReturnStatement, ast));
+      break;
+    case AstType::VariableDefinition:
+      ir = new IrLocalVariableDefinition(context_,
+                                         DC(AstVariableDefinition, ast));
+      break;
+    case AstType::EmptyStatement:
+    case AstType::FunctionDefinition:
+    case AstType::ContinueStatement:
+    case AstType::BreakStatement:
+      break;
+    default:
+      EX_ASSERT(false, "invalid ast:{}", ast->toString());
+    }
+    if (ir) {
+      statementList_->add(ir);
+    }
   }
 }
 
@@ -1065,9 +1019,9 @@ IrIfStatement::IrIfStatement(IrContext *context, AstIfStatement *node)
   EX_ASSERT(node_->condition(), "node_->condition is null");
   EX_ASSERT(node_->thens(), "node_->thens is null");
   EX_ASSERT(node_->elses(), "node_->elses is null");
-  condition_ = DC(IrExpression, createIrByAst(context_, node->condition()));
-  thens_ = DC(IrStatement, createIrByAst(context_, node->thens()));
-  elses_ = DC(IrStatement, createIrByAst(context_, node->elses()));
+  condition_ = IrFactory::expr(context_, node->condition());
+  thens_ = IrFactory::stmt(context_, node->thens());
+  elses_ = IrFactory::stmt(context_, node->elses());
 }
 
 void IrIfStatement::buildSymbol() {
@@ -1140,8 +1094,8 @@ IrWhileStatement::IrWhileStatement(IrContext *context, AstWhileStatement *node)
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->condition(), "node_->condition is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
-  condition_ = DC(IrExpression, createIrByAst(context_, node_->condition()));
-  statement_ = DC(IrStatement, createIrByAst(context_, node_->statement()));
+  condition_ = IrFactory::expr(context_, node_->condition());
+  statement_ = IrFactory::stmt(context_, node_->statement());
 }
 
 void IrWhileStatement::buildSymbol() {
@@ -1168,10 +1122,10 @@ IrForStatement::IrForStatement(IrContext *context, AstForStatement *node)
   EX_ASSERT(node_->step(), "node_->step is null");
   EX_ASSERT(node_->end(), "node_->end is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
-  start_ = DC(IrStatement, createIrByAst(context_, node->start()));
-  step_ = DC(IrStatement, createIrByAst(context_, node->step()));
-  end_ = DC(IrStatement, createIrByAst(context_, node->end()));
-  statement_ = DC(IrStatement, createIrByAst(context_, node->statement()));
+  start_ = IrFactory::stmt(context_, node->start());
+  step_ = IrFactory::stmt(context_, node->step());
+  end_ = IrFactory::expr(context_, node->end());
+  statement_ = IrFactory::stmt(context_, node->statement());
 }
 
 void IrForStatement::buildSymbol() {
@@ -1252,7 +1206,7 @@ IrReturnStatement::IrReturnStatement(IrContext *context,
       expression_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expression(), "node_->expression is null");
-  expression_ = DC(IrExpression, createIrByAst(context_, node->expression()));
+  expression_ = IrFactory::expr(context_, node->expression());
 }
 
 void IrReturnStatement::buildSymbol() { expression_->buildSymbol(); }
@@ -1291,108 +1245,6 @@ llvm::Value *IrReturnStatement::codeGen() {
 }
 
 /* variable definition */
-IrVariableDefinition::IrVariableDefinition(IrContext *context,
-                                           AstVariableDefinition *node)
-    : IrDefinition(context, nameGen.generate("IrVariableDefinition")),
-      node_(node) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
-}
-
-void IrVariableDefinition::buildSymbol() {
-  for (int i = 0; i < node_->definitionList()->size(); i++) {
-    AstVariableInitialDefinition *ast =
-        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    VariableSymbol *varSym =
-        new VariableSymbol(ast->identifier(), context_->symbolTable()->current);
-    BuiltinType *varTy = nullptr;
-    switch (ast->expression()->type()) {
-    case AstType::Int8Constant:
-      varTy = BuiltinType::ty_int8();
-    case AstType::UInt8Constant:
-      varTy = BuiltinType::ty_uint8();
-    case AstType::Int16Constant:
-      varTy = BuiltinType::ty_int16();
-    case AstType::UInt16Constant:
-      varTy = BuiltinType::ty_uint16();
-    case AstType::Int32Constant:
-      varTy = BuiltinType::ty_int32();
-    case AstType::UInt32Constant:
-      varTy = BuiltinType::ty_uint32();
-    case AstType::Int64Constant:
-      varTy = BuiltinType::ty_int64();
-    case AstType::UInt64Constant:
-      varTy = BuiltinType::ty_uint64();
-    case AstType::Float32Constant:
-      varTy = BuiltinType::ty_float32();
-    case AstType::Float64Constant:
-      varTy = BuiltinType::ty_float64();
-    case AstType::BooleanConstant:
-      varTy = BuiltinType::ty_boolean();
-    case AstType::StringConstant:
-      varTy = BuiltinType::ty_string();
-    default:
-      LOG_WARN("warning default builtin type:{}", ast->toString());
-      varTy = BuiltinType::ty_void();
-    }
-    context_->symbolTable()->current->define(
-        Scope::make_snode(varSym, varTy, ast));
-  }
-}
-
-IrType IrVariableDefinition::type() const { return IrType::VariableDefinition; }
-
-llvm::Value *IrVariableDefinition::codeGen() {
-  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
-  for (int i = 0; i < node_->definitionList()->size(); i++) {
-    AstVariableInitialDefinition *ast =
-        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    Scope::SNode varNode =
-        context_->symbolTable()->current->resolve(ast->identifier());
-    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
-    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
-              (void *)Scope::v(varNode));
-    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
-    Symbol *enclose = varSym;
-    while (enclose->enclosingScope()->type() == (+SymType::Local)) {
-      enclose = enclose->enclosingScope();
-    }
-    switch (enclose->type()) {
-    case SymType::Function: {
-      FunctionSymbol *funcSym = DC(FunctionSymbol, enclose);
-      Scope::SNode funcNode =
-          context_->symbolTable()->current->resolve(funcSym->name());
-      EX_ASSERT(funcNode != Scope::invalid_snode(), "funcNode is invalid");
-      llvm::Function *llvmFunc =
-          llvm::dyn_cast<llvm::Function>(Scope::v(funcNode));
-      EX_ASSERT(llvmFunc, "llvmFunc is null");
-      llvm::IRBuilder<> varBuilder(&llvmFunc->getEntryBlock(),
-                                   llvmFunc->getEntryBlock().begin());
-      // allocate all varaibles in function entry block
-      llvm::AllocaInst *valueAlloca =
-          varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->context()),
-                                  0, Ir::toIrName(ast->identifier()));
-      Scope::v(varNode) = valueAlloca;
-    } break;
-    case SymType::Global: {
-      GlobalScope *globSym = DC(GlobalScope, enclose);
-    } break;
-    case SymType::Class:
-      /* { ClassSymbol *clsSym = DC(ClassSymbol, enclose); } break; */
-    default:
-      EX_ASSERT(false, "invalid enclose:{}, enclose->type:{}, varSym:{}",
-                enclose->name(), enclose->type()._to_string(), varSym->name());
-    }
-  }
-  return nullptr;
-}
-
-std::string IrVariableDefinition::toString() const {
-  return fmt::format("[@IrVariableDefinition node_:{}]", node_->toString());
-}
-
-void IrVariableDefinition::checkSymbol() const {}
-
 static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
                                           SymbolTable *symbolTable) {
   for (int i = 0; i < node->definitionList()->size(); i++) {
@@ -1449,7 +1301,7 @@ IrType IrGlobalVariableDefinition::type() const {
   return IrType::GlobalVariableDefinition;
 }
 
-static Symbol *variableScope(VariableSymbol *varSym) {
+static Symbol *variableParentScope(VariableSymbol *varSym) {
   Symbol *scope = varSym;
   while (scope->enclosingScope()->type() == (+SymType::Local)) {
     scope = scope->enclosingScope();
@@ -1469,7 +1321,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
     EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
               (void *)Scope::v(varNode));
     VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
-    Symbol *enclose = variableScope(varSym);
+    Symbol *enclose = variableParentScope(varSym);
     EX_ASSERT(enclose->type() == (+SymType::Global),
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
@@ -1503,7 +1355,58 @@ IrType IrLocalVariableDefinition::type() const {
   return IrType::LocalVariableDefinition;
 }
 
-llvm::Value *IrLocalVariableDefinition::codeGen() { return nullptr; }
+llvm::Value *IrLocalVariableDefinition::codeGen() {
+  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
+  llvm::Value *ret = nullptr;
+  FunctionSymbol *funcSym = nullptr;
+  llvm::Function *func = nullptr;
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    Scope::SNode varNode =
+        context_->symbolTable()->current->resolve(ast->identifier());
+    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
+    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
+              (void *)Scope::v(varNode));
+    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
+    Symbol *enclose = variableParentScope(varSym);
+    EX_ASSERT(enclose->type() == (+SymType::Function),
+              "enclosingScope type {} is not function",
+              enclose->type()._to_string());
+    if (funcSym) {
+      EX_ASSERT((void *)funcSym == (void *)enclose, "funcSym {} == enclose {}",
+                (void *)funcSym, (void *)enclose);
+    }
+    funcSym = DC(FunctionSymbol, enclose);
+    Scope::SNode funcNode =
+        context_->symbolTable()->current->resolve(funcSym->name());
+    EX_ASSERT(funcNode != Scope::invalid_snode(), "funcNode is invalid");
+    EX_ASSERT(Scope::v(funcNode), "funcNode llvmValue is null");
+    if (func) {
+      EX_ASSERT((void *)func == (void *)Scope::v(funcNode),
+                "func {} == Scope::v(funcNode) {}", (void *)func,
+                (void *)Scope::v(funcNode));
+    }
+    func = llvm::dyn_cast<llvm::Function>(Scope::v(funcNode));
+  }
+  EX_ASSERT(funcSym, "funcSym is null");
+  EX_ASSERT(func, "func is null");
+  llvm::IRBuilder<> varBuilder(&func->getEntryBlock(),
+                               func->getEntryBlock().begin());
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    Scope::SNode varNode =
+        context_->symbolTable()->current->resolve(ast->identifier());
+    llvm::AllocaInst *varAlloca =
+        varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->context()), 0,
+                                Ir::toIrName(ast->identifier()));
+    EX_ASSERT(!Scope::v(varNode), "varNode LLVMValue {} is not null",
+              (void *)Scope::v(varNode));
+    Scope::v(varNode) = ret = varAlloca;
+  }
+  return ret;
+}
 
 void IrLocalVariableDefinition::buildSymbol() {
   VariableDefinitionBuildSymbol(node_, context_->symbolTable());
@@ -1519,9 +1422,8 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->signature(), "node_->signature is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
-  signature_ = DC(IrFunctionSignatureDefinition,
-                  createIrByAst(context_, node->signature()));
-  statement_ = DC(IrStatement, createIrByAst(context_, node_->statement()));
+  signature_ = new IrFunctionSignatureDefinition(context_, node->signature());
+  statement_ = IrFactory::stmt(context_, node_->statement()));
 }
 
 void IrFunctionDefinition::buildSymbol() {
