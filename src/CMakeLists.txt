@@ -93,6 +93,7 @@ set(SHEPHERD
     Dump.cpp
     Output.cpp
     Ir.cpp
+    IrFactory.cpp
     ${BISON_ShepherdParser_OUTPUTS}
     ${FLEX_ShepherdTokenizer_OUTPUTS}
 )
