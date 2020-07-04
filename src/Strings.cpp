@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 
-char *Strings::copy(const char *s, int n) {
+char *Strings::dup(const char *s, int n) {
   if (!s || n <= 0) {
     return nullptr;
   }
@@ -16,4 +16,4 @@ char *Strings::copy(const char *s, int n) {
   return r;
 }
 
-char *Strings::copy(const char *s) { return copy(s, (int)std::strlen(s)); }
+char *Strings::dup(const char *s) { return dup(s, (int)std::strlen(s)); }

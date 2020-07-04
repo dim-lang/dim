@@ -6,6 +6,8 @@
 #include "Dump.h"
 #include "Exception.h"
 #include "IrFactory.h"
+#include "IrUtil.h"
+#include "Log.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
@@ -35,62 +37,12 @@
 
 static NameGenerator nameGen;
 
-#define SHP_IR std::string("shp.ir.")
 #define DC(x, y) dynamic_cast<x *>(y)
-
-/* ir context */
-IrContext::IrContext(const std::string &moduleName)
-    : moduleName_(moduleName), context_(), builder_(context_), module_(nullptr),
-      symbolTable_(nullptr) {
-  module_ = new llvm::Module(SHP_IR + moduleName, context_);
-  fpm_ = new llvm::legacy::FunctionPassManager(module_);
-  fpm_->add(llvm::createInstructionCombiningPass());
-  fpm_->add(llvm::createReassociatePass());
-  fpm_->add(llvm::createGVNPass());
-  fpm_->add(llvm::createCFGSimplificationPass());
-  fpm_->add(llvm::createPromoteMemoryToRegisterPass());
-  fpm_->doInitialization();
-  symbolTable_ = new SymbolTable();
-}
-
-IrContext::~IrContext() {
-  delete module_;
-  module_ = nullptr;
-  delete fpm_;
-  fpm_ = nullptr;
-}
-
-const std::string &IrContext::moduleName() const { return moduleName_; }
-
-llvm::LLVMContext &IrContext::context() { return context_; }
-
-const llvm::LLVMContext &IrContext::context() const { return context_; }
-
-llvm::IRBuilder<> &IrContext::builder() { return builder_; }
-
-const llvm::IRBuilder<> &IrContext::builder() const { return builder_; }
-
-llvm::Module *&IrContext::module() { return module_; }
-
-const llvm::Module *IrContext::module() const { return module_; }
-
-llvm::legacy::FunctionPassManager *&IrContext::functionPassManager() {
-  return fpm_;
-}
-
-const llvm::legacy::FunctionPassManager *
-IrContext::functionPassManager() const {
-  return fpm_;
-}
-
-SymbolTable *&IrContext::symbolTable() { return symbolTable_; }
-
-const SymbolTable *IrContext::symbolTable() const { return symbolTable_; }
 
 /* interface */
 Ir::Ir(IrContext *context, const std::string &name)
     : context_(context), name_(name) {
-  EX_ASSERT(context_, "context_ is null");
+  EX_ASSERT(context_, "context_ must not be null");
 }
 
 std::string Ir::name() const { return name_; }
@@ -127,11 +79,11 @@ static std::string fromIrNameImpl(const std::string &name,
 }
 
 std::string Ir::toIrName(const std::string &name) {
-  return toIrNameImpl(name, SHP_IR);
+  return toIrNameImpl(name, IrUtil::prefix());
 }
 
 std::string Ir::fromIrName(const std::string &name) {
-  return fromIrNameImpl(name, SHP_IR);
+  return fromIrNameImpl(name, IrUtil::prefix());
 }
 
 IrExpression::IrExpression(IrContext *context, const std::string &name)
@@ -211,7 +163,7 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 llvm::Value *IrIdentifierConstant::codeGen() {
   EX_ASSERT(node_, "node_ is null");
   Scope::SNode varNode =
-      context_->symbolTable()->current->resolve(node_->value());
+      context_->symbolTable->current->resolve(node_->value());
   EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
   EX_ASSERT(Scope::v(varNode), "varNode.LLVMValue is null");
   return Scope::v(varNode);
@@ -228,7 +180,7 @@ IrInt8Constant::IrInt8Constant(IrContext *context, AstInt8Constant *node)
 IrType IrInt8Constant::type() const { return IrType::Int8Constant; }
 
 llvm::Value *IrInt8Constant::codeGen() {
-  return llvm::ConstantInt::get(context_->context(),
+  return llvm::ConstantInt::get(context_->llvmContext,
                                 llvm::APInt(8, (uint64_t)node_->value(), true));
 }
 
@@ -244,7 +196,7 @@ IrType IrUInt8Constant::type() const { return IrType::UInt8Constant; }
 
 llvm::Value *IrUInt8Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(8, (uint64_t)node_->value(), false));
+      context_->llvmContext, llvm::APInt(8, (uint64_t)node_->value(), false));
 }
 
 std::string IrUInt8Constant::toString() const {
@@ -259,7 +211,7 @@ IrType IrInt16Constant::type() const { return IrType::Int16Constant; }
 
 llvm::Value *IrInt16Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(16, (uint64_t)node_->value(), true));
+      context_->llvmContext, llvm::APInt(16, (uint64_t)node_->value(), true));
 }
 
 std::string IrInt16Constant::toString() const {
@@ -274,7 +226,7 @@ IrType IrUInt16Constant::type() const { return IrType::UInt16Constant; }
 
 llvm::Value *IrUInt16Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(16, (uint64_t)node_->value(), false));
+      context_->llvmContext, llvm::APInt(16, (uint64_t)node_->value(), false));
 }
 
 std::string IrUInt16Constant::toString() const {
@@ -289,7 +241,7 @@ IrType IrInt32Constant::type() const { return IrType::Int32Constant; }
 
 llvm::Value *IrInt32Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(32, (uint64_t)node_->value(), true));
+      context_->llvmContext, llvm::APInt(32, (uint64_t)node_->value(), true));
 }
 
 std::string IrInt32Constant::toString() const {
@@ -304,7 +256,7 @@ IrType IrUInt32Constant::type() const { return IrType::UInt32Constant; }
 
 llvm::Value *IrUInt32Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(32, (uint64_t)node_->value(), false));
+      context_->llvmContext, llvm::APInt(32, (uint64_t)node_->value(), false));
 }
 
 std::string IrUInt32Constant::toString() const {
@@ -319,7 +271,7 @@ IrType IrInt64Constant::type() const { return IrType::Int64Constant; }
 
 llvm::Value *IrInt64Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(64, (uint64_t)node_->value(), true));
+      context_->llvmContext, llvm::APInt(64, (uint64_t)node_->value(), true));
 }
 
 std::string IrInt64Constant::toString() const {
@@ -334,7 +286,7 @@ IrType IrUInt64Constant::type() const { return IrType::UInt64Constant; }
 
 llvm::Value *IrUInt64Constant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(), llvm::APInt(64, (uint64_t)node_->value(), false));
+      context_->llvmContext, llvm::APInt(64, (uint64_t)node_->value(), false));
 }
 
 std::string IrUInt64Constant::toString() const {
@@ -349,7 +301,7 @@ IrFloat32Constant::IrFloat32Constant(IrContext *context,
 IrType IrFloat32Constant::type() const { return IrType::Float32Constant; }
 
 llvm::Value *IrFloat32Constant::codeGen() {
-  return llvm::ConstantFP::get(context_->context(),
+  return llvm::ConstantFP::get(context_->llvmContext,
                                llvm::APFloat((float)node_->value()));
 }
 
@@ -365,7 +317,7 @@ IrFloat64Constant::IrFloat64Constant(IrContext *context,
 IrType IrFloat64Constant::type() const { return IrType::Float64Constant; }
 
 llvm::Value *IrFloat64Constant::codeGen() {
-  return llvm::ConstantFP::get(context_->context(),
+  return llvm::ConstantFP::get(context_->llvmContext,
                                llvm::APFloat((double)node_->value()));
 }
 
@@ -394,7 +346,7 @@ IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 
 llvm::Value *IrBooleanConstant::codeGen() {
   return llvm::ConstantInt::get(
-      context_->context(),
+      context_->llvmContext,
       llvm::APInt(1, node_->value() ? (uint64_t)1U : (uint64_t)0U, false));
 }
 
@@ -459,16 +411,16 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFAdd(l, r);
+      return context_->llvmBuilder.CreateFAdd(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context_->builder().CreateFAdd(l, r);
+        return context_->llvmBuilder.CreateFAdd(l, r);
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context_->builder().CreateAdd(l, r);
+        return context_->llvmBuilder.CreateAdd(l, r);
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -484,16 +436,16 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFSub(l, r);
+      return context_->llvmBuilder.CreateFSub(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context_->builder().CreateFSub(l, r);
+        return context_->llvmBuilder.CreateFSub(l, r);
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context_->builder().CreateSub(l, r);
+        return context_->llvmBuilder.CreateSub(l, r);
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -509,16 +461,16 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFMul(l, r);
+      return context_->llvmBuilder.CreateFMul(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context_->builder().CreateFMul(l, r);
+        return context_->llvmBuilder.CreateFMul(l, r);
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context_->builder().CreateMul(l, r);
+        return context_->llvmBuilder.CreateMul(l, r);
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -534,16 +486,16 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFDiv(l, r);
+      return context_->llvmBuilder.CreateFDiv(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context_->builder().CreateFDiv(l, r);
+        return context_->llvmBuilder.CreateFDiv(l, r);
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context_->builder().CreateSDiv(l, r);
+        return context_->llvmBuilder.CreateSDiv(l, r);
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -559,16 +511,16 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFRem(l, r);
+      return context_->llvmBuilder.CreateFRem(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
       case llvm::Type::TypeID::DoubleTyID: {
-        return context_->builder().CreateFRem(l, r);
+        return context_->llvmBuilder.CreateFRem(l, r);
       } break;
       case llvm::Type::TypeID::IntegerTyID: {
-        return context_->builder().CreateSRem(l, r);
+        return context_->llvmBuilder.CreateSRem(l, r);
       } break;
       default:
         EX_ASSERT(false, "r->getType->getTypeID {} invalid",
@@ -587,7 +539,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateShl(l, r);
+    return context_->llvmBuilder.CreateShl(l, r);
   } break;
   case T_BIT_RSHIFT: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -596,7 +548,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateLShr(l, r);
+    return context_->llvmBuilder.CreateLShr(l, r);
   } break;
   case T_BIT_ARSHIFT: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -605,7 +557,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateAShr(l, r);
+    return context_->llvmBuilder.CreateAShr(l, r);
   } break;
   case T_EQ: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
@@ -614,10 +566,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpOEQ(l, r);
+      return context_->llvmBuilder.CreateFCmpOEQ(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpEQ(l, r);
+      return context_->llvmBuilder.CreateICmpEQ(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -631,10 +583,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpONE(l, r);
+      return context_->llvmBuilder.CreateFCmpONE(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpNE(l, r);
+      return context_->llvmBuilder.CreateICmpNE(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -648,10 +600,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpOLE(l, r);
+      return context_->llvmBuilder.CreateFCmpOLE(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpSLE(l, r);
+      return context_->llvmBuilder.CreateICmpSLE(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -665,10 +617,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpOLT(l, r);
+      return context_->llvmBuilder.CreateFCmpOLT(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpSLT(l, r);
+      return context_->llvmBuilder.CreateICmpSLT(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -682,10 +634,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpOGE(l, r);
+      return context_->llvmBuilder.CreateFCmpOGE(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpSGE(l, r);
+      return context_->llvmBuilder.CreateICmpSGE(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -699,10 +651,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID: {
-      return context_->builder().CreateFCmpOGT(l, r);
+      return context_->llvmBuilder.CreateFCmpOGT(l, r);
     } break;
     case llvm::Type::TypeID::IntegerTyID: {
-      return context_->builder().CreateICmpSGT(l, r);
+      return context_->llvmBuilder.CreateICmpSGT(l, r);
     } break;
     default:
       EX_ASSERT(false, "l->getType->getTypeID {} invalid",
@@ -716,7 +668,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateAnd(l, r, "andtmp");
+    return context_->llvmBuilder.CreateAnd(l, r, "andtmp");
   } break;
   case T_BIT_OR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -725,7 +677,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateOr(l, r, "ortmp");
+    return context_->llvmBuilder.CreateOr(l, r, "ortmp");
   } break;
   case T_BIT_XOR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -734,7 +686,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->builder().CreateXor(l, r, "xortmp");
+    return context_->llvmBuilder.CreateXor(l, r, "xortmp");
   } break;
   case T_LOGIC_AND: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -749,7 +701,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
               lc->getBitWidth());
     EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
               rc->getBitWidth());
-    return context_->builder().CreateAnd(l, r, "logic_andtmp");
+    return context_->llvmBuilder.CreateAnd(l, r, "logic_andtmp");
   } break;
   case T_LOGIC_OR: {
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
@@ -764,7 +716,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
               lc->getBitWidth());
     EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
               rc->getBitWidth());
-    return context_->builder().CreateOr(l, r, "logic_ortmp");
+    return context_->llvmBuilder.CreateOr(l, r, "logic_ortmp");
   } break;
   default:
     EX_ASSERT(false, "token {} invalid", node_->token());
@@ -959,14 +911,14 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
 
 void IrCompoundStatement::buildSymbol() {
   LocalScope *loc =
-      new LocalScope(node_->name(), context_->symbolTable()->current);
-  context_->symbolTable()->current->define(
+      new LocalScope(node_->name(), context_->symbolTable->current);
+  context_->symbolTable->current->define(
       Scope::make_snode(loc, ScopeType::ty_local(), node_));
-  context_->symbolTable()->push(loc);
+  context_->symbolTable->push(loc);
   for (int i = 0; i < statementList_->size(); i++) {
     statementList_->get(i)->buildSymbol();
   }
-  context_->symbolTable()->pop();
+  context_->symbolTable->pop();
 }
 
 void IrCompoundStatement::checkSymbol() const {}
@@ -1038,34 +990,34 @@ IrType IrIfStatement::type() const { return IrType::IfStatement; }
 llvm::Value *IrIfStatement::codeGen() {
   llvm::Value *condV = condition_->codeGen();
   EX_ASSERT(condV, "condV is null");
-  condV = context_->builder().CreateICmpNE(
+  condV = context_->llvmBuilder.CreateICmpNE(
       condV,
-      llvm::ConstantInt::get(context_->context(),
+      llvm::ConstantInt::get(context_->llvmContext,
                              llvm::APInt(1, (uint64_t)0, false)),
       nameGen.generate("ifcond"));
-  llvm::Function *f = context_->builder().GetInsertBlock()->getParent();
+  llvm::Function *f = context_->llvmBuilder.GetInsertBlock()->getParent();
   llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(
-      context_->context(), nameGen.generate(SHP_IR + "then"), f);
+      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "then"), f);
   llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(
-      context_->context(), nameGen.generate(SHP_IR + "else"));
+      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "else"));
   llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(
-      context_->context(), nameGen.generate(SHP_IR + "ifcont"));
-  context_->builder().CreateCondBr(condV, thenBlock, elseBlock);
-  context_->builder().SetInsertPoint(thenBlock);
+      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "ifcont"));
+  context_->llvmBuilder.CreateCondBr(condV, thenBlock, elseBlock);
+  context_->llvmBuilder.SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen();
   EX_ASSERT(thenV, "thenV is null");
-  context_->builder().CreateBr(mergeBlock);
-  thenBlock = context_->builder().GetInsertBlock();
+  context_->llvmBuilder.CreateBr(mergeBlock);
+  thenBlock = context_->llvmBuilder.GetInsertBlock();
   f->getBasicBlockList().push_back(elseBlock);
-  context_->builder().SetInsertPoint(elseBlock);
+  context_->llvmBuilder.SetInsertPoint(elseBlock);
   llvm::Value *elseV = elses_->codeGen();
   EX_ASSERT(elseV, "elseV is null");
-  context_->builder().CreateBr(mergeBlock);
-  elseBlock = context_->builder().GetInsertBlock();
+  context_->llvmBuilder.CreateBr(mergeBlock);
+  elseBlock = context_->llvmBuilder.GetInsertBlock();
   f->getBasicBlockList().push_back(mergeBlock);
-  context_->builder().SetInsertPoint(mergeBlock);
-  llvm::PHINode *pn = context_->builder().CreatePHI(
-      llvm::Type::getDoubleTy(context_->context()), 2, "iftmp");
+  context_->llvmBuilder.SetInsertPoint(mergeBlock);
+  llvm::PHINode *pn = context_->llvmBuilder.CreatePHI(
+      llvm::Type::getDoubleTy(context_->llvmContext), 2, "iftmp");
   pn->addIncoming(thenV, thenBlock);
   pn->addIncoming(elseV, elseBlock);
   return pn;
@@ -1118,13 +1070,13 @@ IrForStatement::IrForStatement(IrContext *context, AstForStatement *node)
 
 void IrForStatement::buildSymbol() {
   LocalScope *loc =
-      new LocalScope(node_->name(), context_->symbolTable()->current);
-  context_->symbolTable()->push(loc);
+      new LocalScope(node_->name(), context_->symbolTable->current);
+  context_->symbolTable->push(loc);
   start_->buildSymbol();
   step_->buildSymbol();
   end_->buildSymbol();
   statement_->buildSymbol();
-  context_->symbolTable()->pop();
+  context_->symbolTable->pop();
 }
 
 void IrForStatement::checkSymbol() const {}
@@ -1145,15 +1097,15 @@ IrType IrForStatement::type() const { return IrType::ForStatement; }
 llvm::Value *IrForStatement::codeGen() {
   llvm::Value *startV = start_->codeGen();
   EX_ASSERT(startV, "startV is null");
-  llvm::Function *f = context_->builder().GetInsertBlock()->getParent();
-  llvm::BasicBlock *preheaderBB = context_->builder().GetInsertBlock();
+  llvm::Function *f = context_->llvmBuilder.GetInsertBlock()->getParent();
+  llvm::BasicBlock *preheaderBB = context_->llvmBuilder.GetInsertBlock();
   llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(
-      context_->context(), nameGen.generate("loop"), f);
-  context_->builder().CreateBr(loopBB);
-  context_->builder().SetInsertPoint(loopBB);
+      context_->llvmContext, nameGen.generate("loop"), f);
+  context_->llvmBuilder.CreateBr(loopBB);
+  context_->llvmBuilder.SetInsertPoint(loopBB);
 
-  llvm::PHINode *variable = context_->builder().CreatePHI(
-      llvm::Type::getDoubleTy(context_->context()), 2,
+  llvm::PHINode *variable = context_->llvmBuilder.CreatePHI(
+      llvm::Type::getDoubleTy(context_->llvmContext), 2,
       nameGen.generate("loop.phi"));
   variable->addIncoming(startV, preheaderBB);
   llvm::Value *bodyV = statement_->codeGen();
@@ -1163,24 +1115,24 @@ llvm::Value *IrForStatement::codeGen() {
     stepV = step_->codeGen();
     EX_ASSERT(stepV, "stepV is null");
   } else {
-    stepV = llvm::ConstantInt::get(context_->context(),
+    stepV = llvm::ConstantInt::get(context_->llvmContext,
                                    llvm::APInt(1, (uint64_t)1, false));
   }
-  llvm::Value *nextV = context_->builder().CreateAdd(
+  llvm::Value *nextV = context_->llvmBuilder.CreateAdd(
       variable, stepV, nameGen.generate("nextvar"));
   llvm::Value *endCond = end_->codeGen();
   EX_ASSERT(endCond, "endCond is null");
-  endCond = context_->builder().CreateICmpNE(
-      endCond, llvm::ConstantInt::get(context_->context(),
+  endCond = context_->llvmBuilder.CreateICmpNE(
+      endCond, llvm::ConstantInt::get(context_->llvmContext,
                                       llvm::APInt(1, (uint64_t)0, false)));
-  llvm::BasicBlock *loopEndBB = context_->builder().GetInsertBlock();
+  llvm::BasicBlock *loopEndBB = context_->llvmBuilder.GetInsertBlock();
   llvm::BasicBlock *afterBB = llvm::BasicBlock::Create(
-      context_->context(), nameGen.generate("afterloop"), f);
-  context_->builder().CreateCondBr(endCond, loopBB, afterBB);
-  context_->builder().SetInsertPoint(afterBB);
+      context_->llvmContext, nameGen.generate("afterloop"), f);
+  context_->llvmBuilder.CreateCondBr(endCond, loopBB, afterBB);
+  context_->llvmBuilder.SetInsertPoint(afterBB);
   variable->addIncoming(nextV, loopEndBB);
   return llvm::Constant::getNullValue(
-      llvm::Type::getDoubleTy(context_->context()));
+      llvm::Type::getDoubleTy(context_->llvmContext));
 }
 
 std::string IrForStatement::toString() const {
@@ -1216,7 +1168,7 @@ llvm::Value *IrReturnStatement::codeGen() {
   EX_ASSERT(expression_, "expression_ is null");
   switch (expression_->type()) {
   case IrType::VoidExpression:
-    return context_->builder().CreateRetVoid();
+    return context_->llvmBuilder.CreateRetVoid();
   case IrType::SequelExpression: {
     IrExpressionList *expressionList =
         DC(IrSequelExpression, expression_)->expressionList();
@@ -1224,7 +1176,7 @@ llvm::Value *IrReturnStatement::codeGen() {
               expressionList->size());
     llvm::Value *exprV =
         expressionList->get(expressionList->size() - 1)->codeGen();
-    return context_->builder().CreateRet(exprV);
+    return context_->llvmBuilder.CreateRet(exprV);
   } break;
   default:
     EX_ASSERT(false, "invalid expression_:{}", expression_->toString());
@@ -1304,7 +1256,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     Scope::SNode varNode =
-        context_->symbolTable()->current->resolve(ast->identifier());
+        context_->symbolTable->current->resolve(ast->identifier());
     EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
     EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
               (void *)Scope::v(varNode));
@@ -1314,7 +1266,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
     llvm::GlobalValue *gv = new llvm::GlobalValue(
-        *context_->module(), llvm::Type::getDoubleTy(context_->context()),
+        *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
         Ir::toIrName(ast->identifier()));
     ret = Scope::v(varNode) = gv;
@@ -1323,7 +1275,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
 }
 
 void IrGlobalVariableDefinition::buildSymbol() {
-  VariableDefinitionBuildSymbol(node_, context_->symbolTable());
+  VariableDefinitionBuildSymbol(node_, context_->symbolTable);
 }
 
 void IrGlobalVariableDefinition::checkSymbol() const {}
@@ -1352,7 +1304,7 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     Scope::SNode varNode =
-        context_->symbolTable()->current->resolve(ast->identifier());
+        context_->symbolTable->current->resolve(ast->identifier());
     EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
     EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
               (void *)Scope::v(varNode));
@@ -1367,7 +1319,7 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
     }
     funcSym = DC(FunctionSymbol, enclose);
     Scope::SNode funcNode =
-        context_->symbolTable()->current->resolve(funcSym->name());
+        context_->symbolTable->current->resolve(funcSym->name());
     EX_ASSERT(funcNode != Scope::invalid_snode(), "funcNode is invalid");
     EX_ASSERT(Scope::v(funcNode), "funcNode llvmValue is null");
     if (func) {
@@ -1385,10 +1337,10 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     Scope::SNode varNode =
-        context_->symbolTable()->current->resolve(ast->identifier());
+        context_->symbolTable->current->resolve(ast->identifier());
     llvm::AllocaInst *varAlloca =
-        varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->context()), 0,
-                                Ir::toIrName(ast->identifier()));
+        varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->llvmContext),
+                                0, Ir::toIrName(ast->identifier()));
     EX_ASSERT(!Scope::v(varNode), "varNode LLVMValue {} is not null",
               (void *)Scope::v(varNode));
     Scope::v(varNode) = ret = varAlloca;
@@ -1397,7 +1349,7 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
 }
 
 void IrLocalVariableDefinition::buildSymbol() {
-  VariableDefinitionBuildSymbol(node_, context_->symbolTable());
+  VariableDefinitionBuildSymbol(node_, context_->symbolTable);
 }
 
 void IrLocalVariableDefinition::checkSymbol() const {}
@@ -1417,7 +1369,7 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
 void IrFunctionDefinition::buildSymbol() {
   AstFunctionSignatureDefinition *sign = node_->signature();
   FunctionSymbol *funcSym =
-      new FunctionSymbol(sign->identifier(), context_->symbolTable()->current);
+      new FunctionSymbol(sign->identifier(), context_->symbolTable->current);
   std::vector<Type *> funcArgTypeList;
   for (int i = 0; i < sign->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
@@ -1427,20 +1379,20 @@ void IrFunctionDefinition::buildSymbol() {
   }
   FunctionType *functy =
       new FunctionType(funcArgTypeList, BuiltinType::ty_void());
-  context_->symbolTable()->current->define(
+  context_->symbolTable->current->define(
       Scope::make_snode(funcSym, functy, node_));
-  context_->symbolTable()->push(funcSym);
+  context_->symbolTable->push(funcSym);
   for (int i = 0; i < sign->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
         DC(AstFunctionArgumentDefinition, sign->argumentList()->get(i));
     EX_ASSERT(funcArg, "funcArg is null");
     FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
-        funcArg->identifier(), context_->symbolTable()->current);
-    context_->symbolTable()->current->define(
+        funcArg->identifier(), context_->symbolTable->current);
+    context_->symbolTable->current->define(
         Scope::make_snode(funcArgSym, BuiltinType::ty_void(), funcArg));
   }
   statement_->buildSymbol();
-  context_->symbolTable()->pop();
+  context_->symbolTable->pop();
 }
 
 void IrFunctionDefinition::checkSymbol() const {
@@ -1453,7 +1405,7 @@ IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 llvm::Value *IrFunctionDefinition::codeGen() {
   std::string funcIrName = Ir::toIrName(node_->signature()->identifier());
 
-  llvm::Function *f = context_->module()->getFunction(funcIrName);
+  llvm::Function *f = context_->llvmModule->getFunction(funcIrName);
   if (!f) {
     f = llvm::dyn_cast<llvm::Function>(signature_->codeGen());
   }
@@ -1463,17 +1415,17 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
             node_->signature()->identifier());
   llvm::BasicBlock *bb =
-      llvm::BasicBlock::Create(context_->context(), funcIrName + ".entry", f);
-  context_->builder().SetInsertPoint(bb);
+      llvm::BasicBlock::Create(context_->llvmContext, funcIrName + ".entry", f);
+  context_->llvmBuilder.SetInsertPoint(bb);
 
-  Scope::SNode funcNode = context_->symbolTable()->current->resolve(
-      node_->signature()->identifier());
-  context_->symbolTable()->push(DC(FunctionSymbol, Scope::s(funcNode)));
+  Scope::SNode funcNode =
+      context_->symbolTable->current->resolve(node_->signature()->identifier());
+  context_->symbolTable->push(DC(FunctionSymbol, Scope::s(funcNode)));
 
   // check function argument symbol exist
   for (auto &a : f->args()) {
     Scope::SNode argNode =
-        context_->symbolTable()->current->resolve(Ir::fromIrName(a.getName()));
+        context_->symbolTable->current->resolve(Ir::fromIrName(a.getName()));
     EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
     Scope::v(argNode) = &a;
   }
@@ -1481,14 +1433,14 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   llvm::Value *ret = statement_->codeGen();
 
   if (ret) {
-    context_->builder().CreateRet(ret);
+    context_->llvmBuilder.CreateRet(ret);
     llvm::verifyFunction(*f);
-    context_->symbolTable()->pop();
+    context_->symbolTable->pop();
     return llvm::dyn_cast<llvm::Value>(f);
   }
 
   f->eraseFromParent();
-  context_->symbolTable()->pop();
+  context_->symbolTable->pop();
   return nullptr;
 }
 
@@ -1517,12 +1469,12 @@ IrType IrFunctionSignatureDefinition::type() const {
 llvm::Value *IrFunctionSignatureDefinition::codeGen() {
   AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
-      args->size(), llvm::Type::getDoubleTy(context_->context()));
+      args->size(), llvm::Type::getDoubleTy(context_->llvmContext));
   llvm::FunctionType *ft = llvm::FunctionType::get(
-      llvm::Type::getDoubleTy(context_->context()), doubleArgs, false);
+      llvm::Type::getDoubleTy(context_->llvmContext), doubleArgs, false);
   llvm::Function *f = llvm::Function::Create(
       ft, llvm::Function::ExternalLinkage, Ir::toIrName(node_->identifier()),
-      context_->module());
+      context_->llvmModule);
   // set function arg names
   int i = 0;
   for (auto &a : f->args()) {

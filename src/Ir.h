@@ -4,6 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Exception.h"
+#include "IrContext.h"
 #include "SymbolTable.h"
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
@@ -91,31 +92,6 @@ class IrFunctionDefinition;
 class IrFunctionSignatureDefinition;
 
 /*================ definition ================*/
-
-class IrContext : protected boost::noncopyable {
-public:
-  IrContext(const std::string &moduleName);
-  virtual ~IrContext();
-  const std::string &moduleName() const;
-  llvm::LLVMContext &context();
-  const llvm::LLVMContext &context() const;
-  llvm::IRBuilder<> &builder();
-  const llvm::IRBuilder<> &builder() const;
-  llvm::Module *&module();
-  const llvm::Module *module() const;
-  llvm::legacy::FunctionPassManager *&functionPassManager();
-  const llvm::legacy::FunctionPassManager *functionPassManager() const;
-  SymbolTable *&symbolTable();
-  const SymbolTable *symbolTable() const;
-
-private:
-  std::string moduleName_;
-  llvm::LLVMContext context_;
-  llvm::IRBuilder<> builder_;
-  llvm::Module *module_;
-  llvm::legacy::FunctionPassManager *fpm_;
-  SymbolTable *symbolTable_;
-};
 
 class Ir : public Namely, public Stringify, private boost::noncopyable {
 public:
