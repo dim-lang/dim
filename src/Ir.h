@@ -104,16 +104,6 @@ public:
   virtual void buildSymbol();
   virtual void checkSymbol() const;
 
-  // source code function name translation rule, such as:
-  // `format_print` to `shp.ir.format.print`
-  // `FormatPrint` to `shp.ir.FormatPrint`
-  static std::string toIrName(const std::string &name);
-
-  // source code function name reverse translation rule, such as:
-  // `shp.ir.format.print` to `format_print`
-  // `shp.ir.FormatPrint` to `FormatPrint`
-  static std::string fromIrName(const std::string &name);
-
 protected:
   IrContext *context_;
   std::string name_;

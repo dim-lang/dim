@@ -51,41 +51,6 @@ void Ir::buildSymbol() {}
 
 void Ir::checkSymbol() const {}
 
-static std::string toIrNameImpl(const std::string &name,
-                                const std::string prefix) {
-  EX_ASSERT(name.length() > 0, "name {} length {} <= 0", name, name.length());
-  std::string tmp(name);
-  for (int i = 0; i < (int)tmp.length(); i++) {
-    if (tmp[i] == '_') {
-      tmp[i] = '.';
-    }
-  }
-  return prefix + tmp;
-}
-
-static std::string fromIrNameImpl(const std::string &name,
-                                  const std::string prefix) {
-  EX_ASSERT(name.length() > prefix.length(),
-            "name {} length {} <= prefix {} length {}", name, name.length(),
-            prefix, prefix.length());
-  std::string tmp(
-      name.substr(prefix.length(), name.length() - prefix.length()));
-  for (int i = 0; i < (int)tmp.length(); i++) {
-    if (tmp[i] == '.') {
-      tmp[i] = '_';
-    }
-  }
-  return tmp;
-}
-
-std::string Ir::toIrName(const std::string &name) {
-  return toIrNameImpl(name, IrUtil::prefix());
-}
-
-std::string Ir::fromIrName(const std::string &name) {
-  return fromIrNameImpl(name, IrUtil::prefix());
-}
-
 IrExpression::IrExpression(IrContext *context, const std::string &name)
     : Ir(context, name) {}
 
@@ -1268,7 +1233,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
     llvm::GlobalValue *gv = new llvm::GlobalValue(
         *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
-        Ir::toIrName(ast->identifier()));
+        IrUtil::toLLVMName(ast->identifier()));
     ret = Scope::v(varNode) = gv;
   }
   return ret;
@@ -1340,7 +1305,7 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
         context_->symbolTable->current->resolve(ast->identifier());
     llvm::AllocaInst *varAlloca =
         varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->llvmContext),
-                                0, Ir::toIrName(ast->identifier()));
+                                0, IrUtil::toLLVMName(ast->identifier()));
     EX_ASSERT(!Scope::v(varNode), "varNode LLVMValue {} is not null",
               (void *)Scope::v(varNode));
     Scope::v(varNode) = ret = varAlloca;
@@ -1403,7 +1368,7 @@ void IrFunctionDefinition::checkSymbol() const {
 IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 
 llvm::Value *IrFunctionDefinition::codeGen() {
-  std::string funcIrName = Ir::toIrName(node_->signature()->identifier());
+  std::string funcIrName = IrUtil::toLLVMName(node_->signature()->identifier());
 
   llvm::Function *f = context_->llvmModule->getFunction(funcIrName);
   if (!f) {
@@ -1424,8 +1389,8 @@ llvm::Value *IrFunctionDefinition::codeGen() {
 
   // check function argument symbol exist
   for (auto &a : f->args()) {
-    Scope::SNode argNode =
-        context_->symbolTable->current->resolve(Ir::fromIrName(a.getName()));
+    Scope::SNode argNode = context_->symbolTable->current->resolve(
+        IrUtil::fromLLVMName(a.getName()));
     EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
     Scope::v(argNode) = &a;
   }
@@ -1473,8 +1438,8 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context_->llvmContext), doubleArgs, false);
   llvm::Function *f = llvm::Function::Create(
-      ft, llvm::Function::ExternalLinkage, Ir::toIrName(node_->identifier()),
-      context_->llvmModule);
+      ft, llvm::Function::ExternalLinkage,
+      IrUtil::toLLVMName(node_->identifier()), context_->llvmModule);
   // set function arg names
   int i = 0;
   for (auto &a : f->args()) {
@@ -1482,7 +1447,7 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
     EX_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDefinition *ast =
         DC(AstFunctionArgumentDefinition, args->get(i++));
-    a.setName(Ir::toIrName(ast->identifier()));
+    a.setName(IrUtil::toLLVMName(ast->identifier()));
   }
   return llvm::dyn_cast<llvm::Value>(f);
 }
