@@ -9,10 +9,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
 #include "enum.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/Module.h"
 #include <vector>
 
 /*================ type from start 4000 ================*/

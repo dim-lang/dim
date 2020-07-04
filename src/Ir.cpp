@@ -3,7 +3,6 @@
 
 #include "Ir.h"
 #include "Ast.h"
-#include "Dump.h"
 #include "Exception.h"
 #include "IrFactory.h"
 #include "IrUtil.h"
