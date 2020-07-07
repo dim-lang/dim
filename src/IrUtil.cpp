@@ -6,8 +6,10 @@
 #include "Ir.h"
 #include "NameGenerator.h"
 
+#define PREFIX std::string("shp.ir.")
+
 std::string IrUtil::namegen(const std::string &name) {
-  static NameGenerator nameGenerator("shp.ir.", ".", ".");
+  static NameGenerator nameGenerator(PREFIX, ".", ".");
   return nameGenerator.generate(name);
 }
 
@@ -38,12 +40,10 @@ static std::string fromLLVMNameImpl(const std::string &name,
   return tmp;
 }
 
-std::string IrUtil::toLLVMName(const std::string &name,
-                               const std::string &prefix) {
-  return toLLVMNameImpl(name, prefix);
+std::string IrUtil::toLLVMName(const std::string &name) {
+  return toLLVMNameImpl(name, PREFIX);
 }
 
-std::string IrUtil::fromLLVMName(const std::string &name,
-                                 const std::string &prefix) {
-  return fromLLVMNameImpl(name, prefix);
+std::string IrUtil::fromLLVMName(const std::string &name) {
+  return fromLLVMNameImpl(name, PREFIX);
 }
