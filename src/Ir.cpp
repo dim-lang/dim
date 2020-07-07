@@ -812,10 +812,6 @@ IrSequelExpression::IrSequelExpression(IrContext *context,
 }
 
 IrSequelExpression::~IrSequelExpression() {
-  for (int i = 0; i < expressionList_->size(); i++) {
-    IrExpression *ir = expressionList_->get(i);
-    delete ir;
-  }
   delete expressionList_;
   expressionList_ = nullptr;
 }
@@ -946,10 +942,6 @@ void IrCompoundStatement::buildSymbol() {
 void IrCompoundStatement::checkSymbol() const {}
 
 IrCompoundStatement::~IrCompoundStatement() {
-  for (int i = 0; i < statementList_->size(); i++) {
-    IrStatement *ir = statementList_->get(i);
-    delete ir;
-  }
   delete statementList_;
   statementList_ = nullptr;
 }
@@ -1263,10 +1255,6 @@ IrGlobalVariableDefinition::IrGlobalVariableDefinition(
 }
 
 IrGlobalVariableDefinition::~IrGlobalVariableDefinition() {
-  for (int i = 0; i < expressionList_->size(); i++) {
-    IrExpression *ir = expressionList_->get(i);
-    delete ir;
-  }
   delete expressionList_;
   expressionList_ = nullptr;
 }
