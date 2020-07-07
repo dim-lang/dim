@@ -93,7 +93,7 @@ IrStatement *IrFactory::stmt(IrContext *context, Ast *node) {
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
               dumpSource(context->moduleName(), node->position()));
   }
-  return DC(IrStatement, local(context, node));
+  return nullptr;
 }
 
 IrDefinition *IrFactory::unit(IrContext *context, Ast *node) {

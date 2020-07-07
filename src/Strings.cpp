@@ -2,18 +2,19 @@
 // Apache License Version 2.0
 
 #include "Strings.h"
-#include "Log.h"
+#include "Exception.h"
 #include <cstdlib>
 #include <cstring>
 
-char *Strings::copy(const char *s, int n) {
+char *Strings::dup(const char *s, int n) {
   if (!s || n <= 0) {
     return nullptr;
   }
-  char *r = (char *)std::malloc((n + 1) * sizeof(char));
-  std::memset(r, 0, (n + 1) * sizeof(char));
-  std::memcpy(r, s, n * sizeof(char));
+  char *r = (char *)std::malloc(n + 1);
+  EX_ASSERT(r, "r must not be null");
+  std::memset(r, 0, n + 1);
+  std::strncpy(r, s, n);
   return r;
 }
 
-char *Strings::copy(const char *s) { return copy(s, (int)std::strlen(s)); }
+char *Strings::dup(const char *s) { return dup(s, (int)std::strlen(s)); }

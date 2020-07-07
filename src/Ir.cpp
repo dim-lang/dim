@@ -6,6 +6,7 @@
 #include "Dump.h"
 #include "Exception.h"
 #include "IrFactory.h"
+#include "Log.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
@@ -16,7 +17,7 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
-#include "llvm/IR/GlobalValue.h"
+#include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
@@ -1313,9 +1314,9 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
     EX_ASSERT(enclose->type() == (+SymType::Global),
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
-    llvm::GlobalValue *gv = new llvm::GlobalValue(
+    llvm::GlobalVariable *gv = new llvm::GlobalVariable(
         *context_->module(), llvm::Type::getDoubleTy(context_->context()),
-        llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
+        false, llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
         Ir::toIrName(ast->identifier()));
     ret = Scope::v(varNode) = gv;
   }
