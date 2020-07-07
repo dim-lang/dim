@@ -16,7 +16,7 @@ static void testIr(const char *fileName) {
     IrContext context(fileName);
     IrTranslateUnit tunit(&context, scanner.translateUnit());
     tunit.buildSymbol();
-    LOG_INFO("output string ir:{}\n\n{}", fileName, output_string(&tunit));
+    LOG_INFO("output string ir:{}\n\n{}", fileName, output_string(&context));
   }
   {
     Scanner scanner;
@@ -25,7 +25,7 @@ static void testIr(const char *fileName) {
     IrContext context(fileName);
     IrTranslateUnit tunit(&context, scanner.translateUnit());
     tunit.buildSymbol();
-    std::error_code errcode = output_fd(&tunit, fileName);
+    std::error_code errcode = output_fd(&context, fileName);
     LOG_INFO("output fd ir:{}, errcode value:{}, category:{}, message:{}",
              fileName, errcode.value(), errcode.category().name(),
              errcode.message());

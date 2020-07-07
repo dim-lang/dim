@@ -94,6 +94,8 @@ set(SHEPHERD
     Output.cpp
     Ir.cpp
     IrFactory.cpp
+    IrUtil.cpp
+    IrContext.cpp
     ${BISON_ShepherdParser_OUTPUTS}
     ${FLEX_ShepherdTokenizer_OUTPUTS}
 )

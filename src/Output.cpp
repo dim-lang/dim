@@ -3,20 +3,21 @@
 
 #include "Output.h"
 #include "Log.h"
+#include "llvm/IR/AssemblyAnnotationWriter.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Value.h"
 #include "llvm/Support/raw_ostream.h"
 #include <sstream>
 
-std::error_code output_fd(IrTranslateUnit *tunit,
-                          const std::string &sourceFileName) {
+#define LL std::string(".ll")
+
+#if 0
+std::error_code output_fd(IrTranslateUnit *tunit, const std::string &fileName) {
   EX_ASSERT(tunit, "tunit is null");
-  EX_ASSERT(!sourceFileName.empty(), "sourceFileName.empty false: {}",
-            sourceFileName);
+  EX_ASSERT(!fileName.empty(), "fileName.empty false: {}", fileName);
 
   std::error_code errcode;
-  std::string llFileName = sourceFileName + std::string(".ll");
-  llvm::raw_fd_ostream fd(llFileName, errcode);
+  llvm::raw_fd_ostream fd(fileName + LL, errcode);
   if (errcode) {
     return errcode;
   }
@@ -45,4 +46,28 @@ std::string output_string(IrTranslateUnit *tunit) {
     ss << "\n";
   }
   return ss.str();
+}
+#endif
+
+std::error_code output_fd(IrContext *context, const std::string &fileName) {
+  EX_ASSERT(context, "context is null");
+  EX_ASSERT(!fileName.empty(), "fileName.empty false: {}", fileName);
+
+  std::error_code errcode;
+  llvm::raw_fd_ostream fd(fileName + LL, errcode);
+  if (errcode) {
+    return errcode;
+  }
+  context->llvmModule->print(fd, new llvm::AssemblyAnnotationWriter());
+  fd.close();
+  return errcode;
+}
+
+std::string output_string(IrContext *context) {
+  EX_ASSERT(context, "context is null");
+
+  std::string s;
+  llvm::raw_string_ostream os(s);
+  context->llvmModule->print(os, new llvm::AssemblyAnnotationWriter());
+  return s;
 }

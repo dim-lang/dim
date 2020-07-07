@@ -9,21 +9,6 @@
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
-IrContext *IrContext::instance = nullptr;
-
-void IrContext::initialize(const std::string &fileName) {
-  if (instance) {
-    delete instance;
-    instance = nullptr;
-  }
-  instance = new IrContext(fileName);
-}
-
-IrContext *IrContext::get() {
-  EX_ASSERT(instance, "instance must not be null");
-  return instance;
-}
-
 IrContext::IrContext(const std::string &a_fileName)
     : fileName(a_fileName), symbolTable(nullptr), llvmContext(),
       llvmBuilder(llvmContext), llvmModule(nullptr), llvmLegacyFPM(nullptr) {
@@ -37,10 +22,13 @@ IrContext::IrContext(const std::string &a_fileName)
   llvmLegacyFPM->doInitialization();
 }
 
-void IrContext::release() {
-  delete llvmModule;
-  llvmModule = nullptr;
-  delete llvmLegacyFPM;
-  llvmLegacyFPM = nullptr;
+IrContext::~IrContext() {
+  if (llvmModule) {
+    delete llvmModule;
+    llvmModule = nullptr;
+  }
+  if (llvmLegacyFPM) {
+    delete llvmLegacyFPM;
+    llvmLegacyFPM = nullptr;
+  }
 }
-

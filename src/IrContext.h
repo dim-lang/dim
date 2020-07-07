@@ -10,12 +10,10 @@
 #include "llvm/IR/Module.h"
 #include <string>
 
-class IrContext : protected boost::noncopyable {
+class IrContext : private boost::noncopyable {
 public:
+  IrContext(const std::string &a_fileName);
   virtual ~IrContext();
-
-  static void initialize(const std::string &fileName);
-  static IrContext *get(); // singlton
 
   std::string fileName;
   SymbolTable *symbolTable;
@@ -23,9 +21,4 @@ public:
   llvm::IRBuilder<> llvmBuilder;
   llvm::Module *llvmModule;
   llvm::legacy::FunctionPassManager *llvmLegacyFPM;
-
-private:
-  IrContext(const std::string &a_fileName);
-  void release();
-  static IrContext *instance;
 };
