@@ -4,6 +4,12 @@
 #include "IrUtil.h"
 #include "Exception.h"
 #include "Ir.h"
+#include "NameGenerator.h"
+
+std::string IrUtil::namegen(const std::string &name) {
+  static NameGenerator nameGenerator("shp.ir", ".", ".");
+  return nameGenerator.generate(name);
+}
 
 static std::string toLLVMNameImpl(const std::string &name,
                                   const std::string prefix) {

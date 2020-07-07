@@ -6,6 +6,8 @@
 
 class IrUtil {
 public:
+  static std::string namegen(const std::string &name);
+
   // source code function name translation rule, such as:
   // `format_print` to `shp.ir.format.print`
   // `FormatPrint` to `shp.ir.FormatPrint`

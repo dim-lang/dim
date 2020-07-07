@@ -10,13 +10,10 @@
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
-static NameGenerator nameGenerator("shp.ir", ".", ".");
-
 IrContext::IrContext(const std::string &a_moduleName)
     : moduleName(a_moduleName), symbolTable(nullptr), llvmContext(),
       llvmBuilder(llvmContext), llvmModule(nullptr), llvmLegacyFPM(nullptr) {
-  llvmModule =
-      new llvm::Module(nameGenerator.generate(moduleName), llvmContext);
+  llvmModule = new llvm::Module(IrUtil::namegen(moduleName), llvmContext);
   llvmLegacyFPM = new llvm::legacy::FunctionPassManager(llvmModule);
   llvmLegacyFPM->add(llvm::createInstructionCombiningPass());
   llvmLegacyFPM->add(llvm::createReassociatePass());
