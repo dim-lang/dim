@@ -712,17 +712,14 @@ std::string IrConditionalExpression::toString() const {
 IrAssignmentExpression::IrAssignmentExpression(IrContext *context,
                                                AstAssignmentExpression *node)
     : IrExpression(context, nameGen.generate("IrAssignmentExpression")),
-      node_(node), variable_(nullptr), value_(nullptr) {
+      node_(node), value_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->variable(), "node_->variable is null");
   EX_ASSERT(node_->value(), "node_->value is null");
-  variable_ = IrFactory::expr(context_, node->variable());
   value_ = IrFactory::expr(context_, node->value());
 }
 
 IrAssignmentExpression::~IrAssignmentExpression() {
-  delete variable_;
-  variable_ = nullptr;
   delete value_;
   value_ = nullptr;
 }
@@ -731,7 +728,20 @@ IrType IrAssignmentExpression::type() const {
   return IrType::AssignmentExpression;
 }
 
-llvm::Value *IrAssignmentExpression::codeGen() { return nullptr; }
+llvm::Value *IrAssignmentExpression::codeGen() {
+  EX_ASSERT(node_->variable()->type() == (+AstType::IdentifierConstant),
+            "node_->variable type {} must be identifier",
+            node_->variable()->type()._to_string());
+  AstIdentifierConstant *varId = DC(AstIdentifierConstant, node_->variable());
+  Scope::SNode varNode =
+      context_->symbolTable->current->resolve(varId->value());
+  EX_ASSERT(varNode != Scope::invalid_snode(), "varNode must be valid");
+  EX_ASSERT(Scope::v(varNode), "Scope::v(varNode) {} must not be null",
+            (void *)Scope::v(varNode));
+  llvm::Value *v = value_->codeGen();
+  context_->llvmBuilder.CreateStore(v, Scope::v(varNode));
+  return v;
+}
 
 std::string IrAssignmentExpression::toString() const {
   return fmt::format("[@IrAssignmentExpression node_:{}]", node_->toString());
@@ -744,11 +754,10 @@ IrSequelExpression::IrSequelExpression(IrContext *context,
       node_(node), expressionList_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expressionList(), "node_->expressionList is null");
-  expressionList_ = new IrExpressionList(context);
-  for (int i = 0; i < node->expressionList()->size(); i++) {
-    AstExpression *ast = node->expressionList()->get(i);
-    EX_ASSERT(ast, "the {} ast is null", i);
-    expressionList_->add(IrFactory::expr(context_, ast));
+  expressionList_ = new IrExpressionList(context_);
+  for (int i = 0; i < node_->expressionList()->size(); i++) {
+    expressionList_->add(
+        IrFactory::expr(context_, node_->expressionList()->get(i)));
   }
 }
 
@@ -768,8 +777,7 @@ IrExpressionList *IrSequelExpression::expressionList() {
 }
 
 llvm::Value *IrSequelExpression::codeGen() {
-  EX_ASSERT(false, "never reach here");
-  return nullptr;
+  return expressionList_->codeGen();
 }
 
 std::string IrSequelExpression::toString() const {

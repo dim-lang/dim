@@ -150,7 +150,14 @@ public:
     items_.clear();
   }
   virtual IrType type() const = 0;
-  virtual llvm::Value *codeGen() { return nullptr; }
+  virtual llvm::Value *codeGen() {
+    llvm::Value *ret = nullptr;
+    for (int i = 0; i < (int)items_.size(); i++) {
+      Ir *item = dynamic_cast<Ir *>(items_[i]);
+      ret = item->codeGen();
+    }
+    return ret;
+  }
   virtual std::string toString() const {
     std::stringstream ss;
     ss << fmt::format("[@{} size:{}", stringify(), items_.size());
@@ -479,7 +486,6 @@ public:
 
 private:
   AstAssignmentExpression *node_;
-  IrExpression *variable_;
   IrExpression *value_;
 };
 
