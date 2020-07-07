@@ -1194,27 +1194,24 @@ static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
 IrGlobalVariableDefinition::IrGlobalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
     : IrDefinition(context, nameGen.generate("IrGlobalVariableDefinition")),
-      node_(node), variableInitialList_(nullptr) {
+      node_(node), expressionList_(nullptr) {
   EX_ASSERT(node_, "node_ must not be null");
   EX_ASSERT(node_->definitionList(), "node_->definitionList must not be null");
-  variableInitialList_ = new IrExpressionList(context_);
+  expressionList_ = new IrExpressionList(context_);
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    EX_ASSERT(ast->type() == (+AstType::ConditionalExpression),
-              "ast->type {} must be ConditionalExpression",
-              ast->type()._to_string());
-    variableInitialList_->add(new IrConditionalExpression(
-        context_, DC(AstConditionalExpression, ast->expression())));
+    expressionList_->add(IrFactory::expr(ast->expression()));
   }
 }
 
 IrGlobalVariableDefinition::~IrGlobalVariableDefinition() {
-  for (int i = 0; i < variableInitialList_->size(); i++) {
-    delete variableInitialList_->get(i);
+  for (int i = 0; i < expressionList_->size(); i++) {
+    IrExpression *ir = expressionList_->get(i);
+    delete ir;
   }
-  delete variableInitialList_;
-  variableInitialList_ = nullptr;
+  delete expressionList_;
+  expressionList_ = nullptr;
 }
 
 std::string IrGlobalVariableDefinition::toString() const {
@@ -1251,7 +1248,7 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
     llvm::Constant *initial =
-        llvm::dyn_cast<llvm::Constant>(variableInitialList_->get(i)->codeGen());
+        llvm::dyn_cast<llvm::Constant>(expressionList_->get(i)->codeGen());
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
         *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         false, llvm::GlobalValue::LinkageTypes::CommonLinkage, initial,

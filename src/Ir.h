@@ -640,7 +640,7 @@ public:
 
 private:
   AstVariableDefinition *node_;
-  IrExpressionList *variableInitialList_;
+  IrExpressionList *expressionList_;
 };
 
 /* local variable in function */
