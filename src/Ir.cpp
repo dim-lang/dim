@@ -1230,9 +1230,9 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
               "enclosingScope type {} is not global",
               enclose->type()._to_string());
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
-        *context_->module(), llvm::Type::getDoubleTy(context_->context()),
+        *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         false, llvm::GlobalValue::LinkageTypes::CommonLinkage, nullptr,
-        Ir::toIrName(ast->identifier()));
+        IrUtil::toLLVMName(ast->identifier()));
     ret = Scope::v(varNode) = gv;
   }
   return ret;

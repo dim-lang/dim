@@ -18,7 +18,7 @@ static void testAST(const char *fileName) {
   IrTranslateUnit tunit(&context, scanner.translateUnit());
   tunit.buildSymbol();
   LOG_INFO("dump symbol:{} {}", fileName,
-           dumpScope(Scope::make_snode(context.symbolTable()->global,
+           dumpScope(Scope::make_snode(context.symbolTable->global,
                                        ScopeType::ty_global(),
                                        scanner.translateUnit())));
   LOG_INFO("dump source:{}\n{}", fileName,
