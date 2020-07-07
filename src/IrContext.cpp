@@ -13,6 +13,7 @@
 IrContext::IrContext(const std::string &a_moduleName)
     : moduleName(a_moduleName), symbolTable(nullptr), llvmContext(),
       llvmBuilder(llvmContext), llvmModule(nullptr), llvmLegacyFPM(nullptr) {
+  symbolTable = new SymbolTable();
   llvmModule = new llvm::Module(IrUtil::namegen(moduleName), llvmContext);
   llvmLegacyFPM = new llvm::legacy::FunctionPassManager(llvmModule);
   llvmLegacyFPM->add(llvm::createInstructionCombiningPass());
