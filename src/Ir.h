@@ -466,13 +466,16 @@ private:
 class IrConditionalExpression : public IrExpression {
 public:
   IrConditionalExpression(IrContext *context, AstConditionalExpression *node);
-  virtual ~IrConditionalExpression() = default;
+  virtual ~IrConditionalExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
   AstConditionalExpression *node_;
+  IrExpression *condition_;
+  IrExpression *thens_;
+  IrExpression *elses_;
 };
 
 /* assignment expression */

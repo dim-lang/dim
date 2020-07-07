@@ -3,8 +3,7 @@
 
 #include "IrUtil.h"
 #include "Exception.h"
-
-std::string IrUtil::prefix() { return "shp.ir."; }
+#include "Ir.h"
 
 static std::string toLLVMNameImpl(const std::string &name,
                                   const std::string prefix) {
@@ -33,11 +32,12 @@ static std::string fromLLVMNameImpl(const std::string &name,
   return tmp;
 }
 
-std::string IrUtil::toLLVMName(const std::string &name) {
-  return toLLVMNameImpl(name, IrUtil::prefix());
+std::string IrUtil::toLLVMName(const std::string &name,
+                               const std::string &prefix) {
+  return toLLVMNameImpl(name, prefix);
 }
 
-std::string IrUtil::fromLLVMName(const std::string &name) {
-  return fromLLVMNameImpl(name, IrUtil::prefix());
+std::string IrUtil::fromLLVMName(const std::string &name,
+                                 const std::string &prefix) {
+  return fromLLVMNameImpl(name, prefix);
 }
-

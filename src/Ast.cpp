@@ -9,7 +9,7 @@
 #include <string>
 #include <utility>
 
-static NameGenerator nameGen;
+static NameGenerator nameGen("", "_", "@");
 
 Ast::Ast(const std::string &name) : name_(name) {}
 

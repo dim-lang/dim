@@ -4,15 +4,19 @@
 #include "IrContext.h"
 #include "Exception.h"
 #include "IrUtil.h"
+#include "NameGenerator.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
-IrContext::IrContext(const std::string &a_fileName)
-    : fileName(a_fileName), symbolTable(nullptr), llvmContext(),
+static NameGenerator nameGenerator("shp.ir", ".", ".");
+
+IrContext::IrContext(const std::string &a_moduleName)
+    : moduleName(a_moduleName), symbolTable(nullptr), llvmContext(),
       llvmBuilder(llvmContext), llvmModule(nullptr), llvmLegacyFPM(nullptr) {
-  llvmModule = new llvm::Module(IrUtil::prefix() + fileName, llvmContext);
+  llvmModule =
+      new llvm::Module(nameGenerator.generate(moduleName), llvmContext);
   llvmLegacyFPM = new llvm::legacy::FunctionPassManager(llvmModule);
   llvmLegacyFPM->add(llvm::createInstructionCombiningPass());
   llvmLegacyFPM->add(llvm::createReassociatePass());

@@ -34,7 +34,7 @@
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
 
-static NameGenerator nameGen;
+static NameGenerator nameGen("shp.ir", ".", ".");
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
@@ -64,21 +64,24 @@ IrDefinition::IrDefinition(IrContext *context, const std::string &name)
 
 /* list */
 IrExpressionList::IrExpressionList(IrContext *context)
-    : detail::IrList<IrExpression>(context, nameGen.generate("ExprList")) {}
+    : detail::IrList<IrExpression>(context,
+                                   nameGen.generate("expression.list")) {}
 
 IrType IrExpressionList::type() const { return IrType::ExpressionList; }
 
 std::string IrExpressionList::stringify() const { return "IrExpressionList"; }
 
 IrStatementList::IrStatementList(IrContext *context)
-    : detail::IrList<IrStatement>(context, nameGen.generate("StmtList")) {}
+    : detail::IrList<IrStatement>(context, nameGen.generate("statement.list")) {
+}
 
 IrType IrStatementList::type() const { return IrType::StatementList; }
 
 std::string IrStatementList::stringify() const { return "IrStatementList"; }
 
 IrDefinitionList::IrDefinitionList(IrContext *context)
-    : detail::IrList<IrDefinition>(context, nameGen.generate("DeclList")) {}
+    : detail::IrList<IrDefinition>(context,
+                                   nameGen.generate("definition.list")) {}
 
 IrType IrDefinitionList::type() const { return IrType::DefinitionList; }
 
@@ -86,7 +89,7 @@ std::string IrDefinitionList::stringify() const { return "IrDefinitionList"; }
 
 /* translate unit */
 IrTranslateUnit::IrTranslateUnit(IrContext *context, AstTranslateUnit *node)
-    : detail::IrList<IrDefinition>(context, nameGen.generate("TUnit")),
+    : detail::IrList<IrDefinition>(context, nameGen.generate("translate.unit")),
       node_(node) {
   EX_ASSERT(node_, "node_ is null");
   for (int i = 0; i < node_->size(); i++) {
@@ -118,7 +121,8 @@ std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(IrContext *context,
                                            AstIdentifierConstant *node)
-    : IrConstant(context, nameGen.generate("Id")), node_(node), ssaVersion_(0) {
+    : IrConstant(context, nameGen.generate("identifier.constant")), node_(node),
+      ssaVersion_(0) {
   EX_ASSERT(node_, "node_ is null");
 }
 
@@ -139,7 +143,7 @@ std::string IrIdentifierConstant::toString() const {
 
 /* i8 constant */
 IrInt8Constant::IrInt8Constant(IrContext *context, AstInt8Constant *node)
-    : IrConstant(context, nameGen.generate("IrInt8Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("int8.constant")), node_(node) {}
 
 IrType IrInt8Constant::type() const { return IrType::Int8Constant; }
 
@@ -154,7 +158,7 @@ std::string IrInt8Constant::toString() const {
 
 /* u8 constant */
 IrUInt8Constant::IrUInt8Constant(IrContext *context, AstUInt8Constant *node)
-    : IrConstant(context, nameGen.generate("IrUInt8Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("uint8.constant")), node_(node) {}
 
 IrType IrUInt8Constant::type() const { return IrType::UInt8Constant; }
 
@@ -169,7 +173,7 @@ std::string IrUInt8Constant::toString() const {
 
 /* i16 constant */
 IrInt16Constant::IrInt16Constant(IrContext *context, AstInt16Constant *node)
-    : IrConstant(context, nameGen.generate("IrInt16Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("int16.constant")), node_(node) {}
 
 IrType IrInt16Constant::type() const { return IrType::Int16Constant; }
 
@@ -184,7 +188,7 @@ std::string IrInt16Constant::toString() const {
 
 /* u16 constant */
 IrUInt16Constant::IrUInt16Constant(IrContext *context, AstUInt16Constant *node)
-    : IrConstant(context, nameGen.generate("IrUInt16Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("uint16.constant")), node_(node) {}
 
 IrType IrUInt16Constant::type() const { return IrType::UInt16Constant; }
 
@@ -199,7 +203,7 @@ std::string IrUInt16Constant::toString() const {
 
 /* i32 constant */
 IrInt32Constant::IrInt32Constant(IrContext *context, AstInt32Constant *node)
-    : IrConstant(context, nameGen.generate("IrInt32Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("int32.constant")), node_(node) {}
 
 IrType IrInt32Constant::type() const { return IrType::Int32Constant; }
 
@@ -214,7 +218,7 @@ std::string IrInt32Constant::toString() const {
 
 /* u32 constant */
 IrUInt32Constant::IrUInt32Constant(IrContext *context, AstUInt32Constant *node)
-    : IrConstant(context, nameGen.generate("IrUInt32Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("uint32.constant")), node_(node) {}
 
 IrType IrUInt32Constant::type() const { return IrType::UInt32Constant; }
 
@@ -229,7 +233,7 @@ std::string IrUInt32Constant::toString() const {
 
 /* i64 constant */
 IrInt64Constant::IrInt64Constant(IrContext *context, AstInt64Constant *node)
-    : IrConstant(context, nameGen.generate("IrInt64Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("int64.constant")), node_(node) {}
 
 IrType IrInt64Constant::type() const { return IrType::Int64Constant; }
 
@@ -244,7 +248,7 @@ std::string IrInt64Constant::toString() const {
 
 /* u64 constant */
 IrUInt64Constant::IrUInt64Constant(IrContext *context, AstUInt64Constant *node)
-    : IrConstant(context, nameGen.generate("IrUInt64Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("uint64.constant")), node_(node) {}
 
 IrType IrUInt64Constant::type() const { return IrType::UInt64Constant; }
 
@@ -260,7 +264,7 @@ std::string IrUInt64Constant::toString() const {
 /* f32 constant */
 IrFloat32Constant::IrFloat32Constant(IrContext *context,
                                      AstFloat32Constant *node)
-    : IrConstant(context, nameGen.generate("IrFloat32Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("float32.constant")), node_(node) {}
 
 IrType IrFloat32Constant::type() const { return IrType::Float32Constant; }
 
@@ -276,7 +280,7 @@ std::string IrFloat32Constant::toString() const {
 /* f64 constant */
 IrFloat64Constant::IrFloat64Constant(IrContext *context,
                                      AstFloat64Constant *node)
-    : IrConstant(context, nameGen.generate("IrFloat64Constant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("float64.constant")), node_(node) {}
 
 IrType IrFloat64Constant::type() const { return IrType::Float64Constant; }
 
@@ -291,7 +295,7 @@ std::string IrFloat64Constant::toString() const {
 
 /* string constant */
 IrStringConstant::IrStringConstant(IrContext *context, AstStringConstant *node)
-    : IrConstant(context, nameGen.generate("IrStringConstant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("string.constant")), node_(node) {}
 
 IrType IrStringConstant::type() const { return IrType::StringConstant; }
 
@@ -304,7 +308,7 @@ std::string IrStringConstant::toString() const {
 /* boolean constant */
 IrBooleanConstant::IrBooleanConstant(IrContext *context,
                                      AstBooleanConstant *node)
-    : IrConstant(context, nameGen.generate("IrBooleanConstant")), node_(node) {}
+    : IrConstant(context, nameGen.generate("boolean.constant")), node_(node) {}
 
 IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 
@@ -320,8 +324,7 @@ std::string IrBooleanConstant::toString() const {
 
 /* call expression */
 IrCallExpression::IrCallExpression(IrContext *context, AstCallExpression *node)
-    : IrExpression(context, nameGen.generate("IrCallExpression")), node_(node) {
-}
+    : IrExpression(context, nameGen.generate("call.expression")), node_(node) {}
 
 IrType IrCallExpression::type() const { return IrType::CallExpression; }
 
@@ -334,8 +337,8 @@ std::string IrCallExpression::toString() const {
 /* unary expression */
 IrUnaryExpression::IrUnaryExpression(IrContext *context,
                                      AstUnaryExpression *node)
-    : IrExpression(context, nameGen.generate("IrUnaryExpression")),
-      node_(node) {}
+    : IrExpression(context, nameGen.generate("unary.expression")), node_(node) {
+}
 
 IrType IrUnaryExpression::type() const { return IrType::UnaryExpression; }
 
@@ -348,8 +351,8 @@ std::string IrUnaryExpression::toString() const {
 /* binary expression */
 IrBinaryExpression::IrBinaryExpression(IrContext *context,
                                        AstBinaryExpression *node)
-    : IrExpression(context, nameGen.generate("IrBinaryExpression")),
-      node_(node), left_(nullptr), right_(nullptr) {
+    : IrExpression(context, nameGen.generate("binary.expression")), node_(node),
+      left_(nullptr), right_(nullptr) {
   EX_ASSERT(node_->left(), "node_->left is null");
   EX_ASSERT(node_->right(), "node_->right is null");
   left_ = IrFactory::expr(context_, node->left());
@@ -695,14 +698,65 @@ std::string IrBinaryExpression::toString() const {
 /* conditional expression */
 IrConditionalExpression::IrConditionalExpression(IrContext *context,
                                                  AstConditionalExpression *node)
-    : IrExpression(context, nameGen.generate("IrConditionalExpression")),
-      node_(node) {}
+    : IrExpression(context, nameGen.generate("conditional.expression")),
+      node_(node), condition_(nullptr), thens_(nullptr), elses_(nullptr) {
+  EX_ASSERT(node_, "node_ must not be null");
+  EX_ASSERT(node_->condition(), "node_->condition must not be null");
+  EX_ASSERT(node_->thens(), "node_->thens must not be null");
+  EX_ASSERT(node_->elses(), "node_->elses must not be null");
+  condition_ = IrFactory::expr(context_, node_->condition());
+  thens_ = IrFactory::expr(context_, node_->thens());
+  elses_ = IrFactory::expr(context_, node_->elses());
+}
+
+IrConditionalExpression::~IrConditionalExpression() {
+  delete condition_;
+  condition_ = nullptr;
+  delete thens_;
+  thens_ = nullptr;
+  delete elses_;
+  elses_ = nullptr;
+}
 
 IrType IrConditionalExpression::type() const {
   return IrType::ConditionalExpression;
 }
 
-llvm::Value *IrConditionalExpression::codeGen() { return nullptr; }
+llvm::Value *IrConditionalExpression::codeGen() {
+  llvm::Value *condV = condition_->codeGen();
+  EX_ASSERT(condV, "condV is null");
+  condV = context_->llvmBuilder.CreateICmpNE(
+      condV,
+      llvm::ConstantInt::get(context_->llvmContext,
+                             llvm::APInt(1, (uint64_t)0, false)),
+      name() + "ifcond");
+  llvm::Function *func = context_->llvmBuilder.GetInsertBlock()->getParent();
+  llvm::BasicBlock *thenBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "then", func);
+  llvm::BasicBlock *elseBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "else");
+  llvm::BasicBlock *mergeBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "ifcont");
+  context_->llvmBuilder.CreateCondBr(condV, thenBlock, elseBlock);
+  context_->llvmBuilder.SetInsertPoint(thenBlock);
+  llvm::Value *thenV = thens_->codeGen();
+  EX_ASSERT(thenV, "thenV is null");
+  context_->llvmBuilder.CreateBr(mergeBlock);
+  thenBlock = context_->llvmBuilder.GetInsertBlock();
+  func->getBasicBlockList().push_back(elseBlock);
+  context_->llvmBuilder.SetInsertPoint(elseBlock);
+  llvm::Value *elseV = elses_->codeGen();
+  EX_ASSERT(elseV, "elseV is null");
+  context_->llvmBuilder.CreateBr(mergeBlock);
+  elseBlock = context_->llvmBuilder.GetInsertBlock();
+  func->getBasicBlockList().push_back(mergeBlock);
+  context_->llvmBuilder.SetInsertPoint(mergeBlock);
+  llvm::PHINode *pn = context_->llvmBuilder.CreatePHI(
+      llvm::Type::getDoubleTy(context_->llvmContext), 2, "iftmp");
+  pn->addIncoming(thenV, thenBlock);
+  pn->addIncoming(elseV, elseBlock);
+  return pn;
+}
 
 std::string IrConditionalExpression::toString() const {
   return fmt::format("[@IrConditionalExpression node_:{}]", node_->toString());
@@ -711,7 +765,7 @@ std::string IrConditionalExpression::toString() const {
 /* assignment expression */
 IrAssignmentExpression::IrAssignmentExpression(IrContext *context,
                                                AstAssignmentExpression *node)
-    : IrExpression(context, nameGen.generate("IrAssignmentExpression")),
+    : IrExpression(context, nameGen.generate("assignment.expression")),
       node_(node), value_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->variable(), "node_->variable is null");
@@ -750,8 +804,8 @@ std::string IrAssignmentExpression::toString() const {
 /* sequel expression */
 IrSequelExpression::IrSequelExpression(IrContext *context,
                                        AstSequelExpression *node)
-    : IrExpression(context, nameGen.generate("IrSequelExpression")),
-      node_(node), expressionList_(nullptr) {
+    : IrExpression(context, nameGen.generate("sequel.expression")), node_(node),
+      expressionList_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expressionList(), "node_->expressionList is null");
   expressionList_ = new IrExpressionList(context_);
@@ -785,7 +839,7 @@ std::string IrSequelExpression::toString() const {
 }
 
 IrVoidExpression::IrVoidExpression(IrContext *context, AstVoidExpression *node)
-    : IrExpression(context, nameGen.generate("IrVoidExpression")), node_(node) {
+    : IrExpression(context, nameGen.generate("void.expression")), node_(node) {
   EX_ASSERT(node_, "node_ is null");
 }
 
@@ -800,7 +854,7 @@ llvm::Value *IrVoidExpression::codeGen() { return nullptr; }
 /* expression statement */
 IrExpressionStatement::IrExpressionStatement(IrContext *context,
                                              AstExpressionStatement *node)
-    : IrStatement(context, nameGen.generate("IrExpressionStatement")),
+    : IrStatement(context, nameGen.generate("expression.statement")),
       node_(node), expression_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expression(), "node_->expression is null");
@@ -832,8 +886,8 @@ std::string IrExpressionStatement::toString() const {
 /* compound statement */
 IrCompoundStatement::IrCompoundStatement(IrContext *context,
                                          AstCompoundStatement *node)
-    : IrStatement(context, nameGen.generate("IrCompoundStatement")),
-      node_(node), statementList_(nullptr) {
+    : IrStatement(context, nameGen.generate("compound.statement")), node_(node),
+      statementList_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->statementList(), "node_->statementList is null");
   statementList_ = new IrStatementList(context);
@@ -925,7 +979,7 @@ std::string IrCompoundStatement::toString() const {
 
 /* if statement */
 IrIfStatement::IrIfStatement(IrContext *context, AstIfStatement *node)
-    : IrStatement(context, nameGen.generate("IrIfStatement")), node_(node),
+    : IrStatement(context, nameGen.generate("if.statement")), node_(node),
       condition_(nullptr), thens_(nullptr), elses_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->condition(), "node_->condition is null");
@@ -966,27 +1020,27 @@ llvm::Value *IrIfStatement::codeGen() {
       condV,
       llvm::ConstantInt::get(context_->llvmContext,
                              llvm::APInt(1, (uint64_t)0, false)),
-      nameGen.generate("ifcond"));
-  llvm::Function *f = context_->llvmBuilder.GetInsertBlock()->getParent();
-  llvm::BasicBlock *thenBlock = llvm::BasicBlock::Create(
-      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "then"), f);
-  llvm::BasicBlock *elseBlock = llvm::BasicBlock::Create(
-      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "else"));
-  llvm::BasicBlock *mergeBlock = llvm::BasicBlock::Create(
-      context_->llvmContext, nameGen.generate(IrUtil::prefix() + "ifcont"));
+      name() + "ifcond");
+  llvm::Function *func = context_->llvmBuilder.GetInsertBlock()->getParent();
+  llvm::BasicBlock *thenBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "then", func);
+  llvm::BasicBlock *elseBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "else");
+  llvm::BasicBlock *mergeBlock =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "ifcont");
   context_->llvmBuilder.CreateCondBr(condV, thenBlock, elseBlock);
   context_->llvmBuilder.SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen();
   EX_ASSERT(thenV, "thenV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   thenBlock = context_->llvmBuilder.GetInsertBlock();
-  f->getBasicBlockList().push_back(elseBlock);
+  func->getBasicBlockList().push_back(elseBlock);
   context_->llvmBuilder.SetInsertPoint(elseBlock);
   llvm::Value *elseV = elses_->codeGen();
   EX_ASSERT(elseV, "elseV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   elseBlock = context_->llvmBuilder.GetInsertBlock();
-  f->getBasicBlockList().push_back(mergeBlock);
+  func->getBasicBlockList().push_back(mergeBlock);
   context_->llvmBuilder.SetInsertPoint(mergeBlock);
   llvm::PHINode *pn = context_->llvmBuilder.CreatePHI(
       llvm::Type::getDoubleTy(context_->llvmContext), 2, "iftmp");
@@ -1001,7 +1055,7 @@ std::string IrIfStatement::toString() const {
 
 /* while statement */
 IrWhileStatement::IrWhileStatement(IrContext *context, AstWhileStatement *node)
-    : IrStatement(context, nameGen.generate("IrWhileStatement")), node_(node),
+    : IrStatement(context, nameGen.generate("while.statement")), node_(node),
       condition_(nullptr), statement_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->condition(), "node_->condition is null");
@@ -1027,7 +1081,7 @@ std::string IrWhileStatement::toString() const {
 
 /* for statement */
 IrForStatement::IrForStatement(IrContext *context, AstForStatement *node)
-    : IrStatement(context, nameGen.generate("IrForStatement")), node_(node),
+    : IrStatement(context, nameGen.generate("for.statement")), node_(node),
       start_(nullptr), step_(nullptr), end_(nullptr), statement_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->start(), "node_->start is null");
@@ -1069,16 +1123,15 @@ IrType IrForStatement::type() const { return IrType::ForStatement; }
 llvm::Value *IrForStatement::codeGen() {
   llvm::Value *startV = start_->codeGen();
   EX_ASSERT(startV, "startV is null");
-  llvm::Function *f = context_->llvmBuilder.GetInsertBlock()->getParent();
+  llvm::Function *func = context_->llvmBuilder.GetInsertBlock()->getParent();
   llvm::BasicBlock *preheaderBB = context_->llvmBuilder.GetInsertBlock();
-  llvm::BasicBlock *loopBB = llvm::BasicBlock::Create(
-      context_->llvmContext, nameGen.generate("loop"), f);
+  llvm::BasicBlock *loopBB =
+      llvm::BasicBlock::Create(context_->llvmContext, name() + "loop", func);
   context_->llvmBuilder.CreateBr(loopBB);
   context_->llvmBuilder.SetInsertPoint(loopBB);
 
   llvm::PHINode *variable = context_->llvmBuilder.CreatePHI(
-      llvm::Type::getDoubleTy(context_->llvmContext), 2,
-      nameGen.generate("loop.phi"));
+      llvm::Type::getDoubleTy(context_->llvmContext), 2, name() + "loop.phi");
   variable->addIncoming(startV, preheaderBB);
   llvm::Value *bodyV = statement_->codeGen();
   EX_ASSERT(bodyV, "bodyV is null");
@@ -1090,8 +1143,8 @@ llvm::Value *IrForStatement::codeGen() {
     stepV = llvm::ConstantInt::get(context_->llvmContext,
                                    llvm::APInt(1, (uint64_t)1, false));
   }
-  llvm::Value *nextV = context_->llvmBuilder.CreateAdd(
-      variable, stepV, nameGen.generate("nextvar"));
+  llvm::Value *nextV =
+      context_->llvmBuilder.CreateAdd(variable, stepV, name() + "nextvar");
   llvm::Value *endCond = end_->codeGen();
   EX_ASSERT(endCond, "endCond is null");
   endCond = context_->llvmBuilder.CreateICmpNE(
@@ -1099,7 +1152,7 @@ llvm::Value *IrForStatement::codeGen() {
                                       llvm::APInt(1, (uint64_t)0, false)));
   llvm::BasicBlock *loopEndBB = context_->llvmBuilder.GetInsertBlock();
   llvm::BasicBlock *afterBB = llvm::BasicBlock::Create(
-      context_->llvmContext, nameGen.generate("afterloop"), f);
+      context_->llvmContext, name() + "afterloop", func);
   context_->llvmBuilder.CreateCondBr(endCond, loopBB, afterBB);
   context_->llvmBuilder.SetInsertPoint(afterBB);
   variable->addIncoming(nextV, loopEndBB);
@@ -1114,7 +1167,7 @@ std::string IrForStatement::toString() const {
 /* return statement */
 IrReturnStatement::IrReturnStatement(IrContext *context,
                                      AstReturnStatement *node)
-    : IrStatement(context, nameGen.generate("IrReturnStatement")), node_(node),
+    : IrStatement(context, nameGen.generate("return.statement")), node_(node),
       expression_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->expression(), "node_->expression is null");
@@ -1201,7 +1254,7 @@ static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
 /* global variable */
 IrGlobalVariableDefinition::IrGlobalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
-    : IrDefinition(context, nameGen.generate("IrGlobalVariableDefinition")),
+    : IrDefinition(context, nameGen.generate("global.variable.definition")),
       node_(node), expressionList_(nullptr) {
   EX_ASSERT(node_, "node_ must not be null");
   EX_ASSERT(node_->definitionList(), "node_->definitionList must not be null");
@@ -1209,7 +1262,7 @@ IrGlobalVariableDefinition::IrGlobalVariableDefinition(
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    expressionList_->add(IrFactory::expr(ast->expression()));
+    expressionList_->add(IrFactory::expr(context_, ast->expression()));
   }
 }
 
@@ -1275,7 +1328,7 @@ void IrGlobalVariableDefinition::checkSymbol() const {}
 /* local variable in function */
 IrLocalVariableDefinition::IrLocalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
-    : IrDefinition(context, nameGen.generate("IrLocalVariableDefinition")),
+    : IrDefinition(context, nameGen.generate("local.variable.definition")),
       node_(node) {}
 
 std::string IrLocalVariableDefinition::toString() const {
@@ -1349,7 +1402,7 @@ void IrLocalVariableDefinition::checkSymbol() const {}
 /* function definition */
 IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
                                            AstFunctionDefinition *node)
-    : IrDefinition(context, nameGen.generate("IrFunctionDefinition")),
+    : IrDefinition(context, nameGen.generate("function.definition")),
       node_(node), signature_(nullptr), statement_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->signature(), "node_->signature is null");
@@ -1397,17 +1450,17 @@ IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
 llvm::Value *IrFunctionDefinition::codeGen() {
   std::string funcIrName = IrUtil::toLLVMName(node_->signature()->identifier());
 
-  llvm::Function *f = context_->llvmModule->getFunction(funcIrName);
-  if (!f) {
-    f = llvm::dyn_cast<llvm::Function>(signature_->codeGen());
+  llvm::Function *func = context_->llvmModule->getFunction(funcIrName);
+  if (!func) {
+    func = llvm::dyn_cast<llvm::Function>(signature_->codeGen());
   }
-  if (!f) {
+  if (!func) {
     return nullptr;
   }
-  EX_ASSERT(f->empty(), "Function {} cannot be redefined!",
+  EX_ASSERT(func->empty(), "Function {} cannot be redefined!",
             node_->signature()->identifier());
-  llvm::BasicBlock *bb =
-      llvm::BasicBlock::Create(context_->llvmContext, funcIrName + ".entry", f);
+  llvm::BasicBlock *bb = llvm::BasicBlock::Create(context_->llvmContext,
+                                                  funcIrName + ".entry", func);
   context_->llvmBuilder.SetInsertPoint(bb);
 
   Scope::SNode funcNode =
@@ -1415,7 +1468,7 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   context_->symbolTable->push(DC(FunctionSymbol, Scope::s(funcNode)));
 
   // check function argument symbol exist
-  for (auto &a : f->args()) {
+  for (auto &a : func->args()) {
     Scope::SNode argNode = context_->symbolTable->current->resolve(
         IrUtil::fromLLVMName(a.getName()));
     EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
@@ -1426,12 +1479,12 @@ llvm::Value *IrFunctionDefinition::codeGen() {
 
   if (ret) {
     context_->llvmBuilder.CreateRet(ret);
-    llvm::verifyFunction(*f);
+    llvm::verifyFunction(*func);
     context_->symbolTable->pop();
-    return llvm::dyn_cast<llvm::Value>(f);
+    return llvm::dyn_cast<llvm::Value>(func);
   }
 
-  f->eraseFromParent();
+  func->eraseFromParent();
   context_->symbolTable->pop();
   return nullptr;
 }
@@ -1443,7 +1496,7 @@ std::string IrFunctionDefinition::toString() const {
 /* function signature definition */
 IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
     IrContext *context, AstFunctionSignatureDefinition *node)
-    : IrDefinition(context, nameGen.generate("IrFunctionSignatureDefinition")),
+    : IrDefinition(context, nameGen.generate("function.signature.definition")),
       node_(node) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->argumentList(), "node_->argumentList is null");
@@ -1464,17 +1517,17 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
       args->size(), llvm::Type::getDoubleTy(context_->llvmContext));
   llvm::FunctionType *ft = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context_->llvmContext), doubleArgs, false);
-  llvm::Function *f = llvm::Function::Create(
+  llvm::Function *func = llvm::Function::Create(
       ft, llvm::Function::ExternalLinkage,
       IrUtil::toLLVMName(node_->identifier()), context_->llvmModule);
   // set function arg names
   int i = 0;
-  for (auto &a : f->args()) {
+  for (auto &a : func->args()) {
     EX_ASSERT(args, "args is null");
     EX_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDefinition *ast =
         DC(AstFunctionArgumentDefinition, args->get(i++));
     a.setName(IrUtil::toLLVMName(ast->identifier()));
   }
-  return llvm::dyn_cast<llvm::Value>(f);
+  return llvm::dyn_cast<llvm::Value>(func);
 }

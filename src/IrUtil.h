@@ -6,16 +6,15 @@
 
 class IrUtil {
 public:
-  // "shp.ir."
-  static std::string prefix();
-
   // source code function name translation rule, such as:
   // `format_print` to `shp.ir.format.print`
   // `FormatPrint` to `shp.ir.FormatPrint`
-  static std::string toLLVMName(const std::string &name);
+  static std::string toLLVMName(const std::string &name,
+                                const std::string &prefix = "");
 
   // source code function name reverse translation rule, such as:
   // `shp.ir.format.print` to `format_print`
   // `shp.ir.FormatPrint` to `FormatPrint`
-  static std::string fromLLVMName(const std::string &name);
+  static std::string fromLLVMName(const std::string &name,
+                                  const std::string &prefix = "");
 };

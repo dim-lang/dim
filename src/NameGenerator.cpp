@@ -3,5 +3,7 @@
 
 #include "NameGenerator.h"
 
-NameGenerator::NameGenerator(const std::string &delimiter)
-    : delimiter_(delimiter) {}
+NameGenerator::NameGenerator(const std::string &prefix,
+                             const std::string &delimiter,
+                             const std::string &withDelimiter)
+    : prefix_(prefix), delimiter_(delimiter), withDelimiter_(withDelimiter) {}
