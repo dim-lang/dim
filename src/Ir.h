@@ -631,7 +631,7 @@ private:
 class IrGlobalVariableDefinition : public IrDefinition {
 public:
   IrGlobalVariableDefinition(IrContext *context, AstVariableDefinition *node);
-  virtual ~IrGlobalVariableDefinition() = default;
+  virtual ~IrGlobalVariableDefinition();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
@@ -640,6 +640,7 @@ public:
 
 private:
   AstVariableDefinition *node_;
+  IrExpressionList *variableInitialList_;
 };
 
 /* local variable in function */
