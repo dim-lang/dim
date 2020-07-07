@@ -10,6 +10,7 @@ namespace detail {
 
 struct NameGeneratorImpl {
   NameGeneratorImpl(const std::string &delimiter) : delimiter_(delimiter) {}
+  virtual ~NameGeneratorImpl() = default;
 
   template <typename T> std::string generateImpl(T t) {
     std::stringstream ss;

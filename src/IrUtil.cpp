@@ -7,7 +7,7 @@
 #include "NameGenerator.h"
 
 std::string IrUtil::namegen(const std::string &name) {
-  static NameGenerator nameGenerator("shp.ir", ".", ".");
+  static NameGenerator nameGenerator("shp.ir.", ".", ".");
   return nameGenerator.generate(name);
 }
 
