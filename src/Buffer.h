@@ -3,12 +3,12 @@
 
 #pragma once
 #include "Parser.tab.hpp"
-#include "config/Platform.h"
+#include "boost/predef.h"
 #include <cstdio>
 #include <stack>
 #include <string>
 
-#ifdef PLATFORM_WINDOWS
+#ifdef BOOST_OS_WINDOWS
 #define YY_NO_UNISTD_H
 #endif
 
