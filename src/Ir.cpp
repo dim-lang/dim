@@ -1499,10 +1499,10 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
   AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
       args->size(), llvm::Type::getDoubleTy(context_->llvmContext));
-  llvm::FunctionType *ft = llvm::FunctionType::get(
+  llvm::FunctionType *funcTy = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context_->llvmContext), doubleArgs, false);
   llvm::Function *func = llvm::Function::Create(
-      ft, llvm::Function::ExternalLinkage,
+      funcTy, llvm::Function::ExternalLinkage,
       IrUtil::toLLVMName(node_->identifier()), context_->llvmModule);
   // set function arg names
   int i = 0;
