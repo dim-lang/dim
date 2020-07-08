@@ -58,6 +58,7 @@ std::error_code output_fd(IrContext *context, const std::string &fileName) {
   if (errcode) {
     return errcode;
   }
+  context->llvmModule->print(llvm::outs(), nullptr);
   context->llvmModule->print(fd, new llvm::AssemblyAnnotationWriter());
   fd.close();
   return errcode;
@@ -68,6 +69,7 @@ std::string output_string(IrContext *context) {
 
   std::string s;
   llvm::raw_string_ostream os(s);
+  context->llvmModule->print(llvm::outs(), nullptr);
   context->llvmModule->print(os, new llvm::AssemblyAnnotationWriter());
   return s;
 }
