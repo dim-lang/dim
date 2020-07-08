@@ -2,11 +2,9 @@
 // Apache License Version 2.0
 
 #include "Output.h"
-#include "Log.h"
-#include "llvm/IR/AssemblyAnnotationWriter.h"
+#include "Exception.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Value.h"
-#include "llvm/Support/raw_ostream.h"
 #include <sstream>
 
 #define LL std::string(".ll")
@@ -49,18 +47,23 @@ std::string output_string(IrTranslateUnit *tunit) {
 }
 #endif
 
-std::error_code output_fd(IrContext *context, const std::string &fileName) {
+llvm::raw_ostream &output_os(IrContext *context, llvm::raw_ostream &os) {
+  EX_ASSERT(context, "context is null");
+  context->llvmModule->print(os, nullptr);
+  return os;
+}
+
+std::error_code output_file(IrContext *context, const std::string &fileName) {
   EX_ASSERT(context, "context is null");
   EX_ASSERT(!fileName.empty(), "fileName.empty false: {}", fileName);
 
   std::error_code errcode;
-  llvm::raw_fd_ostream fd(fileName + LL, errcode);
+  llvm::raw_fd_ostream fos(fileName + LL, errcode);
   if (errcode) {
     return errcode;
   }
-  context->llvmModule->print(llvm::outs(), nullptr);
-  context->llvmModule->print(fd, new llvm::AssemblyAnnotationWriter());
-  fd.close();
+  context->llvmModule->print(fos, nullptr);
+  fos.close();
   return errcode;
 }
 
@@ -69,7 +72,6 @@ std::string output_string(IrContext *context) {
 
   std::string s;
   llvm::raw_string_ostream os(s);
-  context->llvmModule->print(llvm::outs(), nullptr);
-  context->llvmModule->print(os, new llvm::AssemblyAnnotationWriter());
+  context->llvmModule->print(os, nullptr);
   return s;
 }
