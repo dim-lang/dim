@@ -80,7 +80,6 @@ set(SHEPHERD_TEST
     ParserTest.cpp
     SemanticTest.cpp
     DumpTest.cpp
-    OutputTest.cpp
     NameGeneratorTest.cpp
     IrUtilTest.cpp
     container/LinkedHashMapTest.cpp

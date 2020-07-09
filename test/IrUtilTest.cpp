@@ -2,8 +2,47 @@
 // Apache License Version 2.0
 
 #include "IrUtil.h"
+#include "Ir.h"
 #include "Log.h"
+#include "Scanner.h"
 #include "catch2/catch.hpp"
+
+static void testOutput(const char *fileName) {
+  {
+    Scanner scanner;
+    scanner.pushBuffer(fileName);
+    REQUIRE(scanner.parse() == 0);
+    IrContext context(fileName);
+    IrTranslateUnit tunit(&context, scanner.translateUnit());
+    tunit.buildSymbol();
+    tunit.codeGen();
+    IrUtil::toStdout(&context);
+  }
+  {
+    Scanner scanner;
+    scanner.pushBuffer(fileName);
+    REQUIRE(scanner.parse() == 0);
+    IrContext context(fileName);
+    IrTranslateUnit tunit(&context, scanner.translateUnit());
+    tunit.buildSymbol();
+    tunit.codeGen();
+    LOG_INFO("output string ir:{}\n\n{}", fileName,
+             IrUtil::toStringOstream(&context));
+  }
+  {
+    Scanner scanner;
+    scanner.pushBuffer(fileName);
+    REQUIRE(scanner.parse() == 0);
+    IrContext context(fileName);
+    IrTranslateUnit tunit(&context, scanner.translateUnit());
+    tunit.buildSymbol();
+    tunit.codeGen();
+    std::error_code errcode = IrUtil::toFileOstream(&context, fileName);
+    LOG_INFO("output file ir:{}, errcode value:{}, category:{}, message:{}",
+             fileName, errcode.value(), errcode.category().name(),
+             errcode.message());
+  }
+}
 
 TEST_CASE("IrUtil", "[IrUtil]") {
   SECTION("IrUtil::namegen") {
@@ -22,4 +61,10 @@ TEST_CASE("IrUtil", "[IrUtil]") {
     REQUIRE(IrUtil::fromLLVMName("shp.ir.HelloWorld") ==
             std::string("HelloWorld"));
   }
+  SECTION("Output") {
+    testOutput("test/case/IrTest1.shp");
+    testOutput("test/case/IrTest2.shp");
+    testOutput("test/case/IrTest3.shp");
+  }
 }
+

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "IrContext.h"
 #include <string>
 
 class IrUtil {
@@ -17,4 +18,18 @@ public:
   // `shp.ir.format.print` to `format_print`
   // `shp.ir.FormatPrint` to `FormatPrint`
   static std::string fromLLVMName(const std::string &name);
+
+  // output to ostream:
+  // stdout
+  // stderr
+  // file
+  // string
+  static void toStdout(IrContext *context);
+
+  static void toStderr(IrContext *context);
+
+  static std::error_code toFileOstream(IrContext *context,
+                                       const std::string &fileName);
+
+  static std::string toStringOstream(IrContext *context);
 };
