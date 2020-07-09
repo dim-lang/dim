@@ -25,6 +25,10 @@ IrContext::IrContext(const std::string &a_moduleName)
 }
 
 IrContext::~IrContext() {
+  if (symbolTable) {
+    delete symbolTable;
+    symbolTable = nullptr;
+  }
   if (llvmModule) {
     delete llvmModule;
     llvmModule = nullptr;

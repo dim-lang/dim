@@ -39,7 +39,7 @@
 /* interface */
 Ir::Ir(IrContext *context, const std::string &name)
     : context_(context), name_(name) {
-  EX_ASSERT(context_, "context_ must not be null");
+  EX_ASSERT(context_, "context_ must not null");
 }
 
 std::string Ir::name() const { return name_; }
@@ -127,11 +127,13 @@ IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
 
 llvm::Value *IrIdentifierConstant::codeGen() {
   EX_ASSERT(node_, "node_ is null");
-  Scope::SNode varNode =
-      context_->symbolTable->current->resolve(node_->value());
-  EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
-  EX_ASSERT(Scope::v(varNode), "varNode.LLVMValue is null");
-  return Scope::v(varNode);
+  ScopeNode *varNode = context_->symbolTable->current->resolve(node_->value());
+  EX_ASSERT(varNode, "varNode must not null");
+  EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+            varNode->toString());
+  EX_ASSERT(varNode->value, "varNode.value {} must not null",
+            varNode->toString());
+  return varNode->value;
 }
 
 std::string IrIdentifierConstant::toString() const {
@@ -696,10 +698,10 @@ IrConditionalExpression::IrConditionalExpression(IrContext *context,
                                                  AstConditionalExpression *node)
     : IrExpression(context, IrUtil::namegen("conditional.expression")),
       node_(node), condition_(nullptr), thens_(nullptr), elses_(nullptr) {
-  EX_ASSERT(node_, "node_ must not be null");
-  EX_ASSERT(node_->condition(), "node_->condition must not be null");
-  EX_ASSERT(node_->thens(), "node_->thens must not be null");
-  EX_ASSERT(node_->elses(), "node_->elses must not be null");
+  EX_ASSERT(node_, "node_ must not null");
+  EX_ASSERT(node_->condition(), "node_->condition must not null");
+  EX_ASSERT(node_->thens(), "node_->thens must not null");
+  EX_ASSERT(node_->elses(), "node_->elses must not null");
   condition_ = IrFactory::expr(context_, node_->condition());
   thens_ = IrFactory::expr(context_, node_->thens());
   elses_ = IrFactory::expr(context_, node_->elses());
@@ -783,13 +785,14 @@ llvm::Value *IrAssignmentExpression::codeGen() {
             "node_->variable type {} must be identifier",
             node_->variable()->type()._to_string());
   AstIdentifierConstant *varId = DC(AstIdentifierConstant, node_->variable());
-  Scope::SNode varNode =
-      context_->symbolTable->current->resolve(varId->value());
-  EX_ASSERT(varNode != Scope::invalid_snode(), "varNode must be valid");
-  EX_ASSERT(Scope::v(varNode), "Scope::v(varNode) {} must not be null",
-            (void *)Scope::v(varNode));
+  ScopeNode *varNode = context_->symbolTable->current->resolve(varId->value());
+  EX_ASSERT(varNode, "varNode must not null");
+  EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+            varNode->toString());
+  EX_ASSERT(varNode->value, "varNode.value {} must not null",
+            varNode->toString());
   llvm::Value *v = value_->codeGen();
-  context_->llvmBuilder.CreateStore(v, Scope::v(varNode));
+  context_->llvmBuilder.CreateStore(v, varNode->value);
   return v;
 }
 
@@ -931,7 +934,7 @@ void IrCompoundStatement::buildSymbol() {
   LocalScope *loc =
       new LocalScope(node_->name(), context_->symbolTable->current);
   context_->symbolTable->current->define(
-      Scope::make_snode(loc, ScopeType::ty_local(), node_));
+      new ScopeNode(loc, ScopeType::ty_local(), node_));
   context_->symbolTable->push(loc);
   for (int i = 0; i < statementList_->size(); i++) {
     statementList_->get(i)->buildSymbol();
@@ -1187,8 +1190,7 @@ llvm::Value *IrReturnStatement::codeGen() {
         DC(IrSequelExpression, expression_)->expressionList();
     EX_ASSERT(expressionList->size() > 0, "expressionList->size {} > 0",
               expressionList->size());
-    llvm::Value *exprV =
-        expressionList->get(expressionList->size() - 1)->codeGen();
+    llvm::Value *exprV = expressionList->codeGen();
     return context_->llvmBuilder.CreateRet(exprV);
   } break;
   default:
@@ -1198,7 +1200,7 @@ llvm::Value *IrReturnStatement::codeGen() {
 }
 
 /* variable definition */
-static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
+static void variableDefinitionBuildSymbol(AstVariableDefinition *node,
                                           SymbolTable *symbolTable) {
   for (int i = 0; i < node->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
@@ -1235,7 +1237,7 @@ static void VariableDefinitionBuildSymbol(AstVariableDefinition *node,
       LOG_WARN("warning default builtin type:{}", ast->toString());
       varTy = BuiltinType::ty_void();
     }
-    symbolTable->current->define(Scope::make_snode(varSym, varTy, ast));
+    symbolTable->current->define(new ScopeNode(varSym, varTy, ast));
   }
 }
 
@@ -1244,8 +1246,8 @@ IrGlobalVariableDefinition::IrGlobalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
     : IrDefinition(context, IrUtil::namegen("global.variable.definition")),
       node_(node), expressionList_(nullptr) {
-  EX_ASSERT(node_, "node_ must not be null");
-  EX_ASSERT(node_->definitionList(), "node_->definitionList must not be null");
+  EX_ASSERT(node_, "node_ must not null");
+  EX_ASSERT(node_->definitionList(), "node_->definitionList must not null");
   expressionList_ = new IrExpressionList(context_);
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
@@ -1282,12 +1284,13 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    Scope::SNode varNode =
+    ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
-    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
-    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
-              (void *)Scope::v(varNode));
-    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
+    EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+              varNode->toString());
+    EX_ASSERT(!varNode->value, "varNode.value {} must be null",
+              varNode->toString());
+    VariableSymbol *varSym = DC(VariableSymbol, varNode->symbol);
     Symbol *enclose = variableParentScope(varSym);
     EX_ASSERT(enclose->type() == (+SymType::Global),
               "enclosingScope type {} is not global",
@@ -1298,13 +1301,13 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
         *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         false, llvm::GlobalValue::LinkageTypes::CommonLinkage, initial,
         IrUtil::toLLVMName(ast->identifier()));
-    ret = Scope::v(varNode) = gv;
+    ret = varNode->value = gv;
   }
   return ret;
 }
 
 void IrGlobalVariableDefinition::buildSymbol() {
-  VariableDefinitionBuildSymbol(node_, context_->symbolTable);
+  variableDefinitionBuildSymbol(node_, context_->symbolTable);
 }
 
 void IrGlobalVariableDefinition::checkSymbol() const {}
@@ -1332,12 +1335,14 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    Scope::SNode varNode =
+    ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
-    EX_ASSERT(varNode != Scope::invalid_snode(), "varNode is invalid");
-    EX_ASSERT(!Scope::v(varNode), "varNode llvmValue {} must be null",
-              (void *)Scope::v(varNode));
-    VariableSymbol *varSym = DC(VariableSymbol, Scope::s(varNode));
+    EX_ASSERT(varNode, "varNode must not null");
+    EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+              varNode->toString());
+    EX_ASSERT(!varNode->value, "varNode.value {} must be null",
+              varNode->toString());
+    VariableSymbol *varSym = DC(VariableSymbol, varNode->symbol);
     Symbol *enclose = variableParentScope(varSym);
     EX_ASSERT(enclose->type() == (+SymType::Function),
               "enclosingScope type {} is not function",
@@ -1347,16 +1352,19 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
                 (void *)funcSym, (void *)enclose);
     }
     funcSym = DC(FunctionSymbol, enclose);
-    Scope::SNode funcNode =
+    ScopeNode *funcNode =
         context_->symbolTable->current->resolve(funcSym->name());
-    EX_ASSERT(funcNode != Scope::invalid_snode(), "funcNode is invalid");
-    EX_ASSERT(Scope::v(funcNode), "funcNode llvmValue is null");
+    EX_ASSERT(funcNode, "funcNode must not null");
+    EX_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
+              funcNode->toString());
+    EX_ASSERT(funcNode->value, "funcNode.value {} must be null",
+              funcNode->toString());
     if (func) {
-      EX_ASSERT((void *)func == (void *)Scope::v(funcNode),
-                "func {} == Scope::v(funcNode) {}", (void *)func,
-                (void *)Scope::v(funcNode));
+      EX_ASSERT((void *)func == (void *)funcNode->value,
+                "func {} == funcNode.value {}", (void *)func,
+                funcNode->toString());
     }
-    func = llvm::dyn_cast<llvm::Function>(Scope::v(funcNode));
+    func = llvm::dyn_cast<llvm::Function>(funcNode->value);
   }
   EX_ASSERT(funcSym, "funcSym is null");
   EX_ASSERT(func, "func is null");
@@ -1365,20 +1373,21 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
-    Scope::SNode varNode =
+    ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
+    EX_ASSERT(varNode, "varNode must not null");
     llvm::AllocaInst *varAlloca =
         varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->llvmContext),
                                 0, IrUtil::toLLVMName(ast->identifier()));
-    EX_ASSERT(!Scope::v(varNode), "varNode LLVMValue {} is not null",
-              (void *)Scope::v(varNode));
-    Scope::v(varNode) = ret = varAlloca;
+    EX_ASSERT(!varNode->value, "varNode.value {} must not null",
+              varNode->toString());
+    varNode->value = ret = varAlloca;
   }
   return ret;
 }
 
 void IrLocalVariableDefinition::buildSymbol() {
-  VariableDefinitionBuildSymbol(node_, context_->symbolTable);
+  variableDefinitionBuildSymbol(node_, context_->symbolTable);
 }
 
 void IrLocalVariableDefinition::checkSymbol() const {}
@@ -1408,8 +1417,7 @@ void IrFunctionDefinition::buildSymbol() {
   }
   FunctionType *functy =
       new FunctionType(funcArgTypeList, BuiltinType::ty_void());
-  context_->symbolTable->current->define(
-      Scope::make_snode(funcSym, functy, node_));
+  context_->symbolTable->current->define(new ScopeNode(funcSym, functy, node_));
   context_->symbolTable->push(funcSym);
   for (int i = 0; i < sign->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
@@ -1418,7 +1426,7 @@ void IrFunctionDefinition::buildSymbol() {
     FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
         funcArg->identifier(), context_->symbolTable->current);
     context_->symbolTable->current->define(
-        Scope::make_snode(funcArgSym, BuiltinType::ty_void(), funcArg));
+        new ScopeNode(funcArgSym, BuiltinType::ty_void(), funcArg));
   }
   statement_->buildSymbol();
   context_->symbolTable->pop();
@@ -1447,16 +1455,18 @@ llvm::Value *IrFunctionDefinition::codeGen() {
                                                   funcIrName + ".entry", func);
   context_->llvmBuilder.SetInsertPoint(bb);
 
-  Scope::SNode funcNode =
+  ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node_->signature()->identifier());
-  context_->symbolTable->push(DC(FunctionSymbol, Scope::s(funcNode)));
+  context_->symbolTable->push(DC(FunctionSymbol, funcNode->symbol));
 
   // check function argument symbol exist
   for (auto &a : func->args()) {
-    Scope::SNode argNode = context_->symbolTable->current->resolve(
+    ScopeNode *argNode = context_->symbolTable->current->resolve(
         IrUtil::fromLLVMName(a.getName()));
-    EX_ASSERT(argNode != Scope::invalid_snode(), "argNode is invalid");
-    Scope::v(argNode) = &a;
+    EX_ASSERT(argNode, "argNode must not null");
+    EX_ASSERT(*argNode != ScopeNode::invalid(), "argNode {} must be valid",
+              argNode->toString());
+    argNode->value = &a;
   }
 
   llvm::Value *ret = statement_->codeGen();

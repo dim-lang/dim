@@ -64,19 +64,36 @@ public:
   virtual TyType type() const = 0;
 };
 
+class ScopeNode {
+public:
+  ScopeNode(Symbol *s, Type *t, Ast *a, llvm::Value *v = nullptr);
+  virtual ~ScopeNode() = default;
+  virtual std::string toString() const;
+  static const ScopeNode &invalid();
+  bool operator==(const ScopeNode &other) const;
+  bool operator!=(const ScopeNode &other) const;
+
+  Symbol *symbol;
+  Type *type;
+  Ast *ast;
+  llvm::Value *value;
+
+private:
+  ScopeNode();
+};
+
 class Scope : public Symbol, public Stringify {
 public:
-  using SNode = std::tuple<Symbol *, Type *, Ast *, llvm::Value *>;
-  using SMap = LinkedHashMap<std::string, SNode>;
+  using SMap = LinkedHashMap<std::string, ScopeNode *>;
   using Iterator = SMap::Iterator;
   using CIterator = SMap::CIterator;
 
   Scope(Scope *enclosingScope);
-  virtual ~Scope() = default;
+  virtual ~Scope();
   virtual std::string name() const = 0;
   virtual SymType type() const = 0;
-  virtual void define(const SNode &snode);
-  virtual SNode resolve(const std::string &name) const;
+  virtual void define(ScopeNode *snode);
+  virtual ScopeNode *resolve(const std::string &name) const;
   virtual std::string toString() const;
   virtual Iterator begin();
   virtual CIterator begin() const;
@@ -84,17 +101,6 @@ public:
   virtual CIterator end() const;
   virtual int size() const;
   virtual bool empty() const;
-
-  static const Symbol *s(const SNode &snode);
-  static Symbol *&s(SNode &snode);
-  static const Type *t(const SNode &snode);
-  static Type *&t(SNode &snode);
-  static const Ast *a(const SNode &snode);
-  static Ast *&a(SNode &snode);
-  static const llvm::Value *v(const SNode &snode);
-  static llvm::Value *&v(SNode &snode);
-  static SNode make_snode(Symbol *s, Type *t, Ast *a, llvm::Value *v = nullptr);
-  static const SNode &invalid_snode();
 
 protected:
   virtual std::string stringify() const = 0;

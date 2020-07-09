@@ -2,12 +2,47 @@
 // Apache License Version 2.0
 
 #include "Symbol.h"
+#include "Ast.h"
 #include "Log.h"
 #include "container/LinkedHashMap.hpp"
+#include "llvm/ADT/StringRef.h"
 #include <cctype>
 #include <numeric>
 #include <sstream>
+#include <string>
 #include <utility>
+
+ScopeNode::ScopeNode(Symbol *s, Type *t, Ast *a, llvm::Value *v)
+    : symbol(s), type(t), ast(a), value(v) {
+  EX_ASSERT(symbol, "symbol must not be null");
+  EX_ASSERT(type, "type must not be null");
+  EX_ASSERT(ast, "ast must not be null");
+}
+
+ScopeNode::ScopeNode()
+    : symbol(nullptr), type(nullptr), ast(nullptr), value(nullptr) {}
+
+std::string ScopeNode::toString() const {
+  return fmt::format("[@ScopeNode symbol:{}, type:{}, ast:{}, value:{}]",
+                     symbol ? symbol->name() : "null",
+                     type ? type->name() : "null", ast ? ast->name() : "null",
+                     value ? value->getName().str() : "null");
+}
+
+const ScopeNode &ScopeNode::invalid() {
+  static ScopeNode invalid_snode;
+  return invalid_snode;
+}
+
+bool ScopeNode::operator==(const ScopeNode &other) const {
+  return this == &other ? true
+                        : (symbol == other.symbol && type == other.type &&
+                           ast == other.ast && value == other.value);
+}
+
+bool ScopeNode::operator!=(const ScopeNode &other) const {
+  return !(*this == other);
+}
 
 Symbol::Symbol(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
 
@@ -15,30 +50,47 @@ Scope *Symbol::enclosingScope() const { return enclosingScope_; }
 
 Scope::Scope(Scope *enclosingScope) : Symbol(enclosingScope) {}
 
-void Scope::define(const Scope::SNode &snode) {
-  const Symbol *s = Scope::s(snode);
-  const Type *t = Scope::t(snode);
-  const Ast *a = Scope::a(snode);
-  const llvm::Value *v = Scope::v(snode);
-  EX_ASSERT(snode != invalid_snode(), "snode s:{} t:{} a:{} v:{} is null",
-            (void *)s, (void *)t, (void *)a, (void *)v);
-  EX_ASSERT(map_.find(Scope::s(snode)->name()) == map_.end(),
-            "symbol {} already exist", Scope::s(snode)->name());
-  map_.insert(std::make_pair(Scope::s(snode)->name(), snode));
+Scope::~Scope() {
+  Scope::SMap::CIterator i = map_.begin();
+  for (Scope::SMap::CIterator i = map_.begin(); i != map_.end(); i++) {
+    ScopeNode *snode = i->second;
+    delete snode;
+  }
+  map_.clear();
 }
 
-Scope::SNode Scope::resolve(const std::string &name) const {
+void Scope::define(ScopeNode *snode) {
+  EX_ASSERT(snode, "snode must not be null");
+  EX_ASSERT(*snode != ScopeNode::invalid(), "snode {} must be valid",
+            snode->toString());
+  EX_ASSERT(map_.find(snode->symbol->name()) == map_.end(),
+            "symbol {} already exist", snode->symbol->name());
+  map_.insert(std::make_pair(snode->symbol->name(), snode));
+}
+
+ScopeNode *Scope::resolve(const std::string &name) const {
   EX_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
   if (map_.find(name) != map_.end())
     return map_[name];
   if (enclosingScope_)
     return enclosingScope_->resolve(name);
-  return invalid_snode();
+  return nullptr;
 }
 
 std::string Scope::toString() const {
-  return fmt::format("[ @{} name_:{}, enclosingScope_:{}, map_#size:{} ]",
-                     stringify(), name(), enclosingScope_->name(), map_.size());
+  std::stringstream ss;
+  ss << fmt::format("[@{} name_:{}, enclosingScope_:{}, map_#size:{}, ",
+                    stringify(), name(), enclosingScope_->name(), map_.size());
+  int count = 0;
+  Scope::SMap::CIterator i = map_.begin();
+  for (; i != map_.end(); i++, count++) {
+    ScopeNode *snode = i->second;
+    ss << fmt::format("[{}: {}]", i->first, snode ? snode->toString() : "null");
+    if (count != map_.size() - 1) {
+      ss << ", ";
+    }
+  }
+  return ss.str();
 }
 
 Scope::Iterator Scope::begin() { return map_.begin(); }
@@ -52,34 +104,6 @@ Scope::CIterator Scope::end() const { return map_.end(); }
 int Scope::size() const { return (int)map_.size(); }
 
 bool Scope::empty() const { return map_.empty(); }
-
-const Symbol *Scope::s(const SNode &snode) { return std::get<0>(snode); }
-
-Symbol *&Scope::s(SNode &snode) { return std::get<0>(snode); }
-
-const Type *Scope::t(const SNode &snode) { return std::get<1>(snode); }
-
-Type *&Scope::t(SNode &snode) { return std::get<1>(snode); }
-
-const Ast *Scope::a(const SNode &snode) { return std::get<2>(snode); }
-
-Ast *&Scope::a(SNode &snode) { return std::get<2>(snode); }
-
-const llvm::Value *Scope::v(const SNode &snode) { return std::get<3>(snode); }
-
-llvm::Value *&Scope::v(SNode &snode) { return std::get<3>(snode); }
-
-Scope::SNode Scope::make_snode(Symbol *s, Type *t, Ast *a, llvm::Value *v) {
-  EX_ASSERT(s && t && a, "s {} or t {} or a {} or v {} is null", (void *)s,
-            (void *)t, (void *)a);
-  return std::make_tuple(s, t, a, v);
-}
-
-const Scope::SNode &Scope::invalid_snode() {
-  static Scope::SNode invalid =
-      std::make_tuple(nullptr, nullptr, nullptr, nullptr);
-  return invalid;
-}
 
 // type start
 

@@ -17,12 +17,13 @@ static void testAST(const char *fileName) {
   IrContext context(fileName);
   IrTranslateUnit tunit(&context, scanner.translateUnit());
   tunit.buildSymbol();
-  LOG_INFO("dump symbol:{} {}", fileName,
-           dumpScope(Scope::make_snode(context.symbolTable->global,
-                                       ScopeType::ty_global(),
-                                       scanner.translateUnit())));
+  ScopeNode *gnode =
+      new ScopeNode(context.symbolTable->global, ScopeType::ty_global(),
+                    scanner.translateUnit());
+  LOG_INFO("dump symbol:{} {}", fileName, dumpScope(gnode));
   LOG_INFO("dump source:{}\n{}", fileName,
            dumpSource(fileName, scanner.translateUnit()->position()));
+  delete gnode;
 }
 
 TEST_CASE("Dump", "[Dump]") {

@@ -198,23 +198,21 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
 #define IS_SCOPE(x)                                                            \
-  ((Scope::s(x))->type() == (+SymType::Function) ||                            \
-   (Scope::s(x))->type() == (+SymType::Class) ||                               \
-   (Scope::s(x))->type() == (+SymType::Global) ||                              \
-   (Scope::s(x))->type() == (+SymType::Local))
+  ((x)->symbol->type() == (+SymType::Function) ||                              \
+   (x)->symbol->type() == (+SymType::Class) ||                                 \
+   (x)->symbol->type() == (+SymType::Global) ||                                \
+   (x)->symbol->type() == (+SymType::Local))
 
-static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
-  const Symbol *s = Scope::s(snode);
-  const Type *t = Scope::t(snode);
-  const Ast *a = Scope::a(snode);
-  if (!s)
+static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
+  if (!snode->symbol)
     return "null";
-  EX_ASSERT(s, "snode is null");
-  switch (s->type()) {
+  EX_ASSERT(snode->symbol, "snode.symbol must not be null");
+  switch (snode->symbol->type()) {
   case SymType::Variable:
-    return std::string("var ") + s->name() + ":" + t->name();
+    return std::string("var ") + snode->symbol->name() + ":" +
+           snode->type->name();
   case SymType::Function: {
-    const FunctionSymbol *funcsym = DCC(FunctionSymbol, s);
+    const FunctionSymbol *funcsym = DCC(FunctionSymbol, snode->symbol);
     std::stringstream ss;
     ss << "func " << funcsym->name() << " {";
     if (!funcsym->empty()) {
@@ -231,9 +229,10 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   case SymType::FunctionArgument:
-    return std::string("var ") + s->name() + ":" + t->name();
+    return std::string("var ") + snode->symbol->name() + ":" +
+           snode->type->name();
   case SymType::Class: {
-    const ClassSymbol *clssym = DCC(ClassSymbol, s);
+    const ClassSymbol *clssym = DCC(ClassSymbol, snode->symbol);
     std::stringstream ss;
     ss << DS << "class " << clssym->name() << " {";
     if (!clssym->empty()) {
@@ -250,7 +249,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   case SymType::Local: {
-    const LocalScope *locsym = DCC(LocalScope, s);
+    const LocalScope *locsym = DCC(LocalScope, snode->symbol);
     std::stringstream ss;
     ss << "local " << locsym->name() << " {";
     if (!locsym->empty()) {
@@ -264,7 +263,7 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   case SymType::Global: {
-    const GlobalScope *glbsym = DCC(GlobalScope, s);
+    const GlobalScope *glbsym = DCC(GlobalScope, snode->symbol);
     std::stringstream ss;
     ss << DS << glbsym->name() << " {";
     if (!glbsym->empty()) {
@@ -281,14 +280,12 @@ static std::string dumpScopeImpl(const Scope::SNode &snode, int depth) {
     return ss.str();
   }
   default:
-    EX_ASSERT(false, "invalid symbol: {} {}", s->name(),
-              s->type()._to_string());
+    EX_ASSERT(false, "invalid symbol: {} {}", snode->symbol->name(),
+              snode->symbol->type()._to_string());
   }
 }
 
-std::string dumpScope(const Scope::SNode &snode) {
-  return dumpScopeImpl(snode, 0);
-}
+std::string dumpScope(ScopeNode *snode) { return dumpScopeImpl(snode, 0); }
 
 static int whitespaceHeadCount(const std::string &line) {
   for (int i = 0; i < (int)line.length(); i++) {
@@ -333,4 +330,13 @@ std::string dumpSource(const std::string &fileName, const Position &position) {
     }
   }
   return ss.str();
+}
+
+std::string dumpLLVMValue(llvm::Value *value) {
+  EX_ASSERT(value, "value must not be null");
+
+  std::string tmp;
+  llvm::raw_string_ostream sos(tmp);
+  value->print(sos);
+  return tmp;
 }
