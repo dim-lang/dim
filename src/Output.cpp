@@ -47,10 +47,9 @@ std::string output_string(IrTranslateUnit *tunit) {
 }
 #endif
 
-llvm::raw_ostream &output_os(IrContext *context, llvm::raw_ostream &os) {
+void output_os(IrContext *context, llvm::raw_ostream &os) {
   EX_ASSERT(context, "context is null");
   context->llvmModule->print(os, nullptr);
-  return os;
 }
 
 std::error_code output_file(IrContext *context, const std::string &fileName) {
