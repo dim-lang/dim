@@ -1472,7 +1472,7 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   llvm::Value *ret = statement_->codeGen();
 
   if (ret) {
-    context_->llvmBuilder.CreateRet(ret);
+    /* context_->llvmBuilder.CreateRet(ret); */
     llvm::verifyFunction(*func);
     context_->symbolTable->pop();
     return llvm::dyn_cast<llvm::Value>(func);
