@@ -1268,8 +1268,9 @@ IrType IrGlobalVariableDefinition::type() const {
 }
 
 static Symbol *variableParentScope(VariableSymbol *varSym) {
-  Symbol *scope = varSym;
-  while (scope->enclosingScope()->type() == (+SymType::Local)) {
+  Symbol *scope = DC(Symbol, varSym->enclosingScope());
+  while (scope->type() != (+SymType::Function) &&
+         scope->type() != (+SymType::Global)) {
     scope = scope->enclosingScope();
   }
   return scope;
@@ -1354,14 +1355,15 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
     EX_ASSERT(funcNode, "funcNode must not null");
     EX_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
               funcNode->toString());
-    EX_ASSERT(funcNode->value, "funcNode.value {} must be null",
+    EX_ASSERT(funcNode->value, "funcNode.value {} must not null",
               funcNode->toString());
     if (func) {
       EX_ASSERT((void *)func == (void *)funcNode->value,
-                "func {} == funcNode.value {}", (void *)func,
-                funcNode->toString());
+                "func {} == funcNode.value {} {}", (void *)func,
+                (void *)funcNode->value, funcNode->toString());
+    } else {
+      func = llvm::dyn_cast<llvm::Function>(funcNode->value);
     }
-    func = llvm::dyn_cast<llvm::Function>(funcNode->value);
   }
   EX_ASSERT(funcSym, "funcSym is null");
   EX_ASSERT(func, "func is null");
@@ -1378,7 +1380,7 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
                                 0, IrUtil::toLLVMName(ast->identifier()));
     EX_ASSERT(!varNode->value, "varNode.value {} must not null",
               varNode->toString());
-    varNode->value = ret = varAlloca;
+    varNode->value = ret = llvm::dyn_cast<llvm::Value>(varAlloca);
   }
   return ret;
 }
@@ -1454,6 +1456,9 @@ llvm::Value *IrFunctionDefinition::codeGen() {
 
   ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node_->signature()->identifier());
+  EX_ASSERT(funcNode, "funcNode must not null");
+  EX_ASSERT(funcNode->value == func, "funcNode->value {} == func {}",
+            (void *)funcNode->value, (void *)func);
   context_->symbolTable->push(DC(FunctionSymbol, funcNode->symbol));
 
   // check function argument symbol exist
@@ -1520,5 +1525,11 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
         DC(AstFunctionArgumentDefinition, args->get(i++));
     a.setName(IrUtil::toLLVMName(ast->identifier()));
   }
-  return llvm::dyn_cast<llvm::Value>(func);
+  ScopeNode *funcNode =
+      context_->symbolTable->current->resolve(node_->identifier());
+  EX_ASSERT(!funcNode->value, "funcNode->value {} must be null",
+            (void *)funcNode->value);
+  llvm::Value *ret = llvm::dyn_cast<llvm::Value>(func);
+  funcNode->value = ret;
+  return ret;
 }
