@@ -1295,11 +1295,12 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
               enclose->type()._to_string());
     llvm::Constant *initial =
         llvm::dyn_cast<llvm::Constant>(expressionList_->get(i)->codeGen());
+    std::string varIrName = IrUtil::toLLVMName(ast->identifier());
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
         *context_->llvmModule, llvm::Type::getDoubleTy(context_->llvmContext),
         false, llvm::GlobalValue::LinkageTypes::CommonLinkage, initial,
-        IrUtil::toLLVMName(ast->identifier()));
-    ret = varNode->value = gv;
+        varIrName);
+    ret = varNode->value = llvm::dyn_cast<llvm::Value>(gv);
   }
   return ret;
 }
@@ -1375,9 +1376,9 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
     ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
     EX_ASSERT(varNode, "varNode must not null");
-    llvm::AllocaInst *varAlloca =
-        varBuilder.CreateAlloca(llvm::Type::getDoubleTy(context_->llvmContext),
-                                0, IrUtil::toLLVMName(ast->identifier()));
+    std::string varIrName = IrUtil::toLLVMName(ast->identifier());
+    llvm::AllocaInst *varAlloca = varBuilder.CreateAlloca(
+        llvm::Type::getDoubleTy(context_->llvmContext), 0, varIrName);
     EX_ASSERT(!varNode->value, "varNode.value {} must not null",
               varNode->toString());
     varNode->value = ret = llvm::dyn_cast<llvm::Value>(varAlloca);
@@ -1414,9 +1415,9 @@ void IrFunctionDefinition::buildSymbol() {
     EX_ASSERT(funcArg, "funcArg is null");
     funcArgTypeList.push_back(BuiltinType::ty_void());
   }
-  FunctionType *functy =
+  FunctionType *funcTy =
       new FunctionType(funcArgTypeList, BuiltinType::ty_void());
-  context_->symbolTable->current->define(new ScopeNode(funcSym, functy, node_));
+  context_->symbolTable->current->define(new ScopeNode(funcSym, funcTy, node_));
   context_->symbolTable->push(funcSym);
   for (int i = 0; i < sign->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
@@ -1508,14 +1509,16 @@ IrType IrFunctionSignatureDefinition::type() const {
 }
 
 llvm::Value *IrFunctionSignatureDefinition::codeGen() {
+  std::string funcIrName = IrUtil::toLLVMName(node_->identifier());
+
   AstDefinitionList *args = node_->argumentList();
   std::vector<llvm::Type *> doubleArgs(
       args->size(), llvm::Type::getDoubleTy(context_->llvmContext));
   llvm::FunctionType *funcTy = llvm::FunctionType::get(
       llvm::Type::getDoubleTy(context_->llvmContext), doubleArgs, false);
-  llvm::Function *func = llvm::Function::Create(
-      funcTy, llvm::Function::ExternalLinkage,
-      IrUtil::toLLVMName(node_->identifier()), context_->llvmModule);
+  llvm::Function *func =
+      llvm::Function::Create(funcTy, llvm::Function::ExternalLinkage,
+                             funcIrName, context_->llvmModule);
   // set function arg names
   int i = 0;
   for (auto &a : func->args()) {
@@ -1523,7 +1526,8 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
     EX_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDefinition *ast =
         DC(AstFunctionArgumentDefinition, args->get(i++));
-    a.setName(IrUtil::toLLVMName(ast->identifier()));
+    std::string argIrName = IrUtil::toLLVMName(ast->identifier());
+    a.setName(argIrName);
   }
   ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node_->identifier());
