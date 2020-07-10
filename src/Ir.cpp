@@ -952,16 +952,13 @@ IrCompoundStatement::~IrCompoundStatement() {
 IrType IrCompoundStatement::type() const { return IrType::CompoundStatement; }
 
 llvm::Value *IrCompoundStatement::codeGen() {
-  if (statementList_->size() <= 0) {
-    return nullptr;
-  }
-  for (int i = 0; i < statementList_->size() - 1; i++) {
-    IrStatement *ir = statementList_->get(0);
-    EX_ASSERT(ir, "ir is null");
-    ir->codeGen();
-  }
-  IrStatement *ir = statementList_->get(statementList_->size() - 1);
-  return ir->codeGen();
+  ScopeNode *localScope =
+      context_->symbolTable->current->resolve(node_->name());
+  EX_ASSERT(localScope, "localScope must not null");
+  context_->symbolTable->push(DC(LocalScope, localScope->symbol));
+  llvm::Value *ret = statementList_->codeGen();
+  context_->symbolTable->pop();
+  return ret;
 }
 
 std::string IrCompoundStatement::toString() const {
