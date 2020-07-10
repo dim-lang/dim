@@ -10,6 +10,7 @@
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
 #include "Symbol.h"
+#include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
 #include "fmt/format.h"
 #include "llvm/ADT/STLExtras.h"
@@ -336,11 +337,41 @@ std::string IrCallExpression::toString() const {
 /* unary expression */
 IrUnaryExpression::IrUnaryExpression(IrContext *context,
                                      AstUnaryExpression *node)
-    : IrExpression(context, IrUtil::namegen("unary.expression")), node_(node) {}
+    : IrExpression(context, IrUtil::namegen("unary.expression")), node_(node),
+      expression_(nullptr) {
+  EX_ASSERT(node_, "node_ must not null");
+  EX_ASSERT(node_->expression(), "node_->expression must not null");
+  expression_ = IrFactory::expr(context_, node_->expression());
+}
+
+IrUnaryExpression::~IrUnaryExpression() {
+  delete expression_;
+  expression_ = nullptr;
+}
 
 IrType IrUnaryExpression::type() const { return IrType::UnaryExpression; }
 
-llvm::Value *IrUnaryExpression::codeGen() { return nullptr; }
+llvm::Value *IrUnaryExpression::codeGen() {
+  llvm::Value *e = expression_->codeGen();
+  EX_ASSERT(e, "e must not be null");
+  switch (node_->token()) {
+  case T_ADD: {
+    return e;
+  } break;
+  case T_SUB: {
+    return context_->llvmBuilder.CreateNeg(e);
+  } break;
+  case T_BIT_NOT: {
+    return context_->llvmBuilder.CreateNot(e);
+  } break;
+  case T_LOGIC_NOT: {
+    return context_->llvmBuilder.CreateNot(e);
+  } break;
+  default:
+    EX_ASSERT(false, "invalid node_->token {}", tokenName(node_->token()));
+  }
+  return nullptr;
+}
 
 std::string IrUnaryExpression::toString() const {
   return fmt::format("[@IrUnaryExpression node_:{}]", node_->toString());

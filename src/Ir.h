@@ -438,13 +438,14 @@ private:
 class IrUnaryExpression : public IrExpression {
 public:
   IrUnaryExpression(IrContext *context, AstUnaryExpression *node);
-  virtual ~IrUnaryExpression() = default;
+  virtual ~IrUnaryExpression();
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
   AstUnaryExpression *node_;
+  IrExpression *expression_;
 };
 
 /* binary expression */
