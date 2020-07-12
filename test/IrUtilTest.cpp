@@ -7,23 +7,6 @@
 #include "Scanner.h"
 #include "catch2/catch.hpp"
 
-static void testOutput(const char *fileName) {
-  Scanner scanner;
-  scanner.pushBuffer(fileName);
-  REQUIRE(scanner.parse() == 0);
-  IrContext context(fileName);
-  IrTranslateUnit tunit(&context, scanner.translateUnit());
-  tunit.buildSymbol();
-  tunit.codeGen();
-  IrUtil::toStdout(&context);
-  LOG_INFO("output string ir:{}\n\n{}", fileName,
-           IrUtil::toStringOstream(&context));
-  std::error_code errcode = IrUtil::toFileOstream(&context, fileName);
-  LOG_INFO("output file ir:{}, errcode value:{}, category:{}, message:{}",
-           fileName, errcode.value(), errcode.category().name(),
-           errcode.message());
-}
-
 TEST_CASE("IrUtil", "[IrUtil]") {
   SECTION("IrUtil::namegen") {
     REQUIRE(IrUtil::namegen("a").substr(0, 9) == std::string("shp.ir.a."));
@@ -40,10 +23,5 @@ TEST_CASE("IrUtil", "[IrUtil]") {
             std::string("hello_world"));
     REQUIRE(IrUtil::fromLLVMName("shp.ir.HelloWorld") ==
             std::string("HelloWorld"));
-  }
-  SECTION("Output") {
-    testOutput("test/case/IrTest1.shp");
-    testOutput("test/case/IrTest2.shp");
-    testOutput("test/case/IrTest3.shp");
   }
 }

@@ -12,9 +12,10 @@
 
 class IrContext : private boost::noncopyable {
 public:
-  IrContext(const std::string &a_moduleName);
+  IrContext(const std::string &a_sourceName);
   virtual ~IrContext();
 
+  std::string sourceName;
   std::string moduleName;
   SymbolTable *symbolTable;
   llvm::LLVMContext llvmContext;

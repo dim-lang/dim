@@ -91,9 +91,10 @@ set(SHEPHERD
     Counter.cpp
     Dump.cpp
     Ir.cpp
+    IrContext.cpp
     IrFactory.cpp
     IrUtil.cpp
-    IrContext.cpp
+    IrWriter.cpp
     ${BISON_ShepherdParser_OUTPUTS}
     ${FLEX_ShepherdTokenizer_OUTPUTS}
 )

@@ -3,6 +3,7 @@
 
 #include "Ir.h"
 #include "Ast.h"
+#include "Dump.h"
 #include "Exception.h"
 #include "IrFactory.h"
 #include "IrUtil.h"
@@ -424,8 +425,10 @@ llvm::Value *IrBinaryExpression::codeGen() {
       }
     } break;
     default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
+      EX_ASSERT(false,
+                "l->getType->getTypeID {} invalid, l source:{} value:{}, r "
+                "source:{} value:{}",
+                l->getType()->getTypeID(), dumpSource(context_->moduleName));
     }
   } break;
   case T_SUB: {

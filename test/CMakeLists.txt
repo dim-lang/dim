@@ -82,6 +82,7 @@ set(SHEPHERD_TEST
     DumpTest.cpp
     NameGeneratorTest.cpp
     IrUtilTest.cpp
+    IrWriterTest.cpp
     container/LinkedHashMapTest.cpp
 )
 

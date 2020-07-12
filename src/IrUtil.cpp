@@ -50,36 +50,3 @@ std::string IrUtil::fromLLVMName(const std::string &name) {
   return fromLLVMNameImpl(name, PREFIX);
 }
 
-void IrUtil::toStdout(IrContext *context) {
-  EX_ASSERT(context, "context is null");
-  context->llvmModule->print(llvm::outs(), nullptr);
-}
-
-void IrUtil::toStderr(IrContext *context) {
-  EX_ASSERT(context, "context is null");
-  context->llvmModule->print(llvm::errs(), nullptr);
-}
-
-#define LL ".ll"
-
-std::error_code IrUtil::toFileOstream(IrContext *context,
-                                      const std::string &fileName) {
-  EX_ASSERT(context, "context is null");
-  EX_ASSERT(!fileName.empty(), "fileName.empty false: {}", fileName);
-  std::error_code errcode;
-  llvm::raw_fd_ostream fos(fileName + LL, errcode);
-  if (errcode) {
-    return errcode;
-  }
-  context->llvmModule->print(fos, nullptr);
-  fos.close();
-  return errcode;
-}
-
-std::string IrUtil::toStringOstream(IrContext *context) {
-  EX_ASSERT(context, "context is null");
-  std::string output;
-  llvm::raw_string_ostream sos(output);
-  context->llvmModule->print(sos, nullptr);
-  return output;
-}

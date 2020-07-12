@@ -57,7 +57,7 @@ IrExpression *IrFactory::expr(IrContext *context, Ast *node) {
     return new IrVoidExpression(context, DC(AstVoidExpression, node));
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->moduleName, node->position()));
+              dumpSource(context->sourceName, node->position()));
   }
   return nullptr;
 }
@@ -91,7 +91,7 @@ IrStatement *IrFactory::stmt(IrContext *context, Ast *node) {
   case AstType::EmptyStatement:
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->moduleName, node->position()));
+              dumpSource(context->sourceName, node->position()));
   }
   return nullptr;
 }
@@ -107,6 +107,6 @@ IrDefinition *IrFactory::unit(IrContext *context, Ast *node) {
     return new IrFunctionDefinition(context, DC(AstFunctionDefinition, node));
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->moduleName, node->position()));
+              dumpSource(context->sourceName, node->position()));
   }
 }
