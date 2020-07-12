@@ -10,6 +10,7 @@
 #include "llvm/IR/Value.h"
 #include <string>
 #include <tuple>
+#include <vector>
 
 /*================ type start from 2000 ================*/
 BETTER_ENUM(SymType, int,
