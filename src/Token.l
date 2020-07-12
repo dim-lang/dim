@@ -1,5 +1,6 @@
 %option noyywrap nounput noinput nodefault yylineno 8bit
 %option reentrant bison-locations bison-bridge
+%option never-interactive
 %option extra-type="Scanner *"
 
 %x COMMENT

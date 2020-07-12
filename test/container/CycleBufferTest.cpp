@@ -125,11 +125,12 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       // DynamicBuffer block bytes read
       DynamicBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
         REQUIRE(db.read(buf, i + 1) == i + 1);
+        delete[] buf;
       }
       const char *cp = db.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
@@ -169,7 +170,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       int count = 0;
       FixedBuffer fb(C_MAX);
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
@@ -183,10 +184,11 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           REQUIRE(count == C_MAX);
           break;
         }
+        delete[] buf;
       }
       const char *cp = fb.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
@@ -198,10 +200,11 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           REQUIRE((int)*cp == i);
           cp = fb.next(cp);
         }
+        delete[] buf;
       }
       count = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
@@ -220,6 +223,7 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
           REQUIRE(count + oldsz == C_MAX);
           break;
         }
+        delete[] buf;
       }
     }
     {
@@ -239,18 +243,20 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       // DynamicBuffer block bytes write
       DynamicBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
           buf[j] = (char)i;
         }
         REQUIRE(db.read(buf, i + 1) == i + 1);
+        delete[] buf;
       }
       for (int i = C_MIN; i < C_MAX; i++) {
-        char buf[i + 1];
+        char *buf = new char[i + 1];
         REQUIRE(db.write(buf, i + 1) == i + 1);
         for (int j = 0; j < i + 1; j++) {
           REQUIRE((int)buf[j] == i);
         }
+        delete[] buf;
       }
     }
   }
