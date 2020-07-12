@@ -419,16 +419,8 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateAdd(l, r);
       } break;
-      default:
-        EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                  r->getType()->getTypeID());
       }
     } break;
-    default:
-      EX_ASSERT(false,
-                "l->getType->getTypeID {} invalid, l source:{} value:{}, r "
-                "source:{} value:{}",
-                l->getType()->getTypeID(), dumpSource(context_->moduleName));
     }
   } break;
   case T_SUB: {
@@ -446,14 +438,8 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateSub(l, r);
       } break;
-      default:
-        EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                  r->getType()->getTypeID());
       }
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_MUL: {
@@ -471,14 +457,8 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateMul(l, r);
       } break;
-      default:
-        EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                  r->getType()->getTypeID());
       }
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_DIV: {
@@ -496,14 +476,8 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateSDiv(l, r);
       } break;
-      default:
-        EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                  r->getType()->getTypeID());
       }
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_MOD: {
@@ -521,14 +495,8 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateSRem(l, r);
       } break;
-      default:
-        EX_ASSERT(false, "r->getType->getTypeID {} invalid",
-                  r->getType()->getTypeID());
       }
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_BIT_LSHIFT: {
@@ -570,9 +538,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpEQ(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_NEQ: {
@@ -587,9 +552,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpNE(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_LE: {
@@ -604,9 +566,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpSLE(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_LT: {
@@ -621,9 +580,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpSLT(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_GE: {
@@ -638,9 +594,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpSGE(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_GT: {
@@ -655,9 +608,6 @@ llvm::Value *IrBinaryExpression::codeGen() {
     case llvm::Type::TypeID::IntegerTyID: {
       return context_->llvmBuilder.CreateICmpSGT(l, r);
     } break;
-    default:
-      EX_ASSERT(false, "l->getType->getTypeID {} invalid",
-                l->getType()->getTypeID());
     }
   } break;
   case T_BIT_AND: {
@@ -720,6 +670,15 @@ llvm::Value *IrBinaryExpression::codeGen() {
   default:
     EX_ASSERT(false, "token {} invalid", node_->token());
   }
+  EX_ASSERT(false,
+            "l->getType->getTypeID {} or r->getType->getTypeID {} invalid, l "
+            "source:{} value:{}, r "
+            "source:{} value:{}",
+            l->getType()->getTypeID(), r->getType()->getTypeID(),
+            dumpSource(context_->sourceName, node_->left()->position()),
+            node_->left()->toString(),
+            dumpSource(context_->sourceName, node_->right()->position()),
+            node_->right()->toString());
   return nullptr;
 }
 
