@@ -88,7 +88,7 @@ func main():int32 {
 
 ## How to install?
 
-#### Install dependencies on Linux & UNIX
+#### Linux & UNIX
 
 | Platform          |  Dependencies                                                                                                                 |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -101,15 +101,18 @@ func main():int32 {
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                                                                 |
 | OpenSUSE          | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel`                                      |
 
-#### Install dependencies on windows
+#### windows
 
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
     * .NET desktop development
     * Visual C++ desktop development
     * Common Windows Platform development
 * Install [cmake](https://cmake.org/download/) and add `cmake.exe` to `%PATH%`.
-* Install [git](https://git-scm.com/downloads) and enable Linux/UNIX commands(not only `git.exe`) from Windows Command Line.
+* Install [git](https://git-scm.com/downloads) with options below, `git.exe` and other UNIX/Linux commands such as `cp.exe` `mv.exe` `rm.exe` are enabled in Windows CMD after this step.
+    * Use Git and optional Unix tools from the Command Prompt.
+    * Use Windows' default console window.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `%PATH%`.
+* Install [python3](https://www.python.org/downloads/) and add `python3.exe` and `pip3.exe` to `%PATH%`.
 
 #### Build
 
@@ -118,7 +121,7 @@ func main():int32 {
 | Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build -r`  |
 | Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat` |
 
-#### Fix Issue
+#### Known Issue
 
 1. Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows if git clone is too slow.
 2. Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows/Solaris if git clone is too slow.

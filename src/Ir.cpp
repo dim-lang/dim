@@ -135,7 +135,11 @@ llvm::Value *IrIdentifierConstant::codeGen() {
             varNode->toString());
   EX_ASSERT(varNode->value, "varNode.value {} must not null",
             varNode->toString());
-  return varNode->value;
+  llvm::Value *var = varNode->value;
+  llvm::LoadInst *load = context_->llvmBuilder.CreateLoad(var);
+  LOG_INFO("identifier:{}, var:{}, load:{}", node_->value(),
+           IrUtil::dumpLLVM(var), IrUtil::dumpLLVM(load));
+  return load;
 }
 
 std::string IrIdentifierConstant::toString() const {
