@@ -51,23 +51,14 @@ if not exist %ROOT%\src\boost\stage (
     cmd /c bootstrap.bat
     cmd /c b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem
     cd %ROOT%\src\boost\stage\lib
-    @rem cp libboost_program_options-vc*-mt-x64-*.lib libboost_program_options-mt-x64.lib
-    @rem cp libboost_system-vc*-mt-x64-*.lib libboost_system-mt-x64.lib
-    @rem cp libboost_filesystem-vc*-mt-x64-*.lib libboost_filesystem-mt-x64.lib
 )
 echo [shepherd] prepare boostorg/boost %BOOST_VERSION% - done
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION%
 if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
-)
-if not exist %ROOT%\src\llvm-project\llvm\build (
     cd %ROOT%\src\llvm-project\llvm
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 ..
-)
-if not exist %ROOT%\src\llvm-project\llvm\install (
+    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 -B build
     cd %ROOT%\src\llvm-project\llvm\build
     cmake --build . --config Release --target INSTALL
 )
