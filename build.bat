@@ -44,13 +44,11 @@ if not exist %ROOT%\src\boost (
     git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
     cd boost
     git submodule update --init
-    cd %ROOT%
 )
 if not exist %ROOT%\src\boost\stage (
     cd %ROOT%\src\boost
     cmd /c bootstrap.bat
     cmd /c b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem
-    cd %ROOT%\src\boost\stage\lib
 )
 echo [shepherd] prepare boostorg/boost %BOOST_VERSION% - done
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION%
