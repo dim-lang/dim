@@ -101,6 +101,11 @@ func main():int32 {
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                                                                 |
 | OpenSUSE          | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel`                                      |
 
+* Fix tool chain version on macOS:
+    * flex: `$ echo 'export PATH=/usr/local/opt/flex/bin:$PATH' >> ~/.bash_profile`.
+    * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
+    * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
+
 #### windows dependencies
 
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
@@ -113,6 +118,8 @@ func main():int32 {
     * Use Windows' default console window.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `%PATH%`.
 * Install [python3](https://www.python.org/downloads/) and add `python3.exe` and `pip3.exe` to `%PATH%`.
+* If git clone is too slow, please download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows.
+* If git clone is too slow, please download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows.
 
 #### Build
 
@@ -120,12 +127,3 @@ func main():int32 {
 |--------------|-------------------------------------------------------------------------------------------|
 | Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build -r`  |
 | Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat` |
-
-#### Known Issue
-
-1. Download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows if git clone is too slow.
-2. Download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows/Solaris if git clone is too slow.
-3. Fix tool chain version on macOS:
-    * flex: `$ echo 'export PATH=/usr/local/opt/flex/bin:$PATH' >> ~/.bash_profile`.
-    * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
-    * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
