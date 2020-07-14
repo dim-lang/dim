@@ -58,29 +58,17 @@ if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
 )
-if not exist %ROOT%\src\llvm-project\llvm\build (
+if not exist %ROOT%\src\llvm-project\llvm\cmake_config (
     cd %ROOT%\src\llvm-project\llvm
-    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 -B build
+    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\build_release" -Thost=x64 -B cmake_config
 )
-if not exist %ROOT%\src\llvm-project\llvm\install (
-    cd %ROOT%\src\llvm-project\llvm\build
+if not exist %ROOT%\src\llvm-project\llvm\build_release (
+    cd %ROOT%\src\llvm-project\llvm\cmake_config
     cmake --build . --config Release --target INSTALL
 )
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
 
 echo [shepherd] build
-cd %ROOT%\src
-if exist Token.yy.cpp (
-    rm Token.yy.cpp
-)
-if exist Parser.tab.hpp (
-    rm Parser.tab.hpp
-)
-if exist Parser.tab.cpp (
-    rm Parser.tab.cpp
-)
-win_flex -o Token.yy.cpp Token.l
-win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
 cmake -Thost=x64 -B %MSVC%
 cd %MSVC%
