@@ -27,7 +27,7 @@ static void testOutput(const std::string &fileName) {
 }
 
 TEST_CASE("IrWriter", "[IrWriter]") {
-  SECTION("Output") {
+  SECTION("Output Ir") {
     testOutput("test/case/IrTest1.shp");
     testOutput("test/case/IrTest2.shp");
     testOutput("test/case/IrTest3.shp");

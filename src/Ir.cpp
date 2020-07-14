@@ -430,66 +430,68 @@ llvm::Value *IrBinaryExpression::codeGen() {
   case T_ADD: {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFAdd(l, r);
-    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
-      case llvm::Type::TypeID::DoubleTyID: {
+      case llvm::Type::TypeID::DoubleTyID:
         return context_->llvmBuilder.CreateFAdd(l, r);
-      } break;
-      case llvm::Type::TypeID::IntegerTyID: {
+      case llvm::Type::TypeID::IntegerTyID:
         return context_->llvmBuilder.CreateAdd(l, r);
-      } break;
+      default:
+        break;
       }
     } break;
+    default:
+      break;
     }
   } break;
   case T_SUB: {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFSub(l, r);
-    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
-      case llvm::Type::TypeID::DoubleTyID: {
+      case llvm::Type::TypeID::DoubleTyID:
         return context_->llvmBuilder.CreateFSub(l, r);
-      } break;
-      case llvm::Type::TypeID::IntegerTyID: {
+      case llvm::Type::TypeID::IntegerTyID:
         return context_->llvmBuilder.CreateSub(l, r);
-      } break;
+      default:
+        break;
       }
     } break;
+    default:
+      break;
     }
   } break;
   case T_MUL: {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFMul(l, r);
-    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
-      case llvm::Type::TypeID::DoubleTyID: {
+      case llvm::Type::TypeID::DoubleTyID:
         return context_->llvmBuilder.CreateFMul(l, r);
-      } break;
-      case llvm::Type::TypeID::IntegerTyID: {
+      case llvm::Type::TypeID::IntegerTyID:
         return context_->llvmBuilder.CreateMul(l, r);
-      } break;
+      default:
+        break;
       }
     } break;
+    default:
+      break;
     }
   } break;
   case T_DIV: {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFDiv(l, r);
-    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
@@ -499,30 +501,35 @@ llvm::Value *IrBinaryExpression::codeGen() {
       case llvm::Type::TypeID::IntegerTyID: {
         return context_->llvmBuilder.CreateSDiv(l, r);
       } break;
+      default:
+        break;
       }
     } break;
+    default:
+      break;
     }
   } break;
   case T_MOD: {
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFRem(l, r);
-    } break;
     case llvm::Type::TypeID::IntegerTyID: {
       switch (r->getType()->getTypeID()) {
       case llvm::Type::TypeID::FloatTyID:
-      case llvm::Type::TypeID::DoubleTyID: {
+      case llvm::Type::TypeID::DoubleTyID:
         return context_->llvmBuilder.CreateFRem(l, r);
-      } break;
-      case llvm::Type::TypeID::IntegerTyID: {
+      case llvm::Type::TypeID::IntegerTyID:
         return context_->llvmBuilder.CreateSRem(l, r);
-      } break;
+      default:
+        break;
       }
     } break;
+    default:
+      break;
     }
   } break;
-  case T_BIT_LSHIFT: {
+  case T_BIT_LSHIFT:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
@@ -530,8 +537,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateShl(l, r);
-  } break;
-  case T_BIT_RSHIFT: {
+  case T_BIT_RSHIFT:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
@@ -539,8 +545,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateLShr(l, r);
-  } break;
-  case T_BIT_ARSHIFT: {
+  case T_BIT_ARSHIFT:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
@@ -548,19 +553,18 @@ llvm::Value *IrBinaryExpression::codeGen() {
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateAShr(l, r);
-  } break;
   case T_EQ: {
     EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
               "l->getType->getTypeID {} != r->getType->getTypeID {}",
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpOEQ(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpEQ(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
   case T_NEQ: {
@@ -569,12 +573,12 @@ llvm::Value *IrBinaryExpression::codeGen() {
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpONE(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpNE(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
   case T_LE: {
@@ -583,12 +587,12 @@ llvm::Value *IrBinaryExpression::codeGen() {
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpOLE(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpSLE(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
   case T_LT: {
@@ -597,12 +601,12 @@ llvm::Value *IrBinaryExpression::codeGen() {
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpOLT(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpSLT(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
   case T_GE: {
@@ -611,12 +615,12 @@ llvm::Value *IrBinaryExpression::codeGen() {
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpOGE(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpSGE(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
   case T_GT: {
@@ -625,83 +629,77 @@ llvm::Value *IrBinaryExpression::codeGen() {
               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
-    case llvm::Type::TypeID::DoubleTyID: {
+    case llvm::Type::TypeID::DoubleTyID:
       return context_->llvmBuilder.CreateFCmpOGT(l, r);
-    } break;
-    case llvm::Type::TypeID::IntegerTyID: {
+    case llvm::Type::TypeID::IntegerTyID:
       return context_->llvmBuilder.CreateICmpSGT(l, r);
-    } break;
+    default:
+      break;
     }
   } break;
-  case T_BIT_AND: {
+  case T_BIT_AND:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->llvmBuilder.CreateAnd(l, r, "andtmp");
-  } break;
-  case T_BIT_OR: {
+    return context_->llvmBuilder.CreateAnd(l, r);
+  case T_BIT_OR:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->llvmBuilder.CreateOr(l, r, "ortmp");
-  } break;
-  case T_BIT_XOR: {
+    return context_->llvmBuilder.CreateOr(l, r);
+  case T_BIT_XOR:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    return context_->llvmBuilder.CreateXor(l, r, "xortmp");
-  } break;
-  case T_LOGIC_AND: {
+    return context_->llvmBuilder.CreateXor(l, r);
+  case T_LOGIC_AND:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
-    llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
-    EX_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
-              lc->getBitWidth());
-    EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
-              rc->getBitWidth());
-    return context_->llvmBuilder.CreateAnd(l, r, "logic_andtmp");
-  } break;
-  case T_LOGIC_OR: {
+    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
+              "l->getBitWidth {} != 1",
+              llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
+    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
+              "r->getBitWidth {} != 1",
+              llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
+    return context_->llvmBuilder.CreateAnd(l, r);
+  case T_LOGIC_OR:
     EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "l->getType->getTypeID {} not integer",
               l->getType()->getTypeID());
     EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
               "r->getType->getTypeID {} not integer",
               r->getType()->getTypeID());
-    llvm::ConstantInt *lc = llvm::dyn_cast<llvm::ConstantInt>(l);
-    llvm::ConstantInt *rc = llvm::dyn_cast<llvm::ConstantInt>(r);
-    EX_ASSERT(lc->getBitWidth() == 1, "lc->getBitWidth {} != 1",
-              lc->getBitWidth());
-    EX_ASSERT(rc->getBitWidth() == 1, "rc->getBitWidth {} != 1",
-              rc->getBitWidth());
-    return context_->llvmBuilder.CreateOr(l, r, "logic_ortmp");
-  } break;
+    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
+              "l->getBitWidth {} != 1",
+              llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
+    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
+              "r->getBitWidth {} != 1",
+              llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
+    return context_->llvmBuilder.CreateOr(l, r);
   default:
     EX_ASSERT(false, "token {} invalid", node_->token());
   }
   EX_ASSERT(false,
             "l->getType->getTypeID {} or r->getType->getTypeID {} invalid, l "
-            "source:{} value:{}, r "
-            "source:{} value:{}",
+            "source:{} value:{} ir:{}, r source:{} value:{} ir:{}",
             l->getType()->getTypeID(), r->getType()->getTypeID(),
             dumpSource(context_->sourceName, node_->left()->position()),
-            node_->left()->toString(),
+            node_->left()->toString(), dumpLLVMValue(l),
             dumpSource(context_->sourceName, node_->right()->position()),
-            node_->right()->toString());
+            node_->right()->toString(), dumpLLVMValue(r));
   return nullptr;
 }
 
