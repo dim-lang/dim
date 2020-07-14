@@ -262,7 +262,6 @@ public:
 
 private:
   AstIdentifierConstant *node_;
-  int ssaVersion_;
 };
 
 /* i8 constant */

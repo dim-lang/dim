@@ -120,8 +120,7 @@ std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 /* identifier constant */
 IrIdentifierConstant::IrIdentifierConstant(IrContext *context,
                                            AstIdentifierConstant *node)
-    : IrConstant(context, IrUtil::namegen("identifier.constant")), node_(node),
-      ssaVersion_(0) {
+    : IrConstant(context, IrUtil::namegen("identifier.constant")), node_(node) {
   EX_ASSERT(node_, "node_ is null");
 }
 
@@ -378,10 +377,9 @@ llvm::Value *IrUnaryExpression::codeGen() {
       break;
     }
   } break;
-  case T_BIT_NOT: {
+  case T_BIT_NOT:
     return context_->llvmBuilder.CreateNot(e);
-  } break;
-  case T_LOGIC_NOT: {
+  case T_LOGIC_NOT:
     EX_ASSERT(
         e->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "e->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID {}",
@@ -392,7 +390,6 @@ llvm::Value *IrUnaryExpression::codeGen() {
               "e->getType->getBitWidth {} == 1",
               llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth());
     return context_->llvmBuilder.CreateNot(e);
-  } break;
   default:
     EX_ASSERT(false, "invalid node_->token {}", tokenName(node_->token()));
   }
