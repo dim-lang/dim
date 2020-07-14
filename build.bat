@@ -60,7 +60,7 @@ if not exist %ROOT%\src\llvm-project (
 )
 if not exist %ROOT%\src\llvm-project\llvm\cmake_config (
     cd %ROOT%\src\llvm-project\llvm
-    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\build_release" -Thost=x64 -B cmake_config
+    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\build_release" -A x64 -B cmake_config
 )
 if not exist %ROOT%\src\llvm-project\llvm\build_release (
     cd %ROOT%\src\llvm-project\llvm\cmake_config
@@ -70,7 +70,7 @@ echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
 
 echo [shepherd] build
 cd %ROOT%
-cmake -Thost=x64 -B %MSVC%
+cmake -A x64 -B %MSVC%
 cd %MSVC%
 cmake --build . --config Release
 cd %ROOT%
