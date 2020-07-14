@@ -13,5 +13,3 @@ std::string dumpAst(Ast *node);
 std::string dumpScope(ScopeNode *snode);
 
 std::string dumpSource(const std::string &fileName, const Position &position);
-
-std::string dumpLLVMValue(llvm::Value *value);
