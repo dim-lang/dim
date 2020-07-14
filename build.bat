@@ -66,6 +66,9 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     mkdir build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 ..
+)
+if not exist %ROOT%\src\llvm-project\llvm\install (
+    cd %ROOT%\src\llvm-project\llvm\build
     cmake --build . --config Release --target INSTALL
 )
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
