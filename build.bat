@@ -65,7 +65,7 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     cd %ROOT%\src\llvm-project\llvm
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 ..
+    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 ..
 )
 if not exist %ROOT%\src\llvm-project\llvm\install (
     cd %ROOT%\src\llvm-project\llvm\build
@@ -87,7 +87,7 @@ if exist Parser.tab.cpp (
 win_flex -o Token.yy.cpp Token.l
 win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
-cmake -DCMAKE_BUILD_TYPE=Release -Thost=x64 -B %MSVC%
+cmake -Thost=x64 -B %MSVC%
 cd %MSVC%
 cmake --build . --config Release
 cd %ROOT%
