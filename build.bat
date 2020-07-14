@@ -57,8 +57,12 @@ echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION%
 if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
+)
+if not exist %ROOT%\src\llvm-project\llvm\build (
     cd %ROOT%\src\llvm-project\llvm
     cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 -B build
+)
+if not exist %ROOT%\src\llvm-project\llvm\install (
     cd %ROOT%\src\llvm-project\llvm\build
     cmake --build . --config Release --target INSTALL
 )
