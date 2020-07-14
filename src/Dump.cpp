@@ -331,12 +331,3 @@ std::string dumpSource(const std::string &fileName, const Position &position) {
   }
   return ss.str();
 }
-
-std::string dumpLLVMValue(const llvm::Value *value) {
-  EX_ASSERT(value, "value must not null");
-
-  std::string output;
-  llvm::raw_string_ostream sos(output);
-  value->print(sos);
-  return sos.str();
-}

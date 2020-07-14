@@ -5,6 +5,7 @@
 #include "Exception.h"
 #include "Ir.h"
 #include "NameGenerator.h"
+#include "boost/preprocessor/stringize.hpp"
 #include "llvm/Support/raw_ostream.h"
 #include <system_error>
 
@@ -49,4 +50,3 @@ std::string IrUtil::toLLVMName(const std::string &name) {
 std::string IrUtil::fromLLVMName(const std::string &name) {
   return fromLLVMNameImpl(name, PREFIX);
 }
-

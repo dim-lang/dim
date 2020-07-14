@@ -38,6 +38,7 @@ else()
         )
 endif(WIN32)
 
+set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)

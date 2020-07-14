@@ -624,9 +624,11 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_GT: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == r->getType()->getTypeID(),
+        "l->getType->getTypeID {} {} == r->getType->getTypeID {} {}",
+        l->getType()->getTypeID(), IrUtil::dumpLLVM<llvm::Type>(l->getType()),
+        r->getType()->getTypeID(), IrUtil::dumpLLVM<llvm::Type>(r->getType()));
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -638,36 +640,44 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_BIT_AND:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        l->getType()->getTypeID());
+    EX_ASSERT(
+        r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        r->getType()->getTypeID());
     return context_->llvmBuilder.CreateAnd(l, r);
   case T_BIT_OR:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        l->getType()->getTypeID());
+    EX_ASSERT(
+        r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        r->getType()->getTypeID());
     return context_->llvmBuilder.CreateOr(l, r);
   case T_BIT_XOR:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        l->getType()->getTypeID());
+    EX_ASSERT(
+        r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        r->getType()->getTypeID());
     return context_->llvmBuilder.CreateXor(l, r);
   case T_LOGIC_AND:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        l->getType()->getTypeID());
+    EX_ASSERT(
+        r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        r->getType()->getTypeID());
     EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
               "l->getBitWidth {} != 1",
               llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
@@ -676,12 +686,14 @@ llvm::Value *IrBinaryExpression::codeGen() {
               llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
     return context_->llvmBuilder.CreateAnd(l, r);
   case T_LOGIC_OR:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    EX_ASSERT(
+        l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        l->getType()->getTypeID());
+    EX_ASSERT(
+        r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
+        r->getType()->getTypeID());
     EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
               "l->getBitWidth {} != 1",
               llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
@@ -693,13 +705,17 @@ llvm::Value *IrBinaryExpression::codeGen() {
     EX_ASSERT(false, "token {} invalid", node_->token());
   }
   EX_ASSERT(false,
-            "l->getType->getTypeID {} or r->getType->getTypeID {} invalid, l "
+            "token: {}, l->getType->getTypeID {} {} or r->getType->getTypeID "
+            "{} {} invalid, l "
             "source:{} value:{} ir:{}, r source:{} value:{} ir:{}",
-            l->getType()->getTypeID(), r->getType()->getTypeID(),
+            tokenName(node_->token()), l->getType()->getTypeID(),
+            IrUtil::dumpLLVM<llvm::Type>(l->getType()),
+            r->getType()->getTypeID(),
+            IrUtil::dumpLLVM<llvm::Type>(r->getType()),
             dumpSource(context_->sourceName, node_->left()->position()),
-            node_->left()->toString(), dumpLLVMValue(l),
+            node_->left()->toString(), IrUtil::dumpLLVM<llvm::Value>(l),
             dumpSource(context_->sourceName, node_->right()->position()),
-            node_->right()->toString(), dumpLLVMValue(r));
+            node_->right()->toString(), IrUtil::dumpLLVM<llvm::Value>(r));
   return nullptr;
 }
 

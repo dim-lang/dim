@@ -3,6 +3,8 @@
 
 #pragma once
 #include "IrContext.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/Support/raw_ostream.h"
 #include <string>
 
 class IrUtil {
@@ -18,4 +20,15 @@ public:
   // `shp.ir.format.print` to `format_print`
   // `shp.ir.FormatPrint` to `FormatPrint`
   static std::string fromLLVMName(const std::string &name);
+
+  // dump LLVM
+  // - llvm::Value
+  // - llvm::Function
+  // - llvm::Type
+  template <class T> static std::string dumpLLVM(T *t) {
+    std::string output;
+    llvm::raw_string_ostream sos(output);
+    t->print(sos);
+    return sos.str();
+  }
 };
