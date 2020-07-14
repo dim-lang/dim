@@ -314,9 +314,13 @@ IrBooleanConstant::IrBooleanConstant(IrContext *context,
 IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 
 llvm::Value *IrBooleanConstant::codeGen() {
+  return node_->value() ? context_->llvmBuilder.getTrue()
+                        : context_->llvmBuilder.getFalse();
+#if 0
   return llvm::ConstantInt::get(
       context_->llvmContext,
       llvm::APInt(1, node_->value() ? (uint64_t)1U : (uint64_t)0U, false));
+#endif
 }
 
 std::string IrBooleanConstant::toString() const {
@@ -360,17 +364,36 @@ llvm::Value *IrUnaryExpression::codeGen() {
     return e;
   } break;
   case T_SUB: {
-    return context_->llvmBuilder.CreateNeg(e);
+    switch (e->getType()->getTypeID()) {
+    case llvm::Type::TypeID::FloatTyID:
+    case llvm::Type::TypeID::DoubleTyID:
+      return context_->llvmBuilder.CreateFNeg(e);
+    case llvm::Type::TypeID::IntegerTyID:
+      return context_->llvmBuilder.CreateNeg(e);
+    default:
+      break;
+    }
   } break;
   case T_BIT_NOT: {
     return context_->llvmBuilder.CreateNot(e);
   } break;
   case T_LOGIC_NOT: {
+    EX_ASSERT(
+        e->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+        "e->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID {}",
+        e->getType()->getTypeID(), llvm::Type::TypeID::IntegerTyID);
+
+    EX_ASSERT(llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth() ==
+                  1U,
+              "e->getType->getBitWidth {} == 1",
+              llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth());
     return context_->llvmBuilder.CreateNot(e);
   } break;
   default:
     EX_ASSERT(false, "invalid node_->token {}", tokenName(node_->token()));
   }
+  EX_ASSERT(false, "invalid e->getType->getTypeID {}, expression_:{}",
+            e->getType()->getTypeID(), expression_->toString());
   return nullptr;
 }
 

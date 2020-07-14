@@ -26,7 +26,7 @@ static void testOutput(const std::string &fileName) {
            errcode.message());
 }
 
-TEST_CASE("IrUtil", "[IrUtil]") {
+TEST_CASE("IrWriter", "[IrWriter]") {
   SECTION("Output") {
     testOutput("test/case/IrTest1.shp");
     testOutput("test/case/IrTest2.shp");
