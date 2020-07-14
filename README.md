@@ -88,7 +88,7 @@ func main():int32 {
 
 ## How to install?
 
-#### Linux & UNIX
+#### Linux & UNIX dependencies
 
 | Platform          |  Dependencies                                                                                                                 |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -101,7 +101,7 @@ func main():int32 {
 | Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                                                                 |
 | OpenSUSE          | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel`                                      |
 
-#### windows
+#### windows dependencies
 
 * Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
     * .NET desktop development
