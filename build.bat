@@ -51,9 +51,9 @@ if not exist %ROOT%\src\boost\stage (
     cmd /c bootstrap.bat
     cmd /c b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem
     cd %ROOT%\src\boost\stage\lib
-    cp libboost_program_options-vc*-mt-x64-*.lib boost_program_options-mt-x64.lib
-    cp libboost_system-vc*-mt-x64-*.lib boost_system-mt-x64.lib
-    cp libboost_filesystem-vc*-mt-x64-*.lib boost_filesystem-mt-x64.lib
+    cp libboost_program_options-vc*-mt-x64-*.lib libboost_program_options-mt-x64.lib
+    cp libboost_system-vc*-mt-x64-*.lib libboost_system-mt-x64.lib
+    cp libboost_filesystem-vc*-mt-x64-*.lib libboost_filesystem-mt-x64.lib
 )
 echo [shepherd] prepare boostorg/boost %BOOST_VERSION% - done
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION%
@@ -65,7 +65,7 @@ if not exist %ROOT%\src\llvm-project\llvm\build (
     cd %ROOT%\src\llvm-project\llvm
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -A x64 ..
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\install" -Thost=x64 ..
     cmake --build . --config Release --target INSTALL
 )
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
@@ -84,7 +84,7 @@ if exist Parser.tab.cpp (
 win_flex -o Token.yy.cpp Token.l
 win_bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 cd %ROOT%
-cmake -DCMAKE_BUILD_TYPE=Release -A x64 -B %MSVC%
+cmake -DCMAKE_BUILD_TYPE=Release -Thost=x64 -B %MSVC%
 cd %MSVC%
 cmake --build . --config Release
 cd %ROOT%
