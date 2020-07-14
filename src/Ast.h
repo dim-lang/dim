@@ -110,8 +110,10 @@ public:
   virtual std::string name() const;
   virtual const Position &position() const;
 
+  // contains FloatConstant and IntegerConstant
   static bool isConstant(const Ast *node);
   static bool isFloatConstant(const Ast *node);
+  // contains SignedIntegerConstant and UnsignedIntegerConstant
   static bool isIntegerConstant(const Ast *node);
   static bool isSignedIntegerConstant(const Ast *node);
   static bool isUnsignedIntegerConstant(const Ast *node);
