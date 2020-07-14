@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
       EX_ASSERT(p == 0, "parse fail:{}", p);
       IrContext context(fileName);
       IrTranslateUnit tunit(&context, scanner.translateUnit());
-      tunit.buildSymbol();
     }
   }
 

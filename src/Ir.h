@@ -97,8 +97,6 @@ public:
   virtual std::string toString() const = 0;
   virtual IrType type() const = 0;
   virtual llvm::Value *codeGen() = 0;
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 protected:
   IrContext *context_;
@@ -187,16 +185,6 @@ public:
     EX_ASSERT(item, "item is null");
     items_.push_back(item);
   }
-  virtual void buildSymbol() {
-    for (int i = 0; i < items_.size(); i++) {
-      items_[i]->buildSymbol();
-    }
-  }
-  virtual void checkSymbol() const {
-    for (int i = 0; i < items_.size(); i++) {
-      items_[i]->checkSymbol();
-    }
-  }
 
 protected:
   virtual std::string stringify() const = 0;
@@ -241,8 +229,6 @@ public:
   IrTranslateUnit(IrContext *context, AstTranslateUnit *node);
   virtual ~IrTranslateUnit() = default;
   virtual IrType type() const;
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 protected:
   virtual std::string stringify() const;
@@ -527,8 +513,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstExpressionStatement *node_;
@@ -543,8 +527,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstCompoundStatement *node_;
@@ -559,8 +541,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstIfStatement *node_;
@@ -577,8 +557,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstWhileStatement *node_;
@@ -594,8 +572,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstForStatement *node_;
@@ -613,8 +589,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstReturnStatement *node_;
@@ -629,8 +603,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstVariableDefinition *node_;
@@ -644,8 +616,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstVariableDefinition *node_;
@@ -660,11 +630,10 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstVariableDefinition *node_;
+  IrExpressionList *expressionList_;
 };
 
 /* function definition */
@@ -675,8 +644,6 @@ public:
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
-  virtual void buildSymbol();
-  virtual void checkSymbol() const;
 
 private:
   AstFunctionDefinition *node_;

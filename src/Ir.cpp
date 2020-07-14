@@ -35,6 +35,8 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 #include "llvm/Transforms/Utils.h"
+#include <tuple>
+#include <vector>
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
@@ -45,10 +47,6 @@ Ir::Ir(IrContext *context, const std::string &name)
 }
 
 std::string Ir::name() const { return name_; }
-
-void Ir::buildSymbol() {}
-
-void Ir::checkSymbol() const {}
 
 IrExpression::IrExpression(IrContext *context, const std::string &name)
     : Ir(context, name) {}
@@ -94,22 +92,6 @@ IrTranslateUnit::IrTranslateUnit(IrContext *context, AstTranslateUnit *node)
   for (int i = 0; i < node_->size(); i++) {
     AstDefinition *ast = node_->get(i);
     add(IrFactory::unit(context_, ast));
-  }
-}
-
-void IrTranslateUnit::buildSymbol() {
-  for (int i = 0; i < size(); i++) {
-    IrDefinition *ir = get(i);
-    EX_ASSERT(ir, "ir is null");
-    ir->buildSymbol();
-  }
-}
-
-void IrTranslateUnit::checkSymbol() const {
-  for (int i = 0; i < size(); i++) {
-    IrDefinition *ir = get(i);
-    EX_ASSERT(ir, "ir is null");
-    ir->checkSymbol();
   }
 }
 
@@ -887,10 +869,6 @@ IrExpressionStatement::IrExpressionStatement(IrContext *context,
   expression_ = IrFactory::expr(context_, node->expression());
 }
 
-void IrExpressionStatement::buildSymbol() { expression_->buildSymbol(); }
-
-void IrExpressionStatement::checkSymbol() const {}
-
 IrExpressionStatement::~IrExpressionStatement() {
   delete expression_;
   expression_ = nullptr;
@@ -916,6 +894,14 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
       statementList_(nullptr) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->statementList(), "node_->statementList is null");
+
+  // push local scope
+  LocalScope *ls =
+      new LocalScope(node_->name(), context_->symbolTable->current);
+  context_->symbolTable->current->define(
+      new ScopeNode(ls, ScopeType::ty_local(), node_));
+  context_->symbolTable->push(ls);
+
   statementList_ = new IrStatementList(context);
   for (int i = 0; i < node_->statementList()->size(); i++) {
     Ast *ast = node_->statementList()->get(i);
@@ -959,21 +945,10 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
       statementList_->add(ir);
     }
   }
-}
 
-void IrCompoundStatement::buildSymbol() {
-  LocalScope *loc =
-      new LocalScope(node_->name(), context_->symbolTable->current);
-  context_->symbolTable->current->define(
-      new ScopeNode(loc, ScopeType::ty_local(), node_));
-  context_->symbolTable->push(loc);
-  for (int i = 0; i < statementList_->size(); i++) {
-    statementList_->get(i)->buildSymbol();
-  }
+  // pop scope
   context_->symbolTable->pop();
 }
-
-void IrCompoundStatement::checkSymbol() const {}
 
 IrCompoundStatement::~IrCompoundStatement() {
   delete statementList_;
@@ -1007,18 +982,6 @@ IrIfStatement::IrIfStatement(IrContext *context, AstIfStatement *node)
   condition_ = IrFactory::expr(context_, node->condition());
   thens_ = IrFactory::stmt(context_, node->thens());
   elses_ = IrFactory::stmt(context_, node->elses());
-}
-
-void IrIfStatement::buildSymbol() {
-  condition_->buildSymbol();
-  thens_->buildSymbol();
-  elses_->buildSymbol();
-}
-
-void IrIfStatement::checkSymbol() const {
-  condition_->checkSymbol();
-  thens_->checkSymbol();
-  elses_->checkSymbol();
 }
 
 IrIfStatement::~IrIfStatement() {
@@ -1083,13 +1046,6 @@ IrWhileStatement::IrWhileStatement(IrContext *context, AstWhileStatement *node)
   statement_ = IrFactory::stmt(context_, node_->statement());
 }
 
-void IrWhileStatement::buildSymbol() {
-  condition_->buildSymbol();
-  statement_->buildSymbol();
-}
-
-void IrWhileStatement::checkSymbol() const {}
-
 IrType IrWhileStatement::type() const { return IrType::WhileStatement; }
 
 llvm::Value *IrWhileStatement::codeGen() { return nullptr; }
@@ -1107,24 +1063,20 @@ IrForStatement::IrForStatement(IrContext *context, AstForStatement *node)
   EX_ASSERT(node_->step(), "node_->step is null");
   EX_ASSERT(node_->end(), "node_->end is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
+
+  // push local scope
+  LocalScope *loc =
+      new LocalScope(node_->name(), context_->symbolTable->current);
+  context_->symbolTable->push(loc);
+
   start_ = IrFactory::stmt(context_, node->start());
   step_ = IrFactory::stmt(context_, node->step());
   end_ = IrFactory::expr(context_, node->end());
   statement_ = IrFactory::stmt(context_, node->statement());
-}
 
-void IrForStatement::buildSymbol() {
-  LocalScope *loc =
-      new LocalScope(node_->name(), context_->symbolTable->current);
-  context_->symbolTable->push(loc);
-  start_->buildSymbol();
-  step_->buildSymbol();
-  end_->buildSymbol();
-  statement_->buildSymbol();
+  // pop scope
   context_->symbolTable->pop();
 }
-
-void IrForStatement::checkSymbol() const {}
 
 IrForStatement::~IrForStatement() {
   delete start_;
@@ -1193,10 +1145,6 @@ IrReturnStatement::IrReturnStatement(IrContext *context,
   expression_ = IrFactory::expr(context_, node->expression());
 }
 
-void IrReturnStatement::buildSymbol() { expression_->buildSymbol(); }
-
-void IrReturnStatement::checkSymbol() const {}
-
 IrReturnStatement::~IrReturnStatement() {
   delete expression_;
   expression_ = nullptr;
@@ -1228,45 +1176,42 @@ llvm::Value *IrReturnStatement::codeGen() {
 }
 
 /* variable definition */
-static void variableDefinitionBuildSymbol(AstVariableDefinition *node,
-                                          SymbolTable *symbolTable) {
-  for (int i = 0; i < node->definitionList()->size(); i++) {
-    AstVariableInitialDefinition *ast =
-        DC(AstVariableInitialDefinition, node->definitionList()->get(i));
-    VariableSymbol *varSym =
-        new VariableSymbol(ast->identifier(), symbolTable->current);
-    BuiltinType *varTy = nullptr;
-    switch (ast->expression()->type()) {
-    case AstType::Int8Constant:
-      varTy = BuiltinType::ty_int8();
-    case AstType::UInt8Constant:
-      varTy = BuiltinType::ty_uint8();
-    case AstType::Int16Constant:
-      varTy = BuiltinType::ty_int16();
-    case AstType::UInt16Constant:
-      varTy = BuiltinType::ty_uint16();
-    case AstType::Int32Constant:
-      varTy = BuiltinType::ty_int32();
-    case AstType::UInt32Constant:
-      varTy = BuiltinType::ty_uint32();
-    case AstType::Int64Constant:
-      varTy = BuiltinType::ty_int64();
-    case AstType::UInt64Constant:
-      varTy = BuiltinType::ty_uint64();
-    case AstType::Float32Constant:
-      varTy = BuiltinType::ty_float32();
-    case AstType::Float64Constant:
-      varTy = BuiltinType::ty_float64();
-    case AstType::BooleanConstant:
-      varTy = BuiltinType::ty_boolean();
-    case AstType::StringConstant:
-      varTy = BuiltinType::ty_string();
-    default:
-      LOG_WARN("warning default builtin type:{}", ast->toString());
-      varTy = BuiltinType::ty_void();
-    }
-    symbolTable->current->define(new ScopeNode(varSym, varTy, ast));
+static void initializeVariableSymbol(AstVariableInitialDefinition *node,
+                                     SymbolTable *symbolTable) {
+  EX_ASSERT(node, "node must not be null");
+  VariableSymbol *varSym =
+      new VariableSymbol(node->identifier(), symbolTable->current);
+  BuiltinType *varTy = nullptr;
+  switch (node->expression()->type()) {
+  case AstType::Int8Constant:
+    varTy = BuiltinType::ty_int8();
+  case AstType::UInt8Constant:
+    varTy = BuiltinType::ty_uint8();
+  case AstType::Int16Constant:
+    varTy = BuiltinType::ty_int16();
+  case AstType::UInt16Constant:
+    varTy = BuiltinType::ty_uint16();
+  case AstType::Int32Constant:
+    varTy = BuiltinType::ty_int32();
+  case AstType::UInt32Constant:
+    varTy = BuiltinType::ty_uint32();
+  case AstType::Int64Constant:
+    varTy = BuiltinType::ty_int64();
+  case AstType::UInt64Constant:
+    varTy = BuiltinType::ty_uint64();
+  case AstType::Float32Constant:
+    varTy = BuiltinType::ty_float32();
+  case AstType::Float64Constant:
+    varTy = BuiltinType::ty_float64();
+  case AstType::BooleanConstant:
+    varTy = BuiltinType::ty_boolean();
+  case AstType::StringConstant:
+    varTy = BuiltinType::ty_string();
+  default:
+    LOG_WARN("warning default builtin type:{}", node->toString());
+    varTy = BuiltinType::ty_void();
   }
+  symbolTable->current->define(new ScopeNode(varSym, varTy, node));
 }
 
 /* global variable */
@@ -1280,6 +1225,7 @@ IrGlobalVariableDefinition::IrGlobalVariableDefinition(
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    initializeVariableSymbol(ast, context_->symbolTable);
     expressionList_->add(IrFactory::expr(context_, ast->expression()));
   }
 }
@@ -1336,17 +1282,21 @@ llvm::Value *IrGlobalVariableDefinition::codeGen() {
   return ret;
 }
 
-void IrGlobalVariableDefinition::buildSymbol() {
-  variableDefinitionBuildSymbol(node_, context_->symbolTable);
-}
-
-void IrGlobalVariableDefinition::checkSymbol() const {}
-
 /* local variable in function */
 IrLocalVariableDefinition::IrLocalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
     : IrDefinition(context, IrUtil::namegen("local.variable.definition")),
-      node_(node) {}
+      node_(node), expressionList_(nullptr) {
+  EX_ASSERT(node_, "node_ must not null");
+  EX_ASSERT(node_->definitionList(), "node_->definitionList must not null");
+  expressionList_ = new IrExpressionList(context_);
+  for (int i = 0; i < node_->definitionList()->size(); i++) {
+    AstVariableInitialDefinition *ast =
+        DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
+    initializeVariableSymbol(ast, context_->symbolTable);
+    expressionList_->add(IrFactory::expr(context_, ast->expression()));
+  }
+}
 
 std::string IrLocalVariableDefinition::toString() const {
   return fmt::format("[@IrLocalVariableDefinition node_:{}]",
@@ -1417,12 +1367,6 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
   return ret;
 }
 
-void IrLocalVariableDefinition::buildSymbol() {
-  variableDefinitionBuildSymbol(node_, context_->symbolTable);
-}
-
-void IrLocalVariableDefinition::checkSymbol() const {}
-
 /* function definition */
 IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
                                            AstFunctionDefinition *node)
@@ -1431,41 +1375,25 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->signature(), "node_->signature is null");
   EX_ASSERT(node_->statement(), "node_->statement is null");
+
   signature_ = new IrFunctionSignatureDefinition(context_, node->signature());
+
+  // push function scope
+  ScopeNode *funcNode =
+      context_->symbolTable->current->resolve(node->signature()->identifier());
+  EX_ASSERT(funcNode, "funcNode must not be null");
+  EX_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
+            funcNode->toString());
+  EX_ASSERT(funcNode->symbol->type() == (+SymType::Function),
+            "funcNode->symbol->type {} == SymType::Function {}",
+            funcNode->symbol->type()._to_string(),
+            (+SymType::Function)._to_string());
+  context->symbolTable->push(DC(Scope, funcNode->symbol));
+
   statement_ = IrFactory::stmt(context_, node_->statement());
-}
 
-void IrFunctionDefinition::buildSymbol() {
-  AstFunctionSignatureDefinition *sign = node_->signature();
-  FunctionSymbol *funcSym =
-      new FunctionSymbol(sign->identifier(), context_->symbolTable->current);
-  std::vector<Type *> funcArgTypeList;
-  for (int i = 0; i < sign->argumentList()->size(); i++) {
-    AstFunctionArgumentDefinition *funcArg =
-        DC(AstFunctionArgumentDefinition, sign->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg is null");
-    funcArgTypeList.push_back(BuiltinType::ty_void());
-  }
-  FunctionType *funcTy =
-      new FunctionType(funcArgTypeList, BuiltinType::ty_void());
-  context_->symbolTable->current->define(new ScopeNode(funcSym, funcTy, node_));
-  context_->symbolTable->push(funcSym);
-  for (int i = 0; i < sign->argumentList()->size(); i++) {
-    AstFunctionArgumentDefinition *funcArg =
-        DC(AstFunctionArgumentDefinition, sign->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg is null");
-    FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
-        funcArg->identifier(), context_->symbolTable->current);
-    context_->symbolTable->current->define(
-        new ScopeNode(funcArgSym, BuiltinType::ty_void(), funcArg));
-  }
-  statement_->buildSymbol();
+  // pop function scope
   context_->symbolTable->pop();
-}
-
-void IrFunctionDefinition::checkSymbol() const {
-  signature_->checkSymbol();
-  statement_->checkSymbol();
 }
 
 IrType IrFunctionDefinition::type() const { return IrType::FunctionDefinition; }
@@ -1500,6 +1428,8 @@ llvm::Value *IrFunctionDefinition::codeGen() {
     EX_ASSERT(argNode, "argNode must not null");
     EX_ASSERT(*argNode != ScopeNode::invalid(), "argNode {} must be valid",
               argNode->toString());
+    EX_ASSERT(!argNode->value, "argNode->value {} must be null",
+              argNode->toString());
     argNode->value = &a;
   }
 
@@ -1528,6 +1458,31 @@ IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
       node_(node) {
   EX_ASSERT(node_, "node_ is null");
   EX_ASSERT(node_->argumentList(), "node_->argumentList is null");
+
+  // create function symbol
+  FunctionSymbol *funcSym =
+      new FunctionSymbol(node_->identifier(), context->symbolTable->current);
+  std::vector<Type *> funcArgTypeList;
+  for (int i = 0; i < node_->argumentList()->size(); i++) {
+    AstFunctionArgumentDefinition *funcArg =
+        DC(AstFunctionArgumentDefinition, node_->argumentList()->get(i));
+    EX_ASSERT(funcArg, "funcArg is null");
+    funcArgTypeList.push_back(BuiltinType::ty_void());
+  }
+  FunctionType *funcTy =
+      new FunctionType(funcArgTypeList, BuiltinType::ty_void());
+
+  std::vector<FunctionArgumentSymbol *> funcArgSymList;
+  for (int i = 0; i < node_->argumentList()->size(); i++) {
+    AstFunctionArgumentDefinition *funcArg =
+        DC(AstFunctionArgumentDefinition, node_->argumentList()->get(i));
+    EX_ASSERT(funcArg, "funcArg is null");
+    FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
+        funcArg->identifier(), context->symbolTable->current);
+    context->symbolTable->current->define(
+        new ScopeNode(funcArgSym, BuiltinType::ty_void(), funcArg));
+  }
+  context->symbolTable->current->define(new ScopeNode(funcSym, funcTy, node));
 }
 
 std::string IrFunctionSignatureDefinition::toString() const {

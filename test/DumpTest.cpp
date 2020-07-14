@@ -16,7 +16,6 @@ static void testAST(const char *fileName) {
   LOG_INFO("dump ast: {} {}", fileName, dumpAst(scanner.translateUnit()));
   IrContext context(fileName);
   IrTranslateUnit tunit(&context, scanner.translateUnit());
-  tunit.buildSymbol();
   ScopeNode *gnode =
       new ScopeNode(context.symbolTable->global, ScopeType::ty_global(),
                     scanner.translateUnit());

@@ -14,7 +14,6 @@ static void testOutput(const std::string &fileName) {
   REQUIRE(scanner.parse() == 0);
   IrContext context(fileName);
   IrTranslateUnit tunit(&context, scanner.translateUnit());
-  tunit.buildSymbol();
   tunit.codeGen();
   IrLLWriter writer(&context);
   writer.toStdout();

@@ -16,11 +16,10 @@ static void semantic(const char *fileName) {
   LOG_INFO("translateUnit: {}", scanner.translateUnit()->toString());
   IrContext context(fileName);
   IrTranslateUnit tunit(&context, scanner.translateUnit());
-  tunit.buildSymbol();
 }
 
 TEST_CASE("Semantic", "[Semantic]") {
-  SECTION("buildSymbol") {
+  SECTION("symbol") {
     semantic("test/case/Parser1.shp");
     semantic("test/case/Parser2.shp");
   }
