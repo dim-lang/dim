@@ -117,10 +117,10 @@ llvm::Value *IrIdentifierConstant::codeGen() {
   EX_ASSERT(varNode->value, "varNode.value {} must not null",
             varNode->toString());
   llvm::Value *var = varNode->value;
-  llvm::LoadInst *load = context_->llvmBuilder.CreateLoad(var);
-  LOG_INFO("identifier:{}, var:{}, load:{}", node_->value(),
-           IrUtil::dumpLLVM(var), IrUtil::dumpLLVM(load));
-  return load;
+  LOG_INFO("identifier:{}, var:{}", node_->value(), IrUtil::dumpLLVM(var));
+  return var->getType()->getTypeID() == llvm::Type::TypeID::PointerTyID
+             ? context_->llvmBuilder.CreateLoad(var)
+             : var;
 }
 
 std::string IrIdentifierConstant::toString() const {

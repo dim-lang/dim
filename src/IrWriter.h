@@ -3,16 +3,15 @@
 
 #pragma once
 #include "IrContext.h"
+#include "llvm/Target/TargetMachine.h"
 #include <string>
-#include <system_error>
-#include <utility>
 
 class IrWriter {
 public:
   virtual ~IrWriter() = default;
   virtual void toStdout() = 0;
   virtual void toStderr() = 0;
-  virtual std::pair<std::error_code, std::string> toFileOstream() = 0;
+  virtual std::string toFileOstream() = 0;
   virtual std::string toStringOstream() = 0;
 };
 
@@ -22,22 +21,23 @@ public:
   virtual ~IrLLWriter() = default;
   virtual void toStdout();
   virtual void toStderr();
-  virtual std::pair<std::error_code, std::string> toFileOstream();
+  virtual std::string toFileOstream();
   virtual std::string toStringOstream();
 
 private:
   IrContext *context_;
 };
 
-class IrBitCodeWriter : public IrWriter {
+class IrObjWriter : public IrWriter {
 public:
-  IrBitCodeWriter(IrContext *context);
-  virtual ~IrBitCodeWriter() = default;
+  IrObjWriter(IrContext *context);
+  virtual ~IrObjWriter() = default;
   virtual void toStdout();
   virtual void toStderr();
-  virtual std::pair<std::error_code, std::string> toFileOstream();
+  virtual std::string toFileOstream();
   virtual std::string toStringOstream();
 
 private:
   IrContext *context_;
+  llvm::TargetMachine *targetMachine_;
 };
