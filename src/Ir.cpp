@@ -1390,6 +1390,19 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
             (+SymType::Function)._to_string());
   context->symbolTable->push(DC(Scope, funcNode->symbol));
 
+  // function argument symbols
+  for (int i = 0; i < node_->signature()->argumentList()->size(); i++) {
+    AstFunctionArgumentDefinition *funcArg =
+        DC(AstFunctionArgumentDefinition,
+           node_->signature()->argumentList()->get(i));
+    EX_ASSERT(funcArg, "funcArg must not null");
+    FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
+        funcArg->identifier(), context->symbolTable->current);
+    context->symbolTable->current->define(
+        new ScopeNode(funcArgSym, BuiltinType::ty_void(), funcArg));
+  }
+
+  // function body symbols
   statement_ = IrFactory::stmt(context_, node_->statement());
 
   // pop function scope
@@ -1466,22 +1479,12 @@ IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
   for (int i = 0; i < node_->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
         DC(AstFunctionArgumentDefinition, node_->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg is null");
+    EX_ASSERT(funcArg, "funcArg must not null");
     funcArgTypeList.push_back(BuiltinType::ty_void());
   }
   FunctionType *funcTy =
       new FunctionType(funcArgTypeList, BuiltinType::ty_void());
 
-  std::vector<FunctionArgumentSymbol *> funcArgSymList;
-  for (int i = 0; i < node_->argumentList()->size(); i++) {
-    AstFunctionArgumentDefinition *funcArg =
-        DC(AstFunctionArgumentDefinition, node_->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg is null");
-    FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
-        funcArg->identifier(), context->symbolTable->current);
-    context->symbolTable->current->define(
-        new ScopeNode(funcArgSym, BuiltinType::ty_void(), funcArg));
-  }
   context->symbolTable->current->define(new ScopeNode(funcSym, funcTy, node));
 }
 
