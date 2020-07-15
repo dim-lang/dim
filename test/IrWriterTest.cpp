@@ -18,11 +18,8 @@ static void testOutput(const std::string &fileName) {
   IrLLWriter writer(&context);
   writer.toStdout();
   LOG_INFO("output string ir:{}\n\n{}", fileName, writer.toStringOstream());
-  std::pair<std::error_code, std::string> result = writer.toFileOstream();
-  std::error_code errcode = result.first;
-  LOG_INFO("output file ir:{}, errcode value:{}, category:{}, message:{}",
-           fileName, errcode.value(), errcode.category().name(),
-           errcode.message());
+  std::string llFileName = writer.toFileOstream();
+  LOG_INFO("output file ir:{}, llFileName:{}", fileName, llFileName);
 }
 
 TEST_CASE("IrWriter", "[IrWriter]") {

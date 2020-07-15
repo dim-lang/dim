@@ -12,7 +12,6 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include <system_error>
-#include <utility>
 
 #define LL ".ll"
 #define OBJ ".o"

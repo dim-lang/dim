@@ -40,7 +40,7 @@ endif(WIN32)
 
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
-llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld)
+llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld aarch64 aarch64asmparser aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils arm armasmparser armcodegen armdesc armdisassembler arminfo armutils all all-targets)
 find_package(FLEX)
 find_package(BISON)
 FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
