@@ -21,19 +21,19 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   if (!node)
     return "null";
   switch (node->type()) {
-  case AstType::IdentifierConstant:
-  case AstType::Int8Constant:
-  case AstType::UInt8Constant:
-  case AstType::Int16Constant:
-  case AstType::UInt16Constant:
-  case AstType::Int32Constant:
-  case AstType::UInt32Constant:
-  case AstType::Int64Constant:
-  case AstType::UInt64Constant:
-  case AstType::Float32Constant:
-  case AstType::Float64Constant:
-  case AstType::StringConstant:
-  case AstType::BooleanConstant:
+  case AstType::Identifier:
+  case AstType::Int8Literal:
+  case AstType::UInt8Literal:
+  case AstType::Int16Literal:
+  case AstType::UInt16Literal:
+  case AstType::Int32Literal:
+  case AstType::UInt32Literal:
+  case AstType::Int64Literal:
+  case AstType::UInt64Literal:
+  case AstType::Float32Literal:
+  case AstType::Float64Literal:
+  case AstType::StringLiteral:
+  case AstType::BooleanLiteral:
     return node->name();
   case AstType::CallExpression: {
     AstCallExpression *e = DC(AstCallExpression, node);

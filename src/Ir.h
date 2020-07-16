@@ -14,10 +14,10 @@
 /*================ type from start 4000 ================*/
 BETTER_ENUM(IrType, int,
             // constant
-            IdentifierConstant = 4000, Float32Constant, Float64Constant,
-            Int8Constant, UInt8Constant, Int16Constant, UInt16Constant,
-            Int32Constant, UInt32Constant, Int64Constant, UInt64Constant,
-            StringConstant, BooleanConstant,
+            Identifier = 4000, Float32Constant, Float64Constant, Int8Constant,
+            UInt8Constant, Int16Constant, UInt16Constant, Int32Constant,
+            UInt32Constant, Int64Constant, UInt64Constant, StringConstant,
+            BooleanConstant,
             // expression
             CallExpression, UnaryExpression, BinaryExpression,
             ConditionalExpression, AssignmentExpression, SequelExpression,
@@ -62,7 +62,7 @@ class IrFloat32Constant;
 class IrFloat64Constant;
 class IrStringConstant;
 class IrBooleanConstant;
-class IrIdentifierConstant;
+class IrIdentifier;
 
 // expression
 class IrCallExpression;
@@ -238,172 +238,172 @@ private:
 };
 
 /* identifier constant */
-class IrIdentifierConstant : public IrConstant {
+class IrIdentifier : public IrExpression {
 public:
-  IrIdentifierConstant(IrContext *context, AstIdentifierConstant *node);
-  virtual ~IrIdentifierConstant() = default;
+  IrIdentifier(IrContext *context, AstIdentifier *node);
+  virtual ~IrIdentifier() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstIdentifierConstant *node_;
+  AstIdentifier *node_;
 };
 
 /* i8 constant */
 class IrInt8Constant : public IrConstant {
 public:
-  IrInt8Constant(IrContext *context, AstInt8Constant *node);
+  IrInt8Constant(IrContext *context, AstInt8Literal *node);
   virtual ~IrInt8Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstInt8Constant *node_;
+  AstInt8Literal *node_;
 };
 
 /* u8 constant */
 class IrUInt8Constant : public IrConstant {
 public:
-  IrUInt8Constant(IrContext *context, AstUInt8Constant *node);
+  IrUInt8Constant(IrContext *context, AstUInt8Literal *node);
   virtual ~IrUInt8Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstUInt8Constant *node_;
+  AstUInt8Literal *node_;
 };
 
 /* i16 constant */
 class IrInt16Constant : public IrConstant {
 public:
-  IrInt16Constant(IrContext *context, AstInt16Constant *node);
+  IrInt16Constant(IrContext *context, AstInt16Literal *node);
   virtual ~IrInt16Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstInt16Constant *node_;
+  AstInt16Literal *node_;
 };
 
 /* u16 constant */
 class IrUInt16Constant : public IrConstant {
 public:
-  IrUInt16Constant(IrContext *context, AstUInt16Constant *node);
+  IrUInt16Constant(IrContext *context, AstUInt16Literal *node);
   virtual ~IrUInt16Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstUInt16Constant *node_;
+  AstUInt16Literal *node_;
 };
 
 /* i32 constant */
 class IrInt32Constant : public IrConstant {
 public:
-  IrInt32Constant(IrContext *context, AstInt32Constant *node);
+  IrInt32Constant(IrContext *context, AstInt32Literal *node);
   virtual ~IrInt32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstInt32Constant *node_;
+  AstInt32Literal *node_;
 };
 
 /* u32 constant */
 class IrUInt32Constant : public IrConstant {
 public:
-  IrUInt32Constant(IrContext *context, AstUInt32Constant *node);
+  IrUInt32Constant(IrContext *context, AstUInt32Literal *node);
   virtual ~IrUInt32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstUInt32Constant *node_;
+  AstUInt32Literal *node_;
 };
 
 /* i64 constant */
 class IrInt64Constant : public IrConstant {
 public:
-  IrInt64Constant(IrContext *context, AstInt64Constant *node);
+  IrInt64Constant(IrContext *context, AstInt64Literal *node);
   virtual ~IrInt64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstInt64Constant *node_;
+  AstInt64Literal *node_;
 };
 
 /* u64 constant */
 class IrUInt64Constant : public IrConstant {
 public:
-  IrUInt64Constant(IrContext *context, AstUInt64Constant *node);
+  IrUInt64Constant(IrContext *context, AstUInt64Literal *node);
   virtual ~IrUInt64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstUInt64Constant *node_;
+  AstUInt64Literal *node_;
 };
 
 /* f32 constant */
 class IrFloat32Constant : public IrConstant {
 public:
-  IrFloat32Constant(IrContext *context, AstFloat32Constant *node);
+  IrFloat32Constant(IrContext *context, AstFloat32Literal *node);
   virtual ~IrFloat32Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstFloat32Constant *node_;
+  AstFloat32Literal *node_;
 };
 
 /* f64 constant */
 class IrFloat64Constant : public IrConstant {
 public:
-  IrFloat64Constant(IrContext *context, AstFloat64Constant *node);
+  IrFloat64Constant(IrContext *context, AstFloat64Literal *node);
   virtual ~IrFloat64Constant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstFloat64Constant *node_;
+  AstFloat64Literal *node_;
 };
 
 /* string constant */
 class IrStringConstant : public IrConstant {
 public:
-  IrStringConstant(IrContext *context, AstStringConstant *node);
+  IrStringConstant(IrContext *context, AstStringLiteral *node);
   virtual ~IrStringConstant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstStringConstant *node_;
+  AstStringLiteral *node_;
 };
 
 /* boolean constant */
 class IrBooleanConstant : public IrConstant {
 public:
-  IrBooleanConstant(IrContext *context, AstBooleanConstant *node);
+  IrBooleanConstant(IrContext *context, AstBooleanLiteral *node);
   virtual ~IrBooleanConstant() = default;
   virtual std::string toString() const;
   virtual IrType type() const;
   virtual llvm::Value *codeGen();
 
 private:
-  AstBooleanConstant *node_;
+  AstBooleanLiteral *node_;
 };
 
 /* call expression */

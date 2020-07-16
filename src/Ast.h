@@ -18,10 +18,10 @@
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstType, int,
             // constant
-            IdentifierConstant = 1000, Float32Constant, Float64Constant,
-            StringConstant, Int8Constant, UInt8Constant, Int16Constant,
-            UInt16Constant, Int32Constant, UInt32Constant, Int64Constant,
-            UInt64Constant, BooleanConstant,
+            Identifier = 1000, Int8Literal, UInt8Literal, Int16Literal,
+            UInt16Literal, Int32Literal, UInt32Literal, Int64Literal,
+            UInt64Literal, Float32Literal, Float64Literal, StringLiteral,
+            BooleanLiteral,
             // expression
             AssignmentExpression, SequelExpression, CallExpression,
             UnaryExpression, BinaryExpression, ConditionalExpression,
@@ -42,7 +42,7 @@ BETTER_ENUM(AstType, int,
 
 /* base interface */
 class Ast;
-class AstConstant;
+class AstLiteral;
 class AstExpression;
 class AstStatement;
 class AstDefinition;
@@ -56,19 +56,19 @@ class AstStatementList;
 class AstDefinitionList;
 
 /* constant */
-class AstIdentifierConstant;
-class AstInt8Constant;
-class AstUInt8Constant;
-class AstInt16Constant;
-class AstUInt16Constant;
-class AstInt32Constant;
-class AstUInt32Constant;
-class AstInt64Constant;
-class AstUInt64Constant;
-class AstFloat32Constant;
-class AstFloat64Constant;
-class AstStringConstant;
-class AstBooleanConstant;
+class AstIdentifier;
+class AstInt8Literal;
+class AstUInt8Literal;
+class AstInt16Literal;
+class AstUInt16Literal;
+class AstInt32Literal;
+class AstUInt32Literal;
+class AstInt64Literal;
+class AstUInt64Literal;
+class AstFloat32Literal;
+class AstFloat64Literal;
+class AstStringLiteral;
+class AstBooleanLiteral;
 
 /* expression */
 class AstCallExpression;
@@ -139,11 +139,11 @@ public:
 };
 
 /* constant */
-class AstConstant : public AstExpression {
+class AstLiteral : public AstExpression {
 public:
-  AstConstant(const std::string &name);
-  AstConstant(const std::string &name, const Position &position);
-  virtual ~AstConstant() = default;
+  AstLiteral(const std::string &name);
+  AstLiteral(const std::string &name, const Position &position);
+  virtual ~AstLiteral() = default;
   virtual AstType type() const = 0;
   virtual std::string toString() const = 0;
 };
@@ -284,10 +284,10 @@ private:
 };
 
 /* constant expression - T_IDENTIFIER */
-class AstIdentifierConstant : public AstConstant {
+class AstIdentifier : public AstExpression {
 public:
-  AstIdentifierConstant(const char *value, const Position &position);
-  virtual ~AstIdentifierConstant() = default;
+  AstIdentifier(const char *value, const Position &position);
+  virtual ~AstIdentifier() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -298,10 +298,10 @@ private:
 };
 
 /* constant expression - T_INT8_CONSTANT */
-class AstInt8Constant : public AstConstant {
+class AstInt8Literal : public AstLiteral {
 public:
-  AstInt8Constant(const int8_t &value, const Position &position);
-  virtual ~AstInt8Constant() = default;
+  AstInt8Literal(const int8_t &value, const Position &position);
+  virtual ~AstInt8Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -312,10 +312,10 @@ private:
 };
 
 /* constant expression - T_UINT8_CONSTANT */
-class AstUInt8Constant : public AstConstant {
+class AstUInt8Literal : public AstLiteral {
 public:
-  AstUInt8Constant(const uint8_t &value, const Position &position);
-  virtual ~AstUInt8Constant() = default;
+  AstUInt8Literal(const uint8_t &value, const Position &position);
+  virtual ~AstUInt8Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -326,10 +326,10 @@ private:
 };
 
 /* constant expression - T_INT16_CONSTANT */
-class AstInt16Constant : public AstConstant {
+class AstInt16Literal : public AstLiteral {
 public:
-  AstInt16Constant(const int16_t &value, const Position &position);
-  virtual ~AstInt16Constant() = default;
+  AstInt16Literal(const int16_t &value, const Position &position);
+  virtual ~AstInt16Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -340,10 +340,10 @@ private:
 };
 
 /* constant expression - T_UINT16_CONSTANT */
-class AstUInt16Constant : public AstConstant {
+class AstUInt16Literal : public AstLiteral {
 public:
-  AstUInt16Constant(const uint16_t &value, const Position &position);
-  virtual ~AstUInt16Constant() = default;
+  AstUInt16Literal(const uint16_t &value, const Position &position);
+  virtual ~AstUInt16Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -354,10 +354,10 @@ private:
 };
 
 /* constant expression - T_INT32_CONSTANT */
-class AstInt32Constant : public AstConstant {
+class AstInt32Literal : public AstLiteral {
 public:
-  AstInt32Constant(const int32_t &value, const Position &position);
-  virtual ~AstInt32Constant() = default;
+  AstInt32Literal(const int32_t &value, const Position &position);
+  virtual ~AstInt32Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -368,10 +368,10 @@ private:
 };
 
 /* constant expression - T_UINT32_CONSTANT */
-class AstUInt32Constant : public AstConstant {
+class AstUInt32Literal : public AstLiteral {
 public:
-  AstUInt32Constant(const uint32_t &value, const Position &position);
-  virtual ~AstUInt32Constant() = default;
+  AstUInt32Literal(const uint32_t &value, const Position &position);
+  virtual ~AstUInt32Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -382,10 +382,10 @@ private:
 };
 
 /* constant expression - T_INT64_CONSTANT */
-class AstInt64Constant : public AstConstant {
+class AstInt64Literal : public AstLiteral {
 public:
-  AstInt64Constant(const int64_t &value, const Position &position);
-  virtual ~AstInt64Constant() = default;
+  AstInt64Literal(const int64_t &value, const Position &position);
+  virtual ~AstInt64Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -396,10 +396,10 @@ private:
 };
 
 /* constant expression - T_UINT64_CONSTANT */
-class AstUInt64Constant : public AstConstant {
+class AstUInt64Literal : public AstLiteral {
 public:
-  AstUInt64Constant(const uint64_t &value, const Position &position);
-  virtual ~AstUInt64Constant() = default;
+  AstUInt64Literal(const uint64_t &value, const Position &position);
+  virtual ~AstUInt64Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -410,10 +410,10 @@ private:
 };
 
 /* constant expression - T_FLOAT32_CONSTANT */
-class AstFloat32Constant : public AstConstant {
+class AstFloat32Literal : public AstLiteral {
 public:
-  AstFloat32Constant(const float &value, const Position &position);
-  virtual ~AstFloat32Constant() = default;
+  AstFloat32Literal(const float &value, const Position &position);
+  virtual ~AstFloat32Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -424,10 +424,10 @@ private:
 };
 
 /* constant expression - T_FLOAT64_CONSTANT */
-class AstFloat64Constant : public AstConstant {
+class AstFloat64Literal : public AstLiteral {
 public:
-  AstFloat64Constant(const double &value, const Position &position);
-  virtual ~AstFloat64Constant() = default;
+  AstFloat64Literal(const double &value, const Position &position);
+  virtual ~AstFloat64Literal() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -438,10 +438,10 @@ private:
 };
 
 /* constant expression - T_STRING_CONSTANT */
-class AstStringConstant : public AstConstant {
+class AstStringLiteral : public AstLiteral {
 public:
-  AstStringConstant(const char *value, const Position &position);
-  virtual ~AstStringConstant() = default;
+  AstStringLiteral(const char *value, const Position &position);
+  virtual ~AstStringLiteral() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 
@@ -453,10 +453,10 @@ private:
 };
 
 /* constant expression - T_TRUE T_FALSE */
-class AstBooleanConstant : public AstConstant {
+class AstBooleanLiteral : public AstLiteral {
 public:
-  AstBooleanConstant(const bool &value, const Position &position);
-  virtual ~AstBooleanConstant() = default;
+  AstBooleanLiteral(const bool &value, const Position &position);
+  virtual ~AstBooleanLiteral() = default;
   virtual AstType type() const;
   virtual std::string toString() const;
 

@@ -23,19 +23,19 @@ const Position &Ast::position() const { return position_; }
 bool Ast::isConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Constant:
-  case AstType::UInt8Constant:
-  case AstType::Int16Constant:
-  case AstType::UInt16Constant:
-  case AstType::Int32Constant:
-  case AstType::UInt32Constant:
-  case AstType::Int64Constant:
-  case AstType::UInt64Constant:
-  case AstType::Float32Constant:
-  case AstType::Float64Constant:
-  case AstType::IdentifierConstant:
-  case AstType::StringConstant:
-  case AstType::BooleanConstant:
+  case AstType::Int8Literal:
+  case AstType::UInt8Literal:
+  case AstType::Int16Literal:
+  case AstType::UInt16Literal:
+  case AstType::Int32Literal:
+  case AstType::UInt32Literal:
+  case AstType::Int64Literal:
+  case AstType::UInt64Literal:
+  case AstType::Float32Literal:
+  case AstType::Float64Literal:
+  case AstType::Identifier:
+  case AstType::StringLiteral:
+  case AstType::BooleanLiteral:
     return true;
   default:
     return false;
@@ -97,8 +97,8 @@ bool Ast::isDefinition(const Ast *node) {
 bool Ast::isFloatConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Float32Constant:
-  case AstType::Float64Constant:
+  case AstType::Float32Literal:
+  case AstType::Float64Literal:
     return true;
   default:
     return false;
@@ -109,14 +109,14 @@ bool Ast::isFloatConstant(const Ast *node) {
 bool Ast::isIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Constant:
-  case AstType::UInt8Constant:
-  case AstType::Int16Constant:
-  case AstType::UInt16Constant:
-  case AstType::Int32Constant:
-  case AstType::UInt32Constant:
-  case AstType::Int64Constant:
-  case AstType::UInt64Constant:
+  case AstType::Int8Literal:
+  case AstType::UInt8Literal:
+  case AstType::Int16Literal:
+  case AstType::UInt16Literal:
+  case AstType::Int32Literal:
+  case AstType::UInt32Literal:
+  case AstType::Int64Literal:
+  case AstType::UInt64Literal:
     return true;
   default:
     return false;
@@ -127,10 +127,10 @@ bool Ast::isIntegerConstant(const Ast *node) {
 bool Ast::isSignedIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Constant:
-  case AstType::Int16Constant:
-  case AstType::Int32Constant:
-  case AstType::Int64Constant:
+  case AstType::Int8Literal:
+  case AstType::Int16Literal:
+  case AstType::Int32Literal:
+  case AstType::Int64Literal:
     return true;
   default:
     return false;
@@ -141,10 +141,10 @@ bool Ast::isSignedIntegerConstant(const Ast *node) {
 bool Ast::isUnsignedIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::UInt8Constant:
-  case AstType::UInt16Constant:
-  case AstType::UInt32Constant:
-  case AstType::UInt64Constant:
+  case AstType::UInt8Literal:
+  case AstType::UInt16Literal:
+  case AstType::UInt32Literal:
+  case AstType::UInt64Literal:
     return true;
   default:
     return false;
@@ -157,9 +157,9 @@ AstExpression::AstExpression(const std::string &name) : Ast(name) {}
 AstExpression::AstExpression(const std::string &name, const Position &position)
     : Ast(name, position) {}
 
-AstConstant::AstConstant(const std::string &name) : AstExpression(name) {}
+AstLiteral::AstLiteral(const std::string &name) : AstExpression(name) {}
 
-AstConstant::AstConstant(const std::string &name, const Position &position)
+AstLiteral::AstLiteral(const std::string &name, const Position &position)
     : AstExpression(name, position) {}
 
 AstStatement::AstStatement(const std::string &name) : Ast(name) {}
@@ -200,198 +200,190 @@ AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
 
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
-AstIdentifierConstant::AstIdentifierConstant(const char *value,
-                                             const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_id"), position),
+AstIdentifier::AstIdentifier(const char *value, const Position &position)
+    : AstExpression(nameGen.generateWith(value, "A_id"), position),
       value_(value) {
   EX_ASSERT(value, "value is null");
 }
 
-AstType AstIdentifierConstant::type() const {
-  return AstType::IdentifierConstant;
+AstType AstIdentifier::type() const { return AstType::Identifier; }
+
+std::string AstIdentifier::toString() const {
+  return fmt::format("[@AstIdentifier {} value_:{}]", position_.toString(),
+                     value_);
 }
 
-std::string AstIdentifierConstant::toString() const {
-  return fmt::format("[@AstIdentifierConstant {} value_:{}]",
-                     position_.toString(), value_);
+const std::string &AstIdentifier::value() const { return value_; }
+
+AstInt8Literal::AstInt8Literal(const int8_t &value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_i8"), position), value_(value) {
 }
 
-const std::string &AstIdentifierConstant::value() const { return value_; }
+AstType AstInt8Literal::type() const { return AstType::Int8Literal; }
 
-AstInt8Constant::AstInt8Constant(const int8_t &value, const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_i8"), position),
-      value_(value) {}
-
-AstType AstInt8Constant::type() const { return AstType::Int8Constant; }
-
-std::string AstInt8Constant::toString() const {
-  return fmt::format("[@AstInt8Constant {} value_:{}]", position_.toString(),
+std::string AstInt8Literal::toString() const {
+  return fmt::format("[@AstInt8Literal {} value_:{}]", position_.toString(),
                      (int)value_);
 }
 
-const int8_t &AstInt8Constant::value() const { return value_; }
+const int8_t &AstInt8Literal::value() const { return value_; }
 
-AstUInt8Constant::AstUInt8Constant(const uint8_t &value,
-                                   const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_u8"), position),
-      value_(value) {}
+AstUInt8Literal::AstUInt8Literal(const uint8_t &value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_u8"), position), value_(value) {
+}
 
-AstType AstUInt8Constant::type() const { return AstType::UInt8Constant; }
+AstType AstUInt8Literal::type() const { return AstType::UInt8Literal; }
 
-std::string AstUInt8Constant::toString() const {
-  return fmt::format("[@AstUInt8Constant {} value_:{}]", position_.toString(),
+std::string AstUInt8Literal::toString() const {
+  return fmt::format("[@AstUInt8Literal {} value_:{}]", position_.toString(),
                      (int)value_);
 }
 
-const uint8_t &AstUInt8Constant::value() const { return value_; }
+const uint8_t &AstUInt8Literal::value() const { return value_; }
 
-AstInt16Constant::AstInt16Constant(const int16_t &value,
+AstInt16Literal::AstInt16Literal(const int16_t &value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_i16"), position),
+      value_(value) {}
+
+AstType AstInt16Literal::type() const { return AstType::Int16Literal; }
+
+std::string AstInt16Literal::toString() const {
+  return fmt::format("[@AstInt16Literal {} value_:{}]", position_.toString(),
+                     value_);
+}
+
+const int16_t &AstInt16Literal::value() const { return value_; }
+
+AstUInt16Literal::AstUInt16Literal(const uint16_t &value,
                                    const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_i16"), position),
+    : AstLiteral(nameGen.generateWith(value, "A_u16"), position),
       value_(value) {}
 
-AstType AstInt16Constant::type() const { return AstType::Int16Constant; }
+AstType AstUInt16Literal::type() const { return AstType::UInt16Literal; }
 
-std::string AstInt16Constant::toString() const {
-  return fmt::format("[@AstInt16Constant {} value_:{}]", position_.toString(),
+std::string AstUInt16Literal::toString() const {
+  return fmt::format("[@AstUInt16Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const int16_t &AstInt16Constant::value() const { return value_; }
+const uint16_t &AstUInt16Literal::value() const { return value_; }
 
-AstUInt16Constant::AstUInt16Constant(const uint16_t &value,
-                                     const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_u16"), position),
+AstInt32Literal::AstInt32Literal(const int32_t &value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_i32"), position),
       value_(value) {}
 
-AstType AstUInt16Constant::type() const { return AstType::UInt16Constant; }
+AstType AstInt32Literal::type() const { return AstType::Int32Literal; }
 
-std::string AstUInt16Constant::toString() const {
-  return fmt::format("[@AstUInt16Constant {} value_:{}]", position_.toString(),
+std::string AstInt32Literal::toString() const {
+  return fmt::format("[@AstInt32Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const uint16_t &AstUInt16Constant::value() const { return value_; }
+const int32_t &AstInt32Literal::value() const { return value_; }
 
-AstInt32Constant::AstInt32Constant(const int32_t &value,
+AstUInt32Literal::AstUInt32Literal(const uint32_t &value,
                                    const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_i32"), position),
+    : AstLiteral(nameGen.generateWith(value, "A_u32"), position),
       value_(value) {}
 
-AstType AstInt32Constant::type() const { return AstType::Int32Constant; }
+AstType AstUInt32Literal::type() const { return AstType::UInt32Literal; }
 
-std::string AstInt32Constant::toString() const {
-  return fmt::format("[@AstInt32Constant {} value_:{}]", position_.toString(),
+std::string AstUInt32Literal::toString() const {
+  return fmt::format("[@AstUInt32Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const int32_t &AstInt32Constant::value() const { return value_; }
+const uint32_t &AstUInt32Literal::value() const { return value_; }
 
-AstUInt32Constant::AstUInt32Constant(const uint32_t &value,
-                                     const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_u32"), position),
+AstInt64Literal::AstInt64Literal(const int64_t &value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_i64"), position),
       value_(value) {}
 
-AstType AstUInt32Constant::type() const { return AstType::UInt32Constant; }
+AstType AstInt64Literal::type() const { return AstType::Int64Literal; }
 
-std::string AstUInt32Constant::toString() const {
-  return fmt::format("[@AstUInt32Constant {} value_:{}]", position_.toString(),
+std::string AstInt64Literal::toString() const {
+  return fmt::format("[@AstInt64Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const uint32_t &AstUInt32Constant::value() const { return value_; }
+const int64_t &AstInt64Literal::value() const { return value_; }
 
-AstInt64Constant::AstInt64Constant(const int64_t &value,
+AstUInt64Literal::AstUInt64Literal(const uint64_t &value,
                                    const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_i64"), position),
+    : AstLiteral(nameGen.generateWith(value, "A_u64"), position),
       value_(value) {}
 
-AstType AstInt64Constant::type() const { return AstType::Int64Constant; }
+AstType AstUInt64Literal::type() const { return AstType::UInt64Literal; }
 
-std::string AstInt64Constant::toString() const {
-  return fmt::format("[@AstInt64Constant {} value_:{}]", position_.toString(),
+std::string AstUInt64Literal::toString() const {
+  return fmt::format("[@AstUInt64Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const int64_t &AstInt64Constant::value() const { return value_; }
+const uint64_t &AstUInt64Literal::value() const { return value_; }
 
-AstUInt64Constant::AstUInt64Constant(const uint64_t &value,
+AstFloat32Literal::AstFloat32Literal(const float &value,
                                      const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_u64"), position),
+    : AstLiteral(nameGen.generateWith(value, "A_f32"), position),
       value_(value) {}
 
-AstType AstUInt64Constant::type() const { return AstType::UInt64Constant; }
+AstType AstFloat32Literal::type() const { return AstType::Float32Literal; }
 
-std::string AstUInt64Constant::toString() const {
-  return fmt::format("[@AstUInt64Constant {} value_:{}]", position_.toString(),
+std::string AstFloat32Literal::toString() const {
+  return fmt::format("[@AstFloat32Literal {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const uint64_t &AstUInt64Constant::value() const { return value_; }
+const float &AstFloat32Literal::value() const { return value_; }
 
-AstFloat32Constant::AstFloat32Constant(const float &value,
-                                       const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_f32"), position),
-      value_(value) {}
-
-AstType AstFloat32Constant::type() const { return AstType::Float32Constant; }
-
-std::string AstFloat32Constant::toString() const {
-  return fmt::format("[@AstFloat32Constant {} value_:{}]", position_.toString(),
-                     value_);
-}
-
-const float &AstFloat32Constant::value() const { return value_; }
-
-AstFloat64Constant::AstFloat64Constant(const double &value,
-                                       const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_f64"), position),
-      value_(value) {}
-
-AstType AstFloat64Constant::type() const { return AstType::Float64Constant; }
-
-std::string AstFloat64Constant::toString() const {
-  return fmt::format("[@AstFloat64Constant {} value_:{}]", position_.toString(),
-                     value_);
-}
-
-const double &AstFloat64Constant::value() const { return value_; }
-
-AstStringConstant::AstStringConstant(const char *value,
+AstFloat64Literal::AstFloat64Literal(const double &value,
                                      const Position &position)
-    : AstConstant(nameGen.generateWith(value, "A_string"), position),
+    : AstLiteral(nameGen.generateWith(value, "A_f64"), position),
+      value_(value) {}
+
+AstType AstFloat64Literal::type() const { return AstType::Float64Literal; }
+
+std::string AstFloat64Literal::toString() const {
+  return fmt::format("[@AstFloat64Literal {} value_:{}]", position_.toString(),
+                     value_);
+}
+
+const double &AstFloat64Literal::value() const { return value_; }
+
+AstStringLiteral::AstStringLiteral(const char *value, const Position &position)
+    : AstLiteral(nameGen.generateWith(value, "A_string"), position),
       value_(value) {
   EX_ASSERT(value, "value is null");
 }
 
-AstType AstStringConstant::type() const { return AstType::StringConstant; }
+AstType AstStringLiteral::type() const { return AstType::StringLiteral; }
 
-std::string AstStringConstant::toString() const {
-  return fmt::format("[@AstStringConstant {} value_:{}]", position_.toString(),
+std::string AstStringLiteral::toString() const {
+  return fmt::format("[@AstStringLiteral {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const std::string &AstStringConstant::value() const { return value_; }
+const std::string &AstStringLiteral::value() const { return value_; }
 
-void AstStringConstant::add(const char *value, const Position &position) {
+void AstStringLiteral::add(const char *value, const Position &position) {
   value_ = std::string(value) + value_;
   position_.updatePosition(position);
 }
 
-AstBooleanConstant::AstBooleanConstant(const bool &value,
-                                       const Position &position)
-    : AstConstant(nameGen.generateWith((value ? "true" : "false"), "A_Bool"),
-                  position),
+AstBooleanLiteral::AstBooleanLiteral(const bool &value,
+                                     const Position &position)
+    : AstLiteral(nameGen.generateWith((value ? "true" : "false"), "A_Bool"),
+                 position),
       value_(value) {}
 
-AstType AstBooleanConstant::type() const { return AstType::BooleanConstant; }
+AstType AstBooleanLiteral::type() const { return AstType::BooleanLiteral; }
 
-std::string AstBooleanConstant::toString() const {
-  return fmt::format("[@AstBooleanConstant {} value_:{}]", position_.toString(),
+std::string AstBooleanLiteral::toString() const {
+  return fmt::format("[@AstBooleanLiteral {} value_:{}]", position_.toString(),
                      value_);
 }
 
-const bool &AstBooleanConstant::value() const { return value_; }
+const bool &AstBooleanLiteral::value() const { return value_; }
 
 AstCallExpression::AstCallExpression(const char *identifier,
                                      AstExpressionList *argumentList,

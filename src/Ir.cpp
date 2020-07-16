@@ -100,15 +100,14 @@ IrType IrTranslateUnit::type() const { return IrType::TranslateUnit; }
 std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 
 /* identifier constant */
-IrIdentifierConstant::IrIdentifierConstant(IrContext *context,
-                                           AstIdentifierConstant *node)
-    : IrConstant(context, IrUtil::namegen("identifier.constant")), node_(node) {
+IrIdentifier::IrIdentifier(IrContext *context, AstIdentifier *node)
+    : IrExpression(context, IrUtil::namegen("identifier")), node_(node) {
   EX_ASSERT(node_, "node_ is null");
 }
 
-IrType IrIdentifierConstant::type() const { return IrType::IdentifierConstant; }
+IrType IrIdentifier::type() const { return IrType::Identifier; }
 
-llvm::Value *IrIdentifierConstant::codeGen() {
+llvm::Value *IrIdentifier::codeGen() {
   EX_ASSERT(node_, "node_ is null");
   ScopeNode *varNode = context_->symbolTable->current->resolve(node_->value());
   EX_ASSERT(varNode, "varNode must not null");
@@ -123,12 +122,12 @@ llvm::Value *IrIdentifierConstant::codeGen() {
              : var;
 }
 
-std::string IrIdentifierConstant::toString() const {
-  return fmt::format("[@IrIdentifierConstant node_:{}]", node_->toString());
+std::string IrIdentifier::toString() const {
+  return fmt::format("[@IrIdentifier node_:{}]", node_->toString());
 }
 
 /* i8 constant */
-IrInt8Constant::IrInt8Constant(IrContext *context, AstInt8Constant *node)
+IrInt8Constant::IrInt8Constant(IrContext *context, AstInt8Literal *node)
     : IrConstant(context, IrUtil::namegen("int8.constant")), node_(node) {}
 
 IrType IrInt8Constant::type() const { return IrType::Int8Constant; }
@@ -143,7 +142,7 @@ std::string IrInt8Constant::toString() const {
 }
 
 /* u8 constant */
-IrUInt8Constant::IrUInt8Constant(IrContext *context, AstUInt8Constant *node)
+IrUInt8Constant::IrUInt8Constant(IrContext *context, AstUInt8Literal *node)
     : IrConstant(context, IrUtil::namegen("uint8.constant")), node_(node) {}
 
 IrType IrUInt8Constant::type() const { return IrType::UInt8Constant; }
@@ -158,7 +157,7 @@ std::string IrUInt8Constant::toString() const {
 }
 
 /* i16 constant */
-IrInt16Constant::IrInt16Constant(IrContext *context, AstInt16Constant *node)
+IrInt16Constant::IrInt16Constant(IrContext *context, AstInt16Literal *node)
     : IrConstant(context, IrUtil::namegen("int16.constant")), node_(node) {}
 
 IrType IrInt16Constant::type() const { return IrType::Int16Constant; }
@@ -173,7 +172,7 @@ std::string IrInt16Constant::toString() const {
 }
 
 /* u16 constant */
-IrUInt16Constant::IrUInt16Constant(IrContext *context, AstUInt16Constant *node)
+IrUInt16Constant::IrUInt16Constant(IrContext *context, AstUInt16Literal *node)
     : IrConstant(context, IrUtil::namegen("uint16.constant")), node_(node) {}
 
 IrType IrUInt16Constant::type() const { return IrType::UInt16Constant; }
@@ -188,7 +187,7 @@ std::string IrUInt16Constant::toString() const {
 }
 
 /* i32 constant */
-IrInt32Constant::IrInt32Constant(IrContext *context, AstInt32Constant *node)
+IrInt32Constant::IrInt32Constant(IrContext *context, AstInt32Literal *node)
     : IrConstant(context, IrUtil::namegen("int32.constant")), node_(node) {}
 
 IrType IrInt32Constant::type() const { return IrType::Int32Constant; }
@@ -203,7 +202,7 @@ std::string IrInt32Constant::toString() const {
 }
 
 /* u32 constant */
-IrUInt32Constant::IrUInt32Constant(IrContext *context, AstUInt32Constant *node)
+IrUInt32Constant::IrUInt32Constant(IrContext *context, AstUInt32Literal *node)
     : IrConstant(context, IrUtil::namegen("uint32.constant")), node_(node) {}
 
 IrType IrUInt32Constant::type() const { return IrType::UInt32Constant; }
@@ -218,7 +217,7 @@ std::string IrUInt32Constant::toString() const {
 }
 
 /* i64 constant */
-IrInt64Constant::IrInt64Constant(IrContext *context, AstInt64Constant *node)
+IrInt64Constant::IrInt64Constant(IrContext *context, AstInt64Literal *node)
     : IrConstant(context, IrUtil::namegen("int64.constant")), node_(node) {}
 
 IrType IrInt64Constant::type() const { return IrType::Int64Constant; }
@@ -233,7 +232,7 @@ std::string IrInt64Constant::toString() const {
 }
 
 /* u64 constant */
-IrUInt64Constant::IrUInt64Constant(IrContext *context, AstUInt64Constant *node)
+IrUInt64Constant::IrUInt64Constant(IrContext *context, AstUInt64Literal *node)
     : IrConstant(context, IrUtil::namegen("uint64.constant")), node_(node) {}
 
 IrType IrUInt64Constant::type() const { return IrType::UInt64Constant; }
@@ -249,7 +248,7 @@ std::string IrUInt64Constant::toString() const {
 
 /* f32 constant */
 IrFloat32Constant::IrFloat32Constant(IrContext *context,
-                                     AstFloat32Constant *node)
+                                     AstFloat32Literal *node)
     : IrConstant(context, IrUtil::namegen("float32.constant")), node_(node) {}
 
 IrType IrFloat32Constant::type() const { return IrType::Float32Constant; }
@@ -265,7 +264,7 @@ std::string IrFloat32Constant::toString() const {
 
 /* f64 constant */
 IrFloat64Constant::IrFloat64Constant(IrContext *context,
-                                     AstFloat64Constant *node)
+                                     AstFloat64Literal *node)
     : IrConstant(context, IrUtil::namegen("float64.constant")), node_(node) {}
 
 IrType IrFloat64Constant::type() const { return IrType::Float64Constant; }
@@ -280,7 +279,7 @@ std::string IrFloat64Constant::toString() const {
 }
 
 /* string constant */
-IrStringConstant::IrStringConstant(IrContext *context, AstStringConstant *node)
+IrStringConstant::IrStringConstant(IrContext *context, AstStringLiteral *node)
     : IrConstant(context, IrUtil::namegen("string.constant")), node_(node) {}
 
 IrType IrStringConstant::type() const { return IrType::StringConstant; }
@@ -293,7 +292,7 @@ std::string IrStringConstant::toString() const {
 
 /* boolean constant */
 IrBooleanConstant::IrBooleanConstant(IrContext *context,
-                                     AstBooleanConstant *node)
+                                     AstBooleanLiteral *node)
     : IrConstant(context, IrUtil::namegen("boolean.constant")), node_(node) {}
 
 IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
@@ -301,11 +300,6 @@ IrType IrBooleanConstant::type() const { return IrType::BooleanConstant; }
 llvm::Value *IrBooleanConstant::codeGen() {
   return node_->value() ? context_->llvmBuilder.getTrue()
                         : context_->llvmBuilder.getFalse();
-#if 0
-  return llvm::ConstantInt::get(
-      context_->llvmContext,
-      llvm::APInt(1, node_->value() ? (uint64_t)1U : (uint64_t)0U, false));
-#endif
 }
 
 std::string IrBooleanConstant::toString() const {
@@ -794,10 +788,10 @@ IrType IrAssignmentExpression::type() const {
 }
 
 llvm::Value *IrAssignmentExpression::codeGen() {
-  EX_ASSERT(node_->variable()->type() == (+AstType::IdentifierConstant),
+  EX_ASSERT(node_->variable()->type() == (+AstType::Identifier),
             "node_->variable type {} must be identifier",
             node_->variable()->type()._to_string());
-  AstIdentifierConstant *varId = DC(AstIdentifierConstant, node_->variable());
+  AstIdentifier *varId = DC(AstIdentifier, node_->variable());
   ScopeNode *varNode = context_->symbolTable->current->resolve(varId->value());
   EX_ASSERT(varNode, "varNode must not null");
   EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
@@ -1183,29 +1177,29 @@ static void initializeVariableSymbol(AstVariableInitialDefinition *node,
       new VariableSymbol(node->identifier(), symbolTable->current);
   BuiltinType *varTy = nullptr;
   switch (node->expression()->type()) {
-  case AstType::Int8Constant:
+  case AstType::Int8Literal:
     varTy = BuiltinType::ty_int8();
-  case AstType::UInt8Constant:
+  case AstType::UInt8Literal:
     varTy = BuiltinType::ty_uint8();
-  case AstType::Int16Constant:
+  case AstType::Int16Literal:
     varTy = BuiltinType::ty_int16();
-  case AstType::UInt16Constant:
+  case AstType::UInt16Literal:
     varTy = BuiltinType::ty_uint16();
-  case AstType::Int32Constant:
+  case AstType::Int32Literal:
     varTy = BuiltinType::ty_int32();
-  case AstType::UInt32Constant:
+  case AstType::UInt32Literal:
     varTy = BuiltinType::ty_uint32();
-  case AstType::Int64Constant:
+  case AstType::Int64Literal:
     varTy = BuiltinType::ty_int64();
-  case AstType::UInt64Constant:
+  case AstType::UInt64Literal:
     varTy = BuiltinType::ty_uint64();
-  case AstType::Float32Constant:
+  case AstType::Float32Literal:
     varTy = BuiltinType::ty_float32();
-  case AstType::Float64Constant:
+  case AstType::Float64Literal:
     varTy = BuiltinType::ty_float64();
-  case AstType::BooleanConstant:
+  case AstType::BooleanLiteral:
     varTy = BuiltinType::ty_boolean();
-  case AstType::StringConstant:
+  case AstType::StringLiteral:
     varTy = BuiltinType::ty_string();
   default:
     LOG_WARN("warning default builtin type:{}", node->toString());

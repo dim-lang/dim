@@ -23,7 +23,7 @@ class AstDefinitionList;
 class AstExpression;
 class AstStatement;
 class AstDefinition;
-class AstStringConstant;
+class AstStringLiteral;
 using yyscan_t = void *;
 using YY_EXTRA_TYPE = Scanner *;
 extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
@@ -37,7 +37,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
     AstExpression *expr;
     AstStatement *stmt;
     AstDefinition *def;
-    AstStringConstant *str;
+    AstStringLiteral *str;
     char *literal;
     int token;
 }
@@ -56,7 +56,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
 
-%token <literal> T_IDENTIFIER T_INTEGER_CONSTANT T_FLOAT_CONSTANT T_STRING_CONSTANT T_CHAR_CONSTANT
+%token <literal> T_IDENTIFIER T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHAR_LITERAL
 
 %type <expr> postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression  sequel_expression
@@ -108,42 +108,42 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* part-1 expression */
 
-join_string_helper : T_STRING_CONSTANT { $$ = new AstStringConstant($1, Y_POSITION(@1)); std::free($1); }
-                   | T_STRING_CONSTANT join_string_helper { $2->add($1, Y_POSITION(@1)); $$ = $2; std::free($1); }
+join_string_helper : T_STRING_LITERAL { $$ = new AstStringLiteral($1, Y_POSITION(@1)); std::free($1); }
+                   | T_STRING_LITERAL join_string_helper { $2->add($1, Y_POSITION(@1)); $$ = $2; std::free($1); }
                    ;
 
-primary_expression : T_IDENTIFIER { $$ = new AstIdentifierConstant($1, Y_POSITION(@1)); std::free($1); }
-                   | T_INTEGER_CONSTANT {
+primary_expression : T_IDENTIFIER { $$ = new AstIdentifier($1, Y_POSITION(@1)); std::free($1); }
+                   | T_INTEGER_LITERAL {
                         std::string tmp($1);
                         if (tmp.length() >= 2 && (tmp.substr(tmp.length()-2, 2) == "UL" || tmp.substr(tmp.length()-2, 2) == "ul")) {
                             // UL|ul for uint64
-                            $$ = new AstUInt64Constant((uint64_t)std::stoull(tmp.substr(0, tmp.length()-2)), Y_POSITION(@1));
+                            $$ = new AstUInt64Literal((uint64_t)std::stoull(tmp.substr(0, tmp.length()-2)), Y_POSITION(@1));
                         } else if (tmp.length() >= 1 && (tmp.substr(tmp.length()-1, 1) == "u" || tmp.substr(tmp.length()-1, 1) == "U")) {
                             // U|u for uint32
-                            $$ = new AstUInt32Constant((uint32_t)std::stoul(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
+                            $$ = new AstUInt32Literal((uint32_t)std::stoul(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
                         } else if (tmp.length() >= 1 && (tmp.substr(tmp.length()-1, 1) == "l" || tmp.substr(tmp.length()-1, 1) == "L")) {
                             // L|l for int64
-                            $$ = new AstInt64Constant((int64_t)std::stoll(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
+                            $$ = new AstInt64Literal((int64_t)std::stoll(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
                         } else {
                             // otherwise for int32
-                            $$ = new AstInt32Constant((int32_t)std::stol(tmp), Y_POSITION(@1));
+                            $$ = new AstInt32Literal((int32_t)std::stol(tmp), Y_POSITION(@1));
                         }
                         std::free($1);
                     }
-                   | T_FLOAT_CONSTANT {
+                   | T_FLOAT_LITERAL {
                         std::string tmp($1);
                         if (tmp.length() >= 1 && (tmp.substr(tmp.length()-1, 1) == "D" || tmp.substr(tmp.length()-1, 1) == "d")) {
                             // D|d for float64
-                            $$ = new AstFloat64Constant((double)std::stod(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
+                            $$ = new AstFloat64Literal((double)std::stod(tmp.substr(0, tmp.length()-1)), Y_POSITION(@1));
                         } else {
                             // otherwise for float32
-                            $$ = new AstFloat32Constant((float)std::stof(tmp), Y_POSITION(@1));
+                            $$ = new AstFloat32Literal((float)std::stof(tmp), Y_POSITION(@1));
                         }
                         std::free($1);
                     }
                    | join_string_helper { $$ = $1; }
-                   | T_TRUE { $$ = new AstBooleanConstant(true, Y_POSITION(@1)); }
-                   | T_FALSE { $$ = new AstBooleanConstant(false, Y_POSITION(@1)); }
+                   | T_TRUE { $$ = new AstBooleanLiteral(true, Y_POSITION(@1)); }
+                   | T_FALSE { $$ = new AstBooleanLiteral(false, Y_POSITION(@1)); }
                    | T_LPAREN expression T_RPAREN { $$ = $2; }
                    ;
 

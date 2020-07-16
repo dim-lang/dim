@@ -169,26 +169,26 @@ IS ((u|U)|(u|U)?(l|L))
 
  /* integer constants */
  /* decimal integer: 102813(u|U|l|L|ul|UL) */
-{INT}{IS}?                              { T_LITERAL_TOKEN; return T_INTEGER_CONSTANT; }
+{INT}{IS}?                              { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* heximal integer: 0x03ff(u|U|l|L|ul|UL) */
-0[xX]{HEX}+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_CONSTANT; }
+0[xX]{HEX}+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* octal integer: 0o27121(u|U|l|L|ul|UL) */
-0[oO][0-7]+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_CONSTANT; }
+0[oO][0-7]+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* binary integer: 0b10011(u|U|l|L|ul|UL) */
-0[bB][01]+{IS}?                         { T_LITERAL_TOKEN; return T_INTEGER_CONSTANT; }
+0[bB][01]+{IS}?                         { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
  /* floating constants */
  /* floating number: 92.312(d|D), 92.312e-10(d|D), 102e+91(d|D) */
-{INT}"."[0-9]+{EXP}?{FS}?               { T_LITERAL_TOKEN; return T_FLOAT_CONSTANT; }
-{INT}{EXP}{FS}?                         { T_LITERAL_TOKEN; return T_FLOAT_CONSTANT; }
+{INT}"."[0-9]+{EXP}?{FS}?               { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{INT}{EXP}{FS}?                         { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
  /* floating hexcimal number: 0x1fa9p+7D, 0x2f.3abfp-3D */
-0[xX]{HEX}+{HEXEXP}{FS}?                { T_LITERAL_TOKEN; return T_FLOAT_CONSTANT; }
-0[xX]({HEX}+"."{HEX}+){HEXEXP}?{FS}?    { T_LITERAL_TOKEN; return T_FLOAT_CONSTANT; }
+0[xX]{HEX}+{HEXEXP}{FS}?                { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+0[xX]({HEX}+"."{HEX}+){HEXEXP}?{FS}?    { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* string literal */
-\"\"                                    { T_LITERAL_TOKEN; return T_STRING_CONSTANT; }
-\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN_X(1, 1); return T_STRING_CONSTANT; }
-\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN_X(1, 1); return T_CHAR_CONSTANT; }
+\"\"                                    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
+\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
+\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN_X(1, 1); return T_CHAR_LITERAL; }
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_IDENTIFIER; }

@@ -13,32 +13,32 @@ IrExpression *IrFactory::expr(IrContext *context, Ast *node) {
   EX_ASSERT(context, "context is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::IdentifierConstant:
-    return new IrIdentifierConstant(context, DC(AstIdentifierConstant, node));
-  case AstType::Float32Constant:
-    return new IrFloat32Constant(context, DC(AstFloat32Constant, node));
-  case AstType::Float64Constant:
-    return new IrFloat64Constant(context, DC(AstFloat64Constant, node));
-  case AstType::StringConstant:
-    return new IrStringConstant(context, DC(AstStringConstant, node));
-  case AstType::Int8Constant:
-    return new IrInt8Constant(context, DC(AstInt8Constant, node));
-  case AstType::UInt8Constant:
-    return new IrUInt8Constant(context, DC(AstUInt8Constant, node));
-  case AstType::Int16Constant:
-    return new IrInt16Constant(context, DC(AstInt16Constant, node));
-  case AstType::UInt16Constant:
-    return new IrUInt16Constant(context, DC(AstUInt16Constant, node));
-  case AstType::Int32Constant:
-    return new IrInt32Constant(context, DC(AstInt32Constant, node));
-  case AstType::UInt32Constant:
-    return new IrUInt32Constant(context, DC(AstUInt32Constant, node));
-  case AstType::Int64Constant:
-    return new IrInt64Constant(context, DC(AstInt64Constant, node));
-  case AstType::UInt64Constant:
-    return new IrUInt64Constant(context, DC(AstUInt64Constant, node));
-  case AstType::BooleanConstant:
-    return new IrBooleanConstant(context, DC(AstBooleanConstant, node));
+  case AstType::Identifier:
+    return new IrIdentifier(context, DC(AstIdentifier, node));
+  case AstType::Float32Literal:
+    return new IrFloat32Constant(context, DC(AstFloat32Literal, node));
+  case AstType::Float64Literal:
+    return new IrFloat64Constant(context, DC(AstFloat64Literal, node));
+  case AstType::StringLiteral:
+    return new IrStringConstant(context, DC(AstStringLiteral, node));
+  case AstType::Int8Literal:
+    return new IrInt8Constant(context, DC(AstInt8Literal, node));
+  case AstType::UInt8Literal:
+    return new IrUInt8Constant(context, DC(AstUInt8Literal, node));
+  case AstType::Int16Literal:
+    return new IrInt16Constant(context, DC(AstInt16Literal, node));
+  case AstType::UInt16Literal:
+    return new IrUInt16Constant(context, DC(AstUInt16Literal, node));
+  case AstType::Int32Literal:
+    return new IrInt32Constant(context, DC(AstInt32Literal, node));
+  case AstType::UInt32Literal:
+    return new IrUInt32Constant(context, DC(AstUInt32Literal, node));
+  case AstType::Int64Literal:
+    return new IrInt64Constant(context, DC(AstInt64Literal, node));
+  case AstType::UInt64Literal:
+    return new IrUInt64Constant(context, DC(AstUInt64Literal, node));
+  case AstType::BooleanLiteral:
+    return new IrBooleanConstant(context, DC(AstBooleanLiteral, node));
   case AstType::AssignmentExpression:
     return new IrAssignmentExpression(context,
                                       DC(AstAssignmentExpression, node));

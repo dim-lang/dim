@@ -15,10 +15,9 @@ static void go(const char *fileName) {
   LOG_INFO("go start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;
   while ((t = scanner.tokenize()), std::get<0>(t) != 0) {
-    if (std::get<0>(t) == T_IDENTIFIER ||
-        std::get<0>(t) == T_INTEGER_CONSTANT ||
-        std::get<0>(t) == T_FLOAT_CONSTANT ||
-        std::get<0>(t) == T_STRING_CONSTANT) {
+    if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_INTEGER_LITERAL ||
+        std::get<0>(t) == T_FLOAT_LITERAL ||
+        std::get<0>(t) == T_STRING_LITERAL) {
       LOG_INFO("token:{}, literal:{}", std::get<0>(t), std::get<1>(t).literal);
       std::free(std::get<1>(t).literal);
     } else {
