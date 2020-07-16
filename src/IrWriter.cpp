@@ -79,8 +79,8 @@ std::string IrObjWriter::toFileOstream() {
   EX_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
             errcode.message());
   llvm::legacy::PassManager passManager;
-  if (targetMachine_->addPassesToEmitFile(passManager, fos, nullptr,
-                                          llvm::CGFT_ObjectFile)) {
+  if (targetMachine_->addPassesToEmitFile(
+          passManager, fos, nullptr, llvm::CodeGenFileType::CGFT_ObjectFile)) {
     EX_ASSERT(false, "targetMachine->addPassesToEmitFile must be true");
   }
   passManager.run(*context_->llvmModule);
