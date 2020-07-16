@@ -28,10 +28,10 @@ private:
   IrContext *context_;
 };
 
-class IrObjWriter : public IrWriter {
+class IrObjectWriter : public IrWriter {
 public:
-  IrObjWriter(IrContext *context);
-  virtual ~IrObjWriter() = default;
+  IrObjectWriter(IrContext *context);
+  virtual ~IrObjectWriter() = default;
   virtual void toStdout();
   virtual void toStderr();
   virtual std::string toFileOstream();

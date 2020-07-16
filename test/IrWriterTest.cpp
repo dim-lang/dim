@@ -21,7 +21,7 @@ static void testOutput(const std::string &fileName) {
   std::string llFileName = llWriter.toFileOstream();
   LOG_INFO("output file ir:{}, llFileName:{}", fileName, llFileName);
 
-  IrObjWriter objWriter(&context);
+  IrObjectWriter objWriter(&context);
   std::string objFileName = objWriter.toFileOstream();
   LOG_INFO("output file ir:{}, objFileName:{}", fileName, objFileName);
 }

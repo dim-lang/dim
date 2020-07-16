@@ -15,6 +15,7 @@
 #include <system_error>
 
 #define LL ".ll"
+#define BC ".bc"
 #define OBJ ".o"
 
 IrLLWriter::IrLLWriter(IrContext *context) : context_(context) {
@@ -47,7 +48,7 @@ std::string IrLLWriter::toStringOstream() {
   return output;
 }
 
-IrObjWriter::IrObjWriter(IrContext *context) : context_(context) {
+IrObjectWriter::IrObjectWriter(IrContext *context) : context_(context) {
   std::string targetTriple = llvm::sys::getDefaultTargetTriple();
   LOG_INFO("targetTriple: {}", targetTriple);
   llvm::InitializeNativeTarget();
@@ -68,11 +69,11 @@ IrObjWriter::IrObjWriter(IrContext *context) : context_(context) {
   context_->llvmModule->setTargetTriple(targetTriple);
 }
 
-void IrObjWriter::toStdout() { EX_ASSERT(false, "method not support"); }
+void IrObjectWriter::toStdout() { EX_ASSERT(false, "method not support"); }
 
-void IrObjWriter::toStderr() { EX_ASSERT(false, "method not support"); }
+void IrObjectWriter::toStderr() { EX_ASSERT(false, "method not support"); }
 
-std::string IrObjWriter::toFileOstream() {
+std::string IrObjectWriter::toFileOstream() {
   std::string objFileName = context_->sourceName + OBJ;
   std::error_code errcode;
   llvm::raw_fd_ostream fos(objFileName, errcode, llvm::sys::fs::OF_None);
@@ -88,6 +89,6 @@ std::string IrObjWriter::toFileOstream() {
   return objFileName;
 }
 
-std::string IrObjWriter::toStringOstream() {
+std::string IrObjectWriter::toStringOstream() {
   EX_ASSERT(false, "method not support");
 }
