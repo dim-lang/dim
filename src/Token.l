@@ -68,6 +68,7 @@ IS ((u|U)|(u|U)?(l|L))
 "val"        { return T_INTEGER_TOKEN(T_VAL); }
 "nil"        { return T_INTEGER_TOKEN(T_NIL); }
 "if"         { return T_INTEGER_TOKEN(T_IF); }
+"then"       { return T_INTEGER_TOKEN(T_THEN); }
 "else"       { return T_INTEGER_TOKEN(T_ELSE); }
 "switch"     { return T_INTEGER_TOKEN(T_SWITCH); }
 "case"       { return T_INTEGER_TOKEN(T_CASE); }
