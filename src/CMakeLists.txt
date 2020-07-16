@@ -45,12 +45,6 @@ execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
 execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
 string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
 string(REGEX REPLACE "\n$" "" llvm_system_libs "${llvm_system_libs}")
-# llvm_map_components_to_libnames(llvm_libraries
-#     # ir
-#     analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld
-#     # target machine
-#     codegen linker asmparser asmprinter native nativecodegen
-#     )
 
 find_package(FLEX)
 find_package(BISON)
