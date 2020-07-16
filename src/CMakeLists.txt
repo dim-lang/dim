@@ -132,6 +132,7 @@ link_directories(${SHEPHERD_LIB_DIR})
 
 add_library(shepherd STATIC ${SHEPHERD})
 target_include_directories(shepherd PRIVATE ${SHEPHERD_INC})
+target_link_libraries(shepherd ${SHEPHERD_LIB})
 set_target_properties(shepherd PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(shepherdc ${SHEPHERDC})
