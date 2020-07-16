@@ -339,6 +339,7 @@ llvm::Value *IrUnaryExpression::codeGen() {
   llvm::Value *e = expression_->codeGen();
   EX_ASSERT(e, "e must not be null");
   switch (node_->token()) {
+    // -x
   case T_SUB: {
     switch (e->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
@@ -350,8 +351,10 @@ llvm::Value *IrUnaryExpression::codeGen() {
       break;
     }
   } break;
+    // ~x
   case T_BIT_NOT:
     return context_->llvmBuilder.CreateNot(e);
+    // !x
   case T_LOGIC_NOT:
     EX_ASSERT(
         e->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
