@@ -40,7 +40,41 @@ endif(WIN32)
 
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
-llvm_map_components_to_libnames(llvm_libraries analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld aarch64 aarch64asmparser aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils arm armasmparser armcodegen armdesc armdisassembler arminfo armutils all all-targets)
+llvm_map_components_to_libnames(llvm_libraries
+    analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld codegen linker bitreader bitstreamreader asmparser asmprinter native
+    # xcore
+    xcorecodegen xcoredesc xcoredisassembler xcoreinfo
+    # x86
+    x86asmparser x86codegen x86desc x86disassembler x86info x86utils
+    # webassembly
+    webassemblyasmparser webassemblycodegen webassemblydesc webassemblydisassembler webassemblyinfo
+    # systemz
+    systemzasmparser systemzcodegen systemzdesc systemzdisassembler systemzinfo
+    # sparc
+    sparcasmparser sparccodegen sparcdesc sparcdisassembler sparcinfo
+    # riscv
+    riscvasmparser riscvcodegen riscvdesc riscvdisassembler riscvinfo riscvutils
+    # powerpc
+    powerpcasmparser powerpccodegen powerpcdesc powerpcdisassembler powerpcinfo
+    # nvptx
+    nvptxcodegen nvptxdesc nvptxinfo
+    # msp430
+    msp430asmparser msp430codegen msp430desc msp430disassembler msp430info
+    # mips
+    mipsasmparser mipscodegen mipsdesc mipsdisassembler mipsinfo
+    # lanai
+    lanaiasmparser lanaicodegen lanaidesc lanaidisassembler lanaiinfo
+    # hexagon
+    hexagonasmparser hexagoncodegen hexagondesc hexagondisassembler hexagoninfo
+    # bpf
+    bpfasmparser bpfcodegen bpfdesc bpfdisassembler bpfinfo
+    # arm
+    armasmparser armcodegen armdesc armdisassembler arminfo armutils
+    # amdgpu
+    amdgpuasmparser amdgpucodegen amdgpudesc amdgpudisassembler amdgpuinfo amdgpuutils
+    # aarch64
+    aarch64asmparser aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils
+    )
 find_package(FLEX)
 find_package(BISON)
 FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
