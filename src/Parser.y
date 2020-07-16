@@ -159,7 +159,6 @@ argument_expression_list : assignment_expression { $$ = new AstExpressionList();
                          ;
 
 unary_expression : postfix_expression { $$ = $1; }
-                 | T_ADD unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
                  | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
                  | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
                  | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }

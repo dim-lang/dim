@@ -339,9 +339,6 @@ llvm::Value *IrUnaryExpression::codeGen() {
   llvm::Value *e = expression_->codeGen();
   EX_ASSERT(e, "e must not be null");
   switch (node_->token()) {
-  case T_ADD: {
-    return e;
-  } break;
   case T_SUB: {
     switch (e->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
