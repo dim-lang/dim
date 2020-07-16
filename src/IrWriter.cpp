@@ -3,6 +3,7 @@
 
 #include "IrWriter.h"
 #include "Exception.h"
+#include "Log.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Host.h"
@@ -48,6 +49,7 @@ std::string IrLLWriter::toStringOstream() {
 
 IrObjWriter::IrObjWriter(IrContext *context) : context_(context) {
   std::string targetTriple = llvm::sys::getDefaultTargetTriple();
+  LOG_INFO("targetTriple: {}", targetTriple);
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
