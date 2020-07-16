@@ -40,12 +40,16 @@ endif(WIN32)
 
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
-llvm_map_components_to_libnames(llvm_libraries
-    # ir
-    analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld
-    # target machine
-    codegen linker asmparser asmprinter native nativecodegen
-    )
+execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
+execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
+string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
+string(REGEX REPLACE "\n$" "" llvm_system_libs "${llvm_system_libs}")
+# llvm_map_components_to_libnames(llvm_libraries
+#     # ir
+#     analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld
+#     # target machine
+#     codegen linker asmparser asmprinter native nativecodegen
+#     )
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
@@ -58,7 +62,8 @@ set(SHEPHERD_INC
 set(SHEPHERD_LIB
     ${SHEPHERD_LIB}
     ${Boost_LIBRARIES}
-    ${llvm_libraries}
+    ${llvm_libs}
+    ${llvm_system_libs}
     )
 set(SHEPHERD_LIB_DIR
     ${SHEPHERD_LIB_DIR}
@@ -73,7 +78,8 @@ message(Boost_LIBRARIES: ${Boost_LIBRARIES})
 message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
 message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
 message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
-message(llvm_libraries: ${llvm_libraries})
+message(llvm_libs: ${llvm_libs})
+message(llvm_system_libs: ${llvm_system_libs})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
 message(SHEPHERD_INC: ${SHEPHERD_INC})
