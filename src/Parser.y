@@ -67,9 +67,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <stmt> statement
 %type <stmtList> statement_list
 
-%type <def> variable_definition function_definition function_signature_definition variable_assignment_definition function_argument_definition
+%type <def> variable_definition function_definition function_signature_definition variable_initial_definition function_argument_definition
 %type <def> definition
-%type <defList> variable_assignment_definition_list translation_unit function_argument_definition_list
+%type <defList> variable_initial_definition_list translation_unit function_argument_definition_list
 
 %type <str> join_string_helper
 
@@ -247,15 +247,15 @@ import_module_list : T_IDENTIFIER
   * var x:i64 = 100;
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
-variable_definition : T_VAR variable_assignment_definition_list T_SEMI { $$ = new AstVariableDefinition($2, Y_POSITION(@1), Y_POSITION(@3)); }
-                     ;
+variable_definition : T_VAR variable_initial_definition_list T_SEMI { $$ = new AstVariableDefinition($2, Y_POSITION(@1), Y_POSITION(@3)); }
+                    ;
 
-variable_assignment_definition_list : variable_assignment_definition { $$ = new AstDefinitionList(); $$->add($1); }
-                                     | variable_assignment_definition T_COMMA variable_assignment_definition_list { $3->add($1); $$ = $3; }
-                                     ;
+variable_initial_definition_list : variable_initial_definition { $$ = new AstDefinitionList(); $$->add($1); }
+                                 | variable_initial_definition T_COMMA variable_initial_definition_list { $3->add($1); $$ = $3; }
+                                 ;
 
-variable_assignment_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableInitialDefinition($1, $3, Y_POSITION(@1)); }
-                                ;
+variable_initial_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ = new AstVariableInitialDefinition($1, $3, Y_POSITION(@1)); }
+                            ;
 
  /**
   * func hello() { print("world"); }
@@ -266,30 +266,26 @@ variable_assignment_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ 
   * func max(a: i64, b: i64): i64 => a > b ? a : b;
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
-function_definition : function_signature_definition compound_statement {
-                            $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2);
-                        }
-                     | function_signature_definition T_BIG_ARROW statement {
-                            $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3);
-                        }
-                     ;
+function_definition : function_signature_definition compound_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2); }
+                    | function_signature_definition T_BIG_ARROW statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
+                    ;
 
 function_signature_definition : T_FUNC T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
                                     $$ = new AstFunctionSignatureDefinition($2, $4, nullptr, Y_POSITION(@1), Y_POSITION(@2));
                                     std::free($2);
                                 }
-                               | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN {
+                              | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN {
                                     $$ = new AstFunctionSignatureDefinition($2, new AstDefinitionList(), nullptr, Y_POSITION(@1), Y_POSITION(@2));
                                     std::free($2);
                                 }
-                               ;
+                              ;
 
 function_argument_definition_list : function_argument_definition { $$ = new AstDefinitionList(); $$->add($1); }
-                                   | function_argument_definition T_COMMA function_argument_definition_list { $3->add($1); $$ = $3; }
-                                   ;
+                                  | function_argument_definition T_COMMA function_argument_definition_list { $3->add($1); $$ = $3; }
+                                  ;
 
 function_argument_definition : T_IDENTIFIER { $$ = new AstFunctionArgumentDefinition($1, Y_POSITION(@1)); std::free($1); }
-                              ;
+                             ;
 
  /* part-3 statement */
 compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(new AstStatementList(), Y_POSITION(@1), Y_POSITION(@2)); }
