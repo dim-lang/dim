@@ -50,11 +50,10 @@ std::string IrLLWriter::toStringOstream() {
 IrObjWriter::IrObjWriter(IrContext *context) : context_(context) {
   std::string targetTriple = llvm::sys::getDefaultTargetTriple();
   LOG_INFO("targetTriple: {}", targetTriple);
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
-  llvm::InitializeAllAsmPrinters();
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmParser();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetDisassembler();
   std::string errorMessage;
   const llvm::Target *target =
       llvm::TargetRegistry::lookupTarget(targetTriple, errorMessage);

@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD 14)
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14 /W4")
+    add_compile_options("/std:c++14")
+    add_compile_options("/W4")
     add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
     #set(Boost_DEBUG ON)
     #set(Boost_DETAILED_FAILURE_MSG ON)
@@ -21,8 +22,8 @@ if(WIN32)
 else()
     set(CMAKE_C_COMPILER clang)
     set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    add_compile_options("-std=c++14")
+    add_compile_options("-Wall")
     find_package(Threads REQUIRED)
     set(SHEPHERD_INC
         Threads::Threads
@@ -75,6 +76,7 @@ llvm_map_components_to_libnames(llvm_libraries
     # aarch64
     aarch64asmparser aarch64codegen aarch64desc aarch64disassembler aarch64info aarch64utils
     )
+
 find_package(FLEX)
 find_package(BISON)
 FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
