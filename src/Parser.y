@@ -45,7 +45,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* union */
 %token <token> T_EOF
 %token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_TRY T_CATCH
-%token <token> T_IF T_ELSEIF T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
+%token <token> T_IF T_THEN T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_INT8 T_UINT8 T_INT16 T_UINT16 T_INT32 T_UINT32 T_INT64 T_UINT64 T_INT128 T_UINT128 T_FLOAT32 T_FLOAT64 T_FLOAT128
 %token <token> T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_PUBLIC T_PROTECT T_PRIVATE T_NAN T_INF
@@ -98,9 +98,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* other */
 %nonassoc T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
- /* fix if statement shift/reduce */
-%nonassoc "lower_than_else"
-%nonassoc T_ELSE
 
 %start translation_unit
 
@@ -194,7 +191,7 @@ binary_expression : unary_expression { $$ = $1; }
                   ;
 
 conditional_expression : binary_expression { $$ = $1; }
-                       | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
+                       | T_IF binary_expression T_THEN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); }
                        ;
 
 assignment_expression : conditional_expression { $$ = $1; }
@@ -309,8 +306,8 @@ statement : if_statement { $$ = $1; }
           | definition { $$ = $1; }
           ;
 
-if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
-             | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7, Y_POSITION(@1)); }
+if_statement : T_IF T_LPAREN expression T_RPAREN T_THEN statement                  { $$ = new AstIfStatement($3, $6, new AstEmptyStatement(), Y_POSITION(@1)); }
+             | T_IF T_LPAREN expression T_RPAREN T_THEN statement T_ELSE statement { $$ = new AstIfStatement($3, $6, $8, Y_POSITION(@1)); }
              ;
 
  /*

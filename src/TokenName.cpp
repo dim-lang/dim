@@ -17,7 +17,7 @@ static std::unordered_map<int, std::string> TokenNameMap = {
     {T_VAL, "val"},
     {T_NIL, "nil"},
     {T_IF, "if"},
-    {T_ELSEIF, "elseif"},
+    {T_THEN, "then"},
     {T_ELSE, "else"},
     {T_FOR, "for"},
     {T_FOREACH, "foreach"},
