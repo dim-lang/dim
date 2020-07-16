@@ -44,8 +44,6 @@ find_package(LLVM REQUIRED CONFIG)
 llvm_map_components_to_libnames(llvm_libraries
     # ir
     analysis support core object irreader executionengine scalaropts instcombine orcjit runtimedyld
-    # bit
-    bitreader bitwriter bitstreamreader 
     # target machine
     codegen linker asmparser asmprinter native nativecodegen
     )
