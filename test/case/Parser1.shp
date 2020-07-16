@@ -12,7 +12,7 @@ func Hello(x, y) {
     a = a + b;
     return a;
 
-    if (a < b) then
+    if (a < b)
         print(x);
     else
         print(y);
