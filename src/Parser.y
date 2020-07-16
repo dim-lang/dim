@@ -98,9 +98,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* other */
 %nonassoc T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
- /* fix if statement shift/reduce */
-%nonassoc "lower_than_else"
-%nonassoc T_ELSE
 
 %start translation_unit
 
@@ -309,8 +306,8 @@ statement : if_statement { $$ = $1; }
           | definition { $$ = $1; }
           ;
 
-if_statement : T_IF T_LPAREN expression T_RPAREN statement                  %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
-             | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement { $$ = new AstIfStatement($3, $5, $7, Y_POSITION(@1)); }
+if_statement : T_IF T_LPAREN expression T_RPAREN T_THEN statement                  { $$ = new AstIfStatement($3, $6, new AstEmptyStatement(), Y_POSITION(@1)); }
+             | T_IF T_LPAREN expression T_RPAREN T_THEN statement T_ELSE statement { $$ = new AstIfStatement($3, $6, $8, Y_POSITION(@1)); }
              ;
 
  /*
