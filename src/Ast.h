@@ -297,7 +297,7 @@ private:
   std::string value_;
 };
 
-/* constant expression - T_INT8_CONSTANT */
+/* constant expression */
 class AstInt8Literal : public AstLiteral {
 public:
   AstInt8Literal(const int8_t &value, const Position &position);
@@ -311,7 +311,7 @@ private:
   int8_t value_;
 };
 
-/* constant expression - T_UINT8_CONSTANT */
+/* constant expression */
 class AstUInt8Literal : public AstLiteral {
 public:
   AstUInt8Literal(const uint8_t &value, const Position &position);
@@ -325,7 +325,7 @@ private:
   uint8_t value_;
 };
 
-/* constant expression - T_INT16_CONSTANT */
+/* constant expression */
 class AstInt16Literal : public AstLiteral {
 public:
   AstInt16Literal(const int16_t &value, const Position &position);
@@ -339,7 +339,7 @@ private:
   int16_t value_;
 };
 
-/* constant expression - T_UINT16_CONSTANT */
+/* constant expression */
 class AstUInt16Literal : public AstLiteral {
 public:
   AstUInt16Literal(const uint16_t &value, const Position &position);
@@ -353,7 +353,7 @@ private:
   uint16_t value_;
 };
 
-/* constant expression - T_INT32_CONSTANT */
+/* constant expression - T_INT32_LITERAL */
 class AstInt32Literal : public AstLiteral {
 public:
   AstInt32Literal(const int32_t &value, const Position &position);
@@ -367,7 +367,7 @@ private:
   int32_t value_;
 };
 
-/* constant expression - T_UINT32_CONSTANT */
+/* constant expression - T_UINT32_LITERAL */
 class AstUInt32Literal : public AstLiteral {
 public:
   AstUInt32Literal(const uint32_t &value, const Position &position);
@@ -381,7 +381,7 @@ private:
   uint32_t value_;
 };
 
-/* constant expression - T_INT64_CONSTANT */
+/* constant expression - T_INT64_LITERAL */
 class AstInt64Literal : public AstLiteral {
 public:
   AstInt64Literal(const int64_t &value, const Position &position);
@@ -395,7 +395,7 @@ private:
   int64_t value_;
 };
 
-/* constant expression - T_UINT64_CONSTANT */
+/* constant expression - T_UINT64_LITERAL */
 class AstUInt64Literal : public AstLiteral {
 public:
   AstUInt64Literal(const uint64_t &value, const Position &position);
@@ -409,7 +409,7 @@ private:
   uint64_t value_;
 };
 
-/* constant expression - T_FLOAT32_CONSTANT */
+/* constant expression - T_FLOAT32_LITERAL */
 class AstFloat32Literal : public AstLiteral {
 public:
   AstFloat32Literal(const float &value, const Position &position);
@@ -423,7 +423,7 @@ private:
   float value_;
 };
 
-/* constant expression - T_FLOAT64_CONSTANT */
+/* constant expression - T_FLOAT64_LITERAL */
 class AstFloat64Literal : public AstLiteral {
 public:
   AstFloat64Literal(const double &value, const Position &position);
@@ -437,7 +437,7 @@ private:
   double value_;
 };
 
-/* constant expression - T_STRING_CONSTANT */
+/* constant expression - T_STRING_LITERAL */
 class AstStringLiteral : public AstLiteral {
 public:
   AstStringLiteral(const char *value, const Position &position);
