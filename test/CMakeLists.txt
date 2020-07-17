@@ -45,6 +45,10 @@ execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
 execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
 string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
 string(REGEX REPLACE "\n$" "" llvm_system_libs "${llvm_system_libs}")
+if(WIN32)
+    string(REGEX REPLACE ".lib " ".lib;" llvm_libs "${llvm_libs}")
+    string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
+endif(WIN32)
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
