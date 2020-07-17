@@ -5,20 +5,6 @@ project(shepherdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
-find_package(LLVM REQUIRED CONFIG)
-execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
-execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
-string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
-string(REGEX REPLACE "\n$" "" llvm_system_libs "${llvm_system_libs}")
-
-find_package(FLEX)
-find_package(BISON)
-FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
-BISON_TARGET(ShepherdParser Parser.y ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp 
-    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.hpp)
-ADD_FLEX_BISON_DEPENDENCY(ShepherdTokenizer ShepherdParser)
-
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
@@ -33,8 +19,6 @@ if(WIN32)
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib")
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
     set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm-project/llvm/build_release/lib/cmake/llvm")
-    string(REGEX REPLACE ".lib " ".lib;" llvm_libs "${llvm_libs}")
-    string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
 else()
     set(CMAKE_C_COMPILER clang)
     set(CMAKE_CXX_COMPILER clang++)
@@ -54,6 +38,20 @@ else()
         /usr/local/lib
         )
 endif(WIN32)
+
+find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
+find_package(LLVM REQUIRED CONFIG)
+execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
+execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
+string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
+string(REGEX REPLACE "\n$" "" llvm_system_libs "${llvm_system_libs}")
+
+find_package(FLEX)
+find_package(BISON)
+FLEX_TARGET(ShepherdTokenizer Token.l ${CMAKE_CURRENT_SOURCE_DIR}/Token.yy.cpp)
+BISON_TARGET(ShepherdParser Parser.y ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp 
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.hpp)
+ADD_FLEX_BISON_DEPENDENCY(ShepherdTokenizer ShepherdParser)
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
