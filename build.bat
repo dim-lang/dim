@@ -67,6 +67,7 @@ if not exist %ROOT%\src\llvm-project\llvm\build_release (
 echo [shepherd] prepare llvm/llvm-project %LLVM_VERSION% - done
 
 echo [shepherd] build
+set PATH=%PATH%;%ROOT%\src\llvm-project\llvm\build_release\bin
 cd %ROOT%
 cmake -A x64 -Thost=x64 -B %MSVC%
 cd %MSVC%
