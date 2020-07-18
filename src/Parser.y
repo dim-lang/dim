@@ -193,7 +193,8 @@ binary_expression : unary_expression { $$ = $1; }
                   ;
 
 conditional_expression : binary_expression { $$ = $1; }
-                       | T_IF binary_expression T_THEN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); }
+                       /* | T_IF binary_expression T_THEN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); } */
+                       | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 
 assignment_expression : conditional_expression { $$ = $1; }
@@ -310,8 +311,6 @@ statement : if_statement { $$ = $1; }
 
 if_statement : T_IF T_LPAREN expression T_RPAREN statement                          %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
              | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement         { $$ = new AstIfStatement($3, $5, $7, Y_POSITION(@1)); }
-             | T_IF T_LPAREN expression T_RPAREN T_THEN statement                   { $$ = new AstIfStatement($3, $6, new AstEmptyStatement(), Y_POSITION(@1)); }
-             | T_IF T_LPAREN expression T_RPAREN T_THEN statement T_ELSE statement  { $$ = new AstIfStatement($3, $6, $8, Y_POSITION(@1)); }
              ;
 
  /*

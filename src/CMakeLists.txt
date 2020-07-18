@@ -57,6 +57,14 @@ BISON_TARGET(ShepherdParser Parser.y ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.hpp)
 ADD_FLEX_BISON_DEPENDENCY(ShepherdTokenizer ShepherdParser)
 
+# release version
+# flex -o Token.yy.cpp Token.l
+# bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+
+# debug
+# flex --debug -o Token.yy.cpp Token.l
+# bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
+
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
     .
