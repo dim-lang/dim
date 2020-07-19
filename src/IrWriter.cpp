@@ -4,6 +4,7 @@
 #include "IrWriter.h"
 #include "Exception.h"
 #include "Log.h"
+#include "llvm/Config/llvm-config.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Host.h"
@@ -80,8 +81,14 @@ std::string IrObjectWriter::toFileOstream() {
   EX_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
             errcode.message());
   llvm::legacy::PassManager passManager;
-  bool addResult = targetMachine_->addPassesToEmitFile(
-      passManager, fos, nullptr, llvm::CodeGenFileType::CGFT_ObjectFile);
+#if LLVM_VERSION_MAJOR > 9
+  llvm::CodeGenFileType cgft = llvm::CodeGenFileType::CGFT_ObjectFile;
+#else
+  llvm::LLVMTargetMachine::CodeGenFileType cgft =
+      llvm::CodeGenFileType::CGFT_ObjectFile;
+#endif
+  bool addResult =
+      targetMachine_->addPassesToEmitFile(passManager, fos, nullptr, cgft);
   EX_ASSERT(addResult, "targetMachine->addPassesToEmitFile must be true");
   passManager.run(*context_->llvmModule);
   fos.flush();
