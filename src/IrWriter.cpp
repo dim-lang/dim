@@ -85,7 +85,7 @@ std::string IrObjectWriter::toFileOstream() {
   llvm::CodeGenFileType cgft = llvm::CodeGenFileType::CGFT_ObjectFile;
 #else
   llvm::LLVMTargetMachine::CodeGenFileType cgft =
-      llvm::CodeGenFileType::CGFT_ObjectFile;
+      llvm::LLVMTargetMachine::CodeGenFileType::CGFT_ObjectFile;
 #endif
   bool addResult =
       targetMachine_->addPassesToEmitFile(passManager, fos, nullptr, cgft);
