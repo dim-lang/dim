@@ -46,9 +46,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_EOF
 %token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_TRY T_CATCH T_DEF
 %token <token> T_IF T_THEN T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
-%token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
+%token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISA T_ISINSTANCEOF T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_INT8 T_UINT8 T_INT16 T_UINT16 T_INT32 T_UINT32 T_INT64 T_UINT64 T_INT128 T_UINT128 T_FLOAT32 T_FLOAT64 T_FLOAT128
-%token <token> T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_PUBLIC T_PROTECT T_PRIVATE T_NAN T_INF
+%token <token> T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_NAN T_INF
 %token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_UNDERLINE 
 %token <token> T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
@@ -193,7 +193,7 @@ binary_expression : unary_expression { $$ = $1; }
                   ;
 
 conditional_expression : binary_expression { $$ = $1; }
-                       /* | T_IF binary_expression T_THEN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); } */
+                       /* | T_IF T_LPAREN binary_expression T_RPAREN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); } */
                        | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
                        ;
 

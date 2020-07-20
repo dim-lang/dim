@@ -61,7 +61,7 @@ IS ((u|U)|(u|U)?(l|L))
  /* keywords */
 "true"       { return T_INTEGER_TOKEN(T_TRUE); }
 "false"      { return T_INTEGER_TOKEN(T_FALSE); }
-"let"        { return T_INTEGER_TOKEN(T_LET); }
+ /* "let"     { return T_INTEGER_TOKEN(T_LET); } */
 "try"        { return T_INTEGER_TOKEN(T_TRY); }
 "catch"      { return T_INTEGER_TOKEN(T_CATCH); }
 "var"        { return T_INTEGER_TOKEN(T_VAR); }
@@ -76,16 +76,18 @@ IS ((u|U)|(u|U)?(l|L))
 "match"      { return T_INTEGER_TOKEN(T_MATCH); }
 "default"    { return T_INTEGER_TOKEN(T_DEFAULT); }
 "for"        { return T_INTEGER_TOKEN(T_FOR); }
-"foreach"    { return T_INTEGER_TOKEN(T_FOREACH); }
+ /* "foreach"    { return T_INTEGER_TOKEN(T_FOREACH); } */
 "in"         { return T_INTEGER_TOKEN(T_IN); }
 "while"      { return T_INTEGER_TOKEN(T_WHILE); }
 "break"      { return T_INTEGER_TOKEN(T_BREAK); }
 "continue"   { return T_INTEGER_TOKEN(T_CONTINUE); }
-"func"       { return T_INTEGER_TOKEN(T_FUNC); }
+ /* "func"       { return T_INTEGER_TOKEN(T_FUNC); } */
 "class"      { return T_INTEGER_TOKEN(T_CLASS); }
-"type"       { return T_INTEGER_TOKEN(T_TYPE); }
+ /* "type"      { return T_INTEGER_TOKEN(T_TYPE); } */
 "is"         { return T_INTEGER_TOKEN(T_IS); }
-"isinstance" { return T_INTEGER_TOKEN(T_ISINSTANCE); }
+"isa"        { return T_INTEGER_TOKEN(T_ISA); }
+"isinstanceof"  { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
+ /* "isinstance" { return T_INTEGER_TOKEN(T_ISINSTANCE); } */
 "import"     { return T_INTEGER_TOKEN(T_IMPORT); }
 "return"     { return T_INTEGER_TOKEN(T_RETURN); }
 "void"       { return T_INTEGER_TOKEN(T_VOID); }
@@ -109,6 +111,7 @@ IS ((u|U)|(u|U)?(l|L))
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 "async"      { return T_INTEGER_TOKEN(T_ASYNC); }
 "await"      { return T_INTEGER_TOKEN(T_AWAIT); }
+"static"     { return T_INTEGER_TOKEN(T_STATIC); }
 "public"     { return T_INTEGER_TOKEN(T_PUBLIC); }
 "protect"    { return T_INTEGER_TOKEN(T_PROTECT); }
 "private"    { return T_INTEGER_TOKEN(T_PRIVATE); }
