@@ -589,7 +589,7 @@ AstVoidExpression::AstVoidExpression()
 AstType AstVoidExpression::type() const { return AstType::VoidExpression; }
 
 std::string AstVoidExpression::toString() const {
-  return fmt::format("[@AstVoidExpression {}]", position_.toString());
+  return fmt::format("[@AstVoidExpression]");
 }
 
 AstExpressionStatement::AstExpressionStatement(

@@ -96,31 +96,31 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     return ss.str();
   }
   case AstType::IfStatement: {
-    AstIfStatement *is = DC(AstIfStatement, node);
+    AstIfStatement *e = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    EX_ASSERT(is->thens(), "is#thens is null");
-    ss << dumpAstImpl(is->condition(), depth) << ") \n"
-       << dumpAstImpl(is->thens(), depth + 1);
-    if (is->elses()) {
-      ss << DS << "else\n" << dumpAstImpl(is->elses(), depth + 1);
+    EX_ASSERT(e->thens(), "e->thens() must not null");
+    ss << dumpAstImpl(e->condition(), depth) << ") \n"
+       << dumpAstImpl(e->thens(), depth + 1);
+    if (e->elses()) {
+      ss << DS << "else\n" << dumpAstImpl(e->elses(), depth + 1);
     }
     return ss.str();
   }
   case AstType::WhileStatement: {
-    AstWhileStatement *ws = DC(AstWhileStatement, node);
+    AstWhileStatement *e = DC(AstWhileStatement, node);
     std::stringstream ss;
     ss << DS << "while (";
-    ss << dumpAstImpl(ws->condition(), depth) << ")\n"
-       << dumpAstImpl(ws->statement(), depth + 1);
+    ss << dumpAstImpl(e->condition(), depth) << ")\n"
+       << dumpAstImpl(e->statement(), depth + 1);
     return ss.str();
   }
   case AstType::ForStatement: {
-    AstForStatement *fs = DC(AstForStatement, node);
+    AstForStatement *e = DC(AstForStatement, node);
     std::stringstream ss;
-    ss << DS << "for (" << dumpAstImpl(fs->start(), depth)
-       << dumpAstImpl(fs->step(), depth) << dumpAstImpl(fs->end(), depth) + ") "
-       << dumpAstImpl(fs->statement(), depth) << "\n";
+    ss << DS << "for (" << dumpAstImpl(e->start(), depth)
+       << dumpAstImpl(e->step(), depth) << dumpAstImpl(e->end(), depth) + ") "
+       << dumpAstImpl(e->statement(), depth) << "\n";
     return ss.str();
   }
   case AstType::ContinueStatement:
@@ -134,12 +134,12 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   case AstType::EmptyStatement:
     return DS + DC(AstEmptyStatement, node)->name() + ";\n";
   case AstType::VariableDefinition: {
-    AstVariableDefinition *vd = DC(AstVariableDefinition, node);
+    AstVariableDefinition *e = DC(AstVariableDefinition, node);
     std::stringstream ss;
-    ss << DS << vd->name() << ": ";
-    for (int i = 0; i < vd->definitionList()->size(); i++) {
-      ss << dumpAstImpl(vd->definitionList()->get(i), depth);
-      if (i < vd->definitionList()->size() - 1) {
+    ss << DS << e->name() << ": ";
+    for (int i = 0; i < e->definitionList()->size(); i++) {
+      ss << dumpAstImpl(e->definitionList()->get(i), depth);
+      if (i < e->definitionList()->size() - 1) {
         ss << ", ";
       }
     }
@@ -147,14 +147,14 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     return ss.str();
   }
   case AstType::VariableInitialDefinition: {
-    AstVariableInitialDefinition *vad = DC(AstVariableInitialDefinition, node);
-    return vad->identifier() + " = " + dumpAstImpl(vad->expression(), depth);
+    AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
+    return e->identifier() + " = " + dumpAstImpl(e->expression(), depth);
   }
   case AstType::FunctionDefinition: {
-    AstFunctionDefinition *fd = DC(AstFunctionDefinition, node);
-    AstFunctionSignatureDefinition *fsd = fd->signature();
+    AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
+    AstFunctionSignatureDefinition *fsd = e->signature();
     std::stringstream ss;
-    ss << DS << fd->name() << "(";
+    ss << DS << e->name() << "(";
     if (fsd->argumentList() && fsd->argumentList()->size() > 0) {
       for (int i = 0; i < fsd->argumentList()->size(); i++) {
         ss << fsd->argumentList()->get(i)->name();
@@ -163,32 +163,38 @@ static std::string dumpAstImpl(Ast *node, int depth) {
         }
       }
     }
-    ss << ") =>\n" << dumpAstImpl(fd->statement(), depth);
+    ss << ") =>\n" << dumpAstImpl(e->statement(), depth);
     return ss.str();
   }
   case AstType::DefinitionList: {
-    AstDefinitionList *dl = DC(AstDefinitionList, node);
+    AstDefinitionList *e = DC(AstDefinitionList, node);
     std::stringstream ss;
-    ss << DS << dl->name() << "{\n";
-    for (int i = 0; i < dl->size(); i++) {
-      ss << dumpAstImpl(dl->get(i), depth);
+    ss << DS << e->name() << "{\n";
+    for (int i = 0; i < e->size(); i++) {
+      ss << dumpAstImpl(e->get(i), depth);
     }
     ss << "}\n";
     return ss.str();
   }
   case AstType::TranslateUnit: {
-    AstTranslateUnit *p = DC(AstTranslateUnit, node);
+    AstTranslateUnit *e = DC(AstTranslateUnit, node);
     std::stringstream ss;
-    ss << DS << p->name() << " {\n";
-    for (int i = 0; i < p->size(); i++) {
-      ss << dumpAstImpl(p->get(i), depth + 1);
+    ss << DS << e->name() << " {\n";
+    for (int i = 0; i < e->size(); i++) {
+      ss << dumpAstImpl(e->get(i), depth + 1);
     }
     ss << "}\n";
     return ss.str();
   }
-  // case AstType::ExpressionList: {
-  // return DC(AstExpressionList, node)->name();
-  //}
+    // case AstType::ExpressionList: {
+    // return DC(AstExpressionList, node)->name();
+    //}
+  case AstType::VoidExpression: {
+    AstVoidExpression *e = DC(AstVoidExpression, node);
+    std::stringstream ss;
+    ss << DS << e->name();
+    return ss.str();
+  }
   default: {
     EX_ASSERT(false, "invalid node:{}", node->toString());
   }

@@ -6,9 +6,9 @@
 /*var a11 = 1228u;*/
 /*var a18 = 123.901;*/
 
-def Hello(x, y) => return x + y;
+def Hello(x, y) => x + y;
 
-def World() => return;
+def World() => print("World");
 
 // this is a line comment */ is for testing block comment ending
 
@@ -18,4 +18,4 @@ def World() => return;
  * integer: 10243+e31
  */
 
-def ok(y) => return 1 % y;
+def ok(y) => 1 % y;
