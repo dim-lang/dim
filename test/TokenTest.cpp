@@ -9,10 +9,10 @@
 #include "catch2/catch.hpp"
 #include <cstdio>
 
-static void go(const char *fileName) {
+static void testToken(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
-  LOG_INFO("go start: {}", fileName);
+  LOG_INFO("test token start: {}", fileName);
   std::tuple<int, YYSTYPE, YYLTYPE> t;
   while ((t = scanner.tokenize()), std::get<0>(t) != 0) {
     if (std::get<0>(t) == T_IDENTIFIER || std::get<0>(t) == T_INTEGER_LITERAL ||
@@ -29,7 +29,7 @@ static void go(const char *fileName) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    go("test/case/Parser1.shp");
-    go("test/case/Parser2.shp");
+    testToken("test/case/Parser1.shp");
+    testToken("test/case/Parser2.shp");
   }
 }
