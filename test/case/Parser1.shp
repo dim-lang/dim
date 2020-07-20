@@ -42,4 +42,8 @@ Maybe we need more troubleshooting while testing.");
             "join string 3, "
             "join string 4, "
             );
+    var a = """  Hello World,
+This is a multiple line string!\u0000
+Hope you like it!
+""";
 }

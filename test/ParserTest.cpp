@@ -10,16 +10,17 @@
 #include "catch2/catch.hpp"
 #include <cstdio>
 
-static void go(const char *fileName) {
+static void testParse(const char *fileName) {
   Scanner scanner;
   scanner.pushBuffer(fileName);
   REQUIRE(scanner.parse() == 0);
-  LOG_INFO("go end, translateUnit: {}", scanner.translateUnit()->toString());
+  LOG_INFO("test parse end, translateUnit: {}",
+           scanner.translateUnit()->toString());
 }
 
 TEST_CASE("Parser", "[Parser]") {
   SECTION("Parser") {
-    go("test/case/Parser1.shp");
-    go("test/case/Parser2.shp");
+    testParse("test/case/Parser1.shp");
+    testParse("test/case/Parser2.shp");
   }
 }

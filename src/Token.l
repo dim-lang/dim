@@ -5,6 +5,7 @@
 
 %x COMMENT
 %x IMPORT
+%x MULTISTR
 
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 INT (0|[1-9][0-9]*)
@@ -21,6 +22,7 @@ IS ((u|U)|(u|U)?(l|L))
 #include "Scanner.h"
 #include "Strings.h"
 #include "Exception.h"
+#include "Log.h"
 
 #define Y_LENG          yyget_leng(yyextra->yy_scaninfo())
 #define Y_TEXT          yyget_text(yyextra->yy_scaninfo())
@@ -192,35 +194,38 @@ IS ((u|U)|(u|U)?(l|L))
 0[xX]{HEX}+{HEXEXP}{FS}?                { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 0[xX]({HEX}+"."{HEX}+){HEXEXP}?{FS}?    { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
- /* string literal */
-\"\"                                    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
+ /* multiple line string literal */
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)|{UCN}))*["]{3}  { T_LITERAL_TOKEN_X(3, 3); return T_STRING_LITERAL; }
+ /* empty string */
+\"\"                                    { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
+ /* one line string literal */
 \"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
+ /* char literal */
 \'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN_X(1, 1); return T_CHAR_LITERAL; }
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_IDENTIFIER; }
-
  /* whitespace */
 [ \t\n\v\f\r]                           { /* skip whitespace */ }
 
  /* import module */
-^[ \t\n\v\f\r]*import[ \t\n\v\f\r]* { BEGIN IMPORT; }
-<IMPORT>[^ \t\n\v\f\r\;]+           {
-                                        yyextra->pushBuffer(Y_TEXT);
-                                        BEGIN INITIAL;
-                                    }
-<IMPORT>.|\n                        {
-                                        EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
-                                        BEGIN INITIAL;
-                                    }
-<<EOF>>                             {
-                                        if (!yyextra->popBuffer())
-                                            yyterminate();
-                                    }
+^[ \t\n\v\f\r]*import[ \t\n\v\f\r]*     { BEGIN IMPORT; }
+<IMPORT>[^ \t\n\v\f\r\;]+               {
+                                            yyextra->pushBuffer(Y_TEXT);
+                                            BEGIN INITIAL;
+                                        }
+<IMPORT>.|\n                            {
+                                            EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                            BEGIN INITIAL;
+                                        }
+<<EOF>>                                 {
+                                            if (!yyextra->popBuffer())
+                                                yyterminate();
+                                        }
 
  /* invalid token */
-.                           {
-                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
-                            }
+.                                       {
+                                            EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
+                                        }
 
 %%
