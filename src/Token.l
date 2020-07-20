@@ -195,7 +195,7 @@ IS ((u|U)|(u|U)?(l|L))
 0[xX]({HEX}+"."{HEX}+){HEXEXP}?{FS}?    { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)|{UCN}))*["]{3}  { T_LITERAL_TOKEN_X(3, 3); return T_STRING_LITERAL; }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN_X(3, 3); return T_STRING_LITERAL; }
  /* empty string */
 \"\"                                    { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
  /* one line string literal */
