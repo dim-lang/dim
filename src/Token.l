@@ -165,7 +165,7 @@ IS ((u|U)|(u|U)?(l|L))
 "?"    { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"    { return T_INTEGER_TOKEN(T_COLON); }
 "."    { return T_INTEGER_TOKEN(T_DOT); }
-"=>"   { return T_INTEGER_TOKEN(T_BIG_ARROW); }
+"=>"   { return T_INTEGER_TOKEN(T_RIGHT_ARROW); }
 
  /* integer constants */
  /* decimal integer: 102813(u|U|l|L|ul|UL) */

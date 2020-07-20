@@ -83,7 +83,7 @@ static std::unordered_map<int, std::string> TokenNameMap = {
     {T_QUESTION, "?"},
     {T_COLON, ":"},
     {T_DOT, "."},
-    {T_BIG_ARROW, "=>"},
+    {T_RIGHT_ARROW, "=>"},
 };
 
 std::string tokenName(int token) {

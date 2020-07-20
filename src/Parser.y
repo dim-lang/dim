@@ -54,7 +54,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
 %token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
-%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_BIG_ARROW
+%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_RIGHT_ARROW
 
 %token <literal> T_IDENTIFIER T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHAR_LITERAL
 
@@ -267,7 +267,7 @@ variable_initial_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ = n
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
 function_definition : function_signature_definition compound_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2); }
-                    | function_signature_definition T_BIG_ARROW statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
+                    | function_signature_definition T_RIGHT_ARROW statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
                     ;
 
 function_signature_definition : T_FUNC T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
