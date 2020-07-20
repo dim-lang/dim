@@ -6,7 +6,6 @@
 /*var a11 = 1228u;*/
 /*var a18 = 123.901;*/
 
-
 func Hello(x, y) => return x + y;
 
 func World() => return;
