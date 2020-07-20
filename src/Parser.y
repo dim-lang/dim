@@ -220,7 +220,7 @@ sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
                   ;
 
 expression : sequel_expression { $$ = $1; }
-           | /* empty expression */ { $$ = new AstVoidExpression(); }
+           | /* empty void expression */ { $$ = new AstVoidExpression(); }
            ;
 
 constant_expression : conditional_expression { $$ = $1; }
