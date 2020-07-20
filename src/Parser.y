@@ -61,7 +61,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <expr> postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression  sequel_expression
 %type <expr> expression
-%type <exprList> argument_expression_list
+%type <exprList> argument_expression_list sequel_expression_list
 
 %type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
 %type <stmt> statement
@@ -212,8 +212,11 @@ assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
                       ;
 
-sequel_expression : assignment_expression { $$ = new AstSequelExpression(); $$->add($1); }
-                  | assignment_expression T_COMMA sequel_expression { $3->add($1); $$ = $3; }
+sequel_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
+                       | assignment_expression T_COMMA sequel_expression_list { $3->add($1); $$ = $3; }
+                       ;
+
+sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
                   ;
 
 expression : sequel_expression { $$ = $1; }

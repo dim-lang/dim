@@ -558,13 +558,29 @@ int AstAssignmentExpression::token() const { return token_; }
 
 AstExpression *AstAssignmentExpression::value() const { return value_; }
 
-AstSequelExpression::AstSequelExpression()
-    : detail::AstList<AstExpression>(nameGen.generate("A_SeqExp")) {}
+AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
+    : AstExpression(nameGen.generate("A_SeqExp")),
+      expressionList_(expressionList) {
+  EX_ASSERT(expressionList_, "expressionList_ must not null");
+  for (int i = 0; i < expressionList_->size(); i++) {
+    position_.updatePosition(expressionList_->get(i)->position());
+  }
+}
+
+AstSequelExpression::~AstSequelExpression() {
+  delete expressionList_;
+  expressionList_ = nullptr;
+}
 
 AstType AstSequelExpression::type() const { return AstType::SequelExpression; }
 
-std::string AstSequelExpression::stringify() const {
-  return "AstSequelExpression";
+std::string AstSequelExpression::toString() const {
+  return fmt::format("[@AstSequelExpression {} expressionList_:{}]",
+                     position_.toString(), expressionList_->toString());
+}
+
+AstExpressionList *AstSequelExpression::expressionList() const {
+  return expressionList_;
 }
 
 AstVoidExpression::AstVoidExpression()
@@ -607,7 +623,7 @@ AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList,
                                            const Position &rparenTokenPosition)
     : AstStatement(nameGen.generate("A_Compound")),
       statementList_(statementList) {
-  EX_ASSERT(statementList_, "statementList_ is null");
+  EX_ASSERT(statementList_, "statementList_ must not null");
   position_.updatePosition(lparenTokenPosition);
   position_.updatePosition(rparenTokenPosition);
   for (int i = 0; i < statementList_->size(); i++) {

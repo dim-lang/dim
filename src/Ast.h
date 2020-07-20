@@ -558,15 +558,16 @@ private:
 };
 
 /* sequel expression */
-class AstSequelExpression : public detail::AstList<AstExpression> {
+class AstSequelExpression : public AstExpression {
 public:
-  AstSequelExpression();
-  virtual ~AstSequelExpression() = default;
+  AstSequelExpression(AstExpressionList *expressionList);
+  virtual ~AstSequelExpression();
   virtual AstType type() const;
   virtual std::string toString() const;
+  virtual AstExpressionList *expressionList() const;
 
 private:
-  virtual std::string stringify() const;
+  AstExpressionList *expressionList_;
 };
 
 /* void expression */
