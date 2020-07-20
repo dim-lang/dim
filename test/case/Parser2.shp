@@ -1,4 +1,4 @@
-func abs() {
+def abs() {
     var number = 3 + -2;
     number = 1 + 6e+4 / (-3) * (4 + 3 % -2) + 2;
     var a = number;
@@ -8,7 +8,7 @@ func abs() {
     ;
 }
 
-func World(x, y) {
+def World(x, y) {
     x = 1;
     y = 2;
     var z = 2U;
@@ -18,7 +18,7 @@ func World(x, y) {
 
 /* import test.Parser1; */
 
-func fail() {
+def fail() {
     print("This is the very end of Parser2");
     print("Goodbye World!");
 }

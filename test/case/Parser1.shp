@@ -6,7 +6,7 @@ var a10 = 1228l;
 var a11 = 1228u;
 var a18 = 123.901;
 
-func Hello(x, y) {
+def Hello(x, y) {
     var a = 1;
     var b = 2;
     a = a + b;
@@ -29,9 +29,9 @@ func Hello(x, y) {
  * integer: 10243+e31
  */
 
-func ok(y) { var x = 1; return x%y; }
+def ok(y) { var x = 1; return x%y; }
 
-func testOnTokenLexer() {
+def testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing programming language");
     print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.

@@ -558,29 +558,13 @@ int AstAssignmentExpression::token() const { return token_; }
 
 AstExpression *AstAssignmentExpression::value() const { return value_; }
 
-AstSequelExpression::AstSequelExpression(AstExpressionList *expressionList)
-    : AstExpression(nameGen.generate("A_SeqExp")),
-      expressionList_(expressionList) {
-  EX_ASSERT(expressionList_, "expressionList_ is null");
-  for (int i = 0; i < expressionList_->size(); i++) {
-    position_.updatePosition(expressionList_->get(i)->position());
-  }
-}
-
-AstSequelExpression::~AstSequelExpression() {
-  delete expressionList_;
-  expressionList_ = nullptr;
-}
+AstSequelExpression::AstSequelExpression()
+    : detail::AstList<AstExpression>(nameGen.generate("A_SeqExp")) {}
 
 AstType AstSequelExpression::type() const { return AstType::SequelExpression; }
 
-std::string AstSequelExpression::toString() const {
-  return fmt::format("[@AstSequelExpression {} expressionList_:{}]",
-                     position_.toString(), expressionList_->toString());
-}
-
-AstExpressionList *AstSequelExpression::expressionList() const {
-  return expressionList_;
+std::string AstSequelExpression::stringify() const {
+  return "AstSequelExpression";
 }
 
 AstVoidExpression::AstVoidExpression()

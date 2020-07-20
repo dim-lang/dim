@@ -44,7 +44,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* union */
 %token <token> T_EOF
-%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_TRY T_CATCH
+%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_TRY T_CATCH T_DEF
 %token <token> T_IF T_THEN T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
 %token <token> T_FUNC T_CLASS T_TYPE T_IS T_ISINSTANCE T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
 %token <token> T_INT8 T_UINT8 T_INT16 T_UINT16 T_INT32 T_UINT32 T_INT64 T_UINT64 T_INT128 T_UINT128 T_FLOAT32 T_FLOAT64 T_FLOAT128
@@ -61,9 +61,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <expr> postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression  sequel_expression
 %type <expr> expression
-%type <exprList> argument_expression_list sequel_expression_list
+%type <exprList> argument_expression_list
 
-%type <stmt> compound_statement expression_statement iteration_statement jump_statement empty_statement if_statement
+%type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
 %type <stmt> statement
 %type <stmtList> statement_list
 
@@ -212,14 +212,12 @@ assignment_expression : conditional_expression { $$ = $1; }
                       | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
                       ;
 
-sequel_expression_list : assignment_expression { $$ = new AstExpressionList(); $$->add($1); }
-                       | assignment_expression T_COMMA sequel_expression_list { $3->add($1); $$ = $3; }
-                       ;
-
-sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
+sequel_expression : assignment_expression { $$ = new AstSequelExpression(); $$->add($1); }
+                  | assignment_expression T_COMMA sequel_expression { $3->add($1); $$ = $3; }
                   ;
 
 expression : sequel_expression { $$ = $1; }
+           | /* empty expression */ { $$ = new AstVoidExpression(); }
            ;
 
 constant_expression : conditional_expression { $$ = $1; }
@@ -232,7 +230,7 @@ definition : function_definition { $$ = $1; }
             /*| import_module { $$ = $1; }*/
             ;
 
- /* 
+ /*
 import_module : T_IMPORT import_module_list T_SEMI
               ;
 
@@ -267,14 +265,14 @@ variable_initial_definition : T_IDENTIFIER T_ASSIGN constant_expression { $$ = n
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
 function_definition : function_signature_definition compound_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2); }
-                    | function_signature_definition T_RIGHT_ARROW statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
+                    | function_signature_definition T_RIGHT_ARROW expression_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
                     ;
 
-function_signature_definition : T_FUNC T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
+function_signature_definition : T_DEF T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
                                     $$ = new AstFunctionSignatureDefinition($2, $4, nullptr, Y_POSITION(@1), Y_POSITION(@2));
                                     std::free($2);
                                 }
-                              | T_FUNC T_IDENTIFIER T_LPAREN T_RPAREN {
+                              | T_DEF T_IDENTIFIER T_LPAREN T_RPAREN {
                                     $$ = new AstFunctionSignatureDefinition($2, new AstDefinitionList(), nullptr, Y_POSITION(@1), Y_POSITION(@2));
                                     std::free($2);
                                 }
@@ -301,7 +299,7 @@ statement : if_statement { $$ = $1; }
           | expression_statement { $$ = $1; }
           | iteration_statement { $$ = $1; }
           | jump_statement { $$ = $1; }
-          | empty_statement { $$ = $1; }
+          | return_statement { $$ = $1; }
           /*| switch_statement { $$ = $1; }*/
           /*| switch_body_statement { $$ = $1; }*/
           /*| match_statement { $$ = $1; }*/
@@ -333,19 +331,16 @@ match_body_statement : T_BIT_OR assignment_expression T_COLON statement { $$ = n
 expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1, Y_POSITION(@2)); }
                      ;
 
-iteration_statement : T_WHILE T_LPAREN expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5, Y_POSITION(@1)); }
-                    | T_FOR T_LPAREN expression_statement expression_statement T_RPAREN statement { $$ = new AstForStatement($3, $4, new AstVoidExpression(), $6, Y_POSITION(@1)); }
+iteration_statement : T_WHILE T_LPAREN sequel_expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5, Y_POSITION(@1)); }
                     | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7, Y_POSITION(@1)); }
                     ;
 
 jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@1), Y_POSITION(@2)); }
                | T_BREAK T_SEMI { $$ = new AstBreakStatement(Y_POSITION(@1), Y_POSITION(@2)); }
-               | T_RETURN T_SEMI { $$ = new AstReturnStatement(new AstVoidExpression(), Y_POSITION(@1), Y_POSITION(@2)); }
-               | T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
                ;
 
-empty_statement : /* */ T_SEMI { $$ = new AstEmptyStatement(Y_POSITION(@1)); }
-                ;
+return_statement : T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
+                 ;
 
 translation_unit : definition {
                         EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
