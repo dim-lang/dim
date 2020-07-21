@@ -5,7 +5,6 @@
 
 %x COMMENT
 %x IMPORT
-%x MULTISTR
 
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 INT (0|[1-9][0-9]*)
