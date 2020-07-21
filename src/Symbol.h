@@ -13,14 +13,14 @@
 #include <vector>
 
 /*================ type start from 2000 ================*/
-BETTER_ENUM(SymType, int,
+BETTER_ENUM(S_ty, int,
             // symbol
             Variable = 2000, FunctionArgument, Function, Class,
             // symbol scope
             Global, Local)
 
 /*================ type start from 3000 ================*/
-BETTER_ENUM(TyType, int,
+BETTER_ENUM(T_ty, int,
             // type
             Builtin = 3000, Class, Function,
             // scope type
@@ -51,7 +51,7 @@ public:
   Symbol(Scope *enclosingScope);
   virtual ~Symbol() = default;
   virtual std::string name() const = 0;
-  virtual SymType type() const = 0;
+  virtual S_ty type() const = 0;
   virtual Scope *enclosingScope() const;
 
 protected:
@@ -62,7 +62,7 @@ class Type : public Namely, private boost::noncopyable {
 public:
   virtual ~Type() = default;
   virtual std::string name() const = 0;
-  virtual TyType type() const = 0;
+  virtual T_ty type() const = 0;
 };
 
 class ScopeNode {
@@ -92,7 +92,7 @@ public:
   Scope(Scope *enclosingScope);
   virtual ~Scope();
   virtual std::string name() const = 0;
-  virtual SymType type() const = 0;
+  virtual S_ty type() const = 0;
   virtual void define(ScopeNode *snode);
   virtual ScopeNode *resolve(const std::string &name) const;
   virtual std::string toString() const;
@@ -112,7 +112,7 @@ class BuiltinType : public Type {
 public:
   virtual ~BuiltinType() = default;
   virtual std::string name() const;
-  virtual TyType type() const;
+  virtual T_ty type() const;
 
   static BuiltinType *ty_int8();
   static BuiltinType *ty_uint8();
@@ -141,7 +141,7 @@ public:
             const std::vector<std::pair<Symbol *, Type *>> &methodList);
   virtual ~ClassType() = default;
   virtual std::string name() const;
-  virtual TyType type() const;
+  virtual T_ty type() const;
 
 protected:
   std::string classType_;
@@ -152,7 +152,7 @@ public:
   FunctionType(const std::vector<Type *> &argTypeList, Type *result);
   virtual ~FunctionType() = default;
   virtual std::string name() const;
-  virtual TyType type() const;
+  virtual T_ty type() const;
 
 protected:
   std::string functionType_;
@@ -162,7 +162,7 @@ class ScopeType : public Type {
 public:
   virtual ~ScopeType() = default;
   virtual std::string name() const;
-  virtual TyType type() const;
+  virtual T_ty type() const;
 
   static ScopeType *ty_local();
   static ScopeType *ty_global();
@@ -177,7 +177,7 @@ public:
   VariableSymbol(const std::string &variableName, Scope *enclosingScope);
   virtual ~VariableSymbol() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 private:
   std::string variableName_;
@@ -189,7 +189,7 @@ public:
                          Scope *enclosingScope);
   virtual ~FunctionArgumentSymbol() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 private:
   std::string functionArgumentName_;
@@ -200,7 +200,7 @@ public:
   FunctionSymbol(const std::string &functionName, Scope *enclosingScope);
   virtual ~FunctionSymbol() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 protected:
   virtual std::string stringify() const;
@@ -212,7 +212,7 @@ public:
   ClassSymbol(const std::string &className, Scope *enclosingScope);
   virtual ~ClassSymbol() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 protected:
   virtual std::string stringify() const;
@@ -224,7 +224,7 @@ public:
   GlobalScope();
   virtual ~GlobalScope() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 protected:
   virtual std::string stringify() const;
@@ -235,7 +235,7 @@ public:
   LocalScope(const std::string &localScopeName, Scope *enclosingScope);
   virtual ~LocalScope() = default;
   virtual std::string name() const;
-  virtual SymType type() const;
+  virtual S_ty type() const;
 
 protected:
   virtual std::string stringify() const;

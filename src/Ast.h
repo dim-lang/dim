@@ -16,8 +16,8 @@
 #include <string>
 
 /*================ type start from 1000 ================*/
-BETTER_ENUM(AstType, int,
-            // constant
+BETTER_ENUM(A_ty, int,
+            // constant literal expression
             Identifier = 1000, Int8Literal, UInt8Literal, Int16Literal,
             UInt16Literal, Int32Literal, UInt32Literal, Int64Literal,
             UInt64Literal, Float32Literal, Float64Literal, StringLiteral,
@@ -44,6 +44,7 @@ BETTER_ENUM(AstType, int,
 class Ast;
 class AstLiteral;
 class AstExpression;
+class AstType;
 class AstStatement;
 class AstDefinition;
 
@@ -105,7 +106,7 @@ public:
   Ast(const std::string &name);
   Ast(const std::string &name, const Position &position);
   virtual ~Ast() = default;
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const = 0;
   virtual std::string name() const;
   virtual const Position &position() const;
@@ -134,7 +135,7 @@ public:
   AstExpression(const std::string &name);
   AstExpression(const std::string &name, const Position &position);
   virtual ~AstExpression() = default;
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const = 0;
 };
 
@@ -144,7 +145,7 @@ public:
   AstLiteral(const std::string &name);
   AstLiteral(const std::string &name, const Position &position);
   virtual ~AstLiteral() = default;
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const = 0;
 };
 
@@ -154,7 +155,7 @@ public:
   AstStatement(const std::string &name);
   AstStatement(const std::string &name, const Position &position);
   virtual ~AstStatement() = default;
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const = 0;
 };
 
@@ -164,7 +165,7 @@ public:
   AstDefinition(const std::string &name);
   AstDefinition(const std::string &name, const Position &position);
   virtual ~AstDefinition() = default;
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const = 0;
 };
 
@@ -180,7 +181,7 @@ public:
     }
     items_.clear();
   }
-  virtual AstType type() const = 0;
+  virtual A_ty type() const = 0;
   virtual std::string toString() const {
     std::stringstream ss;
     ss << fmt::format("[@{} {} size:{}", stringify(), position_.toString(),
@@ -225,7 +226,7 @@ class AstExpressionList : public detail::AstList<AstExpression> {
 public:
   AstExpressionList();
   virtual ~AstExpressionList() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
   // virtual bool empty() const;
@@ -240,7 +241,7 @@ class AstStatementList : public detail::AstList<AstStatement> {
 public:
   AstStatementList();
   virtual ~AstStatementList() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
   // virtual bool empty() const;
@@ -255,7 +256,7 @@ class AstDefinitionList : public detail::AstList<AstDefinition> {
 public:
   AstDefinitionList();
   virtual ~AstDefinitionList() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
   // virtual bool empty() const;
@@ -272,7 +273,7 @@ class AstTranslateUnit : public detail::AstList<AstDefinition> {
 public:
   AstTranslateUnit();
   virtual ~AstTranslateUnit() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   // virtual std::string toString() const;
   // virtual int size() const;
   // virtual bool empty() const;
@@ -288,7 +289,7 @@ class AstIdentifier : public AstExpression {
 public:
   AstIdentifier(const char *value, const Position &position);
   virtual ~AstIdentifier() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const std::string &value() const;
@@ -297,12 +298,15 @@ private:
   std::string value_;
 };
 
+/* type identifier */
+class AstInt8TypeIdentifier : public AstExpression {};
+
 /* constant expression */
 class AstInt8Literal : public AstLiteral {
 public:
   AstInt8Literal(const int8_t &value, const Position &position);
   virtual ~AstInt8Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const int8_t &value() const;
@@ -316,7 +320,7 @@ class AstUInt8Literal : public AstLiteral {
 public:
   AstUInt8Literal(const uint8_t &value, const Position &position);
   virtual ~AstUInt8Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const uint8_t &value() const;
@@ -330,7 +334,7 @@ class AstInt16Literal : public AstLiteral {
 public:
   AstInt16Literal(const int16_t &value, const Position &position);
   virtual ~AstInt16Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const int16_t &value() const;
@@ -344,7 +348,7 @@ class AstUInt16Literal : public AstLiteral {
 public:
   AstUInt16Literal(const uint16_t &value, const Position &position);
   virtual ~AstUInt16Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const uint16_t &value() const;
@@ -358,7 +362,7 @@ class AstInt32Literal : public AstLiteral {
 public:
   AstInt32Literal(const int32_t &value, const Position &position);
   virtual ~AstInt32Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const int32_t &value() const;
@@ -372,7 +376,7 @@ class AstUInt32Literal : public AstLiteral {
 public:
   AstUInt32Literal(const uint32_t &value, const Position &position);
   virtual ~AstUInt32Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const uint32_t &value() const;
@@ -386,7 +390,7 @@ class AstInt64Literal : public AstLiteral {
 public:
   AstInt64Literal(const int64_t &value, const Position &position);
   virtual ~AstInt64Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const int64_t &value() const;
@@ -400,7 +404,7 @@ class AstUInt64Literal : public AstLiteral {
 public:
   AstUInt64Literal(const uint64_t &value, const Position &position);
   virtual ~AstUInt64Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const uint64_t &value() const;
@@ -414,7 +418,7 @@ class AstFloat32Literal : public AstLiteral {
 public:
   AstFloat32Literal(const float &value, const Position &position);
   virtual ~AstFloat32Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const float &value() const;
@@ -428,7 +432,7 @@ class AstFloat64Literal : public AstLiteral {
 public:
   AstFloat64Literal(const double &value, const Position &position);
   virtual ~AstFloat64Literal() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const double &value() const;
@@ -442,7 +446,7 @@ class AstStringLiteral : public AstLiteral {
 public:
   AstStringLiteral(const char *value, const Position &position);
   virtual ~AstStringLiteral() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const std::string &value() const;
@@ -457,7 +461,7 @@ class AstBooleanLiteral : public AstLiteral {
 public:
   AstBooleanLiteral(const bool &value, const Position &position);
   virtual ~AstBooleanLiteral() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const bool &value() const;
@@ -472,7 +476,7 @@ public:
   AstCallExpression(const char *identifier, AstExpressionList *expressionList,
                     const Position &identifierPosition);
   virtual ~AstCallExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
@@ -489,7 +493,7 @@ public:
   AstUnaryExpression(int token, AstExpression *expression,
                      const Position &tokenPosition);
   virtual ~AstUnaryExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual int token() const;
@@ -506,7 +510,7 @@ public:
   AstBinaryExpression(AstExpression *left, int token, AstExpression *right,
                       const Position &tokenPosition);
   virtual ~AstBinaryExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *left() const;
@@ -525,7 +529,7 @@ public:
   AstConditionalExpression(AstExpression *condition, AstExpression *thens,
                            AstExpression *elses);
   virtual ~AstConditionalExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *condition() const;
@@ -544,7 +548,7 @@ public:
   AstAssignmentExpression(AstExpression *variable, int token,
                           AstExpression *value, const Position &tokenPosition);
   virtual ~AstAssignmentExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *variable() const;
@@ -562,7 +566,7 @@ class AstSequelExpression : public AstExpression {
 public:
   AstSequelExpression(AstExpressionList *expressionList);
   virtual ~AstSequelExpression();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
   virtual AstExpressionList *expressionList() const;
 
@@ -575,7 +579,7 @@ class AstVoidExpression : public AstExpression {
 public:
   AstVoidExpression();
   virtual ~AstVoidExpression() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 };
 
@@ -585,7 +589,7 @@ public:
   AstExpressionStatement(AstExpression *expression,
                          const Position &semiTokenPosition);
   virtual ~AstExpressionStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *expression() const;
@@ -601,7 +605,7 @@ public:
                        const Position &lparenTokenPosition,
                        const Position &rparenTokenPosition);
   virtual ~AstCompoundStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstStatementList *statementList() const;
@@ -616,7 +620,7 @@ public:
   AstIfStatement(AstExpression *condition, AstStatement *thens,
                  AstStatement *elses, const Position &ifTokenPosition);
   virtual ~AstIfStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *condition() const;
@@ -635,7 +639,7 @@ public:
   AstWhileStatement(AstExpression *condition, AstStatement *statement,
                     const Position &whileTokenPosition);
   virtual ~AstWhileStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstExpression *condition() const;
@@ -653,7 +657,7 @@ public:
                   AstExpression *post, AstStatement *statement,
                   const Position &forTokenPosition);
   virtual ~AstForStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstStatement *start() const;
@@ -674,7 +678,7 @@ public:
   AstContinueStatement(const Position &continueTokenPosition,
                        const Position &semiTokenPosition);
   virtual ~AstContinueStatement() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
 private:
@@ -686,7 +690,7 @@ public:
   AstBreakStatement(const Position &breakTokenPosition,
                     const Position &semiTokenPosition);
   virtual ~AstBreakStatement() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
 private:
@@ -699,7 +703,7 @@ public:
                      const Position &returnTokenPosition,
                      const Position &semiTokenPosition);
   virtual ~AstReturnStatement();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
   virtual AstExpression *expression() const;
 
@@ -713,7 +717,7 @@ public:
   AstEmptyStatement();
   AstEmptyStatement(const Position &semiTokenPosition);
   virtual ~AstEmptyStatement() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 };
 
@@ -724,7 +728,7 @@ public:
                         const Position &varTokenPosition,
                         const Position &semiTokenPosition);
   virtual ~AstVariableDefinition();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
   virtual AstDefinitionList *definitionList() const;
 
@@ -735,17 +739,20 @@ private:
 /* variable initial definition */
 class AstVariableInitialDefinition : public AstDefinition {
 public:
-  AstVariableInitialDefinition(const char *identifier,
+  AstVariableInitialDefinition(const char *identifier, AstIdentifier *typeId,
                                AstExpression *expression,
-                               const Position &identifierPosition);
+                               const Position &identifierPosition,
+                               const Position &typePosition);
   virtual ~AstVariableInitialDefinition();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
   virtual const std::string &identifier() const;
+  virtual AstIdentifier *typeId() const;
   virtual AstExpression *expression() const;
 
 private:
   std::string identifier_;
+  AstIdentifier *typeId_;
   AstExpression *expression_;
 };
 
@@ -755,7 +762,7 @@ public:
   AstFunctionDefinition(AstFunctionSignatureDefinition *signature,
                         AstStatement *statement);
   virtual ~AstFunctionDefinition();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual AstFunctionSignatureDefinition *signature() const;
@@ -775,7 +782,7 @@ public:
                                  const Position &funcTokenPosition,
                                  const Position &identifierPosition);
   virtual ~AstFunctionSignatureDefinition();
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;
@@ -794,7 +801,7 @@ public:
   AstFunctionArgumentDefinition(const char *identifier,
                                 const Position &argumentPosition);
   virtual ~AstFunctionArgumentDefinition() = default;
-  virtual AstType type() const;
+  virtual A_ty type() const;
   virtual std::string toString() const;
 
   virtual const std::string &identifier() const;

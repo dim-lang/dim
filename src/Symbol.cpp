@@ -111,7 +111,7 @@ BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
 
 std::string BuiltinType::name() const { return builtinTypeName_; }
 
-TyType BuiltinType::type() const { return TyType::Builtin; }
+T_ty BuiltinType::type() const { return T_ty::Builtin; }
 
 BuiltinType *BuiltinType::ty_int8() {
   static BuiltinType *type_int8 = new BuiltinType("int8");
@@ -190,7 +190,7 @@ ClassType::ClassType(const std::string &classType,
 
 std::string ClassType::name() const { return classType_; }
 
-TyType ClassType::type() const { return TyType::Class; }
+T_ty ClassType::type() const { return T_ty::Class; }
 
 FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
                            Type *result) {
@@ -209,14 +209,14 @@ FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
 
 std::string FunctionType::name() const { return functionType_; }
 
-TyType FunctionType::type() const { return TyType::Function; }
+T_ty FunctionType::type() const { return T_ty::Function; }
 
 ScopeType::ScopeType(const std::string &scopeTypeName)
     : scopeTypeName_(scopeTypeName) {}
 
 std::string ScopeType::name() const { return scopeTypeName_; }
 
-TyType ScopeType::type() const { return TyType::Scope; }
+T_ty ScopeType::type() const { return T_ty::Scope; }
 
 ScopeType *ScopeType::ty_local() {
   static ScopeType *ty_local = new ScopeType("LocalScopeType");
@@ -238,7 +238,7 @@ VariableSymbol::VariableSymbol(const std::string &variableName,
 
 std::string VariableSymbol::name() const { return variableName_; }
 
-SymType VariableSymbol::type() const { return SymType::Variable; }
+S_ty VariableSymbol::type() const { return S_ty::Variable; }
 
 FunctionArgumentSymbol::FunctionArgumentSymbol(
     const std::string &functionArgumentName, Scope *enclosingScope)
@@ -248,9 +248,7 @@ std::string FunctionArgumentSymbol::name() const {
   return functionArgumentName_;
 }
 
-SymType FunctionArgumentSymbol::type() const {
-  return SymType::FunctionArgument;
-}
+S_ty FunctionArgumentSymbol::type() const { return S_ty::FunctionArgument; }
 
 FunctionSymbol::FunctionSymbol(const std::string &functionName,
                                Scope *enclosingScope)
@@ -258,7 +256,7 @@ FunctionSymbol::FunctionSymbol(const std::string &functionName,
 
 std::string FunctionSymbol::name() const { return functionName_; }
 
-SymType FunctionSymbol::type() const { return SymType::Function; }
+S_ty FunctionSymbol::type() const { return S_ty::Function; }
 
 std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
 
@@ -267,7 +265,7 @@ ClassSymbol::ClassSymbol(const std::string &className, Scope *enclosingScope)
 
 std::string ClassSymbol::name() const { return className_; }
 
-SymType ClassSymbol::type() const { return SymType::Class; }
+S_ty ClassSymbol::type() const { return S_ty::Class; }
 
 std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
 
@@ -278,7 +276,7 @@ std::string GlobalScope::name() const {
   return globalScopeName;
 }
 
-SymType GlobalScope::type() const { return SymType::Global; }
+S_ty GlobalScope::type() const { return S_ty::Global; }
 
 std::string GlobalScope::stringify() const { return "GlobalScope"; }
 
@@ -287,6 +285,6 @@ LocalScope::LocalScope(const std::string &localScopeName, Scope *enclosingScope)
 
 std::string LocalScope::name() const { return localScopeName_; }
 
-SymType LocalScope::type() const { return SymType::Local; }
+S_ty LocalScope::type() const { return S_ty::Local; }
 
 std::string LocalScope::stringify() const { return "LocalScope"; }

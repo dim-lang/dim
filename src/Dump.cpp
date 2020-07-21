@@ -21,21 +21,21 @@ static std::string dumpAstImpl(Ast *node, int depth) {
   if (!node)
     return "null";
   switch (node->type()) {
-  case AstType::Identifier:
-  case AstType::Int8Literal:
-  case AstType::UInt8Literal:
-  case AstType::Int16Literal:
-  case AstType::UInt16Literal:
-  case AstType::Int32Literal:
-  case AstType::UInt32Literal:
-  case AstType::Int64Literal:
-  case AstType::UInt64Literal:
-  case AstType::Float32Literal:
-  case AstType::Float64Literal:
-  case AstType::StringLiteral:
-  case AstType::BooleanLiteral:
+  case A_ty::Identifier:
+  case A_ty::Int8Literal:
+  case A_ty::UInt8Literal:
+  case A_ty::Int16Literal:
+  case A_ty::UInt16Literal:
+  case A_ty::Int32Literal:
+  case A_ty::UInt32Literal:
+  case A_ty::Int64Literal:
+  case A_ty::UInt64Literal:
+  case A_ty::Float32Literal:
+  case A_ty::Float64Literal:
+  case A_ty::StringLiteral:
+  case A_ty::BooleanLiteral:
     return node->name();
-  case AstType::CallExpression: {
+  case A_ty::CallExpression: {
     AstCallExpression *e = DC(AstCallExpression, node);
     std::stringstream ss;
     ss << e->name() << "(";
@@ -50,23 +50,23 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ")";
     return ss.str();
   }
-  case AstType::UnaryExpression:
+  case A_ty::UnaryExpression:
     return tokenName(DC(AstUnaryExpression, node)->token()) + " " +
            dumpAstImpl(DC(AstUnaryExpression, node)->expression(), depth);
-  case AstType::BinaryExpression:
+  case A_ty::BinaryExpression:
     return dumpAstImpl(DC(AstBinaryExpression, node)->left(), depth) + " " +
            tokenName(DC(AstBinaryExpression, node)->token()) + " " +
            dumpAstImpl(DC(AstBinaryExpression, node)->right(), depth);
-  case AstType::ConditionalExpression:
+  case A_ty::ConditionalExpression:
     return dumpAstImpl(DC(AstConditionalExpression, node)->condition(), depth) +
            "?" +
            dumpAstImpl(DC(AstConditionalExpression, node)->thens(), depth) +
            ":" +
            dumpAstImpl(DC(AstConditionalExpression, node)->elses(), depth);
-  case AstType::AssignmentExpression:
+  case A_ty::AssignmentExpression:
     return dumpAstImpl(DC(AstAssignmentExpression, node)->variable(), depth) +
            "=" + dumpAstImpl(DC(AstAssignmentExpression, node)->value(), depth);
-  case AstType::SequelExpression: {
+  case A_ty::SequelExpression: {
     AstSequelExpression *e = DC(AstSequelExpression, node);
     std::stringstream ss;
     for (int i = 0; i < e->expressionList()->size(); i++) {
@@ -77,11 +77,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     }
     return ss.str();
   }
-  case AstType::ExpressionStatement:
+  case A_ty::ExpressionStatement:
     return DS +
            dumpAstImpl(DC(AstExpressionStatement, node)->expression(), depth) +
            ";\n";
-  case AstType::CompoundStatement: {
+  case A_ty::CompoundStatement: {
     AstCompoundStatement *e = DC(AstCompoundStatement, node);
     std::stringstream ss;
     ss << DS << "{";
@@ -95,7 +95,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n\n";
     return ss.str();
   }
-  case AstType::IfStatement: {
+  case A_ty::IfStatement: {
     AstIfStatement *e = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
@@ -107,7 +107,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     }
     return ss.str();
   }
-  case AstType::WhileStatement: {
+  case A_ty::WhileStatement: {
     AstWhileStatement *e = DC(AstWhileStatement, node);
     std::stringstream ss;
     ss << DS << "while (";
@@ -115,7 +115,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
        << dumpAstImpl(e->statement(), depth + 1);
     return ss.str();
   }
-  case AstType::ForStatement: {
+  case A_ty::ForStatement: {
     AstForStatement *e = DC(AstForStatement, node);
     std::stringstream ss;
     ss << DS << "for (" << dumpAstImpl(e->start(), depth)
@@ -123,17 +123,17 @@ static std::string dumpAstImpl(Ast *node, int depth) {
        << dumpAstImpl(e->statement(), depth) << "\n";
     return ss.str();
   }
-  case AstType::ContinueStatement:
+  case A_ty::ContinueStatement:
     return DS + DC(AstContinueStatement, node)->name() + ";\n";
-  case AstType::BreakStatement:
+  case A_ty::BreakStatement:
     return DS + DC(AstBreakStatement, node)->name() + ";\n";
-  case AstType::ReturnStatement:
+  case A_ty::ReturnStatement:
     return DS + DC(AstReturnStatement, node)->name() + " " +
            dumpAstImpl(DC(AstReturnStatement, node)->expression(), depth) +
            ";\n";
-  case AstType::EmptyStatement:
+  case A_ty::EmptyStatement:
     return DS + DC(AstEmptyStatement, node)->name() + ";\n";
-  case AstType::VariableDefinition: {
+  case A_ty::VariableDefinition: {
     AstVariableDefinition *e = DC(AstVariableDefinition, node);
     std::stringstream ss;
     ss << DS << e->name() << ": ";
@@ -146,11 +146,11 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ";\n";
     return ss.str();
   }
-  case AstType::VariableInitialDefinition: {
+  case A_ty::VariableInitialDefinition: {
     AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
     return e->identifier() + " = " + dumpAstImpl(e->expression(), depth);
   }
-  case AstType::FunctionDefinition: {
+  case A_ty::FunctionDefinition: {
     AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
     AstFunctionSignatureDefinition *fsd = e->signature();
     std::stringstream ss;
@@ -166,7 +166,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << ") =>\n" << dumpAstImpl(e->statement(), depth);
     return ss.str();
   }
-  case AstType::DefinitionList: {
+  case A_ty::DefinitionList: {
     AstDefinitionList *e = DC(AstDefinitionList, node);
     std::stringstream ss;
     ss << DS << e->name() << "{\n";
@@ -176,7 +176,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case AstType::TranslateUnit: {
+  case A_ty::TranslateUnit: {
     AstTranslateUnit *e = DC(AstTranslateUnit, node);
     std::stringstream ss;
     ss << DS << e->name() << " {\n";
@@ -186,10 +186,10 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     ss << "}\n";
     return ss.str();
   }
-    // case AstType::ExpressionList: {
+    // case A_ty::ExpressionList: {
     // return DC(AstExpressionList, node)->name();
     //}
-  case AstType::VoidExpression: {
+  case A_ty::VoidExpression: {
     AstVoidExpression *e = DC(AstVoidExpression, node);
     std::stringstream ss;
     ss << DS << e->name();
@@ -204,20 +204,20 @@ static std::string dumpAstImpl(Ast *node, int depth) {
 std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 
 #define IS_SCOPE(x)                                                            \
-  ((x)->symbol->type() == (+SymType::Function) ||                              \
-   (x)->symbol->type() == (+SymType::Class) ||                                 \
-   (x)->symbol->type() == (+SymType::Global) ||                                \
-   (x)->symbol->type() == (+SymType::Local))
+  ((x)->symbol->type() == (+S_ty::Function) ||                                 \
+   (x)->symbol->type() == (+S_ty::Class) ||                                    \
+   (x)->symbol->type() == (+S_ty::Global) ||                                   \
+   (x)->symbol->type() == (+S_ty::Local))
 
 static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
   if (!snode->symbol)
     return "null";
   EX_ASSERT(snode->symbol, "snode.symbol must not be null");
   switch (snode->symbol->type()) {
-  case SymType::Variable:
+  case S_ty::Variable:
     return std::string("var ") + snode->symbol->name() + ":" +
            snode->type->name();
-  case SymType::Function: {
+  case S_ty::Function: {
     const FunctionSymbol *funcsym = DCC(FunctionSymbol, snode->symbol);
     std::stringstream ss;
     ss << "func " << funcsym->name() << " {";
@@ -234,10 +234,10 @@ static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case SymType::FunctionArgument:
+  case S_ty::FunctionArgument:
     return std::string("var ") + snode->symbol->name() + ":" +
            snode->type->name();
-  case SymType::Class: {
+  case S_ty::Class: {
     const ClassSymbol *clssym = DCC(ClassSymbol, snode->symbol);
     std::stringstream ss;
     ss << DS << "class " << clssym->name() << " {";
@@ -254,7 +254,7 @@ static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case SymType::Local: {
+  case S_ty::Local: {
     const LocalScope *locsym = DCC(LocalScope, snode->symbol);
     std::stringstream ss;
     ss << "local " << locsym->name() << " {";
@@ -268,7 +268,7 @@ static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
     ss << "}\n";
     return ss.str();
   }
-  case SymType::Global: {
+  case S_ty::Global: {
     const GlobalScope *glbsym = DCC(GlobalScope, snode->symbol);
     std::stringstream ss;
     ss << DS << glbsym->name() << " {";

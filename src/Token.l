@@ -75,6 +75,7 @@ IS ((u|U)|(u|U)?(l|L))
 "if"         { return T_INTEGER_TOKEN(T_IF); }
 "then"       { return T_INTEGER_TOKEN(T_THEN); }
 "else"       { return T_INTEGER_TOKEN(T_ELSE); }
+"enum"       { return T_INTEGER_TOKEN(T_ENUM); }
 "switch"     { return T_INTEGER_TOKEN(T_SWITCH); }
 "case"       { return T_INTEGER_TOKEN(T_CASE); }
 "match"      { return T_INTEGER_TOKEN(T_MATCH); }
@@ -83,14 +84,15 @@ IS ((u|U)|(u|U)?(l|L))
  /* "foreach"    { return T_INTEGER_TOKEN(T_FOREACH); } */
 "in"         { return T_INTEGER_TOKEN(T_IN); }
 "while"      { return T_INTEGER_TOKEN(T_WHILE); }
+"do"         { return T_INTEGER_TOKEN(T_DO); }
 "break"      { return T_INTEGER_TOKEN(T_BREAK); }
 "continue"   { return T_INTEGER_TOKEN(T_CONTINUE); }
  /* "func"       { return T_INTEGER_TOKEN(T_FUNC); } */
 "class"      { return T_INTEGER_TOKEN(T_CLASS); }
- /* "type"      { return T_INTEGER_TOKEN(T_TYPE); } */
-"is"         { return T_INTEGER_TOKEN(T_IS); }
-"isa"        { return T_INTEGER_TOKEN(T_ISA); }
+"type"       { return T_INTEGER_TOKEN(T_TYPE); }
 "isinstanceof"  { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
+"isa"        { return T_INTEGER_TOKEN(T_ISA); }
+"is"         { return T_INTEGER_TOKEN(T_IS); }
  /* "isinstance" { return T_INTEGER_TOKEN(T_ISINSTANCE); } */
 "import"     { return T_INTEGER_TOKEN(T_IMPORT); }
 "return"     { return T_INTEGER_TOKEN(T_RETURN); }
@@ -111,7 +113,8 @@ IS ((u|U)|(u|U)?(l|L))
 "float32"    { return T_INTEGER_TOKEN(T_FLOAT32); }
 "float64"    { return T_INTEGER_TOKEN(T_FLOAT64); }
 "float128"   { return T_INTEGER_TOKEN(T_FLOAT128); }
-"string"     { return T_INTEGER_TOKEN(T_STRING); }
+"nan"        { return T_INTEGER_TOKEN(T_NAN); }
+"inf"        { return T_INTEGER_TOKEN(T_INF); }
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 "async"      { return T_INTEGER_TOKEN(T_ASYNC); }
 "await"      { return T_INTEGER_TOKEN(T_AWAIT); }
@@ -119,8 +122,6 @@ IS ((u|U)|(u|U)?(l|L))
 "public"     { return T_INTEGER_TOKEN(T_PUBLIC); }
 "protect"    { return T_INTEGER_TOKEN(T_PROTECT); }
 "private"    { return T_INTEGER_TOKEN(T_PRIVATE); }
-"nan"        { return T_INTEGER_TOKEN(T_NAN); }
-"inf"        { return T_INTEGER_TOKEN(T_INF); }
 
  /* punctuators */
 "+"    { return T_INTEGER_TOKEN(T_ADD); }

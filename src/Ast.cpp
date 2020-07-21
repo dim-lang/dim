@@ -4,6 +4,7 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "NameGenerator.h"
+#include "Parser.tab.hpp"
 #include "TokenName.h"
 #include <algorithm>
 #include <string>
@@ -23,19 +24,19 @@ const Position &Ast::position() const { return position_; }
 bool Ast::isConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Literal:
-  case AstType::UInt8Literal:
-  case AstType::Int16Literal:
-  case AstType::UInt16Literal:
-  case AstType::Int32Literal:
-  case AstType::UInt32Literal:
-  case AstType::Int64Literal:
-  case AstType::UInt64Literal:
-  case AstType::Float32Literal:
-  case AstType::Float64Literal:
-  case AstType::Identifier:
-  case AstType::StringLiteral:
-  case AstType::BooleanLiteral:
+  case A_ty::Int8Literal:
+  case A_ty::UInt8Literal:
+  case A_ty::Int16Literal:
+  case A_ty::UInt16Literal:
+  case A_ty::Int32Literal:
+  case A_ty::UInt32Literal:
+  case A_ty::Int64Literal:
+  case A_ty::UInt64Literal:
+  case A_ty::Float32Literal:
+  case A_ty::Float64Literal:
+  case A_ty::Identifier:
+  case A_ty::StringLiteral:
+  case A_ty::BooleanLiteral:
     return true;
   default:
     return false;
@@ -46,13 +47,13 @@ bool Ast::isConstant(const Ast *node) {
 bool Ast::isExpression(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::CallExpression:
-  case AstType::UnaryExpression:
-  case AstType::BinaryExpression:
-  case AstType::ConditionalExpression:
-  case AstType::AssignmentExpression:
-  case AstType::SequelExpression:
-  case AstType::VoidExpression:
+  case A_ty::CallExpression:
+  case A_ty::UnaryExpression:
+  case A_ty::BinaryExpression:
+  case A_ty::ConditionalExpression:
+  case A_ty::AssignmentExpression:
+  case A_ty::SequelExpression:
+  case A_ty::VoidExpression:
     return true;
   default:
     return false;
@@ -63,15 +64,15 @@ bool Ast::isExpression(const Ast *node) {
 bool Ast::isStatement(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::ExpressionStatement:
-  case AstType::CompoundStatement:
-  case AstType::IfStatement:
-  case AstType::WhileStatement:
-  case AstType::ForStatement:
-  case AstType::ContinueStatement:
-  case AstType::BreakStatement:
-  case AstType::ReturnStatement:
-  case AstType::EmptyStatement:
+  case A_ty::ExpressionStatement:
+  case A_ty::CompoundStatement:
+  case A_ty::IfStatement:
+  case A_ty::WhileStatement:
+  case A_ty::ForStatement:
+  case A_ty::ContinueStatement:
+  case A_ty::BreakStatement:
+  case A_ty::ReturnStatement:
+  case A_ty::EmptyStatement:
     return true;
   default:
     return false;
@@ -82,11 +83,11 @@ bool Ast::isStatement(const Ast *node) {
 bool Ast::isDefinition(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::VariableDefinition:
-  case AstType::VariableInitialDefinition:
-  case AstType::FunctionDefinition:
-  case AstType::FunctionSignatureDefinition:
-  case AstType::FunctionArgumentDefinition:
+  case A_ty::VariableDefinition:
+  case A_ty::VariableInitialDefinition:
+  case A_ty::FunctionDefinition:
+  case A_ty::FunctionSignatureDefinition:
+  case A_ty::FunctionArgumentDefinition:
     return true;
   default:
     return false;
@@ -97,8 +98,8 @@ bool Ast::isDefinition(const Ast *node) {
 bool Ast::isFloatConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Float32Literal:
-  case AstType::Float64Literal:
+  case A_ty::Float32Literal:
+  case A_ty::Float64Literal:
     return true;
   default:
     return false;
@@ -109,14 +110,14 @@ bool Ast::isFloatConstant(const Ast *node) {
 bool Ast::isIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Literal:
-  case AstType::UInt8Literal:
-  case AstType::Int16Literal:
-  case AstType::UInt16Literal:
-  case AstType::Int32Literal:
-  case AstType::UInt32Literal:
-  case AstType::Int64Literal:
-  case AstType::UInt64Literal:
+  case A_ty::Int8Literal:
+  case A_ty::UInt8Literal:
+  case A_ty::Int16Literal:
+  case A_ty::UInt16Literal:
+  case A_ty::Int32Literal:
+  case A_ty::UInt32Literal:
+  case A_ty::Int64Literal:
+  case A_ty::UInt64Literal:
     return true;
   default:
     return false;
@@ -127,10 +128,10 @@ bool Ast::isIntegerConstant(const Ast *node) {
 bool Ast::isSignedIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Int8Literal:
-  case AstType::Int16Literal:
-  case AstType::Int32Literal:
-  case AstType::Int64Literal:
+  case A_ty::Int8Literal:
+  case A_ty::Int16Literal:
+  case A_ty::Int32Literal:
+  case A_ty::Int64Literal:
     return true;
   default:
     return false;
@@ -141,10 +142,10 @@ bool Ast::isSignedIntegerConstant(const Ast *node) {
 bool Ast::isUnsignedIntegerConstant(const Ast *node) {
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::UInt8Literal:
-  case AstType::UInt16Literal:
-  case AstType::UInt32Literal:
-  case AstType::UInt64Literal:
+  case A_ty::UInt8Literal:
+  case A_ty::UInt16Literal:
+  case A_ty::UInt32Literal:
+  case A_ty::UInt64Literal:
     return true;
   default:
     return false;
@@ -177,26 +178,26 @@ AstExpressionList::AstExpressionList()
 
 std::string AstExpressionList::stringify() const { return "AstExpressionList"; }
 
-AstType AstExpressionList::type() const { return AstType::ExpressionList; }
+A_ty AstExpressionList::type() const { return A_ty::ExpressionList; }
 
 AstStatementList::AstStatementList()
     : detail::AstList<AstStatement>(nameGen.generate("A_StmList")) {}
 
 std::string AstStatementList::stringify() const { return "AstStatementList"; }
 
-AstType AstStatementList::type() const { return AstType::StatementList; }
+A_ty AstStatementList::type() const { return A_ty::StatementList; }
 
 AstDefinitionList::AstDefinitionList()
     : detail::AstList<AstDefinition>(nameGen.generate("A_DeclList")) {}
 
 std::string AstDefinitionList::stringify() const { return "AstDefinitionList"; }
 
-AstType AstDefinitionList::type() const { return AstType::DefinitionList; }
+A_ty AstDefinitionList::type() const { return A_ty::DefinitionList; }
 
 AstTranslateUnit::AstTranslateUnit()
     : detail::AstList<AstDefinition>(nameGen.generate("A_TUnit")) {}
 
-AstType AstTranslateUnit::type() const { return AstType::TranslateUnit; }
+A_ty AstTranslateUnit::type() const { return A_ty::TranslateUnit; }
 
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
@@ -206,7 +207,7 @@ AstIdentifier::AstIdentifier(const char *value, const Position &position)
   EX_ASSERT(value, "value is null");
 }
 
-AstType AstIdentifier::type() const { return AstType::Identifier; }
+A_ty AstIdentifier::type() const { return A_ty::Identifier; }
 
 std::string AstIdentifier::toString() const {
   return fmt::format("[@AstIdentifier {} value_:{}]", position_.toString(),
@@ -219,7 +220,7 @@ AstInt8Literal::AstInt8Literal(const int8_t &value, const Position &position)
     : AstLiteral(nameGen.generateWith(value, "A_i8"), position), value_(value) {
 }
 
-AstType AstInt8Literal::type() const { return AstType::Int8Literal; }
+A_ty AstInt8Literal::type() const { return A_ty::Int8Literal; }
 
 std::string AstInt8Literal::toString() const {
   return fmt::format("[@AstInt8Literal {} value_:{}]", position_.toString(),
@@ -232,7 +233,7 @@ AstUInt8Literal::AstUInt8Literal(const uint8_t &value, const Position &position)
     : AstLiteral(nameGen.generateWith(value, "A_u8"), position), value_(value) {
 }
 
-AstType AstUInt8Literal::type() const { return AstType::UInt8Literal; }
+A_ty AstUInt8Literal::type() const { return A_ty::UInt8Literal; }
 
 std::string AstUInt8Literal::toString() const {
   return fmt::format("[@AstUInt8Literal {} value_:{}]", position_.toString(),
@@ -245,7 +246,7 @@ AstInt16Literal::AstInt16Literal(const int16_t &value, const Position &position)
     : AstLiteral(nameGen.generateWith(value, "A_i16"), position),
       value_(value) {}
 
-AstType AstInt16Literal::type() const { return AstType::Int16Literal; }
+A_ty AstInt16Literal::type() const { return A_ty::Int16Literal; }
 
 std::string AstInt16Literal::toString() const {
   return fmt::format("[@AstInt16Literal {} value_:{}]", position_.toString(),
@@ -259,7 +260,7 @@ AstUInt16Literal::AstUInt16Literal(const uint16_t &value,
     : AstLiteral(nameGen.generateWith(value, "A_u16"), position),
       value_(value) {}
 
-AstType AstUInt16Literal::type() const { return AstType::UInt16Literal; }
+A_ty AstUInt16Literal::type() const { return A_ty::UInt16Literal; }
 
 std::string AstUInt16Literal::toString() const {
   return fmt::format("[@AstUInt16Literal {} value_:{}]", position_.toString(),
@@ -272,7 +273,7 @@ AstInt32Literal::AstInt32Literal(const int32_t &value, const Position &position)
     : AstLiteral(nameGen.generateWith(value, "A_i32"), position),
       value_(value) {}
 
-AstType AstInt32Literal::type() const { return AstType::Int32Literal; }
+A_ty AstInt32Literal::type() const { return A_ty::Int32Literal; }
 
 std::string AstInt32Literal::toString() const {
   return fmt::format("[@AstInt32Literal {} value_:{}]", position_.toString(),
@@ -286,7 +287,7 @@ AstUInt32Literal::AstUInt32Literal(const uint32_t &value,
     : AstLiteral(nameGen.generateWith(value, "A_u32"), position),
       value_(value) {}
 
-AstType AstUInt32Literal::type() const { return AstType::UInt32Literal; }
+A_ty AstUInt32Literal::type() const { return A_ty::UInt32Literal; }
 
 std::string AstUInt32Literal::toString() const {
   return fmt::format("[@AstUInt32Literal {} value_:{}]", position_.toString(),
@@ -299,7 +300,7 @@ AstInt64Literal::AstInt64Literal(const int64_t &value, const Position &position)
     : AstLiteral(nameGen.generateWith(value, "A_i64"), position),
       value_(value) {}
 
-AstType AstInt64Literal::type() const { return AstType::Int64Literal; }
+A_ty AstInt64Literal::type() const { return A_ty::Int64Literal; }
 
 std::string AstInt64Literal::toString() const {
   return fmt::format("[@AstInt64Literal {} value_:{}]", position_.toString(),
@@ -313,7 +314,7 @@ AstUInt64Literal::AstUInt64Literal(const uint64_t &value,
     : AstLiteral(nameGen.generateWith(value, "A_u64"), position),
       value_(value) {}
 
-AstType AstUInt64Literal::type() const { return AstType::UInt64Literal; }
+A_ty AstUInt64Literal::type() const { return A_ty::UInt64Literal; }
 
 std::string AstUInt64Literal::toString() const {
   return fmt::format("[@AstUInt64Literal {} value_:{}]", position_.toString(),
@@ -327,7 +328,7 @@ AstFloat32Literal::AstFloat32Literal(const float &value,
     : AstLiteral(nameGen.generateWith(value, "A_f32"), position),
       value_(value) {}
 
-AstType AstFloat32Literal::type() const { return AstType::Float32Literal; }
+A_ty AstFloat32Literal::type() const { return A_ty::Float32Literal; }
 
 std::string AstFloat32Literal::toString() const {
   return fmt::format("[@AstFloat32Literal {} value_:{}]", position_.toString(),
@@ -341,7 +342,7 @@ AstFloat64Literal::AstFloat64Literal(const double &value,
     : AstLiteral(nameGen.generateWith(value, "A_f64"), position),
       value_(value) {}
 
-AstType AstFloat64Literal::type() const { return AstType::Float64Literal; }
+A_ty AstFloat64Literal::type() const { return A_ty::Float64Literal; }
 
 std::string AstFloat64Literal::toString() const {
   return fmt::format("[@AstFloat64Literal {} value_:{}]", position_.toString(),
@@ -356,7 +357,7 @@ AstStringLiteral::AstStringLiteral(const char *value, const Position &position)
   EX_ASSERT(value, "value is null");
 }
 
-AstType AstStringLiteral::type() const { return AstType::StringLiteral; }
+A_ty AstStringLiteral::type() const { return A_ty::StringLiteral; }
 
 std::string AstStringLiteral::toString() const {
   return fmt::format("[@AstStringLiteral {} value_:{}]", position_.toString(),
@@ -376,7 +377,7 @@ AstBooleanLiteral::AstBooleanLiteral(const bool &value,
                  position),
       value_(value) {}
 
-AstType AstBooleanLiteral::type() const { return AstType::BooleanLiteral; }
+A_ty AstBooleanLiteral::type() const { return A_ty::BooleanLiteral; }
 
 std::string AstBooleanLiteral::toString() const {
   return fmt::format("[@AstBooleanLiteral {} value_:{}]", position_.toString(),
@@ -403,7 +404,7 @@ AstCallExpression::~AstCallExpression() {
   argumentList_ = nullptr;
 }
 
-AstType AstCallExpression::type() const { return AstType::CallExpression; }
+A_ty AstCallExpression::type() const { return A_ty::CallExpression; }
 
 std::string AstCallExpression::toString() const {
   return fmt::format("[@AstCallExpression {} identifier_:{}, argumentList_:{}]",
@@ -432,7 +433,7 @@ AstUnaryExpression::~AstUnaryExpression() {
   expression_ = nullptr;
 }
 
-AstType AstUnaryExpression::type() const { return AstType::UnaryExpression; }
+A_ty AstUnaryExpression::type() const { return A_ty::UnaryExpression; }
 
 std::string AstUnaryExpression::toString() const {
   return fmt::format("[@AstUnaryExpression {} token_:{}, expression_:{}]",
@@ -464,7 +465,7 @@ AstBinaryExpression::~AstBinaryExpression() {
   right_ = nullptr;
 }
 
-AstType AstBinaryExpression::type() const { return AstType::BinaryExpression; }
+A_ty AstBinaryExpression::type() const { return A_ty::BinaryExpression; }
 
 std::string AstBinaryExpression::toString() const {
   return fmt::format("[@AstBinaryExpression {} left_:{}, token_:{}, right_:{}]",
@@ -500,8 +501,8 @@ AstConditionalExpression::~AstConditionalExpression() {
   elses_ = nullptr;
 }
 
-AstType AstConditionalExpression::type() const {
-  return AstType::ConditionalExpression;
+A_ty AstConditionalExpression::type() const {
+  return A_ty::ConditionalExpression;
 }
 
 std::string AstConditionalExpression::toString() const {
@@ -541,8 +542,8 @@ AstAssignmentExpression::~AstAssignmentExpression() {
   value_ = nullptr;
 }
 
-AstType AstAssignmentExpression::type() const {
-  return AstType::AssignmentExpression;
+A_ty AstAssignmentExpression::type() const {
+  return A_ty::AssignmentExpression;
 }
 
 std::string AstAssignmentExpression::toString() const {
@@ -572,7 +573,7 @@ AstSequelExpression::~AstSequelExpression() {
   expressionList_ = nullptr;
 }
 
-AstType AstSequelExpression::type() const { return AstType::SequelExpression; }
+A_ty AstSequelExpression::type() const { return A_ty::SequelExpression; }
 
 std::string AstSequelExpression::toString() const {
   return fmt::format("[@AstSequelExpression {} expressionList_:{}]",
@@ -586,7 +587,7 @@ AstExpressionList *AstSequelExpression::expressionList() const {
 AstVoidExpression::AstVoidExpression()
     : AstExpression(nameGen.generate("A_VoidExp")) {}
 
-AstType AstVoidExpression::type() const { return AstType::VoidExpression; }
+A_ty AstVoidExpression::type() const { return A_ty::VoidExpression; }
 
 std::string AstVoidExpression::toString() const {
   return fmt::format("[@AstVoidExpression]");
@@ -605,9 +606,7 @@ AstExpressionStatement::~AstExpressionStatement() {
   expression_ = nullptr;
 }
 
-AstType AstExpressionStatement::type() const {
-  return AstType::ExpressionStatement;
-}
+A_ty AstExpressionStatement::type() const { return A_ty::ExpressionStatement; }
 
 std::string AstExpressionStatement::toString() const {
   return fmt::format("[@AstExpressionStatement {} expression_:{}]",
@@ -636,9 +635,7 @@ AstCompoundStatement::~AstCompoundStatement() {
   statementList_ = nullptr;
 }
 
-AstType AstCompoundStatement::type() const {
-  return AstType::CompoundStatement;
-}
+A_ty AstCompoundStatement::type() const { return A_ty::CompoundStatement; }
 
 std::string AstCompoundStatement::toString() const {
   return fmt::format("[@AstCompoundStatement {} statementList_:{}]",
@@ -671,7 +668,7 @@ AstIfStatement::~AstIfStatement() {
   elses_ = nullptr;
 }
 
-AstType AstIfStatement::type() const { return AstType::IfStatement; }
+A_ty AstIfStatement::type() const { return A_ty::IfStatement; }
 
 std::string AstIfStatement::toString() const {
   return fmt::format("[@AstIfStatement {} condition_:{}, thens_:{}, elses_:{}]",
@@ -703,7 +700,7 @@ AstWhileStatement::~AstWhileStatement() {
   statement_ = nullptr;
 }
 
-AstType AstWhileStatement::type() const { return AstType::WhileStatement; }
+A_ty AstWhileStatement::type() const { return A_ty::WhileStatement; }
 
 std::string AstWhileStatement::toString() const {
   return fmt::format("[@AstWhileStatement {} condition_:{}, statement_:{}]",
@@ -741,7 +738,7 @@ AstForStatement::~AstForStatement() {
   statement_ = nullptr;
 }
 
-AstType AstForStatement::type() const { return AstType::ForStatement; }
+A_ty AstForStatement::type() const { return A_ty::ForStatement; }
 
 std::string AstForStatement::toString() const {
   return fmt::format(
@@ -764,9 +761,7 @@ AstContinueStatement::AstContinueStatement(
   position_.updatePosition(semiTokenPosition);
 }
 
-AstType AstContinueStatement::type() const {
-  return AstType::ContinueStatement;
-}
+A_ty AstContinueStatement::type() const { return A_ty::ContinueStatement; }
 
 std::string AstContinueStatement::toString() const {
   return fmt::format("[@AstContinueStatement {}]", position_.toString());
@@ -778,7 +773,7 @@ AstBreakStatement::AstBreakStatement(const Position &breakTokenPosition,
   position_.updatePosition(semiTokenPosition);
 }
 
-AstType AstBreakStatement::type() const { return AstType::BreakStatement; }
+A_ty AstBreakStatement::type() const { return A_ty::BreakStatement; }
 
 std::string AstBreakStatement::toString() const {
   return fmt::format("[@AstBreakStatement {}]", position_.toString());
@@ -799,7 +794,7 @@ AstReturnStatement::~AstReturnStatement() {
   expression_ = nullptr;
 }
 
-AstType AstReturnStatement::type() const { return AstType::ReturnStatement; }
+A_ty AstReturnStatement::type() const { return A_ty::ReturnStatement; }
 
 std::string AstReturnStatement::toString() const {
   return fmt::format("[@AstReturnStatement {} expression_:{}]",
@@ -814,7 +809,7 @@ AstEmptyStatement::AstEmptyStatement()
 AstEmptyStatement::AstEmptyStatement(const Position &semiTokenPosition)
     : AstStatement(nameGen.generate("A_EmpStm"), semiTokenPosition) {}
 
-AstType AstEmptyStatement::type() const { return AstType::EmptyStatement; }
+A_ty AstEmptyStatement::type() const { return A_ty::EmptyStatement; }
 
 std::string AstEmptyStatement::toString() const {
   return fmt::format("[@AstEmptyStatement {}]", position_.toString());
@@ -837,9 +832,7 @@ AstVariableDefinition::~AstVariableDefinition() {
   definitionList_ = nullptr;
 }
 
-AstType AstVariableDefinition::type() const {
-  return AstType::VariableDefinition;
-}
+A_ty AstVariableDefinition::type() const { return A_ty::VariableDefinition; }
 
 std::string AstVariableDefinition::toString() const {
   return fmt::format("[@AstVariableDefinition {} definitionList_:{}]",
@@ -851,12 +844,14 @@ AstDefinitionList *AstVariableDefinition::definitionList() const {
 }
 
 AstVariableInitialDefinition::AstVariableInitialDefinition(
-    const char *identifier, AstExpression *expression,
-    const Position &identifierPosition)
+    const char *identifier, AstIdentifier *typeId, AstExpression *expression,
+    const Position &identifierPosition, const Position &typePosition)
     : AstDefinition(nameGen.generate("A_VarAssDecl"), identifierPosition),
-      identifier_(identifier), expression_(expression) {
-  EX_ASSERT(identifier, "identifier is null");
-  EX_ASSERT(expression_, "expression_ is null");
+      identifier_(identifier), typeId_(typeId), expression_(expression) {
+  EX_ASSERT(identifier, "identifier must not null");
+  EX_ASSERT(typeId_, "typeId_ must not null");
+  EX_ASSERT(expression_, "expression_ must not null");
+  position_.updatePosition(typePosition);
   position_.updatePosition(expression_->position());
 }
 
@@ -865,8 +860,8 @@ AstVariableInitialDefinition::~AstVariableInitialDefinition() {
   expression_ = nullptr;
 }
 
-AstType AstVariableInitialDefinition::type() const {
-  return AstType::VariableInitialDefinition;
+A_ty AstVariableInitialDefinition::type() const {
+  return A_ty::VariableInitialDefinition;
 }
 
 std::string AstVariableInitialDefinition::toString() const {
@@ -878,6 +873,8 @@ std::string AstVariableInitialDefinition::toString() const {
 const std::string &AstVariableInitialDefinition::identifier() const {
   return identifier_;
 }
+
+AstIdentifier *AstVariableInitialDefinition::typeId() const { return typeId_; }
 
 AstExpression *AstVariableInitialDefinition::expression() const {
   return expression_;
@@ -901,9 +898,7 @@ AstFunctionDefinition::~AstFunctionDefinition() {
   statement_ = nullptr;
 }
 
-AstType AstFunctionDefinition::type() const {
-  return AstType::FunctionDefinition;
-}
+A_ty AstFunctionDefinition::type() const { return A_ty::FunctionDefinition; }
 
 std::string AstFunctionDefinition::toString() const {
   return fmt::format("[@AstFunctionDefinition {} signature_:{}, statement_:{}]",
@@ -952,8 +947,8 @@ AstExpression *AstFunctionSignatureDefinition::result() const {
   return result_;
 }
 
-AstType AstFunctionSignatureDefinition::type() const {
-  return AstType::FunctionSignatureDefinition;
+A_ty AstFunctionSignatureDefinition::type() const {
+  return A_ty::FunctionSignatureDefinition;
 }
 
 std::string AstFunctionSignatureDefinition::toString() const {
@@ -971,8 +966,8 @@ AstFunctionArgumentDefinition::AstFunctionArgumentDefinition(
   EX_ASSERT(identifier, "identifier is null");
 }
 
-AstType AstFunctionArgumentDefinition::type() const {
-  return AstType::FunctionArgumentDefinition;
+A_ty AstFunctionArgumentDefinition::type() const {
+  return A_ty::FunctionArgumentDefinition;
 }
 
 std::string AstFunctionArgumentDefinition::toString() const {

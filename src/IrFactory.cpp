@@ -13,47 +13,47 @@ IrExpression *IrFactory::expr(IrContext *context, Ast *node) {
   EX_ASSERT(context, "context is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::Identifier:
+  case A_ty::Identifier:
     return new IrIdentifier(context, DC(AstIdentifier, node));
-  case AstType::Float32Literal:
+  case A_ty::Float32Literal:
     return new IrFloat32Constant(context, DC(AstFloat32Literal, node));
-  case AstType::Float64Literal:
+  case A_ty::Float64Literal:
     return new IrFloat64Constant(context, DC(AstFloat64Literal, node));
-  case AstType::StringLiteral:
+  case A_ty::StringLiteral:
     return new IrStringConstant(context, DC(AstStringLiteral, node));
-  case AstType::Int8Literal:
+  case A_ty::Int8Literal:
     return new IrInt8Constant(context, DC(AstInt8Literal, node));
-  case AstType::UInt8Literal:
+  case A_ty::UInt8Literal:
     return new IrUInt8Constant(context, DC(AstUInt8Literal, node));
-  case AstType::Int16Literal:
+  case A_ty::Int16Literal:
     return new IrInt16Constant(context, DC(AstInt16Literal, node));
-  case AstType::UInt16Literal:
+  case A_ty::UInt16Literal:
     return new IrUInt16Constant(context, DC(AstUInt16Literal, node));
-  case AstType::Int32Literal:
+  case A_ty::Int32Literal:
     return new IrInt32Constant(context, DC(AstInt32Literal, node));
-  case AstType::UInt32Literal:
+  case A_ty::UInt32Literal:
     return new IrUInt32Constant(context, DC(AstUInt32Literal, node));
-  case AstType::Int64Literal:
+  case A_ty::Int64Literal:
     return new IrInt64Constant(context, DC(AstInt64Literal, node));
-  case AstType::UInt64Literal:
+  case A_ty::UInt64Literal:
     return new IrUInt64Constant(context, DC(AstUInt64Literal, node));
-  case AstType::BooleanLiteral:
+  case A_ty::BooleanLiteral:
     return new IrBooleanConstant(context, DC(AstBooleanLiteral, node));
-  case AstType::AssignmentExpression:
+  case A_ty::AssignmentExpression:
     return new IrAssignmentExpression(context,
                                       DC(AstAssignmentExpression, node));
-  case AstType::SequelExpression:
+  case A_ty::SequelExpression:
     return new IrSequelExpression(context, DC(AstSequelExpression, node));
-  case AstType::CallExpression:
+  case A_ty::CallExpression:
     return new IrCallExpression(context, DC(AstCallExpression, node));
-  case AstType::UnaryExpression:
+  case A_ty::UnaryExpression:
     return new IrUnaryExpression(context, DC(AstUnaryExpression, node));
-  case AstType::BinaryExpression:
+  case A_ty::BinaryExpression:
     return new IrBinaryExpression(context, DC(AstBinaryExpression, node));
-  case AstType::ConditionalExpression:
+  case A_ty::ConditionalExpression:
     return new IrConditionalExpression(context,
                                        DC(AstConditionalExpression, node));
-  case AstType::VoidExpression:
+  case A_ty::VoidExpression:
     return new IrVoidExpression(context, DC(AstVoidExpression, node));
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
@@ -66,29 +66,29 @@ IrStatement *IrFactory::stmt(IrContext *context, Ast *node) {
   EX_ASSERT(context, "context is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::ExpressionStatement:
+  case A_ty::ExpressionStatement:
     return new IrExpressionStatement(context, DC(AstExpressionStatement, node));
-  case AstType::CompoundStatement:
+  case A_ty::CompoundStatement:
     return new IrCompoundStatement(context, DC(AstCompoundStatement, node));
-  case AstType::IfStatement:
+  case A_ty::IfStatement:
     return new IrIfStatement(context, DC(AstIfStatement, node));
-  case AstType::WhileStatement:
+  case A_ty::WhileStatement:
     return new IrWhileStatement(context, DC(AstWhileStatement, node));
-  case AstType::ForStatement:
+  case A_ty::ForStatement:
     return new IrForStatement(context, DC(AstForStatement, node));
-  case AstType::ReturnStatement:
+  case A_ty::ReturnStatement:
     return new IrReturnStatement(context, DC(AstReturnStatement, node));
-  case AstType::VariableDefinition:
+  case A_ty::VariableDefinition:
     return new IrLocalVariableDefinition(context,
                                          DC(AstVariableDefinition, node));
-  case AstType::FunctionDefinition:
+  case A_ty::FunctionDefinition:
     return new IrFunctionDefinition(context, DC(AstFunctionDefinition, node));
-  case AstType::FunctionSignatureDefinition:
+  case A_ty::FunctionSignatureDefinition:
     return new IrFunctionSignatureDefinition(
         context, DC(AstFunctionSignatureDefinition, node));
-  case AstType::ContinueStatement:
-  case AstType::BreakStatement:
-  case AstType::EmptyStatement:
+  case A_ty::ContinueStatement:
+  case A_ty::BreakStatement:
+  case A_ty::EmptyStatement:
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
               dumpSource(context->sourceName, node->position()));
@@ -100,10 +100,10 @@ IrDefinition *IrFactory::unit(IrContext *context, Ast *node) {
   EX_ASSERT(context, "context is null");
   EX_ASSERT(node, "node is null");
   switch (node->type()) {
-  case AstType::VariableDefinition:
+  case A_ty::VariableDefinition:
     return new IrGlobalVariableDefinition(context,
                                           DC(AstVariableDefinition, node));
-  case AstType::FunctionDefinition:
+  case A_ty::FunctionDefinition:
     return new IrFunctionDefinition(context, DC(AstFunctionDefinition, node));
   default:
     EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
