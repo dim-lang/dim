@@ -61,12 +61,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %token <literal> T_PLAINID T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
 
-%type <expr> boolean_literal postfix_expr primary_expr unary_expr binary_expr
-%type <expr> conditional_expr assignment_expr constant_expr  sequel_expr
-%type <expr> expr
-%type <exprList> argument_expr_list sequel_expr_list
+%type <expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
+%type <expr> conditional_expression assignment_expression constant_expression  sequel_expression
+%type <expr> expression
+%type <exprList> argument_expression_list sequel_expression_list
 
-%type <stmt> compound_statement expr_statement iteration_statement jump_statement return_statement if_statement
+%type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
 %type <stmt> statement
 %type <stmtList> statement_list
 
@@ -134,94 +134,103 @@ string_literal : single_string_literal { $$ = $1; }
 
  /* expression { */
 
-primary_expr : id { $$ = $1; }
-             | boolean_literal { $$ = $1; }
-             | string_literal { $$ = $1; }
-             | T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
-             | T_FLOAT_LITERAL { $$ = new A_FloatLiteral($1, Y_POSITION(@1)); std::free($1); }
-             | T_LPAREN expr T_RPAREN { $$ = $2; }
-             ;
-
-postfix_expr : primary_expr { $$ = $1; }
-             /*| postfix_expr '[' expr ']'*/
-             | id T_LPAREN T_RPAREN { $$ = new A_CallExpression($1, new A_ExpressionList(), Y_POSITION(@1)); std::free($1); }
-             | id T_LPAREN argument_expr_list T_RPAREN { $$ = new A_CallExpression($1, $3, Y_POSITION(@1)); std::free($1); }
-             /*| postfix_expr '.' id */
-             ;
-
-argument_expr_list : assignment_expr { $$ = new A_ExpressionList(); $$->add($1); }
-                   | assignment_expr T_COMMA argument_expr_list { $3->add($1); $$ = $3; }
+primary_expression : id { $$ = $1; }
+                   | boolean_literal { $$ = $1; }
+                   | string_literal { $$ = $1; }
+                   | T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
+                   | T_FLOAT_LITERAL { $$ = new A_FloatLiteral($1, Y_POSITION(@1)); std::free($1); }
+                   | T_LPAREN expression T_RPAREN { $$ = $2; }
                    ;
 
-unary_expr : postfix_expr { $$ = $1; }
-           | T_SUB unary_expr { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
-           | T_BIT_NOT unary_expr { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
-           | T_LOGIC_NOT unary_expr { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
-           ;
+postfix_expression : primary_expression { $$ = $1; }
+                   /*| postfix_expression '[' expression ']'*/
+                   | id T_LPAREN T_RPAREN { $$ = new A_CallExpression($1, new A_ExpressionList(), Y_POSITION(@1)); std::free($1); }
+                   | id T_LPAREN argument_expression_list T_RPAREN { $$ = new A_CallExpression($1, $3, Y_POSITION(@1)); std::free($1); }
+                   /*| postfix_expression '.' id */
+                   ;
+
+argument_expression_list : assignment_expression { $$ = new A_ExpressionList(); $$->add($1); }
+                         | assignment_expression T_COMMA argument_expression_list { $3->add($1); $$ = $3; }
+                         ;
+
+unary_expression : postfix_expression { $$ = $1; }
+                 | T_SUB unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
+                 | T_BIT_NOT unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
+                 | T_LOGIC_NOT unary_expression { $$ = new AstUnaryExpression($1, $2, Y_POSITION(@1)); }
+                 ;
 
  /*
-cast_expr : unary_expr
-                | '(' type_name ')' cast_expr
+cast_expression : unary_expression
+                | '(' type_name ')' cast_expression
                 ;
  */
 
-binary_expr : unary_expr { $$ = $1; }
-            | binary_expr T_MUL unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_DIV unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_MOD unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_ADD unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_SUB unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_LSHIFT unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_RSHIFT unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_ARSHIFT unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_LT unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_LE unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_GT unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_GE unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_EQ unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_NEQ unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_AND unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_XOR unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_BIT_OR unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_LOGIC_AND unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            | binary_expr T_LOGIC_OR unary_expr { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-            ;
+binary_expression : unary_expression { $$ = $1; }
+                  | binary_expression T_MUL unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_DIV unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_MOD unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_ADD unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_SUB unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_LSHIFT unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_RSHIFT unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_ARSHIFT unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_LT unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_LE unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_GT unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_GE unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_EQ unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_NEQ unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_AND unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_XOR unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_BIT_OR unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_LOGIC_AND unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_LOGIC_OR unary_expression { $$ = new AstBinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  ;
 
-conditional_expr : binary_expr { $$ = $1; }
-                 /* | T_IF T_LPAREN binary_expr T_RPAREN expr T_ELSE conditional_expr { $$ = new AstConditionalExpression($2, $4, $6); } */
-                 | binary_expr T_QUESTION expr T_COLON conditional_expr { $$ = new AstConditionalExpression($1, $3, $5); }
-                 ;
+conditional_expression : binary_expression { $$ = $1; }
+                       /* | T_IF T_LPAREN binary_expression T_RPAREN expression T_ELSE conditional_expression { $$ = new AstConditionalExpression($2, $4, $6); } */
+                       | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new AstConditionalExpression($1, $3, $5); }
+                       ;
 
-assignment_expr : conditional_expr { $$ = $1; }
-                | unary_expr T_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_MUL_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_DIV_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_MOD_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_ADD_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_SUB_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_AND_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_OR_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_XOR_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_LSHIFT_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_RSHIFT_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                | unary_expr T_BIT_ARSHIFT_ASSIGN assignment_expr { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                ;
+assignment_expression : conditional_expression { $$ = $1; }
+                      | unary_expression T_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_DIV_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_MOD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_ADD_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_SUB_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new AstAssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      ;
 
-sequel_expr_list : assignment_expr { $$ = new A_ExpressionList(); $$->add($1); }
-                 | assignment_expr T_COMMA sequel_expr_list { $3->add($1); $$ = $3; }
-                 ;
+sequel_expression_list : assignment_expression { $$ = new A_ExpressionList(); $$->add($1); }
+                       | assignment_expression T_COMMA sequel_expression_list { $3->add($1); $$ = $3; }
+                       ;
 
-sequel_expr : sequel_expr_list { $$ = new AstSequelExpression($1); }
-            ;
+sequel_expression : sequel_expression_list { $$ = new AstSequelExpression($1); }
+                  ;
 
-expr : sequel_expr { $$ = $1; }
-     | /* empty void expr */ { $$ = new AstVoidExpression(); }
-     ;
+expression : sequel_expression { $$ = $1; }
+           | /* empty void expression */ { $$ = new AstVoidExpression(); }
+           ;
 
-constant_expr : conditional_expr { $$ = $1; }
-              ;
+constant_expression : conditional_expression { $$ = $1; }
+                    ;
 
  /* expression } */
+
+ /* statement { */
+
+block_stmt : expression
+           | definition
+           /* import */
+           ;
+
+ /* statement } */
 
  /* part-2 definition */
 
@@ -246,7 +255,7 @@ import_module_list : T_IDENTIFIER
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
 variable_definition : T_VAR T_IDENTIFIER T_SEMI { $$ = new AstVariableDefinition($2, Y_POSITION(@1), Y_POSITION(@3)); std::free($2); }
-                    | T_VAR T_IDENTIFIER T_ASSIGN constant_expr T_SEMI { $$ = new AstVariableDefinition($2, ); std::free($2); }
+                    | T_VAR T_IDENTIFIER T_ASSIGN constant_expression T_SEMI { $$ = new AstVariableDefinition($2, ); std::free($2); }
                     ;
 
  /**
@@ -259,7 +268,7 @@ variable_definition : T_VAR T_IDENTIFIER T_SEMI { $$ = new AstVariableDefinition
   * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
   */
 function_definition : function_signature_definition compound_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2); }
-                    | function_signature_definition T_RIGHT_ARROW expr_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
+                    | function_signature_definition T_RIGHT_ARROW expression_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
                     ;
 
 function_signature_definition : T_DEF T_IDENTIFIER T_LPAREN function_argument_definition_list T_RPAREN {
@@ -290,7 +299,7 @@ statement_list : statement { $$ = new AstStatementList(); $$->add($1); }
 
 statement : if_statement { $$ = $1; }
           | compound_statement { $$ = $1; }
-          | expr_statement { $$ = $1; }
+          | expression_statement { $$ = $1; }
           | iteration_statement { $$ = $1; }
           | jump_statement { $$ = $1; }
           | return_statement { $$ = $1; }
@@ -301,39 +310,39 @@ statement : if_statement { $$ = $1; }
           | definition { $$ = $1; }
           ;
 
-if_statement : T_IF T_LPAREN expr T_RPAREN statement                          %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
-             | T_IF T_LPAREN expr T_RPAREN statement T_ELSE statement         { $$ = new AstIfStatement($3, $5, $7, Y_POSITION(@1)); }
+if_statement : T_IF T_LPAREN expression T_RPAREN statement                          %prec "lower_than_else" { $$ = new AstIfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
+             | T_IF T_LPAREN expression T_RPAREN statement T_ELSE statement         { $$ = new AstIfStatement($3, $5, $7, Y_POSITION(@1)); }
              ;
 
  /*
 
-switch_statement : T_SWITCH T_LPAREN assignment_expr T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
+switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
                  ;
 
-switch_body_statement : T_BIT_OR constant_expr T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+switch_body_statement : T_BIT_OR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
                       | T_BIT_OR T_UNDERLINE T_COLON statement_list {}
                       ;
 
-match_statement : T_MATCH T_LPAREN argument_expr_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
+match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
                 ;
 
-match_body_statement : T_BIT_OR assignment_expr T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
+match_body_statement : T_BIT_OR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
                      | T_BIT_OR T_UNDERLINE T_COLON statement {}
                      ;
  */
 
-expr_statement : expr T_SEMI { $$ = new AstExpressionStatement($1, Y_POSITION(@2)); }
+expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1, Y_POSITION(@2)); }
                      ;
 
-iteration_statement : T_WHILE T_LPAREN sequel_expr T_RPAREN statement { $$ = new AstWhileStatement($3, $5, Y_POSITION(@1)); }
-                    | T_FOR T_LPAREN expr_statement expr_statement expr T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7, Y_POSITION(@1)); }
+iteration_statement : T_WHILE T_LPAREN sequel_expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5, Y_POSITION(@1)); }
+                    | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7, Y_POSITION(@1)); }
                     ;
 
 jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@1), Y_POSITION(@2)); }
                | T_BREAK T_SEMI { $$ = new AstBreakStatement(Y_POSITION(@1), Y_POSITION(@2)); }
                ;
 
-return_statement : T_RETURN expr T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
+return_statement : T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
                  ;
 
 translation_unit : definition {
