@@ -804,15 +804,6 @@ AstDefinition::AstDefinition(const std::string &name) : AstStatement(name) {}
 AstDefinition::AstDefinition(const std::string &name, const Position &position)
     : AstStatement(name, position) {}
 
-A_ExpressionList::A_ExpressionList()
-    : detail::AstList<AstExpression>(nameGen.generate("A_ExpList")) {}
-
-std::string A_ExpressionList::stringify() const { return "A_ExpressionList"; }
-
-AstCategory A_ExpressionList::category() const {
-  return AstCategory::ExpressionList;
-}
-
 AstStatementList::AstStatementList()
     : detail::AstList<AstStatement>(nameGen.generate("A_StmList")) {}
 
