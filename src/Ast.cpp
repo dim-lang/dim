@@ -741,37 +741,6 @@ const AstExpression *A_AssignmentExpression::right() const { return right_; }
 
 // A_AssigmentExpression }
 
-// A_SequelExpression {
-
-A_SequelExpression::A_SequelExpression(const A_ExpressionList *expressionList)
-    : AstExpression(nameGen.generate("A_SequelExpression")),
-      expressionList_(expressionList) {
-  EX_ASSERT(expressionList_, "expressionList_ must not null");
-  for (int i = 0; i < expressionList_->size(); i++) {
-    locate(expressionList_->get(i)->position());
-  }
-}
-
-A_SequelExpression::~A_SequelExpression() {
-  delete expressionList_;
-  expressionList_ = nullptr;
-}
-
-AstCategory A_SequelExpression::category() const {
-  return AstCategory::SequelExpression;
-}
-
-std::string A_SequelExpression::toString() const {
-  return fmt::format("[@{} position:{} expressionList:{}]", name(),
-                     position().toString(), expressionList_->toString());
-}
-
-const A_ExpressionList *A_SequelExpression::expressionList() const {
-  return expressionList_;
-}
-
-// A_SequelExpression }
-
 // A_VoidExpression {
 
 A_VoidExpression::A_VoidExpression()
@@ -888,9 +857,9 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *thens,
-                               AstStatement *elses,
-                               const Position &ifTokenPosition)
+A_IfStatement::A_IfStatement(AstExpression *condition, AstStatement *thens,
+                             AstStatement *elses,
+                             const Position &ifTokenPosition)
     : AstStatement(nameGen.generate("A_If"), ifTokenPosition),
       condition_(condition), thens_(thens), elses_(elses) {
   EX_ASSERT(condition_, "condition_ is null");
@@ -901,7 +870,7 @@ AstIfStatement::AstIfStatement(AstExpression *condition, AstStatement *thens,
   position_.updatePosition(elses_->position());
 }
 
-AstIfStatement::~AstIfStatement() {
+A_IfStatement::~A_IfStatement() {
   delete condition_;
   condition_ = nullptr;
   delete thens_;
@@ -910,21 +879,19 @@ AstIfStatement::~AstIfStatement() {
   elses_ = nullptr;
 }
 
-AstCategory AstIfStatement::category() const {
-  return AstCategory::IfStatement;
-}
+AstCategory A_IfStatement::category() const { return AstCategory::IfStatement; }
 
-std::string AstIfStatement::toString() const {
-  return fmt::format("[@AstIfStatement {} condition_:{}, thens_:{}, elses_:{}]",
+std::string A_IfStatement::toString() const {
+  return fmt::format("[@A_IfStatement {} condition_:{}, thens_:{}, elses_:{}]",
                      position_.toString(), condition_->toString(),
                      thens_->toString(), elses_->toString());
 }
 
-AstExpression *AstIfStatement::condition() const { return condition_; }
+AstExpression *A_IfStatement::condition() const { return condition_; }
 
-AstStatement *AstIfStatement::thens() const { return thens_; }
+AstStatement *A_IfStatement::thens() const { return thens_; }
 
-AstStatement *AstIfStatement::elses() const { return elses_; }
+AstStatement *A_IfStatement::elses() const { return elses_; }
 
 AstWhileStatement::AstWhileStatement(AstExpression *condition,
                                      AstStatement *statement,

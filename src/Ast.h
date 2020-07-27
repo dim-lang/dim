@@ -63,7 +63,6 @@ class AstLiteral;
 class A_IntegerLiteral;
 class A_FloatLiteral;
 class AstStringLiteral;
-class A_SingleStringSingleLiteral;
 class A_SingleStringLiteral;
 class A_MultiStringLiteral;
 class A_CharLiteral;
@@ -76,7 +75,6 @@ class A_UnaryExpression;
 class A_BinaryExpression;
 class A_ConditionalExpression;
 class A_AssignmentExpression;
-class A_SequelExpression;
 class A_VoidExpression;
 
 /* statement */
@@ -92,7 +90,7 @@ class AstTranslateUnit;
 /* statement */
 class AstExpressionStatement;
 class AstCompoundStatement;
-class AstIfStatement;
+class A_IfStatement;
 class AstWhileStatement;
 class AstForStatement;
 class AstContinueStatement;
@@ -537,18 +535,6 @@ private:
   const AstExpression *right_;
 };
 
-class A_SequelExpression : public AstExpression {
-public:
-  A_SequelExpression(const A_ExpressionList *expressionList);
-  virtual ~A_SequelExpression();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual const A_ExpressionList *expressionList() const;
-
-private:
-  const A_ExpressionList *expressionList_;
-};
-
 class A_VoidExpression : public AstExpression {
 public:
   A_VoidExpression();
@@ -677,11 +663,11 @@ private:
 };
 
 /* selection statement - if else */
-class AstIfStatement : public AstStatement {
+class A_IfStatement : public AstStatement {
 public:
-  AstIfStatement(AstExpression *condition, AstStatement *thens,
-                 AstStatement *elses, const Position &ifTokenPosition);
-  virtual ~AstIfStatement();
+  A_IfStatement(AstExpression *condition, AstStatement *thens,
+                AstStatement *elses, const Position &ifTokenPosition);
+  virtual ~A_IfStatement();
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
