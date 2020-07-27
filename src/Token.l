@@ -11,8 +11,8 @@ INT (0|[1-9][0-9]*)
 EXP ([eE][-+]?[0-9]+)
 HEX ([0-9a-fA-F])
 HEXEXP ([pP][-+]?[0-9]+)
-FS (d|D)
-IS ((u|U)|(u|U)?(l|L))
+FS ((l|L)?(d|D))
+IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
 %{
 #include "Ast.h"
@@ -67,8 +67,8 @@ IS ((u|U)|(u|U)?(l|L))
 "catch"      { return T_INTEGER_TOKEN(T_CATCH); }
 "var"        { return T_INTEGER_TOKEN(T_VAR); }
 "val"        { return T_INTEGER_TOKEN(T_VAL); }
- /* "nil"        { return T_INTEGER_TOKEN(T_NIL); } */
-"null"       { return T_INTEGER_TOKEN(T_NULL); }
+"nil"        { return T_INTEGER_TOKEN(T_NIL); }
+ /* "null"       { return T_INTEGER_TOKEN(T_NULL); } */
 "new"        { return T_INTEGER_TOKEN(T_NEW); }
 "delete"     { return T_INTEGER_TOKEN(T_DELETE); }
 "def"        { return T_INTEGER_TOKEN(T_DEF); }
@@ -90,6 +90,8 @@ IS ((u|U)|(u|U)?(l|L))
  /* "func"       { return T_INTEGER_TOKEN(T_FUNC); } */
 "class"      { return T_INTEGER_TOKEN(T_CLASS); }
 "type"       { return T_INTEGER_TOKEN(T_TYPE); }
+"this"       { return T_INTEGER_TOKEN(T_THIS); }
+"super"      { return T_INTEGER_TOKEN(T_SUPER); }
 "isinstanceof"  { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
 "isa"        { return T_INTEGER_TOKEN(T_ISA); }
 "is"         { return T_INTEGER_TOKEN(T_IS); }
@@ -177,17 +179,17 @@ IS ((u|U)|(u|U)?(l|L))
 "=>"   { return T_INTEGER_TOKEN(T_RIGHT_ARROW); }
 
  /* integer constants */
- /* decimal integer: 102813(u|U|l|L|ul|UL) */
+ /* decimal integer: 102813(u|U|l|L|ul|UL|ull|ULL) */
 {INT}{IS}?                              { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
- /* heximal integer: 0x03ff(u|U|l|L|ul|UL) */
+ /* heximal integer: 0x03ff(u|U|l|L|ul|UL|ull|ULL) */
 0[xX]{HEX}+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
- /* octal integer: 0o27121(u|U|l|L|ul|UL) */
+ /* octal integer: 0o27121(u|U|l|L|ul|UL|ull|ULL) */
 0[oO][0-7]+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
- /* binary integer: 0b10011(u|U|l|L|ul|UL) */
+ /* binary integer: 0b10011(u|U|l|L|ul|UL|ull|ULL) */
 0[bB][01]+{IS}?                         { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
  /* floating constants */
- /* floating number: 92.312(d|D), 92.312e-10(d|D), 102e+91(d|D) */
+ /* floating number: 92.312(d|D), 92.312e-10(d|D), 102e+91(d|D) 10e+7(ld|LD) */
 {INT}"."[0-9]+{EXP}?{FS}?               { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 {INT}{EXP}{FS}?                         { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
  /* floating hexcimal number: 0x1fa9p+7D, 0x2f.3abfp-3D */
@@ -195,7 +197,7 @@ IS ((u|U)|(u|U)?(l|L))
 0[xX]({HEX}+"."{HEX}+){HEXEXP}?{FS}?    { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN_X(3, 3); return T_STRING_LITERAL; }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN_X(3, 3); return T_MULTI_STRING_LITERAL; }
  /* empty string */
 \"\"                                    { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
  /* one line string literal */
@@ -204,7 +206,7 @@ IS ((u|U)|(u|U)?(l|L))
 \'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN_X(1, 1); return T_CHAR_LITERAL; }
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_PLAINID; }
  /* whitespace */
 [ \t\n\v\f\r]                           { /* skip whitespace */ }
 

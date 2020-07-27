@@ -8,152 +8,582 @@
 #include "TokenName.h"
 #include <algorithm>
 #include <string>
+#include <tuple>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 static NameGenerator nameGen("", "_", "@");
 
+static bool stringStartsWith(const std::string &s,
+                             const std::vector<std::string> &prefixList) {
+  return std::all_of(
+      prefixList.begin(), prefixList.end(), [&](const std::string &prefix) {
+        return s.length() >= prefix.length() && s.find(prefix) == 0;
+      });
+}
+
+static bool stringStartsWith(const std::string &s,
+                             const std::vector<char> &prefixList) {
+  return std::all_of(prefixList.begin(), prefixList.end(),
+                     [&](const char &prefix) {
+                       return s.length() >= 1 && s.find(prefix) == 0;
+                     });
+}
+
+static bool stringEndsWith(const std::string &s,
+                           const std::vector<std::string> &postfixList) {
+  return std::all_of(
+      postfixList.begin(), postfixList.end(), [&](const std::string &postfix) {
+        return s.length() >= postfix.length() && s.find(postfix) == 0;
+      });
+}
+
+static bool stringEndsWith(const std::string &s,
+                           const std::vector<char> &postfixList) {
+  return std::all_of(postfixList.begin(), postfixList.end(),
+                     [&](const char &postfix) {
+                       return s.length() >= 1 && s.find(postfix) == 0;
+                     });
+}
+
+// { Ast
+
 Ast::Ast(const std::string &name) : name_(name) {}
 
-Ast::Ast(const std::string &name, const Position &position)
-    : position_(position), name_(name) {}
-
-std::string Ast::name() const { return name_; }
+const std::string &Ast::name() const { return name_; }
 
 const Position &Ast::position() const { return position_; }
 
-bool Ast::isConstant(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::Int8Literal:
-  case A_ty::UInt8Literal:
-  case A_ty::Int16Literal:
-  case A_ty::UInt16Literal:
-  case A_ty::Int32Literal:
-  case A_ty::UInt32Literal:
-  case A_ty::Int64Literal:
-  case A_ty::UInt64Literal:
-  case A_ty::Float32Literal:
-  case A_ty::Float64Literal:
-  case A_ty::Identifier:
-  case A_ty::StringLiteral:
-  case A_ty::BooleanLiteral:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+void Ast::collect(const Position &position) {
+  position_.updatePosition(position);
 }
 
-bool Ast::isExpression(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::CallExpression:
-  case A_ty::UnaryExpression:
-  case A_ty::BinaryExpression:
-  case A_ty::ConditionalExpression:
-  case A_ty::AssignmentExpression:
-  case A_ty::SequelExpression:
-  case A_ty::VoidExpression:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+void Ast::collect(const Ast *node) { collect(node->position()); }
+
+// }
+
+// id {
+
+// AstId {
+
+AstId::AstId(const std::string &name) : Ast(name) {}
+
+// AstId }
+
+// A_PlainId {
+
+A_PlainId::A_PlainId(const std::string &literal, const Position &position)
+    : AstId(nameGen.generateWith(literal, "A_PlainId")), literal_(literal) {
+  collect(position);
 }
 
-bool Ast::isStatement(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::ExpressionStatement:
-  case A_ty::CompoundStatement:
-  case A_ty::IfStatement:
-  case A_ty::WhileStatement:
-  case A_ty::ForStatement:
-  case A_ty::ContinueStatement:
-  case A_ty::BreakStatement:
-  case A_ty::ReturnStatement:
-  case A_ty::EmptyStatement:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+AstCategory A_PlainId::category() const { return AstCategory::PlainId; }
+
+std::string A_PlainId::toString() const {
+  return fmt::format("[@A_PlainId position:{}, name:{}, literal:{}]",
+                     position().toString(), name(), literal_);
 }
 
-bool Ast::isDefinition(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::VariableDefinition:
-  case A_ty::VariableInitialDefinition:
-  case A_ty::FunctionDefinition:
-  case A_ty::FunctionSignatureDefinition:
-  case A_ty::FunctionArgumentDefinition:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+const std::string &A_PlainId::literal() const { return literal_; }
+
+// A_PlainId }
+
+// A_StableId {
+
+/* A_StableId::A_StableId(const std::string &literal, const Position &position)
+ */
+/*     : AstId(nameGen.generateWith(literal, "A_StableId")), literal_(literal) {
+ */
+/*   collect(position); */
+/* } */
+
+/* AstCategory A_StableId::category() const { return AstCategory::StableId; } */
+
+/* std::string A_StableId::toString() const { */
+/*   return fmt::format("[@A_StableId position:{}, name:{}, literal:{}]", */
+/*                      position().toString(), name(), literal_); */
+/* } */
+
+/* const std::string &A_StableId::literal() const { return literal_; } */
+
+/* const A_StableId *A_StableId::get(int token, const Position &position) { */
+/*   switch (token) { */
+/*   case T_INT8: */
+/*   case T_UINT8: */
+/*   case T_INT16: */
+/*   case T_UINT16: */
+/*   case T_INT32: */
+/*   case T_UINT32: */
+/*   case T_INT64: */
+/*   case T_UINT64: */
+/*   case T_INT128: */
+/*   case T_UINT128: */
+/*   case T_FLOAT32: */
+/*   case T_FLOAT64: */
+/*   case T_NAN: */
+/*   case T_INF: */
+/*   case T_BOOLEAN: */
+/*   case T_NIL: */
+/*   case T_VOID: */
+/*     return new A_StableId(tokenName(token), position); */
+/*   default: */
+/*     EX_ASSERT(false, "invalid token:{}, tokenName:{}", token,
+ * tokenName(token)); */
+/*     break; */
+/*   } */
+/*   return nullptr; */
+/* } */
+
+// A_StableId }
+
+// id }
+
+// type {
+
+// AstType {
+
+AstType::AstType(const std::string &name) : Ast(name) {}
+
+// AstType }
+
+// A_FunctionType {
+
+A_FunctionType::A_FunctionType(const std::string &name) : AstType(name) {}
+
+// A_FunctionType }
+
+// A_PrimitiveType {
+
+A_PrimitiveType::A_PrimitiveType(const std::string &literal,
+                                 const Position &position)
+    : AstType(nameGen.generateWith(literal, "A_PrimitiveType")),
+      literal_(literal) {
+  collect(position);
 }
 
-bool Ast::isFloatConstant(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::Float32Literal:
-  case A_ty::Float64Literal:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+AstCategory A_PrimitiveType::category() const {
+  return AstCategory::PrimitiveType;
 }
 
-bool Ast::isIntegerConstant(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::Int8Literal:
-  case A_ty::UInt8Literal:
-  case A_ty::Int16Literal:
-  case A_ty::UInt16Literal:
-  case A_ty::Int32Literal:
-  case A_ty::UInt32Literal:
-  case A_ty::Int64Literal:
-  case A_ty::UInt64Literal:
-    return true;
-  default:
-    return false;
-  }
-  return false;
+std::string A_PrimitiveType::toString() const {
+  return fmt::format("[@A_PrimitiveType position:{}, name:{}, literal:{}]",
+                     position().toString(), name(), literal_);
 }
 
-bool Ast::isSignedIntegerConstant(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::Int8Literal:
-  case A_ty::Int16Literal:
-  case A_ty::Int32Literal:
-  case A_ty::Int64Literal:
-    return true;
+const std::string &A_PrimitiveType::literal() const { return literal_; }
+
+const A_PrimitiveType *A_PrimitiveType::get(int token,
+                                            const Position &position) {
+  switch (token) {
+  case T_INT8:
+  case T_UINT8:
+  case T_INT16:
+  case T_UINT16:
+  case T_INT32:
+  case T_UINT32:
+  case T_INT64:
+  case T_UINT64:
+  case T_FLOAT32:
+  case T_FLOAT64:
+  case T_BOOLEAN:
+    return new A_PrimitiveType(tokenName(token), position);
   default:
-    return false;
+    EX_ASSERT(false, "invalid token:{} {}", tokenName(token), token);
+    break;
   }
-  return false;
+  return nullptr;
 }
 
-bool Ast::isUnsignedIntegerConstant(const Ast *node) {
-  EX_ASSERT(node, "node is null");
-  switch (node->type()) {
-  case A_ty::UInt8Literal:
-  case A_ty::UInt16Literal:
-  case A_ty::UInt32Literal:
-  case A_ty::UInt64Literal:
-    return true;
-  default:
-    return false;
-  }
-  return false;
-}
+// A_PrimitiveType }
+
+// type }
+
+// expression {
 
 AstExpression::AstExpression(const std::string &name) : Ast(name) {}
+
+// literal {
+
+AstLiteral::AstLiteral(const std::string &name) : AstExpression(name) {}
+
+// A_IntegerLiteral {
+
+static const std::unordered_map<A_IntegerLiteral::DecimalCategory, std::string>
+    AIL_DC_Map = {
+        {A_IntegerLiteral::DecimalCategory::DEC, "DEC"},
+        {A_IntegerLiteral::DecimalCategory::HEX, "HEX"},
+        {A_IntegerLiteral::DecimalCategory::BIN, "BIN"},
+        {A_IntegerLiteral::DecimalCategory::OCT, "OCT"},
+};
+
+static const std::unordered_map<A_IntegerLiteral::BitCategory, std::string>
+    AIL_BC_Map = {
+        {A_IntegerLiteral::BitCategory::SIGNED, "SIGNED"},
+        {A_IntegerLiteral::BitCategory::UNSIGNED, "UNSIGNED"},
+        {A_IntegerLiteral::BitCategory::LONG, "LONG"},
+        {A_IntegerLiteral::BitCategory::ULONG, "ULONG"},
+};
+
+A_IntegerLiteral::A_IntegerLiteral(const std::string &literal,
+                                   const Position &position)
+    : AstLiteral(nameGen.generateWith(literal, "A_IntegerLiteral")),
+      literal_(literal), parsed_(literal), bits_(32), base_(10),
+      decimalCategory_(A_IntegerLiteral::DecimalCategory::DEC),
+      bitCategory_(A_IntegerLiteral::BitCategory::SIGNED) {
+  EX_ASSERT(literal_.length() > 0, "literal.length {} > 0", literal_.length());
+
+  // position
+  collect(position);
+
+  int startPosition = 0;
+  if (stringStartsWith(literal_, std::vector<std::string>{"0x", "0X", "0o",
+                                                          "0O", "0b", "0B"})) {
+    switch (literal_[1]) {
+    case 'x':
+    case 'X':
+      decimalCategory_ = A_IntegerLiteral::DecimalCategory::HEX;
+      base_ = 16;
+      startPosition = 2;
+      break;
+    case 'o':
+    case 'O':
+      decimalCategory_ = A_IntegerLiteral::DecimalCategory::OCT;
+      base_ = 8;
+      startPosition = 2;
+      break;
+    case 'b':
+    case 'B':
+      decimalCategory_ = A_IntegerLiteral::DecimalCategory::BIN;
+      base_ = 2;
+      startPosition = 2;
+      break;
+    default:
+      break;
+    }
+  }
+
+  int endPosition = (int)literal_.length();
+  if (stringEndsWith(literal_, std::vector<std::string>{"ul", "UL"})) {
+    bitCategory_ = A_IntegerLiteral::BitCategory::ULONG;
+    bits_ = 64;
+    endPosition = (int)literal_.length() - 2;
+  } else if (stringEndsWith(literal_, std::vector<char>{'l', 'L'})) {
+    bitCategory_ = A_IntegerLiteral::BitCategory::LONG;
+    bits_ = 64;
+    endPosition = (int)literal_.length() - 1;
+  } else if (stringEndsWith(literal_, std::vector<char>{'u', 'U'})) {
+    bitCategory_ = A_IntegerLiteral::BitCategory::UNSIGNED;
+    bits_ = 32;
+    endPosition = (int)literal_.length() - 1;
+  }
+
+  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+}
+
+AstCategory A_IntegerLiteral::category() const {
+  return AstCategory::IntegerLiteral;
+}
+
+std::string A_IntegerLiteral::toString() const {
+  return fmt::format("[@A_IntegerLiteral position:{}, literal:{}, parsed:{}, "
+                     "decimalCategory:{}, bitCategory:{}]",
+                     position().toString(), literal_, parsed_,
+                     AIL_DC_Map.find(decimalCategory_)->second,
+                     AIL_BC_Map.find(bitCategory_)->second);
+}
+
+const std::string &A_IntegerLiteral::parsed() const { return parsed_; }
+
+int A_IntegerLiteral::bits() const { return bits_; }
+
+int A_IntegerLiteral::base() const { return base_; }
+
+A_IntegerLiteral::DecimalCategory A_IntegerLiteral::decimalCategory() const {
+  return decimalCategory_;
+}
+
+A_IntegerLiteral::BitCategory A_IntegerLiteral::bitCategory() const {
+  return bitCategory_;
+}
+
+const std::string &A_IntegerLiteral::literal() const { return literal_; }
+
+int32_t A_IntegerLiteral::toInt32() const {
+  return static_cast<int32_t>(std::stol(parsed_, nullptr, base_));
+}
+
+uint32_t A_IntegerLiteral::toUInt32() const {
+  return static_cast<uint32_t>(std::stoul(parsed_, nullptr, base_));
+}
+
+int64_t A_IntegerLiteral::toInt64() const {
+  return static_cast<int64_t>(std::stoll(parsed_, nullptr, base_));
+}
+
+uint64_t A_IntegerLiteral::toUInt64() const {
+  return static_cast<uint64_t>(std::stoull(parsed_, nullptr, base_));
+}
+
+// A_IntegerLiteral }
+
+// A_FloatLiteral {
+
+const static std::unordered_map<A_FloatLiteral::DecimalCategory, std::string>
+    AFL_DC_Map = {
+        {A_FloatLiteral::DecimalCategory::DEC, "DEC"},
+        {A_FloatLiteral::DecimalCategory::HEX, "HEX"},
+};
+
+const static std::unordered_map<A_FloatLiteral::BitCategory, std::string>
+    AFL_BC_Map = {
+        {A_FloatLiteral::BitCategory::FLT, "FLT"},
+        {A_FloatLiteral::BitCategory::DBL, "DBL"},
+};
+
+A_FloatLiteral::A_FloatLiteral(const std::string &literal,
+                               const Position &position)
+    : AstLiteral(nameGen.generateWith(literal, "A_FloatLiteral")),
+      literal_(literal), parsed_(literal), bits_(32), base_(10),
+      decimalCategory_(A_FloatLiteral::DecimalCategory::DEC),
+      bitCategory_(A_FloatLiteral::BitCategory::FLT) {
+  EX_ASSERT(literal_.length() > 0, "literal_.length {} > 0", literal_.length());
+
+  collect(position);
+
+  int startPosition = 0;
+  if (stringStartsWith(literal_, std::vector<std::string>{"0x", "0X"})) {
+    switch (literal_[1]) {
+    case 'x':
+    case 'X':
+      decimalCategory_ = A_FloatLiteral::DecimalCategory::HEX;
+      base_ = 16;
+      startPosition = 2;
+      break;
+    default:
+      break;
+    }
+  }
+
+  int endPosition = (int)literal_.length();
+  if (stringEndsWith(literal_, std::vector<std::string>{"d", "D"})) {
+    bitCategory_ = A_FloatLiteral::BitCategory::DBL;
+    bits_ = 64;
+    endPosition = (int)literal_.length() - 1;
+  }
+
+  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+
+  size_t dot = parsed_.find('.');
+  EX_ASSERT(dot >= 0 && dot < parsed_.length(),
+            "0 <= dot {} < parsed_.length {}", dot, parsed_.length());
+  std::string dotLeftLiteral = parsed_.substr(0, dot);
+  std::string dotRightLiteral =
+      parsed_.substr(dot + 1, parsed_.length() - dot - 1);
+  uint64_t dotLeftDecimal = std::stoull(dotLeftLiteral, nullptr, base_);
+  uint64_t dotRightDecimal = std::stoull(dotRightLiteral, nullptr, base_);
+  parsed_ =
+      std::to_string(dotLeftDecimal) + "." + std::to_string(dotRightDecimal);
+}
+
+AstCategory A_FloatLiteral::category() const {
+  return AstCategory::FloatLiteral;
+}
+
+std::string A_FloatLiteral::toString() const {
+  return fmt::format("[@A_FloatLiteral position:{}, literal:{}, parsed:{} "
+                     "decimalCategory:{}, bitCategory:{}]",
+                     position().toString(), literal_, parsed_,
+                     AFL_DC_Map.find(decimalCategory_)->second,
+                     AFL_BC_Map.find(bitCategory_)->second);
+}
+
+const std::string &A_FloatLiteral::parsed() const { return parsed_; }
+
+int A_FloatLiteral::bits() const { return bits_; }
+
+int A_FloatLiteral::base() const { return base_; }
+
+A_FloatLiteral::DecimalCategory A_FloatLiteral::decimalCategory() const {
+  return decimalCategory_;
+}
+
+A_FloatLiteral::BitCategory A_FloatLiteral::bitCategory() const {
+  return bitCategory_;
+}
+
+const std::string &A_FloatLiteral::literal() const { return literal_; }
+
+float A_FloatLiteral::toFloat() const { return std::stof(parsed_); }
+
+double A_FloatLiteral::toDouble() const { return std::stod(parsed_); }
+
+// A_FloatLiteral }
+
+// A_StringLiteral {
+
+const static std::unordered_map<A_StringLiteral::QuoteCategory, std::string>
+    ASL_QC_Map = {
+        {A_StringLiteral::QuoteCategory::SINGLE, "SINGLE"},
+        {A_StringLiteral::QuoteCategory::TRIPLE, "TRIPLE"},
+};
+
+A_StringLiteral::A_StringLiteral(const std::string &literal,
+                                 const Position &position)
+    : AstLiteral(nameGen.generateWith(literal, "A_StringLiteral")), literals_(),
+      parsed_(literal), quoteCategory_(A_StringLiteral::QuoteCategory::SINGLE) {
+  EX_ASSERT(literal.length() >= 2, "literal.length {} >= 2", literal.length());
+
+  collect(position);
+
+  if (stringStartsWith(literal, std::vector<std::string>{"\"\"\""}) &&
+      stringEndsWith(literal, std::vector<std::string>{"\"\"\""})) {
+    quoteCategory_ = A_StringLiteral::QuoteCategory::TRIPLE;
+    parsed_ = literal.substr(3, literal.length() - 6);
+  } else {
+    parsed_ = literal.substr(1, literal.length() - 2);
+  }
+  literals_.push_front(literal);
+}
+
+AstCategory A_StringLiteral::category() const {
+  return AstCategory::StringLiteral;
+}
+
+std::string A_StringLiteral::toString() const {
+  std::stringstream ss;
+  ss << fmt::format(
+      "[@A_StringLiteral position:{}, quoteCategory:{}, parsed:{}, size:{}, ",
+      position().toString(), ASL_QC_Map.find(quoteCategory_)->second, parsed_,
+      literals_.size());
+  for (int i = 0; i < (int)literals_.size(); i++) {
+    ss << fmt::format("{}:{}", i, literals_[i]);
+    if (i < (int)literals_.size() - 1) {
+      ss << ", ";
+    }
+  }
+  ss << "]";
+  return ss.str();
+}
+
+const std::string &A_StringLiteral::parsed() const { return parsed_; }
+
+A_StringLiteral::QuoteCategory A_StringLiteral::quoteCategory() const {
+  return quoteCategory_;
+}
+
+const std::deque<std::string> &A_StringLiteral::literals() const {
+  return literals_;
+}
+
+void A_StringLiteral::join(const std::string &literal,
+                           const Position &position) {
+  EX_ASSERT(quoteCategory_ == A_StringLiteral::QuoteCategory::SINGLE,
+            "quoteCategory {} == SINGLE",
+            ASL_QC_Map.find(quoteCategory_)->second);
+  EX_ASSERT(!stringStartsWith(literal, std::vector<std::string>{"\"\"\""}),
+            "literal head {} cannot be a triple quote", literal);
+  EX_ASSERT(!stringEndsWith(literal, std::vector<std::string>{"\"\"\""}),
+            "literal tail {} cannot be a triple quote", literal);
+
+  collect(position);
+  literals_.push_front(literal);
+
+  std::stringstream ss;
+  std::string joiner = literal.substr(1, literal.length() - 2);
+  ss << joiner << parsed_;
+  parsed_ = ss.str();
+}
+
+// A_StringLiteral }
+
+// A_CharLiteral {
+
+A_CharLiteral::A_CharLiteral(const std::string &literal,
+                             const Position &position)
+    : AstLiteral(nameGen.generateWith(literal, "A_CharLiteral")),
+      parsed_('\0') {
+  EX_ASSERT(literal.length() == 3, "literal.length {} == 3", literal.length());
+
+  collect(position);
+
+  parsed_ = literal[1];
+}
+
+AstCategory A_CharLiteral::category() const { return AstCategory::CharLiteral; }
+
+std::string A_CharLiteral::toString() const {
+  return fmt::format("[@A_CharLiteral position:{}, parsed:{}]",
+                     position().toString(), parsed_);
+}
+
+const char &A_CharLiteral::parsed() const { return parsed_; }
+
+// A_CharLiteral }
+
+// A_BooleanLiteral {
+
+A_BooleanLiteral::A_BooleanLiteral(const std::string &literal,
+                                   const Position &position)
+    : AstLiteral(nameGen.generateWith(literal, "A_BooleanLiteral")),
+      literal_(literal), parsed_(false) {
+  EX_ASSERT(literal_.length() == 4 || literal_.length() == 5,
+            "literal_.length {} == 4 or 5", literal_.length());
+
+  collect(position);
+  EX_ASSERT(literal_ == tokenName(T_TRUE) || literal_ == tokenName(T_FALSE),
+            "literal_ {} must be true/false", literal_);
+  parsed_ = literal_ == tokenName(T_TRUE);
+}
+
+AstCategory A_BooleanLiteral::category() const {
+  return AstCategory::BooleanLiteral;
+}
+
+std::string A_BooleanLiteral::toString() const {
+  return fmt::format("[@A_BooleanLiteral position:{}, literal:{}, parsed:{}]",
+                     position().toString(), literal_, parsed_);
+}
+
+bool A_BooleanLiteral::parsed() const { return parsed_; }
+
+const std::string &A_BooleanLiteral::literal() const { return literal_; }
+
+// A_BooleanLiteral }
+
+// A_NilLiteral {
+
+A_NilLiteral::A_NilLiteral(const Position &position)
+    : AstLiteral(nameGen.generate("A_NilLiteral")) {
+  collect(position);
+}
+
+AstCategory A_NilLiteral::category() const { return AstCategory::NilLiteral; }
+
+std::string A_NilLiteral::toString() const {
+  return fmt::format("[@A_NilLiteral position:{}]", position().toString());
+}
+
+// A_NilLiteral }
+
+// A_VoidLiteral {
+
+A_VoidLiteral::A_VoidLiteral(const Position &position)
+    : AstLiteral(nameGen.generate("A_VoidLiteral")) {
+  collect(position);
+}
+
+AstCategory A_VoidLiteral::category() const { return AstCategory::VoidLiteral; }
+
+std::string A_VoidLiteral::toString() const {
+  return fmt::format("[@A_VoidLiteral position:{}]", position().toString());
+}
+
+// A_VoidLiteral }
+
+// literal }
+
+// expression }
 
 AstExpression::AstExpression(const std::string &name, const Position &position)
     : Ast(name, position) {}
@@ -815,7 +1245,9 @@ std::string AstEmptyStatement::toString() const {
   return fmt::format("[@AstEmptyStatement {}]", position_.toString());
 }
 
-AstVariableDefinition::AstVariableDefinition(AstDefinitionList *definitionList,
+AstVariableDefinition::AstVariableDefinition(const char *varId,
+                                             const char *typeId,
+                                             AstExpression *expression,
                                              const Position &varTokenPosition,
                                              const Position &semiTokenPosition)
     : AstDefinition(nameGen.generate("A_VarDecl"), varTokenPosition),

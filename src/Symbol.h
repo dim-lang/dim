@@ -114,20 +114,23 @@ public:
   virtual std::string name() const;
   virtual T_ty type() const;
 
-  static BuiltinType *ty_int8();
-  static BuiltinType *ty_uint8();
-  static BuiltinType *ty_int16();
-  static BuiltinType *ty_uint16();
-  static BuiltinType *ty_int32();
-  static BuiltinType *ty_uint32();
-  static BuiltinType *ty_int64();
-  static BuiltinType *ty_uint64();
-  static BuiltinType *ty_float32();
-  static BuiltinType *ty_float64();
-  static BuiltinType *ty_boolean();
-  static BuiltinType *ty_string();
-  static BuiltinType *ty_nil();
-  static BuiltinType *ty_void();
+  static const BuiltinType *ty_int8();
+  static const BuiltinType *ty_uint8();
+  static const BuiltinType *ty_int16();
+  static const BuiltinType *ty_uint16();
+  static const BuiltinType *ty_int32();
+  static const BuiltinType *ty_uint32();
+  static const BuiltinType *ty_int64();
+  static const BuiltinType *ty_uint64();
+  static const BuiltinType *ty_int128();
+  static const BuiltinType *ty_uint128();
+  static const BuiltinType *ty_float32();
+  static const BuiltinType *ty_float64();
+  static const BuiltinType *ty_float128();
+  static const BuiltinType *ty_boolean();
+  static const BuiltinType *ty_nil();
+  static const BuiltinType *ty_void();
+  static const BuiltinType *get(const std::string &typeName);
 
 private:
   BuiltinType(const std::string &name);

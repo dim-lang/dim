@@ -113,74 +113,107 @@ std::string BuiltinType::name() const { return builtinTypeName_; }
 
 T_ty BuiltinType::type() const { return T_ty::Builtin; }
 
-BuiltinType *BuiltinType::ty_int8() {
-  static BuiltinType *type_int8 = new BuiltinType("int8");
-  return type_int8;
+const BuiltinType *BuiltinType::ty_int8() {
+  static const BuiltinType *bt = new BuiltinType("int8");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_uint8() {
-  static BuiltinType *type_uint8 = new BuiltinType("uint8");
-  return type_uint8;
+const BuiltinType *BuiltinType::ty_uint8() {
+  static const BuiltinType *bt = new BuiltinType("uint8");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_int16() {
-  static BuiltinType *type_int16 = new BuiltinType("int16");
-  return type_int16;
+const BuiltinType *BuiltinType::ty_int16() {
+  static const BuiltinType *bt = new BuiltinType("int16");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_uint16() {
-  static BuiltinType *type_uint16 = new BuiltinType("uint16");
-  return type_uint16;
+const BuiltinType *BuiltinType::ty_uint16() {
+  static const BuiltinType *bt = new BuiltinType("uint16");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_int32() {
-  static BuiltinType *type_int32 = new BuiltinType("int32");
-  return type_int32;
+const BuiltinType *BuiltinType::ty_int32() {
+  static const BuiltinType *bt = new BuiltinType("int32");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_uint32() {
-  static BuiltinType *type_uint32 = new BuiltinType("uint32");
-  return type_uint32;
+const BuiltinType *BuiltinType::ty_uint32() {
+  static const BuiltinType *bt = new BuiltinType("uint32");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_int64() {
-  static BuiltinType *type_int64 = new BuiltinType("int64");
-  return type_int64;
+const BuiltinType *BuiltinType::ty_int64() {
+  static const BuiltinType *bt = new BuiltinType("int64");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_uint64() {
-  static BuiltinType *type_uint64 = new BuiltinType("uint64");
-  return type_uint64;
+const BuiltinType *BuiltinType::ty_uint64() {
+  static const BuiltinType *bt = new BuiltinType("uint64");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_float32() {
-  static BuiltinType *type_float32 = new BuiltinType("float32");
-  return type_float32;
+const BuiltinType *BuiltinType::ty_int128() {
+  static BuiltinType *bt = new BuiltinType("int128");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_float64() {
-  static BuiltinType *type_float64 = new BuiltinType("float64");
-  return type_float64;
+const BuiltinType *BuiltinType::ty_uint128() {
+  static BuiltinType *bt = new BuiltinType("uint128");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_boolean() {
-  static BuiltinType *type_boolean = new BuiltinType("boolean");
-  return type_boolean;
+const BuiltinType *BuiltinType::ty_float32() {
+  static BuiltinType *bt = new BuiltinType("float32");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_string() {
-  static BuiltinType *type_string = new BuiltinType("string");
-  return type_string;
+const BuiltinType *BuiltinType::ty_float64() {
+  static BuiltinType *bt = new BuiltinType("float64");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_nil() {
-  static BuiltinType *type_nil = new BuiltinType("nil");
-  return type_nil;
+const BuiltinType *BuiltinType::ty_float128() {
+  static BuiltinType *bt = new BuiltinType("float128");
+  return bt;
 }
 
-BuiltinType *BuiltinType::ty_void() {
-  static BuiltinType *type_void = new BuiltinType("void");
-  return type_void;
+const BuiltinType *BuiltinType::ty_boolean() {
+  static BuiltinType *bt = new BuiltinType("boolean");
+  return bt;
+}
+
+const BuiltinType *BuiltinType::ty_nil() {
+  static BuiltinType *bt = new BuiltinType("nil");
+  return bt;
+}
+
+const BuiltinType *BuiltinType::ty_void() {
+  static BuiltinType *bt = new BuiltinType("void");
+  return bt;
+}
+
+const BuiltinType *BuiltinType::get(const std::string &typeName) {
+  static std::unordered_map<std::string, const BuiltinType *> builtinMap = {
+      {"int8", BuiltinType::ty_int8()},
+      {"uint8", BuiltinType::ty_uint8()},
+      {"int16", BuiltinType::ty_int16()},
+      {"uint16", BuiltinType::ty_uint16()},
+      {"int32", BuiltinType::ty_int32()},
+      {"uint32", BuiltinType::ty_uint32()},
+      {"int64", BuiltinType::ty_int64()},
+      {"uint64", BuiltinType::ty_uint64()},
+      {"int128", BuiltinType::ty_int128()},
+      {"uint128", BuiltinType::ty_uint128()},
+      {"float32", BuiltinType::ty_float32()},
+      {"float64", BuiltinType::ty_float64()},
+      {"float128", BuiltinType::ty_float128()},
+      {"boolean", BuiltinType::ty_boolean()},
+      {"nil", BuiltinType::ty_nil()},
+      {"void", BuiltinType::ty_void()},
+  };
+  return builtinMap.find(typeName) == builtinMap.end() ? nullptr
+                                                       : builtinMap[typeName];
 }
 
 ClassType::ClassType(const std::string &classType,
