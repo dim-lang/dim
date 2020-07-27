@@ -17,7 +17,7 @@ Position::Position(int a_firstLine, int a_firstColumn, int a_lastLine,
     : firstLine(a_firstLine), firstColumn(a_firstColumn), lastLine(a_lastLine),
       lastColumn(a_lastColumn) {}
 
-Position &Position::updatePosition(const Position &position) {
+Position &Position::update(const Position &position) {
   updateFirstLine(position.firstLine);
   updateFirstColumn(position.firstColumn);
   updateLastLine(position.lastLine);

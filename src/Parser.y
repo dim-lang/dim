@@ -122,13 +122,13 @@ boolean_literal : T_TRUE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::f
                 | T_FALSE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::free($1); }
                 ;
 
-string_literal : single_string_literal
-               | multiple_string_literal
-               ;
-
-single_string_literal : T_SINGLE_STRING_LITERAL
-                      | T_SINGLE_STRING_LITERAL single_string_literal
+single_string_literal : T_SINGLE_STRING_LITERAL { $$ = new A_SingleStringLiteral(); $$->join(new A_SingleStringSingleLiteral($1, Y_POSITION(@1))); std::free($1); }
+                      | T_SINGLE_STRING_LITERAL single_string_literal { $$->join(new A_SingleStringSingleLiteral($1, Y_POSITION(@1))); std::free($1); }
                       ;
+
+string_literal : single_string_literal { $$ = $1; }
+               | T_MULTI_STRING_LITERAL { $$ = new A_MultiStringLiteral($1, Y_POSITION(@1)); std::free($1); }
+               ;
 
  /* literal } */
 
@@ -136,7 +136,7 @@ single_string_literal : T_SINGLE_STRING_LITERAL
 
 primary_expr : id { $$ = $1; }
              | boolean_literal { $$ = $1; }
-             | string_literal { $$ = new A_StringLiteral($1, Y_POSITION(@1)); std::free($1); }
+             | string_literal { $$ = $1; }
              | T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
              | T_FLOAT_LITERAL { $$ = new A_FloatLiteral($1, Y_POSITION(@1)); std::free($1); }
              | T_LPAREN expr T_RPAREN { $$ = $2; }
@@ -144,8 +144,8 @@ primary_expr : id { $$ = $1; }
 
 postfix_expr : primary_expr { $$ = $1; }
              /*| postfix_expr '[' expr ']'*/
-             | id T_LPAREN T_RPAREN { $$ = new AstCallExpression($1, new AstExpressionList(), Y_POSITION(@1)); std::free($1); }
-             | id T_LPAREN argument_expr_list T_RPAREN { $$ = new AstCallExpression($1, $3, Y_POSITION(@1)); std::free($1); }
+             | id T_LPAREN T_RPAREN { $$ = new A_CallExpression($1, new AstExpressionList(), Y_POSITION(@1)); std::free($1); }
+             | id T_LPAREN argument_expr_list T_RPAREN { $$ = new A_CallExpression($1, $3, Y_POSITION(@1)); std::free($1); }
              /*| postfix_expr '.' id */
              ;
 

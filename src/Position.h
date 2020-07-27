@@ -13,7 +13,7 @@ public:
   virtual ~Position() = default;
   Position(const Position &) = default;
   Position &operator=(const Position &) = default;
-  virtual Position &updatePosition(const Position &position);
+  virtual Position &update(const Position &position);
   virtual Position &updateFirstLine(int value);
   virtual Position &updateFirstColumn(int value);
   virtual Position &updateLastLine(int value);
