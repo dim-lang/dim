@@ -39,27 +39,41 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
     AstDefinition *def;
     AstStringLiteral *str;
     AstId *id;
-    char *literal;
+    char *str;
     int token;
 }
 
- /* union */
 %token <token> T_EOF
-%token <token> T_TRUE T_FALSE T_LET T_VAR T_VAL T_NIL T_NULL T_NEW T_DELETE T_TRY T_CATCH T_DEF T_ENUM
-%token <token> T_IF T_THEN T_ELSE T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE T_SWITCH T_CASE T_MATCH T_DEFAULT
-%token <token> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_IS T_ISA T_ISINSTANCEOF T_IMPORT T_RETURN T_VOID T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT
-%token <token> T_INT8 T_UINT8 T_INT16 T_UINT16 T_INT32 T_UINT32 T_INT64 T_UINT64 T_INT128 T_UINT128 T_FLOAT32 T_FLOAT64 T_FLOAT128 T_CHAR
-%token <token> T_STRING T_BOOLEAN T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_NAN T_INF
-%token <token> T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_UNDERLINE 
-%token <token> T_BIT_NOT T_BIT_AND T_BIT_OR T_BIT_XOR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
-%token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
-%token <token> T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
-%token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
-%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_RIGHT_ARROW
 
+ /* keyword */
+%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <token> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE
+
+ /* primitive integer type */
+%token <token> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
+ /* primitive float type */
+%token <token> T_FLOAT T_DOUBLE T_LDOUBLE
+ /* primitive boolean type */
+%token <token> T_BOOLEAN
+
+ /* binary/unary operator */
+%token <token> T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_LOGIC_AND T_LOGIC_OR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
+ /* unary operator */
+%token <token> T_LOGIC_NOT T_BIT_AND T_BIT_OR T_BIT_NOT T_BIT_XOR
+ /* assignment operator */
+%token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
+ /* compare operator */
+%token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
+ /* parentheses */
+%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
+ /* other punctuation */
+%token <token> T_UNDERLINE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_SINGLE_RARROW T_DOUBLE_RARROW T_SINGLE_LARROW
+
+ /* id */
 %token <id> id
 
-%token <literal> T_PLAINID T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
+ /* str */
+%token <str> T_PLAINID T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
 
 %type <expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression
@@ -72,7 +86,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %type <def> variable_definition function_definition function_signature_definition function_argument_definition
 %type <def> definition
-%type <defList> translation_unit function_argument_definition_list
+%type <defList> compile_unit function_argument_definition_list
 
 %type <str> string_literal single_string_literal multiple_string_literal
 
@@ -105,7 +119,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %nonassoc "lower_than_else"
 %nonassoc T_ELSE
 
-%start translation_unit
+%start compile_unit
 
 %%
 
@@ -364,17 +378,17 @@ jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@1
 return_statement : T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
                  ;
 
-translation_unit : definition {
-                        EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                        Y_EXTRA->translateUnit()->add($1);
-                    }
-                 | definition translation_unit {
-                        EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                        EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                        Y_EXTRA->translateUnit()->add($1);
-                    }
-                 ;
+compile_unit : definition {
+                    EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                    EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                    Y_EXTRA->translateUnit()->add($1);
+                }
+             | definition compile_unit {
+                    EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
+                    EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
+                    Y_EXTRA->translateUnit()->add($1);
+                }
+             ;
 
 %%
 
