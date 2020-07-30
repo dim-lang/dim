@@ -39,7 +39,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
     AstDefinition *def;
     AstStringLiteral *str;
     AstId *id;
-    char *str;
+    char *literal;
     int token;
 }
 
@@ -72,8 +72,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* id */
 %token <id> id
 
- /* str */
-%token <str> T_PLAINID T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
+ /* literal */
+%token <literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
+ /* id */
+%token <literal> T_PLAINID
 
 %type <expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression

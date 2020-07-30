@@ -356,7 +356,7 @@ class AstStringLiteral : public AstLiteral {
 public:
   // QuoteCategory
   // Single: "
-  // Triple: """
+  // Multi: """
   enum class QuoteCategory { SINGLE = 500, MULTI };
 
   AstStringLiteral(const std::string &literal, const Position &position);

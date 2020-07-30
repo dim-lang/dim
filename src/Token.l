@@ -10,8 +10,7 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 INT (0|[1-9][0-9]*)
 EXP ([eE][-+]?[0-9]+)
 HEX ([0-9a-fA-F])
-HEXEXP ([pP][-+]?[0-9]+)
-FS ((f|F)|(ld|LD))
+FS ((f|F)|(l|L))
 IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
 %{
@@ -29,8 +28,8 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 #define Y_LLOC          yyget_lloc(yyextra->yy_scaninfo())
 #define Y_LINENO        yyget_lineno(yyextra->yy_scaninfo())
 
-#define T_LITERAL_TOKEN         (Y_LVAL->str = Strings::dup(Y_TEXT, Y_LENG))
-#define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->str = Strings::dup(Y_TEXT+(p), Y_LENG-(p)-(q)))
+#define T_LITERAL_TOKEN         (Y_LVAL->literal = Strings::dup(Y_TEXT, Y_LENG))
+#define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::dup(Y_TEXT+(p), Y_LENG-(p)-(q)))
 #define T_INTEGER_TOKEN(t)      (Y_LVAL->token = t)
 
 #define YY_USER_ACTION                                                      \
@@ -220,19 +219,19 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
  /* binary integer literal */
 0[bB][01]+{IS}?                         { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
- /* float literal : 92.312(f|F), 92.312e-10(f|F), 102e+91(f|F), 10e+7(ld|LD) */
+ /* float literal : 92.312(f|F), 92.312e-10(f|F), 10.2e+91(f|F), 1.0e+7(l|L) */
 {INT}"."[0-9]+{EXP}?{FS}?               { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 {INT}{EXP}{FS}?                         { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN_X(3, 3); return T_MULTI_STRING_LITERAL; }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_MULTI_STRING_LITERAL; }
  /* empty string */
-\"\"                                    { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
+\"\"                                    { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
  /* one line string literal */
-\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN_X(1, 1); return T_STRING_LITERAL; }
+\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
 
  /* char literal */
-\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN_X(1, 1); return T_CHAR_LITERAL; }
+\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN; return T_CHAR_LITERAL; }
 
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_PLAINID; }
