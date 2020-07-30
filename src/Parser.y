@@ -102,9 +102,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <a_string> string_literal single_string_literal multiple_string_literal
 
  /* operator precedence */
+
  /* comma */
 %left T_COMMA
- /* assignment */
+ /* equal */
 %right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
 %right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
 %right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
@@ -112,9 +113,9 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %right T_EQUAL
  /* conditional */
 %left T_QUESTION T_COLON
- /* binary operator */
-%left T_OR
-%left T_AND
+ /* binary_operator */
+%left T_OR T_BAR2
+%left T_AND T_AMPERSAND2
 %left T_BAR
 %left T_CARET
 %left T_AMPERSAND
@@ -123,6 +124,8 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %left T_LSHIFT T_RSHIFT T_ARSHIFT
 %left T_PLUS T_MINUS
 %left T_ASTERISK T_SLASH T_PERCENT
+%right T_PLUS2 T_MINUS2
+%right T_ASTERISK2 T_SLASH2 T_PERCENT2
  /* other */
 %nonassoc T_NOT T_TILDE
 %left T_DOT
@@ -130,6 +133,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %nonassoc "lower_than_else"
 %nonassoc T_ELSE
 
+ /* top */
 %start compile_unit
 
 %%
