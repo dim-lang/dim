@@ -256,7 +256,7 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
  /* invalid token */
 .                                       {
-                                            EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG); 
+                                            EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                         }
 
 %%
