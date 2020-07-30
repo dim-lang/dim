@@ -126,7 +126,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* other */
 %nonassoc T_NOT T_TILDE
 %left T_DOT
- /* fix if statement shift/reduce */
+ /* fix if-else shift/reduce */
 %nonassoc "lower_than_else"
 %nonassoc T_ELSE
 
