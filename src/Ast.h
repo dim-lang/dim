@@ -229,9 +229,6 @@ public:
   virtual const int &token() const;
   virtual const std::string &name() const;
 
-  static const AstToken *fromInteger(const int &token);
-  static const AstToken *fromString(const std::string &name);
-
 private:
   int token_;
 };
@@ -499,35 +496,34 @@ private:
 
 class A_UnaryExpression : public AstExpression {
 public:
-  A_UnaryExpression(int token, const AstExpression *expression,
-                    const Position &tokenPosition);
+  A_UnaryExpression(const AstToken *token, const AstExpression *expression);
   virtual ~A_UnaryExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual const int &token() const;
+  virtual const AstToken *token() const;
   virtual const AstExpression *expression() const;
 
 private:
-  int token_;
+  const AstToken *token_;
   const AstExpression *expression_;
 };
 
 class A_BinaryExpression : public AstExpression {
 public:
-  A_BinaryExpression(const AstExpression *left, int token,
-                     const AstExpression *right, const Position &tokenPosition);
+  A_BinaryExpression(const AstExpression *left, const AstToken *token,
+                     const AstExpression *right);
   virtual ~A_BinaryExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
   virtual const AstExpression *left() const;
-  virtual const int &token() const;
+  virtual const AstToken *token() const;
   virtual const AstExpression *right() const;
 
 private:
   const AstExpression *left_;
-  int token_;
+  const AstToken *token_;
   const AstExpression *right_;
 };
 

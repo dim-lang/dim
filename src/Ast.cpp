@@ -617,15 +617,19 @@ const A_ExpressionList *A_CallExpression::argumentList() const {
 
 // A_UnaryExpression {
 
-A_UnaryExpression::A_UnaryExpression(int token, const AstExpression *expression,
-                                     const Position &tokenPosition)
-    : AstExpression(nameGen.generate("A_UnaryExpression"), tokenPosition),
-      token_(token), expression_(expression) {
+A_UnaryExpression::A_UnaryExpression(const AstToken *token,
+                                     const AstExpression *expression)
+    : AstExpression(nameGen.generate("A_UnaryExpression")), token_(token),
+      expression_(expression) {
+  EX_ASSERT(token_, "token_ must not null");
   EX_ASSERT(expression_, "expression_ must not null");
+  locate(token_->position());
   locate(expression_->position());
 }
 
 A_UnaryExpression::~A_UnaryExpression() {
+  delete token_;
+  token_ = nullptr;
   delete expression_;
   expression_ = nullptr;
 }
@@ -636,11 +640,11 @@ AstCategory A_UnaryExpression::category() const {
 
 std::string A_UnaryExpression::toString() const {
   return fmt::format("[@{} position:{}, token:{}, expression:{}]", name(),
-                     position().toString(), tokenName(token_),
+                     position().toString(), token_->name(),
                      expression_->toString());
 }
 
-const int &A_UnaryExpression::token() const { return token_; }
+const AstToken *A_UnaryExpression::token() const { return token_; }
 
 const AstExpression *A_UnaryExpression::expression() const {
   return expression_;
@@ -650,20 +654,24 @@ const AstExpression *A_UnaryExpression::expression() const {
 
 // A_BinaryExpression {
 
-A_BinaryExpression::A_BinaryExpression(const AstExpression *left, int token,
-                                       const AstExpression *right,
-                                       const Position &tokenPosition)
-    : AstExpression(nameGen.generate("A_BinaryExpression"), tokenPosition),
-      left_(left), token_(token), right_(right) {
+A_BinaryExpression::A_BinaryExpression(const AstExpression *left,
+                                       const AstToken *token,
+                                       const AstExpression *right)
+    : AstExpression(nameGen.generate("A_BinaryExpression")), left_(left),
+      token_(token), right_(right) {
   EX_ASSERT(left_, "left_ must not null");
+  EX_ASSERT(token_, "token_ must not null");
   EX_ASSERT(right_, "right_ must not null");
   locate(left_->position());
+  locate(token_->position());
   locate(right_->position());
 }
 
 A_BinaryExpression::~A_BinaryExpression() {
   delete left_;
   left_ = nullptr;
+  delete token_;
+  token_ = nullptr;
   delete right_;
   right_ = nullptr;
 }
@@ -674,13 +682,13 @@ AstCategory A_BinaryExpression::category() const {
 
 std::string A_BinaryExpression::toString() const {
   return fmt::format("[@{} position:{}, token:{}, left:{}, right:{}]", name(),
-                     position().toString(), tokenName(token_),
-                     left_->toString(), right_->toString());
+                     position().toString(), token_->name(), left_->toString(),
+                     right_->toString());
 }
 
 const AstExpression *A_BinaryExpression::left() const { return left_; }
 
-const int &A_BinaryExpression::token() const { return token_; }
+const AstToken *A_BinaryExpression::token() const { return token_; }
 
 const AstExpression *A_BinaryExpression::right() const { return right_; }
 

@@ -131,12 +131,9 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
  /* and or not operator */
-"and"  { return T_INTEGER_TOKEN(T_LOGIC_AND); }
-"&&"   { return T_INTEGER_TOKEN(T_LOGIC_AND); }
-"or"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
-"||"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
-"not"  { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
-"!"    { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
+"and"  { return T_INTEGER_TOKEN(T_AND); }
+"or"   { return T_INTEGER_TOKEN(T_OR); }
+"not"  { return T_INTEGER_TOKEN(T_NOT); }
 
  /* operator */
 "+"    { return T_INTEGER_TOKEN(T_PLUS); }
@@ -151,8 +148,11 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "%%"   { return T_INTEGER_TOKEN(T_PERCENT2); }
 
 "&"    { return T_INTEGER_TOKEN(T_AMPERSAND); }
+"&&"   { return T_INTEGER_TOKEN(T_AMPERSAND2); }
 "|"    { return T_INTEGER_TOKEN(T_BAR); }
+"||"   { return T_INTEGER_TOKEN(T_BAR2); }
 "~"    { return T_INTEGER_TOKEN(T_TILDE); }
+"!"    { return T_INTEGER_TOKEN(T_EXCLAM); }
 "^"    { return T_INTEGER_TOKEN(T_CARET); }
 
 "<<"   { return T_INTEGER_TOKEN(T_LSHIFT); }

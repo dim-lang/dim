@@ -58,12 +58,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_BOOLEAN
 
  /* and or not operator */
-%token <token> T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT 
+%token <token> T_AND T_OR T_NOT
 
  /* operator */
 %token <token> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
  /* operator */
-%token <token> T_AMPERSAND T_BAR T_TILDE T_CARET
+%token <token> T_AMPERSAND T_AMPERSAND2 T_BAR T_BAR2 T_TILDE T_EXCLAM T_CARET
  /* operator */
 %token <token> T_LSHIFT T_RSHIFT T_ARSHIFT
 
@@ -84,7 +84,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <a_id> id
 
  /* token */
-%token <a_token> tok
+%token <a_token> binary_operator
 
 %type <a_expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
 %type <a_expr> conditional_expression assignment_expression constant_expression
@@ -113,10 +113,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* conditional */
 %left T_QUESTION T_COLON
  /* binary operator */
-%left T_LOGIC_OR
-%left T_LOGIC_AND
-%left T_BIT_OR
-%left T_BIT_XOR
+%left T_OR
+%left T_AND
+%left T_BAR
+%left T_CARET
 %left T_AMPERSAND
 %left T_EQ T_NEQ
 %left T_LT T_LE T_GT T_GE
@@ -124,7 +124,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %left T_PLUS T_MINUS
 %left T_ASTERISK T_SLASH T_PERCENT
  /* other */
-%nonassoc T_LOGIC_NOT T_BIT_NOT
+%nonassoc T_NOT T_TILDE
 %left T_DOT
  /* fix if statement shift/reduce */
 %nonassoc "lower_than_else"
@@ -179,10 +179,13 @@ argument_expression_list : assignment_expression { $$ = new A_ExpressionList(); 
                          ;
 
 unary_expression : postfix_expression { $$ = $1; }
-                 | T_MINUS unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
-                 | T_BIT_NOT unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
-                 | T_LOGIC_NOT unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
+                 | unary_operator unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
                  ;
+
+unary_operator : T_MINUS { $$ = new A_Token($1, Y_POSITION(@1)); }
+               | T_TILDE { $$ = new A_Token($1, Y_POSITION(@1)); }
+               | T_NOT { $$ = new A_Token($1, Y_POSITION(@1)); }
+               ;
 
  /*
 cast_expression : unary_expression
@@ -191,31 +194,28 @@ cast_expression : unary_expression
  */
 
 binary_expression : unary_expression { $$ = $1; }
-                  | binary_expression T_ASTERISK unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_SLASH unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_PERCENT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_PLUS unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_MINUS unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_LSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_RSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_ARSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_LT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_LE unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_GT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_GE unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_EQ unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_NEQ unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_AMPERSAND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_XOR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_OR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_LOGIC_AND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_LOGIC_OR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression binary_operator unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   ;
 
-binary_operator : T_PLUS
-                | T_MUNIS
-                | T_ASTERISK
-                | T_SLASH
+binary_operator : T_PLUS { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_MINUS  { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_ASTERISK { $$ = new A_Token($1, Y_POSITION(@1)); } 
+                | T_SLASH { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_PERCENT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_LSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_RSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_ARSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_LT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_LE { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_GT { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_GE { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_EQ { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_NEQ { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_AMPERSAND { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_CARET { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_BAR { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_AND { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | T_OR { $$ = new A_Token($1, Y_POSITION(@1)); }
                 ;
 
 conditional_expression : binary_expression { $$ = $1; }
@@ -369,15 +369,15 @@ statement : if_statement { $$ = $1; }
 switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
                  ;
 
-switch_body_statement : T_BIT_OR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
-                      | T_BIT_OR T_UNDERSCORE T_COLON statement_list {}
+switch_body_statement : T_BAR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
+                      | T_BAR T_UNDERSCORE T_COLON statement_list {}
                       ;
 
 match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
                 ;
 
-match_body_statement : T_BIT_OR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
-                     | T_BIT_OR T_UNDERSCORE T_COLON statement {}
+match_body_statement : T_BAR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
+                     | T_BAR T_UNDERSCORE T_COLON statement {}
                      ;
  */
 
