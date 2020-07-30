@@ -74,7 +74,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* parentheses */
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <token> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
+%token <token> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
 
  /* literal */
 %token <literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
@@ -126,9 +126,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %left T_ASTERISK T_SLASH T_PERCENT
 %right T_PLUS2 T_MINUS2
 %right T_ASTERISK2 T_SLASH2 T_PERCENT2
+%right T_COLON2 T_DOT2
  /* other */
 %nonassoc T_NOT T_TILDE
-%left T_DOT
+%left T_PLUS2 T_MINUS2
+%left T_ASTERISK2 T_SLASH2 T_PERCENT2
+%left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* fix if-else shift/reduce */
 %nonassoc "lower_than_else"
 %nonassoc T_ELSE

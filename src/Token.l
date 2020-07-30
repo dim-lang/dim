@@ -195,13 +195,14 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 ";"    { return T_INTEGER_TOKEN(T_SEMI); }
 "?"    { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"    { return T_INTEGER_TOKEN(T_COLON); }
+"::"   { return T_INTEGER_TOKEN(T_COLON2); }
 "."    { return T_INTEGER_TOKEN(T_DOT); }
+".."   { return T_INTEGER_TOKEN(T_DOT2); }
 "<-"   { return T_INTEGER_TOKEN(T_THIN_LARROW); }
 "->"   { return T_INTEGER_TOKEN(T_THIN_RARROW); }
 "=>"   { return T_INTEGER_TOKEN(T_FAT_RARROW); }
- /* ":>" */
- /* "<:" */
- /* "::" */
+":>"   { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
+"<:"   { return T_INTEGER_TOKEN(T_COLON_RARROW); }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
