@@ -7,11 +7,13 @@
 %x IMPORT
 
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
-INT (0|[1-9][0-9]*)
-EXP ([eE][-+]?[0-9]+)
+DEC (0|[1-9][0-9]*)
 HEX ([0-9a-fA-F])
-FS ((f|F)|(l|L))
-IS ((u|U)|(u|U)?(l|L)(l|L)?)
+OCT ([0-7])
+BIN ([01])
+EXP ([eE][-+]?[0-9]+)
+FS  ([fFlL])
+IS  ([uU]|([uU]?[lL]?[lL]))
 
 %{
 #include "Ast.h"
@@ -104,16 +106,6 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
  /***
    * primitive integer type
-   * byte: 8 bit int
-   * ubyte: 8 bit unsigned int
-   * short: 16 bit int
-   * ushort: 16 bit unsigned int
-   * int: 32 bit int
-   * uint: 32 bit unsigned int
-   * long: 64 bit int
-   * ulong: 64 bit unsigned int
-   * llong: 128 bit int
-   * ullong: 128 bit unsigned int
    */
 "byte"       { return T_INTEGER_TOKEN(T_BYTE); }
 "ubyte"      { return T_INTEGER_TOKEN(T_UBYTE); }
@@ -128,9 +120,6 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
  /***
    * primitive integer type
-   * float: 32 bit float
-   * double: 64 bit float
-   * ldouble: 128 bit float
    */
 "float"      { return T_INTEGER_TOKEN(T_FLOAT); }
 "double"     { return T_INTEGER_TOKEN(T_DOUBLE); }
@@ -138,50 +127,51 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 
  /***
    * primitive boolean type
-   * boolean: 1 bit unsigned int
    */
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
- /* binary/unary operator */
+ /* and or not operator */
 "and"  { return T_INTEGER_TOKEN(T_LOGIC_AND); }
-"or"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
-"not"  { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
-"+"    { return T_INTEGER_TOKEN(T_ADD); }
-"-"    { return T_INTEGER_TOKEN(T_SUB); }
-"*"    { return T_INTEGER_TOKEN(T_MUL); }
-"/"    { return T_INTEGER_TOKEN(T_DIV); }
-"%"    { return T_INTEGER_TOKEN(T_MOD); }
-"++"   { return T_INTEGER_TOKEN(T_ADD2); }
-"--"   { return T_INTEGER_TOKEN(T_SUB2); }
-"**"   { return T_INTEGER_TOKEN(T_MUL2); }
-"//"   { return T_INTEGER_TOKEN(T_DIV2); }
-"%%"   { return T_INTEGER_TOKEN(T_MOD2); }
 "&&"   { return T_INTEGER_TOKEN(T_LOGIC_AND); }
+"or"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
 "||"   { return T_INTEGER_TOKEN(T_LOGIC_OR); }
-"<<"   { return T_INTEGER_TOKEN(T_BIT_LSHIFT); }
-">>"   { return T_INTEGER_TOKEN(T_BIT_RSHIFT); }
-">>>"  { return T_INTEGER_TOKEN(T_BIT_ARSHIFT); }
-
- /* unary operator */
+"not"  { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
 "!"    { return T_INTEGER_TOKEN(T_LOGIC_NOT); }
-"&"    { return T_INTEGER_TOKEN(T_BIT_AND); }
-"|"    { return T_INTEGER_TOKEN(T_BIT_OR); }
-"~"    { return T_INTEGER_TOKEN(T_BIT_NOT); }
-"^"    { return T_INTEGER_TOKEN(T_BIT_XOR); }
 
- /* assignment operator */
-"="    { return T_INTEGER_TOKEN(T_ASSIGN); }
-"+="   { return T_INTEGER_TOKEN(T_ADD_ASSIGN); }
-"-="   { return T_INTEGER_TOKEN(T_SUB_ASSIGN); }
-"*="   { return T_INTEGER_TOKEN(T_MUL_ASSIGN); }
-"/="   { return T_INTEGER_TOKEN(T_DIV_ASSIGN); }
-"%="   { return T_INTEGER_TOKEN(T_MOD_ASSIGN); }
-"&="   { return T_INTEGER_TOKEN(T_BIT_AND_ASSIGN); }
-"|="   { return T_INTEGER_TOKEN(T_BIT_OR_ASSIGN); }
-"^="   { return T_INTEGER_TOKEN(T_BIT_XOR_ASSIGN); }
-"<<="  { return T_INTEGER_TOKEN(T_BIT_LSHIFT_ASSIGN); }
-">>="  { return T_INTEGER_TOKEN(T_BIT_RSHIFT_ASSIGN); }
-">>>=" { return T_INTEGER_TOKEN(T_BIT_ARSHIFT_ASSIGN); }
+ /* operator */
+"+"    { return T_INTEGER_TOKEN(T_PLUS); }
+"++"   { return T_INTEGER_TOKEN(T_PLUS2); }
+"-"    { return T_INTEGER_TOKEN(T_MINUS); }
+"--"   { return T_INTEGER_TOKEN(T_MINUS2); }
+"*"    { return T_INTEGER_TOKEN(T_ASTERISK); }
+"**"   { return T_INTEGER_TOKEN(T_ASTERISK2); }
+"/"    { return T_INTEGER_TOKEN(T_SLASH); }
+"//"   { return T_INTEGER_TOKEN(T_SLASH2); }
+"%"    { return T_INTEGER_TOKEN(T_PERCENT); }
+"%%"   { return T_INTEGER_TOKEN(T_PERCENT2); }
+
+"&"    { return T_INTEGER_TOKEN(T_AMPERSAND); }
+"|"    { return T_INTEGER_TOKEN(T_BAR); }
+"~"    { return T_INTEGER_TOKEN(T_TILDE); }
+"^"    { return T_INTEGER_TOKEN(T_CARET); }
+
+"<<"   { return T_INTEGER_TOKEN(T_LSHIFT); }
+">>"   { return T_INTEGER_TOKEN(T_RSHIFT); }
+">>>"  { return T_INTEGER_TOKEN(T_ARSHIFT); }
+
+ /* equal operator */
+"="    { return T_INTEGER_TOKEN(T_EQUAL); }
+"+="   { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
+"-="   { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
+"*="   { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
+"/="   { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
+"%="   { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
+"&="   { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
+"|="   { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
+"^="   { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
+"<<="  { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
+">>="  { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
+">>>=" { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
 
  /* compare operator */
 "=="   { return T_INTEGER_TOKEN(T_EQ); }
@@ -200,63 +190,67 @@ IS ((u|U)|(u|U)?(l|L)(l|L)?)
 "}"    { return T_INTEGER_TOKEN(T_RBRACE); }
 
  /* other punctuation */
-"_"    { return T_INTEGER_TOKEN(T_UNDERLINE); }
+"_"    { return T_INTEGER_TOKEN(T_UNDERSCORE); }
 ","    { return T_INTEGER_TOKEN(T_COMMA); }
 ";"    { return T_INTEGER_TOKEN(T_SEMI); }
 "?"    { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"    { return T_INTEGER_TOKEN(T_COLON); }
 "."    { return T_INTEGER_TOKEN(T_DOT); }
-"->"   { return T_INTEGER_TOKEN(T_SINGLE_RARROW); }
-"=>"   { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
-"<-"   { return T_INTEGER_TOKEN(T_SINGLE_LARROW); }
+"<-"   { return T_INTEGER_TOKEN(T_THIN_LARROW); }
+"->"   { return T_INTEGER_TOKEN(T_THIN_RARROW); }
+"=>"   { return T_INTEGER_TOKEN(T_FAT_RARROW); }
+":>"
+"<:"
+"::"
 
  /* decimal integer literal */
-{INT}{IS}?                              { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+{DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* heximal integer literal */
-0[xX]{HEX}+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[xX]{HEX}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* octal integer literal */
-0[oO][0-7]+{IS}?                        { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0{OCT}+{IS}?                                { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* binary integer literal */
-0[bB][01]+{IS}?                         { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
  /* float literal : 92.312(f|F), 92.312e-10(f|F), 10.2e+91(f|F), 1.0e+7(l|L) */
-{INT}"."[0-9]+{EXP}?{FS}?               { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
-{INT}{EXP}{FS}?                         { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
 ["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_MULTI_STRING_LITERAL; }
+
  /* empty string */
-\"\"                                    { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
+\"\"                                        { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
  /* one line string literal */
-\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"   { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
+\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"       { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
 
  /* char literal */
-\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'     { T_LITERAL_TOKEN; return T_CHAR_LITERAL; }
+\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'         { T_LITERAL_TOKEN; return T_CHAR_LITERAL; }
 
  /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*                  { T_LITERAL_TOKEN; return T_PLAINID; }
+[a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_PLAINID; }
 
  /* whitespace */
-[ \t\n\v\f\r]                           { /* skip whitespace */ }
+[ \t\n\v\f\r]                               { /* skip whitespace */ }
 
  /* import module */
-^[ \t\n\v\f\r]*import[ \t\n\v\f\r]*     { BEGIN IMPORT; }
-<IMPORT>[^ \t\n\v\f\r\;]+               {
-                                            yyextra->pushBuffer(Y_TEXT);
-                                            BEGIN INITIAL;
-                                        }
-<IMPORT>.|\n                            {
-                                            EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
-                                            BEGIN INITIAL;
-                                        }
-<<EOF>>                                 {
-                                            if (!yyextra->popBuffer())
-                                                yyterminate();
-                                        }
+^[ \t\n\v\f\r]*import[ \t\n\v\f\r]*         { BEGIN IMPORT; }
+<IMPORT>[^ \t\n\v\f\r\;]+                   {
+                                                yyextra->pushBuffer(Y_TEXT);
+                                                BEGIN INITIAL;
+                                            }
+<IMPORT>.|\n                                {
+                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                                BEGIN INITIAL;
+                                            }
+<<EOF>>                                     {
+                                                if (!yyextra->popBuffer())
+                                                    yyterminate();
+                                            }
 
  /* invalid token */
-.                                       {
-                                            EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
-                                        }
+.                                           {
+                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                            }
 
 %%

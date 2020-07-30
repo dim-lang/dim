@@ -56,26 +56,31 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* primitive boolean type */
 %token <token> T_BOOLEAN
 
- /* binary/unary operator */
-%token <token> T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT T_ADD T_SUB T_MUL T_DIV T_MOD T_ADD2 T_SUB2 T_MUL2 T_DIV2 T_MOD2 T_LOGIC_AND T_LOGIC_OR T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
- /* unary operator */
-%token <token> T_LOGIC_NOT T_BIT_AND T_BIT_OR T_BIT_NOT T_BIT_XOR
- /* assignment operator */
-%token <token> T_ASSIGN T_ADD_ASSIGN T_SUB_ASSIGN T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
+ /* and or not operator */
+%token <token> T_LOGIC_AND T_LOGIC_OR T_LOGIC_NOT 
+
+ /* operator */
+%token <token> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
+ /* operator */
+%token <token> T_AMPERSAND T_BAR T_TILDE T_CARET
+ /* operator */
+%token <token> T_LSHIFT T_RSHIFT T_ARSHIFT
+
+ /* equal operator */
+%token <token> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
  /* compare operator */
 %token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
  /* parentheses */
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <token> T_UNDERLINE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_SINGLE_RARROW T_DOUBLE_RARROW T_SINGLE_LARROW
-
- /* id */
-%token <id> id
+%token <token> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_DOT T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
 
  /* literal */
 %token <literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
- /* id */
 %token <literal> T_PLAINID
+
+ /* id */
+%token <id> id
 
 %type <expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
 %type <expr> conditional_expression assignment_expression constant_expression
@@ -96,11 +101,11 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* comma */
 %left T_COMMA
  /* assignment */
-%right T_BIT_AND_ASSIGN T_BIT_OR_ASSIGN T_BIT_XOR_ASSIGN
-%right T_BIT_LSHIFT_ASSIGN T_BIT_RSHIFT_ASSIGN T_BIT_ARSHIFT_ASSIGN
-%right T_MUL_ASSIGN T_DIV_ASSIGN T_MOD_ASSIGN
-%right T_ADD_ASSIGN T_SUB_ASSIGN
-%right T_ASSIGN
+%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
+%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
+%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
+%right T_PLUS_EQUAL T_MINUS_EQUAL
+%right T_EQUAL
  /* conditional */
 %left T_QUESTION T_COLON
  /* binary operator */
@@ -108,12 +113,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %left T_LOGIC_AND
 %left T_BIT_OR
 %left T_BIT_XOR
-%left T_BIT_AND
+%left T_AMPERSAND
 %left T_EQ T_NEQ
 %left T_LT T_LE T_GT T_GE
-%left T_BIT_LSHIFT T_BIT_RSHIFT T_BIT_ARSHIFT
-%left T_ADD T_SUB
-%left T_MUL T_DIV T_MOD
+%left T_LSHIFT T_RSHIFT T_ARSHIFT
+%left T_PLUS T_MINUS
+%left T_ASTERISK T_SLASH T_PERCENT
  /* other */
 %nonassoc T_LOGIC_NOT T_BIT_NOT
 %left T_DOT
@@ -170,7 +175,7 @@ argument_expression_list : assignment_expression { $$ = new A_ExpressionList(); 
                          ;
 
 unary_expression : postfix_expression { $$ = $1; }
-                 | T_SUB unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
+                 | T_MINUS unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
                  | T_BIT_NOT unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
                  | T_LOGIC_NOT unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
                  ;
@@ -182,21 +187,21 @@ cast_expression : unary_expression
  */
 
 binary_expression : unary_expression { $$ = $1; }
-                  | binary_expression T_MUL unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_DIV unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_MOD unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_ADD unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_SUB unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_LSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_RSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_ARSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_ASTERISK unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_SLASH unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_PERCENT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_PLUS unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_MINUS unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_LSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_RSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_ARSHIFT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_LT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_LE unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_GT unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_GE unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_EQ unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_NEQ unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  | binary_expression T_BIT_AND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
+                  | binary_expression T_AMPERSAND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_BIT_XOR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_BIT_OR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_LOGIC_AND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
@@ -209,18 +214,18 @@ conditional_expression : binary_expression { $$ = $1; }
                        ;
 
 assignment_expression : conditional_expression { $$ = $1; }
-                      | unary_expression T_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_MUL_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_DIV_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_MOD_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_ADD_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_SUB_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_AND_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_OR_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_XOR_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_LSHIFT_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_RSHIFT_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BIT_ARSHIFT_ASSIGN assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_ASTERISK_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_SLASH_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_PERCENT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_PLUS_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_MINUS_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_AMPERSAND_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_BAR_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_CARET_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_LSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_RSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      | unary_expression T_ARSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
                       ;
 
 expression : assignment_expression { $$ = $1; }
@@ -294,7 +299,7 @@ import_module_list : T_IDENTIFIER
   * var x:i64 = 100, y = 1, z:string = "hello";
   */
 variable_definition : T_VAR T_IDENTIFIER T_SEMI { $$ = new AstVariableDefinition($2, Y_POSITION(@1), Y_POSITION(@3)); std::free($2); }
-                    | T_VAR T_IDENTIFIER T_ASSIGN constant_expression T_SEMI { $$ = new AstVariableDefinition($2, ); std::free($2); }
+                    | T_VAR T_IDENTIFIER T_EQUAL constant_expression T_SEMI { $$ = new AstVariableDefinition($2, ); std::free($2); }
                     ;
 
  /**
@@ -355,14 +360,14 @@ switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { 
                  ;
 
 switch_body_statement : T_BIT_OR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
-                      | T_BIT_OR T_UNDERLINE T_COLON statement_list {}
+                      | T_BIT_OR T_UNDERSCORE T_COLON statement_list {}
                       ;
 
 match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
                 ;
 
 match_body_statement : T_BIT_OR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
-                     | T_BIT_OR T_UNDERLINE T_COLON statement {}
+                     | T_BIT_OR T_UNDERSCORE T_COLON statement {}
                      ;
  */
 
