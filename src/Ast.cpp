@@ -85,6 +85,32 @@ std::string A_ExpressionList::toString() const {
 
 // A_ExpressionList }
 
+// token {
+
+AstToken::AstToken(const std::string &name, const Position &position)
+    : AstNamely(name), AstPositional(position) {}
+
+// A_Token {
+
+A_Token::A_Token(const int &token, const Position &position)
+    : AstToken(nameGen.generateWith(tokenName(token), "A_Token"), position),
+      token_(token) {}
+
+AstCategory A_Token::category() const { return AstCategory::Token; }
+
+std::string A_Token::toString() const {
+  return fmt::format("[@{} position:{} token:{}]", name(),
+                     position().toString(), tokenName(token_));
+}
+
+const int &A_Token::token() const { return token_; }
+
+const std::string &A_Token::name() const { return tokenName(token_); }
+
+// A_Token }
+
+// token }
+
 // id {
 
 // AstId {

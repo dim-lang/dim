@@ -31,14 +31,15 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* different ways to access data */
 %union {
-    A_ExpressionList *exprList;
-    AstStatementList *stmtList;
-    AstDefinitionList *defList;
-    AstExpression *expr;
-    AstStatement *stmt;
-    AstDefinition *def;
-    AstStringLiteral *str;
-    AstId *id;
+    A_ExpressionList *a_expr_list;
+    AstStatementList *a_stmt_list;
+    AstDefinitionList *a_def_list;
+    AstExpression *a_expr;
+    AstStatement *a_stmt;
+    AstDefinition *a_def;
+    AstStringLiteral *a_string;
+    AstId *a_id;
+    AstToken *a_token;
     char *literal;
     int token;
 }
@@ -80,22 +81,25 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <literal> T_PLAINID
 
  /* id */
-%token <id> id
+%token <a_id> id
 
-%type <expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
-%type <expr> conditional_expression assignment_expression constant_expression
-%type <expr> expression
-%type <exprList> argument_expression_list
+ /* token */
+%token <a_token> tok
 
-%type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
-%type <stmt> statement
-%type <stmtList> statement_list
+%type <a_expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
+%type <a_expr> conditional_expression assignment_expression constant_expression
+%type <a_expr> expression
+%type <a_expr_list> argument_expression_list
 
-%type <def> variable_definition function_definition function_signature_definition function_argument_definition
-%type <def> definition
-%type <defList> compile_unit function_argument_definition_list
+%type <a_stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
+%type <a_stmt> statement
+%type <a_stmt_list> statement_list
 
-%type <str> string_literal single_string_literal multiple_string_literal
+%type <a_def> variable_definition function_definition function_signature_definition function_argument_definition
+%type <a_def> definition
+%type <a_def_list> compile_unit function_argument_definition_list
+
+%type <a_string> string_literal single_string_literal multiple_string_literal
 
  /* operator precedence */
  /* comma */
@@ -207,6 +211,12 @@ binary_expression : unary_expression { $$ = $1; }
                   | binary_expression T_LOGIC_AND unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   | binary_expression T_LOGIC_OR unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
                   ;
+
+binary_operator : T_PLUS
+                | T_MUNIS
+                | T_ASTERISK
+                | T_SLASH
+                ;
 
 conditional_expression : binary_expression { $$ = $1; }
                        /* | T_IF T_LPAREN binary_expression T_RPAREN expression T_ELSE conditional_expression { $$ = new A_ConditionalExpression($2, $4, $6); } */

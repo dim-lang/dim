@@ -31,7 +31,7 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 #define Y_LINENO        yyget_lineno(yyextra->yy_scaninfo())
 
 #define T_LITERAL_TOKEN         (Y_LVAL->literal = Strings::dup(Y_TEXT, Y_LENG))
-#define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::dup(Y_TEXT+(p), Y_LENG-(p)-(q)))
+ // #define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::dup(Y_TEXT+(p), Y_LENG-(p)-(q)))
 #define T_INTEGER_TOKEN(t)      (Y_LVAL->token = t)
 
 #define YY_USER_ACTION                                                      \
@@ -199,9 +199,9 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "<-"   { return T_INTEGER_TOKEN(T_THIN_LARROW); }
 "->"   { return T_INTEGER_TOKEN(T_THIN_RARROW); }
 "=>"   { return T_INTEGER_TOKEN(T_FAT_RARROW); }
-":>"
-"<:"
-"::"
+ /* ":>" */
+ /* "<:" */
+ /* "::" */
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }

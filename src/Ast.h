@@ -17,8 +17,10 @@
 
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstCategory, int,
+            // token
+            Token = 1000,
             // id
-            PlainId = 1000, StableId,
+            PlainId, StableId,
             // type
             FunctionType, PrimitiveType,
             // literal
@@ -44,7 +46,13 @@ BETTER_ENUM(AstCategory, int,
 
 /* ast */
 class Ast;
+class AstNamely;
+class AstPositional;
 class A_ExpressionList;
+
+/* token */
+class AstToken;
+class A_Token;
 
 /* id */
 class AstId;
@@ -203,6 +211,32 @@ public:
 };
 
 // A_List }
+
+// token {
+
+class AstToken : public Ast, public AstNamely, public AstPositional {
+public:
+  AstToken(const std::string &name, const Position &position);
+  virtual ~AstToken() = default;
+};
+
+class A_Token : public AstToken {
+public:
+  A_Token(const int &token, const Position &position);
+  virtual ~A_Token() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const int &token() const;
+  virtual const std::string &name() const;
+
+  static const AstToken *fromInteger(const int &token);
+  static const AstToken *fromString(const std::string &name);
+
+private:
+  int token_;
+};
+
+// token }
 
 // id {
 
