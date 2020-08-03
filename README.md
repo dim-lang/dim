@@ -18,8 +18,8 @@ Here is an example:
 ```
 /* declare an interface */
 interface People {
-    func age(): &int32;
-    func name(): &String;
+    def age(): &int32;
+    def name(): &String;
 }
 
 /* declare a class implement the interface above */
@@ -28,7 +28,7 @@ class Student: People {
     name:String;
     score:&uint32[];
 
-    func Student() {
+    def Student() {
         age = 0;
         name = "student"; 
         score = new uint32[10];
@@ -36,18 +36,18 @@ class Student: People {
             score[i] = (uint32)i;
         }
     }
-    func Student(age:int32, name:String, score:&uint32[]) { 
+    def Student(age:int32, name:String, score:&uint32[]) { 
         this.age = age; 
         this.name = name; 
         this.score = score; 
     }
-    func age(): &int32 { return &age; }
-    func name(): &String { return &name; }
-    func score(): &&uint32[] { return &score; }
+    def age(): &int32 => &age;
+    def name(): &String => &name;
+    def score(): &&uint32[] => &score;
 }
 
 /* declare a function, which 2nd parameter is another function */
-func select(s:&int32[], len:int32, compare:func(int32, int32):boolean):int32 => {
+def select(s:&int32[], len:int32, compare:(int32, int32)->boolean):int32 {
     var r = 0;
     for (var i = 0; i < len; i++) {
         r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
@@ -56,12 +56,12 @@ func select(s:&int32[], len:int32, compare:func(int32, int32):boolean):int32 => 
 }
 
 // declare 3 functions, all returns 64 bit signed integers
-func max(a:int32, b:int32):int32 => a > b ? a : b;
-func min(a:int32, b:int32):int32 => return a < b ? a : b;
-func avg(a:int32, b:int32):int32 => { return (a + b) / 2; }
+def max(a:int32, b:int32) => a > b ? a : b;
+def min(a:int32, b:int32) => return a < b ? a : b;
+def avg(a:int32, b:int32):int32 => return (a + b) / 2;
 
 // declare program routine function main
-func main():int32 {
+def main():int32 {
     var s1:&Student = new Student(16, "Jack");
     var s2:Student = Student(17, "Lucy");
     s1.age = 10;
@@ -77,10 +77,16 @@ func main():int32 {
         ss2[i].age = i;
         ss2[i].name = "" + i;
     }
-    val mymax:func(int64, int64):int64 = func(a:int64, b:int64):int64 => a > b ? a : b;
-    val mymin = func(a:int64, b:int64):int64 => { if (a < b) { return a; } else { return b; } };
-    val myavg = func(a:int64, b:int64):int64 => (a + b) / 2;
-    var r = select(y, func(a, b) => a > b);
+    val mymax:(int64, int64)->int64 = (a:int64, b:int64) => a > b ? a : b;
+    val mymin = (a:int64, b:int64) => {
+        var x = 0;
+        for (var i = 0; i < 10; i++) {
+            x += i;
+        }
+        x;
+    };
+    val myavg = (a:int64, b:int64) => (a + b) / 2;
+    var r = select(y, (a:int32, b:int32) => a > b);
     print("select max: {}", r);
     return 0;
 }
