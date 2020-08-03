@@ -37,7 +37,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
     AstExpression *a_expr;
     AstStatement *a_stmt;
     AstDefinition *a_def;
-    AstStringLiteral *a_string;
     AstId *a_id;
     AstToken *a_token;
     char *literal;
@@ -47,7 +46,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_EOF
 
  /* keyword */
-%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
 %token <token> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE
 
  /* primitive integer type */
@@ -74,7 +73,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* parentheses */
 %token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <token> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
+%token <token> T_UNDERSCORE T_COMMA T_SEMI T_NEWLINE T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
 
  /* literal */
 %token <literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
@@ -86,7 +85,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* token */
 %token <a_token> binary_operator
 
-%type <a_expr> boolean_literal postfix_expression primary_expression unary_expression binary_expression
+%type <a_expr> boolean_literal string_literal postfix_expression primary_expression unary_expression binary_expression
 %type <a_expr> conditional_expression assignment_expression constant_expression
 %type <a_expr> expression
 %type <a_expr_list> argument_expression_list
@@ -98,8 +97,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <a_def> variable_definition function_definition function_signature_definition function_argument_definition
 %type <a_def> definition
 %type <a_def_list> compile_unit function_argument_definition_list
-
-%type <a_string> string_literal single_string_literal multiple_string_literal
 
  /* operator precedence */
 
@@ -158,7 +155,7 @@ single_string_literal : T_SINGLE_STRING_LITERAL { $$ = new A_SingleStringLiteral
                       | T_SINGLE_STRING_LITERAL single_string_literal { $3->join($1, Y_POSITION(@1)); $$ = $3; std::free($1); }
                       ;
 
-string_literal : single_string_literal { $$ = $1; }
+string_literal : T_SINGLE_STRING_LITERAL { $$ = new A_SingleStringLiteral($1, Y_POSITION(@1)); std::free($1); }
                | T_MULTI_STRING_LITERAL { $$ = new A_MultiStringLiteral($1, Y_POSITION(@1)); std::free($1); }
                ;
 

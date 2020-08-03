@@ -70,9 +70,7 @@ class AstExpression;
 class AstLiteral;
 class A_IntegerLiteral;
 class A_FloatLiteral;
-class AstStringLiteral;
-class A_SingleStringLiteral;
-class A_MultiStringLiteral;
+class A_StringLiteral;
 class A_CharLiteral;
 class A_BooleanLiteral;
 class A_NilLiteral;
@@ -383,52 +381,27 @@ private:
   BitCategory bitCategory_;
 };
 
-class AstStringLiteral : public AstLiteral {
+// string literal
+class A_StringLiteral : public AstLiteral {
 public:
   // QuoteCategory
   // Single: "
   // Multi: """
   enum class QuoteCategory { SINGLE = 500, MULTI };
 
-  AstStringLiteral(const std::string &literal, const Position &position);
-  virtual ~AstStringLiteral() = default;
-  virtual QuoteCategory quoteCategory() const = 0;
-  virtual const std::string &parsed() const = 0;
-};
-
-// merged single string
-class A_SingleStringLiteral : public AstStringLiteral {
-public:
-  A_SingleStringLiteral(const std::string &literal, const Position &position);
-  virtual ~A_SingleStringLiteral() = default;
+  A_StringLiteral(const std::string &literal, const Position &position);
+  virtual ~A_StringLiteral() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual AstStringLiteral::QuoteCategory quoteCategory() const;
-  virtual const std::string &parsed() const;
-  virtual const std::deque<std::string> &literals() const;
-  virtual void join(const std::string &literal, const Position &position);
-
-private:
-  std::deque<std::string> literals_;
-  std::string parsed_;
-};
-
-// multiple line string
-class A_MultiStringLiteral : public AstStringLiteral {
-public:
-  A_MultiStringLiteral(const std::string &literal, const Position &position);
-  virtual ~A_MultiStringLiteral() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstStringLiteral::QuoteCategory quoteCategory() const;
+  virtual QuoteCategory quoteCategory() const;
   virtual const std::string &parsed() const;
   virtual const std::string &literal() const;
 
 private:
   std::string literal_;
   std::string parsed_;
+  QuoteCategory quoteCategory_;
 };
 
 class A_CharLiteral : public AstLiteral {

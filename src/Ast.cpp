@@ -433,83 +433,40 @@ double A_FloatLiteral::toDouble() const { return std::stod(parsed_); }
 
 // A_StringLiteral {
 
-const static std::unordered_map<AstStringLiteral::QuoteCategory, std::string>
+const static std::unordered_map<A_StringLiteral::QuoteCategory, std::string>
     ASL_QC_Map = {
-        {AstStringLiteral::QuoteCategory::SINGLE, "SINGLE"},
-        {AstStringLiteral::QuoteCategory::MULTI, "MULTI"},
+        {A_StringLiteral::QuoteCategory::SINGLE, "SINGLE"},
+        {A_StringLiteral::QuoteCategory::MULTI, "MULTI"},
 };
 
-// A_SingleStringLiteral {
-
-A_SingleStringLiteral::A_SingleStringLiteral(const std::string &literal,
-                                             const Position &position)
-    : AstStringLiteral("A_SingleStringLiteral", position), literals_(),
-      parsed_(literal.substr(1, literal.length() - 2)) {
-  literals_.push_front(literal);
+A_StringLiteral::A_StringLiteral(const std::string &literal,
+                                 const Position &position)
+    : AstLiteral("A_StringLiteral", position), literal_(literal),
+      parsed_(literal), quoteCategory_(A_StringLiteral::QuoteCategory::SINGLE) {
+  parsed_ = literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
+                ? literal.substr(3, literal.length() - 6)
+                : literal.substr(1, literal.length() - 2);
+  quoteCategory_ = literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
+                       ? A_StringLiteral::QuoteCategory::MULTI
+                       : A_StringLiteral::QuoteCategory::SINGLE;
 }
 
-AstCategory A_SingleStringLiteral::category() const {
+AstCategory A_StringLiteral::category() const {
   return AstCategory::StringLiteral;
 }
 
-std::string A_SingleStringLiteral::toString() const {
-  std::stringstream ss;
-  ss << fmt::format("[@{} position:{}, parsed:{}, size:{}, ", name(),
-                    position().toString(), parsed_, literals_.size());
-  for (int i = 0; i < (int)literals_.size(); i++) {
-    ss << literals_[i];
-    if (i < (int)literals_.size() - 1) {
-      ss << ", ";
-    }
-  }
-  ss << "]";
-  return ss.str();
-}
-
-AstStringLiteral::QuoteCategory A_SingleStringLiteral::quoteCategory() const {
-  return AstStringLiteral::QuoteCategory::SINGLE;
-}
-
-const std::string &A_SingleStringLiteral::parsed() const { return parsed_; }
-
-const std::deque<std::string> &A_SingleStringLiteral::literals() const {
-  return literals_;
-}
-
-void A_SingleStringLiteral::join(const std::string &literal,
-                                 const Position &position) {
-  literals_.push_front(literal);
-  locate(position);
-  parsed_ = literal.substr(1, literal.length() - 2) + parsed_;
-}
-
-// A_SingleStringLiteral }
-
-// A_MultiStringLiteral {
-
-A_MultiStringLiteral::A_MultiStringLiteral(const std::string &literal,
-                                           const Position &position)
-    : AstStringLiteral("A_MultiStringLiteral", position), literal_(literal),
-      parsed_(literal.substr(3, literal.length() - 6)) {}
-
-AstCategory A_MultiStringLiteral::category() const {
-  return AstCategory::StringLiteral;
-}
-
-std::string A_MultiStringLiteral::toString() const {
+std::string A_StringLiteral::toString() const {
   return fmt::format("[@{} position:{}, parsed:{}, literal:{}]", name(),
                      position().toString(), parsed_, literal_);
 }
 
-AstStringLiteral::QuoteCategory A_MultiStringLiteral::quoteCategory() const {
-  return AstStringLiteral::QuoteCategory::MULTI;
+A_StringLiteral::QuoteCategory A_StringLiteral::quoteCategory() const {
+  return quoteCategory_;
 }
 
-const std::string &A_MultiStringLiteral::parsed() const { return parsed_; }
+const std::string &A_StringLiteral::parsed() const { return parsed_; }
 
-const std::string &A_MultiStringLiteral::literal() const { return literal_; }
-
-// A_MultiStringLiteral }
+const std::string &A_StringLiteral::literal() const { return literal_; }
 
 // A_StringLiteral }
 

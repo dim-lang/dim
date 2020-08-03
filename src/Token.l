@@ -65,6 +65,7 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "false"      { return T_INTEGER_TOKEN(T_FALSE); }
 "try"        { return T_INTEGER_TOKEN(T_TRY); }
 "catch"      { return T_INTEGER_TOKEN(T_CATCH); }
+"finally"    { return T_INTEGER_TOKEN(T_FINALLY); }
 "var"        { return T_INTEGER_TOKEN(T_VAR); }
 "val"        { return T_INTEGER_TOKEN(T_VAL); }
 "nil"        { return T_INTEGER_TOKEN(T_NIL); }
@@ -131,78 +132,79 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
  /* and or not operator */
-"and"  { return T_INTEGER_TOKEN(T_AND); }
-"or"   { return T_INTEGER_TOKEN(T_OR); }
-"not"  { return T_INTEGER_TOKEN(T_NOT); }
+"and"   { return T_INTEGER_TOKEN(T_AND); }
+"or"    { return T_INTEGER_TOKEN(T_OR); }
+"not"   { return T_INTEGER_TOKEN(T_NOT); }
 
  /* operator */
-"+"    { return T_INTEGER_TOKEN(T_PLUS); }
-"++"   { return T_INTEGER_TOKEN(T_PLUS2); }
-"-"    { return T_INTEGER_TOKEN(T_MINUS); }
-"--"   { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"    { return T_INTEGER_TOKEN(T_ASTERISK); }
-"**"   { return T_INTEGER_TOKEN(T_ASTERISK2); }
-"/"    { return T_INTEGER_TOKEN(T_SLASH); }
-"//"   { return T_INTEGER_TOKEN(T_SLASH2); }
-"%"    { return T_INTEGER_TOKEN(T_PERCENT); }
-"%%"   { return T_INTEGER_TOKEN(T_PERCENT2); }
+"+"     { return T_INTEGER_TOKEN(T_PLUS); }
+"++"    { return T_INTEGER_TOKEN(T_PLUS2); }
+"-"     { return T_INTEGER_TOKEN(T_MINUS); }
+"--"    { return T_INTEGER_TOKEN(T_MINUS2); }
+"*"     { return T_INTEGER_TOKEN(T_ASTERISK); }
+"**"    { return T_INTEGER_TOKEN(T_ASTERISK2); }
+"/"     { return T_INTEGER_TOKEN(T_SLASH); }
+"//"    { return T_INTEGER_TOKEN(T_SLASH2); }
+"%"     { return T_INTEGER_TOKEN(T_PERCENT); }
+"%%"    { return T_INTEGER_TOKEN(T_PERCENT2); }
 
-"&"    { return T_INTEGER_TOKEN(T_AMPERSAND); }
-"&&"   { return T_INTEGER_TOKEN(T_AMPERSAND2); }
-"|"    { return T_INTEGER_TOKEN(T_BAR); }
-"||"   { return T_INTEGER_TOKEN(T_BAR2); }
-"~"    { return T_INTEGER_TOKEN(T_TILDE); }
-"!"    { return T_INTEGER_TOKEN(T_EXCLAM); }
-"^"    { return T_INTEGER_TOKEN(T_CARET); }
+"&"     { return T_INTEGER_TOKEN(T_AMPERSAND); }
+"&&"    { return T_INTEGER_TOKEN(T_AMPERSAND2); }
+"|"     { return T_INTEGER_TOKEN(T_BAR); }
+"||"    { return T_INTEGER_TOKEN(T_BAR2); }
+"~"     { return T_INTEGER_TOKEN(T_TILDE); }
+"!"     { return T_INTEGER_TOKEN(T_EXCLAM); }
+"^"     { return T_INTEGER_TOKEN(T_CARET); }
 
-"<<"   { return T_INTEGER_TOKEN(T_LSHIFT); }
-">>"   { return T_INTEGER_TOKEN(T_RSHIFT); }
-">>>"  { return T_INTEGER_TOKEN(T_ARSHIFT); }
+"<<"    { return T_INTEGER_TOKEN(T_LSHIFT); }
+">>"    { return T_INTEGER_TOKEN(T_RSHIFT); }
+">>>"   { return T_INTEGER_TOKEN(T_ARSHIFT); }
 
  /* equal operator */
-"="    { return T_INTEGER_TOKEN(T_EQUAL); }
-"+="   { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
-"-="   { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="   { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
-"/="   { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
-"%="   { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
-"&="   { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
-"|="   { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
-"^="   { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
-"<<="  { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
-">>="  { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
-">>>=" { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
+"="     { return T_INTEGER_TOKEN(T_EQUAL); }
+"+="    { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
+"-="    { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
+"*="    { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
+"/="    { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
+"%="    { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
+"&="    { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
+"|="    { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
+"^="    { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
+"<<="   { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
+">>="   { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
+">>>="  { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
 
  /* compare operator */
-"=="   { return T_INTEGER_TOKEN(T_EQ); }
-"!="   { return T_INTEGER_TOKEN(T_NEQ); }
-"<"    { return T_INTEGER_TOKEN(T_LT); }
-"<="   { return T_INTEGER_TOKEN(T_LE); }
-">"    { return T_INTEGER_TOKEN(T_GT); }
-">="   { return T_INTEGER_TOKEN(T_GE); }
+"=="    { return T_INTEGER_TOKEN(T_EQ); }
+"!="    { return T_INTEGER_TOKEN(T_NEQ); }
+"<"     { return T_INTEGER_TOKEN(T_LT); }
+"<="    { return T_INTEGER_TOKEN(T_LE); }
+">"     { return T_INTEGER_TOKEN(T_GT); }
+">="    { return T_INTEGER_TOKEN(T_GE); }
 
  /* parentheses */
-"("    { return T_INTEGER_TOKEN(T_LPAREN); }
-")"    { return T_INTEGER_TOKEN(T_RPAREN); }
-"["    { return T_INTEGER_TOKEN(T_LBRACKET); }
-"]"    { return T_INTEGER_TOKEN(T_RBRACKET); }
-"{"    { return T_INTEGER_TOKEN(T_LBRACE); }
-"}"    { return T_INTEGER_TOKEN(T_RBRACE); }
+"("     { return T_INTEGER_TOKEN(T_LPAREN); }
+")"     { return T_INTEGER_TOKEN(T_RPAREN); }
+"["     { return T_INTEGER_TOKEN(T_LBRACKET); }
+"]"     { return T_INTEGER_TOKEN(T_RBRACKET); }
+"{"     { return T_INTEGER_TOKEN(T_LBRACE); }
+"}"     { return T_INTEGER_TOKEN(T_RBRACE); }
 
  /* other punctuation */
-"_"    { return T_INTEGER_TOKEN(T_UNDERSCORE); }
-","    { return T_INTEGER_TOKEN(T_COMMA); }
-";"    { return T_INTEGER_TOKEN(T_SEMI); }
-"?"    { return T_INTEGER_TOKEN(T_QUESTION); }
-":"    { return T_INTEGER_TOKEN(T_COLON); }
-"::"   { return T_INTEGER_TOKEN(T_COLON2); }
-"."    { return T_INTEGER_TOKEN(T_DOT); }
-".."   { return T_INTEGER_TOKEN(T_DOT2); }
-"<-"   { return T_INTEGER_TOKEN(T_THIN_LARROW); }
-"->"   { return T_INTEGER_TOKEN(T_THIN_RARROW); }
-"=>"   { return T_INTEGER_TOKEN(T_FAT_RARROW); }
-":>"   { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
-"<:"   { return T_INTEGER_TOKEN(T_COLON_RARROW); }
+"_"     { return T_INTEGER_TOKEN(T_UNDERSCORE); }
+","     { return T_INTEGER_TOKEN(T_COMMA); }
+";"     { return T_INTEGER_TOKEN(T_SEMI); }
+[\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); }
+"?"     { return T_INTEGER_TOKEN(T_QUESTION); }
+":"     { return T_INTEGER_TOKEN(T_COLON); }
+"::"    { return T_INTEGER_TOKEN(T_COLON2); }
+"."     { return T_INTEGER_TOKEN(T_DOT); }
+".."    { return T_INTEGER_TOKEN(T_DOT2); }
+"<-"    { return T_INTEGER_TOKEN(T_THIN_LARROW); }
+"->"    { return T_INTEGER_TOKEN(T_THIN_RARROW); }
+"=>"    { return T_INTEGER_TOKEN(T_FAT_RARROW); }
+":>"    { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
+"<:"    { return T_INTEGER_TOKEN(T_COLON_RARROW); }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
@@ -231,12 +233,12 @@ IS  ([uU]|([uU]?[lL]?[lL]))
  /* identifier */
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_PLAINID; }
 
- /* whitespace */
-[ \t\n\v\f\r]                               { /* skip whitespace */ }
+ /* whitespace except newline */
+[ \t\v\f\r]                                 { /* skip whitespace except newline */ }
 
  /* import module */
-^[ \t\n\v\f\r]*import[ \t\n\v\f\r]*         { BEGIN IMPORT; }
-<IMPORT>[^ \t\n\v\f\r\;]+                   {
+^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
+<IMPORT>[^ \t\v\f\r\;]+                     {
                                                 yyextra->pushBuffer(Y_TEXT);
                                                 BEGIN INITIAL;
                                             }

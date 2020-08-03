@@ -56,9 +56,17 @@ def select(s:&int32[], len:int32, compare:(int32, int32)->boolean):int32 {
 }
 
 // declare 3 functions, all returns 64 bit signed integers
-def max(a:int32, b:int32) => a > b ? a : b;
-def min(a:int32, b:int32) => return a < b ? a : b;
-def avg(a:int32, b:int32):int32 => return (a + b) / 2;
+def max(a:int32, b:int32) => { 
+    a > b ? a : b;
+}
+
+def min(a:int32, b:int32) => { return a < b ? a : b; }
+
+def avg(a:int32, b:int32) => { return (a + b) / 2; }
+
+def max(a:int, b:uint) => a > b ? a : b
+
+def max(a:int, b:uint):int => { a > b ? a : b }
 
 // declare program routine function main
 def main():int32 {
@@ -79,11 +87,9 @@ def main():int32 {
     }
     val mymax:(int64, int64)->int64 = (a:int64, b:int64) => a > b ? a : b;
     val mymin = (a:int64, b:int64) => {
-        var x = 0;
-        for (var i = 0; i < 10; i++) {
-            x += i;
-        }
-        x;
+        val c = a + 1
+        val d = b - 1
+        a + b
     };
     val myavg = (a:int64, b:int64) => (a + b) / 2;
     var r = select(y, (a:int32, b:int32) => a > b);
