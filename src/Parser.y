@@ -46,7 +46,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <token> T_EOF
 
  /* keyword */
-%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
 %token <token> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE
 
  /* primitive integer type */
@@ -278,6 +278,39 @@ jump_expression : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@
 
 constant_expression : conditional_expression { $$ = $1; }
                     ;
+
+expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
+           | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
+           | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
+           | T_TRY expression optional_catch_expression optinal_finally_expression
+           | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN
+           | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression
+           | T_THROW expression
+           | T_RETURN expression
+           | call_expression
+           | assignment_expression
+           | postfix_expression
+           ;
+
+ /* semi and newline { */
+
+optional_semi : semi
+              |
+              ;
+
+semi : T_SEMI
+     | T_NEWLINE
+     ;
+
+repetible_newline : repetible_newline_impl
+                  |
+                  ;
+
+repetible_newline_impl : newline
+                       | repetible_newline_impl newline
+                       ;
+
+ /* semi and newline % */
 
  /* expression } */
 

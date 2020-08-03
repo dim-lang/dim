@@ -66,6 +66,7 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "try"        { return T_INTEGER_TOKEN(T_TRY); }
 "catch"      { return T_INTEGER_TOKEN(T_CATCH); }
 "finally"    { return T_INTEGER_TOKEN(T_FINALLY); }
+"throw"      { return T_INTEGER_TOKEN(T_THROW); }
 "var"        { return T_INTEGER_TOKEN(T_VAR); }
 "val"        { return T_INTEGER_TOKEN(T_VAL); }
 "nil"        { return T_INTEGER_TOKEN(T_NIL); }
