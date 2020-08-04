@@ -227,31 +227,9 @@ conditional_expression : binary_expression { $$ = $1; }
                        | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new A_ConditionalExpression($1, $3, $5); }
                        ;
 
-assignment_expression : conditional_expression { $$ = $1; }
-                      | unary_expression T_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_ASTERISK_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_SLASH_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_PERCENT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_PLUS_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_MINUS_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_AMPERSAND_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_BAR_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_CARET_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_LSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_RSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      | unary_expression T_ARSHIFT_EQUAL assignment_expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      ;
-
 expression : assignment_expression { $$ = $1; }
            | expression1
            ;
-
-expression1 : if_expression
-            | loop_expression
-            | compound_expression
-            | return_expression
-            | jump_expression
-            ;
 
 if_expression : T_IF T_LPAREN expression T_RPAREN expression                    %prec "lower_than_else" { $$ = new A_IfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
               | T_IF T_LPAREN expression T_RPAREN expression T_ELSE expression  { $$ = new A_IfStatement($3, $5, $7, Y_POSITION(@1)); }
@@ -279,18 +257,65 @@ jump_expression : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@
 constant_expression : conditional_expression { $$ = $1; }
                     ;
 
-expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
-           | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
-           | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
-           | T_TRY expression optional_catch_expression optinal_finally_expression
-           | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN
-           | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression
-           | T_THROW expression
-           | T_RETURN expression
-           | call_expression
-           | assignment_expression
-           | postfix_expression
+expression : expression1
            ;
+
+expression1 : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
+            | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
+            | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
+            /* | T_TRY expression optional_catch_expression optinal_finally_expression */
+            /* | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN */
+            /* | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression */
+            | T_THROW expression
+            | T_RETURN expression
+            | call_expression
+            | assignment_expression
+            | postfix_expression
+            ;
+
+assignment_expression : id equal_operator expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
+                      ;
+
+equal_operator : T_EQUAL
+               | T_ASTERISK_EQUAL
+               | T_SLASH_EQUAL
+               | T_PERCENT_EQUAL
+               | T_PLUS_EQUAL
+               | T_MINUS_EQUAL
+               | T_AMPERSAND_EQUAL
+               | T_BAR_EQUAL
+               | T_CARET_EQUAL
+               | T_LSHIFT_EQUAL
+               | T_RSHIFT_EQUAL
+               | T_ARSHIFT_EQUAL
+               ;
+
+postfix_expression : infix_expression
+                   | infix_expression postfix_operator
+                   ;
+
+postfix_operator : id optional_newline
+                 ;
+
+infix_expression : prefix_expression
+                 | infix_expression id optional_newline infix_expression
+                 ;
+
+prefix_expression : simple_expression
+                  | prefix_operator simple_expression
+                  ;
+
+simple_expression : block_expression
+                  | simple_expression1
+                  ;
+
+simple_expression1 : literal
+                   | T_LPAREN T_RPAREN
+                   | T_LPAREN expression_list T_RPAREN
+                   | simple_expression T_DOT id
+                   | simple_expression type_arg_list
+                   | simple_expression1 argument_expression_list
+                   ;
 
  /* semi and newline { */
 
@@ -302,12 +327,16 @@ semi : T_SEMI
      | T_NEWLINE
      ;
 
+optional_newline : T_NEWLINE
+                 |
+                 ;
+
 repetible_newline : repetible_newline_impl
                   |
                   ;
 
-repetible_newline_impl : newline
-                       | repetible_newline_impl newline
+repetible_newline_impl : T_NEWLINE
+                       | repetible_newline_impl T_NEWLINE
                        ;
 
  /* semi and newline % */
