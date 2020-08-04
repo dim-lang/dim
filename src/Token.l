@@ -12,8 +12,8 @@ HEX ([0-9a-fA-F])
 OCT ([0-7])
 BIN ([01])
 EXP ([eE][-+]?[0-9]+)
-FS  ([fFlL])
-IS  ([uU]|([uU]?[lL]?[lL]))
+FS  ([fF])
+IS  ([uU]|([uU]?[lL]))
 
 %{
 #include "Ast.h"
@@ -105,6 +105,8 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "public"     { return T_INTEGER_TOKEN(T_PUBLIC); }
 "protect"    { return T_INTEGER_TOKEN(T_PROTECT); }
 "private"    { return T_INTEGER_TOKEN(T_PRIVATE); }
+"prefix"     { return T_INTEGER_TOKEN(T_PREFIX); }
+"postfix"    { return T_INTEGER_TOKEN(T_POSTFIX); }
 
  /***
    * primitive integer type
@@ -125,7 +127,6 @@ IS  ([uU]|([uU]?[lL]?[lL]))
    */
 "float"      { return T_INTEGER_TOKEN(T_FLOAT); }
 "double"     { return T_INTEGER_TOKEN(T_DOUBLE); }
-"ldouble"    { return T_INTEGER_TOKEN(T_LDOUBLE); }
 
  /***
    * primitive boolean type
@@ -133,9 +134,9 @@ IS  ([uU]|([uU]?[lL]?[lL]))
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
  /* and or not operator */
-"and"   { return T_INTEGER_TOKEN(T_AND); }
-"or"    { return T_INTEGER_TOKEN(T_OR); }
-"not"   { return T_INTEGER_TOKEN(T_NOT); }
+ /* "and"   { return T_INTEGER_TOKEN(T_AND); } */
+ /* "or"    { return T_INTEGER_TOKEN(T_OR); } */
+ /* "not"   { return T_INTEGER_TOKEN(T_NOT); } */
 
  /* operator */
 "+"     { return T_INTEGER_TOKEN(T_PLUS); }
@@ -216,23 +217,23 @@ IS  ([uU]|([uU]?[lL]?[lL]))
  /* binary integer literal */
 0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
- /* float literal : 92.312(f|F), 92.312e-10(f|F), 10.2e+91(f|F), 1.0e+7(l|L) */
-{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
-{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+ /* float literal : 92.312(f|F), 92.312e-10(f|F), 10.2e+91(f|F), 1.0e+7(f|F) */
+{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOATING_POINT_LITERAL; }
+{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOATING_POINT_LITERAL; }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_MULTI_STRING_LITERAL; }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
 
  /* empty string */
-\"\"                                        { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
+\"\"                                        { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
  /* one line string literal */
-\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"       { T_LITERAL_TOKEN; return T_SINGLE_STRING_LITERAL; }
+\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"       { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
 
  /* char literal */
-\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'         { T_LITERAL_TOKEN; return T_CHAR_LITERAL; }
+\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'         { T_LITERAL_TOKEN; return T_CHARACTER_LITERAL; }
 
- /* identifier */
-[a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_PLAINID; }
+ /* var id */
+[a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
 
  /* whitespace except newline */
 [ \t\v\f\r]                                 { /* skip whitespace except newline */ }

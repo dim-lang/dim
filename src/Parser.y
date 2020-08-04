@@ -31,74 +31,71 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* different ways to access data */
 %union {
-    A_ExpressionList *a_expr_list;
-    AstStatementList *a_stmt_list;
-    AstDefinitionList *a_def_list;
-    AstExpression *a_expr;
-    AstStatement *a_stmt;
-    AstDefinition *a_def;
-    AstId *a_id;
-    AstToken *a_token;
-    char *literal;
-    int token;
+    A_ExpressionList *expr_list;
+    AstStatementList *stmt_list;
+    AstDefinitionList *def_list;
+    AstExpression *expr;
+    AstStatement *stmt;
+    AstDefinition *def;
+    AstToken *token;
+    char *str;
+    int tok;
 }
 
-%token <token> T_EOF
+%token <tok> T_EOF
 
  /* keyword */
-%token <token> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
-%token <token> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE
+%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <tok> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX
 
  /* primitive integer type */
-%token <token> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
+%token <tok> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
  /* primitive float type */
-%token <token> T_FLOAT T_DOUBLE T_LDOUBLE
+%token <tok> T_FLOAT T_DOUBLE
  /* primitive boolean type */
-%token <token> T_BOOLEAN
+%token <tok> T_BOOLEAN
 
  /* and or not operator */
-%token <token> T_AND T_OR T_NOT
+ /* %token <tok> T_AND T_OR T_NOT */
 
  /* operator */
-%token <token> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
+%token <tok> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
  /* operator */
-%token <token> T_AMPERSAND T_AMPERSAND2 T_BAR T_BAR2 T_TILDE T_EXCLAM T_CARET
+%token <tok> T_AMPERSAND T_AMPERSAND2 T_BAR T_BAR2 T_TILDE T_EXCLAM T_CARET
  /* operator */
-%token <token> T_LSHIFT T_RSHIFT T_ARSHIFT
+%token <tok> T_LSHIFT T_RSHIFT T_ARSHIFT
 
  /* equal operator */
-%token <token> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
+%token <tok> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
  /* compare operator */
-%token <token> T_EQ T_NEQ T_LT T_LE T_GT T_GE
+%token <tok> T_EQ T_NEQ T_LT T_LE T_GT T_GE
  /* parentheses */
-%token <token> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
+%token <tok> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <token> T_UNDERSCORE T_COMMA T_SEMI T_NEWLINE T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
+%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_NEWLINE T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
 
- /* literal */
-%token <literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_SINGLE_STRING_LITERAL T_MULTI_STRING_LITERAL T_CHAR_LITERAL
-%token <literal> T_PLAINID
-
- /* id */
-%token <a_id> id
+ /* str */
+%token <str> T_INTEGER_LITERAL T_FLOATING_POINT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
+%token <str> T_VAR_ID
 
  /* token */
-%token <a_token> binary_operator
+%token <token> optional_semi semi optional_newline repetible_newline repetible_newline_impl
+%token <token> prefix_operator equal_operator
 
-%type <a_expr> boolean_literal string_literal postfix_expression primary_expression unary_expression binary_expression
-%type <a_expr> conditional_expression assignment_expression constant_expression
-%type <a_expr> expression
-%type <a_expr_list> argument_expression_list
+%type <expr> literal boolean_literal
+%type <expr> id var_id op_id prefix_id postfix_id
+%type <expr> expression prefix_expression postfix_expression infix_expression simple_expression block_expression nonblock_expression
+%type <expr_list> argument_expression_list
 
-%type <a_stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
-%type <a_stmt> statement
-%type <a_stmt_list> statement_list
+%type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
+%type <stmt> statement
+%type <stmt_list> statement_list
 
-%type <a_def> variable_definition function_definition function_signature_definition function_argument_definition
-%type <a_def> definition
-%type <a_def_list> compile_unit function_argument_definition_list
+%type <def> variable_definition function_definition function_signature_definition function_argument_definition
+%type <def> definition
+%type <def_list> compile_unit function_argument_definition_list
 
- /* operator precedence */
+ /* operator precedence, low -> high */
 
  /* comma */
 %left T_COMMA
@@ -111,8 +108,8 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* conditional */
 %left T_QUESTION T_COLON
  /* binary_operator */
-%left T_OR T_BAR2
-%left T_AND T_AMPERSAND2
+%left /* T_OR */ T_BAR2
+%left /* T_AND */ T_AMPERSAND2
 %left T_BAR
 %left T_CARET
 %left T_AMPERSAND
@@ -121,13 +118,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %left T_LSHIFT T_RSHIFT T_ARSHIFT
 %left T_PLUS T_MINUS
 %left T_ASTERISK T_SLASH T_PERCENT
-%right T_PLUS2 T_MINUS2
-%right T_ASTERISK2 T_SLASH2 T_PERCENT2
-%right T_COLON2 T_DOT2
- /* other */
-%nonassoc T_NOT T_TILDE
 %left T_PLUS2 T_MINUS2
 %left T_ASTERISK2 T_SLASH2 T_PERCENT2
+%left T_CARET2
+%right T_COLON2
+ /* other */
+%nonassoc /* T_NOT */ T_TILDE T_EXCLAM
 %left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* fix if-else shift/reduce */
 %nonassoc "lower_than_else"
@@ -138,143 +134,108 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %%
 
- /* id { */
-
-id : T_PLAINID { $$ = new A_PlainId($1, Y_POSITION(@1)); std::free($1); }
-   ;
-
- /* id } */
-
  /* literal { */
+
+literal : T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
+        | T_FLOATING_POINT_LITERAL { $$ = new A_FloatingPointLiteral($1, Y_POSITION(@1)); std::free($1); }
+        | boolean_literal { $$ = $1; }
+        | T_CHARACTER_LITERAL { $$ = new A_CharacterLiteral($1, Y_POSITION(@1)); std::free($1); }
+        | T_STRING_LITERAL { $$ = new A_StringLiteral($1, Y_POSITION(@1)); std::free($1); }
+        | T_NIL { $$ = new A_NilLiteral(Y_POSITION(@1)); std::free($1); }
+        | T_VOID { $$ = new A_VoidLiteral(Y_POSITION(@1)); std::free($1); }
+        ;
 
 boolean_literal : T_TRUE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::free($1); }
                 | T_FALSE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::free($1); }
                 ;
 
-single_string_literal : T_SINGLE_STRING_LITERAL { $$ = new A_SingleStringLiteral(); $$->join($1, Y_POSITION(@1)); std::free($1); }
-                      | T_SINGLE_STRING_LITERAL single_string_literal { $3->join($1, Y_POSITION(@1)); $$ = $3; std::free($1); }
-                      ;
-
-string_literal : T_SINGLE_STRING_LITERAL { $$ = new A_SingleStringLiteral($1, Y_POSITION(@1)); std::free($1); }
-               | T_MULTI_STRING_LITERAL { $$ = new A_MultiStringLiteral($1, Y_POSITION(@1)); std::free($1); }
-               ;
-
  /* literal } */
+
+ /* semi and newline { */
+
+optional_semi : semi { $$ = $1; }
+              | { $$ = nullptr; }
+              ;
+
+semi : T_SEMI { $$ = new A_Token($1, Y_POSITION(@1));  }
+     | T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)) }
+     ;
+
+optional_newline : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+                 | { $$ = nullptr; }
+                 ;
+
+repetible_newline : repetible_newline_impl { $$ = $1; }
+                  | { $$ = nullptr; }
+                  ;
+
+repetible_newline_impl : T_NEWLINE { $$ = new A_RepetibleToken($1, Y_POSITION(@1)); }
+                       | T_NEWLINE repetible_newline_impl { $2->join($1, Y_POSITION(@1)); $$ = $2; }
+                       ;
+
+ /* semi and newline } */
+
+ /* id { */
+
+id : var_id
+   | op_id
+   | prefix_id
+   | postfix_id
+   ;
+
+var_id : T_VAR_ID { $$ = new A_Id(AstId::IdCategory::VAR, $1, Y_POSITION(@1)); std::free($1); }
+       ;
+
+op_id : T_AMPERSAND2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_BAR2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_BAR { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_CARET { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_AMPERSAND { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_EQ { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_NEQ { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_LT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_LE { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_GT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_GE { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_LSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_RSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_ARSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_PLUS { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_MINUS { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_ASTERISK { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_SLASH { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_PERCENT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_PLUS2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_MINUS2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_ASTERISK2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_SLASH2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_PERCENT2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_CARET2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      | T_COLON2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+      ;
+
+prefix_id : T_PREFIX prefix_operator { $$ = new A_Id(AstId::PREFIX, dynamic_cast<A_Token*>($2)->token(), $2->position()); delete $2; }
+          ;
+
+postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_Id(AstId::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
+           | T_POSTFIX T_MINUS2 { $$ = new A_Id(AstId::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
+           ;
+
+ /* id } */
 
  /* expression { */
 
-primary_expression : id { $$ = $1; }
-                   | boolean_literal { $$ = $1; }
-                   | string_literal { $$ = $1; }
-                   | T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
-                   | T_FLOAT_LITERAL { $$ = new A_FloatLiteral($1, Y_POSITION(@1)); std::free($1); }
-                   | T_LPAREN expression T_RPAREN { $$ = $2; }
-                   ;
-
-postfix_expression : primary_expression { $$ = $1; }
-                   /*| postfix_expression '[' expression ']'*/
-                   | id T_LPAREN T_RPAREN { $$ = new A_CallExpression($1, new A_ExpressionList(), Y_POSITION(@1)); std::free($1); }
-                   | id T_LPAREN argument_expression_list T_RPAREN { $$ = new A_CallExpression($1, $3, Y_POSITION(@1)); std::free($1); }
-                   /*| postfix_expression '.' id */
-                   ;
-
-argument_expression_list : assignment_expression { $$ = new A_ExpressionList(); $$->add($1); }
-                         | assignment_expression T_COMMA argument_expression_list { $3->add($1); $$ = $3; }
-                         ;
-
-unary_expression : postfix_expression { $$ = $1; }
-                 | unary_operator unary_expression { $$ = new A_UnaryExpression($1, $2, Y_POSITION(@1)); }
-                 ;
-
-unary_operator : T_MINUS { $$ = new A_Token($1, Y_POSITION(@1)); }
-               | T_TILDE { $$ = new A_Token($1, Y_POSITION(@1)); }
-               | T_NOT { $$ = new A_Token($1, Y_POSITION(@1)); }
-               ;
-
- /*
-cast_expression : unary_expression
-                | '(' type_name ')' cast_expression
-                ;
- */
-
-binary_expression : unary_expression { $$ = $1; }
-                  | binary_expression binary_operator unary_expression { $$ = new A_BinaryExpression($1, $2, $3, Y_POSITION(@2)); }
-                  ;
-
-binary_operator : T_PLUS { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_MINUS  { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_ASTERISK { $$ = new A_Token($1, Y_POSITION(@1)); } 
-                | T_SLASH { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_PERCENT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_LSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_RSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_ARSHIFT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_LT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_LE { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_GT { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_GE { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_EQ { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_NEQ { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_AMPERSAND { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_CARET { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_BAR { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_AND { $$ = new A_Token($1, Y_POSITION(@1)); }
-                | T_OR { $$ = new A_Token($1, Y_POSITION(@1)); }
-                ;
-
-conditional_expression : binary_expression { $$ = $1; }
-                       /* | T_IF T_LPAREN binary_expression T_RPAREN expression T_ELSE conditional_expression { $$ = new A_ConditionalExpression($2, $4, $6); } */
-                       | binary_expression T_QUESTION expression T_COLON conditional_expression { $$ = new A_ConditionalExpression($1, $3, $5); }
-                       ;
-
-expression : assignment_expression { $$ = $1; }
-           | expression1
+expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
+           | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
+           | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
+           /* | T_TRY expression optional_catch_expression optinal_finally_expression */
+           /* | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN */
+           /* | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression */
+           | T_THROW expression
+           | T_RETURN expression
+           | id equal_operator expression
+           | postfix_expression
            ;
-
-if_expression : T_IF T_LPAREN expression T_RPAREN expression                    %prec "lower_than_else" { $$ = new A_IfStatement($3, $5, new AstEmptyStatement(), Y_POSITION(@1)); }
-              | T_IF T_LPAREN expression T_RPAREN expression T_ELSE expression  { $$ = new A_IfStatement($3, $5, $7, Y_POSITION(@1)); }
-              ;
-
-loop_expression : T_WHILE T_LPAREN expression T_RPAREN expression
-                | T_FOR T_LPAREN expression T_IN expression T_RPAREN expression
-                ;
-
-return_expression : T_RETURN expression
-                  | T_RETURN
-                  ;
-
-compound_expression : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(new AstStatementList(), Y_POSITION(@1), Y_POSITION(@2)); }
-                    | T_LBRACE expression_list T_RBRACE { $$ = new AstCompoundStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
-                    ;
-
-expression_list :
-                ;
-
-jump_expression : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@1), Y_POSITION(@2)); }
-                | T_BREAK T_SEMI { $$ = new AstBreakStatement(Y_POSITION(@1), Y_POSITION(@2)); }
-                ;
-
-constant_expression : conditional_expression { $$ = $1; }
-                    ;
-
-expression : expression1
-           ;
-
-expression1 : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
-            | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
-            | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
-            /* | T_TRY expression optional_catch_expression optinal_finally_expression */
-            /* | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN */
-            /* | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression */
-            | T_THROW expression
-            | T_RETURN expression
-            | call_expression
-            | assignment_expression
-            | postfix_expression
-            ;
-
-assignment_expression : id equal_operator expression { $$ = new A_AssignmentExpression($1, $2, $3, Y_POSITION(@2)); }
-                      ;
 
 equal_operator : T_EQUAL
                | T_ASTERISK_EQUAL
@@ -305,52 +266,58 @@ prefix_expression : simple_expression
                   | prefix_operator simple_expression
                   ;
 
+prefix_operator : T_MINUS
+                | T_PLUS
+                | T_TILDE
+                | T_EXCLAM
+                | T_PLUS2
+                | T_MINUS2
+                ;
+
 simple_expression : block_expression
-                  | simple_expression1
+                  | nonblock_expression
                   ;
 
-simple_expression1 : literal
-                   | T_LPAREN T_RPAREN
-                   | T_LPAREN expression_list T_RPAREN
-                   | simple_expression T_DOT id
-                   | simple_expression type_arg_list
-                   | simple_expression1 argument_expression_list
-                   ;
+nonblock_expression : literal
+                    | T_LPAREN T_RPAREN
+                    | T_LPAREN expression_list T_RPAREN
+                    | simple_expression T_DOT id
+                    | id
+                    /* | simple_expression type_arg_list */
+                    | nonblock_expression argument_expression_list
+                    ;
 
- /* semi and newline { */
+expression_list : expression
+                | expression T_COMMA expression_list
+                ;
 
-optional_semi : semi
-              |
-              ;
+argument_expression_list : T_LPAREN T_RPAREN
+                         | T_LPAREN expression_list T_RPAREN
+                         | optional_newline block_expression
+                         ;
 
-semi : T_SEMI
-     | T_NEWLINE
-     ;
-
-optional_newline : T_NEWLINE
-                 |
+block_expression : T_LBRACE block T_RBRACE
                  ;
 
-repetible_newline : repetible_newline_impl
-                  |
+block : block_statement repetible_semi_and_block_statement optional_result_expression
+      ;
+
+repetible_semi_and_block_statement : repetible_semi_and_block_statement_impl
+                                   |
+                                   ;
+
+repetible_semi_and_block_statement_impl : semi block_statement
+                                        | repetible_semi_and_block_statement_impl semi block_statement
+                                        ;
+
+optional_result_expression : result_expression
+                           |
+                           ;
+
+result_expression : expression
                   ;
 
-repetible_newline_impl : T_NEWLINE
-                       | repetible_newline_impl T_NEWLINE
-                       ;
-
- /* semi and newline % */
-
- /* expression } */
-
- /* statement { */
-
-statement : expression T_SEMI
-          | definition
-          /* import */
-          ;
-
- /* statement } */
+ /* exprssion } */
 
  /* part-2 definition */
 

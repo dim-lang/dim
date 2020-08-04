@@ -69,149 +69,6 @@ void AstPositional::locate(const Position &position) {
 
 // AstPositional }
 
-// A_ExpressionList {
-
-A_ExpressionList::A_ExpressionList()
-    : AstNamely(nameGen.generate("A_ExpressionList")) {}
-
-AstCategory A_ExpressionList::category() const {
-  return AstCategory::ExpressionList;
-}
-
-std::string A_ExpressionList::toString() const {
-  return fmt::format("[@{} {}]", name(),
-                     detail::A_List<AstExpression>::toString());
-}
-
-// A_ExpressionList }
-
-// token {
-
-AstToken::AstToken(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-// A_Token {
-
-A_Token::A_Token(const int &token, const Position &position)
-    : AstToken(nameGen.generateWith(tokenName(token), "A_Token"), position),
-      token_(token) {}
-
-AstCategory A_Token::category() const { return AstCategory::Token; }
-
-std::string A_Token::toString() const {
-  return fmt::format("[@{} position:{} token:{}]", name(),
-                     position().toString(), tokenName(token_));
-}
-
-const int &A_Token::token() const { return token_; }
-
-const std::string &A_Token::name() const { return tokenName(token_); }
-
-// A_Token }
-
-// token }
-
-// id {
-
-// AstId {
-
-AstId::AstId(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-// AstId }
-
-// A_PlainId {
-
-A_PlainId::A_PlainId(const std::string &literal, const Position &position)
-    : AstId(nameGen.generateWith("A_PlainId", literal), position),
-      literal_(literal) {}
-
-AstCategory A_PlainId::category() const { return AstCategory::PlainId; }
-
-std::string A_PlainId::toString() const {
-  return fmt::format("[@{} position:{}, name:{}, literal:{}]", name(),
-                     position().toString(), name(), literal_);
-}
-
-const std::string &A_PlainId::literal() const { return literal_; }
-
-// A_PlainId }
-
-// id }
-
-// type {
-
-// AstType {
-
-AstType::AstType(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-// AstType}
-
-// A_FunctionType {
-
-A_FunctionType::A_FunctionType(const std::string &literal,
-                               const Position &position)
-    : AstType(nameGen.generateWith("A_FunctionType", literal), position) {}
-
-// A_FunctionType }
-
-// A_PrimitiveType {
-
-A_PrimitiveType::A_PrimitiveType(const std::string &literal,
-                                 const Position &position)
-    : AstType(nameGen.generateWith("A_PrimitiveType", literal), position),
-      literal_(literal) {}
-
-AstCategory A_PrimitiveType::category() const {
-  return AstCategory::PrimitiveType;
-}
-
-std::string A_PrimitiveType::toString() const {
-  return fmt::format("[@{} position:{}, name:{}, literal:{}]", name(),
-                     position().toString(), name(), literal_);
-}
-
-const std::string &A_PrimitiveType::literal() const { return literal_; }
-
-const A_PrimitiveType *A_PrimitiveType::get(int token,
-                                            const Position &position) {
-  switch (token) {
-  case T_INT8:
-  case T_UINT8:
-  case T_INT16:
-  case T_UINT16:
-  case T_INT32:
-  case T_UINT32:
-  case T_INT64:
-  case T_UINT64:
-  case T_FLOAT32:
-  case T_FLOAT64:
-  case T_BOOLEAN:
-    return new A_PrimitiveType(tokenName(token), position);
-  default:
-    EX_ASSERT(false, "invalid token:{} {}", tokenName(token), token);
-    break;
-  }
-  return nullptr;
-}
-
-// A_PrimitiveType }
-
-// type }
-
-// expression {
-
-// AstExpression {
-
-AstExpression::AstExpression(const std::string &name)
-    : AstNamely(name), AstPositional(Position()) {}
-
-AstExpression::AstExpression(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-// AstExpression }
-
 // literal {
 
 // AstLiteral {
@@ -340,26 +197,29 @@ uint64_t A_IntegerLiteral::toUInt64() const {
 
 // A_IntegerLiteral }
 
-// A_FloatLiteral {
+// A_FloatingPointLiteral {
 
-const static std::unordered_map<A_FloatLiteral::DecimalCategory, std::string>
+const static std::unordered_map<A_FloatingPointLiteral::DecimalCategory,
+                                std::string>
     AFL_DC_Map = {
-        {A_FloatLiteral::DecimalCategory::DEC, "DEC"},
-        {A_FloatLiteral::DecimalCategory::HEX, "HEX"},
+        {A_FloatingPointLiteral::DecimalCategory::DEC, "DEC"},
+        {A_FloatingPointLiteral::DecimalCategory::HEX, "HEX"},
 };
 
-const static std::unordered_map<A_FloatLiteral::BitCategory, std::string>
+const static std::unordered_map<A_FloatingPointLiteral::BitCategory,
+                                std::string>
     AFL_BC_Map = {
-        {A_FloatLiteral::BitCategory::FLT, "FLT"},
-        {A_FloatLiteral::BitCategory::DBL, "DBL"},
+        {A_FloatingPointLiteral::BitCategory::FLT, "FLT"},
+        {A_FloatingPointLiteral::BitCategory::DBL, "DBL"},
 };
 
-A_FloatLiteral::A_FloatLiteral(const std::string &literal,
-                               const Position &position)
-    : AstLiteral(nameGen.generateWith("A_FloatLiteral", literal), position),
+A_FloatingPointLiteral::A_FloatingPointLiteral(const std::string &literal,
+                                               const Position &position)
+    : AstLiteral(nameGen.generateWith("A_FloatingPointLiteral", literal),
+                 position),
       literal_(literal), parsed_(literal), bits_(32), base_(10),
-      decimalCategory_(A_FloatLiteral::DecimalCategory::DEC),
-      bitCategory_(A_FloatLiteral::BitCategory::FLT) {
+      decimalCategory_(A_FloatingPointLiteral::DecimalCategory::DEC),
+      bitCategory_(A_FloatingPointLiteral::BitCategory::FLT) {
   EX_ASSERT(literal_.length() > 0, "literal_.length {} > 0", literal_.length());
 
   int startPosition = 0;
@@ -367,7 +227,7 @@ A_FloatLiteral::A_FloatLiteral(const std::string &literal,
     switch (literal_[1]) {
     case 'x':
     case 'X':
-      decimalCategory_ = A_FloatLiteral::DecimalCategory::HEX;
+      decimalCategory_ = A_FloatingPointLiteral::DecimalCategory::HEX;
       base_ = 16;
       startPosition = 2;
       break;
@@ -378,7 +238,7 @@ A_FloatLiteral::A_FloatLiteral(const std::string &literal,
 
   int endPosition = (int)literal_.length();
   if (stringEndsWith(literal_, std::vector<std::string>{"d", "D"})) {
-    bitCategory_ = A_FloatLiteral::BitCategory::DBL;
+    bitCategory_ = A_FloatingPointLiteral::BitCategory::DBL;
     bits_ = 64;
     endPosition = (int)literal_.length() - 1;
   }
@@ -397,11 +257,11 @@ A_FloatLiteral::A_FloatLiteral(const std::string &literal,
       std::to_string(dotLeftDecimal) + "." + std::to_string(dotRightDecimal);
 }
 
-AstCategory A_FloatLiteral::category() const {
-  return AstCategory::FloatLiteral;
+AstCategory A_FloatingPointLiteral::category() const {
+  return AstCategory::FloatingPointLiteral;
 }
 
-std::string A_FloatLiteral::toString() const {
+std::string A_FloatingPointLiteral::toString() const {
   return fmt::format("[@{} position:{}, literal:{}, parsed:{} "
                      "decimalCategory:{}, bitCategory:{}]",
                      name(), position().toString(), literal_, parsed_,
@@ -409,27 +269,29 @@ std::string A_FloatLiteral::toString() const {
                      AFL_BC_Map.find(bitCategory_)->second);
 }
 
-const std::string &A_FloatLiteral::parsed() const { return parsed_; }
+const std::string &A_FloatingPointLiteral::parsed() const { return parsed_; }
 
-int A_FloatLiteral::bits() const { return bits_; }
+int A_FloatingPointLiteral::bits() const { return bits_; }
 
-int A_FloatLiteral::base() const { return base_; }
+int A_FloatingPointLiteral::base() const { return base_; }
 
-A_FloatLiteral::DecimalCategory A_FloatLiteral::decimalCategory() const {
+A_FloatingPointLiteral::DecimalCategory
+A_FloatingPointLiteral::decimalCategory() const {
   return decimalCategory_;
 }
 
-A_FloatLiteral::BitCategory A_FloatLiteral::bitCategory() const {
+A_FloatingPointLiteral::BitCategory
+A_FloatingPointLiteral::bitCategory() const {
   return bitCategory_;
 }
 
-const std::string &A_FloatLiteral::literal() const { return literal_; }
+const std::string &A_FloatingPointLiteral::literal() const { return literal_; }
 
-float A_FloatLiteral::toFloat() const { return std::stof(parsed_); }
+float A_FloatingPointLiteral::toFloat() const { return std::stof(parsed_); }
 
-double A_FloatLiteral::toDouble() const { return std::stod(parsed_); }
+double A_FloatingPointLiteral::toDouble() const { return std::stod(parsed_); }
 
-// A_FloatLiteral }
+// A_FloatingPointLiteral }
 
 // A_StringLiteral {
 
@@ -442,14 +304,12 @@ const static std::unordered_map<A_StringLiteral::QuoteCategory, std::string>
 A_StringLiteral::A_StringLiteral(const std::string &literal,
                                  const Position &position)
     : AstLiteral("A_StringLiteral", position), literal_(literal),
-      parsed_(literal), quoteCategory_(A_StringLiteral::QuoteCategory::SINGLE) {
-  parsed_ = literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
-                ? literal.substr(3, literal.length() - 6)
-                : literal.substr(1, literal.length() - 2);
-  quoteCategory_ = literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
-                       ? A_StringLiteral::QuoteCategory::MULTI
-                       : A_StringLiteral::QuoteCategory::SINGLE;
-}
+      parsed_(literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
+                  ? literal.substr(3, literal.length() - 6)
+                  : literal.substr(1, literal.length() - 2)),
+      quoteCategory_(literal.length() >= 3 && literal.substr(0, 3) == "\"\"\""
+                         ? A_StringLiteral::QuoteCategory::MULTI
+                         : A_StringLiteral::QuoteCategory::SINGLE) {}
 
 AstCategory A_StringLiteral::category() const {
   return AstCategory::StringLiteral;
@@ -470,23 +330,25 @@ const std::string &A_StringLiteral::literal() const { return literal_; }
 
 // A_StringLiteral }
 
-// A_CharLiteral {
+// A_CharacterLiteral {
 
-A_CharLiteral::A_CharLiteral(const std::string &literal,
-                             const Position &position)
-    : AstLiteral(nameGen.generateWith("A_CharLiteral", literal), position),
+A_CharacterLiteral::A_CharacterLiteral(const std::string &literal,
+                                       const Position &position)
+    : AstLiteral(nameGen.generateWith("A_CharacterLiteral", literal), position),
       literal_(literal), parsed_(literal[1]) {}
 
-AstCategory A_CharLiteral::category() const { return AstCategory::CharLiteral; }
+AstCategory A_CharacterLiteral::category() const {
+  return AstCategory::CharacterLiteral;
+}
 
-std::string A_CharLiteral::toString() const {
+std::string A_CharacterLiteral::toString() const {
   return fmt::format("[@{} position:{}, parsed:{}]", name(),
                      position().toString(), parsed_);
 }
 
-const char &A_CharLiteral::parsed() const { return parsed_; }
+char A_CharacterLiteral::parsed() const { return parsed_; }
 
-// A_CharLiteral }
+// A_CharacterLiteral }
 
 // A_BooleanLiteral {
 
@@ -537,6 +399,302 @@ std::string A_VoidLiteral::toString() const {
 // A_VoidLiteral }
 
 // literal }
+
+// token {
+
+AstToken::AstToken(const std::string &name, const Position &position)
+    : AstNamely(name), AstPositional(position) {}
+
+// A_Token {
+
+A_Token::A_Token(const int &token, const Position &position)
+    : AstToken(nameGen.generateWith(tokenName(token), "A_Token"), position),
+      token_(token) {}
+
+AstCategory A_Token::category() const { return AstCategory::Token; }
+
+std::string A_Token::toString() const {
+  return fmt::format("[@{} position:{} token:{}]", name(),
+                     position().toString(), tokenName(token_));
+}
+
+int A_Token::token() const { return token_; }
+
+// A_Token }
+
+// A_RepetibleToken {
+
+A_RepetibleToken::A_RepetibleToken(const int &token, const Position &position)
+    : AstToken(nameGen.generate("A_RepetibleToken"), position) {}
+
+AstCategory A_RepetibleToken::category() const {
+  return AstCategory::RepetibleToken;
+}
+
+std::string A_RepetibleToken::toString() const {
+  std::stringstream ss;
+  ss << fmt::format("[@{} position:{} size:{}", position().toString(),
+                    tokens_.size());
+  if (!tokens_.empty()) {
+    for (int i = 0; i < (int)tokens_.size(); i++) {
+      ss << fmt::format(" {}:{}", i, tokenName(tokens_[i]));
+    }
+  }
+  ss << "]";
+  return ss.str();
+}
+
+const std::deque<int> &A_RepetibleToken::tokens() const { return tokens_; }
+
+void A_RepetibleToken::join(const int &token, const Position &position) {
+  tokens_.push_front(token);
+  locate(position);
+}
+
+// A_RepetibleToken }
+
+// token }
+
+// A_ExpressionList {
+
+A_ExpressionList::A_ExpressionList()
+    : AstNamely(nameGen.generate("A_ExpressionList")) {}
+
+AstCategory A_ExpressionList::category() const {
+  return AstCategory::ExpressionList;
+}
+
+std::string A_ExpressionList::toString() const {
+  return fmt::format("[@{} {}]", name(),
+                     detail::A_List<AstExpression>::toString());
+}
+
+// A_ExpressionList }
+
+// id {
+
+// AstId {
+
+AstId::AstId(const std::string &name, const Position &position)
+    : AstNamely(name), AstPositional(position) {}
+
+static const std::unordered_map<AstId::IdCategory, std::string> AID_IC_Map = {
+    {AstId::IdCategory::VAR, "VAR"},
+    {AstId::IdCategory::OP, "OP"},
+    {AstId::IdCategory::PREFIX, "PREFIX"},
+    {AstId::IdCategory::POSTFIX, "POSTFIX"},
+};
+
+// AstId }
+
+A_Id::A_Id(IdCategory idCategory, const std::string &literal,
+           const Position &position)
+    : AstId(nameGen.generateWith(literal, "A_Id"), position),
+      idCategory_(idCategory), literal_(literal) {
+  EX_ASSERT(idCategory_ == AstId::IdCategory::VAR, "idCategory {} == VAR");
+}
+
+A_Id::A_Id(IdCategory idCategory, const int &token, const Position &position)
+    : AstId(nameGen.generateWith(tokenName(token), "A_Id"), position),
+      idCategory_(idCategory), token_(token) {
+  EX_ASSERT(idCategory_ != AstId::IdCategory::VAR, "idCategory {} != VAR");
+}
+
+A_Id::A_Id(AstId::IdCategory idCategory, const int &token,
+           const Position &position, const Position &extra)
+    : A_Id(idCategory, token, position) {
+  locate(extra);
+}
+
+AstCategory A_Id::category() const { return AstCategory::Id; }
+
+std::string A_Id::toString() const {
+  return fmt::format("[@{} position:{} idCategory:{} literal:{} token:{}]",
+                     name(), position().toString(),
+                     AID_IC_Map.find(idCategory_)->second, literal_,
+                     tokenName(token_));
+}
+
+AstId::IdCategory A_Id::idCategory() const { return idCategory_; }
+
+const std::string &A_Id::literal() const { return literal_; }
+
+int A_Id::token() const { return token_; }
+
+// id }
+
+// expression {
+
+// A_ThrowExpression {
+
+A_ThrowExpression::A_ThrowExpression(const AstExpression *expression,
+                                     const Position &extra)
+    : AstExpression(nameGen.generate("A_ThrowExpression"), extra),
+      expression_(expression) {
+  EX_ASSERT(expression_, "expression_ must not null");
+  locate(expression_->position());
+}
+
+A_ThrowExpression::~A_ThrowExpression() {
+  delete expression_;
+  expression_ = nullptr;
+}
+
+AstCategory A_ThrowExpression::category() const {
+  return AstCategory::ThrowExpression;
+}
+
+std::string A_ThrowExpression::toString() const {
+  return fmt::format("[@{} position:{} expression:{}]", name(),
+                     position().toString(), expression_->toString());
+}
+
+const AstExpression *A_ThrowExpression::expression() const {
+  return expression_;
+}
+
+// A_ThrowExpression }
+
+// A_ReturnExpression {
+
+A_ReturnExpression::A_ReturnExpression(const AstExpression *expression,
+                                       const Position &extra)
+    : AstExpression(nameGen.generate("A_ReturnExpression"), extra),
+      expression_(expression) {
+  EX_ASSERT(expression_, "expression_ must not null");
+  locate(expression_->position());
+}
+
+A_ReturnExpression::~A_ReturnExpression() {
+  delete expression_;
+  expression_ = nullptr;
+}
+
+AstCategory A_ReturnExpression::category() const {
+  return AstCategory::ReturnExpression;
+}
+
+std::string A_ReturnExpression::toString() const {
+  return fmt::format("[@{} position:{} expression:{}]", name(),
+                     position().toString(), expression_->toString());
+}
+
+const AstExpression *A_ReturnExpression::expression() const {
+  return expression_;
+}
+
+// A_ReturnExpression }
+
+// A_AssignExpression {
+
+A_AssignExpression::A_AssignExpression(const AstId *id,
+                                       const AstExpression *expression,
+                                       const int &token,
+                                       const Position &position)
+    : AstExpression(nameGen.generate("A_AssignExpression"), position), id_(id),
+      expression_(expression), token_(token) {}
+
+A_AssignExpression::~A_AssignExpression() {
+  delete id_;
+  id_ = nullptr;
+  delete expression_;
+  expression_ = nullptr;
+}
+
+AstCategory A_AssignExpression::category() const {
+  return AstCategory::AssignExpression;
+}
+
+std::string A_AssignExpression::toString() const {
+  return fmt::format("[@{} position:{} id:{} token:{} expression:{}]", name(),
+                     position().toString(), id_->toString(), tokenName(token_),
+                     expression_->toString());
+}
+
+const AstId *A_AssignExpression::id() const { return id_; }
+
+const AstExpression *A_AssignExpression::expression() const {
+  return expression_;
+}
+
+int A_AssignExpression::token() const { return token_; }
+
+// A_AssignExpression }
+
+// expression }
+
+// type {
+
+// AstType {
+
+AstType::AstType(const std::string &name, const Position &position)
+    : AstNamely(name), AstPositional(position) {}
+
+// AstType}
+
+// A_FunctionType {
+
+A_FunctionType::A_FunctionType(const std::string &literal,
+                               const Position &position)
+    : AstType(nameGen.generateWith("A_FunctionType", literal), position) {}
+
+// A_FunctionType }
+
+// A_PrimitiveType {
+
+A_PrimitiveType::A_PrimitiveType(const std::string &literal,
+                                 const Position &position)
+    : AstType(nameGen.generateWith("A_PrimitiveType", literal), position),
+      literal_(literal) {}
+
+AstCategory A_PrimitiveType::category() const {
+  return AstCategory::PrimitiveType;
+}
+
+std::string A_PrimitiveType::toString() const {
+  return fmt::format("[@{} position:{}, name:{}, literal:{}]", name(),
+                     position().toString(), name(), literal_);
+}
+
+const std::string &A_PrimitiveType::literal() const { return literal_; }
+
+const A_PrimitiveType *A_PrimitiveType::get(int token,
+                                            const Position &position) {
+  switch (token) {
+  case T_INT8:
+  case T_UINT8:
+  case T_INT16:
+  case T_UINT16:
+  case T_INT32:
+  case T_UINT32:
+  case T_INT64:
+  case T_UINT64:
+  case T_FLOAT32:
+  case T_FLOAT64:
+  case T_BOOLEAN:
+    return new A_PrimitiveType(tokenName(token), position);
+  default:
+    EX_ASSERT(false, "invalid token:{} {}", tokenName(token), token);
+    break;
+  }
+  return nullptr;
+}
+
+// A_PrimitiveType }
+
+// type }
+
+// expression {
+
+// AstExpression {
+
+AstExpression::AstExpression(const std::string &name)
+    : AstNamely(name), AstPositional(Position()) {}
+
+AstExpression::AstExpression(const std::string &name, const Position &position)
+    : AstNamely(name), AstPositional(position) {}
+
+// AstExpression }
 
 A_CallExpression::A_CallExpression(const AstId *id,
                                    const A_ExpressionList *argumentList,
@@ -726,7 +884,7 @@ std::string A_AssignmentExpression::toString() const {
 
 const AstExpression *A_AssignmentExpression::left() const { return left_; }
 
-const int &A_AssignmentExpression::token() const { return token_; }
+int A_AssignmentExpression::token() const { return token_; }
 
 const AstExpression *A_AssignmentExpression::right() const { return right_; }
 
@@ -988,32 +1146,6 @@ AstCategory AstBreakStatement::category() const {
 std::string AstBreakStatement::toString() const {
   return fmt::format("[@AstBreakStatement {}]", position_.toString());
 }
-
-AstReturnStatement::AstReturnStatement(AstExpression *expression,
-                                       const Position &returnTokenPosition,
-                                       const Position &semiTokenPosition)
-    : AstStatement(nameGen.generate("A_return"), returnTokenPosition),
-      expression_(expression) {
-  EX_ASSERT(expression_, "expression_ is null");
-  position_.updatePosition(expression_->position());
-  position_.updatePosition(semiTokenPosition);
-}
-
-AstReturnStatement::~AstReturnStatement() {
-  delete expression_;
-  expression_ = nullptr;
-}
-
-AstCategory AstReturnStatement::category() const {
-  return AstCategory::ReturnStatement;
-}
-
-std::string AstReturnStatement::toString() const {
-  return fmt::format("[@AstReturnStatement {} expression_:{}]",
-                     position_.toString(), expression_->toString());
-}
-
-AstExpression *AstReturnStatement::expression() const { return expression_; }
 
 AstEmptyStatement::AstEmptyStatement()
     : AstStatement(nameGen.generate("A_EmpStm")) {}
