@@ -213,7 +213,7 @@ op_id : T_AMPERSAND2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_
       | T_COLON2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
       ;
 
-prefix_id : T_PREFIX prefix_operator { $$ = new A_TokenId(A_TokenId::TokenIdCategory::PREFIX, dynamic_cast<A_TokenId*>($2)->token(), $2->position()); delete $2; }
+prefix_id : T_PREFIX prefix_operator { $$ = new A_TokenId(A_TokenId::TokenIdCategory::PREFIX, dynamic_cast<A_TokenId*>($2)->token(), $2->position()); if ($2) { delete $2; } }
           ;
 
 postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
@@ -232,7 +232,7 @@ expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
            /* | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression */
            | T_THROW expression
            | T_RETURN expression
-           | id equal_operator expression
+           | id equal_operator expression { $$ = new A_AssignExpression($1, $2, $3); }
            | postfix_expression
            ;
 
@@ -250,22 +250,22 @@ equal_operator : T_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1
                | T_ARSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
                ;
 
-postfix_expression : infix_expression
-                   | infix_expression postfix_operator
+postfix_expression : infix_expression { $$ = $1; }
+                   | infix_expression postfix_operator { $$ = new A_PostfixExpression($1, $2); }
                    ;
 
-postfix_operator : id optional_newline
+postfix_operator : id optional_newline { $$ = $1; if ($2) { delete $2; } }
                  ;
 
-infix_expression : prefix_expression
-                 | infix_expression infix_operator infix_expression
+infix_expression : prefix_expression { $$ = $1; }
+                 | infix_expression infix_operator infix_expression { $$ = new A_InfixExpression($1, $2, $3); }
                  ;
 
-infix_operator : id optional_newline
+infix_operator : id optional_newline { $$ = $1; if ($2) { delete $2; } }
                ;
 
-prefix_expression : simple_expression
-                  | prefix_operator simple_expression
+prefix_expression : simple_expression { $$ = $1; }
+                  | prefix_operator simple_expression { $$ = new A_PrefixExpression($1, $2); }
                   ;
 
 prefix_operator : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
@@ -276,27 +276,27 @@ prefix_operator : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $
                 | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
                 ;
 
-simple_expression : block_expression
-                  | nonblock_expression
+simple_expression : block_expression { $$ = $1; }
+                  | nonblock_expression { $$ = $1; }
                   ;
 
-nonblock_expression : literal
-                    | T_LPAREN T_RPAREN
-                    | T_LPAREN expression_list T_RPAREN
-                    | simple_expression T_DOT id
-                    | id
+nonblock_expression : literal { $$ = $1; }
+                    | T_LPAREN T_RPAREN { $$ = nullptr; }
+                    | T_LPAREN expression_list T_RPAREN { $$ = nullptr; }
+                    /* | simple_expression T_DOT id */
+                    | id { $$ = $1; }
                     /* | simple_expression type_arg_list */
-                    | nonblock_expression argument_expression_list
+                    /* | nonblock_expression argument_expression_list */
                     ;
 
 expression_list : expression
                 | expression T_COMMA expression_list
                 ;
 
-argument_expression_list : T_LPAREN T_RPAREN
-                         | T_LPAREN expression_list T_RPAREN
-                         | optional_newline block_expression
-                         ;
+/* argument_expression_list : T_LPAREN T_RPAREN */
+/*                          | T_LPAREN expression_list T_RPAREN */
+/*                          | optional_newline block_expression */
+/*                          ; */
 
 block_expression : T_LBRACE block T_RBRACE
                  ;

@@ -474,8 +474,8 @@ private:
 
 class A_AssignExpression : public AstExpression {
 public:
-  A_AssignExpression(const AstId *id, const AstExpression *expression,
-                     const AstId *equalOperator, const Position &position);
+  A_AssignExpression(const AstId *id, const AstId *equalOperator,
+                     const AstExpression *expression);
   virtual ~A_AssignExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -485,8 +485,8 @@ public:
 
 private:
   const AstId *id_;
-  const AstExpression *expression_;
   const AstId *equalOperator_;
+  const AstExpression *expression_;
 };
 
 class A_PostfixExpression : public AstExpression {
@@ -506,34 +506,34 @@ private:
 
 class A_InfixExpression : public AstExpression {
 public:
-  A_InfixExpression(const AstExpression *left, const AstExpression *right,
-                    const AstId *infixOperator);
+  A_InfixExpression(const AstExpression *left, const AstId *infixOperator,
+                    const AstExpression *right);
   virtual ~A_InfixExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpression *left() const;
-  virtual const AstExpression *right() const;
   virtual const AstId *infixOperator() const;
+  virtual const AstExpression *right() const;
 
 private:
   const AstExpression *left_;
-  const AstExpression *right_;
   const AstId *infixOperator_;
+  const AstExpression *right_;
 };
 
 class A_PrefixExpression : public AstExpression {
 public:
-  A_PrefixExpression(const AstExpression *expression,
-                     const AstId *prefixOperator);
+  A_PrefixExpression(const AstId *prefixOperator,
+                     const AstExpression *expression);
   virtual ~A_PrefixExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpression *expression() const;
   virtual const AstId *prefixOperator() const;
+  virtual const AstExpression *expression() const;
 
 private:
-  const AstExpression *expression_;
   const AstId *prefixOperator_;
+  const AstExpression *expression_;
 };
 
 // expression }
