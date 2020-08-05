@@ -400,61 +400,6 @@ std::string A_VoidLiteral::toString() const {
 
 // literal }
 
-// token {
-
-AstToken::AstToken(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-// A_Token {
-
-A_Token::A_Token(const int &token, const Position &position)
-    : AstToken(nameGen.generateWith(tokenName(token), "A_Token"), position),
-      token_(token) {}
-
-AstCategory A_Token::category() const { return AstCategory::Token; }
-
-std::string A_Token::toString() const {
-  return fmt::format("[@{} position:{} token:{}]", name(),
-                     position().toString(), tokenName(token_));
-}
-
-int A_Token::token() const { return token_; }
-
-// A_Token }
-
-// A_RepetibleToken {
-
-A_RepetibleToken::A_RepetibleToken(const int &token, const Position &position)
-    : AstToken(nameGen.generate("A_RepetibleToken"), position) {}
-
-AstCategory A_RepetibleToken::category() const {
-  return AstCategory::RepetibleToken;
-}
-
-std::string A_RepetibleToken::toString() const {
-  std::stringstream ss;
-  ss << fmt::format("[@{} position:{} size:{}", position().toString(),
-                    tokens_.size());
-  if (!tokens_.empty()) {
-    for (int i = 0; i < (int)tokens_.size(); i++) {
-      ss << fmt::format(" {}:{}", i, tokenName(tokens_[i]));
-    }
-  }
-  ss << "]";
-  return ss.str();
-}
-
-const std::deque<int> &A_RepetibleToken::tokens() const { return tokens_; }
-
-void A_RepetibleToken::join(const int &token, const Position &position) {
-  tokens_.push_front(token);
-  locate(position);
-}
-
-// A_RepetibleToken }
-
-// token }
-
 // A_ExpressionList {
 
 A_ExpressionList::A_ExpressionList()
@@ -476,50 +421,67 @@ std::string A_ExpressionList::toString() const {
 // AstId {
 
 AstId::AstId(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
-
-static const std::unordered_map<AstId::IdCategory, std::string> AID_IC_Map = {
-    {AstId::IdCategory::VAR, "VAR"},
-    {AstId::IdCategory::OP, "OP"},
-    {AstId::IdCategory::PREFIX, "PREFIX"},
-    {AstId::IdCategory::POSTFIX, "POSTFIX"},
-};
+    : AstExpression(name, position) {}
 
 // AstId }
 
-A_Id::A_Id(IdCategory idCategory, const std::string &literal,
-           const Position &position)
-    : AstId(nameGen.generateWith(literal, "A_Id"), position),
-      idCategory_(idCategory), literal_(literal) {
-  EX_ASSERT(idCategory_ == AstId::IdCategory::VAR, "idCategory {} == VAR");
+// A_LiteralId {
+
+A_LiteralId::A_LiteralId(const std::string &literal, const Position &position)
+    : AstId(nameGen.generateWith(literal, "A_LiteralId"), position),
+      literal_(literal) {}
+
+AstCategory A_LiteralId::category() const { return AstCategory::LiteralId; }
+
+std::string A_LiteralId::toString() const {
+  return fmt::format("[@{} position:{} literal:{}]", name(),
+                     position().toString(), literal_);
 }
 
-A_Id::A_Id(IdCategory idCategory, const int &token, const Position &position)
-    : AstId(nameGen.generateWith(tokenName(token), "A_Id"), position),
-      idCategory_(idCategory), token_(token) {
-  EX_ASSERT(idCategory_ != AstId::IdCategory::VAR, "idCategory {} != VAR");
-}
+const std::string &A_LiteralId::literal() const { return literal_; }
 
-A_Id::A_Id(AstId::IdCategory idCategory, const int &token,
-           const Position &position, const Position &extra)
-    : A_Id(idCategory, token, position) {
+// A_LiteralId }
+
+// A_TokenId {
+
+static const std::unordered_map<A_TokenId::TokenIdCategory, std::string>
+    ATI_TIC_Map = {
+        {A_TokenId::TokenIdCategory::OP, "OP"},
+        {A_TokenId::TokenIdCategory::PREFIX, "PREFIX"},
+        {A_TokenId::TokenIdCategory::POSTFIX, "POSTFIX"},
+        {A_TokenId::TokenIdCategory::SEMI, "SEMI"},
+};
+
+A_TokenId::A_TokenId(A_TokenId::TokenIdCategory tokenIdCategory,
+                     const int &token, const Position &position)
+    : AstId(nameGen.generateWith(tokenName(token), "A_TokenId"), position),
+      tokenIdCategory_(tokenIdCategory), token_(token) {}
+
+A_TokenId::A_TokenId(A_TokenId::TokenIdCategory tokenIdCategory,
+                     const int &token, const Position &position,
+                     const Position &extra)
+    : A_TokenId(tokenIdCategory, token, position) {
   locate(extra);
 }
 
-AstCategory A_Id::category() const { return AstCategory::Id; }
+AstCategory A_TokenId::category() const { return AstCategory::TokenId; }
 
-std::string A_Id::toString() const {
-  return fmt::format("[@{} position:{} idCategory:{} literal:{} token:{}]",
+std::string A_TokenId::toString() const {
+  return fmt::format("[@{} position:{} idCategory:{} token:{} count:{}]",
                      name(), position().toString(),
-                     AID_IC_Map.find(idCategory_)->second, literal_,
-                     tokenName(token_));
+                     ATI_TIC_Map.find(tokenIdCategory_)->second,
+                     tokenName(token_), count_);
 }
 
-AstId::IdCategory A_Id::idCategory() const { return idCategory_; }
+A_TokenId::TokenIdCategory A_TokenId::tokenIdCategory() const {
+  return tokenIdCategory_;
+}
 
-const std::string &A_Id::literal() const { return literal_; }
+int A_TokenId::token() const { return token_; }
 
-int A_Id::token() const { return token_; }
+int A_TokenId::count() const { return count_; }
+
+// A_TokenId }
 
 // id }
 

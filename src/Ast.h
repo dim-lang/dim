@@ -16,31 +16,32 @@
 #include <string>
 
 /*================ type start from 1000 ================*/
-BETTER_ENUM(AstCategory, int,
-            // literal
-            IntegerLiteral = 1000, FloatingPointLiteral, BooleanLiteral,
-            CharacterLiteral, StringLiteral, NilLiteral, VoidLiteral,
-            // token
-            Token, RepetibleToken,
-            // id
-            Id,
-            // expression
-            ThrowExpression, ReturnExpression, AssignExpression,
-            SequelExpression, CallExpression, UnaryExpression, BinaryExpression,
-            ConditionalExpression, VoidExpression,
-            // type
-            FunctionType, PrimitiveType,
-            // statement
-            ExpressionStatement, IfStatement, WhileStatement, ForStatement,
-            ContinueStatement, BreakStatement, EmptyStatement,
-            CompoundStatement,
-            // definition
-            VariableDefinition, VariableInitialDefinition, FunctionDefinition,
-            FunctionSignatureDefinition, FunctionArgumentDefinition,
-            // list
-            ExpressionList, StatementList, DefinitionList,
-            // translate unit
-            TranslateUnit)
+BETTER_ENUM(
+    AstCategory, int,
+    // literal
+    IntegerLiteral = 1000, FloatingPointLiteral, BooleanLiteral,
+    CharacterLiteral, StringLiteral, NilLiteral, VoidLiteral,
+    // token
+    Token, RepetibleToken,
+    // id
+    LiteralId, TokenId,
+    // expression
+    ThrowExpression, ReturnExpression, AssignExpression, PostfixExpression,
+    PrefixExpression, InfixExpression,
+    /* SequelExpression, CallExpression, UnaryExpression, BinaryExpression, */
+    /* ConditionalExpression, VoidExpression, */
+    // type
+    FunctionType, PrimitiveType,
+    // statement
+    ExpressionStatement, IfStatement, WhileStatement, ForStatement,
+    ContinueStatement, BreakStatement, EmptyStatement, CompoundStatement,
+    // definition
+    VariableDefinition, VariableInitialDefinition, FunctionDefinition,
+    FunctionSignatureDefinition, FunctionArgumentDefinition,
+    // list
+    ExpressionList, StatementList, DefinitionList,
+    // translate unit
+    TranslateUnit)
 
 /*================ class ================*/
 
@@ -59,10 +60,6 @@ class A_CharacterLiteral;
 class A_StringLiteral;
 class A_NilLiteral;
 class A_VoidLiteral;
-
-/* token */
-class AstToken;
-class A_Token;
 
 /* id */
 class AstId;
@@ -404,71 +401,47 @@ public:
 
 // literal }
 
-// token {
-
-class AstToken : public Ast, public AstNamely, public AstPositional {
-public:
-  AstToken(const std::string &name, const Position &position);
-  virtual ~AstToken() = default;
-};
-
-class A_Token : public AstToken {
-public:
-  A_Token(const int &token, const Position &position);
-  virtual ~A_Token() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual int token() const;
-
-private:
-  int token_;
-};
-
-class A_RepetibleToken : public AstToken {
-public:
-  A_RepetibleToken(const int &token, const Position &position);
-  virtual ~A_RepetibleToken() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual const std::deque<int> &tokens() const;
-  virtual void join(const int &token, const Position &position);
-
-private:
-  std::deque<int> tokens_;
-};
-
-// token }
-
 // id {
 
-class AstId : public Ast, public AstNamely, public AstPositional {
+class AstId : public AstExpression {
 public:
-  // IdCategory
-  enum class IdCategory { VAR = 200, OP, PREFIX, POSTFIX };
-
   AstId(const std::string &name, const Position &position);
   virtual ~AstId() = default;
 };
 
-class A_Id : public AstId {
+class A_LiteralId : public AstId {
 public:
-  A_Id(AstId::IdCategory idCategory, const std::string &literal,
-       const Position &position);
-  A_Id(AstId::IdCategory idCategory, const int &token,
-       const Position &position);
-  A_Id(AstId::IdCategory idCategory, const int &token, const Position &position,
-       const Position &extra);
-  virtual ~A_Id() = default;
+  A_LiteralId(const std::string &literal, const Position &position);
+  virtual ~A_LiteralId() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual AstId::IdCategory idCategory() const;
   virtual const std::string &literal() const;
-  virtual int token() const;
 
 private:
-  AstId::IdCategory idCategory_;
   std::string literal_;
+};
+
+class A_TokenId : public AstId {
+public:
+  // IdCategory
+  enum class TokenIdCategory { OP = 200, PREFIX, POSTFIX, SEMI };
+
+  A_TokenId(TokenIdCategory idCategory, const int &token,
+            const Position &position);
+  A_TokenId(TokenIdCategory idCategory, const int &token,
+            const Position &position, const Position &extra);
+  virtual ~A_TokenId() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual TokenIdCategory tokenIdCategory() const;
+  virtual int token() const;
+  virtual int count() const;
+  virtual void join(const int &token, const Position &position);
+
+private:
+  TokenIdCategory tokenIdCategory_;
   int token_;
+  int count_;
 };
 
 // id }
@@ -502,19 +475,68 @@ private:
 class A_AssignExpression : public AstExpression {
 public:
   A_AssignExpression(const AstId *id, const AstExpression *expression,
-                     const int &token, const Position &position);
+                     const AstId *equalOperator, const Position &position);
   virtual ~A_AssignExpression();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstId *id() const;
   virtual const AstExpression *expression() const;
-  virtual int token() const;
+  virtual const AstId *equalOperator() const;
 
 private:
   const AstId *id_;
   const AstExpression *expression_;
-  int token_;
+  const AstId *equalOperator_;
 };
+
+class A_PostfixExpression : public AstExpression {
+public:
+  A_PostfixExpression(const AstExpression *expression,
+                      const AstId *postfixOperator);
+  virtual ~A_PostfixExpression();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpression *expression() const;
+  virtual const AstId *postfixOperator() const;
+
+private:
+  const AstExpression *expression_;
+  const AstId *postfixOperator_;
+};
+
+class A_InfixExpression : public AstExpression {
+public:
+  A_InfixExpression(const AstExpression *left, const AstExpression *right,
+                    const AstId *infixOperator);
+  virtual ~A_InfixExpression();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpression *left() const;
+  virtual const AstExpression *right() const;
+  virtual const AstId *infixOperator() const;
+
+private:
+  const AstExpression *left_;
+  const AstExpression *right_;
+  const AstId *infixOperator_;
+};
+
+class A_PrefixExpression : public AstExpression {
+public:
+  A_PrefixExpression(const AstExpression *expression,
+                     const AstId *prefixOperator);
+  virtual ~A_PrefixExpression();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpression *expression() const;
+  virtual const AstId *prefixOperator() const;
+
+private:
+  const AstExpression *expression_;
+  const AstId *prefixOperator_;
+};
+
+// expression }
 
 class A_CallExpression : public AstExpression {
 public:
@@ -610,8 +632,6 @@ public:
   virtual AstCategory category() const;
   virtual std::string toString() const;
 };
-
-// expression }
 
 // statement {
 

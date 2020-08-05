@@ -37,7 +37,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
     AstExpression *expr;
     AstStatement *stmt;
     AstDefinition *def;
-    AstToken *token;
+    /* AstToken *token; */
     char *str;
     int tok;
 }
@@ -78,13 +78,12 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <str> T_INTEGER_LITERAL T_FLOATING_POINT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
 
- /* token */
-%token <token> optional_semi semi optional_newline repetible_newline repetible_newline_impl
-%token <token> prefix_operator equal_operator
-
 %type <expr> literal boolean_literal
 %type <expr> id var_id op_id prefix_id postfix_id
+%type <expr> optional_semi semi optional_newline repetible_newline repetible_newline_impl
+%type <expr> prefix_operator equal_operator
 %type <expr> expression prefix_expression postfix_expression infix_expression simple_expression block_expression nonblock_expression
+%type <expr> postfix_operator
 %type <expr_list> argument_expression_list
 
 %type <stmt> compound_statement expression_statement iteration_statement jump_statement return_statement if_statement
@@ -157,11 +156,11 @@ optional_semi : semi { $$ = $1; }
               | { $$ = nullptr; }
               ;
 
-semi : T_SEMI { $$ = new A_Token($1, Y_POSITION(@1));  }
-     | T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)) }
+semi : T_SEMI { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1));  }
+     | T_NEWLINE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1)) }
      ;
 
-optional_newline : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+optional_newline : T_NEWLINE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1)); }
                  | { $$ = nullptr; }
                  ;
 
@@ -169,7 +168,7 @@ repetible_newline : repetible_newline_impl { $$ = $1; }
                   | { $$ = nullptr; }
                   ;
 
-repetible_newline_impl : T_NEWLINE { $$ = new A_RepetibleToken($1, Y_POSITION(@1)); }
+repetible_newline_impl : T_NEWLINE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1)); }
                        | T_NEWLINE repetible_newline_impl { $2->join($1, Y_POSITION(@1)); $$ = $2; }
                        ;
 
@@ -177,48 +176,48 @@ repetible_newline_impl : T_NEWLINE { $$ = new A_RepetibleToken($1, Y_POSITION(@1
 
  /* id { */
 
-id : var_id
-   | op_id
-   | prefix_id
-   | postfix_id
+id : var_id { $$ = $1; }
+   | op_id { $$ = $1; }
+   | prefix_id { $$ = $1; }
+   | postfix_id { $$ = $1; }
    ;
 
-var_id : T_VAR_ID { $$ = new A_Id(AstId::IdCategory::VAR, $1, Y_POSITION(@1)); std::free($1); }
+var_id : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
        ;
 
-op_id : T_AMPERSAND2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_BAR2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_BAR { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_CARET { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_AMPERSAND { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_EQ { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_NEQ { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_LT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_LE { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_GT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_GE { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_LSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_RSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_ARSHIFT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_PLUS { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_MINUS { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_ASTERISK { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_SLASH { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_PERCENT { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_PLUS2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_MINUS2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_ASTERISK2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_SLASH2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_PERCENT2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_CARET2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
-      | T_COLON2 { $$ = new A_Id(AstId::OP, $1, Y_POSITION(@1)); }
+op_id : T_AMPERSAND2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_BAR2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_BAR { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_CARET { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_AMPERSAND { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_EQ { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_NEQ { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_LT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_LE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_GT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_GE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_LSHIFT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_RSHIFT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_ARSHIFT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_PLUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_ASTERISK { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_SLASH { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_PERCENT { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_ASTERISK2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_SLASH2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_PERCENT2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_CARET2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+      | T_COLON2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
       ;
 
-prefix_id : T_PREFIX prefix_operator { $$ = new A_Id(AstId::PREFIX, dynamic_cast<A_Token*>($2)->token(), $2->position()); delete $2; }
+prefix_id : T_PREFIX prefix_operator { $$ = new A_TokenId(A_TokenId::TokenIdCategory::PREFIX, dynamic_cast<A_TokenId*>($2)->token(), $2->position()); delete $2; }
           ;
 
-postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_Id(AstId::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
-           | T_POSTFIX T_MINUS2 { $$ = new A_Id(AstId::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
+postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
+           | T_POSTFIX T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
            ;
 
  /* id } */
@@ -237,18 +236,18 @@ expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
            | postfix_expression
            ;
 
-equal_operator : T_EQUAL
-               | T_ASTERISK_EQUAL
-               | T_SLASH_EQUAL
-               | T_PERCENT_EQUAL
-               | T_PLUS_EQUAL
-               | T_MINUS_EQUAL
-               | T_AMPERSAND_EQUAL
-               | T_BAR_EQUAL
-               | T_CARET_EQUAL
-               | T_LSHIFT_EQUAL
-               | T_RSHIFT_EQUAL
-               | T_ARSHIFT_EQUAL
+equal_operator : T_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_ASTERISK_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_SLASH_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_PERCENT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_PLUS_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_MINUS_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_AMPERSAND_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_BAR_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_CARET_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_LSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_RSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+               | T_ARSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
                ;
 
 postfix_expression : infix_expression
@@ -259,19 +258,22 @@ postfix_operator : id optional_newline
                  ;
 
 infix_expression : prefix_expression
-                 | infix_expression id optional_newline infix_expression
+                 | infix_expression infix_operator infix_expression
                  ;
+
+infix_operator : id optional_newline
+               ;
 
 prefix_expression : simple_expression
                   | prefix_operator simple_expression
                   ;
 
-prefix_operator : T_MINUS
-                | T_PLUS
-                | T_TILDE
-                | T_EXCLAM
-                | T_PLUS2
-                | T_MINUS2
+prefix_operator : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+                | T_PLUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+                | T_TILDE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+                | T_EXCLAM { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+                | T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+                | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
                 ;
 
 simple_expression : block_expression
