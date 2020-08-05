@@ -321,7 +321,9 @@ result_expression : expression
 
  /* exprssion } */
 
- /* part-2 definition */
+ /* statement { */
+
+ /* statement } */
 
 definition : function_definition { $$ = $1; }
             | variable_definition { $$ = $1; }
