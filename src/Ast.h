@@ -63,7 +63,8 @@ class A_VoidLiteral;
 
 /* id */
 class AstId;
-class A_Id;
+class A_LiteralId;
+class A_TokenId;
 
 /* type */
 class AstType;
@@ -405,6 +406,7 @@ public:
 
 class AstId : public AstExpression {
 public:
+  AstId(const std::string &name);
   AstId(const std::string &name, const Position &position);
   virtual ~AstId() = default;
 };
@@ -426,9 +428,10 @@ public:
   // IdCategory
   enum class TokenIdCategory { OP = 200, PREFIX, POSTFIX, SEMI };
 
-  A_TokenId(TokenIdCategory idCategory, const int &token,
+  A_TokenId(TokenIdCategory tokenIdCategory);
+  A_TokenId(TokenIdCategory tokenIdCategory, const int &token,
             const Position &position);
-  A_TokenId(TokenIdCategory idCategory, const int &token,
+  A_TokenId(TokenIdCategory tokenIdCategory, const int &token,
             const Position &position, const Position &extra);
   virtual ~A_TokenId() = default;
   virtual AstCategory category() const;
@@ -480,8 +483,8 @@ public:
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstId *id() const;
-  virtual const AstExpression *expression() const;
   virtual const AstId *equalOperator() const;
+  virtual const AstExpression *expression() const;
 
 private:
   const AstId *id_;
@@ -534,6 +537,38 @@ public:
 private:
   const AstId *prefixOperator_;
   const AstExpression *expression_;
+};
+
+class A_IfThenExpression : public AstExpression {
+public:
+  A_IfThenExpression(const AstExpression *condition,
+                     const AstExpression *thens);
+  virtual ~A_IfThenExpression();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpression *condition() const;
+  virtual const AstExpression *thens() const;
+
+private:
+  const AstExpression *condition_;
+  const AstExpression *thens_;
+};
+
+class A_IfElseExpression : public AstExpression {
+public:
+  A_IfElseExpression(const AstExpression *condition, const AstExpression *thens,
+                     const AstExpression *elses);
+  virtual ~A_IfElseExpression();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpression *condition() const;
+  virtual const AstExpression *thens() const;
+  virtual const AstExpression *elses() const;
+
+private:
+  const AstExpression *condition_;
+  const AstExpression *thens_;
+  const AstExpression *elses_;
 };
 
 // expression }

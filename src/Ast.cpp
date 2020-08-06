@@ -420,6 +420,8 @@ std::string A_ExpressionList::toString() const {
 
 // AstId {
 
+AstId::AstId(const std::string &name) : AstExpression(name) {}
+
 AstId::AstId(const std::string &name, const Position &position)
     : AstExpression(name, position) {}
 
@@ -452,10 +454,14 @@ static const std::unordered_map<A_TokenId::TokenIdCategory, std::string>
         {A_TokenId::TokenIdCategory::SEMI, "SEMI"},
 };
 
+A_TokenId::A_TokenId(TokenIdCategory tokenIdCategory)
+    : AstId(nameGen.generate("A_TokenId")), tokenIdCategory_(tokenIdCategory),
+      token_(TOKEN_INVALID), count_(0) {}
+
 A_TokenId::A_TokenId(A_TokenId::TokenIdCategory tokenIdCategory,
                      const int &token, const Position &position)
     : AstId(nameGen.generateWith(tokenName(token), "A_TokenId"), position),
-      tokenIdCategory_(tokenIdCategory), token_(token) {}
+      tokenIdCategory_(tokenIdCategory), token_(token), count_(1) {}
 
 A_TokenId::A_TokenId(A_TokenId::TokenIdCategory tokenIdCategory,
                      const int &token, const Position &position,
@@ -480,6 +486,13 @@ A_TokenId::TokenIdCategory A_TokenId::tokenIdCategory() const {
 int A_TokenId::token() const { return token_; }
 
 int A_TokenId::count() const { return count_; }
+
+void A_TokenId::join(const int &token, const Position &position) {
+  EX_ASSERT(token_ == token, "token_ {} == token {}", tokenName(token_),
+            tokenName(token));
+  locate(position);
+  count_++;
+}
 
 // A_TokenId }
 
@@ -550,16 +563,24 @@ const AstExpression *A_ReturnExpression::expression() const {
 // A_AssignExpression {
 
 A_AssignExpression::A_AssignExpression(const AstId *id,
-                                       const AstExpression *expression,
-                                       const int &token,
-                                       const Position &position)
-    : AstExpression(nameGen.generate("A_AssignExpression"), position), id_(id),
-      expression_(expression), token_(token) {}
+                                       const AstId *equalOperator,
+                                       const AstExpression *expression)
+    : AstExpression(nameGen.generate("A_AssignExpression")), id_(id),
+      equalOperator_(equalOperator), expression_(expression) {
+  EX_ASSERT(id_, "id_ must not null");
+  EX_ASSERT(equalOperator_, "equalOperator_ must not null");
+  EX_ASSERT(expression_, "expression_ must not null");
+  locate(id_->position());
+  locate(equalOperator_->position());
+  locate(expression_->position());
+}
 
 A_AssignExpression::~A_AssignExpression() {
   delete id_;
-  id_ = nullptr;
+  delete equalOperator_;
   delete expression_;
+  id_ = nullptr;
+  equalOperator_ = nullptr;
   expression_ = nullptr;
 }
 
@@ -568,20 +589,140 @@ AstCategory A_AssignExpression::category() const {
 }
 
 std::string A_AssignExpression::toString() const {
-  return fmt::format("[@{} position:{} id:{} token:{} expression:{}]", name(),
-                     position().toString(), id_->toString(), tokenName(token_),
-                     expression_->toString());
+  return fmt::format("[@{} position:{} id:{} equalOperator:{} expression:{}]",
+                     name(), position().toString(), id_->toString(),
+                     equalOperator_->toString(), expression_->toString());
 }
 
 const AstId *A_AssignExpression::id() const { return id_; }
+
+const AstId *A_AssignExpression::equalOperator() const {
+  return equalOperator_;
+}
 
 const AstExpression *A_AssignExpression::expression() const {
   return expression_;
 }
 
-int A_AssignExpression::token() const { return token_; }
-
 // A_AssignExpression }
+
+// A_PostfixExpression {
+
+A_PostfixExpression::A_PostfixExpression(const AstExpression *expression,
+                                         const AstId *postfixOperator)
+    : AstExpression(nameGen.generate("A_PostfixExpression")),
+      expression_(expression), postfixOperator_(postfixOperator) {
+  EX_ASSERT(expression_, "expression_ must not null");
+  EX_ASSERT(postfixOperator_, "postfixOperator_ must not null");
+}
+
+A_PostfixExpression::~A_PostfixExpression() {
+  delete expression_;
+  delete postfixOperator_;
+  expression_ = nullptr;
+  postfixOperator_ = nullptr;
+}
+
+AstCategory A_PostfixExpression::category() const {
+  return AstCategory::PostfixExpression;
+}
+
+std::string A_PostfixExpression::toString() const {
+  return fmt::format("[@{} position:{} expression:{} postfixOperator:{}]",
+                     name(), position().toString(), expression_->toString(),
+                     postfixOperator_->toString());
+}
+
+const AstExpression *A_PostfixExpression::expression() const {
+  return expression_;
+}
+
+const AstId *A_PostfixExpression::postfixOperator() const {
+  return postfixOperator_;
+}
+
+// A_PostfixExpression }
+
+// A_InfixExpression {
+
+A_InfixExpression::A_InfixExpression(const AstExpression *left,
+                                     const AstId *infixOperator,
+                                     const AstExpression *right)
+    : AstExpression(nameGen.generate("A_InfixExpression")), left_(left),
+      infixOperator_(infixOperator), right_(right) {
+  EX_ASSERT(left_, "left_ must not null");
+  EX_ASSERT(infixOperator_, "infixOperator_ must not null");
+  EX_ASSERT(right_, "right_ must not null");
+  locate(left_->position());
+  locate(infixOperator_->position());
+  locate(right_->position());
+}
+
+A_InfixExpression::~A_InfixExpression() {
+  delete left_;
+  delete infixOperator_;
+  delete right_;
+  left_ = nullptr;
+  infixOperator_ = nullptr;
+  right_ = nullptr;
+}
+
+AstCategory A_InfixExpression::category() const {
+  return AstCategory::InfixExpression;
+}
+
+std::string A_InfixExpression::toString() const {
+  return fmt::format("[@{} position:{} left:{} infixOperator:{} right:{}]",
+                     name(), position().toString(), left_->toString(),
+                     infixOperator_->toString(), right_->toString());
+}
+
+const AstExpression *A_InfixExpression::left() const { return left_; }
+
+const AstId *A_InfixExpression::infixOperator() const { return infixOperator_; }
+
+const AstExpression *A_InfixExpression::right() const { return right_; }
+
+// A_InfixExpression }
+
+// A_PrefixExpression {
+
+A_PrefixExpression::A_PrefixExpression(const AstId *prefixOperator,
+                                       const AstExpression *expression)
+    : AstExpression(nameGen.generate("A_PrefixExpression")),
+      prefixOperator_(prefixOperator), expression_(expression) {
+  EX_ASSERT(prefixOperator_, "prefixOperator_ must not null");
+  EX_ASSERT(expression_, "expression_ must not null");
+  locate(prefixOperator_->position());
+  locate(expression_->position());
+}
+
+A_PrefixExpression::~A_PrefixExpression() {
+  delete prefixOperator_;
+  delete expression_;
+  prefixOperator_ = nullptr;
+  expression_ = nullptr;
+}
+
+AstCategory A_PrefixExpression::category() const {
+  return AstCategory::PrefixExpression;
+}
+
+std::string A_PrefixExpression::toString() const {
+  return fmt::format("[@{} position:{} prefixOperator:{} expression:{}]",
+                     name(), position().toString(), prefixOperator_->toString(),
+                     expression_->toString());
+}
+
+const AstId *A_PrefixExpression::prefixOperator() const {
+  return prefixOperator_;
+}
+
+const AstExpression *A_PrefixExpression::expression() const {
+  return expression_;
+}
+
+// A_PrefixExpression }
 
 // expression }
 
@@ -671,8 +812,8 @@ A_CallExpression::A_CallExpression(const AstId *id,
 
 A_CallExpression::~A_CallExpression() {
   delete id_;
-  id_ = nullptr;
   delete argumentList_;
+  id_ = nullptr;
   argumentList_ = nullptr;
 }
 

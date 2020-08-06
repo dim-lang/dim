@@ -46,7 +46,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* keyword */
 %token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
-%token <tok> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX
+%token <tok> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
 
  /* primitive integer type */
 %token <tok> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
@@ -72,7 +72,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* parentheses */
 %token <tok> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_NEWLINE T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW 
+%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_NEWLINE T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW
 
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOATING_POINT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
@@ -133,6 +133,13 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %%
 
+ /**
+  * Naming Rule:
+  *
+  * optional: 0 or 1
+  * repetible: 0 or more
+  */
+
  /* literal { */
 
 literal : T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
@@ -153,7 +160,7 @@ boolean_literal : T_TRUE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::f
  /* semi and newline { */
 
 optional_semi : semi { $$ = $1; }
-              | { $$ = nullptr; }
+              | { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI); }
               ;
 
 semi : T_SEMI { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1));  }
@@ -161,11 +168,11 @@ semi : T_SEMI { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSIT
      ;
 
 optional_newline : T_NEWLINE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1)); }
-                 | { $$ = nullptr; }
+                 | { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI); }
                  ;
 
 repetible_newline : repetible_newline_impl { $$ = $1; }
-                  | { $$ = nullptr; }
+                  | { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI); }
                   ;
 
 repetible_newline_impl : T_NEWLINE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::SEMI, $1, Y_POSITION(@1)); }
@@ -213,7 +220,13 @@ op_id : T_AMPERSAND2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_
       | T_COLON2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
       ;
 
-prefix_id : T_PREFIX prefix_operator { $$ = new A_TokenId(A_TokenId::TokenIdCategory::PREFIX, dynamic_cast<A_TokenId*>($2)->token(), $2->position()); if ($2) { delete $2; } }
+prefix_id : T_PREFIX prefix_operator {
+                EX_ASSERT($2->category() == (+AstCategory::TokenId), "$2->category {} == +AstCategory::TokenId", $2->category()._to_string());
+                EX_ASSERT(dynamic_cast<A_TokenId*>($2)->count() > 0, "$2->count {} > 0", dynamic_cast<A_TokenId*>($2)->count());
+                EX_ASSERT(dynamic_cast<A_TokenId*>($2)->token() != TOKEN_INVALID, "$2->token {} != TOKEN_INVALID", dynamic_cast<A_TokenId*>($2)->token());
+                $$ = new A_TokenId(A_TokenId::TokenIdCategory::PREFIX, dynamic_cast<A_TokenId*>($2)->token(), $2->position());
+                delete $2;
+            }
           ;
 
 postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::POSTFIX, $2, Y_POSITION(@1), Y_POSITION(@2)); }
@@ -224,16 +237,16 @@ postfix_id : T_POSTFIX T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::
 
  /* expression { */
 
-expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression
-           | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression
+expression : T_IF T_LPAREN expression T_RPAREN repetible_newline expression         %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
+           | T_IF T_LPAREN expression T_RPAREN repetible_newline expression optional_semi T_ELSE expression { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
            | T_WHILE T_LPAREN expression T_RPAREN repetible_newline expression
            /* | T_TRY expression optional_catch_expression optinal_finally_expression */
            /* | T_DO expression optional_semi T_WHILE T_LPAREN expression T_RPAREN */
            /* | T_FOR T_LPAREN enumerators T_RPAREN repetible_newline expression */
-           | T_THROW expression
-           | T_RETURN expression
+           | T_THROW expression { $$ = new A_ThrowExpression($2, Y_POSITION(@1)); }
+           | T_RETURN expression { $$ = new A_ReturnExpression($2, Y_POSITION(@1)); }
            | id equal_operator expression { $$ = new A_AssignExpression($1, $2, $3); }
-           | postfix_expression
+           | postfix_expression { $$ = $1; }
            ;
 
 equal_operator : T_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
@@ -301,27 +314,34 @@ expression_list : expression
 block_expression : T_LBRACE block T_RBRACE
                  ;
 
-block : block_statement repetible_semi_and_block_statement optional_result_expression
+block : block_statement repetible_block_statement optional_result_expression
       ;
 
-repetible_semi_and_block_statement : repetible_semi_and_block_statement_impl
-                                   |
-                                   ;
+repetible_block_statement : repetible_block_statement_impl
+                          | { $$ = nullptr; }
+                          ;
 
-repetible_semi_and_block_statement_impl : semi block_statement
-                                        | repetible_semi_and_block_statement_impl semi block_statement
-                                        ;
+repetible_block_statement_impl : semi block_statement
+                               | semi block_statement repetible_block_statement_impl
+                               ;
 
-optional_result_expression : result_expression
-                           |
+optional_result_expression : result_expression { $$ = $1; }
+                           | { $$ = nullptr; }
                            ;
 
-result_expression : expression
+result_expression : expression { $$ = $1; }
                   ;
 
  /* exprssion } */
 
  /* statement { */
+
+block_statement : import
+                | expression
+                | definition
+                | template_definition
+                |
+                ;
 
  /* statement } */
 
@@ -379,70 +399,46 @@ function_argument_definition_list : function_argument_definition { $$ = new AstD
 function_argument_definition : T_IDENTIFIER { $$ = new AstFunctionArgumentDefinition($1, Y_POSITION(@1)); std::free($1); }
                              ;
 
- /* part-3 statement */
-compound_statement : T_LBRACE T_RBRACE { $$ = new AstCompoundStatement(new AstStatementList(), Y_POSITION(@1), Y_POSITION(@2)); }
-                   | T_LBRACE statement_list T_RBRACE { $$ = new AstCompoundStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
-                   ;
+type : function_argument_type_list T_THIN_RARROW type
+     | infix_type
+     ;
 
-statement_list : statement { $$ = new AstStatementList(); $$->add($1); }
-               | statement statement_list { $2->add($1); $$ = $2; }
-               ;
+function_argument_type_list : infix_type
+                            | T_LPAREN repetible_parameter_type T_RPAREN
+                            ;
 
-statement : if_statement { $$ = $1; }
-          | compound_statement { $$ = $1; }
-          | expression_statement { $$ = $1; }
-          | iteration_statement { $$ = $1; }
-          | jump_statement { $$ = $1; }
-          | return_statement { $$ = $1; }
-          /*| switch_statement { $$ = $1; }*/
-          /*| switch_body_statement { $$ = $1; }*/
-          /*| match_statement { $$ = $1; }*/
-          /*| match_body_statement { $$ = $1; }*/
-          | definition { $$ = $1; }
-          ;
+repetible_parameter_type : repetible_parameter_type_impl
+                         |
+                         ;
 
- /*
+repetible_parameter_type_impl : parameter_type
+                              | parameter_type T_COMMA repetible_parameter_type_impl
+                              ;
 
-switch_statement : T_SWITCH T_LPAREN assignment_expression T_RPAREN statement { $$ = new AstSwitchStatement($3, $5); }
-                 ;
+definition : T_DEF function_definition
+           | template_definition
+           | variable_definition
+           ;
 
-switch_body_statement : T_BAR constant_expression T_COLON statement_list { $$ = new AstSwitchBodyStatement($2, $4); }
-                      | T_BAR T_UNDERSCORE T_COLON statement_list {}
-                      ;
+declaration : T_VAR variable_declaration
+            | T_DEF function_declaration
+            ;
 
-match_statement : T_MATCH T_LPAREN argument_expression_list T_RPAREN statement { $$ = new AstMatchStatement($3, $5); }
-                ;
-
-match_body_statement : T_BAR assignment_expression T_COLON statement { $$ = new AstMatchBodyStatement($1, $3); }
-                     | T_BAR T_UNDERSCORE T_COLON statement {}
-                     ;
- */
-
-expression_statement : expression T_SEMI { $$ = new AstExpressionStatement($1, Y_POSITION(@2)); }
-                     ;
-
-iteration_statement : T_WHILE T_LPAREN sequel_expression T_RPAREN statement { $$ = new AstWhileStatement($3, $5, Y_POSITION(@1)); }
-                    | T_FOR T_LPAREN expression_statement expression_statement expression T_RPAREN statement { $$ = new AstForStatement($3, $4, $5, $7, Y_POSITION(@1)); }
-                    ;
-
-jump_statement : T_CONTINUE T_SEMI { $$ = new AstContinueStatement(Y_POSITION(@1), Y_POSITION(@2)); }
-               | T_BREAK T_SEMI { $$ = new AstBreakStatement(Y_POSITION(@1), Y_POSITION(@2)); }
-               ;
-
-return_statement : T_RETURN expression T_SEMI { $$ = new AstReturnStatement($2, Y_POSITION(@1), Y_POSITION(@3)); }
-                 ;
-
-compile_unit : definition {
-                    EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                    EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                    Y_EXTRA->translateUnit()->add($1);
-                }
-             | definition compile_unit {
-                    EX_ASSERT(Y_EXTRA, "Y_EXTRA is null");
-                    EX_ASSERT(Y_EXTRA->translateUnit(), "Y_EXTRA.translateUnit is null");
-                    Y_EXTRA->translateUnit()->add($1);
-                }
+compile_unit : top_statement_sequence
              ;
+
+top_statement_sequence : top_statement
+                       | top_statement semi top_statement_sequence
+                       ;
+
+top_statement : template_definition
+              | import
+              | package
+              |
+              ;
+
+package : T_PACKAGE id optional_newline T_LBRACE top_statement_sequence T_RBRACE
+        ;
 
 %%
 

@@ -107,6 +107,7 @@ IS  ([uU]|([uU]?[lL]))
 "private"    { return T_INTEGER_TOKEN(T_PRIVATE); }
 "prefix"     { return T_INTEGER_TOKEN(T_PREFIX); }
 "postfix"    { return T_INTEGER_TOKEN(T_POSTFIX); }
+"package"    { return T_INTEGER_TOKEN(T_PACKAGE); }
 
  /***
    * primitive integer type
