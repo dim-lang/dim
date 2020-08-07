@@ -1,11 +1,14 @@
-# nerd programming languge
+# Nerd Programming Languge
 
-nerd - a modern, object-oriented, high performance programming language.
+Nerd - a modern, multiple paradigms, high performance programming language.
 
-## Why nerd?
+## Why Nerd?
 
-nerd is a programming language crossed multiple platforms with friendly features and high performance, and designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+Nerd is a modern, multiple paradigms, high performance programming language running on multiple platforms.
 
+It combines object-oriented and functional programming paradigms, flexible grammar inspired by [Scala](https://www.scala-lang.org/), backended with [LLVM](https://llvm.org/). Nerd will let you build highly functional system easily and efficiently.
+
+#### Basic Concept
 #### Object-Oriented
 #### Functional Programming
 #### Garbage Collection
@@ -18,36 +21,36 @@ Here is an example:
 ```
 /* declare an interface */
 interface People {
-    def age(): &int32;
+    def age(): &int;
     def name(): &String;
 }
 
 /* declare a class implement the interface above */
 class Student: People {
-    age:int32;
+    age:int;
     name:String;
-    score:&uint32[];
+    score:&uint[];
 
     def Student() {
         age = 0;
-        name = "student"; 
-        score = new uint32[10];
+        name = "student";
+        score = new uint[10];
         for (var i = 0; i < 10; i++) {
-            score[i] = (uint32)i;
+            score[i] = (uint)i;
         }
     }
-    def Student(age:int32, name:String, score:&uint32[]) { 
+    def Student(age:int, name:String, score:&uint[]) { 
         this.age = age; 
         this.name = name; 
         this.score = score; 
     }
-    def age(): &int32 => &age;
+    def age(): &int => &age;
     def name(): &String => &name;
-    def score(): &&uint32[] => &score;
+    def score(): &&uint[] => &score;
 }
 
 /* declare a function, which 2nd parameter is another function */
-def select(s:&int32[], len:int32, compare:(int32, int32)->boolean):int32 {
+def select(s:&int[], len:int, compare:(int, int)->boolean):int {
     var r = 0;
     for (var i = 0; i < len; i++) {
         r = compare(s[i], s[i+1]) ? s[i] : s[i+1];
@@ -56,26 +59,26 @@ def select(s:&int32[], len:int32, compare:(int32, int32)->boolean):int32 {
 }
 
 // declare 3 functions, all returns 64 bit signed integers
-def max(a:int32, b:int32) => { 
+def max(a:int, b:int) => { 
     a > b ? a : b;
 }
 
-def min(a:int32, b:int32) => { return a < b ? a : b; }
+def min(a:int, b:int) => { return a < b ? a : b; }
 
-def avg(a:int32, b:int32) => { return (a + b) / 2; }
+def avg(a:int, b:int) => { return (a + b) / 2; }
 
 def max(a:int, b:uint) => a > b ? a : b
 
 def max(a:int, b:uint):int => { a > b ? a : b }
 
 // declare program routine function main
-def main():int32 {
+def main():int {
     var s1:&Student = new Student(16, "Jack");
     var s2:Student = Student(17, "Lucy");
     s1.age = 10;
     s2.name = "Tom";
-    var x:int64[] = int64[100];
-    var y:&int64[] = new int64[100];
+    var x:long[] = long[100];
+    var y:&long[] = new long[100];
     var ss1:Student[] = [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     var ss2:&Student[] = new [ Student(1, "s1"), Student(2, "s2"), Student(3, "s3"), Student(4, "s4") ];
     var ss3:&Student[] = new Student[100];
@@ -85,14 +88,14 @@ def main():int32 {
         ss2[i].age = i;
         ss2[i].name = "" + i;
     }
-    val mymax:(int64, int64)->int64 = (a:int64, b:int64) => a > b ? a : b;
-    val mymin = (a:int64, b:int64) => {
+    val mymax:(long, long)->long = (a:long, b:long) => a > b ? a : b;
+    val mymin = (a:long, b:long) => {
         val c = a + 1
         val d = b - 1
         a + b
     };
-    val myavg = (a:int64, b:int64) => (a + b) / 2;
-    var r = select(y, (a:int32, b:int32) => a > b);
+    val myavg = (a:long, b:long) => (a + b) / 2;
+    var r = select(y, (a:int, b:int) => a > b);
     print("select max: {}", r);
     return 0;
 }
