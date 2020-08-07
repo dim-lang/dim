@@ -4,7 +4,7 @@ nerd - a modern, object-oriented, high performance programming language.
 
 ## Why nerd?
 
-Shepherd is a programming language crossed multiple platforms with friendly features and high performance. Shepherd is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
+nerd is a programming language crossed multiple platforms with friendly features and high performance, and designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
 #### Object-Oriented
 #### Functional Programming
