@@ -1,8 +1,8 @@
-# Shepherd Programming Languge
+# nerd programming languge
 
-Shepherd - a modern, object-oriented, high performance programming language.
+nerd - a modern, object-oriented, high performance programming language.
 
-## Why shepherd?
+## Why nerd?
 
 Shepherd is a programming language crossed multiple platforms with friendly features and high performance. Shepherd is designed combining object-oriented and functional programming, compact memory layout based on [LLVM](https://llvm.org/) backend, compile or interpret as needed. Here're topics we want to introduce:
 
@@ -135,7 +135,7 @@ def main():int32 {
 
 #### Build
 
-| Platform     | Build                                                                                     |
-|--------------|-------------------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && ./build -r`  |
-| Windows      | `$ git clone https://github.com/shepherd-lang/shepherd.git && cd shepherd && .\build.bat` |
+| Platform     | Build                                                                         |
+|--------------|-------------------------------------------------------------------------------|
+| Linux & UNIX | `$ git clone https://github.com/nerd-lang/nerd.git && cd nerd && ./build -r`  |
+| Windows      | `$ git clone https://github.com/nerd-lang/nerd.git && cd nerd && .\build.bat` |

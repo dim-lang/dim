@@ -1,7 +1,7 @@
-# Copyright 2019- <shepherd-lang>
+# Copyright 2019- <nerd-lang>
 # Apache License Version 2.0
 
-project(shepherdc VERSION 0.0.2 LANGUAGES CXX)
+project(nerdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -117,7 +117,7 @@ set(SHEPHERD
     ${FLEX_ShepherdTokenizer_OUTPUTS}
 )
 set(SHEPHERDC
-    shepherdc.cpp
+    nerdc.cpp
 )
 
 
@@ -142,12 +142,12 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${SHEPHERD_INC})
 link_directories(${SHEPHERD_LIB_DIR})
 
-add_library(shepherd STATIC ${SHEPHERD})
-target_include_directories(shepherd PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd ${SHEPHERD_LIB})
-set_target_properties(shepherd PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(nerdcore STATIC ${SHEPHERD})
+target_include_directories(nerdcore PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerdcore ${SHEPHERD_LIB})
+set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(shepherdc ${SHEPHERDC})
-target_include_directories(shepherdc PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherdc ${SHEPHERD_LIB} shepherd)
-set_target_properties(shepherdc PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerdc ${SHEPHERDC})
+target_include_directories(nerdc PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerdc ${SHEPHERD_LIB} nerdcore)
+set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})

@@ -1,4 +1,4 @@
-// Copyright 2019- <shepherd-lang>
+// Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
 #pragma once
@@ -9,7 +9,7 @@
 
 class Log {
 public:
-  static void initialize(const std::string &logName = "shepherd",
+  static void initialize(const std::string &logName = "nerd",
                          const std::string &logPath = ".");
 };
 

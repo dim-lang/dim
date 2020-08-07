@@ -1,4 +1,4 @@
-// Copyright 2019- <shepherd-lang>
+// Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
 #include "Option.h"
@@ -53,7 +53,7 @@ std::string Option::help() const {
 
 bool Option::hasVersion() const { return varMap_.count(OPT_VERSION); }
 
-std::string Option::version() const { return "shepherdc-" PROJECT_VERSION; }
+std::string Option::version() const { return "nerdc-" PROJECT_VERSION; }
 
 bool Option::hasFileNames() const { return varMap_.count(OPT_FILE); }
 

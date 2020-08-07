@@ -1,7 +1,7 @@
-# Copyright 2019- <shepherd-lang>
+# Copyright 2019- <nerd-lang>
 # Apache License Version 2.0
 
-project(shepherd-example VERSION 0.0.2 LANGUAGES CXX)
+project(nerd-example VERSION 0.0.2 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
@@ -91,22 +91,22 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${SHEPHERD_INC})
 link_directories(${SHEPHERD_LIB_DIR})
 
-add_executable(shepherd-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(shepherd-llvm_IRBuilder_Add PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd-llvm_IRBuilder_Add ${SHEPHERD_LIB})
-set_target_properties(shepherd-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(nerd-llvm_IRBuilder_Add PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Add ${SHEPHERD_LIB})
+set_target_properties(nerd-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(shepherd-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(shepherd-llvm_IRBuilder_Sub PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd-llvm_IRBuilder_Sub ${SHEPHERD_LIB})
-set_target_properties(shepherd-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(nerd-llvm_IRBuilder_Sub PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Sub ${SHEPHERD_LIB})
+set_target_properties(nerd-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(shepherd-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(shepherd-llvm_IRBuilder_Mul PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd-llvm_IRBuilder_Mul ${SHEPHERD_LIB})
-set_target_properties(shepherd-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(nerd-llvm_IRBuilder_Mul PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Mul ${SHEPHERD_LIB})
+set_target_properties(nerd-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(shepherd-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(shepherd-llvm_IRBuilder_Div PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd-llvm_IRBuilder_Div ${SHEPHERD_LIB})
-set_target_properties(shepherd-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
+target_include_directories(nerd-llvm_IRBuilder_Div PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Div ${SHEPHERD_LIB})
+set_target_properties(nerd-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})

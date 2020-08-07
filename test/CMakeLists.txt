@@ -1,7 +1,7 @@
-# Copyright 2019- <shepherd-lang>
+# Copyright 2019- <nerd-lang>
 # Apache License Version 2.0
 
-project(shepherd-test VERSION 0.0.2 LANGUAGES CXX)
+project(nerd-test VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/../src/Configure.h.in ${PROJECT_SOURCE_DIR}/../src/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -117,7 +117,7 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${SHEPHERD_INC})
 link_directories(${SHEPHERD_LIB_DIR})
 
-add_executable(shepherd-test ${SHEPHERD_TEST})
-target_include_directories(shepherd-test PRIVATE ${SHEPHERD_INC})
-target_link_libraries(shepherd-test ${SHEPHERD_LIB} shepherd)
-set_target_properties(shepherd-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-test ${SHEPHERD_TEST})
+target_include_directories(nerd-test PRIVATE ${SHEPHERD_INC})
+target_link_libraries(nerd-test ${SHEPHERD_LIB} nerd)
+set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})

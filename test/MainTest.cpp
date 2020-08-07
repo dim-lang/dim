@@ -1,4 +1,4 @@
-// Copyright 2019- <shepherd-lang>
+// Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
 #define CATCH_CONFIG_MAIN
@@ -8,13 +8,13 @@
 #include "fmt/format.h"
 
 TEST_CASE("Main", "[Main]") {
-  Log::initialize("shepherd-test");
+  Log::initialize("nerd-test");
   SECTION("Main Initialize") {
     fmt::print(
-        "shepherd-test start at:{}\n",
+        "nerd-test start at:{}\n",
         boost::filesystem::path(boost::filesystem::current_path()).string());
     LOG_INFO(
-        "shepherd-test start at:{}",
+        "nerd-test start at:{}",
         boost::filesystem::path(boost::filesystem::current_path()).string());
   }
 }
