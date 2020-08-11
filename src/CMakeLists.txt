@@ -58,11 +58,11 @@ BISON_TARGET(NerdParser Parser.y ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp
 ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
 
 # release version
-# flex -o Token.yy.cpp Token.l
+# flex -o Tokenizer.yy.cpp Tokenizer.l
 # bison -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 
 # debug
-# flex --debug -o Token.yy.cpp Token.l
+# flex --debug -o Tokenizer.yy.cpp Tokenizer.l
 # bison --debug -v -o Parser.tab.cpp --defines=Parser.tab.hpp Parser.y
 
 set(SHEPHERD_INC

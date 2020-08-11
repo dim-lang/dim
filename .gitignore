@@ -33,7 +33,7 @@ boost
 llvm-project
 
 # auto generate source code
-Token.yy.cpp
+Tokenizer.yy.cpp
 Parser.tab.hpp
 Parser.tab.cpp
 src/Configure.h
