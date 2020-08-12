@@ -76,6 +76,7 @@ IS  ([uU]|([uU]?[lL]))
 "if"         { return T_INTEGER_TOKEN(T_IF); }
 "then"       { return T_INTEGER_TOKEN(T_THEN); }
 "else"       { return T_INTEGER_TOKEN(T_ELSE); }
+"match"      { return T_INTEGER_TOKEN(T_MATCH); }
 "enum"       { return T_INTEGER_TOKEN(T_ENUM); }
 "switch"     { return T_INTEGER_TOKEN(T_SWITCH); }
 "case"       { return T_INTEGER_TOKEN(T_CASE); }
@@ -96,6 +97,7 @@ IS  ([uU]|([uU]?[lL]))
 "isa"        { return T_INTEGER_TOKEN(T_ISA); }
 "isinstanceof"  { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
 "import"     { return T_INTEGER_TOKEN(T_IMPORT); }
+"as"         { return T_INTEGER_TOKEN(T_AS); }
 "return"     { return T_INTEGER_TOKEN(T_RETURN); }
 "void"       { return T_INTEGER_TOKEN(T_VOID); }
 "nan"        { return T_INTEGER_TOKEN(T_NAN); }
@@ -110,9 +112,7 @@ IS  ([uU]|([uU]?[lL]))
 "postfix"    { return T_INTEGER_TOKEN(T_POSTFIX); }
 "package"    { return T_INTEGER_TOKEN(T_PACKAGE); }
 
- /***
-   * primitive integer type
-   */
+ /* primitive integer type */
 "byte"       { return T_INTEGER_TOKEN(T_BYTE); }
 "ubyte"      { return T_INTEGER_TOKEN(T_UBYTE); }
 "short"      { return T_INTEGER_TOKEN(T_SHORT); }
@@ -124,16 +124,15 @@ IS  ([uU]|([uU]?[lL]))
 "llong"      { return T_INTEGER_TOKEN(T_LLONG); }
 "ullong"     { return T_INTEGER_TOKEN(T_ULLONG); }
 
- /***
-   * primitive integer type
-   */
+ /* primitive integer type */
 "float"      { return T_INTEGER_TOKEN(T_FLOAT); }
 "double"     { return T_INTEGER_TOKEN(T_DOUBLE); }
 
- /***
-   * primitive boolean type
-   */
+ /* primitive boolean type */
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
+
+ /* primitive character type */
+"char"       { return T_INTEGER_TOKEN(T_CHAR); }
 
  /* and or not operator */
 "and"   { return T_INTEGER_TOKEN(T_AND); }
