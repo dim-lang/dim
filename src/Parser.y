@@ -179,6 +179,30 @@ VarId : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
 
  /* id } */
 
+ /* block or not */
+
+WithBlock : Block
+          | T_IF ParExpr Stat             %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
+          | T_IF ParExpr Stat T_ELSE Stat { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
+          | T_FOR T_LPAREN ForCond T_RPAREN Stat
+          | T_WHILE ParExpr Stat
+          ;
+
+WithoutBlock : Expr
+             | T_RETURN
+             | T_RETURN Expr
+             | T_THROW Expr
+             | T_BREAK
+             | T_CONTINUE
+             ;
+
+OtherWithBlock : FuncDef
+               ;
+
+OtherWithoutBlock : Import
+                  | VarDef
+                  ;
+
  /* expression { */
 
 Expr : AssignExpr
@@ -337,14 +361,14 @@ PlainType : T_BYTE
 
  /* definition declaration { */
 
-Def : T_DEF FuncDef
-    /* | T_CLASS ClassDef */
-    /* | T_TRAIT TraitDef */
-    | T_VAR VarDef
+Def : FuncDef
+    /* | ClassDef */
+    /* | TraitDef */
+    | VarDef
     ;
 
-FuncDef : FuncSign ResultType Block
-        | FuncSign T_FAT_RARROW Block
+FuncDef : T_DEF FuncSign ResultType Block
+        | T_DEF FuncSign T_FAT_RARROW Block
         ;
 
 FuncSign : Id ParamClause
@@ -361,7 +385,7 @@ Params : Param
 Param : Expr
       ;
 
-VarDef : Id T_COLON Type T_EQUAL Expr
+VarDef : T_VAR Id T_COLON Type T_EQUAL Expr
        ;
 
 /* Decl : T_VAR VarDecl */
