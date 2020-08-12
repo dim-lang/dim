@@ -135,17 +135,17 @@ IS  ([uU]|([uU]?[lL]))
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
  /* and or not operator */
- /* "and"   { return T_INTEGER_TOKEN(T_AND); } */
- /* "or"    { return T_INTEGER_TOKEN(T_OR); } */
- /* "not"   { return T_INTEGER_TOKEN(T_NOT); } */
+"and"   { return T_INTEGER_TOKEN(T_AND); }
+"or"    { return T_INTEGER_TOKEN(T_OR); }
+"not"   { return T_INTEGER_TOKEN(T_NOT); }
 
  /* operator */
 "+"     { return T_INTEGER_TOKEN(T_PLUS); }
 "++"    { return T_INTEGER_TOKEN(T_PLUS2); }
 "-"     { return T_INTEGER_TOKEN(T_MINUS); }
 "--"    { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"     { return T_INTEGER_TOKEN(T_ASTERISK); }
-"**"    { return T_INTEGER_TOKEN(T_ASTERISK2); }
+"*"     { return T_INTEGER_TOKEN(T_STAR); }
+"**"    { return T_INTEGER_TOKEN(T_STAR2); }
 "/"     { return T_INTEGER_TOKEN(T_SLASH); }
 "//"    { return T_INTEGER_TOKEN(T_SLASH2); }
 "%"     { return T_INTEGER_TOKEN(T_PERCENT); }
@@ -167,7 +167,7 @@ IS  ([uU]|([uU]?[lL]))
 "="     { return T_INTEGER_TOKEN(T_EQUAL); }
 "+="    { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
 "-="    { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="    { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
+"*="    { return T_INTEGER_TOKEN(T_STAR_EQUAL); }
 "/="    { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
 "%="    { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
 "&="    { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
@@ -197,7 +197,7 @@ IS  ([uU]|([uU]?[lL]))
 "_"     { return T_INTEGER_TOKEN(T_UNDERSCORE); }
 ","     { return T_INTEGER_TOKEN(T_COMMA); }
 ";"     { return T_INTEGER_TOKEN(T_SEMI); }
-[\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); }
+ /* [\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); } */
 "?"     { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"     { return T_INTEGER_TOKEN(T_COLON); }
 "::"    { return T_INTEGER_TOKEN(T_COLON2); }
@@ -237,10 +237,10 @@ IS  ([uU]|([uU]?[lL]))
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
 
  /* whitespace except newline */
-[ \t\v\f\r]                                 { /* skip whitespace except newline */ }
+[ \n\t\v\f\r]                                 { /* skip whitespace except newline */ }
 
  /* import module */
-^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
+^[ \n\t\v\f\r]*import[ \n\t\v\f\r]*             { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
                                                 yyextra->pushBuffer(Y_TEXT);
                                                 BEGIN INITIAL;
