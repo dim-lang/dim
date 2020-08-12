@@ -76,6 +76,7 @@ IS  ([uU]|([uU]?[lL]))
 "if"         { return T_INTEGER_TOKEN(T_IF); }
 "then"       { return T_INTEGER_TOKEN(T_THEN); }
 "else"       { return T_INTEGER_TOKEN(T_ELSE); }
+"match"      { return T_INTEGER_TOKEN(T_MATCH); }
 "enum"       { return T_INTEGER_TOKEN(T_ENUM); }
 "switch"     { return T_INTEGER_TOKEN(T_SWITCH); }
 "case"       { return T_INTEGER_TOKEN(T_CASE); }
@@ -88,6 +89,7 @@ IS  ([uU]|([uU]?[lL]))
 "break"      { return T_INTEGER_TOKEN(T_BREAK); }
 "continue"   { return T_INTEGER_TOKEN(T_CONTINUE); }
 "class"      { return T_INTEGER_TOKEN(T_CLASS); }
+"trait"      { return T_INTEGER_TOKEN(T_TRAIT); }
 "type"       { return T_INTEGER_TOKEN(T_TYPE); }
 "this"       { return T_INTEGER_TOKEN(T_THIS); }
 "super"      { return T_INTEGER_TOKEN(T_SUPER); }
@@ -95,6 +97,7 @@ IS  ([uU]|([uU]?[lL]))
 "isa"        { return T_INTEGER_TOKEN(T_ISA); }
 "isinstanceof"  { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
 "import"     { return T_INTEGER_TOKEN(T_IMPORT); }
+"as"         { return T_INTEGER_TOKEN(T_AS); }
 "return"     { return T_INTEGER_TOKEN(T_RETURN); }
 "void"       { return T_INTEGER_TOKEN(T_VOID); }
 "nan"        { return T_INTEGER_TOKEN(T_NAN); }
@@ -109,9 +112,7 @@ IS  ([uU]|([uU]?[lL]))
 "postfix"    { return T_INTEGER_TOKEN(T_POSTFIX); }
 "package"    { return T_INTEGER_TOKEN(T_PACKAGE); }
 
- /***
-   * primitive integer type
-   */
+ /* primitive integer type */
 "byte"       { return T_INTEGER_TOKEN(T_BYTE); }
 "ubyte"      { return T_INTEGER_TOKEN(T_UBYTE); }
 "short"      { return T_INTEGER_TOKEN(T_SHORT); }
@@ -123,29 +124,28 @@ IS  ([uU]|([uU]?[lL]))
 "llong"      { return T_INTEGER_TOKEN(T_LLONG); }
 "ullong"     { return T_INTEGER_TOKEN(T_ULLONG); }
 
- /***
-   * primitive integer type
-   */
+ /* primitive integer type */
 "float"      { return T_INTEGER_TOKEN(T_FLOAT); }
 "double"     { return T_INTEGER_TOKEN(T_DOUBLE); }
 
- /***
-   * primitive boolean type
-   */
+ /* primitive boolean type */
 "boolean"    { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
+ /* primitive character type */
+"char"       { return T_INTEGER_TOKEN(T_CHAR); }
+
  /* and or not operator */
- /* "and"   { return T_INTEGER_TOKEN(T_AND); } */
- /* "or"    { return T_INTEGER_TOKEN(T_OR); } */
- /* "not"   { return T_INTEGER_TOKEN(T_NOT); } */
+"and"   { return T_INTEGER_TOKEN(T_AND); }
+"or"    { return T_INTEGER_TOKEN(T_OR); }
+"not"   { return T_INTEGER_TOKEN(T_NOT); }
 
  /* operator */
 "+"     { return T_INTEGER_TOKEN(T_PLUS); }
 "++"    { return T_INTEGER_TOKEN(T_PLUS2); }
 "-"     { return T_INTEGER_TOKEN(T_MINUS); }
 "--"    { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"     { return T_INTEGER_TOKEN(T_ASTERISK); }
-"**"    { return T_INTEGER_TOKEN(T_ASTERISK2); }
+"*"     { return T_INTEGER_TOKEN(T_STAR); }
+"**"    { return T_INTEGER_TOKEN(T_STAR2); }
 "/"     { return T_INTEGER_TOKEN(T_SLASH); }
 "//"    { return T_INTEGER_TOKEN(T_SLASH2); }
 "%"     { return T_INTEGER_TOKEN(T_PERCENT); }
@@ -167,7 +167,7 @@ IS  ([uU]|([uU]?[lL]))
 "="     { return T_INTEGER_TOKEN(T_EQUAL); }
 "+="    { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
 "-="    { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="    { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
+"*="    { return T_INTEGER_TOKEN(T_STAR_EQUAL); }
 "/="    { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
 "%="    { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
 "&="    { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
@@ -197,7 +197,7 @@ IS  ([uU]|([uU]?[lL]))
 "_"     { return T_INTEGER_TOKEN(T_UNDERSCORE); }
 ","     { return T_INTEGER_TOKEN(T_COMMA); }
 ";"     { return T_INTEGER_TOKEN(T_SEMI); }
-[\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); }
+ /* [\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); } */
 "?"     { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"     { return T_INTEGER_TOKEN(T_COLON); }
 "::"    { return T_INTEGER_TOKEN(T_COLON2); }
@@ -214,7 +214,7 @@ IS  ([uU]|([uU]?[lL]))
  /* heximal integer literal */
 0[xX]{HEX}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* octal integer literal */
-0{OCT}+{IS}?                                { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[oO]{OCT}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* binary integer literal */
 0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
@@ -237,10 +237,10 @@ IS  ([uU]|([uU]?[lL]))
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
 
  /* whitespace except newline */
-[ \t\v\f\r]                                 { /* skip whitespace except newline */ }
+[ \n\t\v\f\r]                                 { /* skip whitespace except newline */ }
 
  /* import module */
-^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
+^[ \n\t\v\f\r]*import[ \n\t\v\f\r]*             { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
                                                 yyextra->pushBuffer(Y_TEXT);
                                                 BEGIN INITIAL;

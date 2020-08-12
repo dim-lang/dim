@@ -1,12 +1,12 @@
 # Nerd Programming Languge
 
-Nerd - a modern, multiple paradigms, high performance programming language.
+Nerd - a modern, multiple paradigms, high performance and friendly programming language.
 
 ## Why Nerd?
 
-Nerd is a modern, multiple paradigms, high performance programming language running on multiple platforms.
+Nerd is a modern, multiple paradigms, high performance and friendly programming language running on multiple platforms.
 
-It combines object-oriented and functional programming paradigms, flexible grammar inspired by [Scala](https://www.scala-lang.org/), backended with [LLVM](https://llvm.org/). Nerd will let you build highly functional system easily and efficiently.
+Nerd combines object-oriented and functional programming paradigms, inspired by modern programming languages such as [Scala](https://www.scala-lang.org/) and [Rust](https://www.rust-lang.org/), backended with [LLVM](https://llvm.org/). In additinal Nerd try to make its grammar easy and friendly, let you build highly functional system easily without extra burden.
 
 #### Basic Concept
 #### Object-Oriented
