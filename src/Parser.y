@@ -46,7 +46,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* keyword */
 %token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
-%token <tok> T_FUNC T_CLASS T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
+%token <tok> T_FUNC T_CLASS T_TRAIT T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
 
  /* primitive integer type */
 %token <tok> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
@@ -84,7 +84,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %type <expr> Literal BooleanLiteral
 %type <expr> Id
-%type <expr> OptionalSemi Semi OptionalNl NlSeq Nl
 %type <expr> PrefixOp EqualOp
 %type <expr> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr BlockExpr NonBlockExpr
 %type <expr> PostfixOp
@@ -180,18 +179,6 @@ VarId : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
 
  /* expression { */
 
-Expr : T_IF T_LPAREN Expr T_RPAREN OptionalNlSeq Expr           %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
-     | T_IF T_LPAREN Expr T_RPAREN OptionalNlSeq Expr OptionalSemi T_ELSE Expr  { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
-     | T_WHILE T_LPAREN Expr T_RPAREN OptionalNlSeq Expr
-     /* | T_TRY Expr optional_catch_Expr optinal_finally_Expr */
-     /* | T_DO Expr OptionalSemi T_WHILE T_LPAREN Expr T_RPAREN */
-     /* | T_FOR T_LPAREN enumerators T_RPAREN OptionalNlSeq Expr */
-     | T_THROW Expr { $$ = new A_ThrowExpression($2, Y_POSITION(@1)); }
-     | T_RETURN Expr { $$ = new A_ReturnExpression($2, Y_POSITION(@1)); }
-     | Id EqualOp Expr { $$ = new A_AssignExpression($1, $2, $3); }
-     | PostfixExpr { $$ = $1; }
-     ;
-
 Expr : AssignExpr
      ;
 
@@ -283,127 +270,131 @@ Stat : Block
      | T_FOR T_LPAREN ForCond T_RPAREN Stat
      | T_WHILE ParExpr Stat
      | T_DO Stat T_WHILE ParExpr T_SEMI
-     | T_RETURN OptionalExpr T_SEMI
+     | T_RETURN T_SEMI
+     | T_RETURN Expr T_SEMI
      | T_THROW Expr T_SEMI
      | T_BREAK T_SEMI
      | T_CONTINUE T_SEMI
-     | OptionalExpr T_SEMI
+     | T_SEMI
+     | Expr T_SEMI
      ;
 
-OptionalExpr : Expr
-             |
-             ;
+Block : T_LBRACE T_RBRACE
+      | T_LBRACE BlockStats T_RBRACE
+      ;
+
+BlockStats : BlockStat
+           | BlockStat BlockStats
+           ;
+
+BlockStat : Def
+          | Stat
+          /* | Import */
+          ;
 
  /* statement } */
 
-Def : FuncDef { $$ = $1; }
-    | VarDef { $$ = $1; }
-    /*| Import_module { $$ = $1; }*/
-    ;
-
- /*
-Import_module : T_IMPORT Import_module_list T_SEMI
-              ;
-
-Import_module_list : T_IDENTIFIER
-                   | T_IDENTIFIER T_DOT Import_module_list 
-                   ;
- */
-
-
- /**
-  * var x = 1;
-  * var x:i64 = 100;
-  * var x:i64 = 100, y = 1, z:string = "hello";
-  */
-VarDef : T_VAR T_IDENTIFIER T_SEMI { $$ = new AstVariableDefinition($2, Y_POSITION(@1), Y_POSITION(@3)); std::free($2); }
-                    | T_VAR T_IDENTIFIER T_EQUAL constant_Expr T_SEMI { $$ = new AstVariableDefinition($2, ); std::free($2); }
-                    ;
-
- /**
-  * func hello() { print("world"); }
-  * func hello2() => { print("world"); }
-  * func hello3() => print("world");
-  * func min(a: i64, b: i64): i64 { return a < b ? a : b; }
-  * func min2(a: i64, b: i64): i64 => { return a < b ? a : b; }
-  * func max(a: i64, b: i64): i64 => a > b ? a : b;
-  * func abs(x: i64): i64 => if (x > 0) return x; else return -x;
-  */
-FuncDef : FuncSignDef compound_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $2); }
-                    | FuncSignDef T_RIGHT_ARROW Expr_statement { $$ = new AstFunctionDefinition(dynamic_cast<AstFunctionSignatureDefinition*>($1), $3); }
-                    ;
-
-FuncSignDef : T_DEF T_IDENTIFIER T_LPAREN FuncArgs T_RPAREN {
-                                    $$ = new AstFunctionSignatureDefinition($2, $4, nullptr, Y_POSITION(@1), Y_POSITION(@2));
-                                    std::free($2);
-                                }
-                              | T_DEF T_IDENTIFIER T_LPAREN T_RPAREN {
-                                    $$ = new AstFunctionSignatureDefinition($2, new AstDefinitionList(), nullptr, Y_POSITION(@1), Y_POSITION(@2));
-                                    std::free($2);
-                                }
-                              ;
-
-FuncArgs : FuncArg { $$ = new AstDefinitionList(); $$->add($1); }
-                                  | FuncArg T_COMMA FuncArgs { $3->add($1); $$ = $3; }
-                                  ;
-
-FuncArg : T_IDENTIFIER { $$ = new AstFunctionArgumentDefinition($1, Y_POSITION(@1)); std::free($1); }
-                             ;
-
  /* type { */
 
-Type : FuncArgTypes T_THIN_RARROW Type
-     | InfixType
+Type : PlainType
+     /* | FuncArgTypes T_THIN_RARROW Type */
+     /* | IdType */
      ;
 
-FuncArgTypes : InfixType
-             | T_LPAREN OptionalParamTypeSeq T_RPAREN
-             ;
+/* FuncArgTypes : T_LPAREN T_RPAREN */
+/*              | T_LPAREN ParamTypes T_RPAREN */
+/*              ; */
 
-OptionalParamTypeSeq : ParamTypeSeq
-                     |
-                     ;
+/* ParamTypes : ParamType */
+/*            | ParamType T_COMMA ParamTypes */
+/*            ; */
 
-ParamTypeSeq : ParamType
-             | ParamType T_COMMA ParamTypeSeq
-             ;
+/* ParamType : Type */
+/*           ; */
+
+PlainType : T_BYTE
+          | T_UBYTE
+          | T_SHORT
+          | T_USHORT
+          | T_INT
+          | T_UINT
+          | T_LONG
+          | T_ULONG
+          | T_LLONG
+          | T_ULLONG
+          | T_FLOAT
+          | T_DOUBLE
+          | T_BOOLEAN
+          | T_VOID
+          ;
+
+/* IdType : Id */
+/*        ; */
 
  /* type } */
 
+ /* definition declaration { */
+
 Def : T_DEF FuncDef
-    | TempDef
-    | VarDef
+    /* | T_CLASS ClassDef */
+    /* | T_TRAIT TraitDef */
+    | T_VAR VarDef
     ;
 
-Decl : T_VAR VarDecl
-     | T_DEF FuncDecl
-     ;
-
-FuncDef : Id T_LPAREN OptionalParams T_RPAREN ResultType Stat
-        | Id T_LPAREN OptionalParams T_RPAREN T_FAT_RARROW Stat
+FuncDef : FuncSign ResultType Block
+        | FuncSign T_FAT_RARROW Block
         ;
 
+FuncSign : Id ParamClause
+         ;
+
+ParamClause : T_LPAREN Params T_RPAREN
+            | T_LPAREN T_RPAREN
+            ;
+
+Params : Param
+       | Param T_COMMA Params
+       ;
+
+Param : Expr
+      ;
+
+VarDef : Id T_COLON Type T_EQUAL Expr
+       ;
+
+/* Decl : T_VAR VarDecl */
+/*      | T_DEF FuncDecl */
+/*      ; */
+
+/* FuncDecl : FuncSign T_COLON Type */
+/*          ; */
+
+/* VarDecl : Id T_COLON Type */
+/*         ; */
+
+ /* definition declaration } */
 
  /* compile unit { */
 
-CompileUnit : OptionalTopStats
+CompileUnit : TopStats
+            |
             ;
-
-OptionalTopStats : TopStats
-                 |
-                 ;
 
 TopStats : TopStat
          | TopStat TopStats
          ;
 
 TopStat : Def
-        | Import
-        | Package
+        /* | Import */
+        /* | Package */
         ;
 
-Package : T_PACKAGE Id T_LBRACE OptionalTopStats T_RBRACE
-        ;
+/* Package : T_PACKAGE Id T_LBRACE T_RBRACE */
+/*         | T_PACKAGE Id T_LBRACE TopStats T_RBRACE */
+/*         ; */
+
+/* Import : */ 
+/*        ; */
 
  /* compile unit } */
 

@@ -88,6 +88,7 @@ IS  ([uU]|([uU]?[lL]))
 "break"      { return T_INTEGER_TOKEN(T_BREAK); }
 "continue"   { return T_INTEGER_TOKEN(T_CONTINUE); }
 "class"      { return T_INTEGER_TOKEN(T_CLASS); }
+"trait"      { return T_INTEGER_TOKEN(T_TRAIT); }
 "type"       { return T_INTEGER_TOKEN(T_TYPE); }
 "this"       { return T_INTEGER_TOKEN(T_THIS); }
 "super"      { return T_INTEGER_TOKEN(T_SUPER); }
