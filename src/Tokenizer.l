@@ -215,7 +215,7 @@ IS  ([uU]|([uU]?[lL]))
  /* heximal integer literal */
 0[xX]{HEX}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* octal integer literal */
-0{OCT}+{IS}?                                { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[oO]{OCT}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
  /* binary integer literal */
 0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
