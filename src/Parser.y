@@ -141,10 +141,6 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %%
 
- /**
-  * Optional means 0 or 1
-  */
-
  /* literal { */
 
 Literal : T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
@@ -179,34 +175,23 @@ VarId : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
 
  /* id } */
 
- /* block or not */
+ /* total expression { */
 
-WithBlock : Block
-          | T_IF ParExpr Stat             %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
-          | T_IF ParExpr Stat T_ELSE Stat { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
-          | T_FOR T_LPAREN ForCond T_RPAREN Stat
-          | T_WHILE ParExpr Stat
-          ;
-
-WithoutBlock : Expr
-             | T_RETURN
-             | T_RETURN Expr
-             | T_THROW Expr
-             | T_BREAK
-             | T_CONTINUE
-             ;
-
-OtherWithBlock : FuncDef
-               ;
-
-OtherWithoutBlock : Import
-                  | VarDef
-                  ;
-
- /* expression { */
-
-Expr : AssignExpr
+Expr : ExprWithBlock
+     | ExprWithoutBlock
      ;
+
+ /* total expression } */
+
+ /* simple expression without block { */
+
+ExprWithoutBlock : AssignExpr
+                 | T_RETURN
+                 | T_RETURN Expr
+                 | T_THROW Expr
+                 | T_BREAK
+                 | T_CONTINUE
+                 ;
 
 AssignExpr : InfixExpr
            | PrefixExpr AssignOp AssignExpr
@@ -286,39 +271,37 @@ PrimaryExpr : Literal
 ParExpr : T_LPAREN Expr T_RPAREN
         ;
 
- /* exprssion } */
+ /* simple expression without block } */
 
- /* statement { */
+ /* statement like expression which has block { */
 
-Stat : Block
-     | T_IF ParExpr Stat             %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
-     | T_IF ParExpr Stat T_ELSE Stat { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
-     | T_FOR T_LPAREN ForCond T_RPAREN Stat
-     | T_WHILE ParExpr Stat
-     | T_DO Stat T_WHILE ParExpr T_SEMI
-     | T_RETURN T_SEMI
-     | T_RETURN Expr T_SEMI
-     | T_THROW Expr T_SEMI
-     | T_BREAK T_SEMI
-     | T_CONTINUE T_SEMI
-     | T_SEMI
-     | Expr T_SEMI
-     ;
+ExprWithBlock : Block
+              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
+              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
+              | T_FOR T_LPAREN ForCond T_RPAREN Expr
+              | T_WHILE ParExpr Expr
+              ;
+
 
 Block : T_LBRACE T_RBRACE
       | T_LBRACE BlockStats T_RBRACE
       ;
 
-BlockStats : BlockStat
-           | BlockStat BlockStats
+BlockStats : BlockStatWithoutBlock
+           | BlockStatWithoutBlock T_SEMI BlockStats
+           | BlockStatWithBlock BlockStats
            ;
 
-BlockStat : Def
-          | Stat
-          /* | Import */
-          ;
+BlockStatWithoutBlock : ExprWithoutBlock
+                      | DefWithoutBlock
+                      /* | Import */
+                      ;
 
- /* statement } */
+BlockStatWithBlock : ExprWithBlock
+                   | DefWithBlock
+                   ;
+
+ /* statement like expression which has block } */
 
  /* type { */
 
@@ -361,11 +344,17 @@ PlainType : T_BYTE
 
  /* definition declaration { */
 
-Def : FuncDef
-    /* | ClassDef */
-    /* | TraitDef */
-    | VarDef
+Def : DefWithBlock
+    | DefWithoutBlock
     ;
+
+DefWithBlock : FuncDef
+             /* | ClassDef */
+             /* | TraitDef */
+             ;
+
+DefWithoutBlock : VarDef
+                ;
 
 FuncDef : T_DEF FuncSign ResultType Block
         | T_DEF FuncSign T_FAT_RARROW Block
@@ -410,10 +399,18 @@ TopStats : TopStat
          | TopStat TopStats
          ;
 
-TopStat : Def
-        /* | Import */
-        /* | Package */
+TopStat : TopStatWithBlock
+        | TopStatWithoutBlock T_SEMI
         ;
+
+TopStatWithBlock : DefWithBlock
+                 /* | Package */
+                 ;
+
+TopStatWithoutBlock : DefWithoutBlock
+                    /* | Import */
+                    ;
+
 
 /* Package : T_PACKAGE Id T_LBRACE T_RBRACE */
 /*         | T_PACKAGE Id T_LBRACE TopStats T_RBRACE */
