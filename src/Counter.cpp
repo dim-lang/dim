@@ -3,6 +3,6 @@
 
 #include "Counter.h"
 
-Counter::Counter(const unsigned long long &value) : value_(value) {}
+Counter::Counter(unsigned long long value) : value_(value) {}
 
-unsigned long long Counter::count() { return value_++; }
+unsigned long long Counter::next() { return value_++; }

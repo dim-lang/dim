@@ -99,6 +99,7 @@ set(SHEPHERD
     Random.cpp
     Approximate.cpp
     NameGenerator.cpp
+    Name.cpp
     TokenName.cpp
     Buffer.cpp
     Scanner.cpp

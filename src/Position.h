@@ -2,10 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "interface/Stringify.h"
 #include <string>
 
-class Position : public Stringify {
+class Position {
 public:
   Position();
   Position(int a_firstLine, int a_firstColumn, int a_lastLine,
@@ -19,6 +18,9 @@ public:
   virtual Position &updateLastLine(int value);
   virtual Position &updateLastColumn(int value);
   virtual std::string toString() const;
+
+  static bool invalid(int i);
+  static bool invalid(const Position &p);
 
   int firstLine;
   int firstColumn;

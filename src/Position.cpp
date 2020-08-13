@@ -2,11 +2,12 @@
 // Apache License Version 2.0
 
 #include "Position.h"
+#include "Exception.h"
 #include "Log.h"
 #include "fmt/format.h"
 
-#define INVALID -1
-#define IS_INVALID(x) (x < 0)
+#define INVALID (-1)
+#define IS_INVALID(x) ((x) < 0)
 
 Position::Position()
     : firstLine(INVALID), firstColumn(INVALID), lastLine(INVALID),
@@ -15,7 +16,20 @@ Position::Position()
 Position::Position(int a_firstLine, int a_firstColumn, int a_lastLine,
                    int a_lastColumn)
     : firstLine(a_firstLine), firstColumn(a_firstColumn), lastLine(a_lastLine),
-      lastColumn(a_lastColumn) {}
+      lastColumn(a_lastColumn) {
+  EX_ASSERT(!IS_INVALID(firstLine), "firstLine {} must be valid", firstLine);
+  EX_ASSERT(!IS_INVALID(firstColumn), "firstColumn {} must be valid",
+            firstColumn);
+  EX_ASSERT(!IS_INVALID(lastLine), "lastLine {} must be valid", lastLine);
+  EX_ASSERT(!IS_INVALID(lastColumn), "lastColumn {} must be valid", lastColumn);
+}
+
+bool Position::invalid(int i) { return IS_INVALID(i); }
+
+bool Position::invalid(const Position &p) {
+  return IS_INVALID(p.firstLine) || IS_INVALID(p.firstColumn) ||
+         IS_INVALID(p.lastLine) || IS_INVALID(p.lastColumn);
+}
 
 Position &Position::update(const Position &position) {
   updateFirstLine(position.firstLine);

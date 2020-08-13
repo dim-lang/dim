@@ -31,13 +31,8 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* different ways to access data */
 %union {
-    A_ExpressionList *expr_list;
-    AstStatementList *stmt_list;
-    AstDefinitionList *def_list;
-    AstExpression *expr;
-    AstStatement *stmt;
-    AstDefinition *def;
-    /* AstToken *token; */
+    AstDef *def;
+    AstExpr *expr;
     char *str;
     int tok;
 }
@@ -85,19 +80,19 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <str> T_VAR_ID
 
 %type <expr> Literal BooleanLiteral
-%type <expr> Id
+%type <expr> Id VarId
 %type <expr> PrefixOp EqualOp
 %type <expr> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr BlockExpr NonBlockExpr
 %type <expr> PostfixOp
-%type <expr_list> ArgExprs
+%type <expr> ArgExprs
 
-%type <stmt> compound_statement Expr_statement iteration_statement jump_statement return_statement if_statement
-%type <stmt> statement
-%type <stmt_list> statement_list
+%type <expr> compound_statement Expr_statement iteration_statement jump_statement return_statement if_statement
+%type <expr> statement
+%type <expr> statement_list
 
 %type <def> VarDef FuncDef FuncSignDef FuncArg
 %type <def> Def
-%type <def_list> CompileUnit FuncArgs
+%type <def> CompileUnit FuncArgs
 
  /* operator precedence, low -> high */
 
@@ -160,11 +155,11 @@ BooleanLiteral : T_TRUE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::fr
 
  /* id { */
 
-Id : VarId
+Id : VarId { $$ = $1; }
    /* | OpId */
    ;
 
-VarId : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
+VarId : T_VAR_ID { $$ = new A_VarId($1, Y_POSITION(@1)); std::free($1); }
       ;
 
 /* OpId : AssignOp */
@@ -177,16 +172,16 @@ VarId : T_VAR_ID { $$ = new A_LiteralId($1, Y_POSITION(@1)); std::free($1); }
 
  /* total expression { */
 
-Expr : ExprWithBlock
-     | ExprWithoutBlock
+Expr : ExprWithBlock { $$ = $1; }
+     | ExprWithoutBlock { $$ = $1; }
      ;
 
  /* total expression } */
 
  /* simple expression without block { */
 
-ExprWithoutBlock : AssignExpr
-                 | T_RETURN
+ExprWithoutBlock : AssignExpr { $$ = $1; }
+                 | T_RETURN { $$ = new A_ReturnExpr(); }
                  | T_RETURN Expr
                  | T_THROW Expr
                  | T_BREAK
