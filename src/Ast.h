@@ -24,7 +24,7 @@ BETTER_ENUM(AstCategory, int,
             VarId,
             // expr
             Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
-            InfixExpr,
+            InfixExpr, IfThen, IfElse, For,
             // type
             FunctionType, PrimitiveType,
             // statement
