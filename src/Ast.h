@@ -19,15 +19,12 @@
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstCategory, int,
             // literal
-            Integer = 1000, FloatingPointLiteral, BooleanLiteral,
-            CharacterLiteral, StringLiteral, NilLiteral, VoidLiteral,
+            Integer = 1000, Float, Boolean, Character, String, Nil, Void,
             // id
             VarId,
-            // expression
-            ThrowExpr, ReturnExpr, AssignExpr, PostfixExpr, PrefixExpr,
+            // expr
+            Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
             InfixExpr,
-            /* SequelExpr, CallExpr, UnaryExpr, BinaryExpr, */
-            /* ConditionalExpr, VoidExpr, */
             // type
             FunctionType, PrimitiveType,
             // statement
@@ -61,7 +58,7 @@ class A_Void;
 /* id */
 class A_VarId;
 
-/* expression */
+/* expr */
 class AstExpr;
 
 class A_Throw;
@@ -81,7 +78,7 @@ class AstDefinition;
 /* translate unit */
 class AstTranslateUnit;
 
-/* expression */
+/* expr */
 
 /* statement */
 class AstExprStatement;
@@ -91,7 +88,6 @@ class AstWhileStatement;
 class AstForStatement;
 class AstContinueStatement;
 class AstBreakStatement;
-class A_ReturnExpr;
 class AstEmptyStatement;
 
 /* definition */
@@ -124,7 +120,7 @@ public:
   AstPositional(const Position &position);
   virtual ~AstPositional() = default;
   virtual const Position &position() const;
-  virtual void expand(const Position &position);
+  virtual void locate(const Position &position);
 
 protected:
   Position position_;
@@ -280,7 +276,7 @@ public:
 
 // id }
 
-// expression {
+// expr {
 
 class AstExpr : public Ast {
 public:
@@ -289,58 +285,74 @@ public:
   virtual ~AstExpr() = default;
 };
 
-class A_Throw : public Ast {
+class A_Throw : public AstExpr {
 public:
-  A_Throw(const AstExpr *expression, const Position &position);
+  A_Throw(const AstExpr *expr, const Position &position);
   virtual ~A_Throw();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expression() const;
+  virtual const AstExpr *expr() const;
 
 private:
-  const AstExpr *expression_;
+  const AstExpr *expr_;
 };
 
-class A_Return : public Ast {
+class A_Return : public AstExpr {
 public:
-  A_Return(const AstExpr *expression, const Position &position);
+  A_Return(const AstExpr *expr, const Position &position);
   virtual ~A_Return();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expression() const;
+  virtual const AstExpr *expr() const;
 
 private:
-  const AstExpr *expression_;
+  const AstExpr *expr_;
 };
 
-class A_AssignExpr : public AstExpr {
+class A_Break : public AstExpr {
 public:
-  A_AssignExpr(const AstId *id, const AstId *equalOperator,
-               const AstExpr *expression);
-  virtual ~A_AssignExpr();
+  A_Break(const Position &position);
+  virtual ~A_Break() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstId *id() const;
-  virtual const AstId *equalOperator() const;
-  virtual const AstExpr *expression() const;
+};
+
+class A_Continue : public AstExpr {
+public:
+  A_Continue(const Position &position);
+  virtual ~A_Continue() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+};
+
+class A_Assign : public AstExpr {
+public:
+  A_Assign(const AstExpr *assignee, int assignOp, const AstExpr *assignor,
+           const Position &position);
+  virtual ~A_Assign();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpr *assignee() const;
+  virtual int assignOp() const;
+  virtual const AstExpr *assignor() const;
 
 private:
-  const AstId *id_;
-  const AstId *equalOperator_;
-  const AstExpr *expression_;
+  const AstExpr *assignee_; // left
+  int assignOp;
+  const AstExpr *assignor_; // right
 };
 
 class A_PostfixExpr : public AstExpr {
 public:
-  A_PostfixExpr(const AstExpr *expression, const AstId *postfixOperator);
+  A_PostfixExpr(const AstExpr *expr, const AstId *postfixOperator);
   virtual ~A_PostfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expression() const;
+  virtual const AstExpr *expr() const;
   virtual const AstId *postfixOperator() const;
 
 private:
-  const AstExpr *expression_;
+  const AstExpr *expr_;
   const AstId *postfixOperator_;
 };
 
@@ -363,16 +375,16 @@ private:
 
 class A_PrefixExpr : public AstExpr {
 public:
-  A_PrefixExpr(const AstId *prefixOperator, const AstExpr *expression);
+  A_PrefixExpr(const AstId *prefixOperator, const AstExpr *expr);
   virtual ~A_PrefixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstId *prefixOperator() const;
-  virtual const AstExpr *expression() const;
+  virtual const AstExpr *expr() const;
 
 private:
   const AstId *prefixOperator_;
-  const AstExpr *expression_;
+  const AstExpr *expr_;
 };
 
 class A_IfThenExpr : public AstExpr {
@@ -406,7 +418,7 @@ private:
   const AstExpr *elses_;
 };
 
-// expression }
+// expr }
 
 // type {
 
@@ -458,17 +470,17 @@ private:
 
 class A_UnaryExpr : public AstExpr {
 public:
-  A_UnaryExpr(const AstToken *token, const AstExpr *expression);
+  A_UnaryExpr(const AstToken *token, const AstExpr *expr);
   virtual ~A_UnaryExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
   virtual const AstToken *token() const;
-  virtual const AstExpr *expression() const;
+  virtual const AstExpr *expr() const;
 
 private:
   const AstToken *token_;
-  const AstExpr *expression_;
+  const AstExpr *expr_;
 };
 
 class A_BinaryExpr : public AstExpr {
@@ -619,18 +631,18 @@ private:
   virtual std::string stringify() const;
 };
 
-/* expression statement */
+/* expr statement */
 class AstExprStatement : public AstStatement {
 public:
-  AstExprStatement(AstExpr *expression, const Position &semiTokenPosition);
+  AstExprStatement(AstExpr *expr, const Position &semiTokenPosition);
   virtual ~AstExprStatement();
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual AstExpr *expression() const;
+  virtual AstExpr *expr() const;
 
 private:
-  AstExpr *expression_;
+  AstExpr *expr_;
 };
 
 /* compound statement - { ... } */
@@ -733,15 +745,15 @@ private:
 /* jump statement - return */
 class A_ReturnExpr : public AstStatement {
 public:
-  A_ReturnExpr(AstExpr *expression, const Position &returnTokenPosition,
+  A_ReturnExpr(AstExpr *expr, const Position &returnTokenPosition,
                const Position &semiTokenPosition);
   virtual ~A_ReturnExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual AstExpr *expression() const;
+  virtual AstExpr *expr() const;
 
 private:
-  AstExpr *expression_;
+  AstExpr *expr_;
 };
 
 /* empty statement */
@@ -773,7 +785,7 @@ private:
 class AstVariableInitialDefinition : public AstDefinition {
 public:
   AstVariableInitialDefinition(const char *identifier, AstId *typeId,
-                               AstExpr *expression,
+                               AstExpr *expr,
                                const Position &identifierPosition,
                                const Position &typePosition);
   virtual ~AstVariableInitialDefinition();
@@ -781,12 +793,12 @@ public:
   virtual std::string toString() const;
   virtual const std::string &identifier() const;
   virtual AstId *typeId() const;
-  virtual AstExpr *expression() const;
+  virtual AstExpr *expr() const;
 
 private:
   std::string identifier_;
   AstId *typeId_;
-  AstExpr *expression_;
+  AstExpr *expr_;
 };
 
 /* function definition */

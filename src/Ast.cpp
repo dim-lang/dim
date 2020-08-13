@@ -234,9 +234,7 @@ A_Float::A_Float(const std::string &literal, const Position &position)
   parsed_ = literal.substr(startPosition, endPosition - startPosition);
 }
 
-AstCategory A_Float::category() const {
-  return AstCategory::FloatingPointLiteral;
-}
+AstCategory A_Float::category() const { return AstCategory::Float; }
 
 std::string A_Float::toString() const {
   return fmt::format("[{} position:{}, parsed:{}, bitCategory:{}]",
@@ -275,7 +273,7 @@ A_String::A_String(const std::string &literal, const Position &position)
               ? A_String::QuoteCategory::TRIPLE
               : A_String::QuoteCategory::SINGLE) {}
 
-AstCategory A_String::category() const { return AstCategory::StringLiteral; }
+AstCategory A_String::category() const { return AstCategory::String; }
 
 std::string A_String::toString() const {
   return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
@@ -295,9 +293,7 @@ const std::string &A_String::asString() const { return parsed_; }
 A_Character::A_Character(const std::string &literal, const Position &position)
     : Ast(literal, position), parsed_(literal[1]) {}
 
-AstCategory A_Character::category() const {
-  return AstCategory::CharacterLiteral;
-}
+AstCategory A_Character::category() const { return AstCategory::Character; }
 
 std::string A_Character::toString() const {
   return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
@@ -313,7 +309,7 @@ char A_Character::asChar() const { return parsed_; }
 A_Boolean::A_Boolean(const std::string &literal, const Position &position)
     : Ast(literal, position), parsed_(literal == tokenName(T_TRUE)) {}
 
-AstCategory A_Boolean::category() const { return AstCategory::BooleanLiteral; }
+AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
 
 std::string A_Boolean::toString() const {
   return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
@@ -328,7 +324,7 @@ bool A_Boolean::asBool() const { return parsed_; }
 
 A_Nil::A_Nil(const Position &position) : Ast(tokenName(T_NIL), position) {}
 
-AstCategory A_Nil::category() const { return AstCategory::NilLiteral; }
+AstCategory A_Nil::category() const { return AstCategory::Nil; }
 
 std::string A_Nil::toString() const {
   return fmt::format("[{} position:{}]", name().toSymbolName(),
@@ -341,7 +337,7 @@ std::string A_Nil::toString() const {
 
 A_Void::A_Void(const Position &position) : Ast(tokenName(T_VOID), position) {}
 
-AstCategory A_Void::category() const { return AstCategory::VoidLiteral; }
+AstCategory A_Void::category() const { return AstCategory::Void; }
 
 std::string A_Void::toString() const {
   return fmt::format("[{} position:{}]", name().toSymbolName(),
@@ -370,7 +366,7 @@ std::string A_VarId::toString() const {
 
 // id }
 
-// expression {
+// expr {
 
 AstExpr::AstExpr(const std::string &name) : Ast(name) {}
 
@@ -379,143 +375,155 @@ AstExpr::AstExpr(const std::string &name, const Position &position)
 
 // A_Throw {
 
-A_Throw::A_Throw(const AstExpression *expression, const Position &position)
-    : AstExpression(nameGen.generate("A_Throw"), extra),
-      expression_(expression) {
-  EX_ASSERT(expression_, "expression_ must not null");
-  locate(expression_->position());
+A_Throw::A_Throw(const AstExpr *expr, const Position &position)
+    : AstExpr(tokenName(T_THROW), extra), expr_(expr) {
+  EX_ASSERT(expr_, "expr_ must not null");
+  locate(expr_->position());
 }
 
 A_Throw::~A_Throw() {
-  delete expression_;
-  expression_ = nullptr;
+  delete expr_;
+  expr_ = nullptr;
 }
 
-AstCategory A_Throw::category() const { return AstCategory::ThrowExpression; }
+AstCategory A_Throw::category() const { return AstCategory::Throw; }
 
 std::string A_Throw::toString() const {
-  return fmt::format("[@{} position:{} expression:{}]", name(),
-                     position().toString(), expression_->toString());
+  return fmt::format("[{} position:{} expr:{}]", name().toSymbolName(),
+                     position().toString(), expr_->toString());
 }
 
-const AstExpression *A_Throw::expression() const { return expression_; }
+const AstExpr *A_Throw::expr() const { return expr_; }
 
 // A_Throw }
 
 // A_Return {
 
-A_Return::A_Return(const AstExpression *expression, const Position &extra)
-    : AstExpression(nameGen.generate("A_Return"), extra),
-      expression_(expression) {
-  EX_ASSERT(expression_, "expression_ must not null");
-  locate(expression_->position());
+A_Return::A_Return(const AstExpr *expr, const Position &position)
+    : AstExpr(tokenName(T_RETURN), position), expr_(expr) {
+  if (expr_) {
+    locate(expr_->position());
+  }
 }
 
 A_Return::~A_Return() {
-  delete expression_;
-  expression_ = nullptr;
+  if (expr_) {
+    delete expr_;
+    expr_ = nullptr;
+  }
 }
 
-AstCategory A_Return::category() const { return AstCategory::ReturnExpression; }
+AstCategory A_Return::category() const { return AstCategory::Return; }
 
 std::string A_Return::toString() const {
-  return fmt::format("[@{} position:{} expression:{}]", name(),
-                     position().toString(), expression_->toString());
+  return fmt::format("[{} position:{} expr:{}]", name().toSymbolName(),
+                     position().toString(), expr_ ? expr_->toString() : "nil");
 }
 
-const AstExpression *A_Return::expression() const { return expression_; }
+const AstExpr *A_Return::expr() const { return expr_; }
 
 // A_Return }
 
-// A_AssignExpression {
+// A_Break {
 
-A_AssignExpression::A_AssignExpression(const AstId *id,
-                                       const AstId *equalOperator,
-                                       const AstExpression *expression)
-    : AstExpression(nameGen.generate("A_AssignExpression")), id_(id),
-      equalOperator_(equalOperator), expression_(expression) {
-  EX_ASSERT(id_, "id_ must not null");
-  EX_ASSERT(equalOperator_, "equalOperator_ must not null");
-  EX_ASSERT(expression_, "expression_ must not null");
-  locate(id_->position());
-  locate(equalOperator_->position());
-  locate(expression_->position());
+A_Break::A_Break(const Position &position)
+    : AstExpr(tokenName(T_BREAK), position) {}
+
+AstCategory A_Break::category() const { return AstCategory::Break; }
+
+std::string A_Break::toString() const {
+  return fmt::format("[{} position:{}]", name().toSymbolName(),
+                     position().toString());
 }
 
-A_AssignExpression::~A_AssignExpression() {
-  delete id_;
-  delete equalOperator_;
-  delete expression_;
-  id_ = nullptr;
-  equalOperator_ = nullptr;
-  expression_ = nullptr;
+// A_Break }
+
+// A_Continue {
+
+A_Continue::A_Continue(const Position &position)
+    : AstExpr(tokenName(T_CONTINUE), position) {}
+
+AstCategory A_Continue::category() const { return AstCategory::Continue; }
+
+std::string toString() const {
+  return fmt::format("[{} position:{}]", name().toSymbolName(),
+                     position().toString());
 }
 
-AstCategory A_AssignExpression::category() const {
-  return AstCategory::AssignExpression;
+// A_Continue }
+
+// A_Assign {
+
+A_Assign::A_Assign(const AstExpr *assignee, int assignOp,
+                   const AstExpr *assignor, const Position &position)
+    : AstExpr(tokenName(assignOp), position), assignee_(assignee),
+      assignOp_(assignOp), assignor_(assignor) {
+  EX_ASSERT(assignee_, "assignee_ must not null");
+  EX_ASSERT(tokenExist(assignOp), "assignOp_ {} must exist");
+  EX_ASSERT(assignor_, "assignor_ must not null");
+  locate(assignee_->position());
+  locate(assignor_->position());
 }
 
-std::string A_AssignExpression::toString() const {
-  return fmt::format("[@{} position:{} id:{} equalOperator:{} expression:{}]",
-                     name(), position().toString(), id_->toString(),
-                     equalOperator_->toString(), expression_->toString());
+A_Assign::~A_Assign() {
+  delete assignee_;
+  delete assignor_;
+  assignee_ = nullptr;
+  assignor_ = nullptr;
 }
 
-const AstId *A_AssignExpression::id() const { return id_; }
+AstCategory A_Assign::category() const { return AstCategory::Assign; }
 
-const AstId *A_AssignExpression::equalOperator() const {
-  return equalOperator_;
+std::string A_Assign::toString() const {
+  return fmt::format("[{} position:{} assignee:{} assignOp:{} assignor:{}]",
+                     name().toSymbolName(), position().toString(),
+                     assignee_->toString(), tokenName(assignOp_),
+                     assignor_->toString());
 }
 
-const AstExpression *A_AssignExpression::expression() const {
-  return expression_;
-}
+const AstExpr *A_Assign::assignee() const { return assignee_; }
 
-// A_AssignExpression }
+int A_Assign::assignOp() const { return assignOp_; }
 
-// A_PostfixExpression {
+const AstExpr *A_Assign::assignor() const { return assignor_; }
 
-A_PostfixExpression::A_PostfixExpression(const AstExpression *expression,
-                                         const AstId *postfixOperator)
-    : AstExpression(nameGen.generate("A_PostfixExpression")),
-      expression_(expression), postfixOperator_(postfixOperator) {
-  EX_ASSERT(expression_, "expression_ must not null");
+// A_Assign }
+
+// A_PostfixExpr {
+
+A_PostfixExpr::A_PostfixExpr(const AstExpr *expr, const AstId *postfixOperator)
+    : AstExpr(nameGen.generate("A_PostfixExpr")), expr_(expr),
+      postfixOperator_(postfixOperator) {
+  EX_ASSERT(expr_, "expr_ must not null");
   EX_ASSERT(postfixOperator_, "postfixOperator_ must not null");
 }
 
-A_PostfixExpression::~A_PostfixExpression() {
-  delete expression_;
+A_PostfixExpr::~A_PostfixExpr() {
+  delete expr_;
   delete postfixOperator_;
-  expression_ = nullptr;
+  expr_ = nullptr;
   postfixOperator_ = nullptr;
 }
 
-AstCategory A_PostfixExpression::category() const {
-  return AstCategory::PostfixExpression;
-}
+AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
 
-std::string A_PostfixExpression::toString() const {
-  return fmt::format("[@{} position:{} expression:{} postfixOperator:{}]",
-                     name(), position().toString(), expression_->toString(),
+std::string A_PostfixExpr::toString() const {
+  return fmt::format("[@{} position:{} expr:{} postfixOperator:{}]", name(),
+                     position().toString(), expr_->toString(),
                      postfixOperator_->toString());
 }
 
-const AstExpression *A_PostfixExpression::expression() const {
-  return expression_;
-}
+const AstExpr *A_PostfixExpr::expr() const { return expr_; }
 
-const AstId *A_PostfixExpression::postfixOperator() const {
-  return postfixOperator_;
-}
+const AstId *A_PostfixExpr::postfixOperator() const { return postfixOperator_; }
 
-// A_PostfixExpression }
+// A_PostfixExpr }
 
-// A_InfixExpression {
+// A_InfixExpr {
 
-A_InfixExpression::A_InfixExpression(const AstExpression *left,
-                                     const AstId *infixOperator,
-                                     const AstExpression *right)
-    : AstExpression(nameGen.generate("A_InfixExpression")), left_(left),
+A_InfixExpr::A_InfixExpr(const AstExpr *left, const AstId *infixOperator,
+                         const AstExpr *right)
+    : AstExpr(nameGen.generate("A_InfixExpr")), left_(left),
       infixOperator_(infixOperator), right_(right) {
   EX_ASSERT(left_, "left_ must not null");
   EX_ASSERT(infixOperator_, "infixOperator_ must not null");
@@ -525,7 +533,7 @@ A_InfixExpression::A_InfixExpression(const AstExpression *left,
   locate(right_->position());
 }
 
-A_InfixExpression::~A_InfixExpression() {
+A_InfixExpr::~A_InfixExpr() {
   delete left_;
   delete infixOperator_;
   delete right_;
@@ -534,64 +542,55 @@ A_InfixExpression::~A_InfixExpression() {
   right_ = nullptr;
 }
 
-AstCategory A_InfixExpression::category() const {
-  return AstCategory::InfixExpression;
-}
+AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
 
-std::string A_InfixExpression::toString() const {
+std::string A_InfixExpr::toString() const {
   return fmt::format("[@{} position:{} left:{} infixOperator:{} right:{}]",
                      name(), position().toString(), left_->toString(),
                      infixOperator_->toString(), right_->toString());
 }
 
-const AstExpression *A_InfixExpression::left() const { return left_; }
+const AstExpr *A_InfixExpr::left() const { return left_; }
 
-const AstId *A_InfixExpression::infixOperator() const { return infixOperator_; }
+const AstId *A_InfixExpr::infixOperator() const { return infixOperator_; }
 
-const AstExpression *A_InfixExpression::right() const { return right_; }
+const AstExpr *A_InfixExpr::right() const { return right_; }
 
-// A_InfixExpression }
+// A_InfixExpr }
 
-// A_PrefixExpression {
+// A_PrefixExpr {
 
-A_PrefixExpression::A_PrefixExpression(const AstId *prefixOperator,
-                                       const AstExpression *expression)
-    : AstExpression(nameGen.generate("A_PrefixExpression")),
-      prefixOperator_(prefixOperator), expression_(expression) {
+A_PrefixExpr::A_PrefixExpr(const AstId *prefixOperator, const AstExpr *expr)
+    : AstExpr(nameGen.generate("A_PrefixExpr")),
+      prefixOperator_(prefixOperator), expr_(expr) {
   EX_ASSERT(prefixOperator_, "prefixOperator_ must not null");
-  EX_ASSERT(expression_, "expression_ must not null");
+  EX_ASSERT(expr_, "expr_ must not null");
   locate(prefixOperator_->position());
-  locate(expression_->position());
+  locate(expr_->position());
 }
 
-A_PrefixExpression::~A_PrefixExpression() {
+A_PrefixExpr::~A_PrefixExpr() {
   delete prefixOperator_;
-  delete expression_;
+  delete expr_;
   prefixOperator_ = nullptr;
-  expression_ = nullptr;
+  expr_ = nullptr;
 }
 
-AstCategory A_PrefixExpression::category() const {
-  return AstCategory::PrefixExpression;
+AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
+
+std::string A_PrefixExpr::toString() const {
+  return fmt::format("[@{} position:{} prefixOperator:{} expr:{}]", name(),
+                     position().toString(), prefixOperator_->toString(),
+                     expr_->toString());
 }
 
-std::string A_PrefixExpression::toString() const {
-  return fmt::format("[@{} position:{} prefixOperator:{} expression:{}]",
-                     name(), position().toString(), prefixOperator_->toString(),
-                     expression_->toString());
-}
+const AstId *A_PrefixExpr::prefixOperator() const { return prefixOperator_; }
 
-const AstId *A_PrefixExpression::prefixOperator() const {
-  return prefixOperator_;
-}
+const AstExpr *A_PrefixExpr::expr() const { return expr_; }
 
-const AstExpression *A_PrefixExpression::expression() const {
-  return expression_;
-}
+// A_PrefixExpr }
 
-// A_PrefixExpression }
-
-// expression }
+// expr }
 
 // type {
 
@@ -654,22 +653,21 @@ const A_PrimitiveType *A_PrimitiveType::get(int token,
 
 // type }
 
-// expression {
+// expr {
 
-// AstExpression {
+// AstExpr {
 
-AstExpression::AstExpression(const std::string &name)
+AstExpr::AstExpr(const std::string &name)
     : AstNamely(name), AstPositional(Position()) {}
 
-AstExpression::AstExpression(const std::string &name, const Position &position)
+AstExpr::AstExpr(const std::string &name, const Position &position)
     : AstNamely(name), AstPositional(position) {}
 
-// AstExpression }
+// AstExpr }
 
-A_CallExpression::A_CallExpression(const AstId *id,
-                                   const A_ExpressionList *argumentList,
-                                   const Position &idPosition)
-    : AstExpression(nameGen.generate("A_CallExpression"), idPosition), id_(id),
+A_CallExpr::A_CallExpr(const AstId *id, const A_ExprList *argumentList,
+                       const Position &idPosition)
+    : AstExpr(nameGen.generate("A_CallExpr"), idPosition), id_(id),
       argumentList_(argumentList) {
   EX_ASSERT(id_, "id_ must not null");
   EX_ASSERT(argumentList_, "argumentList_ must not null");
@@ -677,73 +675,61 @@ A_CallExpression::A_CallExpression(const AstId *id,
   locate(argumentList_->position());
 }
 
-A_CallExpression::~A_CallExpression() {
+A_CallExpr::~A_CallExpr() {
   delete id_;
   delete argumentList_;
   id_ = nullptr;
   argumentList_ = nullptr;
 }
 
-AstCategory A_CallExpression::category() const {
-  return AstCategory::CallExpression;
-}
+AstCategory A_CallExpr::category() const { return AstCategory::CallExpr; }
 
-std::string A_CallExpression::toString() const {
+std::string A_CallExpr::toString() const {
   return fmt::format("[@{} position:{}, id:{}, argumentList:{}]", name(),
                      position().toString(), id_->toString(),
                      argumentList_->toString());
 }
 
-const AstId *A_CallExpression::id() const { return id_; }
+const AstId *A_CallExpr::id() const { return id_; }
 
-const A_ExpressionList *A_CallExpression::argumentList() const {
-  return argumentList_;
-}
+const A_ExprList *A_CallExpr::argumentList() const { return argumentList_; }
 
-// A_UnaryExpression {
+// A_UnaryExpr {
 
-A_UnaryExpression::A_UnaryExpression(const AstToken *token,
-                                     const AstExpression *expression)
-    : AstExpression(nameGen.generate("A_UnaryExpression")), token_(token),
-      expression_(expression) {
+A_UnaryExpr::A_UnaryExpr(const AstToken *token, const AstExpr *expr)
+    : AstExpr(nameGen.generate("A_UnaryExpr")), token_(token), expr_(expr) {
   EX_ASSERT(token_, "token_ must not null");
-  EX_ASSERT(expression_, "expression_ must not null");
+  EX_ASSERT(expr_, "expr_ must not null");
   locate(token_->position());
-  locate(expression_->position());
+  locate(expr_->position());
 }
 
-A_UnaryExpression::~A_UnaryExpression() {
+A_UnaryExpr::~A_UnaryExpr() {
   delete token_;
   token_ = nullptr;
-  delete expression_;
-  expression_ = nullptr;
+  delete expr_;
+  expr_ = nullptr;
 }
 
-AstCategory A_UnaryExpression::category() const {
-  return AstCategory::UnaryExpression;
+AstCategory A_UnaryExpr::category() const { return AstCategory::UnaryExpr; }
+
+std::string A_UnaryExpr::toString() const {
+  return fmt::format("[@{} position:{}, token:{}, expr:{}]", name(),
+                     position().toString(), token_->name(), expr_->toString());
 }
 
-std::string A_UnaryExpression::toString() const {
-  return fmt::format("[@{} position:{}, token:{}, expression:{}]", name(),
-                     position().toString(), token_->name(),
-                     expression_->toString());
-}
+const AstToken *A_UnaryExpr::token() const { return token_; }
 
-const AstToken *A_UnaryExpression::token() const { return token_; }
+const AstExpr *A_UnaryExpr::expr() const { return expr_; }
 
-const AstExpression *A_UnaryExpression::expression() const {
-  return expression_;
-}
+// A_UnaryExpr }
 
-// A_UnaryExpression }
+// A_BinaryExpr {
 
-// A_BinaryExpression {
-
-A_BinaryExpression::A_BinaryExpression(const AstExpression *left,
-                                       const AstToken *token,
-                                       const AstExpression *right)
-    : AstExpression(nameGen.generate("A_BinaryExpression")), left_(left),
-      token_(token), right_(right) {
+A_BinaryExpr::A_BinaryExpr(const AstExpr *left, const AstToken *token,
+                           const AstExpr *right)
+    : AstExpr(nameGen.generate("A_BinaryExpr")), left_(left), token_(token),
+      right_(right) {
   EX_ASSERT(left_, "left_ must not null");
   EX_ASSERT(token_, "token_ must not null");
   EX_ASSERT(right_, "right_ must not null");
@@ -752,7 +738,7 @@ A_BinaryExpression::A_BinaryExpression(const AstExpression *left,
   locate(right_->position());
 }
 
-A_BinaryExpression::~A_BinaryExpression() {
+A_BinaryExpr::~A_BinaryExpr() {
   delete left_;
   left_ = nullptr;
   delete token_;
@@ -761,37 +747,34 @@ A_BinaryExpression::~A_BinaryExpression() {
   right_ = nullptr;
 }
 
-AstCategory A_BinaryExpression::category() const {
-  return AstCategory::BinaryExpression;
-}
+AstCategory A_BinaryExpr::category() const { return AstCategory::BinaryExpr; }
 
-std::string A_BinaryExpression::toString() const {
+std::string A_BinaryExpr::toString() const {
   return fmt::format("[@{} position:{}, token:{}, left:{}, right:{}]", name(),
                      position().toString(), token_->name(), left_->toString(),
                      right_->toString());
 }
 
-const AstExpression *A_BinaryExpression::left() const { return left_; }
+const AstExpr *A_BinaryExpr::left() const { return left_; }
 
-const AstToken *A_BinaryExpression::token() const { return token_; }
+const AstToken *A_BinaryExpr::token() const { return token_; }
 
-const AstExpression *A_BinaryExpression::right() const { return right_; }
+const AstExpr *A_BinaryExpr::right() const { return right_; }
 
-// A_BinaryExpression }
+// A_BinaryExpr }
 
-// A_ConditionalExpression {
+// A_ConditionalExpr {
 
-A_ConditionalExpression::A_ConditionalExpression(const AstExpression *condition,
-                                                 const AstExpression *thens,
-                                                 const AstExpression *elses)
-    : AstExpression(nameGen.generate("A_ConditionalExpression")),
-      condition_(condition), thens_(thens), elses_(elses) {
+A_ConditionalExpr::A_ConditionalExpr(const AstExpr *condition,
+                                     const AstExpr *thens, const AstExpr *elses)
+    : AstExpr(nameGen.generate("A_ConditionalExpr")), condition_(condition),
+      thens_(thens), elses_(elses) {
   EX_ASSERT(condition_, "condition_ must not null");
   EX_ASSERT(thens_, "thens_ must not null");
   EX_ASSERT(elses_, "elses_ must not null");
 }
 
-A_ConditionalExpression::~A_ConditionalExpression() {
+A_ConditionalExpr::~A_ConditionalExpr() {
   delete condition_;
   condition_ = nullptr;
   delete thens_;
@@ -800,34 +783,31 @@ A_ConditionalExpression::~A_ConditionalExpression() {
   elses_ = nullptr;
 }
 
-AstCategory A_ConditionalExpression::category() const {
-  return AstCategory::ConditionalExpression;
+AstCategory A_ConditionalExpr::category() const {
+  return AstCategory::ConditionalExpr;
 }
 
-std::string A_ConditionalExpression::toString() const {
+std::string A_ConditionalExpr::toString() const {
   return fmt::format("[@{} position:{}, condition:{}, thens:{}, elses:{}]",
                      name(), position().toString(), condition_->toString(),
                      thens_->toString(), elses_->toString());
 }
 
-const AstExpression *A_ConditionalExpression::condition() const {
-  return condition_;
-}
+const AstExpr *A_ConditionalExpr::condition() const { return condition_; }
 
-const AstExpression *A_ConditionalExpression::thens() const { return thens_; }
+const AstExpr *A_ConditionalExpr::thens() const { return thens_; }
 
-const AstExpression *A_ConditionalExpression::elses() const { return elses_; }
+const AstExpr *A_ConditionalExpr::elses() const { return elses_; }
 
-// A_ConditionalExpression }
+// A_ConditionalExpr }
 
-// A_AssigmentExpression {
+// A_AssigmentExpr {
 
-A_AssignmentExpression::A_AssignmentExpression(const AstExpression *left,
-                                               int token,
-                                               const AstExpression *right,
-                                               const Position &tokenPosition)
-    : AstExpression(nameGen.generate("A_AssignmentExpression"), tokenPosition),
-      left_(left), token_(token), right_(right) {
+A_AssignmentExpr::A_AssignmentExpr(const AstExpr *left, int token,
+                                   const AstExpr *right,
+                                   const Position &tokenPosition)
+    : AstExpr(nameGen.generate("A_AssignmentExpr"), tokenPosition), left_(left),
+      token_(token), right_(right) {
   EX_ASSERT(left_, "left_ must not null");
   EX_ASSERT(right_, "right_ must not null");
   EX_ASSERT(tokenNameExist(token_), "invalid token:{}", token_);
@@ -835,47 +815,44 @@ A_AssignmentExpression::A_AssignmentExpression(const AstExpression *left,
   locate(right_->position());
 }
 
-A_AssignmentExpression::~A_AssignmentExpression() {
+A_AssignmentExpr::~A_AssignmentExpr() {
   delete left_;
   left_ = nullptr;
   delete right_;
   right_ = nullptr;
 }
 
-AstCategory A_AssignmentExpression::category() const {
-  return AstCategory::AssignmentExpression;
+AstCategory A_AssignmentExpr::category() const {
+  return AstCategory::AssignmentExpr;
 }
 
-std::string A_AssignmentExpression::toString() const {
+std::string A_AssignmentExpr::toString() const {
   return fmt::format("[@{} position:{} left:{}, token:{}, right:{}]", name(),
                      position().toString(), left_->toString(),
                      tokenName(token_), right_->toString());
 }
 
-const AstExpression *A_AssignmentExpression::left() const { return left_; }
+const AstExpr *A_AssignmentExpr::left() const { return left_; }
 
-int A_AssignmentExpression::token() const { return token_; }
+int A_AssignmentExpr::token() const { return token_; }
 
-const AstExpression *A_AssignmentExpression::right() const { return right_; }
+const AstExpr *A_AssignmentExpr::right() const { return right_; }
 
-// A_AssigmentExpression }
+// A_AssigmentExpr }
 
-// A_VoidExpression {
+// A_VoidExpr {
 
-A_VoidExpression::A_VoidExpression()
-    : AstExpression(nameGen.generate("A_VoidExpression")) {}
+A_VoidExpr::A_VoidExpr() : AstExpr(nameGen.generate("A_VoidExpr")) {}
 
-AstCategory A_VoidExpression::category() const {
-  return AstCategory::VoidExpression;
-}
+AstCategory A_VoidExpr::category() const { return AstCategory::VoidExpr; }
 
-std::string A_VoidExpression::toString() const {
+std::string A_VoidExpr::toString() const {
   return fmt::format("[@{}]", name());
 }
 
-// A_VoidExpression }
+// A_VoidExpr }
 
-// expression }
+// expr }
 
 // statement {
 
@@ -919,31 +896,29 @@ AstCategory AstTranslateUnit::category() const {
 
 std::string AstTranslateUnit::stringify() const { return "AstTranslateUnit"; }
 
-AstExpressionStatement::AstExpressionStatement(
-    AstExpression *expression, const Position &semiTokenPosition)
+AstExprStatement::AstExprStatement(AstExpr *expr,
+                                   const Position &semiTokenPosition)
     : AstStatement(nameGen.generate("A_ExpStm"), semiTokenPosition),
-      expression_(expression) {
-  EX_ASSERT(expression_, "expression_ is null");
-  position_.updatePosition(expression_->position());
+      expr_(expr) {
+  EX_ASSERT(expr_, "expr_ is null");
+  position_.updatePosition(expr_->position());
 }
 
-AstExpressionStatement::~AstExpressionStatement() {
-  delete expression_;
-  expression_ = nullptr;
+AstExprStatement::~AstExprStatement() {
+  delete expr_;
+  expr_ = nullptr;
 }
 
-AstCategory AstExpressionStatement::category() const {
-  return AstCategory::ExpressionStatement;
+AstCategory AstExprStatement::category() const {
+  return AstCategory::ExprStatement;
 }
 
-std::string AstExpressionStatement::toString() const {
-  return fmt::format("[@AstExpressionStatement {} expression_:{}]",
-                     position_.toString(), expression_->toString());
+std::string AstExprStatement::toString() const {
+  return fmt::format("[@AstExprStatement {} expr_:{}]", position_.toString(),
+                     expr_->toString());
 }
 
-AstExpression *AstExpressionStatement::expression() const {
-  return expression_;
-}
+AstExpr *AstExprStatement::expr() const { return expr_; }
 
 AstCompoundStatement::AstCompoundStatement(AstStatementList *statementList,
                                            const Position &lparenTokenPosition,
@@ -976,7 +951,7 @@ AstStatementList *AstCompoundStatement::statementList() const {
   return statementList_;
 }
 
-A_IfStatement::A_IfStatement(AstExpression *condition, AstStatement *thens,
+A_IfStatement::A_IfStatement(AstExpr *condition, AstStatement *thens,
                              AstStatement *elses,
                              const Position &ifTokenPosition)
     : AstStatement(nameGen.generate("A_If"), ifTokenPosition),
@@ -1006,13 +981,13 @@ std::string A_IfStatement::toString() const {
                      thens_->toString(), elses_->toString());
 }
 
-AstExpression *A_IfStatement::condition() const { return condition_; }
+AstExpr *A_IfStatement::condition() const { return condition_; }
 
 AstStatement *A_IfStatement::thens() const { return thens_; }
 
 AstStatement *A_IfStatement::elses() const { return elses_; }
 
-AstWhileStatement::AstWhileStatement(AstExpression *condition,
+AstWhileStatement::AstWhileStatement(AstExpr *condition,
                                      AstStatement *statement,
                                      const Position &whileTokenPosition)
     : AstStatement(nameGen.generate("A_While"), whileTokenPosition),
@@ -1040,12 +1015,12 @@ std::string AstWhileStatement::toString() const {
                      statement_->toString());
 }
 
-AstExpression *AstWhileStatement::condition() const { return condition_; }
+AstExpr *AstWhileStatement::condition() const { return condition_; }
 
 AstStatement *AstWhileStatement::statement() const { return statement_; }
 
 AstForStatement::AstForStatement(AstStatement *start, AstStatement *step,
-                                 AstExpression *end, AstStatement *statement,
+                                 AstExpr *end, AstStatement *statement,
                                  const Position &forTokenPosition)
     : AstStatement(nameGen.generate("A_For"), forTokenPosition), start_(start),
       step_(step), end_(end), statement_(statement) {
@@ -1085,7 +1060,7 @@ AstStatement *AstForStatement::start() const { return start_; }
 
 AstStatement *AstForStatement::step() const { return step_; }
 
-AstExpression *AstForStatement::end() const { return end_; }
+AstExpr *AstForStatement::end() const { return end_; }
 
 AstStatement *AstForStatement::statement() const { return statement_; }
 
@@ -1132,8 +1107,7 @@ std::string AstEmptyStatement::toString() const {
 }
 
 AstVariableDefinition::AstVariableDefinition(const char *varId,
-                                             const char *typeId,
-                                             AstExpression *expression,
+                                             const char *typeId, AstExpr *expr,
                                              const Position &varTokenPosition,
                                              const Position &semiTokenPosition)
     : AstDefinition(nameGen.generate("A_VarDecl"), varTokenPosition),
@@ -1164,20 +1138,20 @@ AstDefinitionList *AstVariableDefinition::definitionList() const {
 }
 
 AstVariableInitialDefinition::AstVariableInitialDefinition(
-    const char *identifier, AstIdentifier *typeId, AstExpression *expression,
+    const char *identifier, AstIdentifier *typeId, AstExpr *expr,
     const Position &identifierPosition, const Position &typePosition)
     : AstDefinition(nameGen.generate("A_VarAssDecl"), identifierPosition),
-      identifier_(identifier), typeId_(typeId), expression_(expression) {
+      identifier_(identifier), typeId_(typeId), expr_(expr) {
   EX_ASSERT(identifier, "identifier must not null");
   EX_ASSERT(typeId_, "typeId_ must not null");
-  EX_ASSERT(expression_, "expression_ must not null");
+  EX_ASSERT(expr_, "expr_ must not null");
   position_.updatePosition(typePosition);
-  position_.updatePosition(expression_->position());
+  position_.updatePosition(expr_->position());
 }
 
 AstVariableInitialDefinition::~AstVariableInitialDefinition() {
-  delete expression_;
-  expression_ = nullptr;
+  delete expr_;
+  expr_ = nullptr;
 }
 
 AstCategory AstVariableInitialDefinition::category() const {
@@ -1186,8 +1160,8 @@ AstCategory AstVariableInitialDefinition::category() const {
 
 std::string AstVariableInitialDefinition::toString() const {
   return fmt::format(
-      "[@AstVariableInitialDefinition {} identifier_:{}, expression_:{}]",
-      position_.toString(), identifier_, expression_->toString());
+      "[@AstVariableInitialDefinition {} identifier_:{}, expr_:{}]",
+      position_.toString(), identifier_, expr_->toString());
 }
 
 const std::string &AstVariableInitialDefinition::identifier() const {
@@ -1196,9 +1170,7 @@ const std::string &AstVariableInitialDefinition::identifier() const {
 
 AstIdentifier *AstVariableInitialDefinition::typeId() const { return typeId_; }
 
-AstExpression *AstVariableInitialDefinition::expression() const {
-  return expression_;
-}
+AstExpr *AstVariableInitialDefinition::expr() const { return expr_; }
 
 AstFunctionDefinition::AstFunctionDefinition(
     AstFunctionSignatureDefinition *signature, AstStatement *statement)
@@ -1235,9 +1207,8 @@ AstFunctionSignatureDefinition *AstFunctionDefinition::signature() const {
 AstStatement *AstFunctionDefinition::statement() const { return statement_; }
 
 AstFunctionSignatureDefinition::AstFunctionSignatureDefinition(
-    const char *identifier, AstDefinitionList *argumentList,
-    AstExpression *result, const Position &funcTokenPosition,
-    const Position &identifierPosition)
+    const char *identifier, AstDefinitionList *argumentList, AstExpr *result,
+    const Position &funcTokenPosition, const Position &identifierPosition)
     : AstDefinition(nameGen.generateWith(identifier, "A_FuncSignDecl"),
                     funcTokenPosition),
       identifier_(identifier), argumentList_(argumentList), result_(result) {
@@ -1265,9 +1236,7 @@ AstDefinitionList *AstFunctionSignatureDefinition::argumentList() const {
   return argumentList_;
 }
 
-AstExpression *AstFunctionSignatureDefinition::result() const {
-  return result_;
-}
+AstExpr *AstFunctionSignatureDefinition::result() const { return result_; }
 
 AstCategory AstFunctionSignatureDefinition::category() const {
   return AstCategory::FunctionSignatureDefinition;

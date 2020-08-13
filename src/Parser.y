@@ -181,9 +181,9 @@ Expr : ExprWithBlock { $$ = $1; }
  /* simple expression without block { */
 
 ExprWithoutBlock : AssignExpr { $$ = $1; }
-                 | T_RETURN { $$ = new A_ReturnExpr(); }
-                 | T_RETURN Expr
-                 | T_THROW Expr
+                 | T_RETURN { $$ = new A_Return(nullptr, Y_POSITION(@1)); }
+                 | T_RETURN Expr { $$ = new A_Return($2, Y_POSITION(@1)); }
+                 | T_THROW Expr { $$ = new A_Throw($2, Y_POSITION(@1)); }
                  | T_BREAK
                  | T_CONTINUE
                  ;
@@ -192,18 +192,18 @@ AssignExpr : InfixExpr
            | PrefixExpr AssignOp AssignExpr
            ;
 
-AssignOp : T_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_STAR_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_SLASH_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_PERCENT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_PLUS_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_MINUS_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_AMPERSAND_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_BAR_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_CARET_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_LSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_RSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_ARSHIFT_EQUAL { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+AssignOp : T_EQUAL { $$ = $1; }
+         | T_STAR_EQUAL { $$ = $1; }
+         | T_SLASH_EQUAL { $$ = $1; }
+         | T_PERCENT_EQUAL { $$ = $1; }
+         | T_PLUS_EQUAL { $$ = $1; }
+         | T_MINUS_EQUAL { $$ = $1; }
+         | T_AMPERSAND_EQUAL { $$ = $1; }
+         | T_BAR_EQUAL { $$ = $1; }
+         | T_CARET_EQUAL { $$ = $1; }
+         | T_LSHIFT_EQUAL { $$ = $1; }
+         | T_RSHIFT_EQUAL { $$ = $1; }
+         | T_ARSHIFT_EQUAL { $$ = $1; }
          ;
 
 InfixExpr : PrefixExpr
