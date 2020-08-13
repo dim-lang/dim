@@ -467,8 +467,8 @@ A_Assign::A_Assign(const AstExpr *assignee, int assignOp,
 
 A_Assign::~A_Assign() {
   delete assignee_;
-  delete assignor_;
   assignee_ = nullptr;
+  delete assignor_;
   assignor_ = nullptr;
 }
 
@@ -491,68 +491,66 @@ const AstExpr *A_Assign::assignor() const { return assignor_; }
 
 // A_PostfixExpr {
 
-A_PostfixExpr::A_PostfixExpr(const AstExpr *expr, const AstId *postfixOperator)
-    : AstExpr(nameGen.generate("A_PostfixExpr")), expr_(expr),
-      postfixOperator_(postfixOperator) {
+A_PostfixExpr::A_PostfixExpr(const AstExpr *expr, int postfixOp,
+                             const Position &position)
+    : AstExpr("PostfixExpr", position), expr_(expr), postfixOp_(postfixOp) {
   EX_ASSERT(expr_, "expr_ must not null");
-  EX_ASSERT(postfixOperator_, "postfixOperator_ must not null");
+  EX_ASSERT(tokenExist(postfixOp_), "postfixOp_ {} must exist",
+            tokenName(postfixOp_));
 }
 
 A_PostfixExpr::~A_PostfixExpr() {
   delete expr_;
-  delete postfixOperator_;
   expr_ = nullptr;
-  postfixOperator_ = nullptr;
 }
 
 AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
 
 std::string A_PostfixExpr::toString() const {
-  return fmt::format("[@{} position:{} expr:{} postfixOperator:{}]", name(),
-                     position().toString(), expr_->toString(),
-                     postfixOperator_->toString());
+  return fmt::format("[{} position:{} expr:{} postfixOp:{}]",
+                     name().toSymbolName(), position().toString(),
+                     expr_->toString(), tokenName(postfixOp_));
 }
 
 const AstExpr *A_PostfixExpr::expr() const { return expr_; }
 
-const AstId *A_PostfixExpr::postfixOperator() const { return postfixOperator_; }
+int A_PostfixExpr::postfixOp() const { return postfixOp_; }
 
 // A_PostfixExpr }
 
 // A_InfixExpr {
 
-A_InfixExpr::A_InfixExpr(const AstExpr *left, const AstId *infixOperator,
-                         const AstExpr *right)
-    : AstExpr(nameGen.generate("A_InfixExpr")), left_(left),
-      infixOperator_(infixOperator), right_(right) {
+A_InfixExpr::A_InfixExpr(const AstExpr *left, int infixOp, const AstExpr *right,
+                         const Position &position)
+    : AstExpr("InfixExpr", position), left_(left), infixOp_(infixOp),
+      right_(right) {
   EX_ASSERT(left_, "left_ must not null");
-  EX_ASSERT(infixOperator_, "infixOperator_ must not null");
+  EX_ASSERT(tokenExist(infixOp_), "infixOp_ {} must exist",
+            tokenName(infixOp_));
   EX_ASSERT(right_, "right_ must not null");
   locate(left_->position());
-  locate(infixOperator_->position());
   locate(right_->position());
 }
 
 A_InfixExpr::~A_InfixExpr() {
   delete left_;
-  delete infixOperator_;
-  delete right_;
   left_ = nullptr;
-  infixOperator_ = nullptr;
+  delete right_;
   right_ = nullptr;
 }
 
 AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
 
 std::string A_InfixExpr::toString() const {
-  return fmt::format("[@{} position:{} left:{} infixOperator:{} right:{}]",
-                     name(), position().toString(), left_->toString(),
-                     infixOperator_->toString(), right_->toString());
+  return fmt::format("[{} position:{} left:{} infixOp:{} right:{}]",
+                     name().toSymbolName(), position().toString(),
+                     left_->toString(), tokenName(infixOp_),
+                     right_->toString());
 }
 
 const AstExpr *A_InfixExpr::left() const { return left_; }
 
-const AstId *A_InfixExpr::infixOperator() const { return infixOperator_; }
+int A_InfixExpr::infixOp() const { return infixOp_; }
 
 const AstExpr *A_InfixExpr::right() const { return right_; }
 
@@ -560,31 +558,29 @@ const AstExpr *A_InfixExpr::right() const { return right_; }
 
 // A_PrefixExpr {
 
-A_PrefixExpr::A_PrefixExpr(const AstId *prefixOperator, const AstExpr *expr)
-    : AstExpr(nameGen.generate("A_PrefixExpr")),
-      prefixOperator_(prefixOperator), expr_(expr) {
-  EX_ASSERT(prefixOperator_, "prefixOperator_ must not null");
+A_PrefixExpr::A_PrefixExpr(int prefixOp, const AstExpr *expr,
+                           const Position &position)
+    : AstExpr("PrefixExpr", position), prefixOp_(prefixOp), expr_(expr) {
+  EX_ASSERT(tokenExist(prefixOp_), "prefixOp_ {} must exist",
+            tokenName(prefixOp_));
   EX_ASSERT(expr_, "expr_ must not null");
-  locate(prefixOperator_->position());
   locate(expr_->position());
 }
 
 A_PrefixExpr::~A_PrefixExpr() {
-  delete prefixOperator_;
   delete expr_;
-  prefixOperator_ = nullptr;
   expr_ = nullptr;
 }
 
 AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
 
 std::string A_PrefixExpr::toString() const {
-  return fmt::format("[@{} position:{} prefixOperator:{} expr:{}]", name(),
-                     position().toString(), prefixOperator_->toString(),
-                     expr_->toString());
+  return fmt::format("[{} position:{} prefixOp:{} expr:{}]",
+                     name().toSymbolName(), position().toString(),
+                     tokenName(prefixOp_), expr_->toString());
 }
 
-const AstId *A_PrefixExpr::prefixOperator() const { return prefixOperator_; }
+int A_PrefixExpr::prefixOp() const { return prefixOp_; }
 
 const AstExpr *A_PrefixExpr::expr() const { return expr_; }
 

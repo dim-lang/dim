@@ -258,24 +258,27 @@ PostfixOp : T_PLUS2
           | T_MINUS2
           ;
 
-PrimaryExpr : Literal
-            | Id
-            | ParExpr
+PrimaryExpr : Literal { $$ = $1; }
+            | Id { $$ = $1; }
+            | ParExpr { $$ = $1; }
             ;
 
-ParExpr : T_LPAREN Expr T_RPAREN
+ParExpr : T_LPAREN Expr T_RPAREN { $$ = $2; $$->locate(Y_POSITION(@1)); $$->locate(Y_POSITION(@3)); }
         ;
 
  /* simple expression without block } */
 
  /* statement like expression which has block { */
 
-ExprWithBlock : Block
-              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_IfThenExpression($3, $6); delete $5; }
-              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_IfElseExpression($3, $6, $9); delete $5; delete $7; }
+ExprWithBlock : Block { $$ = $1; }
+              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_IfThen($2, $3); }
+              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_IfElseExpression($2, $3, $5); }
               | T_FOR T_LPAREN ForCond T_RPAREN Expr
               | T_WHILE ParExpr Expr
               ;
+
+ForCond :
+        ;
 
 
 Block : T_LBRACE T_RBRACE

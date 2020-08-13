@@ -344,78 +344,92 @@ private:
 
 class A_PostfixExpr : public AstExpr {
 public:
-  A_PostfixExpr(const AstExpr *expr, const AstId *postfixOperator);
+  A_PostfixExpr(const AstExpr *expr, int postfixOp, const Position &position);
   virtual ~A_PostfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpr *expr() const;
-  virtual const AstId *postfixOperator() const;
+  virtual int postfixOp() const;
 
 private:
   const AstExpr *expr_;
-  const AstId *postfixOperator_;
+  int postfixOp_;
 };
 
 class A_InfixExpr : public AstExpr {
 public:
-  A_InfixExpr(const AstExpr *left, const AstId *infixOperator,
-              const AstExpr *right);
+  A_InfixExpr(const AstExpr *left, int infixOp, const AstExpr *right,
+              const Position &position);
   virtual ~A_InfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpr *left() const;
-  virtual const AstId *infixOperator() const;
+  virtual int infixOp() const;
   virtual const AstExpr *right() const;
 
 private:
   const AstExpr *left_;
-  const AstId *infixOperator_;
+  int infixOp_;
   const AstExpr *right_;
 };
 
 class A_PrefixExpr : public AstExpr {
 public:
-  A_PrefixExpr(const AstId *prefixOperator, const AstExpr *expr);
+  A_PrefixExpr(int prefixOp, const AstExpr *expr, const Position &position);
   virtual ~A_PrefixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstId *prefixOperator() const;
+  virtual int prefixOp() const;
   virtual const AstExpr *expr() const;
 
 private:
-  const AstId *prefixOperator_;
+  int prefixOp_;
   const AstExpr *expr_;
 };
 
-class A_IfThenExpr : public AstExpr {
+class A_IfThen : public AstExpr {
 public:
-  A_IfThenExpr(const AstExpr *condition, const AstExpr *thens);
-  virtual ~A_IfThenExpr();
+  A_IfThen(const AstExpr *condition, const AstExpr *thenp);
+  virtual ~A_IfThen();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpr *condition() const;
-  virtual const AstExpr *thens() const;
+  virtual const AstExpr *thenp() const;
 
 private:
   const AstExpr *condition_;
-  const AstExpr *thens_;
+  const AstExpr *thenp_;
 };
 
-class A_IfElseExpr : public AstExpr {
+class A_IfElse : public AstExpr {
 public:
-  A_IfElseExpr(const AstExpr *condition, const AstExpr *thens,
-               const AstExpr *elses);
-  virtual ~A_IfElseExpr();
+  A_IfElse(const AstExpr *condition, const AstExpr *thenp,
+           const AstExpr *elsep);
+  virtual ~A_IfElse();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpr *condition() const;
-  virtual const AstExpr *thens() const;
-  virtual const AstExpr *elses() const;
+  virtual const AstExpr *thenp() const;
+  virtual const AstExpr *elsep() const;
 
 private:
   const AstExpr *condition_;
-  const AstExpr *thens_;
-  const AstExpr *elses_;
+  const AstExpr *thenp_;
+  const AstExpr *elsep_;
+};
+
+class A_For : public AstExpr {
+public:
+  A_For(const AstExpr *condition, const AstExpr *body);
+  virtual ~A_For();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpr *condition() const;
+  virtual const AstExpr *body() const;
+
+private:
+  const AstExpr *condition_;
+  const AstExpr *body_;
 };
 
 // expr }
