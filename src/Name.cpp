@@ -3,9 +3,12 @@
 
 #include "Name.h"
 #include "fmt/format.h"
+#include <algorithm>
+#include <cctype>
 #include <functional>
 #include <iomanip>
 #include <utility>
+#include <vector>
 
 #define USD std::string("$")
 #define AT std::string("@")
@@ -51,9 +54,28 @@ std::string Name::raw() const { return *value_; }
 
 unsigned long long Name::id() const { return id_; }
 
-std::string Name::toAsmName() const { return USD + HEX(*value_) + DOT + id(); }
+std::string Name::toAsmName() const {
+  return USD + HEX(*value_) + DOT + std::to_string(id());
+}
 
-std::string Name::toSymbolName() const { return AT + *value_ + DOT + id(); }
+static bool containsChar(char c, const std::vector<char> &vec) {
+  return std::find(vec.begin(), vec.end(), c) != vec.end();
+}
+
+static std::string parseSymbolName(const std::string &s) {
+  std::string r(s);
+  std::for_each(r.begin(), r.end(), [](char &c) {
+    if (!std::isalnum(c) &&
+        !containsChar(c, std::vector<char>{'.', '$', '_', '-'})) {
+      c = '-';
+    }
+  });
+  return r.length() > 10 ? r.substr(0, 10) : r;
+}
+
+std::string Name::toSymbolName() const {
+  return AT + parseSymbolName(*value_) + DOT + std::to_string(id());
+}
 
 Name Name::get(const std::string &name) {
   if (nameMap_.find(name) == nameMap_.end()) {

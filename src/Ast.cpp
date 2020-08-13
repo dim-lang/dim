@@ -114,13 +114,13 @@ static const std::unordered_map<A_Integer::BitCategory, std::string>
 };
 
 A_Integer::A_Integer(const std::string &literal, const Position &position)
-    : AstExpr(literal, position), literal_(literal) {
-  EX_ASSERT(literal_.length() > 0, "literal.length {} > 0", literal_.length());
+    : AstExpr(literal, position) {
+  EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  if (stringStartsWith(literal_, std::vector<std::string>{"0x", "0X", "0o",
-                                                          "0O", "0b", "0B"})) {
-    switch (literal_[1]) {
+  if (stringStartsWith(literal, std::vector<std::string>{"0x", "0X", "0o", "0O",
+                                                         "0b", "0B"})) {
+    switch (literal[1]) {
     case 'x':
     case 'X':
       decimalCategory_ = A_Integer::DecimalCategory::HEX;
@@ -147,39 +147,37 @@ A_Integer::A_Integer(const std::string &literal, const Position &position)
     }
   }
 
-  int endPosition = (int)literal_.length();
-  if (stringEndsWith(literal_, std::vector<std::string>{"ul", "UL"})) {
+  int endPosition = (int)literal.length();
+  if (stringEndsWith(literal, std::vector<std::string>{"ul", "UL"})) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
-    endPosition = (int)literal_.length() - 2;
-  } else if (stringEndsWith(literal_, std::vector<char>{'l', 'L'})) {
+    endPosition = (int)literal.length() - 2;
+  } else if (stringEndsWith(literal, std::vector<char>{'l', 'L'})) {
     bitCategory_ = A_Integer::BitCategory::LONG;
     bits_ = 64;
-    endPosition = (int)literal_.length() - 1;
-  } else if (stringEndsWith(literal_, std::vector<char>{'u', 'U'})) {
+    endPosition = (int)literal.length() - 1;
+  } else if (stringEndsWith(literal, std::vector<char>{'u', 'U'})) {
     bitCategory_ = A_Integer::BitCategory::UNSIGNED;
     bits_ = 32;
-    endPosition = (int)literal_.length() - 1;
+    endPosition = (int)literal.length() - 1;
   } else {
     bitCategory_ = A_Integer::BitCategory::SIGNED;
     bits_ = 32;
-    endPosition = (int)literal_.length();
+    endPosition = (int)literal.length();
   }
 
-  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal.substr(startPosition, endPosition - startPosition);
 }
 
 AstCategory A_Integer::category() const { return AstCategory::Integer; }
 
 std::string A_Integer::toString() const {
-  return fmt::format("[{} position:{}, literal:{}, parsed:{}, "
+  return fmt::format("[{} position:{}, parsed:{}, "
                      "decimalCategory:{}, bitCategory:{}]",
-                     name().toSymbolName(), position().toString(), literal_,
-                     parsed_, AIL_DC_Map.find(decimalCategory_)->second,
+                     name().toSymbolName(), position().toString(), parsed_,
+                     AIL_DC_Map.find(decimalCategory_)->second,
                      AIL_BC_Map.find(bitCategory_)->second);
 }
-
-const std::string &A_Integer::parsed() const { return parsed_; }
 
 int A_Integer::bits() const { return bits_; }
 
@@ -191,94 +189,81 @@ A_Integer::DecimalCategory A_Integer::decimalCategory() const {
 
 A_Integer::BitCategory A_Integer::bitCategory() const { return bitCategory_; }
 
-const std::string &A_Integer::literal() const { return literal_; }
-
-int32_t A_Integer::toInt32() const {
+int32_t A_Integer::asInt32() const {
   return static_cast<int32_t>(std::stol(parsed_, nullptr, base_));
 }
 
-uint32_t A_Integer::toUInt32() const {
+uint32_t A_Integer::asUInt32() const {
   return static_cast<uint32_t>(std::stoul(parsed_, nullptr, base_));
 }
 
-int64_t A_Integer::toInt64() const {
+int64_t A_Integer::asInt64() const {
   return static_cast<int64_t>(std::stoll(parsed_, nullptr, base_));
 }
 
-uint64_t A_Integer::toUInt64() const {
+uint64_t A_Integer::asUInt64() const {
   return static_cast<uint64_t>(std::stoull(parsed_, nullptr, base_));
 }
 
 // A_Integer }
 
-// A_FloatingPointLiteral {
+// A_Float {
 
-const static std::unordered_map<A_FloatingPointLiteral::BitCategory,
-                                std::string>
-    AFL_BC_Map = {
-        {A_FloatingPointLiteral::BitCategory::FLT, "FLT"},
-        {A_FloatingPointLiteral::BitCategory::DBL, "DBL"},
+const static std::unordered_map<A_Float::BitCategory, std::string> AFL_BC_Map =
+    {
+        {A_Float::BitCategory::FLT, "FLT"},
+        {A_Float::BitCategory::DBL, "DBL"},
 };
 
-A_FloatingPointLiteral::A_FloatingPointLiteral(const std::string &literal,
-                                               const Position &position)
-    : AstExpr(literal, position), literal_(literal) {
-  EX_ASSERT(literal_.length() > 0, "literal_.length {} > 0", literal_.length());
+A_Float::A_Float(const std::string &literal, const Position &position)
+    : AstExpr(literal, position) {
+  EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  int endPosition = (int)literal_.length();
-  if (stringEndsWith(literal_, std::vector<std::string>{"f", "F"})) {
-    bitCategory_ = A_FloatingPointLiteral::BitCategory::FLT;
+  int endPosition = (int)literal.length();
+  if (stringEndsWith(literal, std::vector<std::string>{"f", "F"})) {
+    bitCategory_ = A_Float::BitCategory::FLT;
     bits_ = 32;
-    endPosition = (int)literal_.length() - 1;
+    endPosition = (int)literal.length() - 1;
   } else {
-    bitCategory_ = A_FloatingPointLiteral::BitCategory::DBL;
+    bitCategory_ = A_Float::BitCategory::DBL;
     bits_ = 64;
-    endPosition = (int)literal_.length();
+    endPosition = (int)literal.length();
   }
 
-  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal.substr(startPosition, endPosition - startPosition);
 }
 
-AstCategory A_FloatingPointLiteral::category() const {
+AstCategory A_Float::category() const {
   return AstCategory::FloatingPointLiteral;
 }
 
-std::string A_FloatingPointLiteral::toString() const {
-  return fmt::format("[{} position:{}, literal:{}, parsed:{}, bitCategory:{}]",
-                     name().toSymbolName(), position().toString(), literal_,
-                     parsed_, AFL_BC_Map.find(bitCategory_)->second);
+std::string A_Float::toString() const {
+  return fmt::format("[{} position:{}, parsed:{}, bitCategory:{}]",
+                     name().toSymbolName(), position().toString(), parsed_,
+                     AFL_BC_Map.find(bitCategory_)->second);
 }
 
-const std::string &A_FloatingPointLiteral::parsed() const { return parsed_; }
+int A_Float::bits() const { return bits_; }
 
-int A_FloatingPointLiteral::bits() const { return bits_; }
+A_Float::BitCategory A_Float::bitCategory() const { return bitCategory_; }
 
-A_FloatingPointLiteral::BitCategory
-A_FloatingPointLiteral::bitCategory() const {
-  return bitCategory_;
-}
+float A_Float::asFloat() const { return std::stof(parsed_); }
 
-const std::string &A_FloatingPointLiteral::literal() const { return literal_; }
+double A_Float::asDouble() const { return std::stod(parsed_); }
 
-float A_FloatingPointLiteral::toFloat() const { return std::stof(parsed_); }
+// A_Float }
 
-double A_FloatingPointLiteral::toDouble() const { return std::stod(parsed_); }
+// A_String {
 
-// A_FloatingPointLiteral }
-
-// A_StringLiteral {
-
-const static std::unordered_map<A_StringLiteral::QuoteCategory, std::string>
+const static std::unordered_map<A_String::QuoteCategory, std::string>
     ASL_QC_Map = {
-        {A_StringLiteral::QuoteCategory::SINGLE, "SINGLE"},
-        {A_StringLiteral::QuoteCategory::TRIPLE, "TRIPLE"},
+        {A_String::QuoteCategory::SINGLE, "SINGLE"},
+        {A_String::QuoteCategory::TRIPLE, "TRIPLE"},
 };
 
-A_StringLiteral::A_StringLiteral(const std::string &literal,
-                                 const Position &position)
-    : Ast(stringTrim(stringReplace(literal, '\"', '-'), 8), position),
-      literal_(literal),
+A_String::A_String(const std::string &literal, const Position &position)
+    : Ast(literal, position),
       parsed_(
           literal.length() >= 3 &&
                   stringStartsWith(literal, std::vector<std::string>{"\"\"\""})
@@ -287,101 +272,83 @@ A_StringLiteral::A_StringLiteral(const std::string &literal,
       quoteCategory_(
           literal.length() >= 3 &&
                   stringStartsWith(literal, std::vector<std::string>{"\"\"\""})
-              ? A_StringLiteral::QuoteCategory::TRIPLE
-              : A_StringLiteral::QuoteCategory::SINGLE) {}
+              ? A_String::QuoteCategory::TRIPLE
+              : A_String::QuoteCategory::SINGLE) {}
 
-AstCategory A_StringLiteral::category() const {
-  return AstCategory::StringLiteral;
-}
+AstCategory A_String::category() const { return AstCategory::StringLiteral; }
 
-std::string A_StringLiteral::toString() const {
-  return fmt::format("[{} position:{}, parsed:{}, literal:{}]",
-                     name().toSymbolName(), position().toString(), parsed_,
-                     literal_);
-}
-
-A_StringLiteral::QuoteCategory A_StringLiteral::quoteCategory() const {
-  return quoteCategory_;
-}
-
-const std::string &A_StringLiteral::parsed() const { return parsed_; }
-
-const std::string &A_StringLiteral::literal() const { return literal_; }
-
-// A_StringLiteral }
-
-// A_CharacterLiteral {
-
-A_CharacterLiteral::A_CharacterLiteral(const std::string &literal,
-                                       const Position &position)
-    : Ast(stringReplace(literal, '\'', '-'), position), literal_(literal),
-      parsed_(literal[1]) {}
-
-AstCategory A_CharacterLiteral::category() const {
-  return AstCategory::CharacterLiteral;
-}
-
-std::string A_CharacterLiteral::toString() const {
+std::string A_String::toString() const {
   return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
                      position().toString(), parsed_);
 }
 
-const std::string &A_CharacterLiteral::literal() const { return literal_; }
-
-char A_CharacterLiteral::parsed() const { return parsed_; }
-
-// A_CharacterLiteral }
-
-// A_BooleanLiteral {
-
-A_BooleanLiteral::A_BooleanLiteral(const std::string &literal,
-                                   const Position &position)
-    : Ast(literal, position), literal_(literal),
-      parsed_(literal == tokenName(T_TRUE)) {}
-
-AstCategory A_BooleanLiteral::category() const {
-  return AstCategory::BooleanLiteral;
+A_String::QuoteCategory A_String::quoteCategory() const {
+  return quoteCategory_;
 }
 
-std::string A_BooleanLiteral::toString() const {
-  return fmt::format("[{} position:{}, literal:{}, parsed:{}]",
-                     name().toSymbolName(), position().toString(), literal_,
-                     parsed_);
+const std::string &A_String::asString() const { return parsed_; }
+
+// A_String }
+
+// A_Character {
+
+A_Character::A_Character(const std::string &literal, const Position &position)
+    : Ast(literal, position), parsed_(literal[1]) {}
+
+AstCategory A_Character::category() const {
+  return AstCategory::CharacterLiteral;
 }
 
-const std::string &A_BooleanLiteral::literal() const { return literal_; }
+std::string A_Character::toString() const {
+  return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
+                     position().toString(), parsed_);
+}
 
-bool A_BooleanLiteral::parsed() const { return parsed_; }
+char A_Character::asChar() const { return parsed_; }
 
-// A_BooleanLiteral }
+// A_Character }
 
-// A_NilLiteral {
+// A_Boolean {
 
-A_NilLiteral::A_NilLiteral(const Position &position)
-    : Ast(tokenName(T_NIL), position) {}
+A_Boolean::A_Boolean(const std::string &literal, const Position &position)
+    : Ast(literal, position), parsed_(literal == tokenName(T_TRUE)) {}
 
-AstCategory A_NilLiteral::category() const { return AstCategory::NilLiteral; }
+AstCategory A_Boolean::category() const { return AstCategory::BooleanLiteral; }
 
-std::string A_NilLiteral::toString() const {
+std::string A_Boolean::toString() const {
+  return fmt::format("[{} position:{}, parsed:{}]", name().toSymbolName(),
+                     position().toString(), parsed_);
+}
+
+bool A_Boolean::asBool() const { return parsed_; }
+
+// A_Boolean }
+
+// A_Nil {
+
+A_Nil::A_Nil(const Position &position) : Ast(tokenName(T_NIL), position) {}
+
+AstCategory A_Nil::category() const { return AstCategory::NilLiteral; }
+
+std::string A_Nil::toString() const {
   return fmt::format("[{} position:{}]", name().toSymbolName(),
                      position().toString());
 }
 
-// A_NilLiteral }
+// A_Nil }
 
-// A_VoidLiteral {
+// A_Void {
 
-A_VoidLiteral::A_VoidLiteral(const Position &position)
-    : Ast(tokenName(T_VOID), position) {}
+A_Void::A_Void(const Position &position) : Ast(tokenName(T_VOID), position) {}
 
-AstCategory A_VoidLiteral::category() const { return AstCategory::VoidLiteral; }
+AstCategory A_Void::category() const { return AstCategory::VoidLiteral; }
 
-std::string A_VoidLiteral::toString() const {
+std::string A_Void::toString() const {
   return fmt::format("[{} position:{}]", name().toSymbolName(),
                      position().toString());
 }
 
-// A_VoidLiteral }
+// A_Void }
 
 // literal }
 
@@ -410,65 +377,55 @@ AstExpr::AstExpr(const std::string &name) : Ast(name) {}
 AstExpr::AstExpr(const std::string &name, const Position &position)
     : Ast(name, position) {}
 
-// A_ThrowExpression {
+// A_Throw {
 
-A_ThrowExpression::A_ThrowExpression(const AstExpression *expression,
-                                     const Position &position)
-    : AstExpression(nameGen.generate("A_ThrowExpression"), extra),
+A_Throw::A_Throw(const AstExpression *expression, const Position &position)
+    : AstExpression(nameGen.generate("A_Throw"), extra),
       expression_(expression) {
   EX_ASSERT(expression_, "expression_ must not null");
   locate(expression_->position());
 }
 
-A_ThrowExpression::~A_ThrowExpression() {
+A_Throw::~A_Throw() {
   delete expression_;
   expression_ = nullptr;
 }
 
-AstCategory A_ThrowExpression::category() const {
-  return AstCategory::ThrowExpression;
-}
+AstCategory A_Throw::category() const { return AstCategory::ThrowExpression; }
 
-std::string A_ThrowExpression::toString() const {
+std::string A_Throw::toString() const {
   return fmt::format("[@{} position:{} expression:{}]", name(),
                      position().toString(), expression_->toString());
 }
 
-const AstExpression *A_ThrowExpression::expression() const {
-  return expression_;
-}
+const AstExpression *A_Throw::expression() const { return expression_; }
 
-// A_ThrowExpression }
+// A_Throw }
 
-// A_ReturnExpression {
+// A_Return {
 
-A_ReturnExpression::A_ReturnExpression(const AstExpression *expression,
-                                       const Position &extra)
-    : AstExpression(nameGen.generate("A_ReturnExpression"), extra),
+A_Return::A_Return(const AstExpression *expression, const Position &extra)
+    : AstExpression(nameGen.generate("A_Return"), extra),
       expression_(expression) {
   EX_ASSERT(expression_, "expression_ must not null");
   locate(expression_->position());
 }
 
-A_ReturnExpression::~A_ReturnExpression() {
+A_Return::~A_Return() {
   delete expression_;
   expression_ = nullptr;
 }
 
-AstCategory A_ReturnExpression::category() const {
-  return AstCategory::ReturnExpression;
-}
+AstCategory A_Return::category() const { return AstCategory::ReturnExpression; }
 
-std::string A_ReturnExpression::toString() const {
+std::string A_Return::toString() const {
   return fmt::format("[@{} position:{} expression:{}]", name(),
                      position().toString(), expression_->toString());
 }
 
-const AstExpression *A_ReturnExpression::expression() const {
-  return expression_;
-}
+const AstExpression *A_Return::expression() const { return expression_; }
 
-// A_ReturnExpression }
+// A_Return }
 
 // A_AssignExpression {
 

@@ -51,12 +51,12 @@ class Ast;
 
 /* literal */
 class A_Integer;
-class A_FloatingPointLiteral;
-class A_BooleanLiteral;
-class A_CharacterLiteral;
-class A_StringLiteral;
-class A_NilLiteral;
-class A_VoidLiteral;
+class A_Float;
+class A_Boolean;
+class A_Character;
+class A_String;
+class A_Nil;
+class A_Void;
 
 /* id */
 class A_VarId;
@@ -164,19 +164,16 @@ public:
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual const std::string &parsed() const;
   virtual int bits() const;
   virtual int base() const;
   virtual DecimalCategory decimalCategory() const;
   virtual BitCategory bitCategory() const;
-  virtual const std::string &literal() const;
-  virtual int32_t toInt32() const;
-  virtual uint32_t toUInt32() const;
-  virtual int64_t toInt64() const;
-  virtual uint64_t toUInt64() const;
+  virtual int32_t asInt32() const;
+  virtual uint32_t asUInt32() const;
+  virtual int64_t asInt64() const;
+  virtual uint64_t asUInt64() const;
 
 private:
-  std::string literal_;
   std::string parsed_;
   int bits_;
   int base_;
@@ -184,96 +181,87 @@ private:
   BitCategory bitCategory_;
 };
 
-class A_FloatingPointLiteral : public AstExpr {
+class A_Float : public AstExpr {
 public:
   // BitCategory:
   // FLT: 32 bit
   // DBL: 64 bit
   enum class BitCategory { FLT = 130, DBL };
 
-  A_FloatingPointLiteral(const std::string &literal, const Position &position);
-  virtual ~A_FloatingPointLiteral() = default;
+  A_Float(const std::string &literal, const Position &position);
+  virtual ~A_Float() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual const std::string &parsed() const;
   virtual int bits() const;
   virtual BitCategory bitCategory() const;
-  virtual const std::string &literal() const;
-  virtual float toFloat() const;
-  virtual double toDouble() const;
+  virtual float asFloat() const;
+  virtual double asDouble() const;
 
 private:
-  std::string literal_;
   std::string parsed_;
   int bits_;
   BitCategory bitCategory_;
 };
 
 // string literal
-class A_StringLiteral : public AstExpr {
+class A_String : public AstExpr {
 public:
   // QuoteCategory
   // Single: "
   // TRIPLE: """
   enum class QuoteCategory { SINGLE = 140, TRIPLE };
 
-  A_StringLiteral(const std::string &literal, const Position &position);
-  virtual ~A_StringLiteral() = default;
+  A_String(const std::string &literal, const Position &position);
+  virtual ~A_String() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
   virtual QuoteCategory quoteCategory() const;
-  virtual const std::string &parsed() const;
-  virtual const std::string &literal() const;
+  virtual const std::string &asString() const;
 
 private:
-  std::string literal_;
   std::string parsed_;
   QuoteCategory quoteCategory_;
 };
 
-class A_CharacterLiteral : public AstExpr {
-  A_CharacterLiteral(const std::string &literal, const Position &position);
-  virtual ~A_CharacterLiteral() = default;
+class A_Character : public AstExpr {
+  A_Character(const std::string &literal, const Position &position);
+  virtual ~A_Character() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual const std::string &literal() const;
-  virtual char parsed() const;
+  virtual char asChar() const;
 
 private:
-  std::string literal_;
   char parsed_;
 };
 
-class A_BooleanLiteral : public AstExpr {
+class A_Boolean : public AstExpr {
 public:
-  A_BooleanLiteral(const std::string &literal, const Position &position);
-  virtual ~A_BooleanLiteral() = default;
+  A_Boolean(const std::string &literal, const Position &position);
+  virtual ~A_Boolean() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 
-  virtual const std::string &literal() const;
-  virtual bool parsed() const;
+  virtual bool asBool() const;
 
 private:
-  std::string literal_;
   bool parsed_;
 };
 
-class A_NilLiteral : public AstExpr {
+class A_Nil : public AstExpr {
 public:
-  A_NilLiteral(const Position &position);
-  virtual ~A_NilLiteral() = default;
+  A_Nil(const Position &position);
+  virtual ~A_Nil() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 };
 
-class A_VoidLiteral : public AstExpr {
+class A_Void : public AstExpr {
 public:
-  A_VoidLiteral(const Position &position);
-  virtual ~A_VoidLiteral() = default;
+  A_Void(const Position &position);
+  virtual ~A_Void() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
 };
