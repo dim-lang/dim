@@ -24,20 +24,13 @@ BETTER_ENUM(AstCategory, int,
             VarId,
             // expr
             Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
-            InfixExpr, IfThen, IfElse, For,
+            InfixExpr, Call, Exprs, If, Loop, LoopCondition, Block, BlockStats,
             // type
-            FunctionType, PrimitiveType,
-            // statement
-            ExprStatement, IfStatement, WhileStatement, ForStatement,
-            ContinueStatement, BreakStatement, EmptyStatement,
-            CompoundStatement,
-            // definition
-            VariableDefinition, VariableInitialDefinition, FunctionDefinition,
-            FunctionSignatureDefinition, FunctionArgumentDefinition,
-            // list
-            ExprList, StatementList, DefinitionList,
-            // translate unit
-            TranslateUnit)
+            PlainType,
+            // declaration and definition
+            FuncDef, FuncSign, Params, Param, VarDef,
+            // compile unit
+            CompileUnit, TopStats)
 
 /*================ class ================*/
 
@@ -45,6 +38,10 @@ BETTER_ENUM(AstCategory, int,
 class AstNamely;
 class AstPositional;
 class Ast;
+class AstExpr;
+class AstDecl;
+class AstDef;
+class AstType;
 
 /* literal */
 class A_Integer;
@@ -58,49 +55,38 @@ class A_Void;
 /* id */
 class A_VarId;
 
-/* expr */
-class AstExpr;
-
+/* expression without block */
 class A_Throw;
 class A_Return;
-class A_CallExpr;
-class A_UnaryExpr;
-class A_BinaryExpr;
-class A_ConditionalExpr;
-class A_AssignmentExpr;
-class A_VoidExpr;
+class A_Break;
+class A_Continue;
+class A_Assign;
+class A_PostfixExpr;
+class A_InfixExpr;
+class A_PrefixExpr;
+class A_Call;
+class A_Exprs;
 
-/* statement */
-class AstStatement;
-
-class AstDefinition;
-
-/* translate unit */
-class AstTranslateUnit;
-
-/* expr */
-
-/* statement */
-class AstExprStatement;
-class AstCompoundStatement;
-class A_IfStatement;
-class AstWhileStatement;
-class AstForStatement;
-class AstContinueStatement;
-class AstBreakStatement;
-class AstEmptyStatement;
-
-/* definition */
-class AstVariableDefinition;
-class AstVariableInitialDefinition;
-class AstFunctionDefinition;
-class AstFunctionSignatureDefinition;
-class AstFunctionArgumentDefinition;
+/* expression with block */
+class A_If;
+class A_Loop;
+class A_LoopCondition;
+class A_Block;
+class A_BlockStats;
 
 /* type */
-class AstType;
-class A_FunctionType;
-class A_PrimitiveType;
+class A_PlainType;
+
+/* declaration and definition */
+class A_FuncDef;
+class A_FuncSign;
+class A_Params;
+class A_Param;
+class A_VarDef;
+
+/* compile unit */
+class A_CompileUnit;
+class A_TopStats;
 
 // Ast {
 
@@ -133,6 +119,34 @@ public:
   virtual ~Ast() = default;
   virtual AstCategory category() const = 0;
   virtual std::string toString() const = 0;
+};
+
+class AstExpr : public Ast {
+public:
+  AstExpr(const std::string &name);
+  AstExpr(const std::string &name, const Position &position);
+  virtual ~AstExpr() = default;
+};
+
+class AstDecl : public Ast {
+public:
+  AstDecl(const std::string &name);
+  AstDecl(const std::string &name, const Position &position);
+  virtual ~AstDecl() = default;
+};
+
+class AstDef : public AstDecl {
+public:
+  AstDef(const std::string &name);
+  AstDef(const std::string &name, const Position &position);
+  virtual ~AstDef() = default;
+};
+
+class AstType : public Ast {
+public:
+  AstType(const std::string &name);
+  AstType(const std::string &name, const Position &position);
+  virtual ~AstType() = default;
 };
 
 // Ast }
@@ -276,14 +290,7 @@ public:
 
 // id }
 
-// expr {
-
-class AstExpr : public Ast {
-public:
-  AstExpr(const std::string &name);
-  AstExpr(const std::string &name, const Position &position);
-  virtual ~AstExpr() = default;
-};
+// simple expression without block {
 
 class A_Throw : public AstExpr {
 public:
@@ -338,7 +345,7 @@ public:
 
 private:
   const AstExpr *assignee_; // left
-  int assignOp;
+  int assignOp_;
   const AstExpr *assignor_; // right
 };
 
@@ -387,25 +394,43 @@ private:
   const AstExpr *expr_;
 };
 
-class A_IfThen : public AstExpr {
+class A_Call : public AstExpr {
 public:
-  A_IfThen(const AstExpr *condition, const AstExpr *thenp);
-  virtual ~A_IfThen();
+  A_Call(const AstExpr *id, const A_Exprs *args);
+  virtual ~A_Call();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *condition() const;
-  virtual const AstExpr *thenp() const;
+  virtual const AstExpr *id() const;
+  virtual const A_Exprs *args() const;
 
 private:
-  const AstExpr *condition_;
-  const AstExpr *thenp_;
+  const AstExpr *id_;
+  const A_Exprs *args_;
 };
 
-class A_IfElse : public AstExpr {
+class A_Exprs : public AstExpr {
 public:
-  A_IfElse(const AstExpr *condition, const AstExpr *thenp,
-           const AstExpr *elsep);
-  virtual ~A_IfElse();
+  A_Exprs(const AstExpr *expr, const A_Exprs *next);
+  A_Exprs(const AstExpr *expr, const A_Exprs *next, const Position &position);
+  virtual ~A_Exprs();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpr *expr() const;
+  virtual const A_Exprs *next() const;
+
+private:
+  const AstExpr *expr_;
+  const A_Exprs *next_;
+};
+
+// simple expression without block }
+
+// statement like expression with block {
+
+class A_If : public AstExpr {
+public:
+  A_If(const AstExpr *condition, const AstExpr *thenp, const AstExpr *elsep);
+  virtual ~A_If();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const AstExpr *condition() const;
@@ -418,13 +443,14 @@ private:
   const AstExpr *elsep_;
 };
 
-class A_For : public AstExpr {
+// for and while
+class A_Loop : public AstExpr {
 public:
-  A_For(const AstExpr *condition, const AstExpr *body);
-  virtual ~A_For();
+  A_Loop(const AstExpr *condition, const AstExpr *body);
+  virtual ~A_Loop();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *condition() const;
+  virtual const Ast *condition() const;
   virtual const AstExpr *body() const;
 
 private:
@@ -432,439 +458,169 @@ private:
   const AstExpr *body_;
 };
 
-// expr }
+class A_LoopCondition : public Ast {
+public:
+  A_LoopCondition();
+  virtual ~A_LoopCondition() = default;
+};
+
+class A_Block : public AstExpr {
+public:
+  A_Block(const A_BlockStats *blockStats, const Position &lbracePosition,
+          const Position &rbracePosition);
+  virtual ~A_Block();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const A_BlockStats *blockStats() const;
+
+private:
+  const A_BlockStats *blockStats_;
+};
+
+class A_BlockStats : public Ast {
+public:
+  A_BlockStats(const Ast *stat, const A_BlockStats *next);
+  A_BlockStats(const Ast *stat, const A_BlockStats *next,
+               const Position &position);
+  virtual ~A_BlockStats();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const Ast *stat() const;
+  virtual const A_BlockStats *next() const;
+
+private:
+  const Ast *stat_;
+  const A_BlockStats *next_;
+};
+
+// statement like expression with block }
 
 // type {
 
-// interface
-class AstType : public Ast, public AstNamely, public AstPositional {
+class A_PlainType : public AstType {
 public:
-  AstType(const std::string &name, const Position &position);
-  virtual ~AstType() = default;
-};
-
-class A_FunctionType : public AstType {
-public:
-  A_FunctionType(const std::string &literal, const Position &position);
-  virtual ~A_FunctionType() = default;
-};
-
-class A_PrimitiveType : public AstType {
-public:
-  virtual ~A_PrimitiveType() = default;
+  A_PlainType(int token, const Position &position);
+  virtual ~A_PlainType() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const std::string &literal() const;
-
-  // integer, float, boolean
-  static const A_PrimitiveType *get(int token, const Position &position);
+  virtual int token() const;
 
 private:
-  A_PrimitiveType(const std::string &literal, const Position &position);
-  std::string literal_;
+  int token_;
 };
 
 // type }
 
-class A_CallExpr : public AstExpr {
+// definition and declaration {
+
+class A_FuncDef : public AstDef {
 public:
-  A_CallExpr(const AstId *id, const A_ExprList *argumentList,
-             const Position &idPosition);
-  virtual ~A_CallExpr();
+  A_FuncDef(const AstDecl *funcSign, const AstType *resultType,
+            const AstExpr *block);
+  virtual ~A_FuncDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-  virtual const AstId *id() const;
-  virtual const A_ExprList *argumentList() const;
+  virtual const AstDecl *funcSign() const;
+  virtual const AstType *resultType() const;
+  virtual const AstExpr *body() const;
 
 private:
-  const AstId *id_;
-  const A_ExprList *argumentList_;
+  const AstDecl *funcSign_;
+  const AstType *resultType_;
+  const AstExpr *block_;
 };
 
-class A_UnaryExpr : public AstExpr {
+class A_FuncSign : public AstDecl {
 public:
-  A_UnaryExpr(const AstToken *token, const AstExpr *expr);
-  virtual ~A_UnaryExpr();
+  A_FuncSign(const AstExpr *id, const A_Params *params,
+             const Position &lparenPosition, const Position &rparenPosition);
+  virtual ~A_FuncSign();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-  virtual const AstToken *token() const;
-  virtual const AstExpr *expr() const;
+  virtual const AstExpr *id() const;
+  virtual const A_Params *params() const;
 
 private:
-  const AstToken *token_;
+  const AstExpr *id_;
+  const A_Params *params_;
+};
+
+class A_Params : public Ast {
+public:
+  A_Params(const A_Param *param, const A_Params *next);
+  A_Params(const A_Param *param, const A_Params *next,
+           const Position &position);
+  virtual ~A_Params();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const A_Param *param() const;
+  virtual const A_Params *next() const;
+
+private:
+  const A_Param *param_;
+  const A_Params *next_;
+};
+
+class A_Param : public Ast {
+public:
+  A_Param(const AstExpr *id, const AstType *type);
+  virtual ~A_Param();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpr *id() const;
+  virtual const AstType *type() const;
+
+private:
+  const AstExpr *id_;
+  const AstType *type_;
+};
+
+class A_VarDef : public AstDef {
+public:
+  A_VarDef(const AstExpr *id, const AstType *type, const AstExpr *expr);
+  virtual ~A_VarDef();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const AstExpr *id() const;
+  virtual const AstType *type() const;
+  virtual const AstExpr *expr() const;
+
+public:
+  const AstExpr *id_;
+  const AstType *type_;
   const AstExpr *expr_;
 };
 
-class A_BinaryExpr : public AstExpr {
+// definition and declaration }
+
+// compile unit {
+
+class A_TopStats : public Ast {
 public:
-  A_BinaryExpr(const AstExpr *left, const AstToken *token,
-               const AstExpr *right);
-  virtual ~A_BinaryExpr();
+  A_TopStats(const Ast *topStat, const A_TopStats *next);
+  A_TopStats(const Ast *topStat, const A_TopStats *next,
+             const Position &position);
+  virtual ~A_TopStats();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-  virtual const AstExpr *left() const;
-  virtual const AstToken *token() const;
-  virtual const AstExpr *right() const;
+  virtual const Ast *topStat() const;
+  virtual const A_TopStats *next() const;
 
 private:
-  const AstExpr *left_;
-  const AstToken *token_;
-  const AstExpr *right_;
+  const Ast *topStat_;
+  const A_TopStats *next_;
 };
 
-class A_ConditionalExpr : public AstExpr {
+class A_CompileUnit : public Ast {
 public:
-  A_ConditionalExpr(const AstExpr *condition, const AstExpr *thens,
-                    const AstExpr *elses);
-  virtual ~A_ConditionalExpr();
+  A_CompileUnit(const A_TopStats *topStats);
+  virtual ~A_CompileUnit();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-  virtual const AstExpr *condition() const;
-  virtual const AstExpr *thens() const;
-  virtual const AstExpr *elses() const;
+  virtual const A_TopStats *topStats() const;
 
 private:
-  const AstExpr *condition_;
-  const AstExpr *thens_;
-  const AstExpr *elses_;
+  const A_TopStats *topStats_;
 };
 
-class A_AssignmentExpr : public AstExpr {
-public:
-  A_AssignmentExpr(const AstExpr *left, int token, const AstExpr *right,
-                   const Position &tokenPosition);
-  virtual ~A_AssignmentExpr();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual const AstExpr *left() const;
-  virtual int token() const;
-  virtual const AstExpr *right() const;
-
-private:
-  const AstExpr *left_;
-  int token_;
-  const AstExpr *right_;
-};
-
-class A_VoidExpr : public AstExpr {
-public:
-  A_VoidExpr();
-  virtual ~A_VoidExpr() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-};
-
-// statement {
-
-class AstStatement : public Ast, public AstNamely, public AstPositional {
-public:
-  AstStatement(const std::string &name);
-  AstStatement(const std::string &name, const Position &position);
-  virtual ~AstStatement() = default;
-};
-
-// definition {
-
-class AstDefinition : public AstStatement {
-public:
-  AstDefinition(const std::string &name);
-  AstDefinition(const std::string &name, const Position &position);
-  virtual ~AstDefinition() = default;
-  virtual AstCategory category() const = 0;
-  virtual std::string toString() const = 0;
-};
-
-// definition }
-
-// statement }
-
-class AstExprList : public detail::AstList<AstExpr> {
-public:
-  AstExprList();
-  virtual ~AstExprList() = default;
-  virtual AstCategory category() const;
-  // virtual std::string toString() const;
-  // virtual int size() const;
-  // virtual bool empty() const;
-  // virtual T *get(int pos) const;
-  // virtual void add(T *item);
-
-private:
-  virtual std::string stringify() const;
-};
-
-class AstStatementList : public detail::AstList<AstStatement> {
-public:
-  AstStatementList();
-  virtual ~AstStatementList() = default;
-  virtual AstCategory category() const;
-  // virtual std::string toString() const;
-  // virtual int size() const;
-  // virtual bool empty() const;
-  // virtual T *get(int pos) const;
-  // virtual void add(T *item);
-
-private:
-  virtual std::string stringify() const;
-};
-
-class AstDefinitionList : public detail::AstList<AstDefinition> {
-public:
-  AstDefinitionList();
-  virtual ~AstDefinitionList() = default;
-  virtual AstCategory category() const;
-  // virtual std::string toString() const;
-  // virtual int size() const;
-  // virtual bool empty() const;
-  // virtual T *get(int pos) const;
-  // virtual void add(T *item);
-
-private:
-  virtual std::string stringify() const;
-};
-
-/* translate unit is actually definition list */
-
-class AstTranslateUnit : public detail::AstList<AstDefinition> {
-public:
-  AstTranslateUnit();
-  virtual ~AstTranslateUnit() = default;
-  virtual AstCategory category() const;
-  // virtual std::string toString() const;
-  // virtual int size() const;
-  // virtual bool empty() const;
-  // virtual T *get(int pos) const;
-  // virtual void add(T *item);
-
-private:
-  virtual std::string stringify() const;
-};
-
-/* expr statement */
-class AstExprStatement : public AstStatement {
-public:
-  AstExprStatement(AstExpr *expr, const Position &semiTokenPosition);
-  virtual ~AstExprStatement();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstExpr *expr() const;
-
-private:
-  AstExpr *expr_;
-};
-
-/* compound statement - { ... } */
-class AstCompoundStatement : public AstStatement {
-public:
-  AstCompoundStatement(AstStatementList *statementList,
-                       const Position &lparenTokenPosition,
-                       const Position &rparenTokenPosition);
-  virtual ~AstCompoundStatement();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstStatementList *statementList() const;
-
-private:
-  AstStatementList *statementList_;
-};
-
-/* selection statement - if else */
-class A_IfStatement : public AstStatement {
-public:
-  A_IfStatement(AstExpr *condition, AstStatement *thens, AstStatement *elses,
-                const Position &ifTokenPosition);
-  virtual ~A_IfStatement();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstExpr *condition() const;
-  virtual AstStatement *thens() const;
-  virtual AstStatement *elses() const;
-
-private:
-  AstExpr *condition_;
-  AstStatement *thens_;
-  AstStatement *elses_;
-};
-
-/* iteration statement - while */
-class AstWhileStatement : public AstStatement {
-public:
-  AstWhileStatement(AstExpr *condition, AstStatement *statement,
-                    const Position &whileTokenPosition);
-  virtual ~AstWhileStatement();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstExpr *condition() const;
-  virtual AstStatement *statement() const;
-
-private:
-  AstExpr *condition_;
-  AstStatement *statement_;
-};
-
-/* iteration statement - for */
-class AstForStatement : public AstStatement {
-public:
-  AstForStatement(AstStatement *initial, AstStatement *condition, AstExpr *post,
-                  AstStatement *statement, const Position &forTokenPosition);
-  virtual ~AstForStatement();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstStatement *start() const;
-  virtual AstStatement *step() const;
-  virtual AstExpr *end() const;
-  virtual AstStatement *statement() const;
-
-private:
-  AstStatement *start_;
-  AstStatement *step_;
-  AstExpr *end_;
-  AstStatement *statement_;
-};
-
-/* jump statement - continue */
-class AstContinueStatement : public AstStatement {
-public:
-  AstContinueStatement(const Position &continueTokenPosition,
-                       const Position &semiTokenPosition);
-  virtual ~AstContinueStatement() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-private:
-};
-
-/* jump statement - break */
-class AstBreakStatement : public AstStatement {
-public:
-  AstBreakStatement(const Position &breakTokenPosition,
-                    const Position &semiTokenPosition);
-  virtual ~AstBreakStatement() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-private:
-};
-
-/* jump statement - return */
-class A_ReturnExpr : public AstStatement {
-public:
-  A_ReturnExpr(AstExpr *expr, const Position &returnTokenPosition,
-               const Position &semiTokenPosition);
-  virtual ~A_ReturnExpr();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual AstExpr *expr() const;
-
-private:
-  AstExpr *expr_;
-};
-
-/* empty statement */
-class AstEmptyStatement : public AstStatement {
-public:
-  AstEmptyStatement();
-  AstEmptyStatement(const Position &semiTokenPosition);
-  virtual ~AstEmptyStatement() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-};
-
-/* variable definition */
-class AstVariableDefinition : public AstDefinition {
-public:
-  AstVariableDefinition(AstDefinitionList *definitionList,
-                        const Position &varTokenPosition,
-                        const Position &semiTokenPosition);
-  virtual ~AstVariableDefinition();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual AstDefinitionList *definitionList() const;
-
-private:
-  AstDefinitionList *definitionList_;
-};
-
-/* variable initial definition */
-class AstVariableInitialDefinition : public AstDefinition {
-public:
-  AstVariableInitialDefinition(const char *identifier, AstId *typeId,
-                               AstExpr *expr,
-                               const Position &identifierPosition,
-                               const Position &typePosition);
-  virtual ~AstVariableInitialDefinition();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual const std::string &identifier() const;
-  virtual AstId *typeId() const;
-  virtual AstExpr *expr() const;
-
-private:
-  std::string identifier_;
-  AstId *typeId_;
-  AstExpr *expr_;
-};
-
-/* function definition */
-class AstFunctionDefinition : public AstDefinition {
-public:
-  AstFunctionDefinition(AstFunctionSignatureDefinition *signature,
-                        AstStatement *statement);
-  virtual ~AstFunctionDefinition();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual AstFunctionSignatureDefinition *signature() const;
-  virtual AstStatement *statement() const;
-
-private:
-  AstFunctionSignatureDefinition *signature_;
-  AstStatement *statement_;
-};
-
-/* function signature definition */
-class AstFunctionSignatureDefinition : public AstDefinition {
-public:
-  AstFunctionSignatureDefinition(const char *identifier,
-                                 AstDefinitionList *argumentList,
-                                 AstExpr *result,
-                                 const Position &funcTokenPosition,
-                                 const Position &identifierPosition);
-  virtual ~AstFunctionSignatureDefinition();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual const std::string &identifier() const;
-  virtual AstDefinitionList *argumentList() const;
-  virtual AstExpr *result() const;
-
-private:
-  std::string identifier_;
-  AstDefinitionList *argumentList_;
-  AstExpr *result_;
-};
-
-/* function argument definition */
-class AstFunctionArgumentDefinition : public AstDefinition {
-public:
-  AstFunctionArgumentDefinition(const char *identifier,
-                                const Position &argumentPosition);
-  virtual ~AstFunctionArgumentDefinition() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-
-  virtual const std::string &identifier() const;
-
-private:
-  std::string identifier_;
-};
+// compile unit }

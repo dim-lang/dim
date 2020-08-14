@@ -25,7 +25,7 @@ public:
   // example:
   // a -> $8f1b.2
   // "" -> $0000.1
-  virtual std::string toAsmName() const;
+  virtual std::string tollvmName() const;
 
   // example:
   // a -> @a.2

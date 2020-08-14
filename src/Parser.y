@@ -186,6 +186,7 @@ ExprWithoutBlock : AssignExpr { $$ = $1; }
                  | T_THROW Expr { $$ = new A_Throw($2, Y_POSITION(@1)); }
                  | T_BREAK
                  | T_CONTINUE
+                 | T_DO Expr T_WHILE LoopCond
                  ;
 
 AssignExpr : InfixExpr
@@ -261,34 +262,59 @@ PostfixOp : T_PLUS2
 PrimaryExpr : Literal { $$ = $1; }
             | Id { $$ = $1; }
             | ParExpr { $$ = $1; }
+            | CallExpr { $$ = $1; }
             ;
 
-ParExpr : T_LPAREN Expr T_RPAREN { $$ = $2; $$->locate(Y_POSITION(@1)); $$->locate(Y_POSITION(@3)); }
+ParExpr : T_LPAREN Expr T_RPAREN { $2->locate(Y_POSITION(@1)); $2->locate(Y_POSITION(@3)); $$ = $2; }
         ;
+
+CallExpr : Id T_LPAREN Exprs T_RPAREN { $$ = $1; }
+         ;
+
+Exprs : Expr
+      | Expr T_COMMA Exprs
+      ;
 
  /* simple expression without block } */
 
- /* statement like expression which has block { */
+ /* statement like expression with block { */
 
 ExprWithBlock : Block { $$ = $1; }
-              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_IfThen($2, $3); }
-              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_IfElseExpression($2, $3, $5); }
-              | T_FOR T_LPAREN ForCond T_RPAREN Expr
-              | T_WHILE ParExpr Expr
+              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_If($2, $3, nullptr); }
+              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_If($2, $3, $5); }
+              | T_FOR LoopCond Expr
+              | T_WHILE LoopCond Expr
               ;
 
-ForCond :
-        ;
+LoopCond : ParExpr
+         | T_LPAREN OptionalForInit T_SEMI OptionalForCondition T_SEMI OptionalForPostfix T_RPAREN
+         ;
 
+OptionalForInit : VarDef
+                | Expr
+                |
+                ;
+
+OptionalForCondition : Expr
+                     |
+                     ;
+
+OptionalForPostfix : Expr
+                   |
+                   ;
 
 Block : T_LBRACE T_RBRACE
       | T_LBRACE BlockStats T_RBRACE
       ;
 
-BlockStats : BlockStatWithoutBlock
+BlockStats : BlockStatWithoutBlock OptionalSemi
            | BlockStatWithoutBlock T_SEMI BlockStats
            | BlockStatWithBlock BlockStats
            ;
+
+OptionalSemi : T_SEMI
+             |
+             ;
 
 BlockStatWithoutBlock : ExprWithoutBlock
                       | DefWithoutBlock
@@ -299,7 +325,7 @@ BlockStatWithBlock : ExprWithBlock
                    | DefWithBlock
                    ;
 
- /* statement like expression which has block } */
+ /* statement like expression with block } */
 
  /* type { */
 
@@ -369,7 +395,8 @@ Params : Param
        | Param T_COMMA Params
        ;
 
-Param : Expr
+Param : Id T_COLON Type
+      /* | Id T_COLON Type T_EQUAL Expr */
       ;
 
 VarDef : T_VAR Id T_COLON Type T_EQUAL Expr
