@@ -91,21 +91,102 @@ Ast::Ast(const std::string &name)
 Ast::Ast(const std::string &name, const Position &position)
     : AstNamely(name), AstPositional(position) {}
 
-bool Ast::isLiteral(const Ast *e) { return true; }
+bool Ast::isLiteral(const Ast *e) {
+  if (!e)
+    return false;
+  switch (e->category()) {
+  case AstCategory::Integer:
+  case AstCategory::Float:
+  case AstCategory::Boolean:
+  case AstCategory::Character:
+  case AstCategory::String:
+  case AstCategory::Nil:
+  case AstCategory::Void:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
 
-bool Ast::isId(const Ast *e) { return true; }
+bool Ast::isId(const Ast *e) {
+  return e && e->category() == (+AstCategory::VarId);
+}
 
-bool Ast::isExpr(const Ast *e) { return true; }
+bool Ast::isExpr(const Ast *e) {
+  return isExprWithBlock(e) || isExprWithoutBlock(e);
+}
 
-bool Ast::isExprWithBlock(const Ast *e) { return true; }
+bool Ast::isExprWithBlock(const Ast *e) {
+  if (!e)
+    return false;
+  switch (e->category()) {
+  case AstCategory::If:
+  case AstCategory::Loop:
+  case AstCategory::LoopCondition:
+  case AstCategory::Block:
+  case AstCategory::BlockStats:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
 
-bool Ast::isExprWithoutBlock(const Ast *e) { return true; }
+bool Ast::isExprWithoutBlock(const Ast *e) {
+  if (!e)
+    return false;
+  switch (e->category()) {
+  case AstCategory::Throw:
+  case AstCategory::Return:
+  case AstCategory::Break:
+  case AstCategory::Continue:
+  case AstCategory::Assign:
+  case AstCategory::PostfixExpr:
+  case AstCategory::PrefixExpr:
+  case AstCategory::InfixExpr:
+  case AstCategory::Call:
+  case AstCategory::Exprs:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
 
-bool Ast::isDef(const Ast *e) { return true; }
+bool Ast::isDef(const Ast *e) {
+  if (!e)
+    return false;
+  switch (e->category()) {
+  case AstCategory::FuncDef:
+  case AstCategory::FuncSign:
+  case AstCategory::Params:
+  case AstCategory::Param:
+  case AstCategory::VarDef:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
 
-bool Ast::isDecl(const Ast *e) { return true; }
+bool Ast::isDecl(const Ast *e) {
+  if (!e)
+    return false;
+  switch (e->category()) {
+  case AstCategory::FuncSign:
+  case AstCategory::Params:
+  case AstCategory::Param:
+    return true;
+  default:
+    return false;
+  }
+  return false;
+}
 
-bool Ast::isType(const Ast *e) { return true; }
+bool Ast::isType(const Ast *e) {
+  return e && e->category() == (+AstCategory::PlainType);
+}
 
 // Ast }
 

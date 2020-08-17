@@ -22,9 +22,11 @@ BETTER_ENUM(AstCategory, int,
             Integer = 1000, Float, Boolean, Character, String, Nil, Void,
             // id
             VarId,
-            // expr
+            // expr without block
             Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
-            InfixExpr, Call, Exprs, If, Loop, LoopCondition, Block, BlockStats,
+            InfixExpr, Call, Exprs,
+            // expr with block
+            If, Loop, LoopCondition, Block, BlockStats,
             // type
             PlainType,
             // declaration and definition
