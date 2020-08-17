@@ -67,6 +67,7 @@ IS  ([uU]|([uU]?[lL]))
 "catch"      { return T_INTEGER_TOKEN(T_CATCH); }
 "finally"    { return T_INTEGER_TOKEN(T_FINALLY); }
 "throw"      { return T_INTEGER_TOKEN(T_THROW); }
+"yield"      { return T_INTEGER_TOKEN(T_YIELD); }
 "var"        { return T_INTEGER_TOKEN(T_VAR); }
 "val"        { return T_INTEGER_TOKEN(T_VAL); }
 "nil"        { return T_INTEGER_TOKEN(T_NIL); }
@@ -197,7 +198,7 @@ IS  ([uU]|([uU]?[lL]))
 "_"     { return T_INTEGER_TOKEN(T_UNDERSCORE); }
 ","     { return T_INTEGER_TOKEN(T_COMMA); }
 ";"     { return T_INTEGER_TOKEN(T_SEMI); }
- /* [\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); } */
+[\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); }
 "?"     { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"     { return T_INTEGER_TOKEN(T_COLON); }
 "::"    { return T_INTEGER_TOKEN(T_COLON2); }
@@ -237,10 +238,10 @@ IS  ([uU]|([uU]?[lL]))
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
 
  /* whitespace except newline */
-[ \n\t\v\f\r]                                 { /* skip whitespace except newline */ }
+[ \t\v\f\r]                                 { /* skip whitespace except newline */ }
 
  /* import module */
-^[ \n\t\v\f\r]*import[ \n\t\v\f\r]*             { BEGIN IMPORT; }
+^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
                                                 yyextra->pushBuffer(Y_TEXT);
                                                 BEGIN INITIAL;

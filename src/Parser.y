@@ -40,7 +40,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <tok> T_EOF
 
  /* keyword */
-%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_MATCH T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_YIELD T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_MATCH T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
 %token <tok> T_CLASS T_TRAIT T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_AS T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
 
  /* primitive integer type */
@@ -70,8 +70,10 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <tok> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
 %token <tok> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW
-/* %token <tok> T_NEWLINE */
+%token <tok> T_NEWLINE
 
+ /* semi */
+%token <tok> Semi OptionalSemi OptionalNewline OptionalNewlines Newlines
  /* Operator */
 %token <tok> AssignOp PrefixOp InfixOp PostfixOp
 
@@ -136,6 +138,30 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
 %%
 
+ /* semi and newline { */
+
+Semi : T_SEMI
+     | T_NEWLINE
+     ;
+
+OptionalSemi : Semi
+             |
+             ;
+
+OptionalNewline : T_NEWLINE
+                |
+                ;
+
+OptionalNewlines : Newlines
+                 |
+                 ;
+
+Newlines : T_NEWLINE
+         | T_NEWLINE Newlines
+         ;
+
+ /* semi and newline } */
+
  /* literal { */
 
 Literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POSITION(@1)); std::free($1); }
@@ -170,27 +196,40 @@ VarId : T_VAR_ID { $$ = new A_VarId($1, Y_POSITION(@1)); std::free($1); }
 
  /* id } */
 
- /* total expression { */
+ /* expression { */
 
-Expr : ExprWithBlock { $$ = $1; }
-     | ExprWithoutBlock { $$ = $1; }
+Expr : T_IF T_LPAREN Expr T_RPAREN OptionalNewlines Expr OptionalElse
+     | T_WHILE T_LPAREN Expr T_RPAREN OptionalNewlines Expr
+     | T_TRY Expr OptionalCatch OptionalFinally
+     | T_DO Expr OptionalSemi T_WHILE T_LPAREN Expr T_RPAREN
+     | T_FOR T_LPAREN Enumerators T_RPAREN OptionalNewlines OptionalYield Expr
+     | T_THROW Expr
+     | T_RETURN OptionalExpr
+     | AssignExpr
+     | PostfixExpr
      ;
 
- /* total expression } */
+OptionalElse : OptionalSemi T_ELSE Expr
+             |
+             ;
 
- /* simple expression without block { */
+OptionalCatch : T_CATCH Expr
+              |
+              ;
 
-ExprWithoutBlock : AssignExpr { $$ = $1; }
-                 | T_RETURN { $$ = new A_Return(nullptr, Y_POSITION(@1)); }
-                 | T_RETURN Expr { $$ = new A_Return($2, Y_POSITION(@1)); }
-                 | T_THROW Expr { $$ = new A_Throw($2, Y_POSITION(@1)); }
-                 | T_BREAK
-                 | T_CONTINUE
-                 | T_DO Expr T_WHILE LoopCond
-                 ;
+OptionalFinally : T_FINALLY Expr
+                |
+                ;
 
-AssignExpr : InfixExpr
-           | PrefixExpr AssignOp AssignExpr
+OptionalYield : T_YIELD
+              |
+              ;
+
+OptionalExpr : Expr
+             |
+             ;
+
+AssignExpr : Id AssignOp Expr
            ;
 
 AssignOp : T_EQUAL { $$ = $1; }
@@ -207,8 +246,16 @@ AssignOp : T_EQUAL { $$ = $1; }
          | T_ARSHIFT_EQUAL { $$ = $1; }
          ;
 
+PostfixExpr : InfixExpr
+            | InfixExpr PostfixOp OptionalNewline
+            ;
+
+PostfixOp : T_PLUS2
+          | T_MINUS2
+          ;
+
 InfixExpr : PrefixExpr
-          | InfixExpr InfixOp PrefixExpr
+          | InfixExpr InfixOp OptionalNewline InfixExpr
           ;
 
 InfixOp : T_BAR2
@@ -239,8 +286,8 @@ InfixOp : T_BAR2
         | T_COLON2
         ;
 
-PrefixExpr : PostfixExpr { $$ = $1; }
-           | PrefixOp PrefixExpr { $$ = new A_PrefixExpression($1, $2); }
+PrefixExpr : PrimaryExpr { $$ = $1; }
+           | PrefixOp PrimaryExpr { $$ = new A_PrefixExpression($1, $2); }
            ;
 
 PrefixOp : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
@@ -251,81 +298,48 @@ PrefixOp : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_PO
          | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
          ;
 
-PostfixExpr : PrimaryExpr
-            | PostfixExpr PostfixOp
-            ;
-
-PostfixOp : T_PLUS2
-          | T_MINUS2
-          ;
-
 PrimaryExpr : Literal { $$ = $1; }
             | Id { $$ = $1; }
-            | ParExpr { $$ = $1; }
+            | T_LPAREN OptionalExprs T_RPAREN { $$ = $1; }
             | CallExpr { $$ = $1; }
+            | BlockExpr
             ;
 
-ParExpr : T_LPAREN Expr T_RPAREN { $2->locate(Y_POSITION(@1)); $2->locate(Y_POSITION(@3)); $$ = $2; }
-        ;
-
-CallExpr : Id T_LPAREN Exprs T_RPAREN { $$ = $1; }
-         ;
+OptionalExprs : Exprs
+              |
+              ;
 
 Exprs : Expr
       | Expr T_COMMA Exprs
       ;
 
- /* simple expression without block } */
-
- /* statement like expression with block { */
-
-ExprWithBlock : Block { $$ = $1; }
-              | T_IF ParExpr Expr             %prec "lower_than_else" { $$ = new A_If($2, $3, nullptr); }
-              | T_IF ParExpr Expr T_ELSE Expr { $$ = new A_If($2, $3, $5); }
-              | T_FOR LoopCond Expr
-              | T_WHILE LoopCond Expr
-              ;
-
-LoopCond : ParExpr
-         | T_LPAREN OptionalForInit T_SEMI OptionalForCondition T_SEMI OptionalForPostfix T_RPAREN
+CallExpr : Id T_LPAREN OptionalExprs T_RPAREN { $$ = $1; }
          ;
 
-OptionalForInit : VarDef
-                | Expr
-                |
-                ;
+BlockExpr : T_LBRACE Block T_RBRACE
+          ;
 
-OptionalForCondition : Expr
-                     |
-                     ;
+Block : T_LBRACE OptionalNewlines T_RBRACE
+      | T_LBRACE OptionalNewlines BlockStats T_RBRACE
+      ;
 
-OptionalForPostfix : Expr
+BlockStats : BlockStat OptionalBlockStats
+           ;
+
+OptionalBlockStats : BlockStats
                    |
                    ;
 
-Block : T_LBRACE T_RBRACE
-      | T_LBRACE BlockStats T_RBRACE
-      ;
-
-BlockStats : BlockStatWithoutBlock OptionalSemi
-           | BlockStatWithoutBlock T_SEMI BlockStats
-           | BlockStatWithBlock BlockStats
+BlockStats : Semi BlockStat
+           | Semi BlockStat BlockStats
            ;
 
-OptionalSemi : T_SEMI
-             |
-             ;
+BlockStat : Expr
+          | Def
+          /* | Import */
+          ;
 
-BlockStatWithoutBlock : ExprWithoutBlock
-                      | DefWithoutBlock
-                      /* | Import */
-                      ;
-
-BlockStatWithBlock : ExprWithBlock
-                   | DefWithBlock
-                   ;
-
- /* statement like expression with block } */
+ /* expression } */
 
  /* type { */
 
@@ -368,21 +382,19 @@ PlainType : T_BYTE
 
  /* definition declaration { */
 
-Def : DefWithBlock
-    | DefWithoutBlock
+Def : FuncDef
+    /* | ClassDef */
+    /* | TraitDef */
+    | VarDef
     ;
 
-DefWithBlock : FuncDef
-             /* | ClassDef */
-             /* | TraitDef */
-             ;
-
-DefWithoutBlock : VarDef
-                ;
-
-FuncDef : T_DEF FuncSign ResultType Block
-        | T_DEF FuncSign T_FAT_RARROW Block
+FuncDef : T_DEF FuncSign OptionalResultType T_EQUAL Expr
+        | T_DEF FuncSign OptionalNewlines BlockExpr
         ;
+
+OptionalResultType : T_COLON Type
+                   |
+                   ;
 
 FuncSign : Id ParamClause
          ;
@@ -421,27 +433,19 @@ CompileUnit : TopStats
             ;
 
 TopStats : TopStat
-         | TopStat TopStats
+         | TopStat T_NEWLINE TopStats
          ;
 
-TopStat : TopStatWithBlock
-        | TopStatWithoutBlock T_SEMI
+TopStat : Def
+        /* | Import */
+        /* | Package */
         ;
-
-TopStatWithBlock : DefWithBlock
-                 /* | Package */
-                 ;
-
-TopStatWithoutBlock : DefWithoutBlock
-                    /* | Import */
-                    ;
-
 
 /* Package : T_PACKAGE Id T_LBRACE T_RBRACE */
 /*         | T_PACKAGE Id T_LBRACE TopStats T_RBRACE */
 /*         ; */
 
-/* Import : */ 
+/* Import : */
 /*        ; */
 
  /* compile unit } */
