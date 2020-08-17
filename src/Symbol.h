@@ -83,17 +83,11 @@ protected:
 /**
  * for example:
  *
- * ```
- * var a:int = 0;
- * ```
+ * `var a:int = 0;` will give:
  *
- * will give us:
- *
- * ```
  *  symbol: a
  *  typeSymbol: int
  *  llvmValue: llvm::ConstantInt*
- * ```
  */
 struct SymbolData {
   Symbol *symbol;
@@ -108,15 +102,9 @@ struct SymbolData {
 /**
  * for example:
  *
- * ```
- * var f:()->int = () => { 1 };
- * ```
+ * `var f:()->int = () => { 1 };` will give:
  *
- * will give us:
- *
- * ```
  * typeSymbol: ()->int
- * ```
  */
 struct TypeSymbolData {
   TypeSymbol *typeSymbol;
@@ -135,20 +123,21 @@ public:
   using ts_const_iterator = Ts_Scope::const_iterator;
 
   // scope api
-  void s_define(const Symbol *s, const TypeSymbol *ts);
-  const SymbolData &s_resolve(const Name &name) const;
-  void ts_define(const TypeSymbol *symbol);
-  const TypeSymbolData &ts_resolve(const Name &name) const;
+  virtual void s_define(const Symbol *s, const TypeSymbol *ts);
+  virtual const SymbolData &s_resolve(const Name &name) const;
+  virtual void ts_define(const TypeSymbol *symbol);
+  virtual const TypeSymbolData &ts_resolve(const Name &name) const;
+  virtual bool contains(const Name &name) const;
 
-  s_iterator s_begin();
-  s_const_iterator s_begin() const;
-  s_iterator s_end();
-  s_const_iterator s_end() const;
+  virtual s_iterator s_begin();
+  virtual s_const_iterator s_begin() const;
+  virtual s_iterator s_end();
+  virtual s_const_iterator s_end() const;
 
-  ts_iterator ts_begin();
-  ts_const_iterator ts_begin() const;
-  ts_iterator ts_end();
-  ts_const_iterator ts_end() const;
+  virtual ts_iterator ts_begin();
+  virtual ts_const_iterator ts_begin() const;
+  virtual ts_iterator ts_end();
+  virtual ts_const_iterator ts_end() const;
 
 protected:
   S_Scope s_scope_;
@@ -195,25 +184,6 @@ public:
 
   virtual std::vector<Symbol *> &fields();
   virtual const std::vector<Symbol *> &fields() const;
-
-  static const Ts_Class *ts_Any();
-  static const Ts_Class *ts_Byte();
-  static const Ts_Class *ts_UByte();
-  static const Ts_Class *ts_Short();
-  static const Ts_Class *ts_UShort();
-  static const Ts_Class *ts_Int();
-  static const Ts_Class *ts_UInt();
-  static const Ts_Class *ts_Long();
-  static const Ts_Class *ts_ULong();
-  static const Ts_Class *ts_LLong();
-  static const Ts_Class *ts_ULLong();
-  static const Ts_Class *ts_Float();
-  static const Ts_Class *ts_Double();
-  static const Ts_Class *ts_Boolean();
-  static const Ts_Class *ts_Character();
-  static const Ts_Class *ts_String();
-
-  static const Ts_Class *get(const Name &name);
 
 private:
   std::vector<Symbol *> fields_;
