@@ -19,8 +19,8 @@ public:
   // attribute
   LinkedNode<K, V> *prev;
   LinkedNode<K, V> *next;
-  LinkedNode<K, V> *seq_prev;
-  LinkedNode<K, V> *seq_next;
+  LinkedNode<K, V> *traverse_prev;
+  LinkedNode<K, V> *traverse_next;
   std::pair<const K, V> value;
 
   const K &key() const;
@@ -36,8 +36,8 @@ public:
   // attribute
   LinkedNode<K, V> *prev;
   LinkedNode<K, V> *next;
-  LinkedNode<K, V> *seq_prev;
-  LinkedNode<K, V> *seq_next;
+  LinkedNode<K, V> *traverse_prev;
+  LinkedNode<K, V> *traverse_next;
 
   LinkedNode<K, V> *&head();
   const LinkedNode<K, V> *head() const;
@@ -48,10 +48,10 @@ public:
   LinkedNode<K, V> *removeTail();
   LinkedNode<K, V> *removeHead();
   void remove(LinkedNode<K, V> *e);
-  void seq_insert(LinkedNode<K, V> *e);
-  void seq_remove(LinkedNode<K, V> *e);
+  void traverse_insert(LinkedNode<K, V> *e);
+  void traverse_remove(LinkedNode<K, V> *e);
   bool empty() const;
-  bool seq_empty() const;
+  bool traverse_empty() const;
 };
 
 template <typename K, typename V, typename NodePtr> class LinkedIterator;
@@ -219,42 +219,47 @@ private:
 
 // linked hashmap
 template <typename K, typename V, typename H, typename E>
-class LinkedHM : private boost::noncopyable {
+class LinkedHm : private boost::noncopyable {
 public:
-  using Iterator = LinkedIterator<K, V, LinkedNode<K, V> *>;
-  using CIterator = LinkedConstIterator<K, V, LinkedNode<K, V> *>;
-  using RIterator = LinkedReverseIterator<K, V, LinkedNode<K, V> *>;
-  using CRIterator = LinkedConstReverseIterator<K, V, LinkedNode<K, V> *>;
+  using iterator = LinkedIterator<K, V, LinkedNode<K, V> *>;
+  using const_iterator = LinkedConstIterator<K, V, LinkedNode<K, V> *>;
+  using reverse_iterator = LinkedReverseIterator<K, V, LinkedNode<K, V> *>;
+  using const_reverse_iterator =
+      LinkedConstReverseIterator<K, V, LinkedNode<K, V> *>;
 
-  LinkedHM();
-  LinkedHM(int bucket);
-  virtual ~LinkedHM();
+  LinkedHm();
+  LinkedHm(int bucket);
+  virtual ~LinkedHm();
 
   bool empty() const;
   int size() const;
   int bucket() const;
-  double load() const;
+  double loadFactor() const;
 
   void clear();
   void release();
 
-  void insert(const std::pair<const K, V> &value);
-  int insertOrAssign(const std::pair<const K, V> &value);
+  iterator insert(const std::pair<const K, V> &value);
+  iterator insertOrAssign(const std::pair<const K, V> &value);
 
-  Iterator find(const K &key);
-  CIterator find(const K &key) const;
+  iterator find(const K &key);
+  const_iterator find(const K &key) const;
 
-  int remove(Iterator position);
-  int remove(RIterator position);
+  iterator remove(iterator position);
+  iterator remove(const_iterator position);
 
-  Iterator begin();
-  CIterator begin() const;
-  Iterator end();
-  CIterator end() const;
-  RIterator rbegin();
-  CRIterator rbegin() const;
-  RIterator rend();
-  CRIterator rend() const;
+  iterator begin();
+  const_iterator begin() const;
+  const_iterator cbegin() const;
+  iterator end();
+  const_iterator end() const;
+  const_iterator cend() const;
+  reverse_iterator rbegin();
+  const_reverse_iterator rbegin() const;
+  const_reverse_iterator crbegin() const;
+  reverse_iterator rend();
+  const_reverse_iterator rend() const;
+  const_reverse_iterator crend() const;
 
 private:
   int getBucket(const K &key, int bucket) const;
@@ -278,10 +283,12 @@ template <typename K, typename V, typename H = std::hash<K>,
           typename E = std::equal_to<K>>
 class LinkedHashMap : private boost::noncopyable {
 public:
-  using Iterator = typename detail::LinkedHM<K, V, H, E>::Iterator;
-  using CIterator = typename detail::LinkedHM<K, V, H, E>::CIterator;
-  using RIterator = typename detail::LinkedHM<K, V, H, E>::RIterator;
-  using CRIterator = typename detail::LinkedHM<K, V, H, E>::CRIterator;
+  using iterator = typename detail::LinkedHm<K, V, H, E>::iterator;
+  using const_iterator = typename detail::LinkedHm<K, V, H, E>::const_iterator;
+  using reverse_iterator =
+      typename detail::LinkedHm<K, V, H, E>::reverse_iterator;
+  using const_reverse_iterator =
+      typename detail::LinkedHm<K, V, H, E>::const_reverse_iterator;
 
   LinkedHashMap();
   LinkedHashMap(int bucket);
@@ -290,42 +297,46 @@ public:
   bool empty() const;
   int size() const;
   int bucket() const;
-  double load() const;
+  double loadFactor() const;
 
   void clear();
   void release();
 
-  Iterator begin();
-  CIterator begin() const;
-  Iterator end();
-  CIterator end() const;
-  RIterator rbegin();
-  CRIterator rbegin() const;
-  RIterator rend();
-  CRIterator rend() const;
-
-  void insert(const K &key, const V &mapped);
-  void insert(const std::pair<const K, V> &value);
+  iterator insert(const K &key, const V &mapped);
+  iterator insert(const std::pair<const K, V> &value);
 
   // return   1 if insert, 0 if assign
   int insertOrAssign(const K &key, const V &mapped);
   int insertOrAssign(const std::pair<const K, V> &value);
 
   // return   0 if success, -1 if not exist
-  int remove(const K &key);
-  int remove(Iterator position);
-  int remove(RIterator position);
+  iterator remove(const K &key);
+  iterator remove(iterator position);
+  iterator remove(const_iterator position);
 
   // return   true if exist, false if not exist
-  bool exist(const K &key) const;
+  bool contains(const K &key) const;
 
   // return   end() if not found, other if found
-  Iterator find(const K &key);
-  CIterator find(const K &key) const;
+  iterator find(const K &key);
+  const_iterator find(const K &key) const;
 
   V &operator[](const K &key);
   const V &operator[](const K &key) const;
 
+  iterator begin();
+  const_iterator begin() const;
+  const_iterator cbegin() const;
+  iterator end();
+  const_iterator end() const;
+  const_iterator cend() const;
+  reverse_iterator rbegin();
+  const_reverse_iterator rbegin() const;
+  const_reverse_iterator crbegin() const;
+  reverse_iterator rend();
+  const_reverse_iterator rend() const;
+  const_reverse_iterator crend() const;
+
 private:
-  detail::LinkedHM<K, V, H, E> hm_;
+  detail::LinkedHm<K, V, H, E> hm_;
 };

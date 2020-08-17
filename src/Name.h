@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Counter.h"
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -25,7 +26,7 @@ public:
   // example:
   // a -> $8f1b.2
   // "" -> $0000.1
-  virtual std::string tollvmName() const;
+  virtual std::string toLLVMName() const;
 
   // example:
   // a -> @a.2
@@ -46,3 +47,13 @@ protected:
   static Name noName_;
   static std::unordered_map<std::string, Name> nameMap_;
 };
+
+namespace std {
+
+template <> struct hash<Name> {
+  std::size_t operator()(const Name &o) const {
+    return std::hash<std::string>()(o.raw());
+  }
+};
+
+} // namespace std

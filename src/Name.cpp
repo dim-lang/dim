@@ -54,7 +54,7 @@ std::string Name::raw() const { return *value_; }
 
 unsigned long long Name::id() const { return id_; }
 
-std::string Name::tollvmName() const {
+std::string Name::toLLVMName() const {
   return USD + HEX(*value_) + DOT + std::to_string(id());
 }
 
