@@ -12,7 +12,7 @@ HEX ([0-9a-fA-F])
 OCT ([0-7])
 BIN ([01])
 EXP ([eE][-+]?[0-9]+)
-FS  ([fF])
+FS  ([dD])
 IS  ([uU]|([uU]?[lL]))
 
 %{
@@ -218,9 +218,9 @@ IS  ([uU]|([uU]?[lL]))
  /* binary integer literal */
 0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
- /* float literal : 92.312(f|F), 92.312e-10(f|F), 10.2e+91(f|F), 1.0e+7(f|F) */
-{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOATING_POINT_LITERAL; }
-{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOATING_POINT_LITERAL; }
+ /* float literal : 92.312, 92.312e-10, 10.2e+91, 1.0e+7 */
+{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
 ["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }

@@ -38,10 +38,6 @@ BETTER_ENUM(AstCategory, int,
 class AstNamely;
 class AstPositional;
 class Ast;
-class AstExpr;
-class AstDecl;
-class AstDef;
-class AstType;
 
 /* literal */
 class A_Integer;
@@ -119,41 +115,22 @@ public:
   virtual ~Ast() = default;
   virtual AstCategory category() const = 0;
   virtual std::string toString() const = 0;
-};
 
-class AstExpr : public Ast {
-public:
-  AstExpr(const std::string &name);
-  AstExpr(const std::string &name, const Position &position);
-  virtual ~AstExpr() = default;
-};
-
-class AstDecl : public Ast {
-public:
-  AstDecl(const std::string &name);
-  AstDecl(const std::string &name, const Position &position);
-  virtual ~AstDecl() = default;
-};
-
-class AstDef : public AstDecl {
-public:
-  AstDef(const std::string &name);
-  AstDef(const std::string &name, const Position &position);
-  virtual ~AstDef() = default;
-};
-
-class AstType : public Ast {
-public:
-  AstType(const std::string &name);
-  AstType(const std::string &name, const Position &position);
-  virtual ~AstType() = default;
+  static bool isLiteral(const Ast *e);
+  static bool isId(const Ast *e);
+  static bool isExpr(const Ast *e);
+  static bool isExprWithBlock(const Ast *e);
+  static bool isExprWithoutBlock(const Ast *e);
+  static bool isDef(const Ast *e);
+  static bool isDecl(const Ast *e);
+  static bool isType(const Ast *e);
 };
 
 // Ast }
 
 // literal {
 
-class A_Integer : public AstExpr {
+class A_Integer : public Ast {
 public:
   // DecimalCategory:
   // DEC: base 10
@@ -191,7 +168,7 @@ private:
   BitCategory bitCategory_;
 };
 
-class A_Float : public AstExpr {
+class A_Float : public Ast {
 public:
   // BitCategory:
   // FLT: 32 bit
@@ -215,7 +192,7 @@ private:
 };
 
 // string literal
-class A_String : public AstExpr {
+class A_String : public Ast {
 public:
   // QuoteCategory
   // Single: "
@@ -235,7 +212,7 @@ private:
   QuoteCategory quoteCategory_;
 };
 
-class A_Character : public AstExpr {
+class A_Character : public Ast {
   A_Character(const std::string &literal, const Position &position);
   virtual ~A_Character() = default;
   virtual AstCategory category() const;
@@ -247,7 +224,7 @@ private:
   char parsed_;
 };
 
-class A_Boolean : public AstExpr {
+class A_Boolean : public Ast {
 public:
   A_Boolean(const std::string &literal, const Position &position);
   virtual ~A_Boolean() = default;
@@ -260,7 +237,7 @@ private:
   bool parsed_;
 };
 
-class A_Nil : public AstExpr {
+class A_Nil : public Ast {
 public:
   A_Nil(const Position &position);
   virtual ~A_Nil() = default;
@@ -268,7 +245,7 @@ public:
   virtual std::string toString() const;
 };
 
-class A_Void : public AstExpr {
+class A_Void : public Ast {
 public:
   A_Void(const Position &position);
   virtual ~A_Void() = default;
@@ -280,7 +257,7 @@ public:
 
 // id {
 
-class A_VarId : public AstExpr {
+class A_VarId : public Ast {
 public:
   A_VarId(const std::string &literal, const Position &position);
   virtual ~A_VarId() = default;
@@ -292,31 +269,31 @@ public:
 
 // simple expression without block {
 
-class A_Throw : public AstExpr {
+class A_Throw : public Ast {
 public:
-  A_Throw(const AstExpr *expr, const Position &position);
+  A_Throw(const Ast *expr, const Position &position);
   virtual ~A_Throw();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *expr() const;
 
 private:
-  const AstExpr *expr_;
+  const Ast *expr_;
 };
 
-class A_Return : public AstExpr {
+class A_Return : public Ast {
 public:
-  A_Return(const AstExpr *expr, const Position &position);
+  A_Return(const Ast *expr, const Position &position);
   virtual ~A_Return();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *expr() const;
 
 private:
-  const AstExpr *expr_;
+  const Ast *expr_;
 };
 
-class A_Break : public AstExpr {
+class A_Break : public Ast {
 public:
   A_Break(const Position &position);
   virtual ~A_Break() = default;
@@ -324,7 +301,7 @@ public:
   virtual std::string toString() const;
 };
 
-class A_Continue : public AstExpr {
+class A_Continue : public Ast {
 public:
   A_Continue(const Position &position);
   virtual ~A_Continue() = default;
@@ -332,94 +309,94 @@ public:
   virtual std::string toString() const;
 };
 
-class A_Assign : public AstExpr {
+class A_Assign : public Ast {
 public:
-  A_Assign(const AstExpr *assignee, int assignOp, const AstExpr *assignor,
+  A_Assign(const Ast *assignee, int assignOp, const Ast *assignor,
            const Position &position);
   virtual ~A_Assign();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *assignee() const;
+  virtual const Ast *assignee() const;
   virtual int assignOp() const;
-  virtual const AstExpr *assignor() const;
+  virtual const Ast *assignor() const;
 
 private:
-  const AstExpr *assignee_; // left
+  const Ast *assignee_; // left
   int assignOp_;
-  const AstExpr *assignor_; // right
+  const Ast *assignor_; // right
 };
 
-class A_PostfixExpr : public AstExpr {
+class A_PostfixExpr : public Ast {
 public:
-  A_PostfixExpr(const AstExpr *expr, int postfixOp, const Position &position);
+  A_PostfixExpr(const Ast *expr, int postfixOp, const Position &position);
   virtual ~A_PostfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *expr() const;
   virtual int postfixOp() const;
 
 private:
-  const AstExpr *expr_;
+  const Ast *expr_;
   int postfixOp_;
 };
 
-class A_InfixExpr : public AstExpr {
+class A_InfixExpr : public Ast {
 public:
-  A_InfixExpr(const AstExpr *left, int infixOp, const AstExpr *right,
+  A_InfixExpr(const Ast *left, int infixOp, const Ast *right,
               const Position &position);
   virtual ~A_InfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *left() const;
+  virtual const Ast *left() const;
   virtual int infixOp() const;
-  virtual const AstExpr *right() const;
+  virtual const Ast *right() const;
 
 private:
-  const AstExpr *left_;
+  const Ast *left_;
   int infixOp_;
-  const AstExpr *right_;
+  const Ast *right_;
 };
 
-class A_PrefixExpr : public AstExpr {
+class A_PrefixExpr : public Ast {
 public:
-  A_PrefixExpr(int prefixOp, const AstExpr *expr, const Position &position);
+  A_PrefixExpr(int prefixOp, const Ast *expr, const Position &position);
   virtual ~A_PrefixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual int prefixOp() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *expr() const;
 
 private:
   int prefixOp_;
-  const AstExpr *expr_;
+  const Ast *expr_;
 };
 
-class A_Call : public AstExpr {
+class A_Call : public Ast {
 public:
-  A_Call(const AstExpr *id, const A_Exprs *args);
+  A_Call(const Ast *id, const A_Exprs *args);
   virtual ~A_Call();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *id() const;
+  virtual const Ast *id() const;
   virtual const A_Exprs *args() const;
 
 private:
-  const AstExpr *id_;
+  const Ast *id_;
   const A_Exprs *args_;
 };
 
-class A_Exprs : public AstExpr {
+class A_Exprs : public Ast {
 public:
-  A_Exprs(const AstExpr *expr, const A_Exprs *next);
-  A_Exprs(const AstExpr *expr, const A_Exprs *next, const Position &position);
+  A_Exprs(const Ast *expr, const A_Exprs *next);
+  A_Exprs(const Ast *expr, const A_Exprs *next, const Position &position);
   virtual ~A_Exprs();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *expr() const;
   virtual const A_Exprs *next() const;
 
 private:
-  const AstExpr *expr_;
+  const Ast *expr_;
   const A_Exprs *next_;
 };
 
@@ -427,35 +404,35 @@ private:
 
 // statement like expression with block {
 
-class A_If : public AstExpr {
+class A_If : public Ast {
 public:
-  A_If(const AstExpr *condition, const AstExpr *thenp, const AstExpr *elsep);
+  A_If(const Ast *condition, const Ast *thenp, const Ast *elsep);
   virtual ~A_If();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *condition() const;
-  virtual const AstExpr *thenp() const;
-  virtual const AstExpr *elsep() const;
+  virtual const Ast *condition() const;
+  virtual const Ast *thenp() const;
+  virtual const Ast *elsep() const;
 
 private:
-  const AstExpr *condition_;
-  const AstExpr *thenp_;
-  const AstExpr *elsep_;
+  const Ast *condition_;
+  const Ast *thenp_;
+  const Ast *elsep_;
 };
 
 // for and while
-class A_Loop : public AstExpr {
+class A_Loop : public Ast {
 public:
-  A_Loop(const AstExpr *condition, const AstExpr *body);
+  A_Loop(const Ast *condition, const Ast *body);
   virtual ~A_Loop();
   virtual AstCategory category() const;
   virtual std::string toString() const;
   virtual const Ast *condition() const;
-  virtual const AstExpr *body() const;
+  virtual const Ast *body() const;
 
 private:
-  const AstExpr *condition_;
-  const AstExpr *body_;
+  const Ast *condition_;
+  const Ast *body_;
 };
 
 class A_LoopCondition : public Ast {
@@ -464,7 +441,7 @@ public:
   virtual ~A_LoopCondition() = default;
 };
 
-class A_Block : public AstExpr {
+class A_Block : public Ast {
 public:
   A_Block(const A_BlockStats *blockStats, const Position &lbracePosition,
           const Position &rbracePosition);
@@ -497,7 +474,7 @@ private:
 
 // type {
 
-class A_PlainType : public AstType {
+class A_PlainType : public Ast {
 public:
   A_PlainType(int token, const Position &position);
   virtual ~A_PlainType() = default;
@@ -513,35 +490,34 @@ private:
 
 // definition and declaration {
 
-class A_FuncDef : public AstDef {
+class A_FuncDef : public Ast {
 public:
-  A_FuncDef(const AstDecl *funcSign, const AstType *resultType,
-            const AstExpr *block);
+  A_FuncDef(const Ast *funcSign, const Ast *resultType, const Ast *block);
   virtual ~A_FuncDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstDecl *funcSign() const;
-  virtual const AstType *resultType() const;
-  virtual const AstExpr *body() const;
+  virtual const Ast *funcSign() const;
+  virtual const Ast *resultType() const;
+  virtual const Ast *body() const;
 
 private:
-  const AstDecl *funcSign_;
-  const AstType *resultType_;
-  const AstExpr *block_;
+  const Ast *funcSign_;
+  const Ast *resultType_;
+  const Ast *block_;
 };
 
-class A_FuncSign : public AstDecl {
+class A_FuncSign : public Ast {
 public:
-  A_FuncSign(const AstExpr *id, const A_Params *params,
+  A_FuncSign(const Ast *id, const A_Params *params,
              const Position &lparenPosition, const Position &rparenPosition);
   virtual ~A_FuncSign();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *id() const;
+  virtual const Ast *id() const;
   virtual const A_Params *params() const;
 
 private:
-  const AstExpr *id_;
+  const Ast *id_;
   const A_Params *params_;
 };
 
@@ -563,32 +539,32 @@ private:
 
 class A_Param : public Ast {
 public:
-  A_Param(const AstExpr *id, const AstType *type);
+  A_Param(const Ast *id, const Ast *type);
   virtual ~A_Param();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *id() const;
-  virtual const AstType *type() const;
+  virtual const Ast *id() const;
+  virtual const Ast *type() const;
 
 private:
-  const AstExpr *id_;
-  const AstType *type_;
+  const Ast *id_;
+  const Ast *type_;
 };
 
-class A_VarDef : public AstDef {
+class A_VarDef : public Ast {
 public:
-  A_VarDef(const AstExpr *id, const AstType *type, const AstExpr *expr);
+  A_VarDef(const Ast *id, const Ast *type, const Ast *expr);
   virtual ~A_VarDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const AstExpr *id() const;
-  virtual const AstType *type() const;
-  virtual const AstExpr *expr() const;
+  virtual const Ast *id() const;
+  virtual const Ast *type() const;
+  virtual const Ast *expr() const;
 
 public:
-  const AstExpr *id_;
-  const AstType *type_;
-  const AstExpr *expr_;
+  const Ast *id_;
+  const Ast *type_;
+  const Ast *expr_;
 };
 
 // definition and declaration }

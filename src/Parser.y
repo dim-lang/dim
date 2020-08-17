@@ -76,7 +76,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <tok> AssignOp PrefixOp InfixOp PostfixOp
 
  /* str */
-%token <str> T_INTEGER_LITERAL T_FLOATING_POINT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
+%token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
 
 %type <expr> Literal BooleanLiteral
@@ -138,17 +138,17 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* literal { */
 
-Literal : T_INTEGER_LITERAL { $$ = new A_IntegerLiteral($1, Y_POSITION(@1)); std::free($1); }
-        | T_FLOATING_POINT_LITERAL { $$ = new A_FloatingPointLiteral($1, Y_POSITION(@1)); std::free($1); }
+Literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POSITION(@1)); std::free($1); }
+        | T_FLOAT_LITERAL { $$ = new A_Float($1, Y_POSITION(@1)); std::free($1); }
         | BooleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = new A_CharacterLiteral($1, Y_POSITION(@1)); std::free($1); }
-        | T_STRING_LITERAL { $$ = new A_StringLiteral($1, Y_POSITION(@1)); std::free($1); }
-        | T_NIL { $$ = new A_NilLiteral(Y_POSITION(@1)); std::free($1); }
-        | T_VOID { $$ = new A_VoidLiteral(Y_POSITION(@1)); std::free($1); }
+        | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POSITION(@1)); std::free($1); }
+        | T_STRING_LITERAL { $$ = new A_String($1, Y_POSITION(@1)); std::free($1); }
+        | T_NIL { $$ = new A_Nil(Y_POSITION(@1)); std::free($1); }
+        | T_VOID { $$ = new A_Void(Y_POSITION(@1)); std::free($1); }
         ;
 
-BooleanLiteral : T_TRUE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::free($1); }
-               | T_FALSE { $$ = new A_BooleanLiteral($1, Y_POSITION(@1)); std::free($1); }
+BooleanLiteral : T_TRUE { $$ = new A_Boolean($1, Y_POSITION(@1)); std::free($1); }
+               | T_FALSE { $$ = new A_Boolean($1, Y_POSITION(@1)); std::free($1); }
                ;
 
  /* literal } */
