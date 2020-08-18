@@ -6,9 +6,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
 #include "enum.h"
-#include "interface/Namely.h"
-#include "interface/Stringify.h"
-#include "llvm/IR/Value.h"
 #include <string>
 #include <tuple>
 #include <vector>
@@ -20,7 +17,7 @@ BETTER_ENUM(SymbolCategory, int,
             // function
             Func,
             // class
-            Class, Member, Method,
+            Class, Field, Method,
             // scope
             Local, Global)
 
@@ -40,15 +37,17 @@ class Scope;
 
 class S_Var;
 class S_Func;
+class S_Param; // function formal parameter
 class S_Class;
-class S_Member;
-class S_Method;
-class S_Local;
-class S_Global;
+class S_Field;  // class member variable
+class S_Method; // class method
 
-class Ts_Builtin;
-class Ts_Func;
-class Ts_Class;
+class S_Local;  // Name to Symbol scope
+class S_Global; // Name to Symbol scope
+
+class Ts_Builtin; // builtin type
+class Ts_Func;    // function type
+class Ts_Class;   // class type
 
 class Symbol : private boost::noncopyable {
 public:
@@ -92,11 +91,9 @@ protected:
 struct SymbolData {
   Symbol *symbol;
   TypeSymbol *typeSymbol;
-  llvm::Value *llvmValue;
 
-  SymbolData(Symbol *a_symbol = nullptr, TypeSymbol *a_typeSymbol = nullptr,
-             llvm::Value *a_llvmValue = nullptr)
-      : symbol(a_symbol), typeSymbol(a_typeSymbol), llvmValue(a_llvmValue) {}
+  SymbolData(Symbol *a_symbol = nullptr, TypeSymbol *a_typeSymbol = nullptr)
+      : symbol(a_symbol), typeSymbol(a_typeSymbol) {}
 };
 
 /**
@@ -177,16 +174,20 @@ private:
 class Ts_Class : public TypeSymbol {
 public:
   Ts_Class(const Name &name, const Symbol *owner,
-           const std::vector<Symbol *> &fields);
+           const std::vector<Symbol *> &fields,
+           const std::vector<Symbol *> &methods);
   virtual ~Ts_Class() = default;
   virtual TypeSymbolCategory category() const;
   virtual std::string toString() const;
 
   virtual std::vector<Symbol *> &fields();
   virtual const std::vector<Symbol *> &fields() const;
+  virtual std::vector<Symbol *> &methods();
+  virtual const std::vector<Symbol *> &methods() const;
 
 private:
   std::vector<Symbol *> fields_;
+  std::vector<Symbol *> methods_;
 };
 
 class Ts_Func : public TypeSymbol {
@@ -235,23 +236,39 @@ private:
   std::vector<Symbol *> params_;
 };
 
+class S_Param : public Symbol {
+public:
+  S_Param(const Name &name, const Symbol *owner);
+  virtual ~S_Param() = default;
+  virtual SymbolCategory category() const;
+  virtual std::string toString() const;
+};
+
 class S_Class : public Symbol, public Scope {
 public:
   S_Class(const Name &name, const Symbol *owner,
-          const std::vector<Symbol *> &members,
+          const std::vector<Symbol *> &fields,
           const std::vector<Symbol *> &methods);
   virtual ~S_Class() = default;
   virtual SymbolCategory category() const;
   virtual std::string toString() const;
 
-  virtual std::vector<Symbol *> &members();
-  virtual const std::vector<Symbol *> &members() const;
+  virtual std::vector<Symbol *> &fields();
+  virtual const std::vector<Symbol *> &fields() const;
   virtual std::vector<Symbol *> &methods();
   virtual const std::vector<Symbol *> &methods() const;
 
 private:
-  std::vector<Symbol *> members_;
+  std::vector<Symbol *> fields_;
   std::vector<Symbol *> methods_;
+};
+
+class S_Field : public Symbol {
+public:
+  S_Field(const Name &name, const Symbol *owner);
+  virtual ~S_Field() = default;
+  virtual SymbolCategory category() const;
+  virtual std::string toString() const;
 };
 
 class S_Method : public Symbol, public Scope {
