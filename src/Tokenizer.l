@@ -1,6 +1,6 @@
 %option noyywrap nounput noinput nodefault yylineno 8bit
 %option reentrant bison-locations bison-bridge
-%option never-interactive
+%option nounistd never-interactive
 %option extra-type="Scanner *"
 
 %x COMMENT
@@ -30,8 +30,8 @@ IS  ([uU]|([uU]?[lL]))
 #define Y_LLOC          yyget_lloc(yyextra->yy_scaninfo())
 #define Y_LINENO        yyget_lineno(yyextra->yy_scaninfo())
 
-#define T_LITERAL_TOKEN         (Y_LVAL->literal = Strings::dup(Y_TEXT, Y_LENG))
- // #define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::dup(Y_TEXT+(p), Y_LENG-(p)-(q)))
+#define T_LITERAL_TOKEN         (Y_LVAL->literal = Strings::duplicate(Y_TEXT, Y_LENG))
+ // #define T_LITERAL_TOKEN_X(p, q) (Y_LVAL->literal = Strings::duplicate(Y_TEXT+(p), Y_LENG-(p)-(q)))
 #define T_INTEGER_TOKEN(t)      (Y_LVAL->token = t)
 
 #define YY_USER_ACTION                                                      \

@@ -5,10 +5,9 @@
 #include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
 #include "fmt/format.h"
-#include "interface/Stringify.h"
 #include <string>
 
-class Exception : public Stringify {
+class Exception {
 public:
   Exception(const char *fileName, int lineNumber, const char *functionName,
             const std::string &message);

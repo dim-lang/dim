@@ -51,35 +51,52 @@ void Scope::define(const Symbol *s, const TypeSymbol *ts) {
   ts_scope_.insert(ts->name(), TypeSymbolData(ts));
 }
 
-const SymbolData &Scope::resolveSymbol(const Name &name) const {
+const SymbolData &Scope::s_resolve(const Name &name) const {
   EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
             name.raw().length());
   if (s_scope_.contains(name)) {
     return s_scope_[name];
   }
-  return static_cast<const Scope *>(owner_)->resolveSymbol(name);
+  return static_cast<const Scope *>(owner_)->s_resolve(name);
 }
 
-const TypeSymbolData &Scope::resolveTypeSymbol(const Name &name) const {
+const TypeSymbolData &Scope::ts_resolve(const Name &name) const {
   EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
             name.raw().length());
   if (ts_scope_.contains(name)) {
     return ts_scope_[name];
   }
-  return static_cast<const Scope *>(owner_)->resolveTypeSymbol(name);
+  return static_cast<const Scope *>(owner_)->ts_resolve(name);
 }
 
-bool Scope::resolveContains(const Name &name) const {
+int Scope::resolveContains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  return s_resolveContains(name) + ts_resolveContains(name);
+}
+
+int Scope::s_resolveContains(const Name &name) const {
   EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
             name.raw().length());
   if (s_scope_.contains(name)) {
-    return true;
+    return 1;
   }
+  if (owner_) {
+    return static_cast<const Scope *>(owner_)->s_resolveContains(name) + 1;
+  }
+  return 0;
+}
+
+int Scope::ts_resolveContains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
   if (ts_scope_.contains(name)) {
-    return true;
+    return 1;
   }
-  return owner_ ? static_cast<const Scope *>(owner_)->resolveContains(name)
-                : false;
+  if (owner_) {
+    return static_cast<const Scope *>(owner_)->ts_resolveContains(name) + 1;
+  }
+  return 0;
 }
 
 bool Scope::contains(const Name &name) const {

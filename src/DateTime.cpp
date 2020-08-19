@@ -5,16 +5,18 @@
 #include <chrono>
 #include <cstdint>
 
-int64_t DateTime::now() {
+long long DateTime::now() {
   std::chrono::time_point<std::chrono::system_clock> now =
       std::chrono::system_clock::now();
   auto dura = now.time_since_epoch();
-  return std::chrono::duration_cast<std::chrono::seconds>(dura).count();
+  return (long long)std::chrono::duration_cast<std::chrono::seconds>(dura)
+      .count();
 }
 
-int64_t DateTime::millinow() {
+long long DateTime::nowms() {
   std::chrono::time_point<std::chrono::system_clock> now =
       std::chrono::system_clock::now();
   auto dura = now.time_since_epoch();
-  return std::chrono::duration_cast<std::chrono::milliseconds>(dura).count();
+  return (long long)std::chrono::duration_cast<std::chrono::milliseconds>(dura)
+      .count();
 }

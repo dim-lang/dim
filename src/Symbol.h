@@ -92,10 +92,12 @@ struct SymbolData {
   Symbol *symbol;
   TypeSymbol *typeSymbol;
   Position position;
+  bool escape;
 
   SymbolData(Symbol *a_symbol = nullptr, TypeSymbol *a_typeSymbol = nullptr,
-             const Position &a_position = Position())
-      : symbol(a_symbol), typeSymbol(a_typeSymbol), position(a_position) {}
+             const Position &a_position = Position(), bool a_escape = false)
+      : symbol(a_symbol), typeSymbol(a_typeSymbol), position(a_position),
+        escape(a_escape) {}
 };
 
 /**
@@ -108,10 +110,11 @@ struct SymbolData {
 struct TypeSymbolData {
   TypeSymbol *typeSymbol;
   Position position;
+  bool escape;
 
   TypeSymbolData(TypeSymbol *a_typeSymbol = nullptr,
-                 const Position &position = Position())
-      : typeSymbol(a_typeSymbol), position(a_position) {}
+                 const Position &position = Position(), bool a_escape = false)
+      : typeSymbol(a_typeSymbol), position(a_position), escape(a_escape) {}
 };
 
 class Scope : public Symbol {
@@ -126,13 +129,15 @@ public:
   Scope(const Name &name, const Symbol *owner);
   virtual ~Scope() = default;
 
-  // scope api
   virtual void define(const Symbol *s, const TypeSymbol *ts);
-  virtual const SymbolData &resolveSymbol(const Name &name) const;
-  virtual const TypeSymbolData &resolveTypeSymbol(const Name &name) const;
-  virtual bool resolveContains(const Name &name) const;
+  virtual const SymbolData &s_resolve(const Name &name) const;
+  virtual const TypeSymbolData &ts_resolve(const Name &name) const;
+  virtual int resolveContains(const Name &name) const;
+  virtual int s_resolveContains(const Name &name) const;
+  virtual int ts_resolveContains(const Name &name) const;
 
-  virtual bool contains() const;
+  // work only in plain level
+  virtual bool contains(const Name &name) const;
   virtual bool empty() const;
   virtual int size() const;
 

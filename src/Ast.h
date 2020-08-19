@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Exception.h"
-#include "Name.h"
-#include "Position.h"
+#include "Namely.h"
+#include "Positional.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "interface/Namely.h"
@@ -37,8 +37,6 @@ BETTER_ENUM(AstCategory, int,
 /*================ class ================*/
 
 /* ast */
-class AstNamely;
-class AstPositional;
 class Ast;
 
 /* literal */
@@ -90,29 +88,7 @@ class A_TopStats;
 
 // Ast {
 
-class AstNamely {
-public:
-  AstNamely(const std::string &name);
-  virtual ~AstNamely() = default;
-  virtual const Name &name() const;
-
-protected:
-  Name name_;
-};
-
-class AstPositional {
-public:
-  AstPositional();
-  AstPositional(const Position &position);
-  virtual ~AstPositional() = default;
-  virtual const Position &position() const;
-  virtual void locate(const Position &position);
-
-protected:
-  Position position_;
-};
-
-class Ast : public AstNamely, public AstPositional, private boost::noncopyable {
+class Ast : public Namely, public Positional, private boost::noncopyable {
 public:
   Ast(const std::string &name);
   Ast(const std::string &name, const Position &position);
