@@ -204,9 +204,9 @@ IS  ([uU]|([uU]?[lL]))
 "::"    { return T_INTEGER_TOKEN(T_COLON2); }
 "."     { return T_INTEGER_TOKEN(T_DOT); }
 ".."    { return T_INTEGER_TOKEN(T_DOT2); }
-"<-"    { return T_INTEGER_TOKEN(T_THIN_LARROW); }
-"->"    { return T_INTEGER_TOKEN(T_THIN_RARROW); }
-"=>"    { return T_INTEGER_TOKEN(T_FAT_RARROW); }
+"<-"    { return T_INTEGER_TOKEN(T_LARROW); }
+"->"    { return T_INTEGER_TOKEN(T_RARROW); }
+"=>"    { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
 ":>"    { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
 "<:"    { return T_INTEGER_TOKEN(T_COLON_RARROW); }
 

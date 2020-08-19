@@ -69,7 +69,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
  /* parentheses */
 %token <tok> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
  /* other punctuation */
-%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_THIN_LARROW T_THIN_RARROW T_FAT_RARROW
+%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_LARROW T_RARROW T_DOUBLE_RARROW
 %token <tok> T_NEWLINE
 
  /* semi */
@@ -84,7 +84,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %type <expr> Literal BooleanLiteral
 %type <expr> Id VarId
 %type <expr> PrefixOp EqualOp
-%type <expr> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr BlockExpr NonBlockExpr
+%type <expr> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr NonBlockExpr
 %type <expr> PostfixOp
 %type <expr> ArgExprs
 
@@ -221,6 +221,10 @@ OptionalFinally : T_FINALLY Expr
                 |
                 ;
 
+Enumerators : OptionalForInit Semi OptionalExpr Semi OptionalExpr
+            | Id T_LARROW Expr
+            ;
+
 OptionalYield : T_YIELD
               |
               ;
@@ -302,7 +306,7 @@ PrimaryExpr : Literal { $$ = $1; }
             | Id { $$ = $1; }
             | T_LPAREN OptionalExprs T_RPAREN { $$ = $1; }
             | CallExpr { $$ = $1; }
-            | BlockExpr
+            | Block
             ;
 
 OptionalExprs : Exprs
@@ -316,15 +320,14 @@ Exprs : Expr
 CallExpr : Id T_LPAREN OptionalExprs T_RPAREN { $$ = $1; }
          ;
 
-BlockExpr : T_LBRACE Block T_RBRACE
-          ;
-
-Block : T_LBRACE OptionalNewlines T_RBRACE
-      | T_LBRACE OptionalNewlines BlockStats T_RBRACE
+Block : T_LBRACE BlockStat OptionalBlockStats T_RBRACE
       ;
 
-BlockStats : BlockStat OptionalBlockStats
-           ;
+BlockStat : Expr
+          | Def
+          /* | Import */
+          |
+          ;
 
 OptionalBlockStats : BlockStats
                    |
@@ -334,17 +337,12 @@ BlockStats : Semi BlockStat
            | Semi BlockStat BlockStats
            ;
 
-BlockStat : Expr
-          | Def
-          /* | Import */
-          ;
-
  /* expression } */
 
  /* type { */
 
 Type : PlainType
-     /* | FuncArgTypes T_THIN_RARROW Type */
+     /* | FuncArgTypes T_RARROW Type */
      /* | IdType */
      ;
 
@@ -388,8 +386,8 @@ Def : FuncDef
     | VarDef
     ;
 
-FuncDef : T_DEF FuncSign OptionalResultType T_EQUAL Expr
-        | T_DEF FuncSign OptionalNewlines BlockExpr
+FuncDef : T_DEF FuncSign OptionalResultType T_DOUBLE_RARROW Expr
+        | T_DEF FuncSign OptionalNewlines Block
         ;
 
 OptionalResultType : T_COLON Type
@@ -428,18 +426,26 @@ VarDef : T_VAR Id T_COLON Type T_EQUAL Expr
 
  /* compile unit { */
 
-CompileUnit : TopStats
+CompileUnit : TopStatSeq
             |
             ;
 
-TopStats : TopStat
-         | TopStat T_NEWLINE TopStats
-         ;
+TopStatSeq : TopStat OptionalTopStats
+           ;
 
 TopStat : Def
         /* | Import */
         /* | Package */
+        |
         ;
+
+OptionalTopStats : TopStats
+                 |
+                 ;
+
+TopStats : Semi TopStat
+         | Semi TopStat TopStats
+         ;
 
 /* Package : T_PACKAGE Id T_LBRACE T_RBRACE */
 /*         | T_PACKAGE Id T_LBRACE TopStats T_RBRACE */

@@ -26,7 +26,7 @@ BETTER_ENUM(AstCategory, int,
             Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
             InfixExpr, Call, Exprs,
             // expr with block
-            If, Loop, LoopCondition, Block, BlockStats,
+            If, Loop, LoopCondition, Try, Block, BlockStats,
             // type
             PlainType,
             // declaration and definition
@@ -62,13 +62,15 @@ class A_Assign;
 class A_PostfixExpr;
 class A_InfixExpr;
 class A_PrefixExpr;
-class A_Call;
-class A_Exprs;
 
 /* expression with block */
 class A_If;
 class A_Loop;
 class A_LoopCondition;
+class A_LoopEnumerator;
+class A_Try;
+class A_Call;
+class A_Exprs;
 class A_Block;
 class A_BlockStats;
 
@@ -439,8 +441,43 @@ private:
 
 class A_LoopCondition : public Ast {
 public:
-  A_LoopCondition();
+  A_LoopCondition(const Ast *init, const Ast *condition, const Ast *update);
   virtual ~A_LoopCondition() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+
+private:
+  const Ast *init_;
+  const Ast *condition_;
+  const Ast *update_;
+};
+
+class A_LoopEnumerator : public Ast {
+public:
+  A_LoopEnumerator(const Ast *id, const Ast *expr);
+  virtual ~A_LoopEnumerator() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+
+private:
+  const Ast *id_;
+  const Ast *expr_;
+};
+
+class A_Try : public Ast {
+public:
+  A_Try(const Ast *tryp, const Ast *catchp, const Ast *finallyp);
+  virtual ~A_Try();
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  virtual const Ast *tryp() const;
+  virtual const Ast *catchp() const;
+  virtual const Ast *finallyp() const;
+
+private:
+  const Ast *tryp_;
+  const Ast *catchp_;
+  const Ast *finallyp_;
 };
 
 class A_Block : public Ast {
@@ -494,7 +531,7 @@ private:
 
 class A_FuncDef : public Ast {
 public:
-  A_FuncDef(const Ast *funcSign, const Ast *resultType, const Ast *block);
+  A_FuncDef(const Ast *funcSign, const Ast *resultType, const Ast *body);
   virtual ~A_FuncDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -505,7 +542,7 @@ public:
 private:
   const Ast *funcSign_;
   const Ast *resultType_;
-  const Ast *block_;
+  const Ast *body_;
 };
 
 class A_FuncSign : public Ast {
