@@ -3,7 +3,6 @@
 %option nounistd never-interactive
 %option extra-type="Scanner *"
 
-%x COMMENT
 %x IMPORT
 
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
@@ -48,16 +47,14 @@ IS  ([uU]|([uU]?[lL]))
 %%
 
  /* multiple line comment */
-"/*"                    { BEGIN COMMENT; }
-<COMMENT>"*/"           { BEGIN INITIAL; }
-<COMMENT>([^*]|\n)+|.   { /* skip everything */ }
-<COMMENT><<EOF>>        {
-                            EX_ASSERT(false, "{}:{} error! unterminated comment!", yyextra->currentBuffer(), Y_LINENO);
-                            return 0;
-                        }
+"/*"((("*"[^/])?)|[^*])*"*/"    { /* eat everything */ }
 
  /* one line comment */
-"//".*\n                { /* eat everything until newline \n \r\n */ }
+"//".*                          { /* eat everything until newline \n \r\n */ }
+
+"/*"((("*"[^/])?)|[^*])*"*/"
+"/*"(("*"+[^/*])|([^*]))*"*"*"*/"
+"/*"[^*]*"*"+(?:[^/*][^*]*"*"+)"*/"
 
  /* keywords */
 true        { return T_INTEGER_TOKEN(T_TRUE); }
@@ -246,16 +243,20 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
                                                 BEGIN INITIAL;
                                             }
 <IMPORT>.|\n                                {
+                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                                 EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                                 BEGIN INITIAL;
                                             }
 <<EOF>>                                     {
-                                                if (!yyextra->popBuffer())
+                                                if (!yyextra->popBuffer()) {
+                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                                     yyterminate();
+                                                }
                                             }
 
  /* invalid token */
 .                                           {
+                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                                 EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
                                             }
 
