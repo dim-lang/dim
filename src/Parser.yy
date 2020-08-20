@@ -10,22 +10,13 @@
 #include "Scanner.h"
 #include "Position.h"
 #include "Exception.h"
-#define Y_EXTRA yyget_extra(yyscanner)
-#define Y_POSITION(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
+#include "Tokenizer.yy.h"
+#define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
 %code requires {
 class Scanner;
-class A_ExpressionList;
-class AstStatementList;
-class AstDefinitionList;
-class AstExpression;
-class AstStatement;
-class AstDefinition;
-class AstStringLiteral;
-using yyscan_t = void *;
-using YY_EXTRA_TYPE = Scanner *;
-extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
+class Ast;
 }
 
 %union {
@@ -135,41 +126,41 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* semi and newline { */
 
-Semi : T_SEMI { $$ = new A_Token($1, Y_POSITION(@1)); }
-     | T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+Semi : T_SEMI { $$ = new A_Token($1, Y_POS(@1)); }
+     | T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
      ;
 
-OptionalSemi : Semi { $$ = new A_Token($1, Y_POSITION(@1)); }
+OptionalSemi : Semi { $$ = new A_Token($1, Y_POS(@1)); }
              | { $$ = nullptr; }
              ;
 
-OptionalNewline : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+OptionalNewline : T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
                 | { $$ = nullptr; }
                 ;
 
-OptionalNewlines : Newlines { $$ = new A_Token($1, Y_POSITION(@1)); }
+OptionalNewlines : Newlines { $$ = new A_Token($1, Y_POS(@1)); }
                  | { $$ = nullptr; }
                  ;
 
-Newlines : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
-         | T_NEWLINE Newlines { $$ = new A_Token($1, Y_POSITION(@1)); }
+Newlines : T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
+         | T_NEWLINE Newlines { $$ = new A_Token($1, Y_POS(@1)); }
          ;
 
  /* semi and newline } */
 
  /* literal { */
 
-Literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POSITION(@1)); std::free($1); }
-        | T_FLOAT_LITERAL { $$ = new A_Float($1, Y_POSITION(@1)); std::free($1); }
+Literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); }
+        | T_FLOAT_LITERAL { $$ = new A_Float($1, Y_POS(@1)); std::free($1); }
         | BooleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POSITION(@1)); std::free($1); }
-        | T_STRING_LITERAL { $$ = new A_String($1, Y_POSITION(@1)); std::free($1); }
-        | T_NIL { $$ = new A_Nil(Y_POSITION(@1)); std::free($1); }
-        | T_VOID { $$ = new A_Void(Y_POSITION(@1)); std::free($1); }
+        | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
+        | T_STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
+        | T_NIL { $$ = new A_Nil(Y_POS(@1)); std::free($1); }
+        | T_VOID { $$ = new A_Void(Y_POS(@1)); std::free($1); }
         ;
 
-BooleanLiteral : T_TRUE { $$ = new A_Boolean($1, Y_POSITION(@1)); std::free($1); }
-               | T_FALSE { $$ = new A_Boolean($1, Y_POSITION(@1)); std::free($1); }
+BooleanLiteral : T_TRUE { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
+               | T_FALSE { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
                ;
 
  /* literal } */
@@ -180,7 +171,7 @@ Id : VarId { $$ = $1; }
    /* | OpId */
    ;
 
-VarId : T_VAR_ID { $$ = new A_VarId($1, Y_POSITION(@1)); std::free($1); }
+VarId : T_VAR_ID { $$ = new A_VarId($1, Y_POS(@1)); std::free($1); }
       ;
 
 /* OpId : AssignOp */
@@ -289,12 +280,12 @@ PrefixExpr : PrimaryExpr { $$ = $1; }
            | PrefixOp PrimaryExpr { $$ = new A_PrefixExpression($1, $2); }
            ;
 
-PrefixOp : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_PLUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_TILDE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_EXCLAM { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
-         | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POSITION(@1)); }
+PrefixOp : T_MINUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
+         | T_PLUS { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
+         | T_TILDE { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
+         | T_EXCLAM { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
+         | T_PLUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
+         | T_MINUS2 { $$ = new A_TokenId(A_TokenId::TokenIdCategory::OP, $1, Y_POS(@1)); }
          ;
 
 PrimaryExpr : Literal { $$ = $1; }
@@ -457,8 +448,8 @@ void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
-    fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            (Y_EXTRA ? Y_EXTRA->currentBuffer().c_str() : "unknown"),
+    fprintf(stderr, "%s: %d.%d-%d.%d: error: ",
+            yyget_extra(yyscanner)->currentBuffer().c_str(),
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 
