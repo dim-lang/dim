@@ -1,6 +1,5 @@
-%option noyywrap nounput noinput nodefault yylineno 8bit
-%option reentrant bison-locations bison-bridge
-%option nounistd never-interactive
+%option noyywrap nounput noinput nodefault nounistd
+%option reentrant bison-locations bison-bridge yylineno 8bit
 %option extra-type="Scanner *"
 
 %x IMPORT
