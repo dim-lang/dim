@@ -29,7 +29,6 @@ using YY_EXTRA_TYPE = Scanner *;
 extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 }
 
- /* different ways to access data */
 %union {
     AstDef *def;
     AstExpr *expr;
