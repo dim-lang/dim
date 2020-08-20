@@ -12,7 +12,7 @@
 std::string Buffer::moduleToFile(const std::string &name) {
   std::string r(name);
   char replace;
-#if PLATFORM_WINDOWS
+#if BOOST_OS_WINDOWS
   replace = '\\';
 #else
   replace = '/';

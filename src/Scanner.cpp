@@ -76,10 +76,10 @@ yyscan_t &Scanner::yy_scaninfo() { return yy_scaninfo_; }
 const std::string &Scanner::fileName() const { return fileName_; }
 
 std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
-  YYSTYPE yy_value;
-  YYLTYPE yy_location;
-  int r = yylex(&yy_value, &yy_location, yy_scaninfo_);
-  return std::make_tuple(r, yy_value, yy_location);
+  YYSTYPE yy_lval;
+  YYLTYPE yy_lloc;
+  int r = yylex(&yy_lval, &yy_lloc, yy_scaninfo_);
+  return std::make_tuple(r, yy_lval, yy_lloc);
 }
 
 int Scanner::parse() { return yyparse(yy_scaninfo_); }
