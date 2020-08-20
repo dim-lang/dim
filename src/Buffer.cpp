@@ -4,7 +4,7 @@
 #include "Buffer.h"
 #include "Exception.h"
 
-#define TOKEN_FILE_EXT ".shp"
+#define BUFFER_SUFFIX ".nerd"
 #ifndef YY_BUF_SIZE
 #define YY_BUF_SIZE 32768
 #endif
@@ -22,7 +22,7 @@ std::string Buffer::moduleToFile(const std::string &name) {
       c = replace;
     }
   });
-  r.append(TOKEN_FILE_EXT);
+  r.append(BUFFER_SUFFIX);
   return r;
 }
 

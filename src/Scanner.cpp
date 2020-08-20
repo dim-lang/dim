@@ -3,7 +3,8 @@
 
 #include "Scanner.h"
 #include "Log.h"
-#include "Parser.h"
+
+extern int yyparse(yyscan_t yyscanner);
 
 Scanner::Scanner()
     : fileName_(""), translateUnit_(nullptr), yy_scaninfo_(nullptr),

@@ -7,7 +7,6 @@
 #include <cstdio>
 #include "Ast.h"
 #include "Buffer.h"
-#include "Parser.h"
 #include "Scanner.h"
 #include "Position.h"
 #include "Exception.h"

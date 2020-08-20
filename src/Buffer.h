@@ -3,32 +3,10 @@
 
 #pragma once
 #include "Parser.tab.h"
-#include "boost/predef.h"
+#include "Tokenizer.yy.h"
 #include <cstdio>
 #include <stack>
 #include <string>
-
-#ifdef BOOST_OS_WINDOWS
-#define YY_NO_UNISTD_H
-#endif
-
-class Scanner;
-struct yy_buffer_state;
-using YY_BUFFER_STATE = yy_buffer_state *;
-using yyscan_t = void *;
-using YY_EXTRA_TYPE = Scanner *;
-
-extern int yylex(YYSTYPE *yylval_param, YYLTYPE *yylloc_param,
-                 yyscan_t yyscanner);
-extern int yylex_init_extra(YY_EXTRA_TYPE yy_user_defined,
-                            yyscan_t *ptr_yy_globals);
-extern int yylex_destroy(yyscan_t yyscanner);
-extern void yyset_lineno(int _line_number, yyscan_t yyscanner);
-extern void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer, yyscan_t yyscanner);
-extern YY_BUFFER_STATE yy_create_buffer(FILE *file, int size,
-                                        yyscan_t yyscanner);
-extern void yy_delete_buffer(YY_BUFFER_STATE b, yyscan_t yyscanner);
-extern int yyget_lineno(yyscan_t yyscanner);
 
 class Buffer {
 public:

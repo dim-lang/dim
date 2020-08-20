@@ -6,7 +6,6 @@
 #include "Ir.h"
 #include "Log.h"
 #include "Option.h"
-#include "Parser.h"
 #include "Parser.tab.h"
 #include "Scanner.h"
 #include <iostream>

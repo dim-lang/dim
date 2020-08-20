@@ -52,8 +52,8 @@ endif(WIN32)
 
 find_package(FLEX)
 find_package(BISON)
-# FLEX_TARGET(NerdTokenizer Tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.yy.cpp --header-file=Tokenizer.yy.h)
-FLEX_TARGET(NerdTokenizer Tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.yy.cpp)
+FLEX_TARGET(NerdTokenizer Tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.yy.cpp
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Tokenizer.yy.h)
 BISON_TARGET(NerdParser Parser.yy ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.cpp
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Parser.tab.h)
 ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
