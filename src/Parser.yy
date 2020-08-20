@@ -131,15 +131,15 @@ semi : T_SEMI { $$ = new A_Token($1, Y_POS(@1)); }
      ;
 
 optionalSemi : semi { $$ = new A_Token($1, Y_POS(@1)); }
-             | { $$ = nullptr; }
+             | %empty { $$ = nullptr; }
              ;
 
 optionalNewline : T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
-                | { $$ = nullptr; }
+                | %empty { $$ = nullptr; }
                 ;
 
 optionalNewlines : newlines { $$ = new A_Token($1, Y_POS(@1)); }
-                 | { $$ = nullptr; }
+                 | %empty { $$ = nullptr; }
                  ;
 
 newlines : T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
@@ -196,15 +196,15 @@ expr : T_IF T_LPAREN expr T_RPAREN optionalNewlines expr optionalElse
      ;
 
 optionalElse : optionalSemi T_ELSE expr
-             |
+             | %empty
              ;
 
 optionalCatch : T_CATCH expr
-              |
+              | %empty
               ;
 
 optionalFinally : T_FINALLY expr
-                |
+                | %empty
                 ;
 
 enumerators : OptionalForInit semi optionalExpr semi optionalExpr
@@ -212,11 +212,11 @@ enumerators : OptionalForInit semi optionalExpr semi optionalExpr
             ;
 
 optionalYield : T_YIELD
-              |
+              | %empty
               ;
 
 optionalExpr : expr
-             |
+             | %empty
              ;
 
 assignExpr : id assignOp expr
@@ -296,7 +296,7 @@ primaryExpr : literal { $$ = $1; }
             ;
 
 optionalExprs : exprs
-              |
+              | %empty
               ;
 
 exprs : expr
@@ -316,7 +316,7 @@ blockStat : expr
           ;
 
 optionalBlockStats : blockStats
-                   |
+                   | %empty
                    ;
 
 blockStats : semi blockStat
@@ -377,7 +377,7 @@ funcDef : T_DEF funcSign optionalResultType T_DOUBLE_RARROW expr
         ;
 
 optionalResultType : T_COLON type
-                   |
+                   | %empty
                    ;
 
 funcSign : id paramClause
@@ -426,7 +426,7 @@ topStat : def
         ;
 
 optionalTopStats : topStats
-                 |
+                 | %empty
                  ;
 
 topStats : semi topStat
