@@ -76,7 +76,6 @@ match       { return T_INTEGER_TOKEN(T_MATCH); }
 enum        { return T_INTEGER_TOKEN(T_ENUM); }
 switch      { return T_INTEGER_TOKEN(T_SWITCH); }
 case        { return T_INTEGER_TOKEN(T_CASE); }
-match       { return T_INTEGER_TOKEN(T_MATCH); }
 for         { return T_INTEGER_TOKEN(T_FOR); }
 foreach     { return T_INTEGER_TOKEN(T_FOREACH); }
 in          { return T_INTEGER_TOKEN(T_IN); }
