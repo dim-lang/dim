@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "Exception.h"
+#include "Scanner.h"
 
 #define BUFFER_SUFFIX ".nerd"
 #ifndef YY_BUF_SIZE
@@ -36,20 +37,21 @@ std::string Buffer::fileToModule(const std::string &name) {
   return r;
 }
 
-Buffer::Buffer(const std::string &a_fileName, yyscan_t yy_scaninfo)
+Buffer::Buffer(const std::string &a_fileName, Scanner *scanner)
     : yyBufferState(nullptr), fileName(a_fileName), lineNo(1), fp(nullptr),
-      yy_scaninfo_(yy_scaninfo) {
+      scanner_(scanner) {
+  EX_ASSERT(scanner_, "scanner must not null");
   EX_ASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
   fp = std::fopen(fileName.c_str(), "r");
   if (!fp) {
     release();
     EX_ASSERT(fp, "file {} cannot open!", fileName);
   }
-  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yy_scaninfo_);
+  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, scanner->yy_scanner);
   if (!yyBufferState) {
     release();
     EX_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}",
-              fileName, (void *)yy_scaninfo_);
+              fileName, (void *)scanner->yy_scanner);
   }
 }
 
@@ -61,34 +63,33 @@ void Buffer::release() {
     fp = nullptr;
   }
   if (yyBufferState) {
-    yy_delete_buffer(yyBufferState, yy_scaninfo_);
+    yy_delete_buffer(yyBufferState, scanner_->yy_scanner);
     yyBufferState = nullptr;
   }
-  yy_scaninfo_ = nullptr;
+  scanner_->yy_scanner = nullptr;
 }
 
-BufferStack::BufferStack(yyscan_t yy_scaninfo)
-    : yy_scaninfo_(yy_scaninfo), bufferStack_() {}
+BufferStack::BufferStack(Scanner *scanner)
+    : scanner_(scanner), bufferStack_() {}
 
 BufferStack::~BufferStack() {
-  yy_scaninfo_ = nullptr;
   EX_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
             bufferStack_.size());
 }
 
 int BufferStack::push(const std::string &fileName) {
-  Buffer *tb = new Buffer(fileName, yy_scaninfo_);
+  Buffer *tb = new Buffer(fileName, scanner_->yy_scanner);
 
   /* remember state */
   if (!bufferStack_.empty()) {
-    bufferStack_.top()->lineNo = yyget_lineno(yy_scaninfo_);
+    bufferStack_.top()->lineNo = yyget_lineno(scanner_->yy_scanner);
   }
 
   /* switch to new file */
   bufferStack_.push(tb);
 
-  yy_switch_to_buffer(tb->yyBufferState, yy_scaninfo_);
-  yyset_lineno(1, yy_scaninfo_);
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->yy_scanner);
+  yyset_lineno(1, scanner_->yy_scanner);
   return 1;
 }
 
@@ -105,8 +106,8 @@ int BufferStack::pop() {
   }
 
   tb = bufferStack_.top();
-  yy_switch_to_buffer(tb->yyBufferState, yy_scaninfo_);
-  yyset_lineno(tb->lineNo, yy_scaninfo_);
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->yy_scanner);
+  yyset_lineno(tb->lineNo, scanner_->yy_scanner);
   return 1;
 }
 

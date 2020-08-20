@@ -8,10 +8,12 @@
 #include <stack>
 #include <string>
 
+class Scanner;
+
 class Buffer {
 public:
   /* methods */
-  Buffer(const std::string &fileName, yyscan_t yy_scaninfo);
+  Buffer(const std::string &fileName, Scanner *scanner);
   virtual ~Buffer();
 
   /* members */
@@ -25,13 +27,13 @@ public:
   static std::string fileToModule(const std::string &name);
 
 private:
-  yyscan_t yy_scaninfo_;
+  Scanner *scanner_;
   void release();
 };
 
 class BufferStack {
 public:
-  BufferStack(yyscan_t yy_scaninfo);
+  BufferStack(Scanner *scanner);
   virtual ~BufferStack();
   virtual int push(const std::string &fileName);
   virtual int pop();
@@ -40,6 +42,6 @@ public:
   virtual bool empty() const;
 
 private:
-  yyscan_t yy_scaninfo_;
+  Scanner *scanner_;
   std::stack<Buffer *> bufferStack_;
 };

@@ -23,11 +23,9 @@ public:
   virtual bool empty() const;
 
   // attribute access
-  virtual const AstTranslateUnit *translateUnit() const;
-  virtual AstTranslateUnit *&translateUnit();
-  virtual const yyscan_t yy_scaninfo() const;
-  virtual yyscan_t &yy_scaninfo();
   virtual const std::string &fileName() const;
+  AstTranslateUnit *translateUnit;
+  yyscan_t yy_scanner;
 
   // wrapper for flex/bison
   virtual std::tuple<int, YYSTYPE, YYLTYPE> tokenize();
@@ -35,8 +33,5 @@ public:
 
 private:
   std::string fileName_;
-
-  AstTranslateUnit *translateUnit_;
-  yyscan_t yy_scaninfo_;
   BufferStack *bufferStack_;
 };
