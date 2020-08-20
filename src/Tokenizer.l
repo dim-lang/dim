@@ -52,10 +52,6 @@ IS  ([uU]|([uU]?[lL]))
  /* one line comment */
 "//".*                          { /* eat everything until newline \n \r\n */ }
 
-"/*"((("*"[^/])?)|[^*])*"*/"
-"/*"(("*"+[^/*])|([^*]))*"*"*"*/"
-"/*"[^*]*"*"+(?:[^/*][^*]*"*"+)"*/"
-
  /* keywords */
 true        { return T_INTEGER_TOKEN(T_TRUE); }
 false       { return T_INTEGER_TOKEN(T_FALSE); }
