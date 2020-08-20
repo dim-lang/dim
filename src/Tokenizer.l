@@ -46,7 +46,6 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
         Y_LLOC->last_line = Y_LINENO;                                       \
         Y_LLOC->last_column = Y_TEXT + Y_LENG - strrchr(Y_TEXT, '\n');      \
     }
-
 %}
 
 %%
@@ -138,74 +137,74 @@ or          { return T_INTEGER_TOKEN(T_OR); }
 not         { return T_INTEGER_TOKEN(T_NOT); }
 
  /* operator */
-"+"     { return T_INTEGER_TOKEN(T_PLUS); }
-"++"    { return T_INTEGER_TOKEN(T_PLUS2); }
-"-"     { return T_INTEGER_TOKEN(T_MINUS); }
-"--"    { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"     { return T_INTEGER_TOKEN(T_STAR); }
-"**"    { return T_INTEGER_TOKEN(T_STAR2); }
-"/"     { return T_INTEGER_TOKEN(T_SLASH); }
-"//"    { return T_INTEGER_TOKEN(T_SLASH2); }
-"%"     { return T_INTEGER_TOKEN(T_PERCENT); }
-"%%"    { return T_INTEGER_TOKEN(T_PERCENT2); }
+"+"         { return T_INTEGER_TOKEN(T_PLUS); }
+"++"        { return T_INTEGER_TOKEN(T_PLUS2); }
+"-"         { return T_INTEGER_TOKEN(T_MINUS); }
+"--"        { return T_INTEGER_TOKEN(T_MINUS2); }
+"*"         { return T_INTEGER_TOKEN(T_STAR); }
+"**"        { return T_INTEGER_TOKEN(T_STAR2); }
+"/"         { return T_INTEGER_TOKEN(T_SLASH); }
+"//"        { return T_INTEGER_TOKEN(T_SLASH2); }
+"%"         { return T_INTEGER_TOKEN(T_PERCENT); }
+"%%"        { return T_INTEGER_TOKEN(T_PERCENT2); }
 
-"&"     { return T_INTEGER_TOKEN(T_AMPERSAND); }
-"&&"    { return T_INTEGER_TOKEN(T_AMPERSAND2); }
-"|"     { return T_INTEGER_TOKEN(T_BAR); }
-"||"    { return T_INTEGER_TOKEN(T_BAR2); }
-"~"     { return T_INTEGER_TOKEN(T_TILDE); }
-"!"     { return T_INTEGER_TOKEN(T_EXCLAM); }
-"^"     { return T_INTEGER_TOKEN(T_CARET); }
+"&"         { return T_INTEGER_TOKEN(T_AMPERSAND); }
+"&&"        { return T_INTEGER_TOKEN(T_AMPERSAND2); }
+"|"         { return T_INTEGER_TOKEN(T_BAR); }
+"||"        { return T_INTEGER_TOKEN(T_BAR2); }
+"~"         { return T_INTEGER_TOKEN(T_TILDE); }
+"!"         { return T_INTEGER_TOKEN(T_EXCLAM); }
+"^"         { return T_INTEGER_TOKEN(T_CARET); }
 
-"<<"    { return T_INTEGER_TOKEN(T_LSHIFT); }
-">>"    { return T_INTEGER_TOKEN(T_RSHIFT); }
-">>>"   { return T_INTEGER_TOKEN(T_ARSHIFT); }
+"<<"        { return T_INTEGER_TOKEN(T_LSHIFT); }
+">>"        { return T_INTEGER_TOKEN(T_RSHIFT); }
+">>>"       { return T_INTEGER_TOKEN(T_ARSHIFT); }
 
  /* equal operator */
-"="     { return T_INTEGER_TOKEN(T_EQUAL); }
-"+="    { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
-"-="    { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="    { return T_INTEGER_TOKEN(T_STAR_EQUAL); }
-"/="    { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
-"%="    { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
-"&="    { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
-"|="    { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
-"^="    { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
-"<<="   { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
-">>="   { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
-">>>="  { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
+"="         { return T_INTEGER_TOKEN(T_EQUAL); }
+"+="        { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
+"-="        { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
+"*="        { return T_INTEGER_TOKEN(T_STAR_EQUAL); }
+"/="        { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
+"%="        { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
+"&="        { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
+"|="        { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
+"^="        { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
+"<<="       { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
+">>="       { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
+">>>="      { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
 
  /* compare operator */
-"=="    { return T_INTEGER_TOKEN(T_EQ); }
-"!="    { return T_INTEGER_TOKEN(T_NEQ); }
-"<"     { return T_INTEGER_TOKEN(T_LT); }
-"<="    { return T_INTEGER_TOKEN(T_LE); }
-">"     { return T_INTEGER_TOKEN(T_GT); }
-">="    { return T_INTEGER_TOKEN(T_GE); }
+"=="        { return T_INTEGER_TOKEN(T_EQ); }
+"!="        { return T_INTEGER_TOKEN(T_NEQ); }
+"<"         { return T_INTEGER_TOKEN(T_LT); }
+"<="        { return T_INTEGER_TOKEN(T_LE); }
+">"         { return T_INTEGER_TOKEN(T_GT); }
+">="        { return T_INTEGER_TOKEN(T_GE); }
 
  /* parentheses */
-"("     { return T_INTEGER_TOKEN(T_LPAREN); }
-")"     { return T_INTEGER_TOKEN(T_RPAREN); }
-"["     { return T_INTEGER_TOKEN(T_LBRACKET); }
-"]"     { return T_INTEGER_TOKEN(T_RBRACKET); }
-"{"     { return T_INTEGER_TOKEN(T_LBRACE); }
-"}"     { return T_INTEGER_TOKEN(T_RBRACE); }
+"("         { return T_INTEGER_TOKEN(T_LPAREN); }
+")"         { return T_INTEGER_TOKEN(T_RPAREN); }
+"["         { return T_INTEGER_TOKEN(T_LBRACKET); }
+"]"         { return T_INTEGER_TOKEN(T_RBRACKET); }
+"{"         { return T_INTEGER_TOKEN(T_LBRACE); }
+"}"         { return T_INTEGER_TOKEN(T_RBRACE); }
 
  /* other punctuation */
-"_"     { return T_INTEGER_TOKEN(T_UNDERSCORE); }
-","     { return T_INTEGER_TOKEN(T_COMMA); }
-";"     { return T_INTEGER_TOKEN(T_SEMI); }
-[\n]+   { return T_INTEGER_TOKEN(T_NEWLINE); }
-"?"     { return T_INTEGER_TOKEN(T_QUESTION); }
-":"     { return T_INTEGER_TOKEN(T_COLON); }
-"::"    { return T_INTEGER_TOKEN(T_COLON2); }
-"."     { return T_INTEGER_TOKEN(T_DOT); }
-".."    { return T_INTEGER_TOKEN(T_DOT2); }
-"<-"    { return T_INTEGER_TOKEN(T_LARROW); }
-"->"    { return T_INTEGER_TOKEN(T_RARROW); }
-"=>"    { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
-":>"    { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
-"<:"    { return T_INTEGER_TOKEN(T_COLON_RARROW); }
+"_"         { return T_INTEGER_TOKEN(T_UNDERSCORE); }
+","         { return T_INTEGER_TOKEN(T_COMMA); }
+";"         { return T_INTEGER_TOKEN(T_SEMI); }
+[\n]+       { return T_INTEGER_TOKEN(T_NEWLINE); }
+"?"         { return T_INTEGER_TOKEN(T_QUESTION); }
+":"         { return T_INTEGER_TOKEN(T_COLON); }
+"::"        { return T_INTEGER_TOKEN(T_COLON2); }
+"."         { return T_INTEGER_TOKEN(T_DOT); }
+".."        { return T_INTEGER_TOKEN(T_DOT2); }
+"<-"        { return T_INTEGER_TOKEN(T_LARROW); }
+"->"        { return T_INTEGER_TOKEN(T_RARROW); }
+"=>"        { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
+":>"        { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
+"<:"        { return T_INTEGER_TOKEN(T_COLON_RARROW); }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
