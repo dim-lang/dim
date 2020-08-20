@@ -50,7 +50,7 @@ IS  ([uU]|([uU]?[lL]))
 "/*"((("*"[^/])?)|[^*])*"*/"    { /* eat everything */ }
 
  /* one line comment */
-"//".*                          { /* eat everything until newline \n \r\n */ }
+"//".*\n                        { /* eat everything until newline \n \r\n */ }
 
  /* keywords */
 true        { return T_INTEGER_TOKEN(T_TRUE); }
