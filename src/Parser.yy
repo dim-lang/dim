@@ -143,7 +143,7 @@ optionalNewlines : newlines { $$ = new A_Token($1, Y_POS(@1)); }
                  ;
 
 newlines : T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
-         | T_NEWLINE newlines { $$ = new A_Token($1, Y_POS(@1)); }
+         | newlines T_NEWLINE { $$ = new A_Token($1, Y_POS(@1)); }
          ;
 
  /* semi and newline } */
@@ -300,7 +300,7 @@ optionalExprs : exprs
               ;
 
 exprs : expr
-      | expr T_COMMA exprs
+      | exprs T_COMMA expr
       ;
 
 callExpr : id T_LPAREN optionalExprs T_RPAREN { $$ = $1; }
@@ -312,7 +312,7 @@ block : T_LBRACE blockStat optionalBlockStats T_RBRACE
 blockStat : expr
           | def
           /* | Import */
-          |
+          | %empty
           ;
 
 optionalBlockStats : blockStats
@@ -320,7 +320,7 @@ optionalBlockStats : blockStats
                    ;
 
 blockStats : semi blockStat
-           | semi blockStat blockStats
+           | blockStats semi blockStat
            ;
 
  /* expression } */
@@ -383,12 +383,15 @@ optionalResultType : T_COLON type
 funcSign : id paramClause
          ;
 
-paramClause : T_LPAREN params T_RPAREN
-            | T_LPAREN T_RPAREN
+paramClause : T_LPAREN optionalParams T_RPAREN
             ;
 
+optionalParams : params
+               | %empty
+               ;
+
 params : param
-       | param T_COMMA params
+       | params T_COMMA param
        ;
 
 param : id T_COLON type
@@ -419,19 +422,19 @@ compileUnit : topStatSeq
 topStatSeq : topStat optionalTopStats
            ;
 
-topStat : def
-        /* | Import */
-        /* | Package */
-        |
-        ;
-
 optionalTopStats : topStats
                  | %empty
                  ;
 
 topStats : semi topStat
-         | semi topStat topStats
+         | topStats semi topStat
          ;
+
+topStat : def
+        /* | Import */
+        /* | Package */
+        | %empty
+        ;
 
 /* Package : T_PACKAGE id T_LBRACE T_RBRACE */
 /*         | T_PACKAGE id T_LBRACE topStats T_RBRACE */
