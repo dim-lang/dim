@@ -5,14 +5,20 @@
 
 %x IMPORT
 
-UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
-DEC (0|[1-9][0-9]*)
-HEX ([0-9a-fA-F])
+DIG ([0-9])
 OCT ([0-7])
+HEX ([0-9a-fA-F])
+DEC (0|[1-9][0-9]*)
 BIN ([01])
 EXP ([eE][-+]?[0-9]+)
 FS  ([dD])
 IS  ([uU]|([uU]?[lL]))
+
+NES ([^"\\\r\n])
+NL  (\\\n|\\\r\n)
+SES (\\['"?abfnrtv\\])
+OES (\\[0-7]{1,3})
+UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 
 %{
 #include "Ast.h"
@@ -212,19 +218,17 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
 
  /* float literal : 92.312, 92.312e-10, 10.2e+91, 1.0e+7 */
-{DEC}"."[0-9]+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{DEC}"."{DIG}+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 {DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
 
  /* multiple line string literal */
 ["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
 
- /* empty string */
-\"\"                                        { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
- /* one line string literal */
-\"([^\"\\]|\\['"?\\abfnrtv]|{UCN})+\"       { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
+ /* one line string */
+\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
 
  /* char literal */
-\'([^'\\]|\\['"?\\abfnrtv]|{UCN})\'         { T_LITERAL_TOKEN; return T_CHARACTER_LITERAL; }
+\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { T_LITERAL_TOKEN; return T_CHARACTER_LITERAL; }
 
  /* var id */
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }

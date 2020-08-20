@@ -30,8 +30,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 }
 
 %union {
-    AstDef *def;
-    AstExpr *expr;
+    Ast *ast;
     char *str;
     int tok;
 }
@@ -39,7 +38,7 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <tok> T_EOF
 
  /* keyword */
-%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_YIELD T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_MATCH T_ENUM T_SWITCH T_CASE T_MATCH T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
+%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_YIELD T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_MATCH T_ENUM T_SWITCH T_CASE T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
 %token <tok> T_CLASS T_TRAIT T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_AS T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
 
  /* primitive integer type */
@@ -71,29 +70,27 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 %token <tok> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_LARROW T_RARROW T_DOUBLE_RARROW
 %token <tok> T_NEWLINE
 
- /* semi */
-%token <tok> Semi OptionalSemi OptionalNewline OptionalNewlines Newlines
- /* Operator */
-%token <tok> AssignOp PrefixOp InfixOp PostfixOp
-
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
 
-%type <expr> Literal BooleanLiteral
-%type <expr> Id VarId
-%type <expr> PrefixOp EqualOp
-%type <expr> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr NonBlockExpr
-%type <expr> PostfixOp
-%type <expr> ArgExprs
+ /* semi */
+%token <ast> Semi OptionalSemi OptionalNewline OptionalNewlines Newlines
+ /* Operator */
+%token <ast> AssignOp PrefixOp InfixOp PostfixOp
 
-%type <expr> compound_statement Expr_statement iteration_statement jump_statement return_statement if_statement
-%type <expr> statement
-%type <expr> statement_list
+%type <ast> Literal BooleanLiteral
+%type <ast> Id VarId
+%type <ast> Expr PrefixExpr PostfixExpr InfixExpr SimpleExpr NonBlockExpr
+%type <ast> ArgExprs
 
-%type <def> VarDef FuncDef FuncSignDef FuncArg
-%type <def> Def
-%type <def> CompileUnit FuncArgs
+%type <ast> compound_statement Expr_statement iteration_statement jump_statement return_statement if_statement
+%type <ast> statement
+%type <ast> statement_list
+
+%type <ast> VarDef FuncDef FuncSignDef FuncArg
+%type <ast> Def
+%type <ast> CompileUnit FuncArgs
 
  /* operator precedence, low -> high */
 
@@ -139,24 +136,24 @@ extern YY_EXTRA_TYPE yyget_extra ( yyscan_t yyscanner );
 
  /* semi and newline { */
 
-Semi : T_SEMI
-     | T_NEWLINE
+Semi : T_SEMI { $$ = new A_Token($1, Y_POSITION(@1)); }
+     | T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
      ;
 
-OptionalSemi : Semi
-             |
+OptionalSemi : Semi { $$ = new A_Token($1, Y_POSITION(@1)); }
+             | { $$ = nullptr; }
              ;
 
-OptionalNewline : T_NEWLINE
-                |
+OptionalNewline : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+                | { $$ = nullptr; }
                 ;
 
-OptionalNewlines : Newlines
-                 |
+OptionalNewlines : Newlines { $$ = new A_Token($1, Y_POSITION(@1)); }
+                 | { $$ = nullptr; }
                  ;
 
-Newlines : T_NEWLINE
-         | T_NEWLINE Newlines
+Newlines : T_NEWLINE { $$ = new A_Token($1, Y_POSITION(@1)); }
+         | T_NEWLINE Newlines { $$ = new A_Token($1, Y_POSITION(@1)); }
          ;
 
  /* semi and newline } */
