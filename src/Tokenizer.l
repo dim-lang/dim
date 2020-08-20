@@ -1,5 +1,5 @@
 %option noyywrap nounput noinput nodefault nounistd
-%option reentrant bison-locations bison-bridge yylineno 8bit
+%option reentrant bison-locations bison-bridge yylineno 8bit pointer
 %option extra-type="Scanner *"
 
 %x IMPORT
@@ -13,8 +13,8 @@ EXP ([eE][-+]?[0-9]+)
 FS  ([dD])
 IS  ([uU]|([uU]?[lL]))
 NES ([^"\\\r\n])
-NL  (\\\n|\\\r\n)
-SES (\\['"?abfnrtv\\])
+NL  ("\\\n"|"\\\r\n")
+SES (\\[\'\"?abfnrtv\\])
 OES (\\[0-7]{1,3})
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 
