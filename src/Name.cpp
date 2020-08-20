@@ -15,16 +15,14 @@
 #define DOT std::string(".")
 #define HEX(s) fmt::format("{0:x}", std::hash<std::string>()(s))
 
-Counter Name::counter_(1ULL);
+static Counter NameCounter;
 
-Name Name::noName_("");
-
-std::unordered_map<std::string, Name> Name::nameMap_ = {
-    {"", Name::noName_},
+static std::unordered_map<std::string, Name> NameMap = {
+    {"", Name::noName()},
 };
 
 Name::Name(const std::string &value)
-    : value_(new std::string(value)), id_(counter_.next()) {}
+    : value_(new std::string(value)), id_(NameCounter.next()) {}
 
 int Name::compare(const Name &name) const {
   return value_->compare(*name.value_);
@@ -78,10 +76,13 @@ std::string Name::toSymbolName() const {
 }
 
 Name Name::get(const std::string &name) {
-  if (nameMap_.find(name) == nameMap_.end()) {
-    nameMap_.insert(std::make_pair(name, Name(name)));
+  if (NameMap.find(name) == NameMap.end()) {
+    NameMap.insert(std::make_pair(name, Name(name)));
   }
-  return nameMap_[name];
+  return NameMap[name];
 }
 
-const Name &Name::noName() { return noName_; }
+const Name &Name::noName() {
+  static Name noName("");
+  return noName;
+}

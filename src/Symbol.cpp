@@ -3,321 +3,250 @@
 
 #include "Symbol.h"
 #include "Ast.h"
-#include "Log.h"
+#include "Exception.h"
 #include "container/LinkedHashMap.hpp"
-#include "llvm/ADT/StringRef.h"
+#include "fmt/format.h"
 #include <cctype>
 #include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
 
-ScopeNode::ScopeNode(Symbol *s, Type *t, Ast *a, llvm::Value *v)
-    : symbol(s), type(t), ast(a), value(v) {
-  EX_ASSERT(symbol, "symbol must not be null");
-  EX_ASSERT(type, "type must not be null");
-  EX_ASSERT(ast, "ast must not be null");
+// Symbol {
+
+Symbol::Symbol(const Name &name, const Symbol *owner)
+    : name_(name), owner_(owner) {}
+
+const Name &Symbol::name() const { return name_; }
+
+const Symbol *Symbol::owner() const { return owner_; }
+
+// Symbol }
+
+// TypeSymbol {
+
+TypeSymbol::TypeSymbol(const Name &name, const Symbol *owner)
+    : name_(name), owner_(owner) {}
+
+const Name &TypeSymbol::name() const { return name_; }
+
+const Symbol *TypeSymbol::owner() const { return owner_; }
+
+// TypeSymbol }
+
+// Scope {
+
+Scope::Scope(const Name &name, const Symbol *owner) : Symbol(name, owner) {}
+
+void Scope::define(const Symbol *s, const TypeSymbol *ts) {
+  EX_ASSERT(s, "symbol s must not null");
+  EX_ASSERT(ts, "type symbol ts must not null");
+  EX_ASSERT(!s_scope_.contains(s->name()),
+            "symbol {} already exist in scope {}", s->name().raw(),
+            (void *)&s_scope_);
+  EX_ASSERT(!ts_scope_.contains(ts->name()),
+            "type symbol {} already exist in scope {}", ts->name().raw(),
+            (void *)&ts_scope_);
+  s_scope_.insert(s->name(), SymbolData(s, ts));
+  ts_scope_.insert(ts->name(), TypeSymbolData(ts));
 }
 
-ScopeNode::ScopeNode()
-    : symbol(nullptr), type(nullptr), ast(nullptr), value(nullptr) {}
-
-std::string ScopeNode::toString() const {
-  return fmt::format("[@ScopeNode symbol:{}, type:{}, ast:{}, value:{}]",
-                     symbol ? symbol->name() : "null",
-                     type ? type->name() : "null", ast ? ast->name() : "null",
-                     value ? value->getName().str() : "null");
-}
-
-const ScopeNode &ScopeNode::invalid() {
-  static ScopeNode invalid_snode;
-  return invalid_snode;
-}
-
-bool ScopeNode::operator==(const ScopeNode &other) const {
-  return this == &other ? true
-                        : (symbol == other.symbol && type == other.type &&
-                           ast == other.ast && value == other.value);
-}
-
-bool ScopeNode::operator!=(const ScopeNode &other) const {
-  return !(*this == other);
-}
-
-Symbol::Symbol(Scope *enclosingScope) : enclosingScope_(enclosingScope) {}
-
-Scope *Symbol::enclosingScope() const { return enclosingScope_; }
-
-Scope::Scope(Scope *enclosingScope) : Symbol(enclosingScope) {}
-
-Scope::~Scope() {
-  Scope::SMap::CIterator i = map_.begin();
-  for (Scope::SMap::CIterator i = map_.begin(); i != map_.end(); i++) {
-    ScopeNode *snode = i->second;
-    delete snode;
+const SymbolData &Scope::s_resolve(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  if (s_scope_.contains(name)) {
+    return s_scope_[name];
   }
-  map_.clear();
+  return static_cast<const Scope *>(owner_)->s_resolve(name);
 }
 
-void Scope::define(ScopeNode *snode) {
-  EX_ASSERT(snode, "snode must not be null");
-  EX_ASSERT(*snode != ScopeNode::invalid(), "snode {} must be valid",
-            snode->toString());
-  EX_ASSERT(map_.find(snode->symbol->name()) == map_.end(),
-            "symbol {} already exist", snode->symbol->name());
-  map_.insert(std::make_pair(snode->symbol->name(), snode));
+const TypeSymbolData &Scope::ts_resolve(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  if (ts_scope_.contains(name)) {
+    return ts_scope_[name];
+  }
+  return static_cast<const Scope *>(owner_)->ts_resolve(name);
 }
 
-ScopeNode *Scope::resolve(const std::string &name) const {
-  EX_ASSERT(name.length() > 0, "name#length {} > 0", name.length());
-  if (map_.find(name) != map_.end())
-    return map_[name];
-  if (enclosingScope_)
-    return enclosingScope_->resolve(name);
-  return nullptr;
+int Scope::resolveContains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  return s_resolveContains(name) + ts_resolveContains(name);
 }
 
-std::string Scope::toString() const {
+int Scope::s_resolveContains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  if (s_scope_.contains(name)) {
+    return 1;
+  }
+  if (owner_) {
+    return static_cast<const Scope *>(owner_)->s_resolveContains(name) + 1;
+  }
+  return 0;
+}
+
+int Scope::ts_resolveContains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  if (ts_scope_.contains(name)) {
+    return 1;
+  }
+  if (owner_) {
+    return static_cast<const Scope *>(owner_)->ts_resolveContains(name) + 1;
+  }
+  return 0;
+}
+
+bool Scope::contains(const Name &name) const {
+  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+            name.raw().length());
+  return s_scope_.contains(name) || ts_scope_.contains(name);
+}
+
+bool Scope::empty() const { return s_scope_.empty() && ts_scope_.empty(); }
+
+int Scope::size() const { return s_scope_.size() + ts_scope_.size(); }
+
+Scope::s_iterator Scope::s_begin() { return s_scope_.begin(); }
+
+Scope::s_const_iterator s_begin() const { return s_scope_.begin(); }
+
+Scope::s_iterator s_end() { return s_scope_.end(); }
+
+Scope::s_const_iterator s_end() const { return s_scope_.end(); }
+
+Scope::ts_iterator ts_begin() { return ts_scope_.begin(); }
+
+Scope::ts_const_iterator ts_begin() const { return ts_scope_.begin(); }
+
+Scope::ts_iterator ts_end() { return ts_scope_.end(); }
+
+Scope::ts_const_iterator ts_end() const { return ts_scope_.end(); }
+
+// Scope }
+
+// Ts_Builtin {
+
+Ts_Builtin::Ts_Builtin(const Name &name, const Symbol *owner)
+    : TypeSymbol(name, owner) {}
+
+TypeSymbolCategory Ts_Builtin::category() const {
+  return TypeSymbolCategory::Builtin;
+}
+
+std::string Ts_Builtin::toString() const {
+  return fmt::format("[{} position:{}]", name().raw(), position.toString());
+}
+
+// Ts_Builtin }
+
+// Ts_Class {
+
+Ts_Class::Ts_Class(const Name &name, const Symbol *owner,
+                   const std::vector<Symbol *> &fields,
+                   const std::vector<Symbol *> &methods)
+    : TypeSymbol(name, owner), fields_(fields), methods_(methods) {
+  for (int i = 0; i < (int)fields_.size(); i++) {
+    EX_ASSERT(fields_[i], "fields_[{}] must not null", i);
+  }
+  for (int i = 0; i < (int)methods_.size(); i++) {
+    EX_ASSERT(methods_[i], "methods_[{}] must not null", i);
+  }
+}
+
+TypeSymbolCategory Ts_Class::category() const {
+  return TypeSymbolCategory::Class;
+}
+
+std::string Ts_Class::toString() const {
   std::stringstream ss;
-  ss << fmt::format("[@{} name_:{}, enclosingScope_:{}, map_#size:{}, ",
-                    stringify(), name(), enclosingScope_->name(), map_.size());
-  int count = 0;
-  Scope::SMap::CIterator i = map_.begin();
-  for (; i != map_.end(); i++, count++) {
-    ScopeNode *snode = i->second;
-    ss << fmt::format("[{}: {}]", i->first, snode ? snode->toString() : "null");
-    if (count != map_.size() - 1) {
-      ss << ", ";
+  ss << fmt::format("[{} position:{}, fields:", name().raw(),
+                    position.toString());
+  if (fields_.size() == 0) {
+    ss << "empty, ";
+  } else {
+    for (int i = 0; i < (int)fields_.size(); i++) {
+      ss << fmt::format("{}, ", fields_[i]->name().raw());
     }
   }
+  ss << "methods:";
+  if (methods_.size() == 0) {
+    ss << "empty";
+  } else {
+    for (int i = 0; i < (int)methods_.size(); i++) {
+      ss << fmt::format("{}", methods_[i]->name().raw());
+      if (i < (int)methods_.size() - 1) {
+        ss << ", ";
+      }
+    }
+  }
+  ss << "]";
   return ss.str();
 }
 
-Scope::Iterator Scope::begin() { return map_.begin(); }
+std::vector<Symbol *> &Ts_Class::fields() { return fields_; }
 
-Scope::CIterator Scope::begin() const { return map_.begin(); }
+const std::vector<Symbol *> &Ts_Class::fields() const { return fields_; }
 
-Scope::Iterator Scope::end() { return map_.end(); }
+std::vector<Symbol *> &Ts_Class::methods() { return methods_; }
 
-Scope::CIterator Scope::end() const { return map_.end(); }
+const std::vector<Symbol *> &Ts_Class::methods() const { return methods_; }
 
-int Scope::size() const { return (int)map_.size(); }
+// Ts_Class }
 
-bool Scope::empty() const { return map_.empty(); }
+// Ts_Func {
 
-// type start
-
-BuiltinType::BuiltinType(const std::string &name) : builtinTypeName_(name) {}
-
-std::string BuiltinType::name() const { return builtinTypeName_; }
-
-T_ty BuiltinType::type() const { return T_ty::Builtin; }
-
-const BuiltinType *BuiltinType::ty_int8() {
-  static const BuiltinType *bt = new BuiltinType("int8");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_uint8() {
-  static const BuiltinType *bt = new BuiltinType("uint8");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_int16() {
-  static const BuiltinType *bt = new BuiltinType("int16");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_uint16() {
-  static const BuiltinType *bt = new BuiltinType("uint16");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_int32() {
-  static const BuiltinType *bt = new BuiltinType("int32");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_uint32() {
-  static const BuiltinType *bt = new BuiltinType("uint32");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_int64() {
-  static const BuiltinType *bt = new BuiltinType("int64");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_uint64() {
-  static const BuiltinType *bt = new BuiltinType("uint64");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_int128() {
-  static BuiltinType *bt = new BuiltinType("int128");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_uint128() {
-  static BuiltinType *bt = new BuiltinType("uint128");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_float32() {
-  static BuiltinType *bt = new BuiltinType("float32");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_float64() {
-  static BuiltinType *bt = new BuiltinType("float64");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_float128() {
-  static BuiltinType *bt = new BuiltinType("float128");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_boolean() {
-  static BuiltinType *bt = new BuiltinType("boolean");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_nil() {
-  static BuiltinType *bt = new BuiltinType("nil");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::ty_void() {
-  static BuiltinType *bt = new BuiltinType("void");
-  return bt;
-}
-
-const BuiltinType *BuiltinType::get(const std::string &typeName) {
-  static std::unordered_map<std::string, const BuiltinType *> builtinMap = {
-      {"int8", BuiltinType::ty_int8()},
-      {"uint8", BuiltinType::ty_uint8()},
-      {"int16", BuiltinType::ty_int16()},
-      {"uint16", BuiltinType::ty_uint16()},
-      {"int32", BuiltinType::ty_int32()},
-      {"uint32", BuiltinType::ty_uint32()},
-      {"int64", BuiltinType::ty_int64()},
-      {"uint64", BuiltinType::ty_uint64()},
-      {"int128", BuiltinType::ty_int128()},
-      {"uint128", BuiltinType::ty_uint128()},
-      {"float32", BuiltinType::ty_float32()},
-      {"float64", BuiltinType::ty_float64()},
-      {"float128", BuiltinType::ty_float128()},
-      {"boolean", BuiltinType::ty_boolean()},
-      {"nil", BuiltinType::ty_nil()},
-      {"void", BuiltinType::ty_void()},
-  };
-  return builtinMap.find(typeName) == builtinMap.end() ? nullptr
-                                                       : builtinMap[typeName];
-}
-
-ClassType::ClassType(const std::string &classType,
-                     const std::vector<std::pair<Symbol *, Type *>> &memberList,
-                     const std::vector<std::pair<Symbol *, Type *>> &methodList)
-    : classType_(classType) {}
-
-std::string ClassType::name() const { return classType_; }
-
-T_ty ClassType::type() const { return T_ty::Class; }
-
-FunctionType::FunctionType(const std::vector<Type *> &argTypeList,
-                           Type *result) {
-  EX_ASSERT(result, "result is null");
+static std::string buildFunctionType(const std::vector<TypeSymbol *> &params,
+                                     const TypeSymbol *result) {
   std::stringstream ss;
-  ss << "func(";
-  for (int i = 0; i < (int)argTypeList.size(); i++) {
-    ss << argTypeList[i]->name();
-    if (i < (int)argTypeList.size() - 1) {
+  ss << "(";
+  for (int i = 0; i < (int)params_.size(); i++) {
+    ss << params[i]->name().raw();
+    if (i < (int)params_.size() - 1) {
       ss << ",";
     }
   }
-  ss << "):" << result->name();
-  functionType_ = ss.str();
+  ss << fmt::format(")->{}", result_->name().raw());
+  return ss.str();
 }
 
-std::string FunctionType::name() const { return functionType_; }
+Ts_Func::Ts_Func(const Name &name, const Symbol *owner,
+                 const std::vector<TypeSymbol *> &params,
+                 const TypeSymbol *result)
+    : TypeSymbol(buildFunctionType(params, result), owner), params_(params),
+      result_(result) {}
 
-T_ty FunctionType::type() const { return T_ty::Function; }
-
-ScopeType::ScopeType(const std::string &scopeTypeName)
-    : scopeTypeName_(scopeTypeName) {}
-
-std::string ScopeType::name() const { return scopeTypeName_; }
-
-T_ty ScopeType::type() const { return T_ty::Scope; }
-
-ScopeType *ScopeType::ty_local() {
-  static ScopeType *ty_local = new ScopeType("LocalScopeType");
-  return ty_local;
+TypeSymbolCategory Ts_Func::category() const {
+  return TypeSymbolCategory::Func;
 }
 
-ScopeType *ScopeType::ty_global() {
-  static ScopeType *ty_global = new ScopeType("GlobalScopeType");
-  return ty_global;
+std::string Ts_Func::toString() const {
+  std::stringstream ss;
+  ss << fmt::format("[{} position:{}, params:", name().raw(),
+                    position.toString());
+  if (params_.empty()) {
+    ss << "empty, ";
+  } else {
+    for (int i = 0; i < params_.size(); i++) {
+      ss << fmt::format("{}, ", params_[i]->toString());
+    }
+  }
+  ss << fmt::format("result:{}]", result_->toString());
+  return ss.str();
 }
 
-// type end
+std::vector<TypeSymbol *> &Ts_Func::params() { return params_; }
 
-// symbol start
+const std::vector<TypeSymbol *> &Ts_Func::params() const { return params_; }
 
-VariableSymbol::VariableSymbol(const std::string &variableName,
-                               Scope *enclosingScope)
-    : Symbol(enclosingScope), variableName_(variableName) {}
+TypeSymbol *&Ts_Func::result() { return result_; }
 
-std::string VariableSymbol::name() const { return variableName_; }
+const TypeSymbol *Ts_Func::result() const { return result_; }
 
-S_ty VariableSymbol::type() const { return S_ty::Variable; }
+// Ts_Func }
 
-FunctionArgumentSymbol::FunctionArgumentSymbol(
-    const std::string &functionArgumentName, Scope *enclosingScope)
-    : Symbol(enclosingScope), functionArgumentName_(functionArgumentName) {}
+// S_Var {
 
-std::string FunctionArgumentSymbol::name() const {
-  return functionArgumentName_;
-}
-
-S_ty FunctionArgumentSymbol::type() const { return S_ty::FunctionArgument; }
-
-FunctionSymbol::FunctionSymbol(const std::string &functionName,
-                               Scope *enclosingScope)
-    : Scope(enclosingScope), functionName_(functionName) {}
-
-std::string FunctionSymbol::name() const { return functionName_; }
-
-S_ty FunctionSymbol::type() const { return S_ty::Function; }
-
-std::string FunctionSymbol::stringify() const { return "FunctionSymbol"; }
-
-ClassSymbol::ClassSymbol(const std::string &className, Scope *enclosingScope)
-    : Scope(enclosingScope), className_(className) {}
-
-std::string ClassSymbol::name() const { return className_; }
-
-S_ty ClassSymbol::type() const { return S_ty::Class; }
-
-std::string ClassSymbol::stringify() const { return "ClassSymbol"; }
-
-GlobalScope::GlobalScope() : Scope(nullptr) {}
-
-std::string GlobalScope::name() const {
-  static std::string globalScopeName = "GlobalScope";
-  return globalScopeName;
-}
-
-S_ty GlobalScope::type() const { return S_ty::Global; }
-
-std::string GlobalScope::stringify() const { return "GlobalScope"; }
-
-LocalScope::LocalScope(const std::string &localScopeName, Scope *enclosingScope)
-    : Scope(enclosingScope), localScopeName_(localScopeName) {}
-
-std::string LocalScope::name() const { return localScopeName_; }
-
-S_ty LocalScope::type() const { return S_ty::Local; }
-
-std::string LocalScope::stringify() const { return "LocalScope"; }
+// S_Var }

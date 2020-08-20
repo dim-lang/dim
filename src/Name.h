@@ -42,10 +42,6 @@ protected:
 
   std::shared_ptr<std::string> value_;
   unsigned long long id_;
-
-  static Counter counter_;
-  static Name noName_;
-  static std::unordered_map<std::string, Name> nameMap_;
 };
 
 namespace std {

@@ -7,8 +7,8 @@
 class DateTime {
 public:
   // @return  current timestamp in seconds
-  static int64_t now();
+  static long long now();
 
   // @return  current timestamp in milliseconds
-  static int64_t millinow();
+  static long long nowms();
 };

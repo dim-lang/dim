@@ -6,9 +6,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
 #include "enum.h"
-#include "interface/Namely.h"
-#include "interface/Stringify.h"
-#include "llvm/IR/Value.h"
 #include <string>
 #include <tuple>
 #include <vector>
@@ -20,7 +17,7 @@ BETTER_ENUM(SymbolCategory, int,
             // function
             Func,
             // class
-            Class, Member, Method,
+            Class, Field, Method,
             // scope
             Local, Global)
 
@@ -40,24 +37,26 @@ class Scope;
 
 class S_Var;
 class S_Func;
+class S_Param; // function formal parameter
 class S_Class;
-class S_Member;
-class S_Method;
-class S_Local;
-class S_Global;
+class S_Field;  // class member variable
+class S_Method; // class method
 
-class Ts_Builtin;
-class Ts_Func;
-class Ts_Class;
+class S_Local;  // Name to Symbol scope
+class S_Global; // Name to Symbol scope
+
+class Ts_Builtin; // builtin type
+class Ts_Func;    // function type
+class Ts_Class;   // class type
 
 class Symbol : private boost::noncopyable {
 public:
   Symbol(const Name &name, const Symbol *owner);
   virtual ~Symbol() = default;
-  virtual SymbolCategory category() const;
   virtual const Name &name() const;
   virtual const Symbol *owner() const;
-  virtual std::string toString() const;
+  virtual SymbolCategory category() const = 0;
+  virtual std::string toString() const = 0;
 
   static const Symbol *global();
 
@@ -70,10 +69,10 @@ class TypeSymbol : private boost::noncopyable {
 public:
   TypeSymbol(const Name &name, const Symbol *owner);
   virtual ~TypeSymbol() = default;
-  virtual TypeSymbolCategory category() const;
   virtual const Name &name() const;
   virtual const Symbol *owner() const;
-  virtual std::string toString() const;
+  virtual TypeSymbolCategory category() const = 0;
+  virtual std::string toString() const = 0;
 
 protected:
   Name name_;
@@ -92,11 +91,13 @@ protected:
 struct SymbolData {
   Symbol *symbol;
   TypeSymbol *typeSymbol;
-  llvm::Value *llvmValue;
+  Position position;
+  bool escape;
 
   SymbolData(Symbol *a_symbol = nullptr, TypeSymbol *a_typeSymbol = nullptr,
-             llvm::Value *a_llvmValue = nullptr)
-      : symbol(a_symbol), typeSymbol(a_typeSymbol), llvmValue(a_llvmValue) {}
+             const Position &a_position = Position(), bool a_escape = false)
+      : symbol(a_symbol), typeSymbol(a_typeSymbol), position(a_position),
+        escape(a_escape) {}
 };
 
 /**
@@ -108,12 +109,15 @@ struct SymbolData {
  */
 struct TypeSymbolData {
   TypeSymbol *typeSymbol;
+  Position position;
+  bool escape;
 
-  TypeSymbolData(TypeSymbol *a_typeSymbol = nullptr)
-      : typeSymbol(a_typeSymbol) {}
+  TypeSymbolData(TypeSymbol *a_typeSymbol = nullptr,
+                 const Position &position = Position(), bool a_escape = false)
+      : typeSymbol(a_typeSymbol), position(a_position), escape(a_escape) {}
 };
 
-class Scope : private boost::noncopyable {
+class Scope : public Symbol {
 public:
   using S_Scope = LinkedHashMap<Name, SymbolData>;
   using Ts_Scope = LinkedHashMap<Name, TypeSymbolData>;
@@ -122,12 +126,20 @@ public:
   using ts_iterator = Ts_Scope::iterator;
   using ts_const_iterator = Ts_Scope::const_iterator;
 
-  // scope api
-  virtual void s_define(const Symbol *s, const TypeSymbol *ts);
+  Scope(const Name &name, const Symbol *owner);
+  virtual ~Scope() = default;
+
+  virtual void define(const Symbol *s, const TypeSymbol *ts);
   virtual const SymbolData &s_resolve(const Name &name) const;
-  virtual void ts_define(const TypeSymbol *symbol);
   virtual const TypeSymbolData &ts_resolve(const Name &name) const;
+  virtual int resolveContains(const Name &name) const;
+  virtual int s_resolveContains(const Name &name) const;
+  virtual int ts_resolveContains(const Name &name) const;
+
+  // work only in plain level
   virtual bool contains(const Name &name) const;
+  virtual bool empty() const;
+  virtual int size() const;
 
   virtual s_iterator s_begin();
   virtual s_const_iterator s_begin() const;
@@ -148,51 +160,35 @@ protected:
 
 class Ts_Builtin : public TypeSymbol {
 public:
+  Ts_Builtin(const Name &name, const Symbol *owner);
   virtual ~Ts_Builtin() = default;
   virtual TypeSymbolCategory category() const;
   virtual std::string toString() const;
-
-  static const Ts_Builtin *ts_byte();
-  static const Ts_Builtin *ts_ubyte();
-  static const Ts_Builtin *ts_short();
-  static const Ts_Builtin *ts_ushort();
-  static const Ts_Builtin *ts_int();
-  static const Ts_Builtin *ts_uint();
-  static const Ts_Builtin *ts_long();
-  static const Ts_Builtin *ts_ulong();
-  static const Ts_Builtin *ts_llong();
-  static const Ts_Builtin *ts_ullong();
-  static const Ts_Builtin *ts_float();
-  static const Ts_Builtin *ts_double();
-  static const Ts_Builtin *ts_boolean();
-  static const Ts_Builtin *ts_character();
-  static const Ts_Builtin *ts_void();
-
-  static const Ts_Builtin *get(const Name &name);
-
-private:
-  Ts_Builtin(const Name &name);
 };
 
 class Ts_Class : public TypeSymbol {
 public:
   Ts_Class(const Name &name, const Symbol *owner,
-           const std::vector<Symbol *> &fields);
+           const std::vector<Symbol *> &fields,
+           const std::vector<Symbol *> &methods);
   virtual ~Ts_Class() = default;
   virtual TypeSymbolCategory category() const;
   virtual std::string toString() const;
 
   virtual std::vector<Symbol *> &fields();
   virtual const std::vector<Symbol *> &fields() const;
+  virtual std::vector<Symbol *> &methods();
+  virtual const std::vector<Symbol *> &methods() const;
 
 private:
   std::vector<Symbol *> fields_;
+  std::vector<Symbol *> methods_;
 };
 
 class Ts_Func : public TypeSymbol {
 public:
   Ts_Func(const Name &name, const Symbol *owner,
-          const std::vector<TypeSymbol *> &paramTypes,
+          const std::vector<TypeSymbol *> &params,
           const TypeSymbol *resultType);
   virtual ~Ts_Func();
   virtual TypeSymbolCategory category() const;
@@ -204,8 +200,8 @@ public:
   virtual const TypeSymbol *result() const;
 
 private:
-  std::vector<TypeSymbol *> paramTypes_;
-  TypeSymbol *resultType_;
+  std::vector<TypeSymbol *> params_;
+  TypeSymbol *result_;
 };
 
 // type symbol }
@@ -235,26 +231,42 @@ private:
   std::vector<Symbol *> params_;
 };
 
+class S_Param : public Symbol {
+public:
+  S_Param(const Name &name, const Symbol *owner);
+  virtual ~S_Param() = default;
+  virtual SymbolCategory category() const;
+  virtual std::string toString() const;
+};
+
 class S_Class : public Symbol, public Scope {
 public:
   S_Class(const Name &name, const Symbol *owner,
-          const std::vector<Symbol *> &members,
+          const std::vector<Symbol *> &fields,
           const std::vector<Symbol *> &methods);
   virtual ~S_Class() = default;
   virtual SymbolCategory category() const;
   virtual std::string toString() const;
 
-  virtual std::vector<Symbol *> &members();
-  virtual const std::vector<Symbol *> &members() const;
+  virtual std::vector<Symbol *> &fields();
+  virtual const std::vector<Symbol *> &fields() const;
   virtual std::vector<Symbol *> &methods();
   virtual const std::vector<Symbol *> &methods() const;
 
 private:
-  std::vector<Symbol *> members_;
+  std::vector<Symbol *> fields_;
   std::vector<Symbol *> methods_;
 };
 
-class S_Method : public Symbol, public Scope {
+class S_Field : public Symbol {
+public:
+  S_Field(const Name &name, const Symbol *owner);
+  virtual ~S_Field() = default;
+  virtual SymbolCategory category() const;
+  virtual std::string toString() const;
+};
+
+class S_Method : public Scope {
 public:
   S_Method(const Name &name, const Symbol *owner,
            const std::vector<Symbol *> &params);
@@ -269,7 +281,7 @@ private:
   std::vector<Symbol *> params_;
 };
 
-class S_Local : public Symbol, public Scope {
+class S_Local : public Scope {
 public:
   S_Local(const Name &name, const Symbol *owner);
   virtual ~S_Local() = default;
@@ -277,12 +289,16 @@ public:
   virtual std::string toString() const;
 };
 
-class S_Global : public Symbol, public Scope {
+class S_Global : public Scope {
 public:
-  S_Global(const Name &name, const Symbol *owner);
   virtual ~S_Global() = default;
   virtual SymbolCategory category() const;
   virtual std::string toString() const;
+
+  static const S_Global *global();
+
+private:
+  S_Global(const Name &name, const Symbol *owner);
 };
 
 // symbol }

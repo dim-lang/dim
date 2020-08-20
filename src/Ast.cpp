@@ -5,6 +5,7 @@
 #include "Counter.h"
 #include "NameGenerator.h"
 #include "Parser.tab.hpp"
+#include "Strings.h"
 #include "TokenName.h"
 #include <algorithm>
 #include <string>
@@ -15,81 +16,12 @@
 
 static NameGenerator nameGen("", "_", "@");
 
-// string utility {
-
-static bool stringStartsWith(const std::string &s,
-                             const std::vector<std::string> &prefixList) {
-  return std::all_of(
-      prefixList.begin(), prefixList.end(), [&](const std::string &prefix) {
-        return s.length() >= prefix.length() && s.find(prefix) == 0;
-      });
-}
-
-static bool stringStartsWith(const std::string &s,
-                             const std::vector<char> &prefixList) {
-  return std::all_of(prefixList.begin(), prefixList.end(),
-                     [&](const char &prefix) {
-                       return s.length() >= 1 && s.find(prefix) == 0;
-                     });
-}
-
-static bool stringEndsWith(const std::string &s,
-                           const std::vector<std::string> &postfixList) {
-  return std::all_of(
-      postfixList.begin(), postfixList.end(), [&](const std::string &postfix) {
-        return s.length() >= postfix.length() && s.find(postfix) == 0;
-      });
-}
-
-static bool stringEndsWith(const std::string &s,
-                           const std::vector<char> &postfixList) {
-  return std::all_of(postfixList.begin(), postfixList.end(),
-                     [&](const char &postfix) {
-                       return s.length() >= 1 && s.find(postfix) == 0;
-                     });
-}
-
-static std::string stringReplace(const std::string &s, char from, char to) {
-  std::string r(s);
-  std::replace(r.begin(), r.end(), from, to);
-  return r;
-}
-
-static std::string stringTrim(const std::string &s, int n) {
-  return s.length() > n ? s.substr(0, n) : s;
-}
-
-// string utility }
-
-// AstNamely {
-
-AstNamely::AstNamely(const std::string &name) : name_(Name::get(name)) {}
-
-const Name &AstNamely::name() const { return name_; }
-
-// AstNamely }
-
-// AstPositional {
-
-AstPositional::AstPositional() : position_() {}
-
-AstPositional::AstPositional(const Position &position) : position_(position) {}
-
-const Position &AstPositional::position() const { return position_; }
-
-void AstPositional::locate(const Position &position) {
-  position_.update(position);
-}
-
-// AstPositional }
-
 // Ast {
 
-Ast::Ast(const std::string &name)
-    : AstNamely(name), AstPositional(Position()) {}
+Ast::Ast(const std::string &name) : Namely(name), Positional() {}
 
 Ast::Ast(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
+    : Namely(name), Positional(position) {}
 
 bool Ast::isLiteral(const Ast *e) {
   if (!e)
@@ -215,8 +147,7 @@ A_Integer::A_Integer(const std::string &literal, const Position &position)
   EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  if (stringStartsWith(literal, std::vector<std::string>{"0x", "0X", "0o", "0O",
-                                                         "0b", "0B"})) {
+  if (Strings::startWith(literal, {"0x", "0X", "0o", "0O", "0b", "0B"})) {
     switch (literal[1]) {
     case 'x':
     case 'X':
@@ -245,15 +176,15 @@ A_Integer::A_Integer(const std::string &literal, const Position &position)
   }
 
   int endPosition = (int)literal.length();
-  if (stringEndsWith(literal, std::vector<std::string>{"ul", "UL"})) {
+  if (Strings::endWith(literal, {"ul", "UL"})) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 2;
-  } else if (stringEndsWith(literal, std::vector<char>{'l', 'L'})) {
+  } else if (Strings::endWith(literal, {'l', 'L'})) {
     bitCategory_ = A_Integer::BitCategory::LONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 1;
-  } else if (stringEndsWith(literal, std::vector<char>{'u', 'U'})) {
+  } else if (Strings::endWith(literal, {'u', 'U'})) {
     bitCategory_ = A_Integer::BitCategory::UNSIGNED;
     bits_ = 32;
     endPosition = (int)literal.length() - 1;
@@ -318,7 +249,7 @@ A_Float::A_Float(const std::string &literal, const Position &position)
 
   int startPosition = 0;
   int endPosition = (int)literal.length();
-  if (stringEndsWith(literal, std::vector<std::string>{"d", "D"})) {
+  if (Strings::endWith(literal, {"d", "D"})) {
     bitCategory_ = A_Float::BitCategory::DBL;
     bits_ = 64;
     endPosition = (int)literal.length();
@@ -359,16 +290,13 @@ const static std::unordered_map<A_String::QuoteCategory, std::string>
 
 A_String::A_String(const std::string &literal, const Position &position)
     : Ast(literal, position),
-      parsed_(
-          literal.length() >= 3 &&
-                  stringStartsWith(literal, std::vector<std::string>{"\"\"\""})
-              ? literal.substr(3, literal.length() - 6)
-              : literal.substr(1, literal.length() - 2)),
-      quoteCategory_(
-          literal.length() >= 3 &&
-                  stringStartsWith(literal, std::vector<std::string>{"\"\"\""})
-              ? A_String::QuoteCategory::TRIPLE
-              : A_String::QuoteCategory::SINGLE) {}
+      parsed_(literal.length() >= 3 && Strings::startWith(literal, {"\"\"\""})
+                  ? literal.substr(3, literal.length() - 6)
+                  : literal.substr(1, literal.length() - 2)),
+      quoteCategory_(literal.length() >= 3 &&
+                             Strings::startWith(literal, {"\"\"\""})
+                         ? A_String::QuoteCategory::TRIPLE
+                         : A_String::QuoteCategory::SINGLE) {}
 
 AstCategory A_String::category() const { return AstCategory::String; }
 
@@ -690,7 +618,7 @@ const Ast *A_PrefixExpr::expr() const { return expr_; }
 // AstType {
 
 AstType::AstType(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
+    : Namely(name), Positional(position) {}
 
 // AstType}
 
@@ -750,11 +678,10 @@ const A_PrimitiveType *A_PrimitiveType::get(int token,
 
 // Ast {
 
-Ast::Ast(const std::string &name)
-    : AstNamely(name), AstPositional(Position()) {}
+Ast::Ast(const std::string &name) : Namely(name), Positional(Position()) {}
 
 Ast::Ast(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
+    : Namely(name), Positional(position) {}
 
 // Ast }
 
@@ -949,10 +876,10 @@ std::string A_VoidExpr::toString() const {
 // statement {
 
 AstStatement::AstStatement(const std::string &name)
-    : AstNamely(name), AstPositional(Position()) {}
+    : Namely(name), Positional(Position()) {}
 
 AstStatement::AstStatement(const std::string &name, const Position &position)
-    : AstNamely(name), AstPositional(position) {}
+    : Namely(name), Positional(position) {}
 
 // statement }
 
