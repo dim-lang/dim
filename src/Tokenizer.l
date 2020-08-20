@@ -27,23 +27,23 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 #include "Exception.h"
 #include "Log.h"
 
-#define Y_LENG    yyget_leng(yyextra->yy_scaninfo())
-#define Y_TEXT    yyget_text(yyextra->yy_scaninfo())
-#define Y_LVAL    yyget_lval(yyextra->yy_scaninfo())
-#define Y_LLOC    yyget_lloc(yyextra->yy_scaninfo())
-#define Y_LINENO  yyget_lineno(yyextra->yy_scaninfo())
+/* #define Y_LENG    yyget_leng(yyextra->yy_scanner) */
+/* #define Y_TEXT    yyget_text(yyextra->yy_scanner) */
+/* #define Y_LVAL    yyget_lval(yyextra->yy_scanner) */
+/* #define Y_LLOC    yyget_lloc(yyextra->yy_scanner) */
+/* #define Y_LINENO  yyget_lineno(yyextra->yy_scanner) */
 
-#define T_LITERAL_TOKEN     (Y_LVAL->str = Strings::duplicate(Y_TEXT, Y_LENG))
-#define T_INTEGER_TOKEN(t)  (Y_LVAL->tok = (t))
+#define T_LITERAL_TOKEN     (yylval->str = Strings::duplicate(yytext, yyleng))
+#define T_INTEGER_TOKEN(t)  (yylval->tok = (t))
 
 #define YY_USER_ACTION                                                      \
-    Y_LLOC->first_line = Y_LLOC->last_line;                                 \
-    Y_LLOC->first_column = Y_LLOC->last_column;                             \
-    if (Y_LLOC->last_line == Y_LINENO) {                                    \
-        Y_LLOC->last_column += Y_LENG;                                      \
+    yylloc->first_line = yylloc->last_line;                                 \
+    yylloc->first_column = yylloc->last_column;                             \
+    if (yylloc->last_line == yylineno) {                                    \
+        yylloc->last_column += yyleng;                                      \
     } else {                                                                \
-        Y_LLOC->last_line = Y_LINENO;                                       \
-        Y_LLOC->last_column = Y_TEXT + Y_LENG - strrchr(Y_TEXT, '\n');      \
+        yylloc->last_line = yylineno;                                       \
+        yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');      \
     }
 %}
 
@@ -235,25 +235,25 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
  /* import module */
 ^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
-                                                yyextra->pushBuffer(Y_TEXT);
+                                                yyextra->pushBuffer(yytext);
                                                 BEGIN INITIAL;
                                             }
 <IMPORT>.|\n                                {
-                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
-                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
+                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
                                                 BEGIN INITIAL;
                                             }
 <<EOF>>                                     {
                                                 if (!yyextra->popBuffer()) {
-                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
                                                     yyterminate();
                                                 }
                                             }
 
  /* invalid token */
 .                                           {
-                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
-                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), Y_LINENO, Y_TEXT, Y_LENG);
+                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
+                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
                                             }
 
 %%
