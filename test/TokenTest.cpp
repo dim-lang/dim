@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Buffer.h"
 #include "Log.h"
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include "Scanner.h"
 #include "catch2/catch.hpp"
 #include <cstdio>

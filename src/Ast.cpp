@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "NameGenerator.h"
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include "Strings.h"
 #include "TokenName.h"
 #include <algorithm>

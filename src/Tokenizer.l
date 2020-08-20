@@ -12,7 +12,6 @@ BIN ([01])
 EXP ([eE][-+]?[0-9]+)
 FS  ([dD])
 IS  ([uU]|([uU]?[lL]))
-
 NES ([^"\\\r\n])
 NL  (\\\n|\\\r\n)
 SES (\\['"?abfnrtv\\])
@@ -22,7 +21,7 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 %{
 #include "Ast.h"
 #include "Buffer.h"
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include "Scanner.h"
 #include "Strings.h"
 #include "Exception.h"
@@ -109,8 +108,8 @@ prefix      { return T_INTEGER_TOKEN(T_PREFIX); }
 postfix     { return T_INTEGER_TOKEN(T_POSTFIX); }
 package     { return T_INTEGER_TOKEN(T_PACKAGE); }
 
-/* primitive integer type */
-byte        { return T_INTEGER_TOKEN(T_BYTE); }
+ /* primitive integer type */
+byte        { return T_INTEGER_TOKEN(T_BYTE); } */
 ubyte       { return T_INTEGER_TOKEN(T_UBYTE); }
 short       { return T_INTEGER_TOKEN(T_SHORT); }
 ushort      { return T_INTEGER_TOKEN(T_USHORT); }
@@ -121,17 +120,17 @@ ulong       { return T_INTEGER_TOKEN(T_ULONG); }
 llong       { return T_INTEGER_TOKEN(T_LLONG); }
 ullong      { return T_INTEGER_TOKEN(T_ULLONG); }
 
-/* primitive integer type */
+ /* primitive integer type */
 float       { return T_INTEGER_TOKEN(T_FLOAT); }
 double      { return T_INTEGER_TOKEN(T_DOUBLE); }
 
-/* primitive boolean type */
+ /* primitive boolean type */
 boolean     { return T_INTEGER_TOKEN(T_BOOLEAN); }
 
-/* primitive character type */
+ /* primitive character type */
 char        { return T_INTEGER_TOKEN(T_CHAR); }
 
-/* and or not operator */
+ /* and or not operator */
 and         { return T_INTEGER_TOKEN(T_AND); }
 or          { return T_INTEGER_TOKEN(T_OR); }
 not         { return T_INTEGER_TOKEN(T_NOT); }

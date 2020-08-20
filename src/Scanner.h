@@ -4,7 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Buffer.h"
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include <string>
 #include <tuple>
 #include <utility>

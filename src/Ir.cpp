@@ -9,7 +9,7 @@
 #include "IrUtil.h"
 #include "Log.h"
 #include "NameGenerator.h"
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include "Symbol.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"

@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Parser.tab.hpp"
+#include "Parser.tab.h"
 #include "boost/predef.h"
 #include <cstdio>
 #include <stack>
