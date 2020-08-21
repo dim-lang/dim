@@ -22,6 +22,8 @@ class Ast;
     int tok;
 }
 
+ /* token { */
+
 %token <tok> T_EOF T_EMPTY
 
  /* keyword */
@@ -115,6 +117,7 @@ class Ast;
 %token <tok> T_TILDE '~'
 %token <tok> T_EXCLAM '!'
 %token <tok> T_CARET '^'
+%token <tok> T_CARET2 '^^'
 
 %token <tok> T_LSHIFT "<<"
 %token <tok> T_RSHIFT ">>"
@@ -186,45 +189,51 @@ class Ast;
 %type <ast> compileUnit topStatSeq topStat topStats
 %type <ast> optionalTopStats
 
- /* operator precedence, low -> high */
+ /* token } */
+
+ /* low -> high precedence { */
+
  /* comma */
-%left T_COMMA /* , */
+%left T_COMMA
 
  /* equal */
-%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL /* &= |= ^= */
-%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL /* >>= <<= >>>= */
-%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL /* *= /= %= */
-%right T_PLUS_EQUAL T_MINUS_EQUAL /* += -= */
-%right T_EQUAL /* = */
+%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
+%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
+%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
+%right T_PLUS_EQUAL T_MINUS_EQUAL
+%right T_EQUAL
 
  /* conditional */
-%left T_QUESTION T_COLON /* ? : */
+%left T_QUESTION T_COLON
 
- /* binary_operator */
-%left T_BAR2 /* || */
-%left T_OR /* or */
-%left T_AMPERSAND2 /* && */
-%left T_AND /* and */
-%left T_BAR /* | */
-%left T_CARET /* ^ */
-%left T_AMPERSAND /* & */
-%left T_EQ T_NEQ /* == != */
-%left T_LT T_LE T_GT T_GE /* < <= > >= */
-%left T_LSHIFT T_RSHIFT T_ARSHIFT /* << >> >>> */
-%left T_PLUS T_MINUS /* + - */
-%left T_ASTERISK T_SLASH T_PERCENT /* * / % */
-%left T_PLUS2 T_MINUS2 /* ++ -- */
-%left T_ASTERISK2 T_SLASH2 T_PERCENT2 /* ** // %% */
-%left T_CARET2 /* ^^ */
-%right T_COLON2 /* :: */
- /* other */
-%nonassoc T_NOT T_TILDE T_EXCLAM /* not ~ ! */
-%left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE /* . () [] {} */
- /* fix if-else shift/reduce */
+ /* binary op*/
+%left T_BAR2 T_OR
+%left T_AMPERSAND2 T_AND
+%left T_BAR
+%left T_CARET
+%left T_AMPERSAND
+%left T_EQ T_NEQ
+%left T_LT T_LE T_GT T_GE
+%left T_LSHIFT T_RSHIFT T_ARSHIFT
+%left T_PLUS T_MINUS
+%left T_ASTERISK T_SLASH T_PERCENT
+%left T_PLUS2 T_MINUS2
+%left T_ASTERISK2 T_SLASH2 T_PERCENT2
+%left T_CARET2 T_DOT2
+%right T_COLON2
+
+ /* unary op */
+%nonassoc T_NOT T_TILDE T_EXCLAM
+
+ /* parantheses */
+%left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
+
+ /* if-else */
 %nonassoc "lower_than_else"
 %nonassoc T_ELSE
 
- /* top */
+ /* low -> high precedence } */
+
 %start compileUnit
 
 %%
