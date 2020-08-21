@@ -7,15 +7,12 @@
 #include <cstdio>
 #include "Ast.h"
 #include "Buffer.h"
-#include "Scanner.h"
 #include "Position.h"
-#include "Exception.h"
 #include "Tokenizer.yy.h"
 #define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
 %code requires {
-class Scanner;
 class Ast;
 }
 
@@ -65,9 +62,9 @@ class Ast;
 %token <str> T_VAR_ID
 
  /* semi */
-%type <tok> semi optionalSemi optionalNewline optionalNewlines newlines
+%token<tok> semi optionalSemi optionalNewline optionalNewlines newlines
  /* operator */
-%type <tok> assignOp prefixOp infixOp postfixOp
+%token<tok> assignOp prefixOp infixOp postfixOp
 
  /* literal */
 %type <ast> literal booleanLiteral
