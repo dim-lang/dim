@@ -66,6 +66,7 @@ class Ast;
 %token <tok> T_AS "as"
 %token <tok> T_RETURN "return"
 %token <tok> T_VOID "void"
+%token <tok> T_ANY "any"
 %token <tok> T_NAN "nan"
 %token <tok> T_INF "inf"
 %token <tok> T_ASYNC "async"
@@ -473,6 +474,7 @@ plainType : "byte" { $$ = nullptr; }
           | "double" { $$ = nullptr; }
           | "boolean" { $$ = nullptr; }
           | "void" { $$ = nullptr; }
+          | "any" { $$ = nullptr; }
           ;
 
 /* idtype : id */

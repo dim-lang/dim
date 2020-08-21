@@ -95,6 +95,7 @@ import      { return T_INTEGER_TOKEN(T_IMPORT); }
 as          { return T_INTEGER_TOKEN(T_AS); }
 return      { return T_INTEGER_TOKEN(T_RETURN); }
 void        { return T_INTEGER_TOKEN(T_VOID); }
+any         { return T_INTEGER_TOKEN(T_ANY); }
 nan         { return T_INTEGER_TOKEN(T_NAN); }
 inf         { return T_INTEGER_TOKEN(T_INF); }
 async       { return T_INTEGER_TOKEN(T_ASYNC); }
