@@ -111,7 +111,7 @@ class Ast;
 %token <tok> T_PERCENT2 "%%"
 
 %token <tok> T_AMPERSAND '&'
-%token <tok> T_AMPERSAND2 "&&" 
+%token <tok> T_AMPERSAND2 "&&"
 %token <tok> T_BAR '|'
 %token <tok> T_BAR2 "||"
 %token <tok> T_TILDE '~'
@@ -240,15 +240,15 @@ class Ast;
 
  /* semi and newline { */
 
-semi : T_SEMI { $$ = $1; }
-     | T_NEWLINE { $$ = $1; }
+semi : ';' { $$ = $1; }
+     | '\n' { $$ = $1; }
      ;
 
 optionalSemi : semi { $$ = $1; }
              | %empty { $$ = T_EMPTY; }
              ;
 
-optionalNewline : T_NEWLINE { $$ = $1; }
+optionalNewline : '\n' { $$ = $1; }
                 | %empty { $$ = T_EMPTY; }
                 ;
 
@@ -256,8 +256,8 @@ optionalNewlines : newlines { $$ = $1; }
                  | %empty { $$ = T_EMPTY; }
                  ;
 
-newlines : T_NEWLINE { $$ = $1; }
-         | newlines T_NEWLINE { $$ = T_EMPTY; }
+newlines : '\n' { $$ = $1; }
+         | newlines '\n' { $$ = T_EMPTY; }
          ;
 
  /* semi and newline } */
@@ -269,12 +269,12 @@ literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); 
         | booleanLiteral { $$ = $1; }
         | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
         | T_STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
-        | T_NIL { $$ = new A_Nil(Y_POS(@1)); std::free($1); }
-        | T_VOID { $$ = new A_Void(Y_POS(@1)); std::free($1); }
+        | "nil" { $$ = new A_Nil(Y_POS(@1)); std::free($1); }
+        | "void" { $$ = new A_Void(Y_POS(@1)); std::free($1); }
         ;
 
-booleanLiteral : T_TRUE { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
-               | T_FALSE { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
+booleanLiteral : "true" { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
+               | "false" { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
                ;
 
  /* literal } */
@@ -298,31 +298,31 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : T_IF T_LPAREN expr T_RPAREN optionalNewlines expr optionalElse { $$ = nullptr; }
-     | T_WHILE T_LPAREN expr T_RPAREN optionalNewlines expr { $$ = nullptr; }
-     | T_TRY expr optionalCatch optionalFinally { $$ = nullptr; }
-     | T_DO expr optionalSemi T_WHILE T_LPAREN expr T_RPAREN { $$ = nullptr; }
-     | T_FOR T_LPAREN enumerators T_RPAREN optionalNewlines optionalYield expr { $$ = nullptr; }
-     | T_THROW expr { $$ = nullptr; }
-     | T_RETURN optionalExpr { $$ = nullptr; }
+expr : "if" '(' expr ')' optionalNewlines expr optionalElse { $$ = nullptr; }
+     | "while" '(' expr ')' optionalNewlines expr { $$ = nullptr; }
+     | "try" expr optionalCatch optionalFinally { $$ = nullptr; }
+     | "do" expr optionalSemi "while" '(' expr ')' { $$ = nullptr; }
+     | "for" '(' enumerators ')' optionalNewlines optionalYield expr { $$ = nullptr; }
+     | "throw" expr { $$ = nullptr; }
+     | "return" optionalExpr { $$ = nullptr; }
      | assignExpr { $$ = nullptr; }
      | postfixExpr { $$ = nullptr; }
      ;
 
-optionalElse : optionalSemi T_ELSE expr { $$ = nullptr; }
+optionalElse : optionalSemi "else" expr { $$ = nullptr; }
              | %empty { $$ = nullptr; }
              ;
 
-optionalCatch : T_CATCH expr { $$ = nullptr; }
+optionalCatch : "catch" expr { $$ = nullptr; }
               | %empty { $$ = nullptr; }
               ;
 
-optionalFinally : T_FINALLY expr { $$ = nullptr; }
+optionalFinally : "finally" expr { $$ = nullptr; }
                 | %empty { $$ = nullptr; }
                 ;
 
 enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = nullptr; }
-            | id T_LARROW expr { $$ = nullptr; }
+            | id "<-" expr { $$ = nullptr; }
             ;
 
 optionalForInit : varDef { $$ = nullptr; }
@@ -333,80 +333,80 @@ optionalExpr : expr { $$ = nullptr; }
              | %empty { $$ = nullptr; }
              ;
 
-optionalYield : T_YIELD { $$ = nullptr; }
+optionalYield : "yield" { $$ = nullptr; }
               | %empty { $$ = nullptr; }
               ;
 
 assignExpr : id assignOp expr { $$ = nullptr; }
            ;
 
-assignOp : T_EQUAL { $$ = $1; }
-         | T_ASTERISK_EQUAL { $$ = $1; }
-         | T_SLASH_EQUAL { $$ = $1; }
-         | T_PERCENT_EQUAL { $$ = $1; }
-         | T_PLUS_EQUAL { $$ = $1; }
-         | T_MINUS_EQUAL { $$ = $1; }
-         | T_AMPERSAND_EQUAL { $$ = $1; }
-         | T_BAR_EQUAL { $$ = $1; }
-         | T_CARET_EQUAL { $$ = $1; }
-         | T_LSHIFT_EQUAL { $$ = $1; }
-         | T_RSHIFT_EQUAL { $$ = $1; }
-         | T_ARSHIFT_EQUAL { $$ = $1; }
+assignOp : '=' { $$ = $1; }
+         | "+=" { $$ = $1; }
+         | "-=" { $$ = $1; }
+         | "*=" { $$ = $1; }
+         | "/=" { $$ = $1; }
+         | "%=" { $$ = $1; }
+         | "&=" { $$ = $1; }
+         | "|=" { $$ = $1; }
+         | "^=" { $$ = $1; }
+         | "<<=" { $$ = $1; }
+         | ">>=" { $$ = $1; }
+         | ">>>=" { $$ = $1; }
          ;
 
 postfixExpr : infixExpr { $$ = nullptr; }
             | infixExpr postfixOp { $$ = nullptr; }
-            ; 
+            ;
 
-postfixOp : T_PLUS2 { $$ = $1; }
-          | T_MINUS2 { $$ = $1; }
+postfixOp : "++" { $$ = $1; }
+          | "--" { $$ = $1; }
           ;
 
 infixExpr : prefixExpr { $$ = nullptr; }
           | infixExpr infixOp optionalNewline prefixExpr { $$ = nullptr; }
           ;
 
-infixOp : T_BAR2 { $$ = $1; }
-        | T_AMPERSAND2 { $$ = $1; }
-        | T_BAR { $$ = $1; }
-        | T_CARET { $$ = $1; }
-        | T_AMPERSAND{ $$ = $1; }
-        | T_EQ{ $$ = $1; }
-        | T_NEQ{ $$ = $1; }
-        | T_LT{ $$ = $1; }
-        | T_LE{ $$ = $1; }
-        | T_GT{ $$ = $1; }
-        | T_GE{ $$ = $1; }
-        | T_LSHIFT{ $$ = $1; }
-        | T_RSHIFT{ $$ = $1; }
-        | T_ARSHIFT{ $$ = $1; }
-        | T_PLUS{ $$ = $1; }
-        | T_MINUS{ $$ = $1; }
-        | T_ASTERISK{ $$ = $1; }
-        | T_SLASH{ $$ = $1; }
-        | T_PERCENT{ $$ = $1; }
-        | T_ASTERISK2{ $$ = $1; }
-        | T_SLASH2{ $$ = $1; }
-        | T_PERCENT2{ $$ = $1; }
-        | T_CARET2{ $$ = $1; }
-        | T_COLON2{ $$ = $1; }
+infixOp : "||" { $$ = $1; }
+        | "&&" { $$ = $1; }
+        | '|' { $$ = $1; }
+        | '^' { $$ = $1; }
+        | '&' { $$ = $1; }
+        | "==" { $$ = $1; }
+        | "!=" { $$ = $1; }
+        | '<' { $$ = $1; }
+        | "<=" { $$ = $1; }
+        | '>' { $$ = $1; }
+        | ">=" { $$ = $1; }
+        | "<<" { $$ = $1; }
+        | ">>" { $$ = $1; }
+        | ">>>" { $$ = $1; }
+        | '+' { $$ = $1; }
+        | '-' { $$ = $1; }
+        | '*' { $$ = $1; }
+        | '/' { $$ = $1; }
+        | '%' { $$ = $1; }
+        | "**" { $$ = $1; }
+        | "//" { $$ = $1; }
+        | "%%" { $$ = $1; }
+        | "^^" { $$ = $1; }
+        | "::" { $$ = $1; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
            | prefixOp primaryExpr { $$ = new A_prefixExpression($1, $2); }
            ;
 
-prefixOp : T_MINUS { $$ = $1; }
-         | T_PLUS { $$ = $1; }
-         | T_TILDE { $$ = $1; }
-         | T_EXCLAM { $$ = $1; }
-         | T_PLUS2 { $$ = $1; }
-         | T_MINUS2 { $$ = $1; }
+prefixOp : '-' { $$ = $1; }
+         | '+' { $$ = $1; }
+         | '~' { $$ = $1; }
+         | '!' { $$ = $1; }
+         | "++" { $$ = $1; }
+         | "--" { $$ = $1; }
          ;
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
-            | T_LPAREN optionalExprs T_RPAREN { $$ = $1; }
+            | '(' optionalExprs ')' { $$ = $1; }
             | callExpr { $$ = $1; }
             | block { $$ = nullptr; }
             ;
@@ -416,13 +416,13 @@ optionalExprs : exprs { $$ = nullptr; }
               ;
 
 exprs : expr { $$ = nullptr; }
-      | exprs T_COMMA expr { $$ = nullptr; }
+      | exprs ',' expr { $$ = nullptr; }
       ;
 
-callExpr : id T_LPAREN optionalExprs T_RPAREN { $$ = $1; }
+callExpr : id '(' optionalExprs ')' { $$ = $1; }
          ;
 
-block : T_LBRACE blockStat optionalBlockStats T_RBRACE { $$ = nullptr; }
+block : '{' blockStat optionalBlockStats '}' { $$ = nullptr; }
       ;
 
 blockStat : expr { $$ = nullptr; }
@@ -448,8 +448,8 @@ type : plainType { $$ = nullptr; }
      /* | idtype */
      ;
 
-/* FuncArgtypes : T_LPAREN T_RPAREN */
-/*              | T_LPAREN paramtypes T_RPAREN */
+/* FuncArgtypes : '(' ')' */
+/*              | '(' paramtypes ')' */
 /*              ; */
 
 /* paramtypes : paramtype */
@@ -459,20 +459,20 @@ type : plainType { $$ = nullptr; }
 /* paramtype : type */
 /*           ; */
 
-plainType : T_BYTE { $$ = nullptr; }
-          | T_UBYTE { $$ = nullptr; }
-          | T_SHORT { $$ = nullptr; }
-          | T_USHORT { $$ = nullptr; }
-          | T_INT { $$ = nullptr; }
-          | T_UINT { $$ = nullptr; }
-          | T_LONG { $$ = nullptr; }
-          | T_ULONG { $$ = nullptr; }
-          | T_LLONG { $$ = nullptr; }
-          | T_ULLONG { $$ = nullptr; }
-          | T_FLOAT { $$ = nullptr; }
-          | T_DOUBLE { $$ = nullptr; }
-          | T_BOOLEAN { $$ = nullptr; }
-          | T_VOID { $$ = nullptr; }
+plainType : "byte" { $$ = nullptr; }
+          | "ubyte" { $$ = nullptr; }
+          | "short" { $$ = nullptr; }
+          | "ushort" { $$ = nullptr; }
+          | "int" { $$ = nullptr; }
+          | "uint" { $$ = nullptr; }
+          | "long" { $$ = nullptr; }
+          | "ulong" { $$ = nullptr; }
+          | "llong" { $$ = nullptr; }
+          | "ullong" { $$ = nullptr; }
+          | "float" { $$ = nullptr; }
+          | "double" { $$ = nullptr; }
+          | "boolean" { $$ = nullptr; }
+          | "void" { $$ = nullptr; }
           ;
 
 /* idtype : id */
@@ -488,21 +488,21 @@ def : funcDef { $$ = nullptr; }
     | varDef { $$ = nullptr; }
     ;
 
-funcDef : T_DEF funcSign optionalResultType T_EQUAL expr { $$ = nullptr; }
-        | T_DEF funcSign resultType optionalNewlines block { $$ = nullptr; }
+funcDef : "def" funcSign optionalResultType '=' expr { $$ = nullptr; }
+        | "def" funcSign resultType optionalNewlines block { $$ = nullptr; }
         ;
 
 optionalResultType : resultType { $$ = nullptr; }
                    | %empty { $$ = nullptr; }
                    ;
 
-resultType : T_COLON type
+resultType : ':' type
            ;
 
 funcSign : id paramClause { $$ = nullptr; }
          ;
 
-paramClause : T_LPAREN optionalParams T_RPAREN { $$ = nullptr; }
+paramClause : '(' optionalParams ')' { $$ = nullptr; }
             ;
 
 optionalParams : params { $$ = nullptr; }
@@ -510,18 +510,18 @@ optionalParams : params { $$ = nullptr; }
                ;
 
 params : param { $$ = nullptr; }
-       | params T_COMMA param { $$ = nullptr; }
+       | params ',' param { $$ = nullptr; }
        ;
 
-param : id T_COLON type { $$ = nullptr; }
-      /* | id T_COLON type T_EQUAL expr */
+param : id ':' type { $$ = nullptr; }
+      /* | id ':' type '=' expr */
       ;
 
-varDef : T_VAR id T_COLON type T_EQUAL expr { $$ = nullptr; }
+varDef : T_VAR id ':' type '=' expr { $$ = nullptr; }
        ;
 
 /* Decl : T_VAR VarDecl */
-/*      | T_DEF FuncDecl */
+/*      | "def" FuncDecl */
 /*      ; */
 
 /* FuncDecl : funcSign T_COLON type */
