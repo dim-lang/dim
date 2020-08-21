@@ -107,7 +107,7 @@ prefix      { return T_INTEGER_TOKEN(T_PREFIX); }
 postfix     { return T_INTEGER_TOKEN(T_POSTFIX); }
 package     { return T_INTEGER_TOKEN(T_PACKAGE); }
 
- /* primitive integer type */
+ /* primitive type */
 byte        { return T_INTEGER_TOKEN(T_BYTE); } */
 ubyte       { return T_INTEGER_TOKEN(T_UBYTE); }
 short       { return T_INTEGER_TOKEN(T_SHORT); }
@@ -118,23 +118,16 @@ long        { return T_INTEGER_TOKEN(T_LONG); }
 ulong       { return T_INTEGER_TOKEN(T_ULONG); }
 llong       { return T_INTEGER_TOKEN(T_LLONG); }
 ullong      { return T_INTEGER_TOKEN(T_ULLONG); }
-
- /* primitive integer type */
 float       { return T_INTEGER_TOKEN(T_FLOAT); }
 double      { return T_INTEGER_TOKEN(T_DOUBLE); }
-
- /* primitive boolean type */
 boolean     { return T_INTEGER_TOKEN(T_BOOLEAN); }
-
- /* primitive character type */
 char        { return T_INTEGER_TOKEN(T_CHAR); }
 
- /* and or not operator */
+ /* operator */
 and         { return T_INTEGER_TOKEN(T_AND); }
 or          { return T_INTEGER_TOKEN(T_OR); }
 not         { return T_INTEGER_TOKEN(T_NOT); }
 
- /* operator */
 "+"         { return T_INTEGER_TOKEN(T_PLUS); }
 "++"        { return T_INTEGER_TOKEN(T_PLUS2); }
 "-"         { return T_INTEGER_TOKEN(T_MINUS); }
@@ -192,7 +185,6 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 "_"         { return T_INTEGER_TOKEN(T_UNDERSCORE); }
 ","         { return T_INTEGER_TOKEN(T_COMMA); }
 ";"         { return T_INTEGER_TOKEN(T_SEMI); }
-[\n]+       { return T_INTEGER_TOKEN(T_NEWLINE); }
 "?"         { return T_INTEGER_TOKEN(T_QUESTION); }
 ":"         { return T_INTEGER_TOKEN(T_COLON); }
 "::"        { return T_INTEGER_TOKEN(T_COLON2); }
@@ -203,6 +195,7 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 "=>"        { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
 ":>"        { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
 "<:"        { return T_INTEGER_TOKEN(T_COLON_RARROW); }
+[\n]+       { return T_INTEGER_TOKEN(T_NEWLINE); }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }

@@ -25,46 +25,150 @@ class Ast;
 %token <tok> T_EOF T_EMPTY
 
  /* keyword */
-%token <tok> T_TRUE T_FALSE T_TRY T_CATCH T_FINALLY T_THROW T_YIELD T_VAR T_VAL T_NIL T_NEW T_DELETE T_DEF T_IF T_THEN T_ELSE T_MATCH T_ENUM T_SWITCH T_CASE T_FOR T_FOREACH T_IN T_WHILE T_DO T_BREAK T_CONTINUE
-%token <tok> T_CLASS T_TRAIT T_TYPE T_THIS T_SUPER T_ISINSTANCEOF T_ISA T_IS T_IMPORT T_AS T_RETURN T_VOID T_NAN T_INF T_ASYNC T_AWAIT T_STATIC T_PUBLIC T_PROTECT T_PRIVATE T_PREFIX T_POSTFIX T_PACKAGE
+%token <tok> T_TRUE "true"
+%token <tok> T_FALSE "false"
+%token <tok> T_TRY "try"
+%token <tok> T_CATCH "catch"
+%token <tok> T_FINALLY "finally"
+%token <tok> T_THROW "throw"
+%token <tok> T_YIELD "yield"
+%token <tok> T_VAR "var"
+%token <tok> T_VAL "val"
+%token <tok> T_NIL "nil"
+%token <tok> T_NEW "new"
+%token <tok> T_DELETE "delete"
+%token <tok> T_DEF "def"
+%token <tok> T_IF "if"
+%token <tok> T_THEN "then"
+%token <tok> T_ELSE "else"
+%token <tok> T_MATCH "match"
+%token <tok> T_ENUM "enum"
+%token <tok> T_SWITCH "switch"
+%token <tok> T_CASE "case"
+%token <tok> T_FOR "for"
+%token <tok> T_FOREACH "foreach"
+%token <tok> T_IN "in"
+%token <tok> T_WHILE "while"
+%token <tok> T_DO "do"
+%token <tok> T_BREAK "break"
+%token <tok> T_CONTINUE "continue"
+%token <tok> T_CLASS "class"
+%token <tok> T_TRAIT "trait"
+%token <tok> T_TYPE "type"
+%token <tok> T_THIS "this"
+%token <tok> T_SUPER "super"
+%token <tok> T_ISINSTANCEOF "isinstanceof"
+%token <tok> T_ISA "isa"
+%token <tok> T_IS "is"
+%token <tok> T_IMPORT "import"
+%token <tok> T_AS "as"
+%token <tok> T_RETURN "return"
+%token <tok> T_VOID "void"
+%token <tok> T_NAN "nan"
+%token <tok> T_INF "inf"
+%token <tok> T_ASYNC "async"
+%token <tok> T_AWAIT "await"
+%token <tok> T_STATIC "static"
+%token <tok> T_PUBLIC "public"
+%token <tok> T_PROTECT "protect"
+%token <tok> T_PRIVATE "private"
+%token <tok> T_PREFIX "prefix"
+%token <tok> T_POSTFIX "postfix"
+%token <tok> T_PACKAGE "package"
 
- /* primitive integer type */
-%token <tok> T_BYTE T_UBYTE T_SHORT T_USHORT T_INT T_UINT T_LONG T_ULONG T_LLONG T_ULLONG
- /* primitive float type */
-%token <tok> T_FLOAT T_DOUBLE
- /* primitive boolean type */
-%token <tok> T_BOOLEAN
- /* primitive character type */
-%token <tok> T_CHAR
-
- /* and or not operator */
-%token <tok> T_AND T_OR T_NOT
+ /* primitive type */
+%token <tok> T_BYTE "byte"
+%token <tok> T_UBYTE "ubyte"
+%token <tok> T_SHORT "short"
+%token <tok> T_USHORT "ushort"
+%token <tok> T_INT "int"
+%token <tok> T_UINT "uint"
+%token <tok> T_LONG "long"
+%token <tok> T_ULONG "ulong"
+%token <tok> T_LLONG "llong"
+%token <tok> T_ULLONG "ullong"
+%token <tok> T_FLOAT "float"
+%token <tok> T_DOUBLE "double"
+%token <tok> T_BOOLEAN "boolean"
+%token <tok> T_CHAR "char"
 
  /* operator */
-%token <tok> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
- /* operator */
-%token <tok> T_AMPERSAND T_AMPERSAND2 T_BAR T_BAR2 T_TILDE T_EXCLAM T_CARET
- /* operator */
-%token <tok> T_LSHIFT T_RSHIFT T_ARSHIFT
+%token <tok> T_AND "and"
+%token <tok> T_OR "or"
+%token <tok> T_NOT "not"
 
- /* equal operator */
-%token <tok> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
- /* compare operator */
-%token <tok> T_EQ T_NEQ T_LT T_LE T_GT T_GE
- /* parentheses */
-%token <tok> T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
- /* other punctuation */
-%token <tok> T_UNDERSCORE T_COMMA T_SEMI T_QUESTION T_COLON T_COLON2 T_DOT T_DOT2 T_LARROW T_RARROW T_DOUBLE_RARROW
-%token <tok> T_NEWLINE
+%token <tok> T_PLUS '+'
+%token <tok> T_PLUS2 "++"
+%token <tok> T_MINUS '-'
+%token <tok> T_MINUS2 "--"
+%token <tok> T_ASTERISK '*'
+%token <tok> T_ASTERISK2 "**"
+%token <tok> T_SLASH '/'
+%token <tok> T_SLASH2 "//"
+%token <tok> T_PERCENT '%'
+%token <tok> T_PERCENT2 "%%"
+
+%token <tok> T_AMPERSAND '&'
+%token <tok> T_AMPERSAND2 "&&" 
+%token <tok> T_BAR '|'
+%token <tok> T_BAR2 "||"
+%token <tok> T_TILDE '~'
+%token <tok> T_EXCLAM '!'
+%token <tok> T_CARET '^'
+
+%token <tok> T_LSHIFT "<<"
+%token <tok> T_RSHIFT ">>"
+%token <tok> T_ARSHIFT ">>>"
+
+%token <tok> T_EQUAL '='
+%token <tok> T_PLUS_EQUAL "+="
+%token <tok> T_MINUS_EQUAL "-="
+%token <tok> T_ASTERISK_EQUAL "*="
+%token <tok> T_SLASH_EQUAL "/="
+%token <tok> T_PERCENT_EQUAL "%="
+%token <tok> T_AMPERSAND_EQUAL "&="
+%token <tok> T_BAR_EQUAL "|="
+%token <tok> T_CARET_EQUAL "^="
+%token <tok> T_LSHIFT_EQUAL "<<="
+%token <tok> T_RSHIFT_EQUAL ">>="
+%token <tok> T_ARSHIFT_EQUAL ">>>="
+
+%token <tok> T_EQ "=="
+%token <tok> T_NEQ "!="
+%token <tok> T_LT '<'
+%token <tok> T_LE "<="
+%token <tok> T_GT '>'
+%token <tok> T_GE ">="
+
+%token <tok> T_LPAREN '('
+%token <tok> T_RPAREN ')'
+%token <tok> T_LBRACKET '['
+%token <tok> T_RBRACKET ']'
+%token <tok> T_LBRACE '{'
+%token <tok> T_RBRACE '}'
+
+%token <tok> T_UNDERSCORE '_'
+%token <tok> T_COMMA ','
+%token <tok> T_SEMI ';'
+%token <tok> T_QUESTION '?'
+%token <tok> T_COLON ':'
+%token <tok> T_COLON2 "::"
+%token <tok> T_DOT '.'
+%token <tok> T_DOT2 ".."
+%token <tok> T_LARROW "<-"
+%token <tok> T_RARROW "->"
+%token <tok> T_DOUBLE_RARROW "=>"
+%token <tok> T_COLON_LARROW ":>"
+%token <tok> T_COLON_RARROW "<:"
+
+ /* semi */
+%token <tok> T_NEWLINE '\n'
+%token <tok> semi optionalSemi optionalNewline optionalNewlines newlines
+%token <tok> assignOp prefixOp infixOp postfixOp
 
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
-
- /* semi */
-%token<tok> semi optionalSemi optionalNewline optionalNewlines newlines
- /* operator */
-%token<tok> assignOp prefixOp infixOp postfixOp
 
  /* literal */
 %type <ast> literal booleanLiteral
