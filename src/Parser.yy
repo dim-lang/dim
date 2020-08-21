@@ -517,17 +517,17 @@ param : id ':' type { $$ = nullptr; }
       /* | id ':' type '=' expr */
       ;
 
-varDef : T_VAR id ':' type '=' expr { $$ = nullptr; }
+varDef : "var" id ':' type '=' expr { $$ = nullptr; }
        ;
 
-/* Decl : T_VAR VarDecl */
+/* Decl : "var" VarDecl */
 /*      | "def" FuncDecl */
 /*      ; */
 
-/* FuncDecl : funcSign T_COLON type */
+/* FuncDecl : funcSign ':' type */
 /*          ; */
 
-/* VarDecl : id T_COLON type */
+/* VarDecl : id ':' type */
 /*         ; */
 
  /* definition declaration } */
