@@ -139,8 +139,8 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 "++"        { return T_INTEGER_TOKEN(T_PLUS2); }
 "-"         { return T_INTEGER_TOKEN(T_MINUS); }
 "--"        { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"         { return T_INTEGER_TOKEN(T_STAR); }
-"**"        { return T_INTEGER_TOKEN(T_STAR2); }
+"*"         { return T_INTEGER_TOKEN(T_ASTERISK); }
+"**"        { return T_INTEGER_TOKEN(T_ASTERISK2); }
 "/"         { return T_INTEGER_TOKEN(T_SLASH); }
 "//"        { return T_INTEGER_TOKEN(T_SLASH2); }
 "%"         { return T_INTEGER_TOKEN(T_PERCENT); }
@@ -162,7 +162,7 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 "="         { return T_INTEGER_TOKEN(T_EQUAL); }
 "+="        { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
 "-="        { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="        { return T_INTEGER_TOKEN(T_STAR_EQUAL); }
+"*="        { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
 "/="        { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
 "%="        { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
 "&="        { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }

@@ -44,14 +44,14 @@ class Ast;
 %token <tok> T_AND T_OR T_NOT
 
  /* operator */
-%token <tok> T_PLUS T_MINUS T_STAR T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_STAR2 T_SLASH2 T_PERCENT2
+%token <tok> T_PLUS T_MINUS T_ASTERISK T_SLASH T_PERCENT T_PLUS2 T_MINUS2 T_ASTERISK2 T_SLASH2 T_PERCENT2
  /* operator */
 %token <tok> T_AMPERSAND T_AMPERSAND2 T_BAR T_BAR2 T_TILDE T_EXCLAM T_CARET
  /* operator */
 %token <tok> T_LSHIFT T_RSHIFT T_ARSHIFT
 
  /* equal operator */
-%token <tok> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_STAR_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
+%token <tok> T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
  /* compare operator */
 %token <tok> T_EQ T_NEQ T_LT T_LE T_GT T_GE
  /* parentheses */
@@ -65,32 +65,33 @@ class Ast;
 %token <str> T_VAR_ID
 
  /* semi */
-%token <ast> semi optionalSemi optionalNewline optionalNewlines newlines
- /* Operator */
-%token <ast> assignOp prefixOp infixOp postfixOp
-
+%type <ast> semi optionalSemi optionalNewline optionalNewlines newlines
+ /* operator */
+%type <ast> assignOp prefixOp infixOp postfixOp
+ /* literal */
 %type <ast> literal booleanLiteral
+ /* id */
 %type <ast> id varId
-%type <ast> expr prefixExpr postfixExpr infixExpr Simpleexpr Nonblockexpr
-%type <ast> Argexprs
-
-%type <ast> compound_statement expr_statement iteration_statement jump_statement return_statement if_statement
-%type <ast> statement
-%type <ast> statement_list
-
-%type <ast> varDef funcDef funcSigndef FuncArg
-%type <ast> def
-%type <ast> compileUnit FuncArgs
+ /* expr */
+%type <ast> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
+%type <ast> optionalElse optionalCatch optionalFinally optionalYield optionalExpr optionalBlockStats optionalForInit
+ /* type */
+%type <ast> type plainType
+ /* def */
+%type <ast> def funcDef varDef funcSign paramClause params param
+%type <ast> optionalResultType optionalParams
+ /* compile unit */
+%type <ast> compileUnit topStatSeq topStat topStats
+%type <ast> optionalTopStats
 
  /* operator precedence, low -> high */
-
  /* comma */
 %left T_COMMA /* , */
 
  /* equal */
 %right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL /* &= |= ^= */
 %right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL /* >>= <<= >>>= */
-%right T_STAR_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL /* *= /= %= */
+%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL /* *= /= %= */
 %right T_PLUS_EQUAL T_MINUS_EQUAL /* += -= */
 %right T_EQUAL /* = */
 
@@ -98,8 +99,10 @@ class Ast;
 %left T_QUESTION T_COLON /* ? : */
 
  /* binary_operator */
-%left T_OR T_BAR2 /* or || */
-%left T_AND T_AMPERSAND2 /* and && */
+%left T_BAR2 /* || */
+%left T_OR /* or */
+%left T_AMPERSAND2 /* && */
+%left T_AND /* and */
 %left T_BAR /* | */
 %left T_CARET /* ^ */
 %left T_AMPERSAND /* & */
@@ -107,9 +110,9 @@ class Ast;
 %left T_LT T_LE T_GT T_GE /* < <= > >= */
 %left T_LSHIFT T_RSHIFT T_ARSHIFT /* << >> >>> */
 %left T_PLUS T_MINUS /* + - */
-%left T_STAR T_SLASH T_PERCENT /* * / % */
+%left T_ASTERISK T_SLASH T_PERCENT /* * / % */
 %left T_PLUS2 T_MINUS2 /* ++ -- */
-%left T_STAR2 T_SLASH2 T_PERCENT2 /* ** // %% */
+%left T_ASTERISK2 T_SLASH2 T_PERCENT2 /* ** // %% */
 %left T_CARET2 /* ^^ */
 %right T_COLON2 /* :: */
  /* other */
@@ -184,96 +187,100 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : T_IF T_LPAREN expr T_RPAREN optionalNewlines expr optionalElse
-     | T_WHILE T_LPAREN expr T_RPAREN optionalNewlines expr
-     | T_TRY expr optionalCatch optionalFinally
-     | T_DO expr optionalSemi T_WHILE T_LPAREN expr T_RPAREN
-     | T_FOR T_LPAREN enumerators T_RPAREN optionalNewlines optionalYield expr
-     | T_THROW expr
-     | T_RETURN optionalExpr
-     | assignExpr
-     | postfixExpr
+expr : T_IF T_LPAREN expr T_RPAREN optionalNewlines expr %prec "lower_than_else" { $$ = nullptr; }
+     | T_IF T_LPAREN expr T_RPAREN optionalNewlines expr optionalSemi T_ELSE expr { $$ = nullptr; }
+     | T_WHILE T_LPAREN expr T_RPAREN optionalNewlines expr { $$ = nullptr; }
+     | T_TRY block optionalCatch optionalFinally { $$ = nullptr; }
+     | T_DO expr optionalSemi T_WHILE T_LPAREN expr T_RPAREN { $$ = nullptr; }
+     | T_FOR T_LPAREN enumerators T_RPAREN optionalNewlines optionalYield expr { $$ = nullptr; }
+     | T_THROW expr { $$ = nullptr; }
+     | T_RETURN { $$ = nullptr; }
+     | T_RETURN expr { $$ = nullptr; }
+     | assignExpr { $$ = nullptr; }
+     | postfixExpr { $$ = nullptr; }
      ;
 
-optionalElse : optionalSemi T_ELSE expr
-             | %empty
-             ;
+/* optionalElse : optionalSemi T_ELSE expr { $$ = nullptr; } */
+/*              | %empty { $$ = nullptr; } */
+/*              ; */
 
-optionalCatch : T_CATCH expr
-              | %empty
+optionalCatch : T_CATCH block { $$ = nullptr; }
+              | %empty { $$ = nullptr; }
               ;
 
-optionalFinally : T_FINALLY expr
-                | %empty
+optionalFinally : T_FINALLY block { $$ = nullptr; }
+                | %empty { $$ = nullptr; }
                 ;
 
-enumerators : OptionalForInit semi optionalExpr semi optionalExpr
-            | id T_LARROW expr
+enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = nullptr; }
+            | id T_LARROW expr { $$ = nullptr; }
             ;
 
-optionalYield : T_YIELD
-              | %empty
-              ;
+optionalForInit : varDef { $$ = nullptr; }
+                | %empty { $$ = nullptr; }
+                ;
 
-optionalExpr : expr
-             | %empty
+optionalExpr : expr { $$ = nullptr; }
+             | %empty { $$ = nullptr; }
              ;
 
-assignExpr : id assignOp expr
+optionalYield : T_YIELD { $$ = nullptr; }
+              | %empty { $$ = nullptr; }
+              ;
+
+assignExpr : id assignOp expr { $$ = nullptr; }
            ;
 
-assignOp : T_EQUAL { $$ = $1; }
-         | T_STAR_EQUAL { $$ = $1; }
-         | T_SLASH_EQUAL { $$ = $1; }
-         | T_PERCENT_EQUAL { $$ = $1; }
-         | T_PLUS_EQUAL { $$ = $1; }
-         | T_MINUS_EQUAL { $$ = $1; }
-         | T_AMPERSAND_EQUAL { $$ = $1; }
-         | T_BAR_EQUAL { $$ = $1; }
-         | T_CARET_EQUAL { $$ = $1; }
-         | T_LSHIFT_EQUAL { $$ = $1; }
-         | T_RSHIFT_EQUAL { $$ = $1; }
-         | T_ARSHIFT_EQUAL { $$ = $1; }
+assignOp : T_EQUAL { $$ = nullptr; }
+         | T_ASTERISK_EQUAL { $$ = nullptr; }
+         | T_SLASH_EQUAL { $$ = nullptr; }
+         | T_PERCENT_EQUAL { $$ = nullptr; }
+         | T_PLUS_EQUAL { $$ = nullptr; }
+         | T_MINUS_EQUAL { $$ = nullptr; }
+         | T_AMPERSAND_EQUAL { $$ = nullptr; }
+         | T_BAR_EQUAL { $$ = nullptr; }
+         | T_CARET_EQUAL { $$ = nullptr; }
+         | T_LSHIFT_EQUAL { $$ = nullptr; }
+         | T_RSHIFT_EQUAL { $$ = nullptr; }
+         | T_ARSHIFT_EQUAL { $$ = nullptr; }
          ;
 
-postfixExpr : infixExpr
-            | infixExpr postfixOp optionalNewline
-            ;
+postfixExpr : infixExpr { $$ = nullptr; }
+            | infixExpr postfixOp { $$ = nullptr; }
+            ; 
 
-postfixOp : T_PLUS2
-          | T_MINUS2
+postfixOp : T_PLUS2 { $$ = nullptr; }
+          | T_MINUS2 { $$ = nullptr; }
           ;
 
-infixExpr : prefixExpr
-          | infixExpr infixOp optionalNewline infixExpr
+infixExpr : prefixExpr { $$ = nullptr; }
+          | infixExpr infixOp optionalNewline prefixExpr { $$ = nullptr; }
           ;
 
-infixOp : T_BAR2
-        | T_AMPERSAND2
-        | T_BAR
-        | T_CARET
-        | T_AMPERSAND
-        | T_EQ
-        | T_NEQ
-        | T_LT
-        | T_LE
-        | T_GT
-        | T_GE
-        | T_LSHIFT
-        | T_RSHIFT
-        | T_ARSHIFT
-        | T_PLUS
-        | T_MINUS
-        | T_STAR
-        | T_SLASH
-        | T_PERCENT
-        | T_PLUS2
-        | T_MINUS2
-        | T_STAR2
-        | T_SLASH2
-        | T_PERCENT2
-        | T_CARET2
-        | T_COLON2
+infixOp : T_BAR2 { $$ = nullptr; }
+        | T_AMPERSAND2 { $$ = nullptr; }
+        | T_BAR { $$ = nullptr; }
+        | T_CARET { $$ = nullptr; }
+        | T_AMPERSAND{ $$ = nullptr; }
+        | T_EQ{ $$ = nullptr; }
+        | T_NEQ{ $$ = nullptr; }
+        | T_LT{ $$ = nullptr; }
+        | T_LE{ $$ = nullptr; }
+        | T_GT{ $$ = nullptr; }
+        | T_GE{ $$ = nullptr; }
+        | T_LSHIFT{ $$ = nullptr; }
+        | T_RSHIFT{ $$ = nullptr; }
+        | T_ARSHIFT{ $$ = nullptr; }
+        | T_PLUS{ $$ = nullptr; }
+        | T_MINUS{ $$ = nullptr; }
+        | T_ASTERISK{ $$ = nullptr; }
+        | T_SLASH{ $$ = nullptr; }
+        | T_PERCENT{ $$ = nullptr; }
+        | T_ASTERISK2{ $$ = nullptr; }
+        | T_SLASH2{ $$ = nullptr; }
+        | T_PERCENT2{ $$ = nullptr; }
+        | T_CARET2{ $$ = nullptr; }
+        | T_COLON2{ $$ = nullptr; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
@@ -290,44 +297,42 @@ prefixOp : T_MINUS { $$ = new A_Tokenid(A_Tokenid::TokenidCategory::OP, $1, Y_PO
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
-            | T_LPAREN optionalExprs T_RPAREN { $$ = $1; }
+            | T_LPAREN exprs T_RPAREN { $$ = $1; }
+            | T_LPAREN T_RPAREN { $$ = $1; }
             | callExpr { $$ = $1; }
-            | block
+            | block { $$ = nullptr; }
             ;
 
-optionalExprs : exprs
-              | %empty
-              ;
-
-exprs : expr
-      | exprs T_COMMA expr
+exprs : expr { $$ = nullptr; }
+      | exprs T_COMMA expr { $$ = nullptr; }
       ;
 
-callExpr : id T_LPAREN optionalExprs T_RPAREN { $$ = $1; }
+callExpr : id T_LPAREN T_RPAREN { $$ = $1; }
+         | id T_LPAREN exprs T_RPAREN { $$ = $1; }
          ;
 
-block : T_LBRACE blockStat optionalBlockStats T_RBRACE
+block : T_LBRACE blockStat optionalBlockStats T_RBRACE { $$ = nullptr; }
       ;
 
-blockStat : expr
-          | def
+blockStat : expr { $$ = nullptr; }
+          | def { $$ = nullptr; }
           /* | Import */
-          | %empty
+          | %empty { $$ = nullptr; }
           ;
 
-optionalBlockStats : blockStats
-                   | %empty
+optionalBlockStats : blockStats { $$ = nullptr; }
+                   | %empty { $$ = nullptr; }
                    ;
 
-blockStats : semi blockStat
-           | blockStats semi blockStat
+blockStats : semi blockStat { $$ = nullptr; }
+           | blockStats semi blockStat { $$ = nullptr; }
            ;
 
  /* expression } */
 
  /* type { */
 
-type : plainType
+type : plainType { $$ = nullptr; }
      /* | FuncArgtypes T_RARROW type */
      /* | idtype */
      ;
@@ -343,20 +348,20 @@ type : plainType
 /* paramtype : type */
 /*           ; */
 
-plainType : T_BYTE
-          | T_UBYTE
-          | T_SHORT
-          | T_USHORT
-          | T_INT
-          | T_UINT
-          | T_LONG
-          | T_ULONG
-          | T_LLONG
-          | T_ULLONG
-          | T_FLOAT
-          | T_DOUBLE
-          | T_BOOLEAN
-          | T_VOID
+plainType : T_BYTE { $$ = nullptr; }
+          | T_UBYTE { $$ = nullptr; }
+          | T_SHORT { $$ = nullptr; }
+          | T_USHORT { $$ = nullptr; }
+          | T_INT { $$ = nullptr; }
+          | T_UINT { $$ = nullptr; }
+          | T_LONG { $$ = nullptr; }
+          | T_ULONG { $$ = nullptr; }
+          | T_LLONG { $$ = nullptr; }
+          | T_ULLONG { $$ = nullptr; }
+          | T_FLOAT { $$ = nullptr; }
+          | T_DOUBLE { $$ = nullptr; }
+          | T_BOOLEAN { $$ = nullptr; }
+          | T_VOID { $$ = nullptr; }
           ;
 
 /* idtype : id */
@@ -366,39 +371,39 @@ plainType : T_BYTE
 
  /* definition declaration { */
 
-def : funcDef
+def : funcDef { $$ = nullptr; }
     /* | Classdef */
     /* | Traitdef */
-    | varDef
+    | varDef { $$ = nullptr; }
     ;
 
-funcDef : T_DEF funcSign optionalResultType T_DOUBLE_RARROW expr
-        | T_DEF funcSign optionalNewlines block
+funcDef : T_DEF funcSign optionalResultType T_EQUAL expr { $$ = nullptr; }
+        | T_DEF funcSign optionalNewlines block { $$ = nullptr; }
         ;
 
-optionalResultType : T_COLON type
-                   | %empty
+optionalResultType : T_COLON type { $$ = nullptr; }
+                   | %empty { $$ = nullptr; }
                    ;
 
-funcSign : id paramClause
+funcSign : id paramClause { $$ = nullptr; }
          ;
 
-paramClause : T_LPAREN optionalParams T_RPAREN
+paramClause : T_LPAREN optionalParams T_RPAREN { $$ = nullptr; }
             ;
 
-optionalParams : params
-               | %empty
+optionalParams : params { $$ = nullptr; }
+               | %empty { $$ = nullptr; }
                ;
 
-params : param
-       | params T_COMMA param
+params : param { $$ = nullptr; }
+       | params T_COMMA param { $$ = nullptr; }
        ;
 
-param : id T_COLON type
+param : id T_COLON type { $$ = nullptr; }
       /* | id T_COLON type T_EQUAL expr */
       ;
 
-varDef : T_VAR id T_COLON type T_EQUAL expr
+varDef : T_VAR id T_COLON type T_EQUAL expr { $$ = nullptr; }
        ;
 
 /* Decl : T_VAR VarDecl */
@@ -415,25 +420,24 @@ varDef : T_VAR id T_COLON type T_EQUAL expr
 
  /* compile unit { */
 
-compileUnit : topStatSeq
-            |
+compileUnit : topStatSeq { $$ = nullptr; }
             ;
 
-topStatSeq : topStat optionalTopStats
+topStatSeq : topStat optionalTopStats { $$ = nullptr; }
            ;
 
-optionalTopStats : topStats
-                 | %empty
+optionalTopStats : topStats { $$ = nullptr; }
+                 | %empty { $$ = nullptr; }
                  ;
 
-topStats : semi topStat
-         | topStats semi topStat
+topStats : semi topStat { $$ = nullptr; }
+         | topStats semi topStat { $$ = nullptr; }
          ;
 
-topStat : def
+topStat : def { $$ = nullptr; }
         /* | Import */
         /* | Package */
-        | %empty
+        | %empty { $$ = nullptr; }
         ;
 
 /* Package : T_PACKAGE id T_LBRACE T_RBRACE */
