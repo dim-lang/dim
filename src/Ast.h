@@ -7,8 +7,6 @@
 #include "Positional.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
-#include "interface/Namely.h"
-#include "interface/Stringify.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
