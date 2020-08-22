@@ -7,22 +7,22 @@
 extern int yyparse(yyscan_t yyscanner);
 
 Scanner::Scanner()
-    : translateUnit(nullptr), yy_scanner(nullptr), fileName_(""),
+    : translateUnit_(nullptr), yy_scanner_(nullptr), fileName_(""),
       bufferStack_(nullptr) {
-  int r = yylex_init_extra(this, &yy_scanner);
+  int r = yylex_init_extra(this, &yy_scanner_);
   EX_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
-  translateUnit = new AstTranslateUnit();
+  translateUnit_ = new AstTranslateUnit();
   bufferStack_ = new BufferStack(this);
 }
 
 Scanner::~Scanner() {
-  if (yy_scanner) {
-    yylex_destroy(yy_scanner);
-    yy_scanner = nullptr;
+  if (yy_scanner_) {
+    yylex_destroy(yy_scanner_);
+    yy_scanner_ = nullptr;
   }
-  if (translateUnit) {
-    delete translateUnit;
-    translateUnit = nullptr;
+  if (translateUnit_) {
+    delete translateUnit_;
+    translateUnit_ = nullptr;
   }
   if (bufferStack_) {
     delete bufferStack_;
@@ -66,11 +66,21 @@ bool Scanner::empty() const {
 
 const std::string &Scanner::fileName() const { return fileName_; }
 
+const AstTranslateUnit *Scanner::translateUnit() const {
+  return translateUnit_;
+}
+
+AstTranslateUnit *&Scanner::translateUnit() { return translateUnit_; }
+
+const yyscan_t *Scanner : yy_scanner() const { return yy_scanner_; }
+
+yyscan_t *&Scanner::yy_scanner() { return yy_scanner_; }
+
 std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
   YYSTYPE yy_lval;
   YYLTYPE yy_lloc;
-  int r = yylex(&yy_lval, &yy_lloc, yy_scanner);
+  int r = yylex(&yy_lval, &yy_lloc, yy_scanner_);
   return std::make_tuple(r, yy_lval, yy_lloc);
 }
 
-int Scanner::parse() { return yyparse(yy_scanner); }
+int Scanner::parse() { return yyparse(yy_scanner_); }

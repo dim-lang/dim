@@ -6,8 +6,8 @@
 #include "Ir.h"
 #include "Log.h"
 #include "Option.h"
-#include "Parser.tab.h"
 #include "Scanner.h"
+#include "parser.tab.h"
 #include <iostream>
 #include <string>
 #include <vector>

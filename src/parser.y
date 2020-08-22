@@ -1,6 +1,6 @@
 %define api.pure full
 %locations
-%param { yyscan_t yyscanner }
+%parse-param { yyscan_t yy_scanner }
 
 %code top {
 #include <cstdarg>
@@ -8,7 +8,7 @@
 #include "Ast.h"
 #include "Buffer.h"
 #include "Position.h"
-#include "Tokenizer.yy.h"
+#include "tokenizer.yy.h"
 #define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
@@ -567,15 +567,15 @@ topStat : def { $$ = nullptr; }
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, yyscan_t yy_scanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ",
-            yyget_extra(yyscanner)->currentBuffer().c_str(),
+            yyget_extra(yy_scanner)->currentBuffer().c_str(),
             yyllocp->first_line,
-            yyllocp->first_column, 
-            yyllocp->last_line, 
+            yyllocp->first_column,
+            yyllocp->last_line,
             yyllocp->last_column);
   }
   vfprintf(stderr, fmt, ap);

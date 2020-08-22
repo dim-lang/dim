@@ -4,9 +4,9 @@
 #include "Ast.h"
 #include "Buffer.h"
 #include "Log.h"
-#include "Parser.tab.h"
 #include "Scanner.h"
 #include "catch2/catch.hpp"
+#include "parser.tab.h"
 #include <cstdio>
 
 static void testToken(const char *fileName) {
@@ -29,7 +29,7 @@ static void testToken(const char *fileName) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    testToken("test/case/Parser1.shp");
-    testToken("test/case/Parser2.shp");
+    testToken("test/case/parser1.shp");
+    testToken("test/case/parser2.shp");
   }
 }

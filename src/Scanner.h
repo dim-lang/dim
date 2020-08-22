@@ -4,7 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Buffer.h"
-#include "Parser.tab.h"
+#include "parser.tab.h"
 #include <string>
 #include <tuple>
 #include <utility>
@@ -24,8 +24,10 @@ public:
 
   // attribute access
   virtual const std::string &fileName() const;
-  AstTranslateUnit *translateUnit;
-  yyscan_t yy_scanner;
+  virtual const AstTranslateUnit *translateUnit() const;
+  virtual AstTranslateUnit *&translateUnit();
+  virtual const yyscan_t *yy_scanner() const;
+  virtual yyscan_t *&yy_scanner();
 
   // wrapper for flex/bison
   virtual std::tuple<int, YYSTYPE, YYLTYPE> tokenize();
@@ -33,5 +35,7 @@ public:
 
 private:
   std::string fileName_;
+  AstTranslateUnit *translateUnit_;
+  yyscan_t yy_scanner_;
   BufferStack *bufferStack_;
 };
