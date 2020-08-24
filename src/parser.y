@@ -3,9 +3,7 @@
 %define parse.trace
 %define parse.error verbose
 %define parse.lac full
-%verbose
 %locations
-%param { yyscan_t yyscanner }
 
 %code top {
 #include <cstdarg>
@@ -23,6 +21,8 @@ void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...);
 #include "tokenizer.yy.hh"
 class Ast;
 }
+
+%param { yyscan_t yyscanner }
 
 %union {
     Ast *ast;
