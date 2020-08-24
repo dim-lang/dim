@@ -52,7 +52,7 @@ class Ast;
 %token <tok> T_IF "if"
 %token <tok> T_THEN "then"
 %token <tok> T_ELSE "else"
-%token <tok> T_SEMI_ELSE "semielse"
+%token <tok> T_SEMI_ELSE "semi_else"
 %token <tok> T_MATCH "match"
 %token <tok> T_ENUM "enum"
 %token <tok> T_SWITCH "switch"
@@ -242,7 +242,7 @@ class Ast;
  /* if-else */
 %nonassoc "then"
 %nonassoc "else"
-%nonassoc "semielse"
+%nonassoc "semi_else"
 
 %nonassoc "precedence_empty"
 %nonassoc "precedence_semicolon"
@@ -314,9 +314,9 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* shift/reduce on optionalElse */
-     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = nullptr; } /* shift/reduce on optionalElse */
-     | "if" "(" expr ")" optionalNewlines expr "semielse" expr %prec "semielse" { $$ = nullptr; } /* shift/reduce on optionalElse */
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* use %prec and semi_else fix if-else shift/reduce */
+     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = nullptr; }
+     | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = nullptr; }
      | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; }
      | "try" expr optionalCatch optionalFinally { $$ = nullptr; } /* shift/reduce on optionalCatch optionalFinally */
      | "do" expr optionalSemi "while" "(" expr ")" { $$ = nullptr; }
@@ -326,11 +326,6 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /*
      | assignExpr { $$ = nullptr; }
      | postfixExpr { $$ = nullptr; }
      ;
-
-optionalElse : "semielse" expr { $$ = nullptr; }
-             | "else" expr { $$ = nullptr; }
-             | %empty { $$ = nullptr; }
-             ;
 
 optionalCatch : "catch" expr { $$ = nullptr; }
               | %empty { $$ = nullptr; }
