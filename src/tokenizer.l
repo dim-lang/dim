@@ -1,6 +1,5 @@
 %option noyywrap nounput noinput nodefault nounistd
 %option reentrant bison-locations bison-bridge yylineno 8bit warn
-%option extra-type="Scanner *"
 
 %x IMPORT
 
@@ -35,6 +34,7 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 
 #define T_LITERAL_TOKEN     (yylval->str = Strings::duplicate(yytext, yyleng))
 #define T_INTEGER_TOKEN(t)  (yylval->tok = (t))
+#define T_SCANNER           (static_cast<Scanner *>(yyextra))
 
 #define YY_USER_ACTION                                                      \
     yylloc->first_line = yylloc->last_line;                                 \
@@ -229,25 +229,25 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
  /* import module */
 ^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
-                                                yyextra->pushBuffer(yytext);
+                                                T_SCANNER->pushBuffer(yytext);
                                                 BEGIN INITIAL;
                                             }
 <IMPORT>.|\n                                {
-                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
-                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
+                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
+                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
                                                 BEGIN INITIAL;
                                             }
 <<EOF>>                                     {
                                                 if (!yyextra->popBuffer()) {
-                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
+                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
                                                     yyterminate();
                                                 }
                                             }
 
  /* invalid token */
 .                                           {
-                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
-                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", yyextra->currentBuffer(), yylineno, yytext, yyleng);
+                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
+                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
                                             }
 
 %%

@@ -3,7 +3,7 @@
 %define parse.trace
 %verbose
 %locations
-%parse-param { yyscan_t yyscanner }
+%param { yyscan_t yyscanner }
 
 %code top {
 #include <cstdarg>
@@ -18,6 +18,7 @@ void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...);
 }
 
 %code requires {
+#include "tokenizer.yy.hh"
 class Ast;
 }
 
@@ -173,20 +174,20 @@ class Ast;
 
  /* semi */
 %token <tok> T_NEWLINE '\n'
-%token <ast> semi optionalSemi optionalNewline optionalNewlines newlines
-%token <ast> assignOp prefixOp infixOp postfixOp
 
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
 
+%type <ast> semi optionalSemi optionalNewline optionalNewlines newlines
+%type <ast> assignOp prefixOp infixOp postfixOp
  /* literal */
 %type <ast> literal booleanLiteral
  /* id */
 %type <ast> id varId
  /* expr */
 %type <ast> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
-%type <ast> optionalElse optionalCatch optionalFinally optionalYield optionalExpr optionalBlockStats optionalForInit
+%type <ast> optionalElse optionalCatch optionalFinally optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
  /* type */
 %type <ast> type plainType
  /* def */
@@ -434,7 +435,7 @@ block : '{' blockStat optionalBlockStats '}' { $$ = nullptr; }
 
 blockStat : expr { $$ = nullptr; }
           | def { $$ = nullptr; }
-          /* | Import */
+          /* | import */
           | %empty { $$ = nullptr; }
           ;
 
@@ -452,7 +453,7 @@ blockStats : semi blockStat { $$ = nullptr; }
 
 type : plainType { $$ = nullptr; }
      /* | FuncArgtypes T_RARROW type */
-     /* | idtype */
+     /* | idType */
      ;
 
 /* FuncArgtypes : '(' ')' */
@@ -483,7 +484,7 @@ plainType : "byte" { $$ = nullptr; }
           | "any" { $$ = nullptr; }
           ;
 
-/* idtype : id */
+/* idType : id */
 /*        ; */
 
  /* type } */
@@ -491,8 +492,8 @@ plainType : "byte" { $$ = nullptr; }
  /* definition declaration { */
 
 def : funcDef { $$ = nullptr; }
-    /* | Classdef */
-    /* | Traitdef */
+    /* | classDef */
+    /* | traitDef */
     | varDef { $$ = nullptr; }
     ;
 
@@ -528,14 +529,14 @@ param : id ':' type { $$ = nullptr; }
 varDef : "var" id ':' type '=' expr { $$ = nullptr; }
        ;
 
-/* Decl : "var" VarDecl */
-/*      | "def" FuncDecl */
+/* Decl : "var" varDecl */
+/*      | "def" funcDecl */
 /*      ; */
 
-/* FuncDecl : funcSign ':' type */
+/* funcDecl : funcSign ':' type */
 /*          ; */
 
-/* VarDecl : id ':' type */
+/* varDecl : id ':' type */
 /*         ; */
 
  /* definition declaration } */
@@ -557,16 +558,16 @@ topStats : semi topStat { $$ = nullptr; }
          ;
 
 topStat : def { $$ = nullptr; }
-        /* | Import */
-        /* | Package */
+        /* | import */
+        /* | package */
         | %empty { $$ = nullptr; }
         ;
 
-/* Package : T_PACKAGE id T_LBRACE T_RBRACE */
+/* package : T_PACKAGE id T_LBRACE T_RBRACE */
 /*         | T_PACKAGE id T_LBRACE topStats T_RBRACE */
 /*         ; */
 
-/* Import : */
+/* import : */
 /*        ; */
 
  /* compile unit } */
