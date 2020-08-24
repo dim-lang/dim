@@ -1,4 +1,9 @@
-%define api.pure full
+%require "3.2"
+%language "c++"
+%define lr.type ielr
+%define api.value.type variant
+%define api.token.constructor
+/* %define api.pure full */
 %define parse.assert
 %define parse.trace
 %define parse.error verbose
@@ -24,221 +29,184 @@ class Ast;
 
 %param { yyscan_t yyscanner }
 
-%union {
-    Ast *ast;
-    char *str;
-    int tok;
-}
+ /* %union { */
+ /*     std::shared_ptr<Ast> ast; */
+ /*     std::string str; */
+ /*     int tok; */
+ /* } */
 
  /* token { */
 
-%token <tok> T_EOF
-%token <tok> T_EMPTY "empty"
-
  /* keyword */
-%token <tok> T_TRUE "true"
-%token <tok> T_FALSE "false"
-%token <tok> T_TRY "try"
-%token <tok> T_CATCH "catch"
-%token <tok> T_FINALLY "finally"
-%token <tok> T_THROW "throw"
-%token <tok> T_YIELD "yield"
-%token <tok> T_VAR "var"
-%token <tok> T_VAL "val"
-%token <tok> T_NIL "nil"
-%token <tok> T_NEW "new"
-%token <tok> T_DELETE "delete"
-%token <tok> T_DEF "def"
-%token <tok> T_IF "if"
-%token <tok> T_THEN "then"
-%token <tok> T_ELSE "else"
-%token <tok> T_SEMI_ELSE "semi_else"
-%token <tok> T_MATCH "match"
-%token <tok> T_ENUM "enum"
-%token <tok> T_SWITCH "switch"
-%token <tok> T_CASE "case"
-%token <tok> T_FOR "for"
-%token <tok> T_FOREACH "foreach"
-%token <tok> T_IN "in"
-%token <tok> T_WHILE "while"
-%token <tok> T_SEMI_WHILE "semi_while"
-%token <tok> T_DO "do"
-%token <tok> T_BREAK "break"
-%token <tok> T_CONTINUE "continue"
-%token <tok> T_CLASS "class"
-%token <tok> T_TRAIT "trait"
-%token <tok> T_TYPE "type"
-%token <tok> T_THIS "this"
-%token <tok> T_SUPER "super"
-%token <tok> T_ISINSTANCEOF "isinstanceof"
-%token <tok> T_ISA "isa"
-%token <tok> T_IS "is"
-%token <tok> T_IMPORT "import"
-%token <tok> T_AS "as"
-%token <tok> T_RETURN "return"
-%token <tok> T_VOID "void"
-%token <tok> T_ANY "any"
-%token <tok> T_NAN "nan"
-%token <tok> T_INF "inf"
-%token <tok> T_ASYNC "async"
-%token <tok> T_AWAIT "await"
-%token <tok> T_STATIC "static"
-%token <tok> T_PUBLIC "public"
-%token <tok> T_PROTECT "protect"
-%token <tok> T_PRIVATE "private"
-%token <tok> T_PREFIX "prefix"
-%token <tok> T_POSTFIX "postfix"
-%token <tok> T_PACKAGE "package"
+%token <int> TRUEE "true"
+%token <int> FALSEE "false"
+%token <int> TRY "try"
+%token <int> CATCH "catch"
+%token <int> FINALLY "finally"
+%token <int> THROW "throw"
+%token <int> YIELD "yield"
+%token <int> VAR "var"
+%token <int> VAL "val"
+%token <int> NIL "nil"
+%token <int> NEW "new"
+%token <int> DELETE "delete"
+%token <int> DEF "def"
+%token <int> IF "if"
+%token <int> THEN "then"
+%token <int> ELSE "else"
+%token <int> SEMI_ELSE "semi_else"
+%token <int> MATCH "match"
+%token <int> ENUM "enum"
+%token <int> SWITCH "switch"
+%token <int> CASE "case"
+%token <int> FOR "for"
+%token <int> FOREACH "foreach"
+%token <int> IN "in"
+%token <int> WHILE "while"
+%token <int> SEMI_WHILE "semi_while"
+%token <int> DO "do"
+%token <int> BREAK "break"
+%token <int> CONTINUE "continue"
+%token <int> CLASS "class"
+%token <int> TRAIT "trait"
+%token <int> TYPE "type"
+%token <int> THIS "this"
+%token <int> SUPER "super"
+%token <int> ISINSTANCEOF "isinstanceof"
+%token <int> ISA "isa"
+%token <int> IS "is"
+%token <int> IMPORT "import"
+%token <int> AS "as"
+%token <int> RETURN "return"
+%token <int> VOID "void"
+%token <int> ANY "any"
+%token <int> NAN "nan"
+%token <int> INF "inf"
+%token <int> ASYNC "async"
+%token <int> AWAIT "await"
+%token <int> STATIC "static"
+%token <int> PUBLIC "public"
+%token <int> PROTECT "protect"
+%token <int> PRIVATE "private"
+%token <int> PREFIX "prefix"
+%token <int> POSTFIX "postfix"
+%token <int> PACKAGE "package"
 
  /* primitive type */
-%token <tok> T_BYTE "byte"
-%token <tok> T_UBYTE "ubyte"
-%token <tok> T_SHORT "short"
-%token <tok> T_USHORT "ushort"
-%token <tok> T_INT "int"
-%token <tok> T_UINT "uint"
-%token <tok> T_LONG "long"
-%token <tok> T_ULONG "ulong"
-%token <tok> T_LLONG "llong"
-%token <tok> T_ULLONG "ullong"
-%token <tok> T_FLOAT "float"
-%token <tok> T_DOUBLE "double"
-%token <tok> T_BOOLEAN "boolean"
-%token <tok> T_CHAR "char"
+%token <int> BYTE "byte"
+%token <int> UBYTE "ubyte"
+%token <int> SHORT "short"
+%token <int> USHORT "ushort"
+%token <int> INT "int"
+%token <int> UINT "uint"
+%token <int> LONG "long"
+%token <int> ULONG "ulong"
+%token <int> LLONG "llong"
+%token <int> ULLONG "ullong"
+%token <int> FLOAT "float"
+%token <int> DOUBLE "double"
+%token <int> BOOLEAN "boolean"
+%token <int> CHAR "char"
 
  /* operator */
-%token <tok> T_AND "and"
-%token <tok> T_OR "or"
-%token <tok> T_NOT "not"
+%token <int> AND "and"
+%token <int> OR "or"
+%token <int> NOT "not"
 
-%token <tok> T_PLUS "+"
-%token <tok> T_PLUS2 "++"
-%token <tok> T_MINUS "-"
-%token <tok> T_MINUS2 "--"
-%token <tok> T_ASTERISK "*"
-%token <tok> T_ASTERISK2 "**"
-%token <tok> T_SLASH "/"
-%token <tok> T_SLASH2 "//"
-%token <tok> T_PERCENT "%"
-%token <tok> T_PERCENT2 "%%"
+%token <int> PLUS "+"
+%token <int> PLUS2 "++"
+%token <int> MINUS "-"
+%token <int> MINUS2 "--"
+%token <int> ASTERISK "*"
+%token <int> ASTERISK2 "**"
+%token <int> SLASH "/"
+%token <int> SLASH2 "//"
+%token <int> PERCENT "%"
+%token <int> PERCENT2 "%%"
 
-%token <tok> T_AMPERSAND "&"
-%token <tok> T_AMPERSAND2 "&&"
-%token <tok> T_BAR "|"
-%token <tok> T_BAR2 "||"
-%token <tok> T_TILDE "~"
-%token <tok> T_EXCLAM "!"
-%token <tok> T_CARET "^"
-%token <tok> T_CARET2 "^^"
+%token <int> AMPERSAND "&"
+%token <int> AMPERSAND2 "&&"
+%token <int> BAR "|"
+%token <int> BAR2 "||"
+%token <int> TILDE "~"
+%token <int> EXCLAM "!"
+%token <int> CARET "^"
+%token <int> CARET2 "^^"
 
-%token <tok> T_LSHIFT "<<"
-%token <tok> T_RSHIFT ">>"
-%token <tok> T_ARSHIFT ">>>"
+%token <int> LSHIFT "<<"
+%token <int> RSHIFT ">>"
+%token <int> ARSHIFT ">>>"
 
-%token <tok> T_EQUAL "="
-%token <tok> T_PLUS_EQUAL "+="
-%token <tok> T_MINUS_EQUAL "-="
-%token <tok> T_ASTERISK_EQUAL "*="
-%token <tok> T_SLASH_EQUAL "/="
-%token <tok> T_PERCENT_EQUAL "%="
-%token <tok> T_AMPERSAND_EQUAL "&="
-%token <tok> T_BAR_EQUAL "|="
-%token <tok> T_CARET_EQUAL "^="
-%token <tok> T_LSHIFT_EQUAL "<<="
-%token <tok> T_RSHIFT_EQUAL ">>="
-%token <tok> T_ARSHIFT_EQUAL ">>>="
+%token <int> EQUAL "="
+%token <int> PLUS_EQUAL "+="
+%token <int> MINUS_EQUAL "-="
+%token <int> ASTERISK_EQUAL "*="
+%token <int> SLASH_EQUAL "/="
+%token <int> PERCENEQUAL "%="
+%token <int> AMPERSAND_EQUAL "&="
+%token <int> BAR_EQUAL "|="
+%token <int> CAREEQUAL "^="
+%token <int> LSHIFEQUAL "<<="
+%token <int> RSHIFEQUAL ">>="
+%token <int> ARSHIFEQUAL ">>>="
 
-%token <tok> T_EQ "=="
-%token <tok> T_NEQ "!="
-%token <tok> T_LT "<"
-%token <tok> T_LE "<="
-%token <tok> T_GT ">"
-%token <tok> T_GE ">="
+%token <int> EQ "=="
+%token <int> NEQ "!="
+%token <int> LT "<"
+%token <int> LE "<="
+%token <int> GT ">"
+%token <int> GE ">="
 
-%token <tok> T_LPAREN "("
-%token <tok> T_RPAREN ")"
-%token <tok> T_LBRACKET "["
-%token <tok> T_RBRACKET "]"
-%token <tok> T_LBRACE "{"
-%token <tok> T_RBRACE "}"
+%token <int> LPAREN "("
+%token <int> RPAREN ")"
+%token <int> LBRACKET "["
+%token <int> RBRACKET "]"
+%token <int> LBRACE "{"
+%token <int> RBRACE "}"
 
-%token <tok> T_UNDERSCORE "_"
-%token <tok> T_COMMA ","
-%token <tok> T_SEMI ";"
-%token <tok> T_QUESTION "?"
-%token <tok> T_COLON ":"
-%token <tok> T_COLON2 "::"
-%token <tok> T_DOT "."
-%token <tok> T_DOT2 ".."
-%token <tok> T_LARROW "<-"
-%token <tok> T_RARROW "->"
-%token <tok> T_DOUBLE_RARROW "=>"
-%token <tok> T_COLON_LARROW ":>"
-%token <tok> T_COLON_RARROW "<:"
+%token <int> UNDERSCORE "_"
+%token <int> COMMA ","
+%token <int> SEMICOLON ";"
+%token <int> QUESTION "?"
+%token <int> COLON ":"
+%token <int> COLON2 "::"
+%token <int> DOT "."
+%token <int> DOT2 ".."
+%token <int> LARROW "<-"
+%token <int> RARROW "->"
+%token <int> DOUBLE_RARROW "=>"
+%token <int> COLON_LARROW ":>"
+%token <int> COLON_RARROW "<:"
 
  /* semi */
-%token <tok> T_NEWLINE "\n"
+%token <int> NEWLINE "\n"
 
  /* str */
-%token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
-%token <str> T_VAR_ID
+%token <std::string> INTEGER_LITERAL FLOALITERAL STRING_LITERAL CHARACTER_LITERAL
+%token <std::string> VAR_ID
 
-%type <ast> semi optionalNewline optionalNewlines newlines
-%type <ast> assignOp prefixOp infixOp postfixOp
+ /* separator and operator */
+%type <std::shared_ptr<Ast>> semi optionalNewline optionalNewlines newlines
+%type <std::shared_ptr<Ast>> assignOp prefixOp infixOp postfixOp
  /* literal */
-%type <ast> literal booleanLiteral
+%type <std::shared_ptr<Ast>> literal booleanLiteral
  /* id */
-%type <ast> id varId
+%type <std::shared_ptr<Ast>> id varId
  /* expr */
-%type <ast> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
-%type <ast> optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
+%type <std::shared_ptr<Ast>> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
+%type <std::shared_ptr<Ast>> optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
  /* type */
-%type <ast> type plainType
+%type <std::shared_ptr<Ast>> type plainType
  /* def */
-%type <ast> def funcDef varDef funcSign paramClause params param
-%type <ast> optionalResultType optionalParams
+%type <std::shared_ptr<Ast>> def funcDef varDef funcSign paramClause params param
+%type <std::shared_ptr<Ast>> optionalResultType optionalParams
  /* compile unit */
-%type <ast> compileUnit topStatSeq topStat topStats
-%type <ast> optionalTopStats
+%type <std::shared_ptr<Ast>> compileUnit topStatSeq topStat topStats
+%type <std::shared_ptr<Ast>> optionalTopStats
 
  /* token } */
 
  /* low -> high precedence { */
-
- /* comma */
-%left T_COMMA
-
- /* equal */
-%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
-%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
-%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
-%right T_PLUS_EQUAL T_MINUS_EQUAL
-%right T_EQUAL
-
- /* conditional */
-%left T_QUESTION T_COLON
-
- /* binary op*/
-%left T_BAR2 T_OR
-%left T_AMPERSAND2 T_AND
-%left T_BAR
-%left T_CARET
-%left T_AMPERSAND
-%left T_EQ T_NEQ
-%left T_LT T_LE T_GT T_GE
-%left T_LSHIFT T_RSHIFT T_ARSHIFT
-%left T_PLUS T_MINUS
-%left T_ASTERISK T_SLASH T_PERCENT
-%left T_PLUS2 T_MINUS2
-%left T_ASTERISK2 T_SLASH2 T_PERCENT2
-%left T_CARET2 T_DOT2
-%right T_COLON2
-
- /* unary op */
-%nonassoc T_NOT T_TILDE T_EXCLAM
-
- /* parantheses */
-%left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
 
  /* if-else */
 %nonassoc "then"
@@ -256,6 +224,41 @@ class Ast;
  /* do-while */
 %nonassoc "while"
 %nonassoc "semi_while"
+
+ /* comma */
+%left COMMA
+
+ /* equal */
+%right AMPERSAND_EQUAL BAR_EQUAL CAREEQUAL
+%right LSHIFEQUAL RSHIFEQUAL ARSHIFEQUAL
+%right ASTERISK_EQUAL SLASH_EQUAL PERCENEQUAL
+%right PLUS_EQUAL MINUS_EQUAL
+%right EQUAL
+
+ /* conditional */
+%left QUESTION COLON
+
+ /* binary op*/
+%left BAR2 OR
+%left AMPERSAND2 AND
+%left BAR
+%left CARET
+%left AMPERSAND
+%left EQ NEQ
+%left LT LE GT GE
+%left LSHIFT RSHIFT ARSHIFT
+%left PLUS MINUS
+%left ASTERISK SLASH PERCENT
+%left PLUS2 MINUS2
+%left ASTERISK2 SLASH2 PERCENT2
+%left CARET2 DOT2
+%right COLON2
+
+ /* unary op */
+%nonassoc NOT TILDE EXCLAM
+
+ /* parantheses */
+%left DOT LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
 
  /* low -> high precedence } */
 
@@ -285,11 +288,11 @@ newlines : "\n" { $$ = nullptr; }
 
  /* literal { */
 
-literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); }
-        | T_FLOAT_LITERAL { $$ = new A_Float($1, Y_POS(@1)); std::free($1); }
+literal : INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); }
+        | FLOALITERAL { $$ = new A_Float($1, Y_POS(@1)); std::free($1); }
         | booleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
-        | T_STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
+        | CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
+        | STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
         | "nil" { $$ = new A_Nil(Y_POS(@1)); std::free($1); }
         | "void" { $$ = new A_Void(Y_POS(@1)); std::free($1); }
         ;
@@ -306,13 +309,13 @@ id : varId { $$ = $1; }
    /* | Opid */
    ;
 
-varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
+varId : VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
       ;
 
 /* Opid : assignOp */
 /*      | infixOp */
-/*      | T_PREFIX prefixOp */
-/*      | T_POSTFIX postfixOp */
+/*      | PREFIX prefixOp */
+/*      | POSTFIX postfixOp */
 /*      ; */
 
  /* id } */
@@ -463,7 +466,7 @@ blockStats : semi blockStat { $$ = nullptr; }
  /* type { */
 
 type : plainType { $$ = nullptr; }
-     /* | FuncArgtypes T_RARROW type */
+     /* | FuncArgtypes RARROW type */
      /* | idType */
      ;
 
@@ -472,7 +475,7 @@ type : plainType { $$ = nullptr; }
 /*              ; */
 
 /* paramtypes : paramtype */
-/*            | paramtype T_COMMA paramtypes */
+/*            | paramtype COMMA paramtypes */
 /*            ; */
 
 /* paramtype : type */
@@ -574,8 +577,8 @@ topStat : def { $$ = nullptr; }
         | %empty { $$ = nullptr; }
         ;
 
-/* package : T_PACKAGE id T_LBRACE T_RBRACE */
-/*         | T_PACKAGE id T_LBRACE topStats T_RBRACE */
+/* package : PACKAGE id LBRACE RBRACE */
+/*         | PACKAGE id LBRACE topStats RBRACE */
 /*         ; */
 
 /* import : */

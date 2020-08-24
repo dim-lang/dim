@@ -37,6 +37,7 @@ tokenizer.yy.hh
 tokenizer.yy.cpp
 parser.tab.hh
 parser.tab.cpp
+location.hh
 src/Configure.h
 
 # vscode
