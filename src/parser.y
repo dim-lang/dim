@@ -190,7 +190,7 @@ class Ast;
 %type <ast> id varId
  /* expr */
 %type <ast> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
-%type <ast> optionalElse optionalCatch optionalFinally optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
+%type <ast> optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
  /* type */
 %type <ast> type plainType
  /* def */
@@ -243,10 +243,12 @@ class Ast;
 %nonassoc "then"
 %nonassoc "else"
 %nonassoc "semi_else"
-
-%nonassoc "precedence_empty"
-%nonassoc "precedence_semicolon"
-%nonassoc "precedence_newline"
+ /* try-catch-finally */
+%nonassoc "try"
+%nonassoc "catch"
+%nonassoc "try_catch"
+%nonassoc "try_finally"
+%nonassoc "try_catch_finally"
 
  /* low -> high precedence } */
 
@@ -314,11 +316,14 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* use %prec and semi_else fix if-else shift/reduce */
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* %prec fix if-else shift/reduce */
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = nullptr; }
      | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = nullptr; }
      | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; }
-     | "try" expr optionalCatch optionalFinally { $$ = nullptr; } /* shift/reduce on optionalCatch optionalFinally */
+     | "try" block %prec "try" { $$ = nullptr; } /* %prec fix try-catch-finally shift/reduce */
+     | "try" block "finally" block %prec "try_finally" { $$ = nullptr; }
+     | "try" block "catch" block %prec "try_catch" { $$ = nullptr; }
+     | "try" block "catch" block "finally" block %prec "try_catch_finally" { $$ = nullptr; }
      | "do" expr optionalSemi "while" "(" expr ")" { $$ = nullptr; }
      | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = nullptr; }
      | "throw" expr { $$ = nullptr; }
@@ -327,13 +332,17 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /*
      | postfixExpr { $$ = nullptr; }
      ;
 
-optionalCatch : "catch" expr { $$ = nullptr; }
-              | %empty { $$ = nullptr; }
-              ;
+/* tryExpr : "try" block %prec "try" { $$ = nullptr; } */
+/*         | "try" block catchExpr "try_catch" { $$ = nullptr; } */
+/*         | "try" block finallyExpr "try_finally" { $$ = nullptr; } */
+/*         ; */
 
-optionalFinally : "finally" expr { $$ = nullptr; }
-                | %empty { $$ = nullptr; }
-                ;
+/* catchExpr : "catch" block %prec "catch" { $$ = nullptr; } */
+/*           | "catch" block finallyExpr %prec "try_catch_finally" { $$ = nullptr; } */
+/*           ; */
+
+/* finallyExpr : "finally" block { $$ = nullptr; } */
+/*             ; */
 
 enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = nullptr; }
             | id "<-" expr { $$ = nullptr; }
