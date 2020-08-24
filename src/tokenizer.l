@@ -1,5 +1,14 @@
-%option noyywrap nounput noinput nodefault nounistd
-%option reentrant bison-locations bison-bridge yylineno 8bit warn
+%option noyywrap 
+%option nounput 
+%option noinput 
+%option nodefault 
+%option nounistd
+%option reentrant 
+%option bison-locations 
+%option bison-bridge 
+%option yylineno 
+%option 8bit 
+%option warn
 
 %x IMPORT
 
