@@ -26,8 +26,8 @@ public:
   virtual const std::string &fileName() const;
   virtual const AstTranslateUnit *translateUnit() const;
   virtual AstTranslateUnit *&translateUnit();
-  virtual const yyscan_t *yy_scanner() const;
-  virtual yyscan_t *&yy_scanner();
+  virtual const yyscan_t *yyscanner() const;
+  virtual yyscan_t *&yyscanner();
 
   // wrapper for flex/bison
   virtual std::tuple<int, YYSTYPE, YYLTYPE> tokenize();
@@ -36,6 +36,6 @@ public:
 private:
   std::string fileName_;
   AstTranslateUnit *translateUnit_;
-  yyscan_t yy_scanner_;
+  yyscan_t yyscanner_;
   BufferStack *bufferStack_;
 };

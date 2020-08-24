@@ -44,11 +44,11 @@ Buffer::Buffer(const std::string &a_fileName, Scanner *scanner)
     release();
     EX_ASSERT(fp, "file {} cannot open!", fileName);
   }
-  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, scanner->yy_scanner);
+  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, scanner->yyscanner());
   if (!yyBufferState) {
     release();
     EX_ASSERT(yyBufferState, "yy_create_buffer for file {} failed: {}",
-              fileName, (void *)scanner->yy_scanner);
+              fileName, (void *)scanner->yyscanner());
   }
 }
 
@@ -60,10 +60,9 @@ void Buffer::release() {
     fp = nullptr;
   }
   if (yyBufferState) {
-    yy_delete_buffer(yyBufferState, scanner_->yy_scanner);
+    yy_delete_buffer(yyBufferState, scanner_->yyscanner());
     yyBufferState = nullptr;
   }
-  scanner_->yy_scanner = nullptr;
 }
 
 BufferStack::BufferStack(Scanner *scanner)
@@ -75,18 +74,18 @@ BufferStack::~BufferStack() {
 }
 
 int BufferStack::push(const std::string &fileName) {
-  Buffer *tb = new Buffer(fileName, scanner_->yy_scanner);
+  Buffer *tb = new Buffer(fileName, scanner_->yyscanner());
 
   /* remember state */
   if (!bufferStack_.empty()) {
-    bufferStack_.top()->lineNo = yyget_lineno(scanner_->yy_scanner);
+    bufferStack_.top()->lineNo = yyget_lineno(scanner_->yyscanner());
   }
 
   /* switch to new file */
   bufferStack_.push(tb);
 
-  yy_switch_to_buffer(tb->yyBufferState, scanner_->yy_scanner);
-  yyset_lineno(1, scanner_->yy_scanner);
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->yyscanner());
+  yyset_lineno(1, scanner_->yyscanner());
   return 1;
 }
 
@@ -103,8 +102,8 @@ int BufferStack::pop() {
   }
 
   tb = bufferStack_.top();
-  yy_switch_to_buffer(tb->yyBufferState, scanner_->yy_scanner);
-  yyset_lineno(tb->lineNo, scanner_->yy_scanner);
+  yy_switch_to_buffer(tb->yyBufferState, scanner_->yyscanner());
+  yyset_lineno(tb->lineNo, scanner_->yyscanner());
   return 1;
 }
 

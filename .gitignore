@@ -33,10 +33,10 @@ boost
 llvm-project
 
 # auto generate source code
-Tokenizer.yy.h
-Tokenizer.yy.cpp
-Parser.tab.h
-Parser.tab.cpp
+tokenizer.yy.hh
+tokenizer.yy.cpp
+parser.tab.hh
+parser.tab.cpp
 src/Configure.h
 
 # vscode
