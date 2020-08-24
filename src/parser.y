@@ -308,13 +308,13 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" '(' expr ')' optionalNewlines expr optionalElse { $$ = nullptr; }
+expr : "if" '(' expr ')' optionalNewlines expr optionalElse { $$ = nullptr; } /* shift/reduce on optionalElse */
      | "while" '(' expr ')' optionalNewlines expr { $$ = nullptr; }
-     | "try" expr optionalCatch optionalFinally { $$ = nullptr; }
+     | "try" expr optionalCatch optionalFinally { $$ = nullptr; } /* shift/reduce on optionalCatch optionalFinally */
      | "do" expr optionalSemi "while" '(' expr ')' { $$ = nullptr; }
      | "for" '(' enumerators ')' optionalNewlines optionalYield expr { $$ = nullptr; }
      | "throw" expr { $$ = nullptr; }
-     | "return" optionalExpr { $$ = nullptr; }
+     | "return" optionalExpr { $$ = nullptr; } /* shift/reduce on optionalExpr */
      | assignExpr { $$ = nullptr; }
      | postfixExpr { $$ = nullptr; }
      ;
