@@ -239,8 +239,8 @@ class Ast;
 %left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
 
  /* if-else */
-%nonassoc "lower_than_else"
-%nonassoc T_ELSE
+%nonassoc "then"
+%nonassoc "else"
 
  /* low -> high precedence } */
 
