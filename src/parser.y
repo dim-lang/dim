@@ -109,31 +109,31 @@ class Ast;
 %token <tok> T_OR "or"
 %token <tok> T_NOT "not"
 
-%token <tok> T_PLUS '+'
+%token <tok> T_PLUS "+"
 %token <tok> T_PLUS2 "++"
-%token <tok> T_MINUS '-'
+%token <tok> T_MINUS "-"
 %token <tok> T_MINUS2 "--"
-%token <tok> T_ASTERISK '*'
+%token <tok> T_ASTERISK "*"
 %token <tok> T_ASTERISK2 "**"
-%token <tok> T_SLASH '/'
+%token <tok> T_SLASH "/"
 %token <tok> T_SLASH2 "//"
-%token <tok> T_PERCENT '%'
+%token <tok> T_PERCENT "%"
 %token <tok> T_PERCENT2 "%%"
 
-%token <tok> T_AMPERSAND '&'
+%token <tok> T_AMPERSAND "&"
 %token <tok> T_AMPERSAND2 "&&"
-%token <tok> T_BAR '|'
+%token <tok> T_BAR "|"
 %token <tok> T_BAR2 "||"
-%token <tok> T_TILDE '~'
-%token <tok> T_EXCLAM '!'
-%token <tok> T_CARET '^'
+%token <tok> T_TILDE "~"
+%token <tok> T_EXCLAM "!"
+%token <tok> T_CARET "^"
 %token <tok> T_CARET2 "^^"
 
 %token <tok> T_LSHIFT "<<"
 %token <tok> T_RSHIFT ">>"
 %token <tok> T_ARSHIFT ">>>"
 
-%token <tok> T_EQUAL '='
+%token <tok> T_EQUAL "="
 %token <tok> T_PLUS_EQUAL "+="
 %token <tok> T_MINUS_EQUAL "-="
 %token <tok> T_ASTERISK_EQUAL "*="
@@ -148,25 +148,25 @@ class Ast;
 
 %token <tok> T_EQ "=="
 %token <tok> T_NEQ "!="
-%token <tok> T_LT '<'
+%token <tok> T_LT "<"
 %token <tok> T_LE "<="
-%token <tok> T_GT '>'
+%token <tok> T_GT ">"
 %token <tok> T_GE ">="
 
-%token <tok> T_LPAREN '('
-%token <tok> T_RPAREN ')'
-%token <tok> T_LBRACKET '['
-%token <tok> T_RBRACKET ']'
-%token <tok> T_LBRACE '{'
-%token <tok> T_RBRACE '}'
+%token <tok> T_LPAREN "("
+%token <tok> T_RPAREN ")"
+%token <tok> T_LBRACKET "["
+%token <tok> T_RBRACKET "]"
+%token <tok> T_LBRACE "{"
+%token <tok> T_RBRACE "}"
 
-%token <tok> T_UNDERSCORE '_'
-%token <tok> T_COMMA ','
-%token <tok> T_SEMI ';'
-%token <tok> T_QUESTION '?'
-%token <tok> T_COLON ':'
+%token <tok> T_UNDERSCORE "_"
+%token <tok> T_COMMA ","
+%token <tok> T_SEMI ";"
+%token <tok> T_QUESTION "?"
+%token <tok> T_COLON ":"
 %token <tok> T_COLON2 "::"
-%token <tok> T_DOT '.'
+%token <tok> T_DOT "."
 %token <tok> T_DOT2 ".."
 %token <tok> T_LARROW "<-"
 %token <tok> T_RARROW "->"
@@ -175,7 +175,7 @@ class Ast;
 %token <tok> T_COLON_RARROW "<:"
 
  /* semi */
-%token <tok> T_NEWLINE '\n'
+%token <tok> T_NEWLINE "\n"
 
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
@@ -250,15 +250,15 @@ class Ast;
 
  /* semi and newline { */
 
-semi : ';' { $$ = nullptr; }
-     | '\n' { $$ = nullptr; }
+semi : ";" { $$ = nullptr; }
+     | "\n" { $$ = nullptr; }
      ;
 
 optionalSemi : semi { $$ = nullptr; }
              | %empty { $$ = nullptr; }
              ;
 
-optionalNewline : '\n' { $$ = nullptr; }
+optionalNewline : "\n" { $$ = nullptr; }
                 | %empty { $$ = nullptr; }
                 ;
 
@@ -266,8 +266,8 @@ optionalNewlines : newlines { $$ = nullptr; }
                  | %empty { $$ = nullptr; }
                  ;
 
-newlines : '\n' { $$ = nullptr; }
-         | newlines '\n' { $$ = nullptr; }
+newlines : "\n" { $$ = nullptr; }
+         | newlines "\n" { $$ = nullptr; }
          ;
 
  /* semi and newline } */
@@ -308,11 +308,11 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" '(' expr ')' optionalNewlines expr optionalElse { $$ = nullptr; } /* shift/reduce on optionalElse */
-     | "while" '(' expr ')' optionalNewlines expr { $$ = nullptr; }
+expr : "if" "(" expr ")" optionalNewlines expr optionalElse { $$ = nullptr; } /* shift/reduce on optionalElse */
+     | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; }
      | "try" expr optionalCatch optionalFinally { $$ = nullptr; } /* shift/reduce on optionalCatch optionalFinally */
-     | "do" expr optionalSemi "while" '(' expr ')' { $$ = nullptr; }
-     | "for" '(' enumerators ')' optionalNewlines optionalYield expr { $$ = nullptr; }
+     | "do" expr optionalSemi "while" "(" expr ")" { $$ = nullptr; }
+     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = nullptr; }
      | "throw" expr { $$ = nullptr; }
      | "return" optionalExpr { $$ = nullptr; } /* shift/reduce on optionalExpr */
      | assignExpr { $$ = nullptr; }
@@ -350,7 +350,7 @@ optionalYield : "yield" { $$ = nullptr; }
 assignExpr : id assignOp expr { $$ = nullptr; }
            ;
 
-assignOp : '=' { $$ = $1; }
+assignOp : "=" { $$ = $1; }
          | "+=" { $$ = $1; }
          | "-=" { $$ = $1; }
          | "*=" { $$ = $1; }
@@ -380,23 +380,23 @@ infixOp : "||" { $$ = $1; }
         | "or" { $$ = $1; }
         | "&&" { $$ = $1; }
         | "and" { $$ = $1; }
-        | '|' { $$ = $1; }
-        | '^' { $$ = $1; }
-        | '&' { $$ = $1; }
+        | "|" { $$ = $1; }
+        | "^" { $$ = $1; }
+        | "&" { $$ = $1; }
         | "==" { $$ = $1; }
         | "!=" { $$ = $1; }
-        | '<' { $$ = $1; }
+        | "<" { $$ = $1; }
         | "<=" { $$ = $1; }
-        | '>' { $$ = $1; }
+        | ">" { $$ = $1; }
         | ">=" { $$ = $1; }
         | "<<" { $$ = $1; }
         | ">>" { $$ = $1; }
         | ">>>" { $$ = $1; }
-        | '+' { $$ = $1; }
-        | '-' { $$ = $1; }
-        | '*' { $$ = $1; }
-        | '/' { $$ = $1; }
-        | '%' { $$ = $1; }
+        | "+" { $$ = $1; }
+        | "-" { $$ = $1; }
+        | "*" { $$ = $1; }
+        | "/" { $$ = $1; }
+        | "%" { $$ = $1; }
         | "**" { $$ = $1; }
         | "//" { $$ = $1; }
         | "%%" { $$ = $1; }
@@ -408,10 +408,10 @@ prefixExpr : primaryExpr { $$ = $1; }
            | prefixOp primaryExpr { $$ = new A_prefixExpression($1, $2); }
            ;
 
-prefixOp : '-' { $$ = $1; }
-         | '+' { $$ = $1; }
-         | '~' { $$ = $1; }
-         | '!' { $$ = $1; }
+prefixOp : "-" { $$ = $1; }
+         | "+" { $$ = $1; }
+         | "~" { $$ = $1; }
+         | "!" { $$ = $1; }
          | "not" { $$ = $1; }
          | "++" { $$ = $1; }
          | "--" { $$ = $1; }
@@ -419,7 +419,7 @@ prefixOp : '-' { $$ = $1; }
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
-            | '(' optionalExprs ')' { $$ = $1; }
+            | "(" optionalExprs ")" { $$ = $1; }
             | callExpr { $$ = $1; }
             | block { $$ = nullptr; }
             ;
@@ -429,13 +429,13 @@ optionalExprs : exprs { $$ = nullptr; }
               ;
 
 exprs : expr { $$ = nullptr; }
-      | exprs ',' expr { $$ = nullptr; }
+      | exprs "," expr { $$ = nullptr; }
       ;
 
-callExpr : id '(' optionalExprs ')' { $$ = $1; }
+callExpr : id "(" optionalExprs ")" { $$ = $1; }
          ;
 
-block : '{' blockStat optionalBlockStats '}' { $$ = nullptr; }
+block : "{" blockStat optionalBlockStats "}" { $$ = nullptr; }
       ;
 
 blockStat : expr { $$ = nullptr; }
@@ -461,8 +461,8 @@ type : plainType { $$ = nullptr; }
      /* | idType */
      ;
 
-/* FuncArgtypes : '(' ')' */
-/*              | '(' paramtypes ')' */
+/* FuncArgtypes : "(" ")" */
+/*              | "(" paramtypes ")" */
 /*              ; */
 
 /* paramtypes : paramtype */
@@ -502,7 +502,7 @@ def : funcDef { $$ = nullptr; }
     | varDef { $$ = nullptr; }
     ;
 
-funcDef : "def" funcSign optionalResultType '=' expr { $$ = nullptr; }
+funcDef : "def" funcSign optionalResultType "=" expr { $$ = nullptr; }
         | "def" funcSign resultType optionalNewlines block { $$ = nullptr; }
         ;
 
@@ -510,13 +510,13 @@ optionalResultType : resultType { $$ = nullptr; }
                    | %empty { $$ = nullptr; }
                    ;
 
-resultType : ':' type
+resultType : ":" type
            ;
 
 funcSign : id paramClause { $$ = nullptr; }
          ;
 
-paramClause : '(' optionalParams ')' { $$ = nullptr; }
+paramClause : "(" optionalParams ")" { $$ = nullptr; }
             ;
 
 optionalParams : params { $$ = nullptr; }
@@ -524,24 +524,24 @@ optionalParams : params { $$ = nullptr; }
                ;
 
 params : param { $$ = nullptr; }
-       | params ',' param { $$ = nullptr; }
+       | params "," param { $$ = nullptr; }
        ;
 
-param : id ':' type { $$ = nullptr; }
-      /* | id ':' type '=' expr */
+param : id ":" type { $$ = nullptr; }
+      /* | id ":" type "=" expr */
       ;
 
-varDef : "var" id ':' type '=' expr { $$ = nullptr; }
+varDef : "var" id ":" type "=" expr { $$ = nullptr; }
        ;
 
 /* Decl : "var" varDecl */
 /*      | "def" funcDecl */
 /*      ; */
 
-/* funcDecl : funcSign ':' type */
+/* funcDecl : funcSign ":" type */
 /*          ; */
 
-/* varDecl : id ':' type */
+/* varDecl : id ":" type */
 /*         ; */
 
  /* definition declaration } */
