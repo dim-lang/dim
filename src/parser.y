@@ -61,6 +61,7 @@ class Ast;
 %token <tok> T_FOREACH "foreach"
 %token <tok> T_IN "in"
 %token <tok> T_WHILE "while"
+%token <tok> T_SEMI_WHILE "semi_while"
 %token <tok> T_DO "do"
 %token <tok> T_BREAK "break"
 %token <tok> T_CONTINUE "continue"
@@ -182,7 +183,7 @@ class Ast;
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
 %token <str> T_VAR_ID
 
-%type <ast> semi optionalSemi optionalNewline optionalNewlines newlines
+%type <ast> semi optionalNewline optionalNewlines newlines
 %type <ast> assignOp prefixOp infixOp postfixOp
  /* literal */
 %type <ast> literal booleanLiteral
@@ -249,6 +250,12 @@ class Ast;
 %nonassoc "try_catch"
 %nonassoc "try_finally"
 %nonassoc "try_catch_finally"
+ /* return */
+%nonassoc "return"
+%nonassoc "return_expr"
+ /* do-while */
+%nonassoc "while"
+%nonassoc "semi_while"
 
  /* low -> high precedence } */
 
@@ -261,10 +268,6 @@ class Ast;
 semi : ";" { $$ = nullptr; }
      | "\n" { $$ = nullptr; }
      ;
-
-optionalSemi : semi { $$ = nullptr; }
-             | %empty { $$ = nullptr; }
-             ;
 
 optionalNewline : "\n" { $$ = nullptr; }
                 | %empty { $$ = nullptr; }
@@ -316,18 +319,20 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* %prec fix if-else shift/reduce */
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* %prec fix optional if-else shift/reduce */
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = nullptr; }
      | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = nullptr; }
-     /* | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; } */
-     | "do" expr optionalSemi "while" "(" expr ")" { $$ = nullptr; }
-     | "try" block %prec "try" { $$ = nullptr; } /* %prec fix try-catch-finally shift/reduce */
+     | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; }
+     | "do" expr "while" "(" expr ")" %prec "while" { $$ = nullptr; } /* %prec fix optional do-while shift/reduce */
+     | "do" expr "semi_while" "(" expr ")" %prec "semi_while" { $$ = nullptr; }
+     | "try" block %prec "try" { $$ = nullptr; } /* %prec fix optional try-catch-finally shift/reduce */
      | "try" block "finally" block %prec "try_finally" { $$ = nullptr; }
      | "try" block "catch" block %prec "try_catch" { $$ = nullptr; }
      | "try" block "catch" block "finally" block %prec "try_catch_finally" { $$ = nullptr; }
      | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = nullptr; }
      | "throw" expr { $$ = nullptr; }
-     | "return" optionalExpr { $$ = nullptr; } /* shift/reduce on optionalExpr */
+     | "return" %prec "return" { $$ = nullptr; } /* %prec fix optional return shift/reduce */
+     | "return" expr %prec "return_expr" { $$ = nullptr; }
      | assignExpr { $$ = nullptr; }
      | postfixExpr { $$ = nullptr; }
      ;

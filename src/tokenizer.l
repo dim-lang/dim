@@ -144,6 +144,8 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
  /* optional newline or semicolon */
 [\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
 ";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { return T_INTEGER_TOKEN(T_SEMI_WHILE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { return T_INTEGER_TOKEN(T_SEMI_WHILE); }
 
 "+"         { return T_INTEGER_TOKEN(T_PLUS); }
 "++"        { return T_INTEGER_TOKEN(T_PLUS2); }
