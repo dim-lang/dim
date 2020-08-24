@@ -1,13 +1,13 @@
-%option noyywrap 
-%option nounput 
-%option noinput 
-%option nodefault 
+%option noyywrap
+%option nounput
+%option noinput
+%option nodefault
 %option nounistd
-%option reentrant 
-%option bison-locations 
-%option bison-bridge 
-%option yylineno 
-%option 8bit 
+%option reentrant
+%option bison-locations
+%option bison-bridge
+%option yylineno
+%option 8bit
 %option warn
 
 %x IMPORT
@@ -25,6 +25,9 @@ NL  ("\\\n"|"\\\r\n")
 SES (\\[\'\"?abfnrtv\\])
 OES (\\[0-7]{1,3})
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
+WS  ([ \t\v\f\r])
+BC  ("/*"((("*"[^/])?)|[^*])*"*/")
+LC  ("//".*\n)
 
 %{
 #include "Ast.h"
@@ -59,10 +62,10 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 %%
 
  /* multiple line comment */
-"/*"((("*"[^/])?)|[^*])*"*/"    { /* eat everything */ }
+{BC}        { /* eat everything */ }
 
  /* one line comment */
-"//".*\n                        { /* eat everything until newline */ }
+{LC}        { /* eat everything until newline */ }
 
  /* keywords */
 true        { return T_INTEGER_TOKEN(T_TRUE); }
@@ -137,6 +140,10 @@ char        { return T_INTEGER_TOKEN(T_CHAR); }
 and         { return T_INTEGER_TOKEN(T_AND); }
 or          { return T_INTEGER_TOKEN(T_OR); }
 not         { return T_INTEGER_TOKEN(T_NOT); }
+
+ /* optional newline or semicolon */
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
 
 "+"         { return T_INTEGER_TOKEN(T_PLUS); }
 "++"        { return T_INTEGER_TOKEN(T_PLUS2); }
@@ -233,10 +240,10 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 [a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
 
  /* whitespace except newline */
-[ \t\v\f\r]                                 { /* skip whitespace except newline */ }
+{WS}+                                       { /* skip whitespace except newline */ }
 
  /* import module */
-^[ \t\v\f\r]*import[ \t\v\f\r]*             { BEGIN IMPORT; }
+^{WS}*import{WS}*                           { BEGIN IMPORT; }
 <IMPORT>[^ \t\v\f\r\;]+                     {
                                                 T_SCANNER->pushBuffer(yytext);
                                                 BEGIN INITIAL;
