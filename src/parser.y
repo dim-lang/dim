@@ -1,14 +1,16 @@
 %define api.pure full
 %locations
-%parse-param { yyscan_t yy_scanner }
+%parse-param { yyscan_t yyscanner }
 
 %code top {
 #include <cstdarg>
 #include <cstdio>
+#include <memory>
 #include "Ast.h"
 #include "Buffer.h"
 #include "Position.h"
-#include "tokenizer.yy.h"
+#include "tokenizer.yy.hh"
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...);
 #define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
@@ -24,7 +26,8 @@ class Ast;
 
  /* token { */
 
-%token <tok> T_EOF T_EMPTY
+%token <tok> T_EOF
+%token <tok> T_EMPTY "empty"
 
  /* keyword */
 %token <tok> T_TRUE "true"
@@ -118,7 +121,7 @@ class Ast;
 %token <tok> T_TILDE '~'
 %token <tok> T_EXCLAM '!'
 %token <tok> T_CARET '^'
-%token <tok> T_CARET2 '^^'
+%token <tok> T_CARET2 "^^"
 
 %token <tok> T_LSHIFT "<<"
 %token <tok> T_RSHIFT ">>"
@@ -167,8 +170,8 @@ class Ast;
 
  /* semi */
 %token <tok> T_NEWLINE '\n'
-%token <tok> semi optionalSemi optionalNewline optionalNewlines newlines
-%token <tok> assignOp prefixOp infixOp postfixOp
+%token <ast> semi optionalSemi optionalNewline optionalNewlines newlines
+%token <ast> assignOp prefixOp infixOp postfixOp
 
  /* str */
 %token <str> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
@@ -241,24 +244,24 @@ class Ast;
 
  /* semi and newline { */
 
-semi : ';' { $$ = $1; }
-     | '\n' { $$ = $1; }
+semi : ';' { $$ = nullptr; }
+     | '\n' { $$ = nullptr; }
      ;
 
-optionalSemi : semi { $$ = $1; }
-             | %empty { $$ = T_EMPTY; }
+optionalSemi : semi { $$ = nullptr; }
+             | %empty { $$ = nullptr; }
              ;
 
-optionalNewline : '\n' { $$ = $1; }
-                | %empty { $$ = T_EMPTY; }
+optionalNewline : '\n' { $$ = nullptr; }
+                | %empty { $$ = nullptr; }
                 ;
 
-optionalNewlines : newlines { $$ = $1; }
-                 | %empty { $$ = T_EMPTY; }
+optionalNewlines : newlines { $$ = nullptr; }
+                 | %empty { $$ = nullptr; }
                  ;
 
-newlines : '\n' { $$ = $1; }
-         | newlines '\n' { $$ = T_EMPTY; }
+newlines : '\n' { $$ = nullptr; }
+         | newlines '\n' { $$ = nullptr; }
          ;
 
  /* semi and newline } */
@@ -567,12 +570,12 @@ topStat : def { $$ = nullptr; }
 
 %%
 
-void yyerror(YYLTYPE *yyllocp, yyscan_t yy_scanner, const char *fmt, ...) {
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ",
-            yyget_extra(yy_scanner)->currentBuffer().c_str(),
+            yyget_extra(yyscanner)->currentBuffer().c_str(),
             yyllocp->first_line,
             yyllocp->first_column,
             yyllocp->last_line,
