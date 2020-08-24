@@ -6,7 +6,7 @@
 #include "NameGenerator.h"
 #include "Strings.h"
 #include "TokenName.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include <algorithm>
 #include <string>
 #include <tuple>

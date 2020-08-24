@@ -63,6 +63,7 @@ void Buffer::release() {
     yy_delete_buffer(yyBufferState, scanner_->yyscanner());
     yyBufferState = nullptr;
   }
+  scanner_ = nullptr;
 }
 
 BufferStack::BufferStack(Scanner *scanner)
@@ -71,6 +72,7 @@ BufferStack::BufferStack(Scanner *scanner)
 BufferStack::~BufferStack() {
   EX_ASSERT(bufferStack_.empty(), "bufferStack_ not empty: {}",
             bufferStack_.size());
+  scanner_ = nullptr;
 }
 
 int BufferStack::push(const std::string &fileName) {

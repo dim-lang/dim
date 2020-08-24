@@ -21,7 +21,7 @@ UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
 %{
 #include "Ast.h"
 #include "Buffer.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include "Scanner.h"
 #include "Strings.h"
 #include "Exception.h"

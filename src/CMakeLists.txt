@@ -53,18 +53,18 @@ endif(WIN32)
 find_package(FLEX)
 find_package(BISON)
 FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cpp
-    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.h)
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
 BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cpp
-    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.h)
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
 ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
 
 # release version
-# flex -o tokenizer.yy.cpp --header-file=tokenizer.yy.h tokenizer.l
-# bison -o parser.tab.cpp --defines=parser.tab.h parser.yy
+# flex -o tokenizer.yy.cpp --header-file=tokenizer.yy.hh tokenizer.l
+# bison -o parser.tab.cpp --defines=parser.tab.hh parser.y
 
 # debug
-# flex --debug -o tokenizer.yy.cpp --header-file=tokenizer.yy.h tokenizer.l
-# bison --debug -v -o parser.tab.cpp --defines=parser.tab.h parser.yy
+# flex --debug -o tokenizer.yy.cpp --header-file=tokenizer.yy.hh tokenizer.l
+# bison --debug -v -o parser.tab.cpp --defines=parser.tab.hh parser.y
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}

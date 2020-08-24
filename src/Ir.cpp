@@ -13,7 +13,7 @@
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
 #include "fmt/format.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Constants.h"

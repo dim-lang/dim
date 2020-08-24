@@ -1,4 +1,7 @@
 %define api.pure full
+%define parse.assert
+%define parse.trace
+%verbose
 %locations
 %parse-param { yyscan_t yyscanner }
 

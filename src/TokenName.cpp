@@ -4,7 +4,7 @@
 #include "TokenName.h"
 #include "Ast.h"
 #include "Log.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include <string>
 #include <unordered_map>
 

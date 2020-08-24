@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Scanner.h"
+#include "Exception.h"
 #include "Log.h"
 
 extern int yyparse(yyscan_t yyscanner);
@@ -13,21 +14,21 @@ Scanner::Scanner()
   EX_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
   translateUnit_ = new AstTranslateUnit();
   bufferStack_ = new BufferStack(this);
+  EX_ASSERT(yyscanner_, "yyscanner_ must not null");
+  EX_ASSERT(translateUnit_, "translateUnit_ must not null");
+  EX_ASSERT(bufferStack_, "bufferStack_ must not null");
 }
 
 Scanner::~Scanner() {
-  if (yyscanner_) {
-    yylex_destroy(yyscanner_);
-    yyscanner_ = nullptr;
-  }
-  if (translateUnit_) {
-    delete translateUnit_;
-    translateUnit_ = nullptr;
-  }
-  if (bufferStack_) {
-    delete bufferStack_;
-    bufferStack_ = nullptr;
-  }
+  EX_ASSERT(yyscanner_, "yyscanner_ must not null");
+  yylex_destroy(yyscanner_);
+  yyscanner_ = nullptr;
+  EX_ASSERT(translateUnit_, "translateUnit_ must not null");
+  delete translateUnit_;
+  translateUnit_ = nullptr;
+  EX_ASSERT(bufferStack_, "bufferStack_ must not null");
+  delete bufferStack_;
+  bufferStack_ = nullptr;
 }
 
 int Scanner::pushBuffer(const std::string &fileName) {

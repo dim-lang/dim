@@ -7,7 +7,7 @@
 #include "Log.h"
 #include "Option.h"
 #include "Scanner.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #include <iostream>
 #include <string>
 #include <vector>

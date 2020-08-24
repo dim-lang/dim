@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "parser.tab.h"
-#include "tokenizer.yy.h"
+#include "parser.tab.hh"
+#include "tokenizer.yy.hh"
 #include <cstdio>
 #include <stack>
 #include <string>
