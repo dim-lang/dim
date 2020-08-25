@@ -3,22 +3,18 @@
 %define lr.type ielr
 %define api.value.type variant
 %define api.token.constructor
-/* %define api.pure full */
 %define parse.assert
-%define parse.trace
 %define parse.error verbose
 %define parse.lac full
 %locations
 
 %code top {
-#include <cstdarg>
-#include <cstdio>
 #include <memory>
+#include "Log.h"
 #include "Ast.h"
 #include "Buffer.h"
 #include "Position.h"
 #include "tokenizer.yy.hh"
-void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...);
 #define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
@@ -38,152 +34,152 @@ class Ast;
  /* token { */
 
  /* keyword */
-%token <int> TRUEE "true"
-%token <int> FALSEE "false"
-%token <int> TRY "try"
-%token <int> CATCH "catch"
-%token <int> FINALLY "finally"
-%token <int> THROW "throw"
-%token <int> YIELD "yield"
-%token <int> VAR "var"
-%token <int> VAL "val"
-%token <int> NIL "nil"
-%token <int> NEW "new"
-%token <int> DELETE "delete"
-%token <int> DEF "def"
-%token <int> IF "if"
-%token <int> THEN "then"
-%token <int> ELSE "else"
-%token <int> SEMI_ELSE "semi_else"
-%token <int> MATCH "match"
-%token <int> ENUM "enum"
-%token <int> SWITCH "switch"
-%token <int> CASE "case"
-%token <int> FOR "for"
-%token <int> FOREACH "foreach"
-%token <int> IN "in"
-%token <int> WHILE "while"
-%token <int> SEMI_WHILE "semi_while"
-%token <int> DO "do"
-%token <int> BREAK "break"
-%token <int> CONTINUE "continue"
-%token <int> CLASS "class"
-%token <int> TRAIT "trait"
-%token <int> TYPE "type"
-%token <int> THIS "this"
-%token <int> SUPER "super"
-%token <int> ISINSTANCEOF "isinstanceof"
-%token <int> ISA "isa"
-%token <int> IS "is"
-%token <int> IMPORT "import"
-%token <int> AS "as"
-%token <int> RETURN "return"
-%token <int> VOID "void"
-%token <int> ANY "any"
-%token <int> NAN "nan"
-%token <int> INF "inf"
-%token <int> ASYNC "async"
-%token <int> AWAIT "await"
-%token <int> STATIC "static"
-%token <int> PUBLIC "public"
-%token <int> PROTECT "protect"
-%token <int> PRIVATE "private"
-%token <int> PREFIX "prefix"
-%token <int> POSTFIX "postfix"
-%token <int> PACKAGE "package"
+%token <std::string> T_TRUE "true"
+%token <std::string> T_FALSE "false"
+%token T_TRY "try"
+%token T_CATCH "catch"
+%token T_FINALLY "finally"
+%token T_THROW "throw"
+%token T_YIELD "yield"
+%token T_VAR "var"
+%token T_VAL "val"
+%token T_NIL "nil"
+%token T_NEW "new"
+%token T_DELETE "delete"
+%token T_DEF "def"
+%token T_IF "if"
+%token T_THEN "then"
+%token T_ELSE "else"
+%token T_SEMI_ELSE "semi_else"
+%token T_MATCH "match"
+%token T_ENUM "enum"
+%token T_SWITCH "switch"
+%token T_CASE "case"
+%token T_FOR "for"
+%token T_FOREACH "foreach"
+%token T_IN "in"
+%token T_WHILE "while"
+%token T_SEMI_WHILE "semi_while"
+%token T_DO "do"
+%token T_BREAK "break"
+%token T_CONTINUE "continue"
+%token T_CLASS "class"
+%token T_TRAIT "trait"
+%token T_TYPE "type"
+%token T_THIS "this"
+%token T_SUPER "super"
+%token T_ISINSTANCEOF "isinstanceof"
+%token T_ISA "isa"
+%token T_IS "is"
+%token T_IMPORT "import"
+%token T_AS "as"
+%token T_RETURN "return"
+%token T_VOID "void"
+%token T_ANY "any"
+%token T_NAN "nan"
+%token T_INF "inf"
+%token T_ASYNC "async"
+%token T_AWAIT "await"
+%token T_STATIC "static"
+%token T_PUBLIC "public"
+%token T_PROTECT "protect"
+%token T_PRIVATE "private"
+%token T_PREFIX "prefix"
+%token T_POSTFIX "postfix"
+%token T_PACKAGE "package"
 
  /* primitive type */
-%token <int> BYTE "byte"
-%token <int> UBYTE "ubyte"
-%token <int> SHORT "short"
-%token <int> USHORT "ushort"
-%token <int> INT "int"
-%token <int> UINT "uint"
-%token <int> LONG "long"
-%token <int> ULONG "ulong"
-%token <int> LLONG "llong"
-%token <int> ULLONG "ullong"
-%token <int> FLOAT "float"
-%token <int> DOUBLE "double"
-%token <int> BOOLEAN "boolean"
-%token <int> CHAR "char"
+%token T_BYTE "byte"
+%token T_UBYTE "ubyte"
+%token T_SHORT "short"
+%token T_USHORT "ushort"
+%token T_INT "int"
+%token T_UINT "uint"
+%token T_LONG "long"
+%token T_ULONG "ulong"
+%token T_LLONG "llong"
+%token T_ULLONG "ullong"
+%token T_FLOAT "float"
+%token T_DOUBLE "double"
+%token T_BOOLEAN "boolean"
+%token T_CHAR "char"
 
  /* operator */
-%token <int> AND "and"
-%token <int> OR "or"
-%token <int> NOT "not"
+%token T_AND "and"
+%token T_OR "or"
+%token T_NOT "not"
 
-%token <int> PLUS "+"
-%token <int> PLUS2 "++"
-%token <int> MINUS "-"
-%token <int> MINUS2 "--"
-%token <int> ASTERISK "*"
-%token <int> ASTERISK2 "**"
-%token <int> SLASH "/"
-%token <int> SLASH2 "//"
-%token <int> PERCENT "%"
-%token <int> PERCENT2 "%%"
+%token T_PLUS "+"
+%token T_PLUS2 "++"
+%token T_MINUS "-"
+%token T_MINUS2 "--"
+%token T_ASTERISK "*"
+%token T_ASTERISK2 "**"
+%token T_SLASH "/"
+%token T_SLASH2 "//"
+%token T_PERCENT "%"
+%token T_PERCENT2 "%%"
 
-%token <int> AMPERSAND "&"
-%token <int> AMPERSAND2 "&&"
-%token <int> BAR "|"
-%token <int> BAR2 "||"
-%token <int> TILDE "~"
-%token <int> EXCLAM "!"
-%token <int> CARET "^"
-%token <int> CARET2 "^^"
+%token T_AMPERSAND "&"
+%token T_AMPERSAND2 "&&"
+%token T_BAR "|"
+%token T_BAR2 "||"
+%token T_TILDE "~"
+%token T_EXCLAM "!"
+%token T_CARET "^"
+%token T_CARET2 "^^"
 
-%token <int> LSHIFT "<<"
-%token <int> RSHIFT ">>"
-%token <int> ARSHIFT ">>>"
+%token T_LSHIFT "<<"
+%token T_RSHIFT ">>"
+%token T_ARSHIFT ">>>"
 
-%token <int> EQUAL "="
-%token <int> PLUS_EQUAL "+="
-%token <int> MINUS_EQUAL "-="
-%token <int> ASTERISK_EQUAL "*="
-%token <int> SLASH_EQUAL "/="
-%token <int> PERCENEQUAL "%="
-%token <int> AMPERSAND_EQUAL "&="
-%token <int> BAR_EQUAL "|="
-%token <int> CAREEQUAL "^="
-%token <int> LSHIFEQUAL "<<="
-%token <int> RSHIFEQUAL ">>="
-%token <int> ARSHIFEQUAL ">>>="
+%token T_EQUAL "="
+%token T_PLUS_EQUAL "+="
+%token T_MINUS_EQUAL "-="
+%token T_ASTERISK_EQUAL "*="
+%token T_SLASH_EQUAL "/="
+%token T_PERCENT_EQUAL "%="
+%token T_AMPERSAND_EQUAL "&="
+%token T_BAR_EQUAL "|="
+%token T_CARET_EQUAL "^="
+%token T_LSHIFT_EQUAL "<<="
+%token T_RSHIFT_EQUAL ">>="
+%token T_ARSHIFT_EQUAL ">>>="
 
-%token <int> EQ "=="
-%token <int> NEQ "!="
-%token <int> LT "<"
-%token <int> LE "<="
-%token <int> GT ">"
-%token <int> GE ">="
+%token T_EQ "=="
+%token T_NEQ "!="
+%token T_LT "<"
+%token T_LE "<="
+%token T_GT ">"
+%token T_GE ">="
 
-%token <int> LPAREN "("
-%token <int> RPAREN ")"
-%token <int> LBRACKET "["
-%token <int> RBRACKET "]"
-%token <int> LBRACE "{"
-%token <int> RBRACE "}"
+%token T_LPAREN "("
+%token T_RPAREN ")"
+%token T_LBRACKET "["
+%token T_RBRACKET "]"
+%token T_LBRACE "{"
+%token T_RBRACE "}"
 
-%token <int> UNDERSCORE "_"
-%token <int> COMMA ","
-%token <int> SEMICOLON ";"
-%token <int> QUESTION "?"
-%token <int> COLON ":"
-%token <int> COLON2 "::"
-%token <int> DOT "."
-%token <int> DOT2 ".."
-%token <int> LARROW "<-"
-%token <int> RARROW "->"
-%token <int> DOUBLE_RARROW "=>"
-%token <int> COLON_LARROW ":>"
-%token <int> COLON_RARROW "<:"
+%token T_UNDERSCORE "_"
+%token T_COMMA ","
+%token T_SEMI ";"
+%token T_QUESTION "?"
+%token T_COLON ":"
+%token T_COLON2 "::"
+%token T_DOT "."
+%token T_DOT2 ".."
+%token T_LARROW "<-"
+%token T_RARROW "->"
+%token T_DOUBLE_RARROW "=>"
+%token T_COLON_LARROW ":>"
+%token T_COLON_RARROW "<:"
 
  /* semi */
-%token <int> NEWLINE "\n"
+%token T_NEWLINE "\n"
 
  /* str */
-%token <std::string> INTEGER_LITERAL FLOALITERAL STRING_LITERAL CHARACTER_LITERAL
-%token <std::string> VAR_ID
+%token <std::string> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
+%token <std::string> T_VAR_ID
 
  /* separator and operator */
 %type <std::shared_ptr<Ast>> semi optionalNewline optionalNewlines newlines
@@ -229,9 +225,9 @@ class Ast;
 %left COMMA
 
  /* equal */
-%right AMPERSAND_EQUAL BAR_EQUAL CAREEQUAL
-%right LSHIFEQUAL RSHIFEQUAL ARSHIFEQUAL
-%right ASTERISK_EQUAL SLASH_EQUAL PERCENEQUAL
+%right AMPERSAND_EQUAL BAR_EQUAL CARET_EQUAL
+%right LSHIFT_EQUAL RSHIFT_EQUAL ARSHIFT_EQUAL
+%right ASTERISK_EQUAL SLASH_EQUAL PERCENT_EQUAL
 %right PLUS_EQUAL MINUS_EQUAL
 %right EQUAL
 
@@ -288,17 +284,17 @@ newlines : "\n" { $$ = nullptr; }
 
  /* literal { */
 
-literal : INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); }
-        | FLOALITERAL { $$ = new A_Float($1, Y_POS(@1)); std::free($1); }
+literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, Y_POS(@1)); std::free($1); }
+        | T_FLOAT_LITERAL { $$ = new A_Float($1, Y_POS(@1)); std::free($1); }
         | booleanLiteral { $$ = $1; }
-        | CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
-        | STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
-        | "nil" { $$ = new A_Nil(Y_POS(@1)); std::free($1); }
-        | "void" { $$ = new A_Void(Y_POS(@1)); std::free($1); }
+        | T_CHARACTER_LITERAL { $$ = new A_Character($1, Y_POS(@1)); std::free($1); }
+        | T_STRING_LITERAL { $$ = new A_String($1, Y_POS(@1)); std::free($1); }
+        | "nil" { $$ = new A_Nil(Y_POS(@1)); }
+        | "void" { $$ = new A_Void(Y_POS(@1)); }
         ;
 
-booleanLiteral : "true" { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
-               | "false" { $$ = new A_Boolean($1, Y_POS(@1)); std::free($1); }
+booleanLiteral : "true" { $$ = new A_Boolean(true, Y_POS(@1)); }
+               | "false" { $$ = new A_Boolean(false, Y_POS(@1)); }
                ;
 
  /* literal } */
@@ -309,7 +305,7 @@ id : varId { $$ = $1; }
    /* | Opid */
    ;
 
-varId : VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
+varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
       ;
 
 /* Opid : assignOp */
@@ -359,76 +355,76 @@ optionalYield : "yield" { $$ = nullptr; }
 assignExpr : id assignOp expr { $$ = nullptr; }
            ;
 
-assignOp : "=" { $$ = $1; }
-         | "+=" { $$ = $1; }
-         | "-=" { $$ = $1; }
-         | "*=" { $$ = $1; }
-         | "/=" { $$ = $1; }
-         | "%=" { $$ = $1; }
-         | "&=" { $$ = $1; }
-         | "|=" { $$ = $1; }
-         | "^=" { $$ = $1; }
-         | "<<=" { $$ = $1; }
-         | ">>=" { $$ = $1; }
-         | ">>>=" { $$ = $1; }
+assignOp : "=" { $$ = nullptr; }
+         | "+=" { $$ = nullptr; }
+         | "-=" { $$ = nullptr; }
+         | "*=" { $$ = nullptr; }
+         | "/=" { $$ = nullptr; }
+         | "%=" { $$ = nullptr; }
+         | "&=" { $$ = nullptr; }
+         | "|=" { $$ = nullptr; }
+         | "^=" { $$ = nullptr; }
+         | "<<=" { $$ = nullptr; }
+         | ">>=" { $$ = nullptr; }
+         | ">>>=" { $$ = nullptr; }
          ;
 
 postfixExpr : infixExpr { $$ = nullptr; }
             | infixExpr postfixOp { $$ = nullptr; }
             ;
 
-postfixOp : "++" { $$ = $1; }
-          | "--" { $$ = $1; }
+postfixOp : "++" { $$ = nullptr; }
+          | "--" { $$ = nullptr; }
           ;
 
 infixExpr : prefixExpr { $$ = nullptr; }
           | infixExpr infixOp optionalNewline prefixExpr { $$ = nullptr; }
           ;
 
-infixOp : "||" { $$ = $1; }
-        | "or" { $$ = $1; }
-        | "&&" { $$ = $1; }
-        | "and" { $$ = $1; }
-        | "|" { $$ = $1; }
-        | "^" { $$ = $1; }
-        | "&" { $$ = $1; }
-        | "==" { $$ = $1; }
-        | "!=" { $$ = $1; }
-        | "<" { $$ = $1; }
-        | "<=" { $$ = $1; }
-        | ">" { $$ = $1; }
-        | ">=" { $$ = $1; }
-        | "<<" { $$ = $1; }
-        | ">>" { $$ = $1; }
-        | ">>>" { $$ = $1; }
-        | "+" { $$ = $1; }
-        | "-" { $$ = $1; }
-        | "*" { $$ = $1; }
-        | "/" { $$ = $1; }
-        | "%" { $$ = $1; }
-        | "**" { $$ = $1; }
-        | "//" { $$ = $1; }
-        | "%%" { $$ = $1; }
-        | "^^" { $$ = $1; }
-        | "::" { $$ = $1; }
+infixOp : "||" { $$ = nullptr; }
+        | "or" { $$ = nullptr; }
+        | "&&" { $$ = nullptr; }
+        | "and" { $$ = nullptr; }
+        | "|" { $$ = nullptr; }
+        | "^" { $$ = nullptr; }
+        | "&" { $$ = nullptr; }
+        | "==" { $$ = nullptr; }
+        | "!=" { $$ = nullptr; }
+        | "<" { $$ = nullptr; }
+        | "<=" { $$ = nullptr; }
+        | ">" { $$ = nullptr; }
+        | ">=" { $$ = nullptr; }
+        | "<<" { $$ = nullptr; }
+        | ">>" { $$ = nullptr; }
+        | ">>>" { $$ = nullptr; }
+        | "+" { $$ = nullptr; }
+        | "-" { $$ = nullptr; }
+        | "*" { $$ = nullptr; }
+        | "/" { $$ = nullptr; }
+        | "%" { $$ = nullptr; }
+        | "**" { $$ = nullptr; }
+        | "//" { $$ = nullptr; }
+        | "%%" { $$ = nullptr; }
+        | "^^" { $$ = nullptr; }
+        | "::" { $$ = nullptr; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
            | prefixOp primaryExpr { $$ = new A_prefixExpression($1, $2); }
            ;
 
-prefixOp : "-" { $$ = $1; }
-         | "+" { $$ = $1; }
-         | "~" { $$ = $1; }
-         | "!" { $$ = $1; }
-         | "not" { $$ = $1; }
-         | "++" { $$ = $1; }
-         | "--" { $$ = $1; }
+prefixOp : "-" { $$ = nullptr; }
+         | "+" { $$ = nullptr; }
+         | "~" { $$ = nullptr; }
+         | "!" { $$ = nullptr; }
+         | "not" { $$ = nullptr; }
+         | "++" { $$ = nullptr; }
+         | "--" { $$ = nullptr; }
          ;
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
-            | "(" optionalExprs ")" { $$ = $1; }
+            | "(" optionalExprs ")" { $$ = $2; }
             | callExpr { $$ = $1; }
             | block { $$ = nullptr; }
             ;
@@ -587,19 +583,3 @@ topStat : def { $$ = nullptr; }
  /* compile unit } */
 
 %%
-
-void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  if (yyllocp && yyllocp->first_line) {
-    fprintf(stderr, "%s: %d.%d-%d.%d: error: ",
-            yyget_extra(yyscanner)->currentBuffer().c_str(),
-            yyllocp->first_line,
-            yyllocp->first_column,
-            yyllocp->last_line,
-            yyllocp->last_column);
-  }
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
-  va_end(ap);
-}

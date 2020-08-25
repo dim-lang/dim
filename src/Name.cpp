@@ -79,7 +79,7 @@ Name Name::get(const std::string &name) {
   if (NameMap.find(name) == NameMap.end()) {
     NameMap.insert(std::make_pair(name, Name(name)));
   }
-  return NameMap[name];
+  return NameMap.find(name)->second;
 }
 
 const Name &Name::noName() {

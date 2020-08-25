@@ -35,8 +35,8 @@ std::string Buffer::fileToModule(const std::string &name) {
 }
 
 Buffer::Buffer(const std::string &a_fileName, Scanner *scanner)
-    : yyBufferState(nullptr), fileName(a_fileName), lineNo(1), fp(nullptr),
-      scanner_(scanner) {
+    : yyBufferState(nullptr), fileName(a_fileName), lineNo(1), yyPosition(),
+      fp(nullptr), scanner_(scanner) {
   EX_ASSERT(scanner_, "scanner must not null");
   EX_ASSERT(fileName.length() > 3, "fileName invalid: {}!", fileName);
   fp = std::fopen(fileName.c_str(), "r");

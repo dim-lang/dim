@@ -80,18 +80,18 @@ set(SHEPHERD_TEST
     ExceptionTest.cpp
     container/CycleBufferTest.cpp
     ConfigureTest.cpp
-    TimerTest.cpp
-    RandomTest.cpp
+    # TimerTest.cpp
+    # RandomTest.cpp
     FileTest.cpp
-    ApproximateTest.cpp
-    HashTest.cpp
+    # ApproximateTest.cpp
+    # HashTest.cpp
     TokenTest.cpp
     ParserTest.cpp
-    SemanticTest.cpp
-    DumpTest.cpp
-    NameGeneratorTest.cpp
-    IrUtilTest.cpp
-    IrWriterTest.cpp
+    # SemanticTest.cpp
+    # DumpTest.cpp
+    # NameGeneratorTest.cpp
+    # IrUtilTest.cpp
+    # IrWriterTest.cpp
     container/LinkedHashMapTest.cpp
 )
 

@@ -4,7 +4,9 @@
 #pragma once
 #include "Ast.h"
 #include "Buffer.h"
+#include "location.hh"
 #include "parser.tab.hh"
+#include "tokenizer.yy.hh"
 #include <string>
 #include <tuple>
 #include <utility>
@@ -24,6 +26,8 @@ public:
 
   // attribute access
   virtual const std::string &fileName() const;
+  virtual const yy::location &yyLocation() const;
+  virtual yy::location &yyLocation();
   virtual const AstTranslateUnit *translateUnit() const;
   virtual AstTranslateUnit *&translateUnit();
   virtual const yyscan_t *yyscanner() const;
@@ -35,6 +39,7 @@ public:
 
 private:
   std::string fileName_;
+  yy::location yyLocation_;
   AstTranslateUnit *translateUnit_;
   yyscan_t yyscanner_;
   BufferStack *bufferStack_;

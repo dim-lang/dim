@@ -13,13 +13,14 @@ class Scanner;
 class Buffer {
 public:
   /* methods */
-  Buffer(const std::string &fileName, Scanner *scanner);
+  Buffer(const std::string &a_fileName, Scanner *scanner);
   virtual ~Buffer();
 
   /* members */
   YY_BUFFER_STATE yyBufferState;
   std::string fileName;
   int lineNo;
+  yy::position yyPosition;
   FILE *fp;
 
   /* global methods */

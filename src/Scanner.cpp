@@ -67,6 +67,10 @@ bool Scanner::empty() const {
 
 const std::string &Scanner::fileName() const { return fileName_; }
 
+const yy::location &Scanner::yyLocation() const { return yyLocation_; }
+
+yy::location &Scanner::yyLocation() { return yyLocation_; }
+
 const AstTranslateUnit *Scanner::translateUnit() const {
   return translateUnit_;
 }
@@ -77,11 +81,6 @@ const yyscan_t *Scanner : yyscanner() const { return yyscanner_; }
 
 yyscan_t *&Scanner::yyscanner() { return yyscanner_; }
 
-std::tuple<int, YYSTYPE, YYLTYPE> Scanner::tokenize() {
-  YYSTYPE yy_lval;
-  YYLTYPE yy_lloc;
-  int r = yylex(&yy_lval, &yy_lloc, yyscanner_);
-  return std::make_tuple(r, yy_lval, yy_lloc);
-}
+int Scanner::tokenize() { return yylex(yyscanner_); }
 
 int Scanner::parse() { return yyparse(yyscanner_); }

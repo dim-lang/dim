@@ -34,9 +34,9 @@ llvm-project
 
 # auto generate source code
 tokenizer.yy.hh
-tokenizer.yy.cpp
+tokenizer.yy.cc
 parser.tab.hh
-parser.tab.cpp
+parser.tab.cc
 location.hh
 src/Configure.h
 

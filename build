@@ -95,6 +95,7 @@ function build_help() {
     echo '  ./build -r/--release        build release.'
     echo '  ./build -d/--debug          build debug.'
     echo '  ./build --trace             build trace.'
+    echo '  ./build --parser            build parser.'
     echo '  ./build -i/--install        install, install path is /usr/local by default.'
     echo '  ./build -p/--path [path]    custom install path.'
     echo '  ./build -t/--test           run unit tests for debug/trace.'
@@ -120,6 +121,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test)
             debug/test/nerd-test
+            exit 0
+            ;;
+        --parser)
+            cd src
+            flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
+            bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
             exit 0
             ;;
         -d|--debug)

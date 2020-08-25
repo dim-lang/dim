@@ -52,19 +52,19 @@ endif(WIN32)
 
 find_package(FLEX)
 find_package(BISON)
-FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cpp
+FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cc
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
-BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cpp
+BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cc
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
 ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
 
 # release version
-# flex -o tokenizer.yy.cpp --header-file=tokenizer.yy.hh tokenizer.l
-# bison -o parser.tab.cpp --defines=parser.tab.hh parser.y
+# flex -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
+# bison -o parser.tab.cc --defines=parser.tab.hh parser.y
 
 # debug
-# flex --debug -o tokenizer.yy.cpp --header-file=tokenizer.yy.hh tokenizer.l
-# bison --debug -v -o parser.tab.cpp --defines=parser.tab.hh parser.y
+# flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
+# bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
 
 set(SHEPHERD_INC
     ${SHEPHERD_INC}
@@ -92,29 +92,29 @@ set(SHEPHERD
     Exception.cpp
     container/CycleBuffer.cpp
     Option.cpp
-    Timer.cpp
-    DateTime.cpp
+    # Timer.cpp
+    # DateTime.cpp
     File.cpp
     Strings.cpp
-    Hash.cpp
-    Random.cpp
-    Approximate.cpp
-    NameGenerator.cpp
+    # Hash.cpp
+    # Random.cpp
+    # Approximate.cpp
+    # NameGenerator.cpp
     Name.cpp
-    TokenName.cpp
+    # TokenName.cpp
     Buffer.cpp
     Scanner.cpp
-    Ast.cpp
-    Position.cpp
-    Symbol.cpp
-    SymbolTable.cpp
+    # Ast.cpp
+    # Position.cpp
+    # Symbol.cpp
+    # SymbolTable.cpp
     Counter.cpp
-    Dump.cpp
-    Ir.cpp
-    IrContext.cpp
-    IrFactory.cpp
-    IrUtil.cpp
-    IrWriter.cpp
+    # Dump.cpp
+    # Ir.cpp
+    # IrContext.cpp
+    # IrFactory.cpp
+    # IrUtil.cpp
+    # IrWriter.cpp
     ${BISON_NerdParser_OUTPUTS}
     ${FLEX_NerdTokenizer_OUTPUTS}
 )
@@ -149,7 +149,7 @@ target_include_directories(nerdcore PRIVATE ${SHEPHERD_INC})
 target_link_libraries(nerdcore ${SHEPHERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
-add_executable(nerdc ${SHEPHERDC})
-target_include_directories(nerdc PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerdc ${SHEPHERD_LIB} nerdcore)
-set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
+# add_executable(nerdc ${SHEPHERDC})
+# target_include_directories(nerdc PRIVATE ${SHEPHERD_INC})
+# target_link_libraries(nerdc ${SHEPHERD_LIB} nerdcore)
+# set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})

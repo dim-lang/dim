@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "interface/Stringify.h"
 #include <cstdio>
+#include <string>
 
 namespace detail {
 
@@ -72,7 +72,7 @@ namespace detail {
  * buf
  */
 
-template <unsigned int D> class CycleBuffer : public Stringify {
+template <unsigned int D> class CycleBuffer {
 public:
   CycleBuffer();
   virtual ~CycleBuffer();

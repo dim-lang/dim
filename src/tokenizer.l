@@ -4,13 +4,9 @@
 %option nodefault
 %option nounistd
 %option reentrant
-%option bison-locations
-%option bison-bridge
 %option yylineno
 %option 8bit
 %option warn
-
-%x IMPORT
 
 DIG ([0-9])
 OCT ([0-7])
@@ -30,23 +26,23 @@ BC  ("/*"((("*"[^/])?)|[^*])*"*/")
 LC  ("//".*\n)
 
 %{
-#include "Ast.h"
-#include "Buffer.h"
+#include <string>
+#include "boost/preprocessor/cat.hpp"
 #include "parser.tab.hh"
+#include "location.hh"
 #include "Scanner.h"
-#include "Strings.h"
 #include "Exception.h"
 #include "Log.h"
 
-/* #define Y_LENG    yyget_leng(yyextra->yy_scanner) */
-/* #define Y_TEXT    yyget_text(yyextra->yy_scanner) */
-/* #define Y_LVAL    yyget_lval(yyextra->yy_scanner) */
-/* #define Y_LLOC    yyget_lloc(yyextra->yy_scanner) */
-/* #define Y_LINENO  yyget_lineno(yyextra->yy_scanner) */
+#if 0
+#define Y_LENG    yyget_leng(yyextra->yy_scanner)
+#define Y_TEXT    yyget_text(yyextra->yy_scanner)
+#define Y_LVAL    yyget_lval(yyextra->yy_scanner)
+#define Y_LLOC    yyget_lloc(yyextra->yy_scanner)
+#define Y_LINENO  yyget_lineno(yyextra->yy_scanner)
 
 #define T_LITERAL_TOKEN     (yylval->str = Strings::duplicate(yytext, yyleng))
-#define T_INTEGER_TOKEN(t)  (yylval->tok = (t))
-#define T_SCANNER           (static_cast<Scanner *>(yyextra))
+#define T_INTEGER_TOKEN(T_t)  (yylval->tok = (t))
 
 #define YY_USER_ACTION                                                      \
     yylloc->first_line = yylloc->last_line;                                 \
@@ -57,6 +53,22 @@ LC  ("//".*\n)
         yylloc->last_line = yylineno;                                       \
         yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');      \
     }
+#endif
+
+
+#define T_SCANNER           (static_cast<Scanner *>(yyextra))
+#define T_LITERAL_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_SCANNER->yyLocation()))
+#define T_INTEGER_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(SCANNER->yyLocation()))
+
+#define YY_USER_ACTION                                      \
+    T_SCANNER->yyLocation().step();                         \
+    if (T_SCANNER->yyLocation().end.line == yylineno) {     \
+        T_SCANNER->yyLocation().end.columns(yyleng);        \
+    } else {                                                \
+        T_SCANNER->yyLocation().end.line = yylineno;        \
+        T_SCANNER->yyLocation().end.column = yytext + yyleng - strrchr(yytext, '\n');   \
+    }
+
 %}
 
 %%
@@ -68,8 +80,8 @@ LC  ("//".*\n)
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { return T_INTEGER_TOKEN(T_TRUE); }
-false       { return T_INTEGER_TOKEN(T_FALSE); }
+true        { return T_INTEGER_TOKEN(T_TRUEE); }
+false       { return T_INTEGER_TOKEN(T_FALSEE); }
 try         { return T_INTEGER_TOKEN(T_TRY); }
 catch       { return T_INTEGER_TOKEN(T_CATCH); }
 finally     { return T_INTEGER_TOKEN(T_FINALLY); }
@@ -217,49 +229,39 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 [\n]+       { return T_INTEGER_TOKEN(T_NEWLINE); }
 
  /* decimal integer literal */
-{DEC}{IS}?                                  { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+{DEC}{IS}?                                  { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
  /* heximal integer literal */
-0[xX]{HEX}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[xX]{HEX}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
  /* octal integer literal */
-0[oO]{OCT}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[oO]{OCT}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
  /* binary integer literal */
-0[bB]{BIN}+{IS}?                            { T_LITERAL_TOKEN; return T_INTEGER_LITERAL; }
+0[bB]{BIN}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
 
  /* float literal : 92.312, 92.312e-10, 10.2e+91, 1.0e+7 */
-{DEC}"."{DIG}+{EXP}?{FS}?                   { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
-{DEC}{EXP}{FS}?                             { T_LITERAL_TOKEN; return T_FLOAT_LITERAL; }
+{DEC}"."{DIG}+{EXP}?{FS}?                   { return T_LITERAL_TOKEN(T_FLOAT_LITERAL); }
+{DEC}{EXP}{FS}?                             { return T_LITERAL_TOKEN(T_FLOAT_LITERAL); }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { return T_LITERAL_TOKEN(T_STRING_LITERAL); }
 
  /* one line string */
-\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { T_LITERAL_TOKEN; return T_STRING_LITERAL; }
+\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { return T_LITERAL_TOKEN(T_STRING_LITERAL); }
 
  /* char literal */
-\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { T_LITERAL_TOKEN; return T_CHARACTER_LITERAL; }
+\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { return T_LITERAL_TOKEN(T_CHARACTER_LITERAL); }
 
  /* var id */
-[a-zA-Z_][a-zA-Z0-9_]*                      { T_LITERAL_TOKEN; return T_VAR_ID; }
+[a-zA-Z_][a-zA-Z0-9_]*                      { return T_LITERAL_TOKEN(T_VAR_ID); }
 
  /* whitespace except newline */
 {WS}+                                       { /* skip whitespace except newline */ }
 
- /* import module */
-^{WS}*import{WS}*                           { BEGIN IMPORT; }
-<IMPORT>[^ \t\v\f\r\;]+                     {
-                                                T_SCANNER->pushBuffer(yytext);
-                                                BEGIN INITIAL;
-                                            }
-<IMPORT>.|\n                                {
-                                                LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
-                                                EX_ASSERT(false, "{}:{} error! bad import:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
-                                                BEGIN INITIAL;
-                                            }
 <<EOF>>                                     {
                                                 if (!yyextra->popBuffer()) {
                                                     LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
                                                     yyterminate();
                                                 }
+                                                return yy::parser::make_YYEOF(loc);
                                             }
 
  /* invalid token */
