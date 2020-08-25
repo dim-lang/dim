@@ -11,5 +11,3 @@ const int &tokenValue(const std::string &name);
 bool tokenExist(int token);
 
 bool tokenExist(const std::string &name);
-
-#define TOKEN_INVALID 0

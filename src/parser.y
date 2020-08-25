@@ -198,7 +198,7 @@ class Ast;
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
 %type<std::shared_ptr<Ast>> def funcDef varDef funcSign paramClause params param
-%type<std::shared_ptr<Ast>> optionalResultType optionalParams
+%type<std::shared_ptr<Ast>> /* optionalResultType */ optionalParams
  /* compile unit */
 %type<std::shared_ptr<Ast>> compileUnit topStatSeq topStat topStats
 %type<std::shared_ptr<Ast>> optionalTopStats
@@ -225,39 +225,39 @@ class Ast;
 %nonassoc "semi_while"
 
  /* comma */
-%left COMMA
+%left T_COMMA
 
  /* equal */
-%right AMPERSAND_EQUAL BAR_EQUAL CARET_EQUAL
-%right LSHIFT_EQUAL RSHIFT_EQUAL ARSHIFT_EQUAL
-%right ASTERISK_EQUAL SLASH_EQUAL PERCENT_EQUAL
-%right PLUS_EQUAL MINUS_EQUAL
-%right EQUAL
+%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
+%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
+%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
+%right T_PLUS_EQUAL T_MINUS_EQUAL
+%right T_EQUAL
 
  /* conditional */
-%left QUESTION COLON
+%left T_QUESTION T_COLON
 
  /* binary op*/
-%left BAR2 OR
-%left AMPERSAND2 AND
-%left BAR
-%left CARET
-%left AMPERSAND
-%left EQ NEQ
-%left LT LE GT GE
-%left LSHIFT RSHIFT ARSHIFT
-%left PLUS MINUS
-%left ASTERISK SLASH PERCENT
-%left PLUS2 MINUS2
-%left ASTERISK2 SLASH2 PERCENT2
-%left CARET2 DOT2
-%right COLON2
+%left T_BAR2 T_OR
+%left T_AMPERSAND2 T_AND
+%left T_BAR
+%left T_CARET
+%left T_AMPERSAND
+%left T_EQ T_NEQ
+%left T_LT T_LE T_GT T_GE
+%left T_LSHIFT T_RSHIFT T_ARSHIFT
+%left T_PLUS T_MINUS
+%left T_ASTERISK T_SLASH T_PERCENT
+%left T_PLUS2 T_MINUS2
+%left T_ASTERISK2 T_SLASH2 T_PERCENT2
+%left T_CARET2 T_DOT2
+%right T_COLON2
 
  /* unary op */
-%nonassoc NOT TILDE EXCLAM
+%nonassoc T_NOT T_TILDE T_EXCLAM
 
  /* parantheses */
-%left DOT LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE
+%left T_DOT T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
 
  /* low -> high precedence } */
 
@@ -510,13 +510,13 @@ def : funcDef { $$ = nullptr; }
     | varDef { $$ = nullptr; }
     ;
 
-funcDef : "def" funcSign optionalResultType "=" expr { $$ = nullptr; }
+funcDef : "def" funcSign resultType "=" expr { $$ = nullptr; }
         | "def" funcSign resultType optionalNewlines block { $$ = nullptr; }
         ;
 
-optionalResultType : resultType { $$ = nullptr; }
-                   | %empty { $$ = nullptr; }
-                   ;
+/* optionalResultType : resultType { $$ = nullptr; } */
+/*                    | %empty { $$ = nullptr; } */
+/*                    ; */
 
 resultType : ":" type
            ;
