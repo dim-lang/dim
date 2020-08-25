@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Exception.h"
+#include "Locationly.h"
 #include "Namely.h"
-#include "Positional.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include <cctype>
@@ -17,9 +17,9 @@
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstCategory, int,
             // token
-            Token = 1000,
+            /* Token = 1000, */
             // literal
-            Integer, Float, Boolean, Character, String, Nil, Void,
+            Integer = 1000, Float, Boolean, Character, String, Nil, Void,
             // id
             VarId,
             // expr without block
@@ -40,7 +40,7 @@ BETTER_ENUM(AstCategory, int,
 class Ast;
 
 /* token */
-class A_Token;
+/* class A_Token; */
 
 /* literal */
 class A_Integer;
@@ -91,40 +91,38 @@ class A_TopStats;
 
 // Ast {
 
-class Ast : public Namely, public Positional, private boost::noncopyable {
+class Ast : public Namely, public Locationly, private boost::noncopyable {
 public:
-  Ast(const std::string &name);
-  Ast(const std::string &name, const Position &position);
+  Ast(const std::string &name, const yy::location &location = yy::location());
   virtual ~Ast() = default;
   virtual AstCategory category() const = 0;
   virtual std::string toString() const = 0;
 
-  static bool isLiteral(const Ast *e);
-  static bool isId(const Ast *e);
-  static bool isExpr(const Ast *e);
-  static bool isExprWithBlock(const Ast *e);
-  static bool isExprWithoutBlock(const Ast *e);
-  static bool isDef(const Ast *e);
-  static bool isDecl(const Ast *e);
-  static bool isType(const Ast *e);
+  static bool isLiteral(std::shared_ptr<Ast> e);
+  static bool isId(std::shared_ptr<Ast> e);
+  static bool isExpr(std::shared_ptr<Ast> e);
+  static bool isExprWithBlock(std::shared_ptr<Ast> e);
+  static bool isExprWithoutBlock(std::shared_ptr<Ast> e);
+  static bool isDef(std::shared_ptr<Ast> e);
+  static bool isDecl(std::shared_ptr<Ast> e);
+  static bool isType(std::shared_ptr<Ast> e);
 };
 
 // Ast }
 
 // token {
 
-class A_Token : public Ast {
-public:
-  A_Token(int token);
-  A_Token(int token, const Position &position);
-  virtual ~A_Token() = default;
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  virtual int token() const;
+/* class A_Token : public Ast { */
+/* public: */
+/*   A_Token(int token, const yy::location &a_location = yy::location()); */
+/*   virtual ~A_Token() = default; */
+/*   virtual AstCategory category() const; */
+/*   virtual std::string toString() const; */
+/*   virtual int token() const; */
 
-private:
-  int token_;
-};
+/* private: */
+/*   int token_; */
+/* }; */
 
 // }
 
@@ -146,7 +144,7 @@ public:
   // ULONG: 64 bit unsigned long
   enum class BitCategory { SIGNED = 110, UNSIGNED, LONG, ULONG };
 
-  A_Integer(const std::string &literal, const Position &position);
+  A_Integer(const std::string &literal, const yy::location &location);
   virtual ~A_Integer() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -175,7 +173,7 @@ public:
   // DBL: 64 bit
   enum class BitCategory { FLT = 130, DBL };
 
-  A_Float(const std::string &literal, const Position &position);
+  A_Float(const std::string &literal, const yy::location &location);
   virtual ~A_Float() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -199,7 +197,7 @@ public:
   // TRIPLE: """
   enum class QuoteCategory { SINGLE = 140, TRIPLE };
 
-  A_String(const std::string &literal, const Position &position);
+  A_String(const std::string &literal, const yy::location &location);
   virtual ~A_String() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -213,7 +211,7 @@ private:
 };
 
 class A_Character : public Ast {
-  A_Character(const std::string &literal, const Position &position);
+  A_Character(const std::string &literal, const yy::location &location);
   virtual ~A_Character() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -226,20 +224,16 @@ private:
 
 class A_Boolean : public Ast {
 public:
-  A_Boolean(const std::string &literal, const Position &position);
+  A_Boolean(bool a_value, const yy::location &location);
   virtual ~A_Boolean() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-  virtual bool asBool() const;
-
-private:
-  bool parsed_;
+  bool value;
 };
 
 class A_Nil : public Ast {
 public:
-  A_Nil(const Position &position);
+  A_Nil(const yy::location &location);
   virtual ~A_Nil() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -247,7 +241,7 @@ public:
 
 class A_Void : public Ast {
 public:
-  A_Void(const Position &position);
+  A_Void(const yy::location &location);
   virtual ~A_Void() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -259,7 +253,7 @@ public:
 
 class A_VarId : public Ast {
 public:
-  A_VarId(const std::string &literal, const Position &position);
+  A_VarId(const std::string &literal, const yy::location &location);
   virtual ~A_VarId() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -271,31 +265,25 @@ public:
 
 class A_Throw : public Ast {
 public:
-  A_Throw(const Ast *expr, const Position &position);
+  A_Throw(std::shared_ptr<Ast> a_expr, const yy::location &location);
   virtual ~A_Throw();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *expr() const;
-
-private:
-  const Ast *expr_;
+  std::shared_ptr<Ast> expr;
 };
 
 class A_Return : public Ast {
 public:
-  A_Return(const Ast *expr, const Position &position);
+  A_Return(std::shared_ptr<Ast> a_expr, const yy::location &location);
   virtual ~A_Return();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *expr() const;
-
-private:
-  const Ast *expr_;
+  std::shared_ptr<Ast> expr;
 };
 
 class A_Break : public Ast {
 public:
-  A_Break(const Position &position);
+  A_Break(const yy::location &location);
   virtual ~A_Break() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -303,7 +291,7 @@ public:
 
 class A_Continue : public Ast {
 public:
-  A_Continue(const Position &position);
+  A_Continue(const yy::location &location);
   virtual ~A_Continue() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -311,93 +299,70 @@ public:
 
 class A_Assign : public Ast {
 public:
-  A_Assign(const Ast *assignee, int assignOp, const Ast *assignor,
-           const Position &position);
+  A_Assign(std::shared_ptr<Ast> a_assignee, int a_assignOp,
+           std::shared_ptr<Ast> a_assignor, const yy::location &location);
   virtual ~A_Assign();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *assignee() const;
-  virtual int assignOp() const;
-  virtual const Ast *assignor() const;
-
-private:
-  const Ast *assignee_; // left
-  int assignOp_;
-  const Ast *assignor_; // right
+  std::shared_ptr<Ast> assignee; // left
+  int assignOp;
+  std::shared_ptr<Ast> assignor; // right
 };
 
 class A_PostfixExpr : public Ast {
 public:
-  A_PostfixExpr(const Ast *expr, int postfixOp, const Position &position);
+  A_PostfixExpr(std::shared_ptr<Ast> a_expr, int a_postfixOp,
+                const yy::location &location);
   virtual ~A_PostfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *expr() const;
-  virtual int postfixOp() const;
-
-private:
-  const Ast *expr_;
-  int postfixOp_;
+  std::shared_ptr<Ast> expr;
+  int postfixOp;
 };
 
 class A_InfixExpr : public Ast {
 public:
-  A_InfixExpr(const Ast *left, int infixOp, const Ast *right,
-              const Position &position);
+  A_InfixExpr(std::shared_ptr<Ast> a_left, int a_infixOp,
+              std::shared_ptr<Ast> a_right, const yy::location &location);
   virtual ~A_InfixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *left() const;
-  virtual int infixOp() const;
-  virtual const Ast *right() const;
-
-private:
-  const Ast *left_;
-  int infixOp_;
-  const Ast *right_;
+  std::shared_ptr<Ast> a_left;
+  int a_infixOp;
+  std::shared_ptr<Ast> a_right;
 };
 
 class A_PrefixExpr : public Ast {
 public:
-  A_PrefixExpr(int prefixOp, const Ast *expr, const Position &position);
+  A_PrefixExpr(int a_prefixOp, std::shared_ptr<Ast> a_expr,
+               const yy::location &location);
   virtual ~A_PrefixExpr();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual int prefixOp() const;
-  virtual const Ast *expr() const;
-
-private:
-  int prefixOp_;
-  const Ast *expr_;
+  int prefixOp;
+  std::shared_ptr<Ast> expr;
 };
 
 class A_Call : public Ast {
 public:
-  A_Call(const Ast *id, const A_Exprs *args);
+  A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Exprs> args,
+         const yy::location &location);
   virtual ~A_Call();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *id() const;
-  virtual const A_Exprs *args() const;
-
-private:
-  const Ast *id_;
-  const A_Exprs *args_;
+  std::shared_ptr<Ast> id;
+  std::shared_ptr<A_Exprs> args;
 };
 
 class A_Exprs : public Ast {
 public:
-  A_Exprs(const Ast *expr, const A_Exprs *next);
-  A_Exprs(const Ast *expr, const A_Exprs *next, const Position &position);
+  A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<A_Exprs> a_next,
+          const yy::location &location);
   virtual ~A_Exprs();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *expr() const;
-  virtual const A_Exprs *next() const;
-
-private:
-  const Ast *expr_;
-  const A_Exprs *next_;
+  std::shared_ptr<Ast> expr;
+  std::shared_ptr<A_Exprs> next;
 };
 
 // simple expression without block }
@@ -406,103 +371,83 @@ private:
 
 class A_If : public Ast {
 public:
-  A_If(const Ast *condition, const Ast *thenp, const Ast *elsep);
+  A_If(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_thenp,
+       std::shared_ptr<Ast> a_elsep, const yy::location &location);
   virtual ~A_If();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *condition() const;
-  virtual const Ast *thenp() const;
-  virtual const Ast *elsep() const;
-
-private:
-  const Ast *condition_;
-  const Ast *thenp_;
-  const Ast *elsep_;
+  std::shared_ptr<Ast> condition;
+  std::shared_ptr<Ast> thenp;
+  std::shared_ptr<Ast> elsep;
 };
 
 // for and while
 class A_Loop : public Ast {
 public:
-  A_Loop(const Ast *condition, const Ast *body);
+  A_Loop(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_body,
+         const yy::location &location);
   virtual ~A_Loop();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *condition() const;
-  virtual const Ast *body() const;
-
-private:
-  const Ast *condition_;
-  const Ast *body_;
+  std::shared_ptr<Ast> condition;
+  std::shared_ptr<Ast> body;
 };
 
 class A_LoopCondition : public Ast {
 public:
-  A_LoopCondition(const Ast *init, const Ast *condition, const Ast *update);
+  A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
+                  std::shared_ptr<Ast> a_update, const yy::location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-private:
-  const Ast *init_;
-  const Ast *condition_;
-  const Ast *update_;
+  std::shared_ptr<Ast> init;
+  std::shared_ptr<Ast> condition;
+  std::shared_ptr<Ast> update;
 };
 
 class A_LoopEnumerator : public Ast {
 public:
-  A_LoopEnumerator(const Ast *id, const Ast *expr);
+  A_LoopEnumerator(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_expr,
+                   const yy::location &location);
   virtual ~A_LoopEnumerator() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-
-private:
-  const Ast *id_;
-  const Ast *expr_;
+  std::shared_ptr<Ast> id;
+  std::shared_ptr<Ast> expr;
 };
 
 class A_Try : public Ast {
 public:
-  A_Try(const Ast *tryp, const Ast *catchp, const Ast *finallyp);
+  A_Try(std::shared_ptr<Ast> a_tryp, std::shared_ptr<Ast> a_catchp,
+        std::shared_ptr<Ast> a_finallyp, const yy::location &location);
   virtual ~A_Try();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *tryp() const;
-  virtual const Ast *catchp() const;
-  virtual const Ast *finallyp() const;
-
-private:
-  const Ast *tryp_;
-  const Ast *catchp_;
-  const Ast *finallyp_;
+  std::shared_ptr<Ast> tryp;
+  std::shared_ptr<Ast> catchp;
+  std::shared_ptr<Ast> finallyp;
 };
 
 class A_Block : public Ast {
 public:
-  A_Block(const A_BlockStats *blockStats, const Position &lbracePosition,
-          const Position &rbracePosition);
+  A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
+          const yy::location &location);
   virtual ~A_Block();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const A_BlockStats *blockStats() const;
-
-private:
-  const A_BlockStats *blockStats_;
+  std::shared_ptr<A_BlockStats> blockStats;
 };
 
 class A_BlockStats : public Ast {
 public:
-  A_BlockStats(const Ast *stat, const A_BlockStats *next);
-  A_BlockStats(const Ast *stat, const A_BlockStats *next,
-               const Position &position);
+  A_BlockStats(std::shared_ptr<Ast> a_stat,
+               std::shared_ptr<A_BlockStats> a_next,
+               const yy::location &location);
   virtual ~A_BlockStats();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *stat() const;
-  virtual const A_BlockStats *next() const;
-
-private:
-  const Ast *stat_;
-  const A_BlockStats *next_;
+  std::shared_ptr<Ast> stat;
+  std::shared_ptr<A_BlockStats> next;
 };
 
 // statement like expression with block }
@@ -511,14 +456,11 @@ private:
 
 class A_PlainType : public Ast {
 public:
-  A_PlainType(int token, const Position &position);
+  A_PlainType(int a_token, const yy::location &location);
   virtual ~A_PlainType() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual int token() const;
-
-private:
-  int token_;
+  int token;
 };
 
 // type }
@@ -527,68 +469,53 @@ private:
 
 class A_FuncDef : public Ast {
 public:
-  A_FuncDef(const Ast *funcSign, const Ast *resultType, const Ast *body);
+  A_FuncDef(std::shared_ptr<Ast> a_funcSign, std::shared_ptr<Ast> a_resultType,
+            std::shared_ptr<Ast> a_body, const yy::location &location);
   virtual ~A_FuncDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *funcSign() const;
-  virtual const Ast *resultType() const;
-  virtual const Ast *body() const;
-
-private:
-  const Ast *funcSign_;
-  const Ast *resultType_;
-  const Ast *body_;
+  std::shared_ptr<Ast> funcSign;
+  std::shared_ptr<Ast> resultType;
+  std::shared_ptr<Ast> body;
 };
 
 class A_FuncSign : public Ast {
 public:
-  A_FuncSign(const Ast *id, const A_Params *params,
-             const Position &lparenPosition, const Position &rparenPosition);
+  A_FuncSign(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Params> a_params,
+             const yy::location &location);
   virtual ~A_FuncSign();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *id() const;
-  virtual const A_Params *params() const;
-
-private:
-  const Ast *id_;
-  const A_Params *params_;
+  std::shared_ptr<Ast> id;
+  std::shared_ptr<A_Params> params;
 };
 
 class A_Params : public Ast {
 public:
-  A_Params(const A_Param *param, const A_Params *next);
-  A_Params(const A_Param *param, const A_Params *next,
-           const Position &position);
+  A_Params(std::shared_ptr<A_Param> a_param, std::shared_ptr<A_Params> a_next,
+           const yy::location &location);
   virtual ~A_Params();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const A_Param *param() const;
-  virtual const A_Params *next() const;
-
-private:
-  const A_Param *param_;
-  const A_Params *next_;
+  std::shared_ptr<A_Param> param;
+  std::shared_ptr<A_Params> next;
 };
 
 class A_Param : public Ast {
 public:
-  A_Param(const Ast *id, const Ast *type);
+  A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
+          const yy::location &location);
   virtual ~A_Param();
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  virtual const Ast *id() const;
-  virtual const Ast *type() const;
-
-private:
-  const Ast *id_;
-  const Ast *type_;
+  std::shared_ptr<Ast> id;
+  std::shared_ptr<Ast> type;
 };
 
 class A_VarDef : public Ast {
 public:
-  A_VarDef(const Ast *id, const Ast *type, const Ast *expr);
+  A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
+           std::shared_ptr<Ast> a_expr, const yy::location &location);
   virtual ~A_VarDef();
   virtual AstCategory category() const;
   virtual std::string toString() const;
@@ -610,7 +537,7 @@ class A_TopStats : public Ast {
 public:
   A_TopStats(const Ast *topStat, const A_TopStats *next);
   A_TopStats(const Ast *topStat, const A_TopStats *next,
-             const Position &position);
+             const yy::location &location);
   virtual ~A_TopStats();
   virtual AstCategory category() const;
   virtual std::string toString() const;

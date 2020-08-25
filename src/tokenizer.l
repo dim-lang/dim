@@ -58,7 +58,7 @@ LC  ("//".*\n)
 
 #define T_SCANNER           (static_cast<Scanner *>(yyextra))
 #define T_LITERAL_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_SCANNER->yyLocation()))
-#define T_INTEGER_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(SCANNER->yyLocation()))
+#define T_INTEGER_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), SCANNER->yyLocation()))
 
 #define YY_USER_ACTION                                      \
     T_SCANNER->yyLocation().step();                         \
@@ -80,8 +80,8 @@ LC  ("//".*\n)
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { return T_INTEGER_TOKEN(T_TRUEE); }
-false       { return T_INTEGER_TOKEN(T_FALSEE); }
+true        { return T_INTEGER_TOKEN(T_TRUE); }
+false       { return T_INTEGER_TOKEN(T_FALSE); }
 try         { return T_INTEGER_TOKEN(T_TRY); }
 catch       { return T_INTEGER_TOKEN(T_CATCH); }
 finally     { return T_INTEGER_TOKEN(T_FINALLY); }
