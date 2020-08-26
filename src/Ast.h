@@ -493,7 +493,7 @@ class A_Params : public Ast {
 public:
   A_Params(std::shared_ptr<A_Param> a_param, std::shared_ptr<A_Params> a_next,
            const yy::location &location);
-  virtual ~A_Params();
+  virtual ~A_Params() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<A_Param> param;
@@ -504,7 +504,7 @@ class A_Param : public Ast {
 public:
   A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
           const yy::location &location);
-  virtual ~A_Param();
+  virtual ~A_Param() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> id;
@@ -515,7 +515,7 @@ class A_VarDef : public Ast {
 public:
   A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
            std::shared_ptr<Ast> a_expr, const yy::location &location);
-  virtual ~A_VarDef();
+  virtual ~A_VarDef() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> id;
@@ -531,7 +531,7 @@ class A_TopStats : public Ast {
 public:
   A_TopStats(std::shared_ptr<Ast> a_topStat, std::shared_ptr<A_TopStats> a_next,
              const yy::location &location);
-  virtual ~A_TopStats();
+  virtual ~A_TopStats() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> topStat;

@@ -6,11 +6,7 @@
 
 class Namely {
 public:
-  Namely();
-  Namely(const std::string &name);
+  Namely(const std::string &name = "");
   virtual ~Namely() = default;
-  virtual const Name &name() const;
-
-protected:
-  Name name_;
+  Name name;
 };

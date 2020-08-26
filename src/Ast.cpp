@@ -686,7 +686,7 @@ std::string A_PlainType::toString() const {
 A_FuncDef::A_FuncDef(std::shared_ptr<Ast> a_funcSign,
                      std::shared_ptr<Ast> a_resultType,
                      std::shared_ptr<Ast> a_body, const yy::location &location)
-    : Ast("def", location), funcSign(a_funcSign), resultType(a_resultType),
+    : Ast("funcDef", location), funcSign(a_funcSign), resultType(a_resultType),
       body(a_body) {}
 
 AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
@@ -698,74 +698,87 @@ std::string A_FuncDef::toString() const {
       funcSign->toString(), resultType->toString(), body->toString());
 }
 
-class A_FuncSign : public Ast {
-public:
-  A_FuncSign(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Params> a_params,
-             const yy::location &location);
-  virtual ~A_FuncSign();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<A_Params> params;
-};
+A_FuncSign::A_FuncSign(std::shared_ptr<Ast> a_id,
+                       std::shared_ptr<A_Params> a_params,
+                       const yy::location &location)
+    : Ast("funcSign", location), id(a_id), params(a_params) {}
 
-class A_Params : public Ast {
-public:
-  A_Params(std::shared_ptr<A_Param> a_param, std::shared_ptr<A_Params> a_next,
-           const yy::location &location);
-  virtual ~A_Params();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<A_Param> param;
-  std::shared_ptr<A_Params> next;
-};
+AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
 
-class A_Param : public Ast {
-public:
-  A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
-          const yy::location &location);
-  virtual ~A_Param();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<Ast> type;
-};
+std::string A_FuncSign::toString() const {
+  return fmt::format("[@{} location:{}, id:{} params:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location).str(), id->toString(),
+                     params->toString());
+}
 
-class A_VarDef : public Ast {
-public:
-  A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
-           std::shared_ptr<Ast> a_expr, const yy::location &location);
-  virtual ~A_VarDef();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<Ast> type;
-  std::shared_ptr<Ast> expr;
-};
+A_Params::A_Params(std::shared_ptr<A_Param> a_param,
+                   std::shared_ptr<A_Params> a_next,
+                   const yy::location &location)
+    : Ast("params", location), param(a_param), next(a_next) {}
+
+AstCategory A_Params::category() const { return AstCategory::Params; }
+
+std::string A_Params::toString() const {
+  return fmt::format("[@{} location:{}, param:{} next:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location).str(), param->toString(),
+                     next->toString());
+}
+
+A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
+                 const yy::location &location)
+    : Ast("param", location), id(a_id), type(a_type) {}
+
+AstCategory A_Param::category() const { return AstCategory::Param; }
+
+std::string A_Param::toString() const {
+  return fmt::format("[@{} location:{}, id:{} type:{}]", name().toSymbolName(),
+                     (std::stringstream() << location).str(), id->toString(),
+                     type->toString());
+}
+
+A_VarDef::A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
+                   std::shared_ptr<Ast> a_expr, const yy::location &location)
+    : Ast("varDef", location), id(a_id), type(a_type), expr(a_expr) {}
+
+AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
+
+std::string A_VarDef::toString() const {
+  return fmt::format("[@{} location:{}, id:{} type:{} expr:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location).str(), id->toString(),
+                     type->toString(), expr->toString());
+}
 
 // definition and declaration }
 
 // compile unit {
 
-class A_TopStats : public Ast {
-public:
-  A_TopStats(std::shared_ptr<Ast> a_topStat, std::shared_ptr<A_TopStats> a_next,
-             const yy::location &location);
-  virtual ~A_TopStats();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<Ast> topStat;
-  std::shared_ptr<A_TopStats> next;
-};
+A_TopStats::A_TopStats(std::shared_ptr<Ast> a_topStat,
+                       std::shared_ptr<A_TopStats> a_next,
+                       const yy::location &location)
+    : Ast("topStats", location), topStat(a_topStat), next(a_next) {}
 
-class A_CompileUnit : public Ast {
-public:
-  A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
-                const yy::location &location);
-  virtual ~A_CompileUnit();
-  virtual AstCategory category() const;
-  virtual std::string toString() const;
-  std::shared_ptr<A_TopStats> topStats;
-};
+AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
+
+std::string A_TopStats::toString() const {
+  return fmt::format("[@{} location:{}, topStat:{} next:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location).str(),
+                     topStat->toString(), next->toString());
+}
+
+A_CompileUnit::A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
+                             const yy::location &location)
+    : Ast("compileUnit", location), topStats(a_topStats) {}
+
+AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
+
+std::string A_CompileUnit::toString() const {
+  return fmt::format("[@{} location:{}, topStats:{}]", name().toSymbolName(),
+                     (std::stringstream() << location).str(),
+                     topStats->toString());
+}
 
 // compile unit }
