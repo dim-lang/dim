@@ -13,14 +13,13 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Buffer.h"
-#include "Position.h"
 #include "tokenizer.yy.hh"
 #define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
 }
 
 %code requires {
 #include "tokenizer.yy.hh"
-class Ast;
+#include "Ast.h"
 }
 
 %param { yyscan_t yyscanner }

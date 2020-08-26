@@ -326,9 +326,9 @@ public:
   virtual ~A_InfixExpr() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  std::shared_ptr<Ast> a_left;
-  int a_infixOp;
-  std::shared_ptr<Ast> a_right;
+  std::shared_ptr<Ast> left;
+  int infixOp;
+  std::shared_ptr<Ast> right;
 };
 
 class A_PrefixExpr : public Ast {

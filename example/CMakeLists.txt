@@ -24,15 +24,15 @@ else()
     add_compile_options("-std=c++14")
     add_compile_options("-Wall")
     find_package(Threads REQUIRED)
-    set(SHEPHERD_INC
+    set(NERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(SHEPHERD_LIB
+    set(NERD_LIB
         Threads::Threads
         )
-    set(SHEPHERD_LIB_DIR
+    set(NERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -49,64 +49,64 @@ if(WIN32)
     string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
 endif(WIN32)
 
-set(SHEPHERD_INC
-    ${SHEPHERD_INC}
+set(NERD_INC
+    ${NERD_INC}
     .
     ../src/spdlog/include
     ../src/fmt/include
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(SHEPHERD_LIB
-    ${SHEPHERD_LIB}
+set(NERD_LIB
+    ${NERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libs}
     ${llvm_system_libs}
     )
-set(SHEPHERD_LIB_DIR
-    ${SHEPHERD_LIB_DIR}
+set(NERD_LIB_DIR
+    ${NERD_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
 
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
-message(Boost_LIBRARIES: ${Boost_LIBRARIES})
-message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
-message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
-message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
-message(llvm_libs: ${llvm_libs})
-message(llvm_system_libs: ${llvm_system_libs})
-message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
-message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(SHEPHERD_INC: ${SHEPHERD_INC})
-message(SHEPHERD_LIB: ${SHEPHERD_LIB})
-message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
+# message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
+# message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
+# message(Boost_LIBRARIES: ${Boost_LIBRARIES})
+# message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+# message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
+# message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
+# message(llvm_libs: ${llvm_libs})
+# message(llvm_system_libs: ${llvm_system_libs})
+# message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
+# message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
+# message(NERD_INC: ${NERD_INC})
+# message(NERD_LIB: ${NERD_LIB})
+# message(NERD_LIB_DIR: ${NERD_LIB_DIR})
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${SHEPHERD_INC})
-link_directories(${SHEPHERD_LIB_DIR})
+include_directories(${NERD_INC})
+link_directories(${NERD_LIB_DIR})
 
 add_executable(nerd-llvm_IRBuilder_Add llvm_IRBuilder_Add.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Add PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Add ${SHEPHERD_LIB})
+target_include_directories(nerd-llvm_IRBuilder_Add PRIVATE ${NERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Add ${NERD_LIB})
 set_target_properties(nerd-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(nerd-llvm_IRBuilder_Sub llvm_IRBuilder_Sub.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Sub PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Sub ${SHEPHERD_LIB})
+target_include_directories(nerd-llvm_IRBuilder_Sub PRIVATE ${NERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Sub ${NERD_LIB})
 set_target_properties(nerd-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(nerd-llvm_IRBuilder_Mul llvm_IRBuilder_Mul.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Mul PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Mul ${SHEPHERD_LIB})
+target_include_directories(nerd-llvm_IRBuilder_Mul PRIVATE ${NERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Mul ${NERD_LIB})
 set_target_properties(nerd-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
 
 add_executable(nerd-llvm_IRBuilder_Div llvm_IRBuilder_Div.cpp llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Div PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Div ${SHEPHERD_LIB})
+target_include_directories(nerd-llvm_IRBuilder_Div PRIVATE ${NERD_INC})
+target_link_libraries(nerd-llvm_IRBuilder_Div ${NERD_LIB})
 set_target_properties(nerd-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})

@@ -25,15 +25,15 @@ else()
     add_compile_options("-std=c++14")
     add_compile_options("-Wall")
     find_package(Threads REQUIRED)
-    set(SHEPHERD_INC
+    set(NERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(SHEPHERD_LIB
+    set(NERD_LIB
         Threads::Threads
         )
-    set(SHEPHERD_LIB_DIR
+    set(NERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -50,8 +50,8 @@ if(WIN32)
     string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
 endif(WIN32)
 
-set(SHEPHERD_INC
-    ${SHEPHERD_INC}
+set(NERD_INC
+    ${NERD_INC}
     .
     ../src
     ../src/spdlog/include
@@ -61,20 +61,20 @@ set(SHEPHERD_INC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(SHEPHERD_LIB
-    ${SHEPHERD_LIB}
+set(NERD_LIB
+    ${NERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libs}
     ${llvm_system_libs}
     )
-set(SHEPHERD_LIB_DIR
-    ${SHEPHERD_LIB_DIR}
+set(NERD_LIB_DIR
+    ${NERD_LIB_DIR}
     .
     ../src
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
-set(SHEPHERD_TEST
+set(NERD_TEST
     MainTest.cpp
     LogTest.cpp
     ExceptionTest.cpp
@@ -106,18 +106,18 @@ message(llvm_libs: ${llvm_libs})
 message(llvm_system_libs: ${llvm_system_libs})
 message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(SHEPHERD_INC: ${SHEPHERD_INC})
-message(SHEPHERD_LIB: ${SHEPHERD_LIB})
-message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
+message(NERD_INC: ${NERD_INC})
+message(NERD_LIB: ${NERD_LIB})
+message(NERD_LIB_DIR: ${NERD_LIB_DIR})
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${SHEPHERD_INC})
-link_directories(${SHEPHERD_LIB_DIR})
+include_directories(${NERD_INC})
+link_directories(${NERD_LIB_DIR})
 
-add_executable(nerd-test ${SHEPHERD_TEST})
-target_include_directories(nerd-test PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerd-test ${SHEPHERD_LIB} nerd)
+add_executable(nerd-test ${NERD_TEST})
+target_include_directories(nerd-test PRIVATE ${NERD_INC})
+target_link_libraries(nerd-test ${NERD_LIB} nerd)
 set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})

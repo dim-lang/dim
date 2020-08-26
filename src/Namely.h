@@ -8,5 +8,9 @@ class Namely {
 public:
   Namely(const std::string &name = "");
   virtual ~Namely() = default;
-  Name name;
+  virtual Name &name();
+  virtual const Name &name() const;
+
+private:
+  Name name_;
 };

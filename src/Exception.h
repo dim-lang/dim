@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Log.h"
 #include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
-#include "fmt/format.h"
 #include <string>
 
 class Exception {
@@ -39,32 +39,14 @@ protected:
     virtual std::string stringify() const { return BOOST_PP_STRINGIZE(x); }    \
   }
 
-#ifdef NDEBUG
-
 #define EX_ASSERT(cond, ...)                                                   \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      std::string exmsg =                                                      \
-          fmt::format("Assert Fail! Condition:{}, Result:{}\n",                \
-                      BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
-      throw Exception(__FILE__, __LINE__, __FUNCTION__, exmsg);                \
+      std::string msg1 = fmt::format(__VA_ARGS__);                             \
+      LOG_ERROR("Assert Fail! {}:{} {} - Condition:{}, Result:{}\n", __FILE__, \
+                __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond), msg1);       \
+      std::string msg2 = fmt::format("Assert Fail! Condition:{}, Result:{}\n", \
+                                     BOOST_PP_STRINGIZE(cond), msg1);          \
+      throw Exception(__FILE__, __LINE__, __FUNCTION__, msg2);                 \
     }                                                                          \
   } while (0)
-
-#else
-
-#define EX_ASSERT(cond, ...)                                                   \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::string msg = fmt::format(__VA_ARGS__);                              \
-      fmt::print("Assert Fail! {}:{} {} - Condition:{}, Result:{}\n",          \
-                 __FILE__, __LINE__, __FUNCTION__, BOOST_PP_STRINGIZE(cond),   \
-                 msg);                                                         \
-      std::string exmsg =                                                      \
-          fmt::format("Assert Fail! Condition:{}, Result:{}\n",                \
-                      BOOST_PP_STRINGIZE(cond), msg);                          \
-      throw Exception(__FILE__, __LINE__, __FUNCTION__, exmsg);                \
-    }                                                                          \
-  } while (0)
-
-#endif

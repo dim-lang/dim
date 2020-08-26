@@ -3,8 +3,8 @@
 
 #include "Namely.h"
 
-Namely::Namely() : name_(Name::noName()) {}
-
 Namely::Namely(const std::string &name) : name_(Name::get(name)) {}
+
+Name &Namely::name() { return name_; }
 
 const Name &Namely::name() const { return name_; }

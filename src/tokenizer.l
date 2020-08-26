@@ -56,17 +56,19 @@ LC  ("//".*\n)
 #endif
 
 
-#define T_SCANNER           (static_cast<Scanner *>(yyextra))
-#define T_LITERAL_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_SCANNER->yyLocation()))
-#define T_INTEGER_TOKEN(T_t)  (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), SCANNER->yyLocation()))
+#define T_SCANNER               (static_cast<Scanner *>(yyextra))
+#define T_LOCATION              (T_SCANNER->bufferStack.top()->location)
+#define T_FILE_NAME             (T_SCANNER->bufferStack.top()->fileName)
+#define T_LITERAL_TOKEN(T_t)    (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_LOCATION))
+#define T_INTEGER_TOKEN(T_t)    (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), T_LOCATION))
 
-#define YY_USER_ACTION                                      \
-    T_SCANNER->yyLocation().step();                         \
-    if (T_SCANNER->yyLocation().end.line == yylineno) {     \
-        T_SCANNER->yyLocation().end.columns(yyleng);        \
-    } else {                                                \
-        T_SCANNER->yyLocation().end.line = yylineno;        \
-        T_SCANNER->yyLocation().end.column = yytext + yyleng - strrchr(yytext, '\n');   \
+#define YY_USER_ACTION                         \
+    T_LOCATION.step();                         \
+    if (T_LOCATION.end.line == yylineno) {     \
+        T_LOCATION.end.columns(yyleng);        \
+    } else {                                   \
+        T_LOCATION.end.line = yylineno;        \
+        T_LOCATION.end.column = yytext + yyleng - strrchr(yytext, '\n');   \
     }
 
 %}
@@ -257,8 +259,8 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 {WS}+                                       { /* skip whitespace except newline */ }
 
 <<EOF>>                                     {
-                                                if (!yyextra->popBuffer()) {
-                                                    LOG_ERROR("{}:{} error! pop buffer empty:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
+                                                if (!yyextra->bufferStack.pop()) {
+                                                    LOG_INFO("{}:{} pop buffer empty at {}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                                     yyterminate();
                                                 }
                                                 return yy::parser::make_YYEOF(loc);
@@ -266,8 +268,8 @@ not         { return T_INTEGER_TOKEN(T_NOT); }
 
  /* invalid token */
 .                                           {
-                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
-                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_SCANNER->currentBuffer(), yylineno, yytext, yyleng);
+                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                             }
 
 %%

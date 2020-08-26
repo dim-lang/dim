@@ -6,8 +6,11 @@
 
 class Locationly {
 public:
-  Locationly(const yy::location &a_location = yy::location());
+  Locationly(const yy::location &location = yy::location());
   virtual ~Locationly() = default;
+  virtual yy::location &location();
+  virtual const yy::location &location() const;
 
-  yy::location location;
+private:
+  yy::location location_;
 };

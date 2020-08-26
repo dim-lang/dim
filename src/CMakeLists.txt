@@ -25,15 +25,15 @@ else()
     add_compile_options("-std=c++14")
     add_compile_options("-Wall")
     find_package(Threads REQUIRED)
-    set(SHEPHERD_INC
+    set(NERD_INC
         Threads::Threads
         /usr/include
         /usr/local/include
         )
-    set(SHEPHERD_LIB
+    set(NERD_LIB
         Threads::Threads
         )
-    set(SHEPHERD_LIB_DIR
+    set(NERD_LIB_DIR
         /usr/lib
         /usr/local/lib
         )
@@ -66,8 +66,8 @@ ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
 # flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
 # bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
 
-set(SHEPHERD_INC
-    ${SHEPHERD_INC}
+set(NERD_INC
+    ${NERD_INC}
     .
     spdlog/include
     fmt/include
@@ -75,19 +75,19 @@ set(SHEPHERD_INC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(SHEPHERD_LIB
-    ${SHEPHERD_LIB}
+set(NERD_LIB
+    ${NERD_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libs}
     ${llvm_system_libs}
     )
-set(SHEPHERD_LIB_DIR
-    ${SHEPHERD_LIB_DIR}
+set(NERD_LIB_DIR
+    ${NERD_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
-set(SHEPHERD
+set(NERD
     Log.cpp
     Exception.cpp
     container/CycleBuffer.cpp
@@ -101,10 +101,10 @@ set(SHEPHERD
     # Approximate.cpp
     # NameGenerator.cpp
     Name.cpp
-    # TokenName.cpp
+    TokenName.cpp
     Buffer.cpp
     Scanner.cpp
-    # Ast.cpp
+    Ast.cpp
     # Position.cpp
     # Symbol.cpp
     # SymbolTable.cpp
@@ -118,38 +118,38 @@ set(SHEPHERD
     ${BISON_NerdParser_OUTPUTS}
     ${FLEX_NerdTokenizer_OUTPUTS}
 )
-set(SHEPHERDC
+set(NERDC
     nerdc.cpp
 )
 
 
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
-message(Boost_LIBRARIES: ${Boost_LIBRARIES})
-message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
-message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
-message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
-message(llvm_libs: ${llvm_libs})
-message(llvm_system_libs: ${llvm_system_libs})
-message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
-message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(SHEPHERD_INC: ${SHEPHERD_INC})
-message(SHEPHERD_LIB: ${SHEPHERD_LIB})
-message(SHEPHERD_LIB_DIR: ${SHEPHERD_LIB_DIR})
+# message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
+# message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
+# message(Boost_LIBRARIES: ${Boost_LIBRARIES})
+# message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+# message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
+# message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
+# message(llvm_libs: ${llvm_libs})
+# message(llvm_system_libs: ${llvm_system_libs})
+# message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
+# message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
+# message(NERD_INC: ${NERD_INC})
+# message(NERD_LIB: ${NERD_LIB})
+# message(NERD_LIB_DIR: ${NERD_LIB_DIR})
 
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${SHEPHERD_INC})
-link_directories(${SHEPHERD_LIB_DIR})
+include_directories(${NERD_INC})
+link_directories(${NERD_LIB_DIR})
 
-add_library(nerdcore STATIC ${SHEPHERD})
-target_include_directories(nerdcore PRIVATE ${SHEPHERD_INC})
-target_link_libraries(nerdcore ${SHEPHERD_LIB})
+add_library(nerdcore STATIC ${NERD})
+target_include_directories(nerdcore PRIVATE ${NERD_INC})
+target_link_libraries(nerdcore ${NERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
-# add_executable(nerdc ${SHEPHERDC})
-# target_include_directories(nerdc PRIVATE ${SHEPHERD_INC})
-# target_link_libraries(nerdc ${SHEPHERD_LIB} nerdcore)
+# add_executable(nerdc ${NERDC})
+# target_include_directories(nerdc PRIVATE ${NERD_INC})
+# target_link_libraries(nerdc ${NERD_LIB} nerdcore)
 # set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})

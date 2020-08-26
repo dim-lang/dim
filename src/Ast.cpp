@@ -3,6 +3,7 @@
 
 #include "Ast.h"
 #include "Strings.h"
+#include "TokenName.h"
 #include "parser.tab.hh"
 #include <algorithm>
 #include <sstream>
@@ -126,7 +127,8 @@ A_Integer::A_Integer(const std::string &literal, const yy::location &location)
   EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  if (Strings::startWith(literal, {"0x", "0X", "0o", "0O", "0b", "0B"})) {
+  if (Strings::startWith(literal, std::vector<std::string>{"0x", "0X", "0o",
+                                                           "0O", "0b", "0B"})) {
     switch (literal[1]) {
     case 'x':
     case 'X':
@@ -155,15 +157,15 @@ A_Integer::A_Integer(const std::string &literal, const yy::location &location)
   }
 
   int endPosition = (int)literal.length();
-  if (Strings::endWith(literal, {"ul", "UL"})) {
+  if (Strings::endWith(literal, std::vector<std::string>{"ul", "UL"})) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 2;
-  } else if (Strings::endWith(literal, {'l', 'L'})) {
+  } else if (Strings::endWith(literal, std::vector<char>{'l', 'L'})) {
     bitCategory_ = A_Integer::BitCategory::LONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 1;
-  } else if (Strings::endWith(literal, {'u', 'U'})) {
+  } else if (Strings::endWith(literal, std::vector<char>{'u', 'U'})) {
     bitCategory_ = A_Integer::BitCategory::UNSIGNED;
     bits_ = 32;
     endPosition = (int)literal.length() - 1;
@@ -182,7 +184,7 @@ std::string A_Integer::toString() const {
   return fmt::format("[{} location:{}, parsed:{}, "
                      "decimalCategory:{}, bitCategory:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), parsed_,
+                     (std::stringstream() << location()).str(), parsed_,
                      AIL_DC_Map.find(decimalCategory_)->second,
                      AIL_BC_Map.find(bitCategory_)->second);
 }
@@ -229,7 +231,7 @@ A_Float::A_Float(const std::string &literal, const yy::location &location)
 
   int startPosition = 0;
   int endPosition = (int)literal.length();
-  if (Strings::endWith(literal, {"d", "D"})) {
+  if (Strings::endWith(literal, std::vector<std::string>{"d", "D"})) {
     bitCategory_ = A_Float::BitCategory::DBL;
     bits_ = 64;
     endPosition = (int)literal.length();
@@ -247,7 +249,7 @@ AstCategory A_Float::category() const { return AstCategory::Float; }
 std::string A_Float::toString() const {
   return fmt::format("[{} location:{}, parsed:{}, bitCategory:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), parsed_,
+                     (std::stringstream() << location()).str(), parsed_,
                      AFL_BC_Map.find(bitCategory_)->second);
 }
 
@@ -271,11 +273,14 @@ const static std::unordered_map<A_String::QuoteCategory, std::string>
 
 A_String::A_String(const std::string &literal, const yy::location &location)
     : Ast(literal, location),
-      parsed_(literal.length() >= 3 && Strings::startWith(literal, {"\"\"\""})
+      parsed_(literal.length() >= 3 &&
+                      Strings::startWith(literal,
+                                         std::vector<std::string>{"\"\"\""})
                   ? literal.substr(3, literal.length() - 6)
                   : literal.substr(1, literal.length() - 2)),
       quoteCategory_(literal.length() >= 3 &&
-                             Strings::startWith(literal, {"\"\"\""})
+                             Strings::startWith(
+                                 literal, std::vector<std::string>{"\"\"\""})
                          ? A_String::QuoteCategory::TRIPLE
                          : A_String::QuoteCategory::SINGLE) {}
 
@@ -283,7 +288,7 @@ AstCategory A_String::category() const { return AstCategory::String; }
 
 std::string A_String::toString() const {
   return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), parsed_);
+                     (std::stringstream() << location()).str(), parsed_);
 }
 
 A_String::QuoteCategory A_String::quoteCategory() const {
@@ -304,7 +309,7 @@ AstCategory A_Character::category() const { return AstCategory::Character; }
 
 std::string A_Character::toString() const {
   return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), parsed_);
+                     (std::stringstream() << location()).str(), parsed_);
 }
 
 char A_Character::asChar() const { return parsed_; }
@@ -314,13 +319,13 @@ char A_Character::asChar() const { return parsed_; }
 // A_Boolean {
 
 A_Boolean::A_Boolean(bool a_value, const yy::location &location)
-    : Ast(literal, location), value(a_value) {}
+    : Ast(a_value ? "true" : "false", location), value(a_value) {}
 
 AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
 
 std::string A_Boolean::toString() const {
-  return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), parsed_);
+  return fmt::format("[{} location:{}, value:{}]", name().toSymbolName(),
+                     (std::stringstream() << location()).str(), value);
 }
 
 // A_Boolean }
@@ -333,7 +338,7 @@ AstCategory A_Nil::category() const { return AstCategory::Nil; }
 
 std::string A_Nil::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str());
+                     (std::stringstream() << location()).str());
 }
 
 // A_Nil }
@@ -346,7 +351,7 @@ AstCategory A_Void::category() const { return AstCategory::Void; }
 
 std::string A_Void::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str());
+                     (std::stringstream() << location()).str());
 }
 
 // A_Void }
@@ -358,13 +363,13 @@ std::string A_Void::toString() const {
 // A_VarId {
 
 A_VarId::A_VarId(const std::string &literal, const yy::location &location)
-    : AstId(literal, location) {}
+    : Ast(literal, location) {}
 
 AstCategory A_VarId::category() const { return AstCategory::VarId; }
 
 std::string A_VarId::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str());
+                     (std::stringstream() << location()).str());
 }
 
 // A_VarId }
@@ -382,7 +387,8 @@ AstCategory A_Throw::category() const { return AstCategory::Throw; }
 
 std::string A_Throw::toString() const {
   return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), expr->toString());
+                     (std::stringstream() << location()).str(),
+                     expr->toString());
 }
 
 // A_Throw }
@@ -396,7 +402,7 @@ AstCategory A_Return::category() const { return AstCategory::Return; }
 
 std::string A_Return::toString() const {
   return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(),
+                     (std::stringstream() << location()).str(),
                      expr ? expr->toString() : "nil");
 }
 
@@ -410,7 +416,7 @@ AstCategory A_Break::category() const { return AstCategory::Break; }
 
 std::string A_Break::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str());
+                     (std::stringstream() << location()).str());
 }
 
 // A_Break }
@@ -422,9 +428,9 @@ A_Continue::A_Continue(const yy::location &location)
 
 AstCategory A_Continue::category() const { return AstCategory::Continue; }
 
-std::string toString() const {
+std::string A_Continue::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str());
+                     (std::stringstream() << location()).str());
 }
 
 // A_Continue }
@@ -442,7 +448,7 @@ AstCategory A_Assign::category() const { return AstCategory::Assign; }
 std::string A_Assign::toString() const {
   return fmt::format(
       "[{} location:{} assignee:{} assignOp:{} assignor:{}]",
-      name().toSymbolName(), (std::stringstream() << location).str(),
+      name().toSymbolName(), (std::stringstream() << location()).str(),
       assignee->toString(), tokenName(assignOp), assignor->toString());
 }
 
@@ -459,8 +465,8 @@ AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
 std::string A_PostfixExpr::toString() const {
   return fmt::format("[{} location:{} expr:{} postfixOp:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), expr->toString(),
-                     tokenName(postfixOp));
+                     (std::stringstream() << location()).str(),
+                     expr->toString(), tokenName(postfixOp));
 }
 
 // A_PostfixExpr }
@@ -478,8 +484,8 @@ AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
 std::string A_InfixExpr::toString() const {
   return fmt::format("[{} location:{} left:{} infixOp:{} right:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), left->toString(),
-                     tokenName(infixOp), right->toString());
+                     (std::stringstream() << location()).str(),
+                     left->toString(), tokenName(infixOp), right->toString());
 }
 
 // A_InfixExpr }
@@ -494,15 +500,16 @@ AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
 
 std::string A_PrefixExpr::toString() const {
   return fmt::format("[{} location:{} prefixOp:{} expr:{}]",
-                     name().toSymbolName(), location.toString(),
-                     tokenName(prefixOp_), expr_->toString());
+                     name().toSymbolName(),
+                     (std::stringstream() << location()).str(),
+                     tokenName(prefixOp), expr->toString());
 }
 
 // A_PrefixExpr }
 
 // A_Call {
 
-A_Call::A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_args,
+A_Call::A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Exprs> a_args,
                const yy::location &location)
     : Ast("call", location), id(a_id), args(a_args) {}
 
@@ -510,15 +517,15 @@ AstCategory A_Call::category() const { return AstCategory::Call; }
 
 std::string A_Call::toString() const {
   return fmt::format("[{} location:{} id:{} args:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), id->toString(),
-                     args->toString());
+                     (std::stringstream() << location()).str(), id->toString(),
+                     args ? args->toString() : "nil");
 }
 
 // A_Call }
 
 // A_Exprs {
 
-A_Exprs::A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<Ast> a_next,
+A_Exprs::A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<A_Exprs> a_next,
                  const yy::location &location)
     : Ast("exprs", location), expr(a_expr), next(a_next) {}
 
@@ -526,8 +533,8 @@ AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
 
 std::string A_Exprs::toString() const {
   return fmt::format("[{} location:{} expr:{} next:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), expr->toString(),
-                     next->toString());
+                     (std::stringstream() << location()).str(),
+                     expr->toString(), next ? next->toString() : "nil");
 }
 
 // A_Exprs }
@@ -544,8 +551,8 @@ AstCategory A_If::category() const { return AstCategory::If; }
 std::string A_If::toString() const {
   return fmt::format(
       "[{} location:{} condition:{} thenp:{} elsep:{}]", name().toSymbolName(),
-      (std::stringstream() << location).str(), condition->toString(),
-      thenp->toString(), elsep->toString());
+      (std::stringstream() << location()).str(), condition->toString(),
+      thenp->toString(), elsep ? elsep->toString() : "nil");
 }
 
 // A_If }
@@ -561,7 +568,7 @@ AstCategory A_Loop::category() const { return AstCategory::Loop; }
 std::string A_Loop::toString() const {
   return fmt::format("[{} location:{} condition:{} body:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(),
+                     (std::stringstream() << location()).str(),
                      condition->toString(), body->toString());
 }
 
@@ -583,8 +590,10 @@ AstCategory A_LoopCondition::category() const {
 std::string A_LoopCondition::toString() const {
   return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), init->toString(),
-                     condition->toString(), update->toString());
+                     (std::stringstream() << location()).str(),
+                     init ? init->toString() : "nil",
+                     condition ? condition->toString() : "nil",
+                     update ? update->toString() : "nil");
 }
 
 // A_LoopCondition }
@@ -601,9 +610,8 @@ AstCategory A_LoopEnumerator::category() const {
 }
 
 std::string A_LoopEnumerator::toString() const {
-  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
-                     name().toSymbolName(),
-                     (std::stringstream() << location).str(), id->toString(),
+  return fmt::format("[{} location:{} id:{} expr:{}]", name().toSymbolName(),
+                     (std::stringstream() << location()).str(), id->toString(),
                      expr->toString());
 }
 
@@ -621,24 +629,26 @@ AstCategory A_Try::category() const { return AstCategory::Try; }
 std::string A_Try::toString() const {
   return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), tryp->toString(),
-                     catchp->toString(), finallyp->toString());
+                     (std::stringstream() << location()).str(),
+                     tryp->toString(), catchp ? catchp->toString() : "nil",
+                     finallyp ? finallyp->toString() : "nil");
 }
 
 // A_Try }
 
 // A_Block {
 
-A_Block::A_Block(std::shared_ptr<Ast> a_blockStats,
+A_Block::A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
                  const yy::location &location)
     : Ast("block", location), blockStats(a_blockStats) {}
 
 AstCategory A_Block::category() const { return AstCategory::Block; }
 
 std::string A_Block::toString() const {
-  return fmt::format(
-      "[{} location:{} init:{} condition:{} update:{}]", name().toSymbolName(),
-      (std::stringstream() << location).str(), blockStats->toString());
+  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location()).str(),
+                     blockStats ? blockStats->toString() : "nil");
 }
 
 // A_Block }
@@ -650,13 +660,13 @@ A_BlockStats::A_BlockStats(std::shared_ptr<Ast> a_blockStat,
                            const yy::location &location)
     : Ast("block", location), blockStat(a_blockStat), next(a_next) {}
 
-AstCategory A_Block::category() const { return AstCategory::BlockStats; }
+AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 
-std::string A_Block::toString() const {
+std::string A_BlockStats::toString() const {
   return fmt::format("[{} location:{} blockStat:{} next:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(),
-                     blockStat->toString(), next->toString());
+                     (std::stringstream() << location()).str(),
+                     blockStat->toString(), next ? next->toString() : "nil");
 }
 
 // A_BlockStats }
@@ -674,7 +684,8 @@ AstCategory A_PlainType::category() const { return AstCategory::PlainType; }
 
 std::string A_PlainType::toString() const {
   return fmt::format("[@{} location:{}, token:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), tokenName(token));
+                     (std::stringstream() << location()).str(),
+                     tokenName(token));
 }
 
 // A_PlainType }
@@ -694,7 +705,7 @@ AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
 std::string A_FuncDef::toString() const {
   return fmt::format(
       "[@{} location:{}, funcSign:{} resultType:{} body:{}]",
-      name().toSymbolName(), (std::stringstream() << location).str(),
+      name().toSymbolName(), (std::stringstream() << location()).str(),
       funcSign->toString(), resultType->toString(), body->toString());
 }
 
@@ -708,8 +719,8 @@ AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
 std::string A_FuncSign::toString() const {
   return fmt::format("[@{} location:{}, id:{} params:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), id->toString(),
-                     params->toString());
+                     (std::stringstream() << location()).str(), id->toString(),
+                     params ? params->toString() : "nil");
 }
 
 A_Params::A_Params(std::shared_ptr<A_Param> a_param,
@@ -722,8 +733,8 @@ AstCategory A_Params::category() const { return AstCategory::Params; }
 std::string A_Params::toString() const {
   return fmt::format("[@{} location:{}, param:{} next:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), param->toString(),
-                     next->toString());
+                     (std::stringstream() << location()).str(),
+                     param->toString(), next ? next->toString() : "nil");
 }
 
 A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
@@ -734,7 +745,7 @@ AstCategory A_Param::category() const { return AstCategory::Param; }
 
 std::string A_Param::toString() const {
   return fmt::format("[@{} location:{}, id:{} type:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(), id->toString(),
+                     (std::stringstream() << location()).str(), id->toString(),
                      type->toString());
 }
 
@@ -747,7 +758,7 @@ AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
 std::string A_VarDef::toString() const {
   return fmt::format("[@{} location:{}, id:{} type:{} expr:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(), id->toString(),
+                     (std::stringstream() << location()).str(), id->toString(),
                      type->toString(), expr->toString());
 }
 
@@ -765,8 +776,8 @@ AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
 std::string A_TopStats::toString() const {
   return fmt::format("[@{} location:{}, topStat:{} next:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location).str(),
-                     topStat->toString(), next->toString());
+                     (std::stringstream() << location()).str(),
+                     topStat->toString(), next ? next->toString() : "nil");
 }
 
 A_CompileUnit::A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
@@ -777,8 +788,8 @@ AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
 
 std::string A_CompileUnit::toString() const {
   return fmt::format("[@{} location:{}, topStats:{}]", name().toSymbolName(),
-                     (std::stringstream() << location).str(),
-                     topStats->toString());
+                     (std::stringstream() << location()).str(),
+                     topStats ? topStats->toString() : "nil");
 }
 
 // compile unit }

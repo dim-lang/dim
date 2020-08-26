@@ -3,4 +3,8 @@
 
 #include "Locationly.h"
 
-Locationly::Locationly(const yy::location &a_location) : location(a_location) {}
+Locationly::Locationly(const yy::location &location) : location_(location) {}
+
+yy::location &Locationly::location() { return location_; }
+
+const yy::location &Locationly::location() const { return location_; }
