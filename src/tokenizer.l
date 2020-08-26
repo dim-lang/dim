@@ -41,8 +41,8 @@ LC  ("//".*\n)
 #define Y_LLOC    yyget_lloc(yyextra->yy_scanner)
 #define Y_LINENO  yyget_lineno(yyextra->yy_scanner)
 
-#define T_LITERAL_TOKEN     (yylval->str = Strings::duplicate(yytext, yyleng))
-#define T_INTEGER_TOKEN(T_t)  (yylval->tok = (t))
+#define MK_LITERAL     (yylval->str = Strings::duplicate(yytext, yyleng))
+#define MK_INTEGER(t)  (yylval->tok = (t))
 
 #define YY_USER_ACTION                                                      \
     yylloc->first_line = yylloc->last_line;                                 \
@@ -56,11 +56,11 @@ LC  ("//".*\n)
 #endif
 
 
-#define T_SCANNER               (static_cast<Scanner *>(yyextra))
-#define T_LOCATION              (T_SCANNER->bufferStack.top()->location)
-#define T_FILE_NAME             (T_SCANNER->bufferStack.top()->fileName)
-#define T_LITERAL_TOKEN(T_t)    (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_LOCATION))
-#define T_INTEGER_TOKEN(T_t)    (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), T_LOCATION))
+#define T_SCANNER           (static_cast<Scanner *>(yyextra))
+#define T_LOCATION          (T_SCANNER->bufferStack.top()->location)
+#define T_FILE_NAME         (T_SCANNER->bufferStack.top()->fileName)
+#define MK_LITERAL(t)       (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_LOCATION))
+#define MK_INTEGER(t)       (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), T_LOCATION))
 
 #define YY_USER_ACTION                         \
     T_LOCATION.step();                         \
@@ -82,178 +82,178 @@ LC  ("//".*\n)
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { return T_INTEGER_TOKEN(T_TRUE); }
-false       { return T_INTEGER_TOKEN(T_FALSE); }
-try         { return T_INTEGER_TOKEN(T_TRY); }
-catch       { return T_INTEGER_TOKEN(T_CATCH); }
-finally     { return T_INTEGER_TOKEN(T_FINALLY); }
-throw       { return T_INTEGER_TOKEN(T_THROW); }
-yield       { return T_INTEGER_TOKEN(T_YIELD); }
-var         { return T_INTEGER_TOKEN(T_VAR); }
-val         { return T_INTEGER_TOKEN(T_VAL); }
-nil         { return T_INTEGER_TOKEN(T_NIL); }
-new         { return T_INTEGER_TOKEN(T_NEW); }
-delete      { return T_INTEGER_TOKEN(T_DELETE); }
-def         { return T_INTEGER_TOKEN(T_DEF); }
-if          { return T_INTEGER_TOKEN(T_IF); }
-then        { return T_INTEGER_TOKEN(T_THEN); }
-else        { return T_INTEGER_TOKEN(T_ELSE); }
-match       { return T_INTEGER_TOKEN(T_MATCH); }
-enum        { return T_INTEGER_TOKEN(T_ENUM); }
-switch      { return T_INTEGER_TOKEN(T_SWITCH); }
-case        { return T_INTEGER_TOKEN(T_CASE); }
-for         { return T_INTEGER_TOKEN(T_FOR); }
-foreach     { return T_INTEGER_TOKEN(T_FOREACH); }
-in          { return T_INTEGER_TOKEN(T_IN); }
-while       { return T_INTEGER_TOKEN(T_WHILE); }
-do          { return T_INTEGER_TOKEN(T_DO); }
-break       { return T_INTEGER_TOKEN(T_BREAK); }
-continue    { return T_INTEGER_TOKEN(T_CONTINUE); }
-class       { return T_INTEGER_TOKEN(T_CLASS); }
-trait       { return T_INTEGER_TOKEN(T_TRAIT); }
-type        { return T_INTEGER_TOKEN(T_TYPE); }
-this        { return T_INTEGER_TOKEN(T_THIS); }
-super       { return T_INTEGER_TOKEN(T_SUPER); }
-is          { return T_INTEGER_TOKEN(T_IS); }
-isa         { return T_INTEGER_TOKEN(T_ISA); }
-isinstanceof    { return T_INTEGER_TOKEN(T_ISINSTANCEOF); }
-import      { return T_INTEGER_TOKEN(T_IMPORT); }
-as          { return T_INTEGER_TOKEN(T_AS); }
-return      { return T_INTEGER_TOKEN(T_RETURN); }
-void        { return T_INTEGER_TOKEN(T_VOID); }
-any         { return T_INTEGER_TOKEN(T_ANY); }
-nan         { return T_INTEGER_TOKEN(T_NAN); }
-inf         { return T_INTEGER_TOKEN(T_INF); }
-async       { return T_INTEGER_TOKEN(T_ASYNC); }
-await       { return T_INTEGER_TOKEN(T_AWAIT); }
-static      { return T_INTEGER_TOKEN(T_STATIC); }
-public      { return T_INTEGER_TOKEN(T_PUBLIC); }
-protect     { return T_INTEGER_TOKEN(T_PROTECT); }
-private     { return T_INTEGER_TOKEN(T_PRIVATE); }
-prefix      { return T_INTEGER_TOKEN(T_PREFIX); }
-postfix     { return T_INTEGER_TOKEN(T_POSTFIX); }
-package     { return T_INTEGER_TOKEN(T_PACKAGE); }
+true        { return MK_INTEGER(T_TRUE); }
+false       { return MK_INTEGER(T_FALSE); }
+try         { return MK_INTEGER(T_TRY); }
+catch       { return MK_INTEGER(T_CATCH); }
+finally     { return MK_INTEGER(T_FINALLY); }
+throw       { return MK_INTEGER(T_THROW); }
+yield       { return MK_INTEGER(T_YIELD); }
+var         { return MK_INTEGER(T_VAR); }
+val         { return MK_INTEGER(T_VAL); }
+nil         { return MK_INTEGER(T_NIL); }
+new         { return MK_INTEGER(T_NEW); }
+delete      { return MK_INTEGER(T_DELETE); }
+def         { return MK_INTEGER(T_DEF); }
+if          { return MK_INTEGER(T_IF); }
+then        { return MK_INTEGER(T_THEN); }
+else        { return MK_INTEGER(T_ELSE); }
+match       { return MK_INTEGER(T_MATCH); }
+enum        { return MK_INTEGER(T_ENUM); }
+switch      { return MK_INTEGER(T_SWITCH); }
+case        { return MK_INTEGER(T_CASE); }
+for         { return MK_INTEGER(T_FOR); }
+foreach     { return MK_INTEGER(T_FOREACH); }
+in          { return MK_INTEGER(T_IN); }
+while       { return MK_INTEGER(T_WHILE); }
+do          { return MK_INTEGER(T_DO); }
+break       { return MK_INTEGER(T_BREAK); }
+continue    { return MK_INTEGER(T_CONTINUE); }
+class       { return MK_INTEGER(T_CLASS); }
+trait       { return MK_INTEGER(T_TRAIT); }
+type        { return MK_INTEGER(T_TYPE); }
+this        { return MK_INTEGER(T_THIS); }
+super       { return MK_INTEGER(T_SUPER); }
+is          { return MK_INTEGER(T_IS); }
+isa         { return MK_INTEGER(T_ISA); }
+isinstanceof    { return MK_INTEGER(T_ISINSTANCEOF); }
+import      { return MK_INTEGER(T_IMPORT); }
+as          { return MK_INTEGER(T_AS); }
+return      { return MK_INTEGER(T_RETURN); }
+void        { return MK_INTEGER(T_VOID); }
+any         { return MK_INTEGER(T_ANY); }
+nan         { return MK_INTEGER(T_NAN); }
+inf         { return MK_INTEGER(T_INF); }
+async       { return MK_INTEGER(T_ASYNC); }
+await       { return MK_INTEGER(T_AWAIT); }
+static      { return MK_INTEGER(T_STATIC); }
+public      { return MK_INTEGER(T_PUBLIC); }
+protect     { return MK_INTEGER(T_PROTECT); }
+private     { return MK_INTEGER(T_PRIVATE); }
+prefix      { return MK_INTEGER(T_PREFIX); }
+postfix     { return MK_INTEGER(T_POSTFIX); }
+package     { return MK_INTEGER(T_PACKAGE); }
 
  /* primitive type */
-byte        { return T_INTEGER_TOKEN(T_BYTE); } */
-ubyte       { return T_INTEGER_TOKEN(T_UBYTE); }
-short       { return T_INTEGER_TOKEN(T_SHORT); }
-ushort      { return T_INTEGER_TOKEN(T_USHORT); }
-int         { return T_INTEGER_TOKEN(T_INT); }
-uint        { return T_INTEGER_TOKEN(T_UINT); }
-long        { return T_INTEGER_TOKEN(T_LONG); }
-ulong       { return T_INTEGER_TOKEN(T_ULONG); }
-llong       { return T_INTEGER_TOKEN(T_LLONG); }
-ullong      { return T_INTEGER_TOKEN(T_ULLONG); }
-float       { return T_INTEGER_TOKEN(T_FLOAT); }
-double      { return T_INTEGER_TOKEN(T_DOUBLE); }
-boolean     { return T_INTEGER_TOKEN(T_BOOLEAN); }
-char        { return T_INTEGER_TOKEN(T_CHAR); }
+byte        { return MK_INTEGER(T_BYTE); } */
+ubyte       { return MK_INTEGER(T_UBYTE); }
+short       { return MK_INTEGER(T_SHORT); }
+ushort      { return MK_INTEGER(T_USHORT); }
+int         { return MK_INTEGER(T_INT); }
+uint        { return MK_INTEGER(T_UINT); }
+long        { return MK_INTEGER(T_LONG); }
+ulong       { return MK_INTEGER(T_ULONG); }
+llong       { return MK_INTEGER(T_LLONG); }
+ullong      { return MK_INTEGER(T_ULLONG); }
+float       { return MK_INTEGER(T_FLOAT); }
+double      { return MK_INTEGER(T_DOUBLE); }
+boolean     { return MK_INTEGER(T_BOOLEAN); }
+char        { return MK_INTEGER(T_CHAR); }
 
  /* operator */
-and         { return T_INTEGER_TOKEN(T_AND); }
-or          { return T_INTEGER_TOKEN(T_OR); }
-not         { return T_INTEGER_TOKEN(T_NOT); }
+and         { return MK_INTEGER(T_AND); }
+or          { return MK_INTEGER(T_OR); }
+not         { return MK_INTEGER(T_NOT); }
 
  /* optional newline or semicolon */
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { return T_INTEGER_TOKEN(T_SEMI_ELSE); }
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { return T_INTEGER_TOKEN(T_SEMI_WHILE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { return T_INTEGER_TOKEN(T_SEMI_WHILE); }
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { return MK_INTEGER(T_SEMI_ELSE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { return MK_INTEGER(T_SEMI_ELSE); }
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { return MK_INTEGER(T_SEMI_WHILE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { return MK_INTEGER(T_SEMI_WHILE); }
 
-"+"         { return T_INTEGER_TOKEN(T_PLUS); }
-"++"        { return T_INTEGER_TOKEN(T_PLUS2); }
-"-"         { return T_INTEGER_TOKEN(T_MINUS); }
-"--"        { return T_INTEGER_TOKEN(T_MINUS2); }
-"*"         { return T_INTEGER_TOKEN(T_ASTERISK); }
-"**"        { return T_INTEGER_TOKEN(T_ASTERISK2); }
-"/"         { return T_INTEGER_TOKEN(T_SLASH); }
-"//"        { return T_INTEGER_TOKEN(T_SLASH2); }
-"%"         { return T_INTEGER_TOKEN(T_PERCENT); }
-"%%"        { return T_INTEGER_TOKEN(T_PERCENT2); }
+"+"         { return MK_INTEGER(T_PLUS); }
+"++"        { return MK_INTEGER(T_PLUS2); }
+"-"         { return MK_INTEGER(T_MINUS); }
+"--"        { return MK_INTEGER(T_MINUS2); }
+"*"         { return MK_INTEGER(T_ASTERISK); }
+"**"        { return MK_INTEGER(T_ASTERISK2); }
+"/"         { return MK_INTEGER(T_SLASH); }
+"//"        { return MK_INTEGER(T_SLASH2); }
+"%"         { return MK_INTEGER(T_PERCENT); }
+"%%"        { return MK_INTEGER(T_PERCENT2); }
 
-"&"         { return T_INTEGER_TOKEN(T_AMPERSAND); }
-"&&"        { return T_INTEGER_TOKEN(T_AMPERSAND2); }
-"|"         { return T_INTEGER_TOKEN(T_BAR); }
-"||"        { return T_INTEGER_TOKEN(T_BAR2); }
-"~"         { return T_INTEGER_TOKEN(T_TILDE); }
-"!"         { return T_INTEGER_TOKEN(T_EXCLAM); }
-"^"         { return T_INTEGER_TOKEN(T_CARET); }
+"&"         { return MK_INTEGER(T_AMPERSAND); }
+"&&"        { return MK_INTEGER(T_AMPERSAND2); }
+"|"         { return MK_INTEGER(T_BAR); }
+"||"        { return MK_INTEGER(T_BAR2); }
+"~"         { return MK_INTEGER(T_TILDE); }
+"!"         { return MK_INTEGER(T_EXCLAM); }
+"^"         { return MK_INTEGER(T_CARET); }
 
-"<<"        { return T_INTEGER_TOKEN(T_LSHIFT); }
-">>"        { return T_INTEGER_TOKEN(T_RSHIFT); }
-">>>"       { return T_INTEGER_TOKEN(T_ARSHIFT); }
+"<<"        { return MK_INTEGER(T_LSHIFT); }
+">>"        { return MK_INTEGER(T_RSHIFT); }
+">>>"       { return MK_INTEGER(T_ARSHIFT); }
 
  /* equal operator */
-"="         { return T_INTEGER_TOKEN(T_EQUAL); }
-"+="        { return T_INTEGER_TOKEN(T_PLUS_EQUAL); }
-"-="        { return T_INTEGER_TOKEN(T_MINUS_EQUAL); }
-"*="        { return T_INTEGER_TOKEN(T_ASTERISK_EQUAL); }
-"/="        { return T_INTEGER_TOKEN(T_SLASH_EQUAL); }
-"%="        { return T_INTEGER_TOKEN(T_PERCENT_EQUAL); }
-"&="        { return T_INTEGER_TOKEN(T_AMPERSAND_EQUAL); }
-"|="        { return T_INTEGER_TOKEN(T_BAR_EQUAL); }
-"^="        { return T_INTEGER_TOKEN(T_CARET_EQUAL); }
-"<<="       { return T_INTEGER_TOKEN(T_LSHIFT_EQUAL); }
-">>="       { return T_INTEGER_TOKEN(T_RSHIFT_EQUAL); }
-">>>="      { return T_INTEGER_TOKEN(T_ARSHIFT_EQUAL); }
+"="         { return MK_INTEGER(T_EQUAL); }
+"+="        { return MK_INTEGER(T_PLUS_EQUAL); }
+"-="        { return MK_INTEGER(T_MINUS_EQUAL); }
+"*="        { return MK_INTEGER(T_ASTERISK_EQUAL); }
+"/="        { return MK_INTEGER(T_SLASH_EQUAL); }
+"%="        { return MK_INTEGER(T_PERCENT_EQUAL); }
+"&="        { return MK_INTEGER(T_AMPERSAND_EQUAL); }
+"|="        { return MK_INTEGER(T_BAR_EQUAL); }
+"^="        { return MK_INTEGER(T_CARET_EQUAL); }
+"<<="       { return MK_INTEGER(T_LSHIFT_EQUAL); }
+">>="       { return MK_INTEGER(T_RSHIFT_EQUAL); }
+">>>="      { return MK_INTEGER(T_ARSHIFT_EQUAL); }
 
  /* compare operator */
-"=="        { return T_INTEGER_TOKEN(T_EQ); }
-"!="        { return T_INTEGER_TOKEN(T_NEQ); }
-"<"         { return T_INTEGER_TOKEN(T_LT); }
-"<="        { return T_INTEGER_TOKEN(T_LE); }
-">"         { return T_INTEGER_TOKEN(T_GT); }
-">="        { return T_INTEGER_TOKEN(T_GE); }
+"=="        { return MK_INTEGER(T_EQ); }
+"!="        { return MK_INTEGER(T_NEQ); }
+"<"         { return MK_INTEGER(T_LT); }
+"<="        { return MK_INTEGER(T_LE); }
+">"         { return MK_INTEGER(T_GT); }
+">="        { return MK_INTEGER(T_GE); }
 
  /* parentheses */
-"("         { return T_INTEGER_TOKEN(T_LPAREN); }
-")"         { return T_INTEGER_TOKEN(T_RPAREN); }
-"["         { return T_INTEGER_TOKEN(T_LBRACKET); }
-"]"         { return T_INTEGER_TOKEN(T_RBRACKET); }
-"{"         { return T_INTEGER_TOKEN(T_LBRACE); }
-"}"         { return T_INTEGER_TOKEN(T_RBRACE); }
+"("         { return MK_INTEGER(T_LPAREN); }
+")"         { return MK_INTEGER(T_RPAREN); }
+"["         { return MK_INTEGER(T_LBRACKET); }
+"]"         { return MK_INTEGER(T_RBRACKET); }
+"{"         { return MK_INTEGER(T_LBRACE); }
+"}"         { return MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
-"_"         { return T_INTEGER_TOKEN(T_UNDERSCORE); }
-","         { return T_INTEGER_TOKEN(T_COMMA); }
-";"         { return T_INTEGER_TOKEN(T_SEMI); }
-"?"         { return T_INTEGER_TOKEN(T_QUESTION); }
-":"         { return T_INTEGER_TOKEN(T_COLON); }
-"::"        { return T_INTEGER_TOKEN(T_COLON2); }
-"."         { return T_INTEGER_TOKEN(T_DOT); }
-".."        { return T_INTEGER_TOKEN(T_DOT2); }
-"<-"        { return T_INTEGER_TOKEN(T_LARROW); }
-"->"        { return T_INTEGER_TOKEN(T_RARROW); }
-"=>"        { return T_INTEGER_TOKEN(T_DOUBLE_RARROW); }
-":>"        { return T_INTEGER_TOKEN(T_COLON_LARROW);  }
-"<:"        { return T_INTEGER_TOKEN(T_COLON_RARROW); }
-[\n]+       { return T_INTEGER_TOKEN(T_NEWLINE); }
+"_"         { return MK_INTEGER(T_UNDERSCORE); }
+","         { return MK_INTEGER(T_COMMA); }
+";"         { return MK_INTEGER(T_SEMI); }
+"?"         { return MK_INTEGER(T_QUESTION); }
+":"         { return MK_INTEGER(T_COLON); }
+"::"        { return MK_INTEGER(T_COLON2); }
+"."         { return MK_INTEGER(T_DOT); }
+".."        { return MK_INTEGER(T_DOT2); }
+"<-"        { return MK_INTEGER(T_LARROW); }
+"->"        { return MK_INTEGER(T_RARROW); }
+"=>"        { return MK_INTEGER(T_DOUBLE_RARROW); }
+":>"        { return MK_INTEGER(T_COLON_LARROW);  }
+"<:"        { return MK_INTEGER(T_COLON_RARROW); }
+[\n]+       { return MK_INTEGER(T_NEWLINE); }
 
  /* decimal integer literal */
-{DEC}{IS}?                                  { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
+{DEC}{IS}?                                  { return MK_LITERAL(T_INTEGER_LITERAL); }
  /* heximal integer literal */
-0[xX]{HEX}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
+0[xX]{HEX}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
  /* octal integer literal */
-0[oO]{OCT}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
+0[oO]{OCT}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
  /* binary integer literal */
-0[bB]{BIN}+{IS}?                            { return T_LITERAL_TOKEN(T_INTEGER_LITERAL); }
+0[bB]{BIN}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
 
  /* float literal : 92.312, 92.312e-10, 10.2e+91, 1.0e+7 */
-{DEC}"."{DIG}+{EXP}?{FS}?                   { return T_LITERAL_TOKEN(T_FLOAT_LITERAL); }
-{DEC}{EXP}{FS}?                             { return T_LITERAL_TOKEN(T_FLOAT_LITERAL); }
+{DEC}"."{DIG}+{EXP}?{FS}?                   { return MK_LITERAL(T_FLOAT_LITERAL); }
+{DEC}{EXP}{FS}?                             { return MK_LITERAL(T_FLOAT_LITERAL); }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { return T_LITERAL_TOKEN(T_STRING_LITERAL); }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { return MK_LITERAL(T_STRING_LITERAL); }
 
  /* one line string */
-\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { return T_LITERAL_TOKEN(T_STRING_LITERAL); }
+\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { return MK_LITERAL(T_STRING_LITERAL); }
 
  /* char literal */
-\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { return T_LITERAL_TOKEN(T_CHARACTER_LITERAL); }
+\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { return MK_LITERAL(T_CHARACTER_LITERAL); }
 
  /* var id */
-[a-zA-Z_][a-zA-Z0-9_]*                      { return T_LITERAL_TOKEN(T_VAR_ID); }
+[a-zA-Z_][a-zA-Z0-9_]*                      { return MK_LITERAL(T_VAR_ID); }
 
  /* whitespace except newline */
 {WS}+                                       { /* skip whitespace except newline */ }

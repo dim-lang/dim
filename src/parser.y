@@ -1,6 +1,8 @@
 %require "3.2"
 %language "c++"
 %define lr.type ielr
+/* %glr-parser */
+%expect 1
 %define api.value.type variant
 %define api.token.constructor
 %define parse.assert
@@ -14,7 +16,8 @@
 #include "Ast.h"
 #include "Buffer.h"
 #include "tokenizer.yy.hh"
-#define Y_POS(x) Position((x).first_line, (x).first_column, (x).last_line, (x).last_column)
+#define SP_NULL             (std::shared_ptr<Ast>(nullptr))
+#define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
 }
 
 %code requires {
@@ -196,32 +199,29 @@
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
-%type<std::shared_ptr<Ast>> def funcDef varDef funcSign paramClause params param
+%type<std::shared_ptr<Ast>> def funcDef varDef funcSign params param resultType
 %type<std::shared_ptr<Ast>> /* optionalResultType */ optionalParams
  /* compile unit */
-%type<std::shared_ptr<Ast>> compileUnit topStatSeq topStat topStats
+%type<std::shared_ptr<Ast>> compileUnit topStat topStats
 %type<std::shared_ptr<Ast>> optionalTopStats
 
  /* token<int> } */
 
  /* low -> high precedence { */
 
+ /* try-catch-finally */
+%nonassoc "try_catch"
+%nonassoc "try_catch_finally"
+ /* do-while */
+%nonassoc "while"
+%nonassoc "semi_while"
  /* if-else */
 %nonassoc "then"
 %nonassoc "else"
 %nonassoc "semi_else"
- /* try-catch-finally */
-%nonassoc "try"
-%nonassoc "catch"
-%nonassoc "try_catch"
-%nonassoc "try_finally"
-%nonassoc "try_catch_finally"
  /* return */
 %nonassoc "return"
 %nonassoc "return_expr"
- /* do-while */
-%nonassoc "while"
-%nonassoc "semi_while"
 
  /* comma */
 %left T_COMMA
@@ -286,17 +286,17 @@ newlines : "\n" { $$ = $1; }
 
  /* literal { */
 
-literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, @$); }
-        | T_FLOAT_LITERAL { $$ = new A_Float($1, @$); }
+literal : T_INTEGER_LITERAL { $$ = SP_NEW(A_Integer, $1, @$); }
+        | T_FLOAT_LITERAL { $$ = SP_NEW(A_Float, $1, @$); }
         | booleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = new A_Character($1, @$)); }
-        | T_STRING_LITERAL { $$ = new A_String($1, @$); }
-        | "nil" { $$ = new A_Nil(@$); }
-        | "void" { $$ = new A_Void(@$); }
+        | T_CHARACTER_LITERAL { $$ = SP_NEW(A_Character, $1, @$); }
+        | T_STRING_LITERAL { $$ = SP_NEW(A_String, $1, @$); }
+        | "nil" { $$ = SP_NEW(A_Nil, @$); }
+        | "void" { $$ = SP_NEW(A_Void, @$); }
         ;
 
-booleanLiteral : "true" { $$ = new A_Boolean(true, @$); }
-               | "false" { $$ = new A_Boolean(false, @$); }
+booleanLiteral : "true" { $$ = SP_NEW(A_Boolean, true, @$); }
+               | "false" { $$ = SP_NEW(A_Boolean, false, @$); }
                ;
 
  /* literal } */
@@ -307,7 +307,7 @@ id : varId { $$ = $1; }
    /* | Opid */
    ;
 
-varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
+varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
       ;
 
 /* Opid : assignOp */
@@ -320,150 +320,148 @@ varId : T_VAR_ID { $$ = new A_varId($1, Y_POS(@1)); std::free($1); }
 
  /* expression { */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = nullptr; } /* %prec fix optional if-else shift/reduce */
-     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = nullptr; }
-     | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = nullptr; }
-     | "while" "(" expr ")" optionalNewlines expr { $$ = nullptr; }
-     | "do" expr "while" "(" expr ")" %prec "while" { $$ = nullptr; } /* %prec fix optional do-while shift/reduce */
-     | "do" expr "semi_while" "(" expr ")" %prec "semi_while" { $$ = nullptr; }
-     | "try" block %prec "try" { $$ = nullptr; } /* %prec fix optional try-catch-finally shift/reduce */
-     | "try" block "finally" block %prec "try_finally" { $$ = nullptr; }
-     | "try" block "catch" block %prec "try_catch" { $$ = nullptr; }
-     | "try" block "catch" block "finally" block %prec "try_catch_finally" { $$ = nullptr; }
-     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = nullptr; }
-     | "throw" expr { $$ = nullptr; }
-     | "return" %prec "return" { $$ = nullptr; } /* %prec fix optional return shift/reduce */
-     | "return" expr %prec "return_expr" { $$ = nullptr; }
-     | assignExpr { $$ = nullptr; }
-     | postfixExpr { $$ = nullptr; }
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); } /* %prec fix optional if-else shift/reduce */
+     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
+     | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
+     | "while" "(" expr ")" optionalNewlines expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
+     | "do" optionalNewlines expr "while" "(" expr ")" %prec "while" { $$ = SP_NEW(A_Loop, $2, $5, @$); } /* %prec fix optional do-while shift/reduce */
+     | "do" optionalNewlines expr "semi_while" "(" expr ")" %prec "semi_while" { $$ = SP_NEW(A_Loop, $2, $5, @$); }
+     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $7, @$); }
+     | "try" optionalNewlines expr "catch" optionalNewlines expr %prec "try_catch" { $$ = SP_NEW(A_Try, $3, $6, SP_NULL, @$); } /* %prec fix optional try-catch-finally shift/reduce */
+     | "try" optionalNewlines expr "catch" optionalNewlines expr "finally" optionalNewlines expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $3, $6, $9, @$); }
+     | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
+     | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); } /* %prec fix optional return shift/reduce */
+     | "return" expr %prec "return_expr" { $$ = SP_NEW(A_Return, $2, @$); }
+     | assignExpr { $$ = $1; }
+     | postfixExpr { $$ = $1; }
      ;
 
-enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = nullptr; }
-            | id "<-" expr { $$ = nullptr; }
+enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = SP_NEW(A_LoopCondition, $1, $3, $5, @$); }
+            | id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
             ;
 
-optionalForInit : varDef { $$ = nullptr; }
-                | %empty { $$ = nullptr; }
+optionalForInit : varDef { $$ = $1; }
+                | %empty { $$ = SP_NULL; }
                 ;
 
-optionalExpr : expr { $$ = nullptr; }
-             | %empty { $$ = nullptr; }
+optionalExpr : expr { $$ = $1; }
+             | %empty { $$ = SP_NULL; }
              ;
 
-optionalYield : "yield" { $$ = nullptr; }
-              | %empty { $$ = nullptr; }
+optionalYield : "yield" { $$ = $1; }
+              | %empty { $$ = yy::parser::token::T_EMPTY; }
               ;
 
-assignExpr : id assignOp expr { $$ = nullptr; }
+assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }
            ;
 
-assignOp : "=" { $$ = nullptr; }
-         | "+=" { $$ = nullptr; }
-         | "-=" { $$ = nullptr; }
-         | "*=" { $$ = nullptr; }
-         | "/=" { $$ = nullptr; }
-         | "%=" { $$ = nullptr; }
-         | "&=" { $$ = nullptr; }
-         | "|=" { $$ = nullptr; }
-         | "^=" { $$ = nullptr; }
-         | "<<=" { $$ = nullptr; }
-         | ">>=" { $$ = nullptr; }
-         | ">>>=" { $$ = nullptr; }
+assignOp : "=" { $$ = $1; }
+         | "+=" { $$ = $1; }
+         | "-=" { $$ = $1; }
+         | "*=" { $$ = $1; }
+         | "/=" { $$ = $1; }
+         | "%=" { $$ = $1; }
+         | "&=" { $$ = $1; }
+         | "|=" { $$ = $1; }
+         | "^=" { $$ = $1; }
+         | "<<=" { $$ = $1; }
+         | ">>=" { $$ = $1; }
+         | ">>>=" { $$ = $1; }
          ;
 
-postfixExpr : infixExpr { $$ = nullptr; }
-            | infixExpr postfixOp { $$ = nullptr; }
+postfixExpr : infixExpr { $$ = $1; }
+            | infixExpr postfixOp { $$ = SP_NEW(A_PostfixExpr, $1, $2, @$); }
             ;
 
-postfixOp : "++" { $$ = nullptr; }
-          | "--" { $$ = nullptr; }
+postfixOp : "++" { $$ = $1; }
+          | "--" { $$ = $1; }
           ;
 
-infixExpr : prefixExpr { $$ = nullptr; }
-          | infixExpr infixOp optionalNewline prefixExpr { $$ = nullptr; }
+infixExpr : prefixExpr { $$ = $1; }
+          | infixExpr infixOp optionalNewline prefixExpr { $$ = SP_NEW(A_InfixExpr, $1, $2, $4, @$); }
           ;
 
-infixOp : "||" { $$ = nullptr; }
-        | "or" { $$ = nullptr; }
-        | "&&" { $$ = nullptr; }
-        | "and" { $$ = nullptr; }
-        | "|" { $$ = nullptr; }
-        | "^" { $$ = nullptr; }
-        | "&" { $$ = nullptr; }
-        | "==" { $$ = nullptr; }
-        | "!=" { $$ = nullptr; }
-        | "<" { $$ = nullptr; }
-        | "<=" { $$ = nullptr; }
-        | ">" { $$ = nullptr; }
-        | ">=" { $$ = nullptr; }
-        | "<<" { $$ = nullptr; }
-        | ">>" { $$ = nullptr; }
-        | ">>>" { $$ = nullptr; }
-        | "+" { $$ = nullptr; }
-        | "-" { $$ = nullptr; }
-        | "*" { $$ = nullptr; }
-        | "/" { $$ = nullptr; }
-        | "%" { $$ = nullptr; }
-        | "**" { $$ = nullptr; }
-        | "//" { $$ = nullptr; }
-        | "%%" { $$ = nullptr; }
-        | "^^" { $$ = nullptr; }
-        | "::" { $$ = nullptr; }
+infixOp : "||" { $$ = $1; }
+        | "or" { $$ = $1; }
+        | "&&" { $$ = $1; }
+        | "and" { $$ = $1; }
+        | "|" { $$ = $1; }
+        | "^" { $$ = $1; }
+        | "&" { $$ = $1; }
+        | "==" { $$ = $1; }
+        | "!=" { $$ = $1; }
+        | "<" { $$ = $1; }
+        | "<=" { $$ = $1; }
+        | ">" { $$ = $1; }
+        | ">=" { $$ = $1; }
+        | "<<" { $$ = $1; }
+        | ">>" { $$ = $1; }
+        | ">>>" { $$ = $1; }
+        | "+" { $$ = $1; }
+        | "-" { $$ = $1; }
+        | "*" { $$ = $1; }
+        | "/" { $$ = $1; }
+        | "%" { $$ = $1; }
+        | "**" { $$ = $1; }
+        | "//" { $$ = $1; }
+        | "%%" { $$ = $1; }
+        | "^^" { $$ = $1; }
+        | "::" { $$ = $1; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
-           | prefixOp primaryExpr { $$ = new A_prefixExpression($1, $2); }
+           | prefixOp primaryExpr { $$ = SP_NEW(A_PrefixExpr, $1, $2, @$); }
            ;
 
-prefixOp : "-" { $$ = nullptr; }
-         | "+" { $$ = nullptr; }
-         | "~" { $$ = nullptr; }
-         | "!" { $$ = nullptr; }
-         | "not" { $$ = nullptr; }
-         | "++" { $$ = nullptr; }
-         | "--" { $$ = nullptr; }
+prefixOp : "-" { $$ = $1; }
+         | "+" { $$ = $1; }
+         | "~" { $$ = $1; }
+         | "!" { $$ = $1; }
+         | "not" { $$ = $1; }
+         | "++" { $$ = $1; }
+         | "--" { $$ = $1; }
          ;
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
             | "(" optionalExprs ")" { $$ = $2; }
             | callExpr { $$ = $1; }
-            | block { $$ = nullptr; }
+            | block { $$ = $1; }
             ;
 
-optionalExprs : exprs { $$ = nullptr; }
-              | %empty { $$ = nullptr; }
+optionalExprs : exprs { $$ = $1; }
+              | %empty { $$ = SP_NULL; }
               ;
 
-exprs : expr { $$ = nullptr; }
-      | exprs "," expr { $$ = nullptr; }
+exprs : expr { $$ = SP_NEW(A_Exprs, $1, SP_NULL, @$); }
+      | exprs "," expr { $$ = SP_NULL; }
       ;
 
-callExpr : id "(" optionalExprs ")" { $$ = $1; }
+callExpr : id "(" optionalExprs ")" { $$ = SP_NEW(A_Call, $1, $3, @$); }
          ;
 
-block : "{" blockStat optionalBlockStats "}" { $$ = nullptr; }
+block : "{" blockStat optionalBlockStats "}" { $$ = SP_NEW(A_Block, $2, $3, @$); }
       ;
 
-blockStat : expr { $$ = nullptr; }
-          | def { $$ = nullptr; }
+blockStat : expr { $$ = $1; }
+          | def { $$ = $1; }
           /* | import */
-          | %empty { $$ = nullptr; }
+          | %empty { $$ = SP_NULL; }
           ;
 
-optionalBlockStats : blockStats { $$ = nullptr; }
-                   | %empty { $$ = nullptr; }
+optionalBlockStats : blockStats { $$ = $1; }
+                   | %empty { $$ = SP_NULL; }
                    ;
 
-blockStats : semi blockStat { $$ = nullptr; }
-           | blockStats semi blockStat { $$ = nullptr; }
+blockStats : semi blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_NULL, @$); }
+           | blockStats semi blockStat { $$ = SP_NEW(A_BlockStats, $3, $1, @$); }
            ;
 
  /* expression } */
 
  /* type { */
 
-type : plainType { $$ = nullptr; }
+type : plainType { $$ = $1; }
      /* | FuncArgtypes RARROW type */
      /* | idType */
      ;
@@ -479,21 +477,21 @@ type : plainType { $$ = nullptr; }
 /* paramtype : type */
 /*           ; */
 
-plainType : "byte" { $$ = nullptr; }
-          | "ubyte" { $$ = nullptr; }
-          | "short" { $$ = nullptr; }
-          | "ushort" { $$ = nullptr; }
-          | "int" { $$ = nullptr; }
-          | "uint" { $$ = nullptr; }
-          | "long" { $$ = nullptr; }
-          | "ulong" { $$ = nullptr; }
-          | "llong" { $$ = nullptr; }
-          | "ullong" { $$ = nullptr; }
-          | "float" { $$ = nullptr; }
-          | "double" { $$ = nullptr; }
-          | "boolean" { $$ = nullptr; }
-          | "void" { $$ = nullptr; }
-          | "any" { $$ = nullptr; }
+plainType : "byte" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "ubyte" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "short" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "ushort" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "int" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "uint" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "long" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "ulong" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "llong" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "ullong" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "float" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "double" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "boolean" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "void" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "any" { $$ = SP_NEW(A_PlainType, $1, @$); }
           ;
 
 /* idType : id */
@@ -503,42 +501,39 @@ plainType : "byte" { $$ = nullptr; }
 
  /* definition declaration { */
 
-def : funcDef { $$ = nullptr; }
+def : funcDef { $$ = $1; }
     /* | classDef */
     /* | traitDef */
-    | varDef { $$ = nullptr; }
+    | varDef { $$ = $1; }
     ;
 
-funcDef : "def" funcSign resultType "=" expr { $$ = nullptr; }
-        | "def" funcSign resultType optionalNewlines block { $$ = nullptr; }
+funcDef : "def" funcSign resultType "=" expr { $$ = SP_NEW(A_FuncDef, $2, $3, $5, @$); }
+        | "def" funcSign resultType optionalNewlines block { $$ = SP_NEW(A_FuncDef, $2, $3, $5, @$); }
         ;
 
 /* optionalResultType : resultType { $$ = nullptr; } */
 /*                    | %empty { $$ = nullptr; } */
 /*                    ; */
 
-resultType : ":" type
+resultType : ":" type { $$ = $2; }
            ;
 
-funcSign : id paramClause { $$ = nullptr; }
+funcSign : id "(" optionalParams ")" { $$ = SP_NEW(A_FuncSign, $1, $3, @$); }
          ;
 
-paramClause : "(" optionalParams ")" { $$ = nullptr; }
-            ;
-
-optionalParams : params { $$ = nullptr; }
-               | %empty { $$ = nullptr; }
+optionalParams : params { $$ = $1; }
+               | %empty { $$ = SP_NULL; }
                ;
 
-params : param { $$ = nullptr; }
-       | params "," param { $$ = nullptr; }
+params : param { $$ = SP_NEW(A_Params, $1, SP_NULL, @$); }
+       | params "," param { $$ = SP_NEW(A_Params, $3, $1, @$); }
        ;
 
-param : id ":" type { $$ = nullptr; }
+param : id ":" type { $$ = SP_NEW(A_Param, $1, $3, @$); }
       /* | id ":" type "=" expr */
       ;
 
-varDef : "var" id ":" type "=" expr { $$ = nullptr; }
+varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
        ;
 
 /* Decl : "var" varDecl */
@@ -555,24 +550,21 @@ varDef : "var" id ":" type "=" expr { $$ = nullptr; }
 
  /* compile unit { */
 
-compileUnit : topStatSeq { $$ = nullptr; }
+compileUnit : topStat optionalTopStats { $$ = SP_NEW(A_CompileUnit, $1, $2, @$); }
             ;
 
-topStatSeq : topStat optionalTopStats { $$ = nullptr; }
-           ;
-
-optionalTopStats : topStats { $$ = nullptr; }
-                 | %empty { $$ = nullptr; }
+optionalTopStats : topStats { $$ = $1; }
+                 | %empty { $$ = SP_NULL; }
                  ;
 
-topStats : semi topStat { $$ = nullptr; }
-         | topStats semi topStat { $$ = nullptr; }
+topStats : semi topStat { $$ = SP_NEW(A_TopStats, $2, SP_NULL, @$); }
+         | topStats semi topStat { $$ = SP_NEW(A_TopStats, $3, $1, @$); }
          ;
 
-topStat : def { $$ = nullptr; }
+topStat : def { $$ = $1; }
         /* | import */
         /* | package */
-        | %empty { $$ = nullptr; }
+        | %empty { $$ = SP_NULL; }
         ;
 
 /* package : PACKAGE id LBRACE RBRACE */

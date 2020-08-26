@@ -126,7 +126,7 @@ while [[ $# -gt 0 ]]; do
         --parser)
             cd src
             flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
-            bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
+            bison -Wcounterexamples --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
             exit 0
             ;;
         -d|--debug)

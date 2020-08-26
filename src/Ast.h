@@ -429,11 +429,13 @@ public:
 
 class A_Block : public Ast {
 public:
-  A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
+  A_Block(std::shared_ptr<Ast> blockStat,
+          std::shared_ptr<A_BlockStats> a_blockStats,
           const yy::location &location);
   virtual ~A_Block() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
+  std::shared_ptr<Ast> blockStat;
   std::shared_ptr<A_BlockStats> blockStats;
 };
 
@@ -540,11 +542,13 @@ public:
 
 class A_CompileUnit : public Ast {
 public:
-  A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
+  A_CompileUnit(std::shared_ptr<Ast> a_topStat,
+                std::shared_ptr<A_TopStats> a_topStats,
                 const yy::location &location);
   virtual ~A_CompileUnit();
   virtual AstCategory category() const;
   virtual std::string toString() const;
+  std::shared_ptr<Ast> topStat;
   std::shared_ptr<A_TopStats> topStats;
 };
 
