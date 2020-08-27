@@ -17,10 +17,12 @@
 #include <memory>
 #include "Log.h"
 #include "Ast.h"
-#include "Buffer.h"
+#include "yydef.h"
 #include "Scanner.h"
 #define SP_NULL             (std::shared_ptr<Ast>(nullptr))
 #define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
+#define SP_SPC(x, y)        (std::static_pointer_cast<x>(y))
+extern YY_DECL;
 }
 
 %code requires {
@@ -34,13 +36,13 @@ class Ast;
  /*     int tok; */
  /* } */
 
- /* token<int> { */
+ /* token { */
 
 %token<int> T_EMPTY "empty"
 
  /* keyword */
-%token<std::string> T_TRUE "true"
-%token<std::string> T_FALSE "false"
+%token<int> T_TRUE "true"
+%token<int> T_FALSE "false"
 %token<int> T_TRY "try"
 %token<int> T_CATCH "catch"
 %token<int> T_FINALLY "finally"
@@ -195,18 +197,17 @@ class Ast;
  /* id */
 %type<std::shared_ptr<Ast>> id varId
  /* expr */
-%type<std::shared_ptr<Ast>> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
-%type<std::shared_ptr<Ast>> /* optionalYield */ optionalExpr optionalBlockStats optionalForInit optionalExprs
+%type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
+%type<std::shared_ptr<Ast>> /* optionalYield */ optionalExpr optionalExprs optionalForInit optionalBlockStats
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
-%type<std::shared_ptr<Ast>> def funcDef varDef funcSign params param resultType
+%type<std::shared_ptr<Ast>> def funcDef varDef funcSign resultType param params
 %type<std::shared_ptr<Ast>> /* optionalResultType */ optionalParams
  /* compile unit */
-%type<std::shared_ptr<Ast>> compileUnit topStat topStats
-%type<std::shared_ptr<Ast>> optionalTopStats
+%type<std::shared_ptr<Ast>> compileUnit topStat topStats optionalTopStats
 
- /* token<int> } */
+ /* token } */
 
  /* low -> high precedence { */
 
@@ -324,7 +325,7 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
 expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); } /* %prec fix optional if-else shift/reduce */
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
      | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "while" "(" expr ")" optionalNewlines expr { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $5, @$); }
+     | "while" "(" expr ")" optionalNewlines expr { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
      | "do" optionalNewlines expr "while" "(" expr ")" %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); } /* %prec fix optional do-while shift/reduce */
      | "do" optionalNewlines expr "semi_while" "(" expr ")" %prec "semi_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); }
      | "for" "(" enumerators ")" optionalNewlines expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
@@ -337,7 +338,7 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, 
      | postfixExpr { $$ = $1; }
      ;
 
-enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = SP_NEW(A_LoopCondition, $1, $3, $5, @$); }
+enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = SP_NEW(A_LoopCondition, $1, $3, $5, false, @$); }
             | id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
             ;
 
@@ -431,17 +432,17 @@ primaryExpr : literal { $$ = $1; }
             ;
 
 optionalExprs : exprs { $$ = $1; }
-              | %empty { $$ = SP_NULL; }
+              | %empty { $$ = SP_SPC(A_Exprs, SP_NULL); }
               ;
 
-exprs : expr { $$ = SP_NEW(A_Exprs, $1, SP_NULL, @$); }
-      | exprs "," expr { $$ = SP_NULL; }
+exprs : expr { $$ = SP_NEW(A_Exprs, $1, SP_SPC(A_Exprs, SP_NULL), @$); }
+      | exprs "," expr { $$ = SP_NEW(A_Exprs, $3, SP_SPC(A_Exprs, $1), @$); }
       ;
 
-callExpr : id "(" optionalExprs ")" { $$ = SP_NEW(A_Call, $1, $3, @$); }
+callExpr : id "(" optionalExprs ")" { $$ = SP_NEW(A_Call, $1, SP_SPC(A_Exprs, $3), @$); }
          ;
 
-block : "{" blockStat optionalBlockStats "}" { $$ = SP_NEW(A_Block, $2, $3, @$); }
+block : "{" blockStat optionalBlockStats "}" { $$ = SP_NEW(A_Block, $2, SP_SPC(A_BlockStats, $3), @$); }
       ;
 
 blockStat : expr { $$ = $1; }
@@ -451,11 +452,11 @@ blockStat : expr { $$ = $1; }
           ;
 
 optionalBlockStats : blockStats { $$ = $1; }
-                   | %empty { $$ = SP_NULL; }
+                   | %empty { $$ = SP_SPC(A_BlockStats, SP_NULL); }
                    ;
 
-blockStats : semi blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_NULL, @$); }
-           | blockStats semi blockStat { $$ = SP_NEW(A_BlockStats, $3, $1, @$); }
+blockStats : semi blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_SPC(A_BlockStats, SP_NULL), @$); }
+           | blockStats semi blockStat { $$ = SP_NEW(A_BlockStats, $3, SP_SPC(A_BlockStats, $1), @$); }
            ;
 
  /* expression } */
@@ -519,15 +520,15 @@ funcDef : "def" funcSign resultType "=" expr { $$ = SP_NEW(A_FuncDef, $2, $3, $5
 resultType : ":" type { $$ = $2; }
            ;
 
-funcSign : id "(" optionalParams ")" { $$ = SP_NEW(A_FuncSign, $1, $3, @$); }
+funcSign : id "(" optionalParams ")" { $$ = SP_NEW(A_FuncSign, $1, SP_SPC(A_Params, $3), @$); }
          ;
 
 optionalParams : params { $$ = $1; }
-               | %empty { $$ = SP_NULL; }
+               | %empty { $$ = SP_SPC(A_Params, SP_NULL); }
                ;
 
-params : param { $$ = SP_NEW(A_Params, $1, SP_NULL, @$); }
-       | params "," param { $$ = SP_NEW(A_Params, $3, $1, @$); }
+params : param { $$ = SP_NEW(A_Params, SP_SPC(A_Param, $1), SP_SPC(A_Params, SP_NULL), @$); }
+       | params "," param { $$ = SP_NEW(A_Params, SP_SPC(A_Param, $3), SP_SPC(A_Params, $1), @$); }
        ;
 
 param : id ":" type { $$ = SP_NEW(A_Param, $1, $3, @$); }
@@ -551,15 +552,15 @@ varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
 
  /* compile unit { */
 
-compileUnit : topStat optionalTopStats { static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, $1, $2, @$); }
+compileUnit : topStat optionalTopStats { static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, $1, SP_SPC(A_TopStats, $2), @$); }
             ;
 
 optionalTopStats : topStats { $$ = $1; }
-                 | %empty { $$ = SP_NULL; }
+                 | %empty { $$ = SP_SPC(A_TopStats, SP_NULL); }
                  ;
 
-topStats : semi topStat { $$ = SP_NEW(A_TopStats, $2, SP_NULL, @$); }
-         | topStats semi topStat { $$ = SP_NEW(A_TopStats, $3, $1, @$); }
+topStats : semi topStat { $$ = SP_NEW(A_TopStats, $2, SP_SPC(A_TopStats, SP_NULL), @$); }
+         | topStats semi topStat { $$ = SP_NEW(A_TopStats, $3, SP_SPC(A_TopStats, $1), @$); }
          ;
 
 topStat : def { $$ = $1; }

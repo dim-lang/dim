@@ -61,7 +61,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.size() == 0);
   REQUIRE(hm1.bucket() == 0);
   REQUIRE(hm1.empty());
-  REQUIRE(hm1.load() == 0.0);
+  REQUIRE(hm1.loadFactor() == 0.0);
   REQUIRE(hm1.begin() == hm1.end());
   REQUIRE(hm1.rbegin() == hm1.rend());
   LOG_INFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
@@ -77,7 +77,7 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm2.bucket() >= r);
   REQUIRE(hm2.bucket() <= r + BUCKET_STEP);
   REQUIRE(hm2.empty());
-  REQUIRE(hm2.load() == 0.0);
+  REQUIRE(hm2.loadFactor() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
   LOG_INFO(
       "testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
@@ -100,12 +100,12 @@ template <typename A> void testInsert(A a, A b) {
     REQUIRE(p != hm1.end());
     REQUIRE(p->first == (A)i);
     REQUIRE(p->second == (A)i);
-    REQUIRE(hm1.exist((A)i));
+    REQUIRE(hm1.contains((A)i));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
     REQUIRE(hm1[(A)i] == (A)i);
   }
 }
@@ -125,12 +125,12 @@ template <> void testInsert(std::string a, std::string b) {
     REQUIRE(p != hm1.end());
     REQUIRE(p->first == kv);
     REQUIRE(p->second == kv);
-    REQUIRE(hm1.exist(kv));
+    REQUIRE(hm1.contains(kv));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
     REQUIRE(hm1[kv] == kv);
   }
 }
@@ -152,12 +152,12 @@ template <> void testInsert(LHMTester a, LHMTester b) {
     REQUIRE(u != hm1.end());
     REQUIRE(u->first == lhm);
     REQUIRE(u->second == lhm);
-    REQUIRE(hm1.exist(lhm));
+    REQUIRE(hm1.contains(lhm));
     ++c;
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
     REQUIRE(hm1[lhm] == lhm);
   }
 }
@@ -176,7 +176,7 @@ void testRemove(int a, int b) {
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
     REQUIRE(hm1[i] == i);
   }
   for (int i = a; i < b; i++) {
@@ -199,7 +199,7 @@ void testRemove(int a, int b) {
     } else {
       REQUIRE(hm1.empty());
     }
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
   }
 }
 
@@ -217,7 +217,7 @@ void testRemove(std::string a, std::string b) {
     REQUIRE(hm1.size() == c);
     REQUIRE(hm1.bucket() > 0);
     REQUIRE(!hm1.empty());
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
     REQUIRE(hm1[kv] == kv);
   }
   for (int i = 0; i < TEST_MAX; i++) {
@@ -238,7 +238,7 @@ void testRemove(std::string a, std::string b) {
     } else {
       REQUIRE(hm1.empty());
     }
-    REQUIRE(hm1.load() <= 4.0);
+    REQUIRE(hm1.loadFactor() <= 4.0);
   }
 }
 
@@ -298,8 +298,8 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
       hm3.insert(LHMTester(std::to_string(i), i, i),
                  LHMTester(std::to_string(i), i, i));
     }
-    LinkedHashMap<int, int>::Iterator p;
-    LinkedHashMap<int, int>::RIterator p1;
+    LinkedHashMap<int, int>::iterator p;
+    LinkedHashMap<int, int>::reverse_iterator p1;
     for (p = hm1.begin(), i = 0; p != hm1.end(); p++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(p->first == i);
@@ -310,8 +310,8 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
       REQUIRE(p1->first == i);
       REQUIRE(p1->second == i);
     }
-    LinkedHashMap<std::string, std::string>::Iterator q;
-    LinkedHashMap<std::string, std::string>::RIterator q1;
+    LinkedHashMap<std::string, std::string>::iterator q;
+    LinkedHashMap<std::string, std::string>::reverse_iterator q1;
     for (q = hm2.begin(), i = 0; q != hm2.end(); q++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(q->first == std::to_string(i));
@@ -322,8 +322,8 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
       REQUIRE(q1->first == std::to_string(i));
       REQUIRE(q1->second == std::to_string(i));
     }
-    LinkedHashMap<LHMTester, LHMTester>::Iterator u;
-    LinkedHashMap<LHMTester, LHMTester>::RIterator u1;
+    LinkedHashMap<LHMTester, LHMTester>::iterator u;
+    LinkedHashMap<LHMTester, LHMTester>::reverse_iterator u1;
     for (u = hm3.begin(), i = 0; u != hm3.end(); u++, i++) {
       REQUIRE(i < TEST_MAX);
       REQUIRE(u->first == LHMTester(std::to_string(i), i, i));
@@ -346,29 +346,29 @@ TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
 
     hm1.insertOrAssign(a, a);
     REQUIRE(hm1.size() == 1);
-    REQUIRE(hm1.exist(a));
+    REQUIRE(hm1.contains(a));
     REQUIRE(hm1[a] == a);
     hm1.insertOrAssign(a, a);
     REQUIRE(hm1.size() == 1);
-    REQUIRE(hm1.exist(a));
+    REQUIRE(hm1.contains(a));
     REQUIRE(hm1[a] == a);
 
     hm2.insertOrAssign(b, b);
     REQUIRE(hm2.size() == 1);
     REQUIRE(hm2[b] == b);
-    REQUIRE(hm2.exist(b));
+    REQUIRE(hm2.contains(b));
     hm2.insertOrAssign(b, b);
     REQUIRE(hm2.size() == 1);
     REQUIRE(hm2[b] == b);
-    REQUIRE(hm2.exist(b));
+    REQUIRE(hm2.contains(b));
 
     hm3.insertOrAssign(c, c);
     REQUIRE(hm3.size() == 1);
     REQUIRE(hm3[c] == c);
-    REQUIRE(hm3.exist(c));
+    REQUIRE(hm3.contains(c));
     hm3.insertOrAssign(c, c);
     REQUIRE(hm3.size() == 1);
     REQUIRE(hm3[c] == c);
-    REQUIRE(hm3.exist(c));
+    REQUIRE(hm3.contains(c));
   }
 }

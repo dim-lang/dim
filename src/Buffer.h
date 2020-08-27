@@ -2,11 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "yydecl.h"
+#include "yydef.h"
+
+#include "location.hh"
 #include <cstdio>
 #include <string>
-
-class Scanner;
 
 class Buffer {
 public:

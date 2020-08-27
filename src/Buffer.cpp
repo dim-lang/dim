@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "Log.h"
 #include "Scanner.h"
+#include "tokenizer.yy.hh"
 
 Buffer::Buffer(const std::string &a_fileName, Scanner *scanner)
     : fileName(a_fileName), yyBufferState(nullptr), location(), fp(nullptr),

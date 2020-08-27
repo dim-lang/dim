@@ -2,9 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "yydef.h"
+
 #include "Ast.h"
 #include "BufferStack.h"
-#include "yydecl.h"
+#include "parser.tab.hh"
 #include <string>
 #include <tuple>
 #include <utility>

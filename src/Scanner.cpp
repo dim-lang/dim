@@ -3,6 +3,9 @@
 
 #include "Scanner.h"
 #include "Log.h"
+#include "tokenizer.yy.hh"
+
+extern YY_DECL;
 
 Scanner::Scanner()
     : compileUnit(nullptr), yyscanner(nullptr), bufferStack(this),

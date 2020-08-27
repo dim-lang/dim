@@ -63,12 +63,26 @@ else()
     # add debug info to flex and bison
     execute_process(COMMAND flex --debug --perf-report --trace --verbose --warn --outfile=tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l 
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE tokenizer_code
         OUTPUT_FILE tokenizer_out.txt
         ERROR_FILE tokenizer_err.txt)
+    if(NOT ${tokenizer_code} EQUAL 0)
+        message(FATAL_ERROR "[nerd] prepare tokenizer - failure! see tokenizer_out/err.txt")
+    else()
+        message("[nerd] prepare tokenizer - done")
+    endif()
     execute_process(COMMAND bison -Wcounterexamples -Wdeprecated -Dparse.trace --verbose --graph=parser.tab.dot --output=parser.tab.cc --defines=parser.tab.hh parser.y 
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE parser_code
         OUTPUT_FILE parser_out.txt
         ERROR_FILE parser_err.txt)
+    if(NOT ${parser_code} EQUAL 0)
+        message(FATAL_ERROR "[nerd] prepare parser - failure! see parser_out/err.txt")
+    else()
+        message("[nerd] prepare parser - done")
+    endif()
+    set(FLEX_NerdTokenizer_OUTPUTS tokenizer.yy.cc)
+    set(BISON_NerdParser_OUTPUTS parser.tab.cc)
 endif(DEFINED NDEBUG)
 
 set(NERD_INC
