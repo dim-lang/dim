@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #include "Dump.h"
-#include "Exception.h"
 #include "File.h"
+#include "Log.h"
 #include "TokenName.h"
 #include "container/LinkedHashMap.hpp"
 #include "llvm/IR/IRBuilder.h"
@@ -99,7 +99,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     AstIfStatement *e = DC(AstIfStatement, node);
     std::stringstream ss;
     ss << DS << "if (";
-    EX_ASSERT(e->thens(), "e->thens() must not null");
+    LOG_ASSERT(e->thens(), "e->thens() must not null");
     ss << dumpAstImpl(e->condition(), depth) << ") \n"
        << dumpAstImpl(e->thens(), depth + 1);
     if (e->elses()) {
@@ -196,7 +196,7 @@ static std::string dumpAstImpl(Ast *node, int depth) {
     return ss.str();
   }
   default: {
-    EX_ASSERT(false, "invalid node:{}", node->toString());
+    LOG_ASSERT(false, "invalid node:{}", node->toString());
   }
   }
 }
@@ -212,7 +212,7 @@ std::string dumpAst(Ast *node) { return dumpAstImpl(node, 0); }
 static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
   if (!snode->symbol)
     return "null";
-  EX_ASSERT(snode->symbol, "snode.symbol must not be null");
+  LOG_ASSERT(snode->symbol, "snode.symbol must not be null");
   switch (snode->symbol->type()) {
   case S_ty::Variable:
     return std::string("var ") + snode->symbol->name() + ":" +
@@ -286,8 +286,8 @@ static std::string dumpScopeImpl(const ScopeNode *snode, int depth) {
     return ss.str();
   }
   default:
-    EX_ASSERT(false, "invalid symbol: {} {}", snode->symbol->name(),
-              snode->symbol->type()._to_string());
+    LOG_ASSERT(false, "invalid symbol: {} {}", snode->symbol->name(),
+               snode->symbol->type()._to_string());
   }
 }
 

@@ -50,21 +50,26 @@ if(WIN32)
     string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
 endif(WIN32)
 
-find_package(FLEX)
-find_package(BISON)
-FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cc
-    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
-BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cc
-    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
-ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
-
-# release version
-# flex -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
-# bison -o parser.tab.cc --defines=parser.tab.hh parser.y
-
-# debug
-# flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
-# bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
+if(DEFINED NDEBUG)
+    # release flex and bison
+    find_package(FLEX)
+    find_package(BISON)
+    FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cc
+        DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
+    BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cc
+        DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
+    ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
+else()
+    # add debug info to flex and bison
+    execute_process(COMMAND flex --debug --perf-report --trace --verbose --warn --outfile=tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l 
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_FILE tokenizer_out.txt
+        ERROR_FILE tokenizer_err.txt)
+    execute_process(COMMAND bison -Wcounterexamples -Wdeprecated -Dparse.trace --verbose --graph=parser.tab.dot --output=parser.tab.cc --defines=parser.tab.hh parser.y 
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_FILE parser_out.txt
+        ERROR_FILE parser_err.txt)
+endif(DEFINED NDEBUG)
 
 set(NERD_INC
     ${NERD_INC}
@@ -89,7 +94,7 @@ set(NERD_LIB_DIR
     )
 set(NERD
     Log.cpp
-    Exception.cpp
+    # Exception.cpp
     container/CycleBuffer.cpp
     Option.cpp
     # Timer.cpp

@@ -4,7 +4,6 @@
 #include "Ir.h"
 #include "Ast.h"
 #include "Dump.h"
-#include "Exception.h"
 #include "IrFactory.h"
 #include "IrUtil.h"
 #include "Log.h"
@@ -43,7 +42,7 @@
 /* interface */
 Ir::Ir(IrContext *context, const std::string &name)
     : context_(context), name_(name) {
-  EX_ASSERT(context_, "context_ must not null");
+  LOG_ASSERT(context_, "context_ must not null");
 }
 
 std::string Ir::name() const { return name_; }
@@ -88,7 +87,7 @@ std::string IrDefinitionList::stringify() const { return "IrDefinitionList"; }
 IrTranslateUnit::IrTranslateUnit(IrContext *context, AstTranslateUnit *node)
     : detail::IrList<IrDefinition>(context, IrUtil::namegen("translate.unit")),
       node_(node) {
-  EX_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_, "node_ is null");
   for (int i = 0; i < node_->size(); i++) {
     AstDefinition *ast = node_->get(i);
     add(IrFactory::unit(context_, ast));
@@ -102,19 +101,19 @@ std::string IrTranslateUnit::stringify() const { return "IrTranslateUnit"; }
 /* identifier constant */
 IrIdentifier::IrIdentifier(IrContext *context, AstIdentifier *node)
     : IrExpression(context, IrUtil::namegen("identifier")), node_(node) {
-  EX_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_, "node_ is null");
 }
 
 I_ty IrIdentifier::type() const { return I_ty::Identifier; }
 
 llvm::Value *IrIdentifier::codeGen() {
-  EX_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_, "node_ is null");
   ScopeNode *varNode = context_->symbolTable->current->resolve(node_->value());
-  EX_ASSERT(varNode, "varNode must not null");
-  EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
-            varNode->toString());
-  EX_ASSERT(varNode->value, "varNode.value {} must not null",
-            varNode->toString());
+  LOG_ASSERT(varNode, "varNode must not null");
+  LOG_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+             varNode->toString());
+  LOG_ASSERT(varNode->value, "varNode.value {} must not null",
+             varNode->toString());
   llvm::Value *var = varNode->value;
   LOG_INFO("identifier:{}, var:{}", node_->value(), IrUtil::dumpLLVM(var));
   return var->getType()->getTypeID() == llvm::Type::TypeID::PointerTyID
@@ -323,8 +322,8 @@ IrUnaryExpression::IrUnaryExpression(IrContext *context,
                                      AstUnaryExpression *node)
     : IrExpression(context, IrUtil::namegen("unary.expression")), node_(node),
       expression_(nullptr) {
-  EX_ASSERT(node_, "node_ must not null");
-  EX_ASSERT(node_->expression(), "node_->expression must not null");
+  LOG_ASSERT(node_, "node_ must not null");
+  LOG_ASSERT(node_->expression(), "node_->expression must not null");
   expression_ = IrFactory::expr(context_, node_->expression());
 }
 
@@ -337,7 +336,7 @@ I_ty IrUnaryExpression::type() const { return I_ty::UnaryExpression; }
 
 llvm::Value *IrUnaryExpression::codeGen() {
   llvm::Value *e = expression_->codeGen();
-  EX_ASSERT(e, "e must not be null");
+  LOG_ASSERT(e, "e must not be null");
   switch (node_->token()) {
     // -x
   case T_SUB: {
@@ -356,21 +355,21 @@ llvm::Value *IrUnaryExpression::codeGen() {
     return context_->llvmBuilder.CreateNot(e);
     // !x
   case T_LOGIC_NOT:
-    EX_ASSERT(
+    LOG_ASSERT(
         e->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "e->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID {}",
         e->getType()->getTypeID(), llvm::Type::TypeID::IntegerTyID);
 
-    EX_ASSERT(llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth() ==
-                  1U,
-              "e->getType->getBitWidth {} == 1",
-              llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth());
+    LOG_ASSERT(llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth() ==
+                   1U,
+               "e->getType->getBitWidth {} == 1",
+               llvm::dyn_cast<llvm::IntegerType>(e->getType())->getBitWidth());
     return context_->llvmBuilder.CreateNot(e);
   default:
-    EX_ASSERT(false, "invalid node_->token {}", tokenName(node_->token()));
+    LOG_ASSERT(false, "invalid node_->token {}", tokenName(node_->token()));
   }
-  EX_ASSERT(false, "invalid e->getType->getTypeID {}, expression_:{}",
-            e->getType()->getTypeID(), expression_->toString());
+  LOG_ASSERT(false, "invalid e->getType->getTypeID {}, expression_:{}",
+             e->getType()->getTypeID(), expression_->toString());
   return nullptr;
 }
 
@@ -383,8 +382,8 @@ IrBinaryExpression::IrBinaryExpression(IrContext *context,
                                        AstBinaryExpression *node)
     : IrExpression(context, IrUtil::namegen("binary.expression")), node_(node),
       left_(nullptr), right_(nullptr) {
-  EX_ASSERT(node_->left(), "node_->left is null");
-  EX_ASSERT(node_->right(), "node_->right is null");
+  LOG_ASSERT(node_->left(), "node_->left is null");
+  LOG_ASSERT(node_->right(), "node_->right is null");
   left_ = IrFactory::expr(context_, node->left());
   right_ = IrFactory::expr(context_, node->right());
 }
@@ -401,8 +400,8 @@ I_ty IrBinaryExpression::type() const { return I_ty::BinaryExpression; }
 llvm::Value *IrBinaryExpression::codeGen() {
   llvm::Value *l = left_->codeGen();
   llvm::Value *r = right_->codeGen();
-  EX_ASSERT(l, "l is null");
-  EX_ASSERT(r, "r is null");
+  LOG_ASSERT(l, "l is null");
+  LOG_ASSERT(r, "r is null");
   switch (node_->token()) {
   case T_ADD: {
     switch (l->getType()->getTypeID()) {
@@ -507,33 +506,33 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_BIT_LSHIFT:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateShl(l, r);
   case T_BIT_RSHIFT:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateLShr(l, r);
   case T_BIT_ARSHIFT:
-    EX_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "l->getType->getTypeID {} not integer",
-              l->getType()->getTypeID());
-    EX_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
-              "r->getType->getTypeID {} not integer",
-              r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "l->getType->getTypeID {} not integer",
+               l->getType()->getTypeID());
+    LOG_ASSERT(r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
+               "r->getType->getTypeID {} not integer",
+               r->getType()->getTypeID());
     return context_->llvmBuilder.CreateAShr(l, r);
   case T_EQ: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
+               "l->getType->getTypeID {} != r->getType->getTypeID {}",
+               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -545,9 +544,9 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_NEQ: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
+               "l->getType->getTypeID {} != r->getType->getTypeID {}",
+               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -559,9 +558,9 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_LE: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
+               "l->getType->getTypeID {} != r->getType->getTypeID {}",
+               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -573,9 +572,9 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_LT: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
+               "l->getType->getTypeID {} != r->getType->getTypeID {}",
+               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -587,9 +586,9 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_GE: {
-    EX_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
-              "l->getType->getTypeID {} != r->getType->getTypeID {}",
-              l->getType()->getTypeID(), r->getType()->getTypeID());
+    LOG_ASSERT(l->getType()->getTypeID() == r->getType()->getTypeID(),
+               "l->getType->getTypeID {} != r->getType->getTypeID {}",
+               l->getType()->getTypeID(), r->getType()->getTypeID());
     switch (l->getType()->getTypeID()) {
     case llvm::Type::TypeID::FloatTyID:
     case llvm::Type::TypeID::DoubleTyID:
@@ -601,7 +600,7 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_GT: {
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == r->getType()->getTypeID(),
         "l->getType->getTypeID {} {} == r->getType->getTypeID {} {}",
         l->getType()->getTypeID(), IrUtil::dumpLLVM<llvm::Type>(l->getType()),
@@ -617,82 +616,82 @@ llvm::Value *IrBinaryExpression::codeGen() {
     }
   } break;
   case T_BIT_AND:
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         l->getType()->getTypeID());
-    EX_ASSERT(
+    LOG_ASSERT(
         r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         r->getType()->getTypeID());
     return context_->llvmBuilder.CreateAnd(l, r);
   case T_BIT_OR:
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         l->getType()->getTypeID());
-    EX_ASSERT(
+    LOG_ASSERT(
         r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         r->getType()->getTypeID());
     return context_->llvmBuilder.CreateOr(l, r);
   case T_BIT_XOR:
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         l->getType()->getTypeID());
-    EX_ASSERT(
+    LOG_ASSERT(
         r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         r->getType()->getTypeID());
     return context_->llvmBuilder.CreateXor(l, r);
   case T_LOGIC_AND:
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         l->getType()->getTypeID());
-    EX_ASSERT(
+    LOG_ASSERT(
         r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         r->getType()->getTypeID());
-    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
-              "l->getBitWidth {} != 1",
-              llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
-    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
-              "r->getBitWidth {} != 1",
-              llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
+               "l->getBitWidth {} != 1",
+               llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
+               "r->getBitWidth {} != 1",
+               llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
     return context_->llvmBuilder.CreateAnd(l, r);
   case T_LOGIC_OR:
-    EX_ASSERT(
+    LOG_ASSERT(
         l->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "l->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         l->getType()->getTypeID());
-    EX_ASSERT(
+    LOG_ASSERT(
         r->getType()->getTypeID() == llvm::Type::TypeID::IntegerTyID,
         "r->getType->getTypeID {} must be llvm::Type::TypeID::IntegerTyID",
         r->getType()->getTypeID());
-    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
-              "l->getBitWidth {} != 1",
-              llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
-    EX_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
-              "r->getBitWidth {} != 1",
-              llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth() == 1,
+               "l->getBitWidth {} != 1",
+               llvm::dyn_cast<llvm::ConstantInt>(l)->getBitWidth());
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth() == 1,
+               "r->getBitWidth {} != 1",
+               llvm::dyn_cast<llvm::ConstantInt>(r)->getBitWidth());
     return context_->llvmBuilder.CreateOr(l, r);
   default:
-    EX_ASSERT(false, "token {} invalid", node_->token());
+    LOG_ASSERT(false, "token {} invalid", node_->token());
   }
-  EX_ASSERT(false,
-            "token: {}, l->getType->getTypeID {} {} or r->getType->getTypeID "
-            "{} {} invalid, l "
-            "source:{} value:{} ir:{}, r source:{} value:{} ir:{}",
-            tokenName(node_->token()), l->getType()->getTypeID(),
-            IrUtil::dumpLLVM<llvm::Type>(l->getType()),
-            r->getType()->getTypeID(),
-            IrUtil::dumpLLVM<llvm::Type>(r->getType()),
-            dumpSource(context_->sourceName, node_->left()->position()),
-            node_->left()->toString(), IrUtil::dumpLLVM<llvm::Value>(l),
-            dumpSource(context_->sourceName, node_->right()->position()),
-            node_->right()->toString(), IrUtil::dumpLLVM<llvm::Value>(r));
+  LOG_ASSERT(false,
+             "token: {}, l->getType->getTypeID {} {} or r->getType->getTypeID "
+             "{} {} invalid, l "
+             "source:{} value:{} ir:{}, r source:{} value:{} ir:{}",
+             tokenName(node_->token()), l->getType()->getTypeID(),
+             IrUtil::dumpLLVM<llvm::Type>(l->getType()),
+             r->getType()->getTypeID(),
+             IrUtil::dumpLLVM<llvm::Type>(r->getType()),
+             dumpSource(context_->sourceName, node_->left()->position()),
+             node_->left()->toString(), IrUtil::dumpLLVM<llvm::Value>(l),
+             dumpSource(context_->sourceName, node_->right()->position()),
+             node_->right()->toString(), IrUtil::dumpLLVM<llvm::Value>(r));
   return nullptr;
 }
 
@@ -705,10 +704,10 @@ IrConditionalExpression::IrConditionalExpression(IrContext *context,
                                                  AstConditionalExpression *node)
     : IrExpression(context, IrUtil::namegen("conditional.expression")),
       node_(node), condition_(nullptr), thens_(nullptr), elses_(nullptr) {
-  EX_ASSERT(node_, "node_ must not null");
-  EX_ASSERT(node_->condition(), "node_->condition must not null");
-  EX_ASSERT(node_->thens(), "node_->thens must not null");
-  EX_ASSERT(node_->elses(), "node_->elses must not null");
+  LOG_ASSERT(node_, "node_ must not null");
+  LOG_ASSERT(node_->condition(), "node_->condition must not null");
+  LOG_ASSERT(node_->thens(), "node_->thens must not null");
+  LOG_ASSERT(node_->elses(), "node_->elses must not null");
   condition_ = IrFactory::expr(context_, node_->condition());
   thens_ = IrFactory::expr(context_, node_->thens());
   elses_ = IrFactory::expr(context_, node_->elses());
@@ -729,7 +728,7 @@ I_ty IrConditionalExpression::type() const {
 
 llvm::Value *IrConditionalExpression::codeGen() {
   llvm::Value *condV = condition_->codeGen();
-  EX_ASSERT(condV, "condV is null");
+  LOG_ASSERT(condV, "condV is null");
   condV = context_->llvmBuilder.CreateICmpNE(
       condV,
       llvm::ConstantInt::get(context_->llvmContext,
@@ -745,13 +744,13 @@ llvm::Value *IrConditionalExpression::codeGen() {
   context_->llvmBuilder.CreateCondBr(condV, thenBlock, elseBlock);
   context_->llvmBuilder.SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen();
-  EX_ASSERT(thenV, "thenV is null");
+  LOG_ASSERT(thenV, "thenV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   thenBlock = context_->llvmBuilder.GetInsertBlock();
   func->getBasicBlockList().push_back(elseBlock);
   context_->llvmBuilder.SetInsertPoint(elseBlock);
   llvm::Value *elseV = elses_->codeGen();
-  EX_ASSERT(elseV, "elseV is null");
+  LOG_ASSERT(elseV, "elseV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   elseBlock = context_->llvmBuilder.GetInsertBlock();
   func->getBasicBlockList().push_back(mergeBlock);
@@ -772,9 +771,9 @@ IrAssignmentExpression::IrAssignmentExpression(IrContext *context,
                                                AstAssignmentExpression *node)
     : IrExpression(context, IrUtil::namegen("assignment.expression")),
       node_(node), value_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->variable(), "node_->variable is null");
-  EX_ASSERT(node_->value(), "node_->value is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->variable(), "node_->variable is null");
+  LOG_ASSERT(node_->value(), "node_->value is null");
   value_ = IrFactory::expr(context_, node->value());
 }
 
@@ -786,16 +785,16 @@ IrAssignmentExpression::~IrAssignmentExpression() {
 I_ty IrAssignmentExpression::type() const { return I_ty::AssignmentExpression; }
 
 llvm::Value *IrAssignmentExpression::codeGen() {
-  EX_ASSERT(node_->variable()->type() == (+A_ty::Identifier),
-            "node_->variable type {} must be identifier",
-            node_->variable()->type()._to_string());
+  LOG_ASSERT(node_->variable()->type() == (+A_ty::Identifier),
+             "node_->variable type {} must be identifier",
+             node_->variable()->type()._to_string());
   AstIdentifier *varId = DC(AstIdentifier, node_->variable());
   ScopeNode *varNode = context_->symbolTable->current->resolve(varId->value());
-  EX_ASSERT(varNode, "varNode must not null");
-  EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
-            varNode->toString());
-  EX_ASSERT(varNode->value, "varNode.value {} must not null",
-            varNode->toString());
+  LOG_ASSERT(varNode, "varNode must not null");
+  LOG_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+             varNode->toString());
+  LOG_ASSERT(varNode->value, "varNode.value {} must not null",
+             varNode->toString());
   llvm::Value *v = value_->codeGen();
   context_->llvmBuilder.CreateStore(v, varNode->value);
   return v;
@@ -810,8 +809,8 @@ IrSequelExpression::IrSequelExpression(IrContext *context,
                                        AstSequelExpression *node)
     : IrExpression(context, IrUtil::namegen("sequel.expression")), node_(node),
       expressionList_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->expressionList(), "node_->expressionList is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->expressionList(), "node_->expressionList is null");
   expressionList_ = new IrExpressionList(context_);
   for (int i = 0; i < node_->expressionList()->size(); i++) {
     expressionList_->add(
@@ -840,7 +839,7 @@ std::string IrSequelExpression::toString() const {
 
 IrVoidExpression::IrVoidExpression(IrContext *context, AstVoidExpression *node)
     : IrExpression(context, IrUtil::namegen("void.expression")), node_(node) {
-  EX_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_, "node_ is null");
 }
 
 std::string IrVoidExpression::toString() const {
@@ -856,8 +855,8 @@ IrExpressionStatement::IrExpressionStatement(IrContext *context,
                                              AstExpressionStatement *node)
     : IrStatement(context, IrUtil::namegen("expression.statement")),
       node_(node), expression_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->expression(), "node_->expression is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->expression(), "node_->expression is null");
   expression_ = IrFactory::expr(context_, node->expression());
 }
 
@@ -869,7 +868,7 @@ IrExpressionStatement::~IrExpressionStatement() {
 I_ty IrExpressionStatement::type() const { return I_ty::ExpressionStatement; }
 
 llvm::Value *IrExpressionStatement::codeGen() {
-  EX_ASSERT(expression_, "expression_ is null");
+  LOG_ASSERT(expression_, "expression_ is null");
   return expression_->codeGen();
 }
 
@@ -882,8 +881,8 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
                                          AstCompoundStatement *node)
     : IrStatement(context, IrUtil::namegen("compound.statement")), node_(node),
       statementList_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->statementList(), "node_->statementList is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->statementList(), "node_->statementList is null");
 
   // push local scope
   LocalScope *ls =
@@ -895,7 +894,7 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
   statementList_ = new IrStatementList(context);
   for (int i = 0; i < node_->statementList()->size(); i++) {
     Ast *ast = node_->statementList()->get(i);
-    EX_ASSERT(ast, "the {} ast is null", i);
+    LOG_ASSERT(ast, "the {} ast is null", i);
     if (ast->type() == (+A_ty::EmptyStatement)) {
       continue;
     }
@@ -929,7 +928,7 @@ IrCompoundStatement::IrCompoundStatement(IrContext *context,
     case A_ty::BreakStatement:
       break;
     default:
-      EX_ASSERT(false, "invalid ast:{}", ast->toString());
+      LOG_ASSERT(false, "invalid ast:{}", ast->toString());
     }
     if (ir) {
       statementList_->add(ir);
@@ -950,7 +949,7 @@ I_ty IrCompoundStatement::type() const { return I_ty::CompoundStatement; }
 llvm::Value *IrCompoundStatement::codeGen() {
   ScopeNode *localScope =
       context_->symbolTable->current->resolve(node_->name());
-  EX_ASSERT(localScope, "localScope must not null");
+  LOG_ASSERT(localScope, "localScope must not null");
   context_->symbolTable->push(DC(LocalScope, localScope->symbol));
   llvm::Value *ret = statementList_->codeGen();
   context_->symbolTable->pop();
@@ -965,10 +964,10 @@ std::string IrCompoundStatement::toString() const {
 IrIfStatement::IrIfStatement(IrContext *context, AstIfStatement *node)
     : IrStatement(context, IrUtil::namegen("if.statement")), node_(node),
       condition_(nullptr), thens_(nullptr), elses_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->condition(), "node_->condition is null");
-  EX_ASSERT(node_->thens(), "node_->thens is null");
-  EX_ASSERT(node_->elses(), "node_->elses is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->condition(), "node_->condition is null");
+  LOG_ASSERT(node_->thens(), "node_->thens is null");
+  LOG_ASSERT(node_->elses(), "node_->elses is null");
   condition_ = IrFactory::expr(context_, node->condition());
   thens_ = IrFactory::stmt(context_, node->thens());
   elses_ = IrFactory::stmt(context_, node->elses());
@@ -987,7 +986,7 @@ I_ty IrIfStatement::type() const { return I_ty::IfStatement; }
 
 llvm::Value *IrIfStatement::codeGen() {
   llvm::Value *condV = condition_->codeGen();
-  EX_ASSERT(condV, "condV is null");
+  LOG_ASSERT(condV, "condV is null");
   condV = context_->llvmBuilder.CreateICmpNE(
       condV,
       llvm::ConstantInt::get(context_->llvmContext,
@@ -1003,13 +1002,13 @@ llvm::Value *IrIfStatement::codeGen() {
   context_->llvmBuilder.CreateCondBr(condV, thenBlock, elseBlock);
   context_->llvmBuilder.SetInsertPoint(thenBlock);
   llvm::Value *thenV = thens_->codeGen();
-  EX_ASSERT(thenV, "thenV is null");
+  LOG_ASSERT(thenV, "thenV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   thenBlock = context_->llvmBuilder.GetInsertBlock();
   func->getBasicBlockList().push_back(elseBlock);
   context_->llvmBuilder.SetInsertPoint(elseBlock);
   llvm::Value *elseV = elses_->codeGen();
-  EX_ASSERT(elseV, "elseV is null");
+  LOG_ASSERT(elseV, "elseV is null");
   context_->llvmBuilder.CreateBr(mergeBlock);
   elseBlock = context_->llvmBuilder.GetInsertBlock();
   func->getBasicBlockList().push_back(mergeBlock);
@@ -1029,9 +1028,9 @@ std::string IrIfStatement::toString() const {
 IrWhileStatement::IrWhileStatement(IrContext *context, AstWhileStatement *node)
     : IrStatement(context, IrUtil::namegen("while.statement")), node_(node),
       condition_(nullptr), statement_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->condition(), "node_->condition is null");
-  EX_ASSERT(node_->statement(), "node_->statement is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->condition(), "node_->condition is null");
+  LOG_ASSERT(node_->statement(), "node_->statement is null");
   condition_ = IrFactory::expr(context_, node_->condition());
   statement_ = IrFactory::stmt(context_, node_->statement());
 }
@@ -1048,11 +1047,11 @@ std::string IrWhileStatement::toString() const {
 IrForStatement::IrForStatement(IrContext *context, AstForStatement *node)
     : IrStatement(context, IrUtil::namegen("for.statement")), node_(node),
       start_(nullptr), step_(nullptr), end_(nullptr), statement_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->start(), "node_->start is null");
-  EX_ASSERT(node_->step(), "node_->step is null");
-  EX_ASSERT(node_->end(), "node_->end is null");
-  EX_ASSERT(node_->statement(), "node_->statement is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->start(), "node_->start is null");
+  LOG_ASSERT(node_->step(), "node_->step is null");
+  LOG_ASSERT(node_->end(), "node_->end is null");
+  LOG_ASSERT(node_->statement(), "node_->statement is null");
 
   // push local scope
   LocalScope *loc =
@@ -1083,7 +1082,7 @@ I_ty IrForStatement::type() const { return I_ty::ForStatement; }
 
 llvm::Value *IrForStatement::codeGen() {
   llvm::Value *startV = start_->codeGen();
-  EX_ASSERT(startV, "startV is null");
+  LOG_ASSERT(startV, "startV is null");
   llvm::Function *func = context_->llvmBuilder.GetInsertBlock()->getParent();
   llvm::BasicBlock *preheaderBB = context_->llvmBuilder.GetInsertBlock();
   llvm::BasicBlock *loopBB =
@@ -1095,11 +1094,11 @@ llvm::Value *IrForStatement::codeGen() {
       llvm::Type::getDoubleTy(context_->llvmContext), 2, name() + "loop.phi");
   variable->addIncoming(startV, preheaderBB);
   llvm::Value *bodyV = statement_->codeGen();
-  EX_ASSERT(bodyV, "bodyV is null");
+  LOG_ASSERT(bodyV, "bodyV is null");
   llvm::Value *stepV = nullptr;
   if (step_) {
     stepV = step_->codeGen();
-    EX_ASSERT(stepV, "stepV is null");
+    LOG_ASSERT(stepV, "stepV is null");
   } else {
     stepV = llvm::ConstantInt::get(context_->llvmContext,
                                    llvm::APInt(1, (uint64_t)1, false));
@@ -1107,7 +1106,7 @@ llvm::Value *IrForStatement::codeGen() {
   llvm::Value *nextV =
       context_->llvmBuilder.CreateAdd(variable, stepV, name() + "nextvar");
   llvm::Value *endCond = end_->codeGen();
-  EX_ASSERT(endCond, "endCond is null");
+  LOG_ASSERT(endCond, "endCond is null");
   endCond = context_->llvmBuilder.CreateICmpNE(
       endCond, llvm::ConstantInt::get(context_->llvmContext,
                                       llvm::APInt(1, (uint64_t)0, false)));
@@ -1130,8 +1129,8 @@ IrReturnStatement::IrReturnStatement(IrContext *context,
                                      AstReturnStatement *node)
     : IrStatement(context, IrUtil::namegen("return.statement")), node_(node),
       expression_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->expression(), "node_->expression is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->expression(), "node_->expression is null");
   expression_ = IrFactory::expr(context_, node->expression());
 }
 
@@ -1147,20 +1146,20 @@ std::string IrReturnStatement::toString() const {
 I_ty IrReturnStatement::type() const { return I_ty::ReturnStatement; }
 
 llvm::Value *IrReturnStatement::codeGen() {
-  EX_ASSERT(expression_, "expression_ is null");
+  LOG_ASSERT(expression_, "expression_ is null");
   switch (expression_->type()) {
   case I_ty::VoidExpression:
     return context_->llvmBuilder.CreateRetVoid();
   case I_ty::SequelExpression: {
     IrExpressionList *expressionList =
         DC(IrSequelExpression, expression_)->expressionList();
-    EX_ASSERT(expressionList->size() > 0, "expressionList->size {} > 0",
-              expressionList->size());
+    LOG_ASSERT(expressionList->size() > 0, "expressionList->size {} > 0",
+               expressionList->size());
     llvm::Value *exprV = expressionList->codeGen();
     return context_->llvmBuilder.CreateRet(exprV);
   } break;
   default:
-    EX_ASSERT(false, "invalid expression_:{}", expression_->toString());
+    LOG_ASSERT(false, "invalid expression_:{}", expression_->toString());
   }
   return nullptr;
 }
@@ -1168,7 +1167,7 @@ llvm::Value *IrReturnStatement::codeGen() {
 /* variable definition */
 static void initializeVariableSymbol(AstVariableInitialDefinition *node,
                                      SymbolTable *symbolTable) {
-  EX_ASSERT(node, "node must not be null");
+  LOG_ASSERT(node, "node must not be null");
   VariableSymbol *varSym =
       new VariableSymbol(node->identifier(), symbolTable->current);
   BuiltinType *varTy = nullptr;
@@ -1209,8 +1208,8 @@ IrGlobalVariableDefinition::IrGlobalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
     : IrDefinition(context, IrUtil::namegen("global.variable.definition")),
       node_(node), expressionList_(nullptr) {
-  EX_ASSERT(node_, "node_ must not null");
-  EX_ASSERT(node_->definitionList(), "node_->definitionList must not null");
+  LOG_ASSERT(node_, "node_ must not null");
+  LOG_ASSERT(node_->definitionList(), "node_->definitionList must not null");
   expressionList_ = new IrExpressionList(context_);
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
@@ -1244,22 +1243,22 @@ static Symbol *variableParentScope(VariableSymbol *varSym) {
 }
 
 llvm::Value *IrGlobalVariableDefinition::codeGen() {
-  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
+  LOG_ASSERT(node_->definitionList(), "node_->definitionList is null");
   llvm::Value *ret = nullptr;
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
-    EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
-              varNode->toString());
-    EX_ASSERT(!varNode->value, "varNode.value {} must be null",
-              varNode->toString());
+    LOG_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+               varNode->toString());
+    LOG_ASSERT(!varNode->value, "varNode.value {} must be null",
+               varNode->toString());
     VariableSymbol *varSym = DC(VariableSymbol, varNode->symbol);
     Symbol *enclose = variableParentScope(varSym);
-    EX_ASSERT(enclose->type() == (+S_ty::Global),
-              "enclosingScope type {} is not global",
-              enclose->type()._to_string());
+    LOG_ASSERT(enclose->type() == (+S_ty::Global),
+               "enclosingScope type {} is not global",
+               enclose->type()._to_string());
     llvm::Constant *initial =
         llvm::dyn_cast<llvm::Constant>(expressionList_->get(i)->codeGen());
     std::string varIrName = IrUtil::toLLVMName(ast->identifier());
@@ -1277,8 +1276,8 @@ IrLocalVariableDefinition::IrLocalVariableDefinition(
     IrContext *context, AstVariableDefinition *node)
     : IrDefinition(context, IrUtil::namegen("local.variable.definition")),
       node_(node), expressionList_(nullptr) {
-  EX_ASSERT(node_, "node_ must not null");
-  EX_ASSERT(node_->definitionList(), "node_->definitionList must not null");
+  LOG_ASSERT(node_, "node_ must not null");
+  LOG_ASSERT(node_->definitionList(), "node_->definitionList must not null");
   expressionList_ = new IrExpressionList(context_);
   for (int i = 0; i < node_->definitionList()->size(); i++) {
     AstVariableInitialDefinition *ast =
@@ -1298,7 +1297,7 @@ I_ty IrLocalVariableDefinition::type() const {
 }
 
 llvm::Value *IrLocalVariableDefinition::codeGen() {
-  EX_ASSERT(node_->definitionList(), "node_->definitionList is null");
+  LOG_ASSERT(node_->definitionList(), "node_->definitionList is null");
   llvm::Value *ret = nullptr;
   FunctionSymbol *funcSym = nullptr;
   llvm::Function *func = nullptr;
@@ -1307,38 +1306,38 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
-    EX_ASSERT(varNode, "varNode must not null");
-    EX_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
-              varNode->toString());
-    EX_ASSERT(!varNode->value, "varNode.value {} must be null",
-              varNode->toString());
+    LOG_ASSERT(varNode, "varNode must not null");
+    LOG_ASSERT(*varNode != ScopeNode::invalid(), "varNode {} must be valid",
+               varNode->toString());
+    LOG_ASSERT(!varNode->value, "varNode.value {} must be null",
+               varNode->toString());
     VariableSymbol *varSym = DC(VariableSymbol, varNode->symbol);
     Symbol *enclose = variableParentScope(varSym);
-    EX_ASSERT(enclose->type() == (+S_ty::Function),
-              "enclosingScope type {} is not function",
-              enclose->type()._to_string());
+    LOG_ASSERT(enclose->type() == (+S_ty::Function),
+               "enclosingScope type {} is not function",
+               enclose->type()._to_string());
     if (funcSym) {
-      EX_ASSERT((void *)funcSym == (void *)enclose, "funcSym {} == enclose {}",
-                (void *)funcSym, (void *)enclose);
+      LOG_ASSERT((void *)funcSym == (void *)enclose, "funcSym {} == enclose {}",
+                 (void *)funcSym, (void *)enclose);
     }
     funcSym = DC(FunctionSymbol, enclose);
     ScopeNode *funcNode =
         context_->symbolTable->current->resolve(funcSym->name());
-    EX_ASSERT(funcNode, "funcNode must not null");
-    EX_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
-              funcNode->toString());
-    EX_ASSERT(funcNode->value, "funcNode.value {} must not null",
-              funcNode->toString());
+    LOG_ASSERT(funcNode, "funcNode must not null");
+    LOG_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
+               funcNode->toString());
+    LOG_ASSERT(funcNode->value, "funcNode.value {} must not null",
+               funcNode->toString());
     if (func) {
-      EX_ASSERT((void *)func == (void *)funcNode->value,
-                "func {} == funcNode.value {} {}", (void *)func,
-                (void *)funcNode->value, funcNode->toString());
+      LOG_ASSERT((void *)func == (void *)funcNode->value,
+                 "func {} == funcNode.value {} {}", (void *)func,
+                 (void *)funcNode->value, funcNode->toString());
     } else {
       func = llvm::dyn_cast<llvm::Function>(funcNode->value);
     }
   }
-  EX_ASSERT(funcSym, "funcSym is null");
-  EX_ASSERT(func, "func is null");
+  LOG_ASSERT(funcSym, "funcSym is null");
+  LOG_ASSERT(func, "func is null");
   llvm::IRBuilder<> varBuilder(&func->getEntryBlock(),
                                func->getEntryBlock().begin());
   for (int i = 0; i < node_->definitionList()->size(); i++) {
@@ -1346,12 +1345,12 @@ llvm::Value *IrLocalVariableDefinition::codeGen() {
         DC(AstVariableInitialDefinition, node_->definitionList()->get(i));
     ScopeNode *varNode =
         context_->symbolTable->current->resolve(ast->identifier());
-    EX_ASSERT(varNode, "varNode must not null");
+    LOG_ASSERT(varNode, "varNode must not null");
     std::string varIrName = IrUtil::toLLVMName(ast->identifier());
     llvm::AllocaInst *varAlloca = varBuilder.CreateAlloca(
         llvm::Type::getDoubleTy(context_->llvmContext), 0, varIrName);
-    EX_ASSERT(!varNode->value, "varNode.value {} must not null",
-              varNode->toString());
+    LOG_ASSERT(!varNode->value, "varNode.value {} must not null",
+               varNode->toString());
     varNode->value = ret = llvm::dyn_cast<llvm::Value>(varAlloca);
   }
   return ret;
@@ -1362,22 +1361,22 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
                                            AstFunctionDefinition *node)
     : IrDefinition(context, IrUtil::namegen("function.definition")),
       node_(node), signature_(nullptr), statement_(nullptr) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->signature(), "node_->signature is null");
-  EX_ASSERT(node_->statement(), "node_->statement is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->signature(), "node_->signature is null");
+  LOG_ASSERT(node_->statement(), "node_->statement is null");
 
   signature_ = new IrFunctionSignatureDefinition(context_, node->signature());
 
   // push function scope
   ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node->signature()->identifier());
-  EX_ASSERT(funcNode, "funcNode must not be null");
-  EX_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
-            funcNode->toString());
-  EX_ASSERT(funcNode->symbol->type() == (+S_ty::Function),
-            "funcNode->symbol->type {} == S_ty::Function {}",
-            funcNode->symbol->type()._to_string(),
-            (+S_ty::Function)._to_string());
+  LOG_ASSERT(funcNode, "funcNode must not be null");
+  LOG_ASSERT(*funcNode != ScopeNode::invalid(), "funcNode {} must be valid",
+             funcNode->toString());
+  LOG_ASSERT(funcNode->symbol->type() == (+S_ty::Function),
+             "funcNode->symbol->type {} == S_ty::Function {}",
+             funcNode->symbol->type()._to_string(),
+             (+S_ty::Function)._to_string());
   context->symbolTable->push(DC(Scope, funcNode->symbol));
 
   // function argument symbols
@@ -1385,7 +1384,7 @@ IrFunctionDefinition::IrFunctionDefinition(IrContext *context,
     AstFunctionArgumentDefinition *funcArg =
         DC(AstFunctionArgumentDefinition,
            node_->signature()->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg must not null");
+    LOG_ASSERT(funcArg, "funcArg must not null");
     FunctionArgumentSymbol *funcArgSym = new FunctionArgumentSymbol(
         funcArg->identifier(), context->symbolTable->current);
     context->symbolTable->current->define(
@@ -1411,28 +1410,28 @@ llvm::Value *IrFunctionDefinition::codeGen() {
   if (!func) {
     return nullptr;
   }
-  EX_ASSERT(func->empty(), "Function {} cannot be redefined!",
-            node_->signature()->identifier());
+  LOG_ASSERT(func->empty(), "Function {} cannot be redefined!",
+             node_->signature()->identifier());
   llvm::BasicBlock *bb = llvm::BasicBlock::Create(context_->llvmContext,
                                                   funcIrName + ".entry", func);
   context_->llvmBuilder.SetInsertPoint(bb);
 
   ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node_->signature()->identifier());
-  EX_ASSERT(funcNode, "funcNode must not null");
-  EX_ASSERT(funcNode->value == func, "funcNode->value {} == func {}",
-            (void *)funcNode->value, (void *)func);
+  LOG_ASSERT(funcNode, "funcNode must not null");
+  LOG_ASSERT(funcNode->value == func, "funcNode->value {} == func {}",
+             (void *)funcNode->value, (void *)func);
   context_->symbolTable->push(DC(FunctionSymbol, funcNode->symbol));
 
   // check function argument symbol exist
   for (auto &a : func->args()) {
     ScopeNode *argNode = context_->symbolTable->current->resolve(
         IrUtil::fromLLVMName(a.getName()));
-    EX_ASSERT(argNode, "argNode must not null");
-    EX_ASSERT(*argNode != ScopeNode::invalid(), "argNode {} must be valid",
-              argNode->toString());
-    EX_ASSERT(!argNode->value, "argNode->value {} must be null",
-              argNode->toString());
+    LOG_ASSERT(argNode, "argNode must not null");
+    LOG_ASSERT(*argNode != ScopeNode::invalid(), "argNode {} must be valid",
+               argNode->toString());
+    LOG_ASSERT(!argNode->value, "argNode->value {} must be null",
+               argNode->toString());
     argNode->value = &a;
   }
 
@@ -1459,8 +1458,8 @@ IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
     IrContext *context, AstFunctionSignatureDefinition *node)
     : IrDefinition(context, IrUtil::namegen("function.signature.definition")),
       node_(node) {
-  EX_ASSERT(node_, "node_ is null");
-  EX_ASSERT(node_->argumentList(), "node_->argumentList is null");
+  LOG_ASSERT(node_, "node_ is null");
+  LOG_ASSERT(node_->argumentList(), "node_->argumentList is null");
 
   // create function symbol
   FunctionSymbol *funcSym =
@@ -1469,7 +1468,7 @@ IrFunctionSignatureDefinition::IrFunctionSignatureDefinition(
   for (int i = 0; i < node_->argumentList()->size(); i++) {
     AstFunctionArgumentDefinition *funcArg =
         DC(AstFunctionArgumentDefinition, node_->argumentList()->get(i));
-    EX_ASSERT(funcArg, "funcArg must not null");
+    LOG_ASSERT(funcArg, "funcArg must not null");
     funcArgTypeList.push_back(BuiltinType::ty_void());
   }
   FunctionType *funcTy =
@@ -1501,8 +1500,8 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
   // set function arg names
   int i = 0;
   for (auto &a : func->args()) {
-    EX_ASSERT(args, "args is null");
-    EX_ASSERT(args->get(i), "args->get({}) is null", i);
+    LOG_ASSERT(args, "args is null");
+    LOG_ASSERT(args->get(i), "args->get({}) is null", i);
     AstFunctionArgumentDefinition *ast =
         DC(AstFunctionArgumentDefinition, args->get(i++));
     std::string argIrName = IrUtil::toLLVMName(ast->identifier());
@@ -1510,8 +1509,8 @@ llvm::Value *IrFunctionSignatureDefinition::codeGen() {
   }
   ScopeNode *funcNode =
       context_->symbolTable->current->resolve(node_->identifier());
-  EX_ASSERT(!funcNode->value, "funcNode->value {} must be null",
-            (void *)funcNode->value);
+  LOG_ASSERT(!funcNode->value, "funcNode->value {} must be null",
+             (void *)funcNode->value);
   llvm::Value *ret = llvm::dyn_cast<llvm::Value>(func);
   funcNode->value = ret;
   return ret;

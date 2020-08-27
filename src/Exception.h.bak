@@ -39,7 +39,7 @@ protected:
     virtual std::string stringify() const { return BOOST_PP_STRINGIZE(x); }    \
   }
 
-#define EX_ASSERT(cond, ...)                                                   \
+#define LOG_ASSERT(cond, ...)                                                   \
   do {                                                                         \
     if (!(cond)) {                                                             \
       std::string msg1 = fmt::format(__VA_ARGS__);                             \

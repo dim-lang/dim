@@ -76,23 +76,23 @@ set(NERD_LIB_DIR
     )
 set(NERD_TEST
     MainTest.cpp
-    LogTest.cpp
-    ExceptionTest.cpp
-    container/CycleBufferTest.cpp
     ConfigureTest.cpp
+    LogTest.cpp
+    container/CycleBufferTest.cpp
+    container/LinkedHashMapTest.cpp
+    FileTest.cpp
+    # ExceptionTest.cpp
     # TimerTest.cpp
     # RandomTest.cpp
-    FileTest.cpp
     # ApproximateTest.cpp
     # HashTest.cpp
-    TokenTest.cpp
+    TokenizerTest.cpp
     ParserTest.cpp
     # SemanticTest.cpp
     # DumpTest.cpp
     # NameGeneratorTest.cpp
     # IrUtilTest.cpp
     # IrWriterTest.cpp
-    container/LinkedHashMapTest.cpp
 )
 
 

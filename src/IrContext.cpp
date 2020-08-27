@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "IrContext.h"
-#include "Exception.h"
 #include "IrUtil.h"
 #include "NameGenerator.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"

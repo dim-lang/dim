@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "location.hh"
-#include "tokenizer.yy.hh"
+#include "yydecl.h"
 #include <cstdio>
 #include <string>
 

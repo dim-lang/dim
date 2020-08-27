@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
       int p = scanner.parse();
       LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scanner: {}", p,
                scanner.currentBuffer(), (void *)scanner.yy_scanner);
-      EX_ASSERT(p == 0, "parse fail:{}", p);
+      LOG_ASSERT(p == 0, "parse fail:{}", p);
       IrContext context(fileName);
       IrTranslateUnit tunit(&context, scanner.translateUnit());
     }

@@ -4,14 +4,14 @@
 #include "IrFactory.h"
 #include "Ast.h"
 #include "Dump.h"
-#include "Exception.h"
 #include "Ir.h"
+#include "Log.h"
 
 #define DC(x, y) dynamic_cast<x *>(y)
 
 IrExpression *IrFactory::expr(IrContext *context, Ast *node) {
-  EX_ASSERT(context, "context is null");
-  EX_ASSERT(node, "node is null");
+  LOG_ASSERT(context, "context is null");
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case A_ty::Identifier:
     return new IrIdentifier(context, DC(AstIdentifier, node));
@@ -56,15 +56,15 @@ IrExpression *IrFactory::expr(IrContext *context, Ast *node) {
   case A_ty::VoidExpression:
     return new IrVoidExpression(context, DC(AstVoidExpression, node));
   default:
-    EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->sourceName, node->position()));
+    LOG_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
+               dumpSource(context->sourceName, node->position()));
   }
   return nullptr;
 }
 
 IrStatement *IrFactory::stmt(IrContext *context, Ast *node) {
-  EX_ASSERT(context, "context is null");
-  EX_ASSERT(node, "node is null");
+  LOG_ASSERT(context, "context is null");
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case A_ty::ExpressionStatement:
     return new IrExpressionStatement(context, DC(AstExpressionStatement, node));
@@ -90,15 +90,15 @@ IrStatement *IrFactory::stmt(IrContext *context, Ast *node) {
   case A_ty::BreakStatement:
   case A_ty::EmptyStatement:
   default:
-    EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->sourceName, node->position()));
+    LOG_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
+               dumpSource(context->sourceName, node->position()));
   }
   return nullptr;
 }
 
 IrDefinition *IrFactory::unit(IrContext *context, Ast *node) {
-  EX_ASSERT(context, "context is null");
-  EX_ASSERT(node, "node is null");
+  LOG_ASSERT(context, "context is null");
+  LOG_ASSERT(node, "node is null");
   switch (node->type()) {
   case A_ty::VariableDefinition:
     return new IrGlobalVariableDefinition(context,
@@ -106,7 +106,7 @@ IrDefinition *IrFactory::unit(IrContext *context, Ast *node) {
   case A_ty::FunctionDefinition:
     return new IrFunctionDefinition(context, DC(AstFunctionDefinition, node));
   default:
-    EX_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
-              dumpSource(context->sourceName, node->position()));
+    LOG_ASSERT(false, "invalid ast node:{}, source:{}", node->toString(),
+               dumpSource(context->sourceName, node->position()));
   }
 }

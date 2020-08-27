@@ -2,18 +2,20 @@
 // Apache License Version 2.0
 
 #include "BufferStack.h"
-#include "Exception.h"
+#include "Buffer.h"
 #include "Log.h"
+#include "Scanner.h"
+#include <sstream>
 
 BufferStack::BufferStack(Scanner *scanner) : scanner_(scanner), bufstack_() {}
 
 BufferStack::~BufferStack() {
-  EX_ASSERT(bufstack_.empty(), "bufstack_ must empty:{}", bufstack_.size());
+  LOG_ASSERT(bufstack_.empty(), "bufstack_ must empty:{}", bufstack_.size());
   scanner_ = nullptr;
 }
 
 int BufferStack::push(const std::string &fileName) {
-  std::shared_ptr<Buffer> buffer(new Buffer(fileName, scanner_->yyscanner));
+  Buffer *buffer = new Buffer(fileName, scanner_);
 
   /* remember state */
   if (!bufstack_.empty()) {
@@ -30,10 +32,11 @@ int BufferStack::push(const std::string &fileName) {
 }
 
 int BufferStack::pop() {
-  EX_ASSERT(!bufstack_.empty(), "bufstack_ must not empty: {}",
-            bufstack_.size());
-  std::shared_ptr<Buffer> buffer = bufstack_.top();
+  LOG_ASSERT(!bufstack_.empty(), "bufstack_ must not empty: {}",
+             bufstack_.size());
+  Buffer *buffer = bufstack_.top();
   bufstack_.pop();
+  delete buffer;
 
   // if no more buffer on stack, stop yylex
   if (bufstack_.empty()) {
@@ -47,7 +50,7 @@ int BufferStack::pop() {
   return 1;
 }
 
-std::shared_ptr<Buffer> BufferStack::top() const { return bufstack_.top(); }
+Buffer *BufferStack::top() const { return bufstack_.top(); }
 
 int BufferStack::size() const { return (int)bufstack_.size(); }
 

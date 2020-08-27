@@ -3,19 +3,28 @@
 
 #include "container/LinkedHashMap.h"
 #include "Log.h"
-#include "Random.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "catch2/catch.hpp"
 #include "container/LinkedHashMap.hpp"
+#include <cstdlib>
+#include <sstream>
 #include <string>
 
 #define BUCKET_MIN 8
 #define BUCKET_STEP 8
 #define TEST_MAX 1024
 
-static RandomInt<int> randomBucket(1, 1024);
-static RandomString randomString;
-static RandomInt<int> randomInt;
+static std::string randString(int n) {
+  static const char alphanum[] = "0123456789"
+                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                 "abcdefghijklmnopqrstuvwxyz";
+
+  std::stringstream ss;
+  for (int i = 0; i < n; i++) {
+    ss << alphanum[rand() % (sizeof(alphanum) - 1)];
+  }
+  return ss.str();
+}
 
 struct LHMTester {
   std::string name;
@@ -56,11 +65,12 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.begin() == hm1.end());
   REQUIRE(hm1.rbegin() == hm1.rend());
   LOG_INFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
-        "hm1.rbegin():{}, hm1.rend():{}",
-        BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
-        hm1.end().toString(), hm1.rbegin().toString(), hm1.rend().toString());
+           "hm1.rbegin():{}, hm1.rend():{}",
+           BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
+           hm1.end().toString(), hm1.rbegin().toString(),
+           hm1.rend().toString());
 
-  int r = randomBucket.next();
+  int r = std::max(1, rand() % TEST_MAX);
   LinkedHashMap<A, B> hm2(r);
   REQUIRE(hm2.size() == 0);
   REQUIRE(hm2.bucket() >= BUCKET_MIN);
@@ -69,10 +79,11 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm2.empty());
   REQUIRE(hm2.load() == 0.0);
   REQUIRE(hm2.begin() == hm2.end());
-  LOG_INFO("testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
-        "hm2.rend:{}",
-        BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
-        hm2.end().toString(), hm2.rbegin().toString(), hm2.rend().toString());
+  LOG_INFO(
+      "testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
+      "hm2.rend:{}",
+      BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
+      hm2.end().toString(), hm2.rbegin().toString(), hm2.rend().toString());
 }
 
 template <typename A> void testInsert(A a, A b) {
@@ -103,7 +114,7 @@ template <> void testInsert(std::string a, std::string b) {
   LinkedHashMap<std::string, std::string> hm1;
   int c = 0;
   for (int i = 0; i < TEST_MAX; i++) {
-    std::string kv = randomString.nextAlnum(i + 1);
+    std::string kv = randString(i + 1);
     REQUIRE(hm1.find(kv) == hm1.end());
     if (i % 2 == 0) {
       hm1.insert(kv, kv);
@@ -128,8 +139,8 @@ template <> void testInsert(LHMTester a, LHMTester b) {
   LinkedHashMap<LHMTester, LHMTester> hm1;
   int c = 0;
   for (int i = 0; i < TEST_MAX; i++) {
-    std::string p = randomString.nextAlnum(i + 1);
-    int q = randomInt.next();
+    std::string p = randString(i + 1);
+    int q = rand();
     LHMTester lhm(p, q, q);
     REQUIRE(hm1.find(lhm) == hm1.end());
     if (i % 2 == 0) {
@@ -197,7 +208,7 @@ void testRemove(std::string a, std::string b) {
   std::vector<std::string> keyList;
   int c = 0;
   for (int i = 0; i < TEST_MAX; i++) {
-    std::string kv = randomString.nextAlnum(i + 1);
+    std::string kv = randString(i + 1);
     keyList.push_back(kv);
     REQUIRE(hm1.find(kv) == hm1.end());
     hm1.insert(kv, kv);

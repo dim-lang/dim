@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "container/CycleBuffer.h"
-#include "Exception.h"
+#include "Log.h"
 #include "fmt/format.h"
 #include <algorithm>
 #include <cstdlib>
@@ -29,47 +29,47 @@ template <unsigned int D> bool CycleBuffer<D>::positive() const {
 }
 
 template <unsigned int D> long CycleBuffer<D>::pSize() const {
-  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
   return tail_ - head_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::pContain(const char *position) const {
-  EX_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
   return position >= head_ && position < tail_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nLeftSize() const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
-  EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
+  LOG_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   return tail_ - buf_;
 }
 
 template <unsigned int D> long CycleBuffer<D>::nRightSize() const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
-  EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
-            (void *)head_);
+  LOG_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
+             (void *)head_);
   return bufEnd() - head_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::nLeftContain(const char *position) const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
-  EX_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
+  LOG_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(tail_ >= buf_, "tail_ {} >= buf_ {}", (void *)tail_, (void *)buf_);
   return position >= buf_ && position < tail_;
 }
 
 template <unsigned int D>
 bool CycleBuffer<D>::nRightContain(const char *position) const {
-  EX_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
-            (void *)tail_, (void *)head_, positive(), toString());
-  EX_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
-            (void *)head_);
+  LOG_ASSERT(!positive(), "tail_ {} >= head_ {}, positive: {}, toString: {}",
+             (void *)tail_, (void *)head_, positive(), toString());
+  LOG_ASSERT(bufEnd() >= head_, "bufEnd {} >= head_ {}", (void *)bufEnd(),
+             (void *)head_);
   return position >= head_ && position < bufEnd();
 }
 
@@ -81,10 +81,10 @@ template <unsigned int D> CycleBuffer<D>::~CycleBuffer() { reset(); }
 
 template <unsigned int D> int CycleBuffer<D>::capacity() const {
   if (buf_) {
-    EX_ASSERT(capacity_ - 1 >= 0, "capacity_ - 1 {} >= 0", capacity_ - 1);
+    LOG_ASSERT(capacity_ - 1 >= 0, "capacity_ - 1 {} >= 0", capacity_ - 1);
   } else {
-    EX_ASSERT(capacity_ == 0 && size() == 0, "capacity_ {} == size {} == 0",
-              capacity_, size());
+    LOG_ASSERT(capacity_ == 0 && size() == 0, "capacity_ {} == size {} == 0",
+               capacity_, size());
   }
   return capacity_ > 0 ? capacity_ - 1 : 0;
 }
@@ -102,7 +102,7 @@ template <unsigned int D> bool CycleBuffer<D>::full() const {
 }
 
 template <unsigned int D> void CycleBuffer<D>::reset() {
-  EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+  LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   release();
   head_ = nullptr;
   tail_ = nullptr;
@@ -111,9 +111,9 @@ template <unsigned int D> void CycleBuffer<D>::reset() {
 
 template <unsigned int D>
 char *CycleBuffer<D>::nextImpl(char *position, int distance) const {
-  EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
-            toString());
-  EX_ASSERT(distance >= 0, "distance {} < 0", distance);
+  LOG_ASSERT(contain(position), "position {} out of range {}", (void *)position,
+             toString());
+  LOG_ASSERT(distance >= 0, "distance {} < 0", distance);
   if (position == end() || !position) {
     return (char *)end();
   }
@@ -124,8 +124,8 @@ char *CycleBuffer<D>::nextImpl(char *position, int distance) const {
     if (nLeftContain(position)) {
       return np > tail_ ? (char *)end() : np;
     } else {
-      EX_ASSERT(nRightContain(position), "position {} must in right part {}",
-                (void *)position, toString());
+      LOG_ASSERT(nRightContain(position), "position {} must in right part {}",
+                 (void *)position, toString());
       if (np < bufEnd()) {
         return np;
       }
@@ -147,9 +147,9 @@ const char *CycleBuffer<D>::next(const char *position, int distance) const {
 
 template <unsigned int D>
 char *CycleBuffer<D>::prevImpl(char *position, int distance) const {
-  EX_ASSERT(contain(position), "position {} out of range {}", (void *)position,
-            toString());
-  EX_ASSERT(distance >= 0, "distance {} >= 0", distance);
+  LOG_ASSERT(contain(position), "position {} out of range {}", (void *)position,
+             toString());
+  LOG_ASSERT(distance >= 0, "distance {} >= 0", distance);
   if (position == rend() || !position) {
     return (char *)rend();
   }
@@ -164,8 +164,8 @@ char *CycleBuffer<D>::prevImpl(char *position, int distance) const {
       np = (char *)bufEnd() - (distance - (position - buf_));
       return np < head_ ? (char *)rend() : np;
     } else {
-      EX_ASSERT(nRightContain(position), "position {} must in right part {}",
-                (void *)position, toString());
+      LOG_ASSERT(nRightContain(position), "position {} must in right part {}",
+                 (void *)position, toString());
       return np < head_ ? (char *)rend() : np;
     }
   }
@@ -258,7 +258,7 @@ static int readFileHandler(void *source, void *buffer, int n, int alreadyRead) {
 template <unsigned int D>
 int CycleBuffer<D>::writeImpl(void *src, int n,
                               int (*writeHandler)(void *, void *, int, int)) {
-  EX_ASSERT(n >= 0, "n {} < 0", n);
+  LOG_ASSERT(n >= 0, "n {} < 0", n);
   if (!src || !n) {
     return 0;
   }
@@ -270,24 +270,24 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
     int fn = MIN(size(), n);
     int fnr = writeHandler(src, head_, fn, writen);
     WRITE_MOVE(fnr);
-    EX_ASSERT(positive(), "positive:{}", positive());
-    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+    LOG_ASSERT(positive(), "positive:{}", positive());
+    LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   } else {
     int fn = MIN(bufEnd() - head_, n);
     int fnr = writeHandler(src, head_, fn, writen);
     WRITE_MOVE(fnr);
-    EX_ASSERT(head_ == buf_ || head_ < bufEnd(),
-              "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
-              (void *)buf_, (void *)head_, (void *)bufEnd());
-    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+    LOG_ASSERT(head_ == buf_ || head_ < bufEnd(),
+               "head_ {} == buf_ {} or head_ {} < bufEnd {}", (void *)head_,
+               (void *)buf_, (void *)head_, (void *)bufEnd());
+    LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     if (n > writen && fn == fnr) {
-      EX_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
-                (void *)buf_);
+      LOG_ASSERT(head_ == buf_, "head_ {} == buf_ {}", (void *)head_,
+                 (void *)buf_);
       int sn = MIN(n - writen, pSize());
       int snr = writeHandler(src, head_, sn, writen);
       WRITE_MOVE(snr);
-      EX_ASSERT(positive(), "positive:{}", positive());
-      EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+      LOG_ASSERT(positive(), "positive:{}", positive());
+      LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
   }
   return writen;
@@ -302,7 +302,7 @@ int CycleBuffer<D>::writeImpl(void *src, int n,
 template <unsigned int D>
 int CycleBuffer<D>::readImpl(void *src, int n,
                              int (*readHandler)(void *, void *, int, int)) {
-  EX_ASSERT(n >= 0, "n {} < 0", n);
+  LOG_ASSERT(n >= 0, "n {} < 0", n);
   if (!src || !n) {
     return 0;
   }
@@ -321,26 +321,26 @@ int CycleBuffer<D>::readImpl(void *src, int n,
     int fn = MIN(bufEnd() - tail_ - (head_ == buf_ ? 1 : 0), n);
     int fnr = readHandler(src, tail_, fn, readn);
     READ_MOVE(fnr);
-    EX_ASSERT(positive(), "positive: {}", positive());
+    LOG_ASSERT(positive(), "positive: {}", positive());
     if (tail_ == bufEnd()) {
       tail_ = buf_;
     }
-    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+    LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     if (n > readn && head_ != buf_ && fn == fnr) {
-      EX_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
-                (void *)buf_);
+      LOG_ASSERT(tail_ == buf_, "tail_ {} == buf_ {}", (void *)tail_,
+                 (void *)buf_);
       int sn = MIN(n - readn, head_ - tail_ - 1);
       int snr = readHandler(src, tail_, sn, readn);
       READ_MOVE(snr);
-      EX_ASSERT(!positive(), "!positive: {}", !positive());
-      EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+      LOG_ASSERT(!positive(), "!positive: {}", !positive());
+      LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
     }
   } else {
     int fn = MIN(n, head_ - tail_ - 1);
     int fnr = readHandler(src, tail_, fn, readn);
     READ_MOVE(fnr);
-    EX_ASSERT(!positive(), "!positive: {}", !positive());
-    EX_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
+    LOG_ASSERT(!positive(), "!positive: {}", !positive());
+    LOG_ASSERT(size() == 0 || size() > 0 && head_ != tail_, "{}", toString());
   }
   return readn;
 }
@@ -353,7 +353,7 @@ template <unsigned int D> std::string CycleBuffer<D>::write(int n) {
   char *buf = (char *)std::malloc(n + 1);
   std::memset(buf, 0, '\0');
   int wn = writeImpl(buf, n, writeMemHandler);
-  EX_ASSERT(wn <= n, "wn {} <= n {}", wn, n);
+  LOG_ASSERT(wn <= n, "wn {} <= n {}", wn, n);
   std::string r(buf, buf + wn);
   std::free(buf);
   return r;
@@ -396,7 +396,7 @@ template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp) {
 }
 
 template <unsigned int D> int CycleBuffer<D>::expand(int n) {
-  EX_ASSERT(n >= 0, "n {} >= 0", n);
+  LOG_ASSERT(n >= 0, "n {} >= 0", n);
   if (n <= capacity_) {
     return 0;
   }
@@ -424,7 +424,7 @@ template <unsigned int D> char *CycleBuffer<D>::search(char c) {
     return nullptr;
   }
   for (char *i = begin(); i != end(); i = next(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     if (*i == c) {
       return i;
     }
@@ -437,7 +437,7 @@ template <unsigned int D> const char *CycleBuffer<D>::search(char c) const {
     return nullptr;
   }
   for (const char *i = begin(); i != end(); i = next(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     if (*i == c) {
       return i;
     }
@@ -450,7 +450,7 @@ template <unsigned int D> char *CycleBuffer<D>::search(char *s, int n) {
     return nullptr;
   }
   for (char *i = begin(); i != end(); i = next(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     int k = 0;
     bool match = true;
     for (char *j = i; j != end() && k < n; j = next(j), k++) {
@@ -472,7 +472,7 @@ const char *CycleBuffer<D>::search(const char *s, int n) const {
     return nullptr;
   }
   for (const char *i = begin(); i != end(); i = next(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     int k = 0;
     bool match = true;
     for (const char *j = i; j != end() && k < n; j = next(j), k++) {
@@ -493,7 +493,7 @@ template <unsigned int D> char *CycleBuffer<D>::rsearch(char c) {
     return nullptr;
   }
   for (char *i = rbegin(); i != rend(); i = prev(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     if (*i == c) {
       return i;
     }
@@ -506,7 +506,7 @@ template <unsigned int D> const char *CycleBuffer<D>::rsearch(char c) const {
     return nullptr;
   }
   for (const char *i = rbegin(); i != rend(); i = prev(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     if (*i == c) {
       return i;
     }
@@ -519,7 +519,7 @@ template <unsigned int D> char *CycleBuffer<D>::rsearch(char *s, int n) {
     return nullptr;
   }
   for (char *i = rbegin(); i != rend(); i = prev(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     int k = 0;
     bool match = true;
     for (char *j = i; j != rend() && k < n; j = prev(j), k++) {
@@ -541,7 +541,7 @@ const char *CycleBuffer<D>::rsearch(const char *s, int n) const {
     return nullptr;
   }
   for (const char *i = rbegin(); i != rend(); i = prev(i)) {
-    EX_ASSERT(i, "i is null");
+    LOG_ASSERT(i, "i is null");
     int k = 0;
     bool match = true;
     for (const char *j = i; j != rend() && k < n; j = prev(j), k++) {

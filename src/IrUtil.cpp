@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #include "IrUtil.h"
-#include "Exception.h"
 #include "Ir.h"
+#include "Log.h"
 #include "NameGenerator.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "llvm/Support/raw_ostream.h"
@@ -18,7 +18,7 @@ std::string IrUtil::namegen(const std::string &name) {
 
 static std::string toLLVMNameImpl(const std::string &name,
                                   const std::string prefix) {
-  EX_ASSERT(name.length() > 0, "name {} length {} <= 0", name, name.length());
+  LOG_ASSERT(name.length() > 0, "name {} length {} <= 0", name, name.length());
   std::string tmp(name);
   for (int i = 0; i < (int)tmp.length(); i++) {
     if (tmp[i] == '_') {
@@ -30,9 +30,9 @@ static std::string toLLVMNameImpl(const std::string &name,
 
 static std::string fromLLVMNameImpl(const std::string &name,
                                     const std::string prefix) {
-  EX_ASSERT(name.length() > prefix.length(),
-            "name {} length {} <= prefix {} length {}", name, name.length(),
-            prefix, prefix.length());
+  LOG_ASSERT(name.length() > prefix.length(),
+             "name {} length {} <= prefix {} length {}", name, name.length(),
+             prefix, prefix.length());
   std::string tmp(
       name.substr(prefix.length(), name.length() - prefix.length()));
   for (int i = 0; i < (int)tmp.length(); i++) {

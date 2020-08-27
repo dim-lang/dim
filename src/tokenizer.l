@@ -6,7 +6,6 @@
 %option reentrant
 %option yylineno
 %option 8bit
-%option warn
 
 DIG ([0-9])
 OCT ([0-7])
@@ -26,12 +25,12 @@ BC  ("/*"((("*"[^/])?)|[^*])*"*/")
 LC  ("//".*\n)
 
 %{
+class Scanner;
 #include <string>
 #include "boost/preprocessor/cat.hpp"
 #include "parser.tab.hh"
 #include "location.hh"
 #include "Scanner.h"
-#include "Exception.h"
 #include "Log.h"
 
 #if 0
@@ -59,8 +58,8 @@ LC  ("//".*\n)
 #define T_SCANNER           (static_cast<Scanner *>(yyextra))
 #define T_LOCATION          (T_SCANNER->bufferStack.top()->location)
 #define T_FILE_NAME         (T_SCANNER->bufferStack.top()->fileName)
-#define MK_LITERAL(t)       (BOOST_PP_CAT(yy::parser::make_, t)(std::string(yytext), T_LOCATION))
-#define MK_INTEGER(t)       (BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), T_LOCATION))
+#define MK_LITERAL(t)       {return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION);}
+#define MK_INTEGER(t)       {return BOOST_PP_CAT(yy::parser::make_, t)(BOOST_PP_CAT(yy::parser::token::, t), T_LOCATION);}
 
 #define YY_USER_ACTION                         \
     T_LOCATION.step();                         \
@@ -82,194 +81,193 @@ LC  ("//".*\n)
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { return MK_INTEGER(T_TRUE); }
-false       { return MK_INTEGER(T_FALSE); }
-try         { return MK_INTEGER(T_TRY); }
-catch       { return MK_INTEGER(T_CATCH); }
-finally     { return MK_INTEGER(T_FINALLY); }
-throw       { return MK_INTEGER(T_THROW); }
-yield       { return MK_INTEGER(T_YIELD); }
-var         { return MK_INTEGER(T_VAR); }
-val         { return MK_INTEGER(T_VAL); }
-nil         { return MK_INTEGER(T_NIL); }
-new         { return MK_INTEGER(T_NEW); }
-delete      { return MK_INTEGER(T_DELETE); }
-def         { return MK_INTEGER(T_DEF); }
-if          { return MK_INTEGER(T_IF); }
-then        { return MK_INTEGER(T_THEN); }
-else        { return MK_INTEGER(T_ELSE); }
-match       { return MK_INTEGER(T_MATCH); }
-enum        { return MK_INTEGER(T_ENUM); }
-switch      { return MK_INTEGER(T_SWITCH); }
-case        { return MK_INTEGER(T_CASE); }
-for         { return MK_INTEGER(T_FOR); }
-foreach     { return MK_INTEGER(T_FOREACH); }
-in          { return MK_INTEGER(T_IN); }
-while       { return MK_INTEGER(T_WHILE); }
-do          { return MK_INTEGER(T_DO); }
-break       { return MK_INTEGER(T_BREAK); }
-continue    { return MK_INTEGER(T_CONTINUE); }
-class       { return MK_INTEGER(T_CLASS); }
-trait       { return MK_INTEGER(T_TRAIT); }
-type        { return MK_INTEGER(T_TYPE); }
-this        { return MK_INTEGER(T_THIS); }
-super       { return MK_INTEGER(T_SUPER); }
-is          { return MK_INTEGER(T_IS); }
-isa         { return MK_INTEGER(T_ISA); }
-isinstanceof    { return MK_INTEGER(T_ISINSTANCEOF); }
-import      { return MK_INTEGER(T_IMPORT); }
-as          { return MK_INTEGER(T_AS); }
-return      { return MK_INTEGER(T_RETURN); }
-void        { return MK_INTEGER(T_VOID); }
-any         { return MK_INTEGER(T_ANY); }
-nan         { return MK_INTEGER(T_NAN); }
-inf         { return MK_INTEGER(T_INF); }
-async       { return MK_INTEGER(T_ASYNC); }
-await       { return MK_INTEGER(T_AWAIT); }
-static      { return MK_INTEGER(T_STATIC); }
-public      { return MK_INTEGER(T_PUBLIC); }
-protect     { return MK_INTEGER(T_PROTECT); }
-private     { return MK_INTEGER(T_PRIVATE); }
-prefix      { return MK_INTEGER(T_PREFIX); }
-postfix     { return MK_INTEGER(T_POSTFIX); }
-package     { return MK_INTEGER(T_PACKAGE); }
+true        { MK_INTEGER(T_TRUE); }
+false       { MK_INTEGER(T_FALSE); }
+try         { MK_INTEGER(T_TRY); }
+catch       { MK_INTEGER(T_CATCH); }
+finally     { MK_INTEGER(T_FINALLY); }
+throw       { MK_INTEGER(T_THROW); }
+yield       { MK_INTEGER(T_YIELD); }
+var         { MK_INTEGER(T_VAR); }
+val         { MK_INTEGER(T_VAL); }
+nil         { MK_INTEGER(T_NIL); }
+new         { MK_INTEGER(T_NEW); }
+delete      { MK_INTEGER(T_DELETE); }
+def         { MK_INTEGER(T_DEF); }
+if          { MK_INTEGER(T_IF); }
+then        { MK_INTEGER(T_THEN); }
+else        { MK_INTEGER(T_ELSE); }
+match       { MK_INTEGER(T_MATCH); }
+enum        { MK_INTEGER(T_ENUM); }
+switch      { MK_INTEGER(T_SWITCH); }
+case        { MK_INTEGER(T_CASE); }
+for         { MK_INTEGER(T_FOR); }
+foreach     { MK_INTEGER(T_FOREACH); }
+in          { MK_INTEGER(T_IN); }
+while       { MK_INTEGER(T_WHILE); }
+do          { MK_INTEGER(T_DO); }
+break       { MK_INTEGER(T_BREAK); }
+continue    { MK_INTEGER(T_CONTINUE); }
+class       { MK_INTEGER(T_CLASS); }
+trait       { MK_INTEGER(T_TRAIT); }
+type        { MK_INTEGER(T_TYPE); }
+this        { MK_INTEGER(T_THIS); }
+super       { MK_INTEGER(T_SUPER); }
+is          { MK_INTEGER(T_IS); }
+isa         { MK_INTEGER(T_ISA); }
+isinstanceof    { MK_INTEGER(T_ISINSTANCEOF); }
+import      { MK_INTEGER(T_IMPORT); }
+as          { MK_INTEGER(T_AS); }
+return      { MK_INTEGER(T_RETURN); }
+void        { MK_INTEGER(T_VOID); }
+any         { MK_INTEGER(T_ANY); }
+nan         { MK_INTEGER(T_NAN); }
+inf         { MK_INTEGER(T_INF); }
+async       { MK_INTEGER(T_ASYNC); }
+await       { MK_INTEGER(T_AWAIT); }
+static      { MK_INTEGER(T_STATIC); }
+public      { MK_INTEGER(T_PUBLIC); }
+protect     { MK_INTEGER(T_PROTECT); }
+private     { MK_INTEGER(T_PRIVATE); }
+prefix      { MK_INTEGER(T_PREFIX); }
+postfix     { MK_INTEGER(T_POSTFIX); }
+package     { MK_INTEGER(T_PACKAGE); }
 
  /* primitive type */
-byte        { return MK_INTEGER(T_BYTE); } */
-ubyte       { return MK_INTEGER(T_UBYTE); }
-short       { return MK_INTEGER(T_SHORT); }
-ushort      { return MK_INTEGER(T_USHORT); }
-int         { return MK_INTEGER(T_INT); }
-uint        { return MK_INTEGER(T_UINT); }
-long        { return MK_INTEGER(T_LONG); }
-ulong       { return MK_INTEGER(T_ULONG); }
-llong       { return MK_INTEGER(T_LLONG); }
-ullong      { return MK_INTEGER(T_ULLONG); }
-float       { return MK_INTEGER(T_FLOAT); }
-double      { return MK_INTEGER(T_DOUBLE); }
-boolean     { return MK_INTEGER(T_BOOLEAN); }
-char        { return MK_INTEGER(T_CHAR); }
+byte        { MK_INTEGER(T_BYTE); } */
+ubyte       { MK_INTEGER(T_UBYTE); }
+short       { MK_INTEGER(T_SHORT); }
+ushort      { MK_INTEGER(T_USHORT); }
+int         { MK_INTEGER(T_INT); }
+uint        { MK_INTEGER(T_UINT); }
+long        { MK_INTEGER(T_LONG); }
+ulong       { MK_INTEGER(T_ULONG); }
+llong       { MK_INTEGER(T_LLONG); }
+ullong      { MK_INTEGER(T_ULLONG); }
+float       { MK_INTEGER(T_FLOAT); }
+double      { MK_INTEGER(T_DOUBLE); }
+boolean     { MK_INTEGER(T_BOOLEAN); }
+char        { MK_INTEGER(T_CHAR); }
 
  /* operator */
-and         { return MK_INTEGER(T_AND); }
-or          { return MK_INTEGER(T_OR); }
-not         { return MK_INTEGER(T_NOT); }
+and         { MK_INTEGER(T_AND); }
+or          { MK_INTEGER(T_OR); }
+not         { MK_INTEGER(T_NOT); }
 
  /* optional newline or semicolon */
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { return MK_INTEGER(T_SEMI_ELSE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { return MK_INTEGER(T_SEMI_ELSE); }
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { return MK_INTEGER(T_SEMI_WHILE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { return MK_INTEGER(T_SEMI_WHILE); }
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { MK_INTEGER(T_SEMI_ELSE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { MK_INTEGER(T_SEMI_ELSE); }
+[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { MK_INTEGER(T_SEMI_WHILE); }
+";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { MK_INTEGER(T_SEMI_WHILE); }
 
-"+"         { return MK_INTEGER(T_PLUS); }
-"++"        { return MK_INTEGER(T_PLUS2); }
-"-"         { return MK_INTEGER(T_MINUS); }
-"--"        { return MK_INTEGER(T_MINUS2); }
-"*"         { return MK_INTEGER(T_ASTERISK); }
-"**"        { return MK_INTEGER(T_ASTERISK2); }
-"/"         { return MK_INTEGER(T_SLASH); }
-"//"        { return MK_INTEGER(T_SLASH2); }
-"%"         { return MK_INTEGER(T_PERCENT); }
-"%%"        { return MK_INTEGER(T_PERCENT2); }
+"+"         { MK_INTEGER(T_PLUS); }
+"++"        { MK_INTEGER(T_PLUS2); }
+"-"         { MK_INTEGER(T_MINUS); }
+"--"        { MK_INTEGER(T_MINUS2); }
+"*"         { MK_INTEGER(T_ASTERISK); }
+"**"        { MK_INTEGER(T_ASTERISK2); }
+"/"         { MK_INTEGER(T_SLASH); }
+"//"        { MK_INTEGER(T_SLASH2); }
+"%"         { MK_INTEGER(T_PERCENT); }
+"%%"        { MK_INTEGER(T_PERCENT2); }
 
-"&"         { return MK_INTEGER(T_AMPERSAND); }
-"&&"        { return MK_INTEGER(T_AMPERSAND2); }
-"|"         { return MK_INTEGER(T_BAR); }
-"||"        { return MK_INTEGER(T_BAR2); }
-"~"         { return MK_INTEGER(T_TILDE); }
-"!"         { return MK_INTEGER(T_EXCLAM); }
-"^"         { return MK_INTEGER(T_CARET); }
+"&"         { MK_INTEGER(T_AMPERSAND); }
+"&&"        { MK_INTEGER(T_AMPERSAND2); }
+"|"         { MK_INTEGER(T_BAR); }
+"||"        { MK_INTEGER(T_BAR2); }
+"~"         { MK_INTEGER(T_TILDE); }
+"!"         { MK_INTEGER(T_EXCLAM); }
+"^"         { MK_INTEGER(T_CARET); }
 
-"<<"        { return MK_INTEGER(T_LSHIFT); }
-">>"        { return MK_INTEGER(T_RSHIFT); }
-">>>"       { return MK_INTEGER(T_ARSHIFT); }
+"<<"        { MK_INTEGER(T_LSHIFT); }
+">>"        { MK_INTEGER(T_RSHIFT); }
+">>>"       { MK_INTEGER(T_ARSHIFT); }
 
  /* equal operator */
-"="         { return MK_INTEGER(T_EQUAL); }
-"+="        { return MK_INTEGER(T_PLUS_EQUAL); }
-"-="        { return MK_INTEGER(T_MINUS_EQUAL); }
-"*="        { return MK_INTEGER(T_ASTERISK_EQUAL); }
-"/="        { return MK_INTEGER(T_SLASH_EQUAL); }
-"%="        { return MK_INTEGER(T_PERCENT_EQUAL); }
-"&="        { return MK_INTEGER(T_AMPERSAND_EQUAL); }
-"|="        { return MK_INTEGER(T_BAR_EQUAL); }
-"^="        { return MK_INTEGER(T_CARET_EQUAL); }
-"<<="       { return MK_INTEGER(T_LSHIFT_EQUAL); }
-">>="       { return MK_INTEGER(T_RSHIFT_EQUAL); }
-">>>="      { return MK_INTEGER(T_ARSHIFT_EQUAL); }
+"="         { MK_INTEGER(T_EQUAL); }
+"+="        { MK_INTEGER(T_PLUS_EQUAL); }
+"-="        { MK_INTEGER(T_MINUS_EQUAL); }
+"*="        { MK_INTEGER(T_ASTERISK_EQUAL); }
+"/="        { MK_INTEGER(T_SLASH_EQUAL); }
+"%="        { MK_INTEGER(T_PERCENT_EQUAL); }
+"&="        { MK_INTEGER(T_AMPERSAND_EQUAL); }
+"|="        { MK_INTEGER(T_BAR_EQUAL); }
+"^="        { MK_INTEGER(T_CARET_EQUAL); }
+"<<="       { MK_INTEGER(T_LSHIFT_EQUAL); }
+">>="       { MK_INTEGER(T_RSHIFT_EQUAL); }
+">>>="      { MK_INTEGER(T_ARSHIFT_EQUAL); }
 
  /* compare operator */
-"=="        { return MK_INTEGER(T_EQ); }
-"!="        { return MK_INTEGER(T_NEQ); }
-"<"         { return MK_INTEGER(T_LT); }
-"<="        { return MK_INTEGER(T_LE); }
-">"         { return MK_INTEGER(T_GT); }
-">="        { return MK_INTEGER(T_GE); }
+"=="        { MK_INTEGER(T_EQ); }
+"!="        { MK_INTEGER(T_NEQ); }
+"<"         { MK_INTEGER(T_LT); }
+"<="        { MK_INTEGER(T_LE); }
+">"         { MK_INTEGER(T_GT); }
+">="        { MK_INTEGER(T_GE); }
 
  /* parentheses */
-"("         { return MK_INTEGER(T_LPAREN); }
-")"         { return MK_INTEGER(T_RPAREN); }
-"["         { return MK_INTEGER(T_LBRACKET); }
-"]"         { return MK_INTEGER(T_RBRACKET); }
-"{"         { return MK_INTEGER(T_LBRACE); }
-"}"         { return MK_INTEGER(T_RBRACE); }
+"("         { MK_INTEGER(T_LPAREN); }
+")"         { MK_INTEGER(T_RPAREN); }
+"["         { MK_INTEGER(T_LBRACKET); }
+"]"         { MK_INTEGER(T_RBRACKET); }
+"{"         { MK_INTEGER(T_LBRACE); }
+"}"         { MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
-"_"         { return MK_INTEGER(T_UNDERSCORE); }
-","         { return MK_INTEGER(T_COMMA); }
-";"         { return MK_INTEGER(T_SEMI); }
-"?"         { return MK_INTEGER(T_QUESTION); }
-":"         { return MK_INTEGER(T_COLON); }
-"::"        { return MK_INTEGER(T_COLON2); }
-"."         { return MK_INTEGER(T_DOT); }
-".."        { return MK_INTEGER(T_DOT2); }
-"<-"        { return MK_INTEGER(T_LARROW); }
-"->"        { return MK_INTEGER(T_RARROW); }
-"=>"        { return MK_INTEGER(T_DOUBLE_RARROW); }
-":>"        { return MK_INTEGER(T_COLON_LARROW);  }
-"<:"        { return MK_INTEGER(T_COLON_RARROW); }
-[\n]+       { return MK_INTEGER(T_NEWLINE); }
+"_"         { MK_INTEGER(T_UNDERSCORE); }
+","         { MK_INTEGER(T_COMMA); }
+";"         { MK_INTEGER(T_SEMI); }
+"?"         { MK_INTEGER(T_QUESTION); }
+":"         { MK_INTEGER(T_COLON); }
+"::"        { MK_INTEGER(T_COLON2); }
+"."         { MK_INTEGER(T_DOT); }
+".."        { MK_INTEGER(T_DOT2); }
+"<-"        { MK_INTEGER(T_LARROW); }
+"->"        { MK_INTEGER(T_RARROW); }
+"=>"        { MK_INTEGER(T_DOUBLE_RARROW); }
+":>"        { MK_INTEGER(T_COLON_LARROW);  }
+"<:"        { MK_INTEGER(T_COLON_RARROW); }
+[\n]+       { MK_INTEGER(T_NEWLINE); }
 
  /* decimal integer literal */
-{DEC}{IS}?                                  { return MK_LITERAL(T_INTEGER_LITERAL); }
+{DEC}{IS}?                                  { MK_LITERAL(T_INTEGER_LITERAL); }
  /* heximal integer literal */
-0[xX]{HEX}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
+0[xX]{HEX}+{IS}?                            { MK_LITERAL(T_INTEGER_LITERAL); }
  /* octal integer literal */
-0[oO]{OCT}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
+0[oO]{OCT}+{IS}?                            { MK_LITERAL(T_INTEGER_LITERAL); }
  /* binary integer literal */
-0[bB]{BIN}+{IS}?                            { return MK_LITERAL(T_INTEGER_LITERAL); }
+0[bB]{BIN}+{IS}?                            { MK_LITERAL(T_INTEGER_LITERAL); }
 
  /* float literal : 92.312, 92.312e-10, 10.2e+91, 1.0e+7 */
-{DEC}"."{DIG}+{EXP}?{FS}?                   { return MK_LITERAL(T_FLOAT_LITERAL); }
-{DEC}{EXP}{FS}?                             { return MK_LITERAL(T_FLOAT_LITERAL); }
+{DEC}"."{DIG}+{EXP}?{FS}?                   { MK_LITERAL(T_FLOAT_LITERAL); }
+{DEC}{EXP}{FS}?                             { MK_LITERAL(T_FLOAT_LITERAL); }
 
  /* multiple line string literal */
-["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { return MK_LITERAL(T_STRING_LITERAL); }
+["]{3}(["]{0,2}([^\\"]|\\(.|\n)))*["]{3}    { MK_LITERAL(T_STRING_LITERAL); }
 
  /* one line string */
-\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { return MK_LITERAL(T_STRING_LITERAL); }
+\"({NES}|{NL}|{SES}|{OES}|{UCN})*\"         { MK_LITERAL(T_STRING_LITERAL); }
 
  /* char literal */
-\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { return MK_LITERAL(T_CHARACTER_LITERAL); }
+\'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { MK_LITERAL(T_CHARACTER_LITERAL); }
 
  /* var id */
-[a-zA-Z_][a-zA-Z0-9_]*                      { return MK_LITERAL(T_VAR_ID); }
+[a-zA-Z_][a-zA-Z0-9_]*                      { MK_LITERAL(T_VAR_ID); }
 
  /* whitespace except newline */
 {WS}+                                       { /* skip whitespace except newline */ }
 
 <<EOF>>                                     {
-                                                if (!yyextra->bufferStack.pop()) {
+                                                if (!T_SCANNER->bufferStack.pop()) {
                                                     LOG_INFO("{}:{} pop buffer empty at {}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                                     yyterminate();
                                                 }
-                                                return yy::parser::make_YYEOF(loc);
+                                                MK_INTEGER(YYEOF);
                                             }
 
  /* invalid token */
 .                                           {
-                                                LOG_ERROR("{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
-                                                EX_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                LOG_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                             }
 
 %%

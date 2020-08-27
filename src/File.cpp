@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "File.h"
-#include "Exception.h"
+#include "Log.h"
 #include <cstdio>
 
 #define BUF_SIZE 4096
@@ -25,7 +25,7 @@ FileReaderLineIterator::FileReaderLineIterator(FileReader *reader)
     : reader_(reader), linePosition_(nullptr) {}
 
 std::string FileReaderLineIterator::next() {
-  EX_ASSERT(linePosition_, "linePosition_ is null");
+  LOG_ASSERT(linePosition_, "linePosition_ is null");
   int len = linePosition_ - reader_->buffer_.begin() + 1;
   linePosition_ = nullptr;
   return reader_->buffer_.write(len);
@@ -50,10 +50,10 @@ FileReaderCharIterator::FileReaderCharIterator(FileReader *reader)
     : reader_(reader) {}
 
 char FileReaderCharIterator::next() {
-  EX_ASSERT(!reader_->buffer_.empty(), "reader_->buffer_ is empty");
+  LOG_ASSERT(!reader_->buffer_.empty(), "reader_->buffer_ is empty");
   char c;
   int writen = reader_->buffer_.write(&c, 1);
-  EX_ASSERT(writen == 1, "writen {} == 1", writen);
+  LOG_ASSERT(writen == 1, "writen {} == 1", writen);
   return c;
 }
 
@@ -75,7 +75,7 @@ FileReaderBlockIterator::FileReaderBlockIterator(FileReader *reader)
     : reader_(reader) {}
 
 std::string FileReaderBlockIterator::next(int n) {
-  EX_ASSERT(n >= 0, "n {} >= 0", n);
+  LOG_ASSERT(n >= 0, "n {} >= 0", n);
   return reader_->buffer_.write(n);
 }
 
@@ -123,7 +123,7 @@ void FileWriterImpl::write(const std::string &buf) {
 FileReader::FileReader(const std::string &fileName)
     : detail::FileInfo(fileName) {
   fp_ = std::fopen(fileName.c_str(), "r");
-  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+  LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
 FileModeType FileReader::mode() const { return FileModeType::Read; }
@@ -150,7 +150,7 @@ std::string FileReader::read() {
 FileWriter::FileWriter(const std::string &fileName)
     : detail::FileWriterImpl(fileName) {
   fp_ = std::fopen(fileName.c_str(), "w");
-  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+  LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
 FileModeType FileWriter::mode() const { return FileModeType::Write; }
@@ -160,7 +160,7 @@ void FileWriter::reset(int offset) { detail::FileWriterImpl::reset(offset); }
 FileAppender::FileAppender(const std::string &fileName)
     : detail::FileWriterImpl(fileName) {
   fp_ = std::fopen(fileName.c_str(), "a");
-  EX_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+  LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
 void FileAppender::reset(int offset) { detail::FileWriterImpl::reset(offset); }

@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Exception.h"
 #include "Locationly.h"
 #include "Namely.h"
 #include "boost/core/noncopyable.hpp"
@@ -210,6 +209,7 @@ private:
 };
 
 class A_Character : public Ast {
+public:
   A_Character(const std::string &literal, const yy::location &location);
   virtual ~A_Character() = default;
   virtual AstCategory category() const;
@@ -385,7 +385,7 @@ class A_Loop : public Ast {
 public:
   A_Loop(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_body,
          const yy::location &location);
-  virtual ~A_Loop();
+  virtual ~A_Loop() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> condition;
@@ -395,13 +395,15 @@ public:
 class A_LoopCondition : public Ast {
 public:
   A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
-                  std::shared_ptr<Ast> a_update, const yy::location &location);
+                  std::shared_ptr<Ast> a_update, bool a_do_once,
+                  const yy::location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> init;
   std::shared_ptr<Ast> condition;
   std::shared_ptr<Ast> update;
+  bool do_once;
 };
 
 class A_LoopEnumerator : public Ast {

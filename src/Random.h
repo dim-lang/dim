@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Exception.h"
+#include "Log.h"
 #include <cstdint>
 #include <cstring>
 #include <limits>
@@ -15,7 +15,7 @@ public:
   RandomInt(T b = std::numeric_limits<T>::max()) : RandomInt((T)0, b) {}
   // [a, b]
   RandomInt(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    EX_ASSERT(b >= a, "b {} >= a {}", b, a);
+    LOG_ASSERT(b >= a, "b {} >= a {}", b, a);
   }
   virtual ~RandomInt() = default;
   T next() { return dist_(engine_); }
@@ -34,7 +34,7 @@ public:
   RandomReal(T b = (T)1.0) : RandomReal((T)0.0, b) {}
   // [a, b)
   RandomReal(T a, T b) : device_(), engine_(device_()), dist_(a, b) {
-    EX_ASSERT(b >= a, "b {} >= a {}", b, a);
+    LOG_ASSERT(b >= a, "b {} >= a {}", b, a);
   }
   virtual ~RandomReal() = default;
   T next() { return dist_(engine_); }

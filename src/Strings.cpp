@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Strings.h"
-#include "Exception.h"
+#include "Log.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -15,7 +15,7 @@ char *Strings::duplicate(const char *s, int n) {
     return nullptr;
   }
   char *r = (char *)std::malloc(n + 1);
-  EX_ASSERT(r, "r must not be null");
+  LOG_ASSERT(r, "r must not be null");
   std::memset(r, 0, n + 1);
   std::strncpy(r, s, n);
   return r;

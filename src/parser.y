@@ -1,31 +1,32 @@
 %require "3.2"
 %language "c++"
 %define lr.type ielr
-/* %glr-parser */
-%expect 1
+%expect 2
 %define api.value.type variant
 %define api.token.constructor
 %define parse.assert
 %define parse.error verbose
 %define parse.lac full
 %locations
+%param {yyscan_t yyscanner}
+
+%printer { LOG_INFO("{}", $$ ? $$->toString() : "nil"); } <std::shared_ptr<Ast>>
+%printer { LOG_INFO("{}", $$); } <*>
 
 %code top {
 #include <memory>
 #include "Log.h"
 #include "Ast.h"
 #include "Buffer.h"
-#include "tokenizer.yy.hh"
+#include "Scanner.h"
 #define SP_NULL             (std::shared_ptr<Ast>(nullptr))
 #define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
 }
 
 %code requires {
-#include "tokenizer.yy.hh"
-#include "Ast.h"
+typedef void* yyscan_t;
+class Ast;
 }
-
-%param { yyscan_t yyscanner }
 
  /* %union { */
  /*     std::shared_ptr<Ast> ast; */
@@ -195,7 +196,7 @@
 %type<std::shared_ptr<Ast>> id varId
  /* expr */
 %type<std::shared_ptr<Ast>> expr enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr exprs callExpr block blockStat blockStats
-%type<std::shared_ptr<Ast>> optionalYield optionalExpr optionalBlockStats optionalForInit optionalExprs
+%type<std::shared_ptr<Ast>> /* optionalYield */ optionalExpr optionalBlockStats optionalForInit optionalExprs
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
@@ -323,10 +324,10 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
 expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); } /* %prec fix optional if-else shift/reduce */
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
      | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "while" "(" expr ")" optionalNewlines expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
-     | "do" optionalNewlines expr "while" "(" expr ")" %prec "while" { $$ = SP_NEW(A_Loop, $2, $5, @$); } /* %prec fix optional do-while shift/reduce */
-     | "do" optionalNewlines expr "semi_while" "(" expr ")" %prec "semi_while" { $$ = SP_NEW(A_Loop, $2, $5, @$); }
-     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $7, @$); }
+     | "while" "(" expr ")" optionalNewlines expr { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $5, @$); }
+     | "do" optionalNewlines expr "while" "(" expr ")" %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); } /* %prec fix optional do-while shift/reduce */
+     | "do" optionalNewlines expr "semi_while" "(" expr ")" %prec "semi_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); }
+     | "for" "(" enumerators ")" optionalNewlines expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
      | "try" optionalNewlines expr "catch" optionalNewlines expr %prec "try_catch" { $$ = SP_NEW(A_Try, $3, $6, SP_NULL, @$); } /* %prec fix optional try-catch-finally shift/reduce */
      | "try" optionalNewlines expr "catch" optionalNewlines expr "finally" optionalNewlines expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $3, $6, $9, @$); }
      | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
@@ -348,9 +349,9 @@ optionalExpr : expr { $$ = $1; }
              | %empty { $$ = SP_NULL; }
              ;
 
-optionalYield : "yield" { $$ = $1; }
-              | %empty { $$ = yy::parser::token::T_EMPTY; }
-              ;
+/* optionalYield : "yield" { $$ = $1; } */
+/*               | %empty { $$ = yy::parser::token::T_EMPTY; } */
+/*               ; */
 
 assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }
            ;
@@ -550,7 +551,7 @@ varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
 
  /* compile unit { */
 
-compileUnit : topStat optionalTopStats { $$ = SP_NEW(A_CompileUnit, $1, $2, @$); }
+compileUnit : topStat optionalTopStats { static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, $1, $2, @$); }
             ;
 
 optionalTopStats : topStats { $$ = $1; }

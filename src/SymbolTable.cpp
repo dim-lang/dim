@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "SymbolTable.h"
-#include "Exception.h"
 #include "Log.h"
 
 SymbolTable::SymbolTable()
@@ -12,7 +11,7 @@ SymbolTable::SymbolTable()
 
 SymbolTable::~SymbolTable() {
   pop();
-  EX_ASSERT(depth_ == 0, "depth_ {} != 0", depth_);
+  LOG_ASSERT(depth_ == 0, "depth_ {} != 0", depth_);
   if (global) {
     delete global;
     global = nullptr;
@@ -21,18 +20,18 @@ SymbolTable::~SymbolTable() {
 }
 
 void SymbolTable::push(Scope *sc) {
-  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  LOG_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   current = sc;
   ++depth_;
 }
 
 void SymbolTable::pop() {
-  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  LOG_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
   if (depth_ > 0) {
     current = current->enclosingScope();
     --depth_;
   }
-  EX_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
+  LOG_ASSERT(depth_ >= 0, "depth_ {} >= 0", depth_);
 }
 
 int SymbolTable::depth() const { return depth_; }

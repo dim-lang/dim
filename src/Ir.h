@@ -3,8 +3,8 @@
 
 #pragma once
 #include "Ast.h"
-#include "Exception.h"
 #include "IrContext.h"
+#include "Log.h"
 #include "SymbolTable.h"
 #include "boost/core/noncopyable.hpp"
 #include "container/LinkedHashMap.h"
@@ -177,12 +177,12 @@ public:
   virtual bool empty() const { return items_.empty(); }
   virtual int size() const { return items_.size(); }
   virtual T *get(int pos) const {
-    EX_ASSERT(pos >= 0, "pos {} >= 0");
-    EX_ASSERT(items_[pos], "items_[{}] is null", pos);
+    LOG_ASSERT(pos >= 0, "pos {} >= 0");
+    LOG_ASSERT(items_[pos], "items_[{}] is null", pos);
     return items_[pos];
   }
   virtual void add(T *item) {
-    EX_ASSERT(item, "item is null");
+    LOG_ASSERT(item, "item is null");
     items_.push_back(item);
   }
 

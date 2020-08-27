@@ -3,7 +3,7 @@
 
 #include "Symbol.h"
 #include "Ast.h"
-#include "Exception.h"
+#include "Log.h"
 #include "container/LinkedHashMap.hpp"
 #include "fmt/format.h"
 #include <cctype>
@@ -39,21 +39,21 @@ const Symbol *TypeSymbol::owner() const { return owner_; }
 Scope::Scope(const Name &name, const Symbol *owner) : Symbol(name, owner) {}
 
 void Scope::define(const Symbol *s, const TypeSymbol *ts) {
-  EX_ASSERT(s, "symbol s must not null");
-  EX_ASSERT(ts, "type symbol ts must not null");
-  EX_ASSERT(!s_scope_.contains(s->name()),
-            "symbol {} already exist in scope {}", s->name().raw(),
-            (void *)&s_scope_);
-  EX_ASSERT(!ts_scope_.contains(ts->name()),
-            "type symbol {} already exist in scope {}", ts->name().raw(),
-            (void *)&ts_scope_);
+  LOG_ASSERT(s, "symbol s must not null");
+  LOG_ASSERT(ts, "type symbol ts must not null");
+  LOG_ASSERT(!s_scope_.contains(s->name()),
+             "symbol {} already exist in scope {}", s->name().raw(),
+             (void *)&s_scope_);
+  LOG_ASSERT(!ts_scope_.contains(ts->name()),
+             "type symbol {} already exist in scope {}", ts->name().raw(),
+             (void *)&ts_scope_);
   s_scope_.insert(s->name(), SymbolData(s, ts));
   ts_scope_.insert(ts->name(), TypeSymbolData(ts));
 }
 
 const SymbolData &Scope::s_resolve(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   if (s_scope_.contains(name)) {
     return s_scope_[name];
   }
@@ -61,8 +61,8 @@ const SymbolData &Scope::s_resolve(const Name &name) const {
 }
 
 const TypeSymbolData &Scope::ts_resolve(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   if (ts_scope_.contains(name)) {
     return ts_scope_[name];
   }
@@ -70,14 +70,14 @@ const TypeSymbolData &Scope::ts_resolve(const Name &name) const {
 }
 
 int Scope::resolveContains(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   return s_resolveContains(name) + ts_resolveContains(name);
 }
 
 int Scope::s_resolveContains(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   if (s_scope_.contains(name)) {
     return 1;
   }
@@ -88,8 +88,8 @@ int Scope::s_resolveContains(const Name &name) const {
 }
 
 int Scope::ts_resolveContains(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   if (ts_scope_.contains(name)) {
     return 1;
   }
@@ -100,8 +100,8 @@ int Scope::ts_resolveContains(const Name &name) const {
 }
 
 bool Scope::contains(const Name &name) const {
-  EX_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
-            name.raw().length());
+  LOG_ASSERT(name.raw().length() > 0, "name {} length {} > 0", name.raw(),
+             name.raw().length());
   return s_scope_.contains(name) || ts_scope_.contains(name);
 }
 
@@ -149,10 +149,10 @@ Ts_Class::Ts_Class(const Name &name, const Symbol *owner,
                    const std::vector<Symbol *> &methods)
     : TypeSymbol(name, owner), fields_(fields), methods_(methods) {
   for (int i = 0; i < (int)fields_.size(); i++) {
-    EX_ASSERT(fields_[i], "fields_[{}] must not null", i);
+    LOG_ASSERT(fields_[i], "fields_[{}] must not null", i);
   }
   for (int i = 0; i < (int)methods_.size(); i++) {
-    EX_ASSERT(methods_[i], "methods_[{}] must not null", i);
+    LOG_ASSERT(methods_[i], "methods_[{}] must not null", i);
   }
 }
 

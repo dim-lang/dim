@@ -3,11 +3,8 @@
 
 #pragma once
 #include "Ast.h"
-#include "Buffer.h"
 #include "BufferStack.h"
-#include "location.hh"
-#include "parser.tab.hh"
-#include "tokenizer.yy.hh"
+#include "yydecl.h"
 #include <string>
 #include <tuple>
 #include <utility>
@@ -18,11 +15,12 @@ public:
   virtual ~Scanner();
 
   // attributes
-  A_CompileUnit *compileUnit;
+  std::shared_ptr<Ast> compileUnit;
   yyscan_t yyscanner;
   BufferStack bufferStack;
+  std::shared_ptr<yy::parser> parser;
 
   // wrapper for flex/bison
-  virtual int tokenize();
+  virtual yy::parser::symbol_type tokenize();
   virtual int parse();
 };

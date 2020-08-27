@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
+#include "Log.h"
 #include "Strings.h"
 #include "TokenName.h"
 #include "parser.tab.hh"
@@ -124,7 +125,7 @@ static const std::unordered_map<A_Integer::BitCategory, std::string>
 
 A_Integer::A_Integer(const std::string &literal, const yy::location &location)
     : Ast(literal, location) {
-  EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
+  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
   if (Strings::startWith(literal, std::vector<std::string>{"0x", "0X", "0o",
@@ -227,7 +228,7 @@ const static std::unordered_map<A_Float::BitCategory, std::string> AFL_BC_Map =
 
 A_Float::A_Float(const std::string &literal, const yy::location &location)
     : Ast(literal, location) {
-  EX_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
+  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
   int endPosition = (int)literal.length();
@@ -382,7 +383,7 @@ std::string A_VarId::toString() const {
 
 A_Throw::A_Throw(std::shared_ptr<Ast> a_expr, const yy::location &location)
     : Ast("throw", location), expr(a_expr) {
-  EX_ASSERT(expr, "expr must not null");
+  LOG_ASSERT(expr, "expr must not null");
 }
 
 AstCategory A_Throw::category() const { return AstCategory::Throw; }
@@ -444,8 +445,8 @@ A_Assign::A_Assign(std::shared_ptr<Ast> a_assignee, int a_assignOp,
                    const yy::location &location)
     : Ast(tokenName(a_assignOp), location), assignee(a_assignee),
       assignOp(a_assignOp), assignor(a_assignor) {
-  EX_ASSERT(assignee, "assignee must not null");
-  EX_ASSERT(assignor, "assignor must not null");
+  LOG_ASSERT(assignee, "assignee must not null");
+  LOG_ASSERT(assignor, "assignor must not null");
 }
 
 AstCategory A_Assign::category() const { return AstCategory::Assign; }
@@ -464,7 +465,7 @@ std::string A_Assign::toString() const {
 A_PostfixExpr::A_PostfixExpr(std::shared_ptr<Ast> a_expr, int a_postfixOp,
                              const yy::location &location)
     : Ast("postfixExpr", location), expr(a_expr), postfixOp(a_postfixOp) {
-  EX_ASSERT(expr, "expr must not null");
+  LOG_ASSERT(expr, "expr must not null");
 }
 
 AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
@@ -485,8 +486,8 @@ A_InfixExpr::A_InfixExpr(std::shared_ptr<Ast> a_left, int a_infixOp,
                          const yy::location &location)
     : Ast("infixExpr", location), left(a_left), infixOp(a_infixOp),
       right(a_right) {
-  EX_ASSERT(left, "left must not null");
-  EX_ASSERT(right, "right must not null");
+  LOG_ASSERT(left, "left must not null");
+  LOG_ASSERT(right, "right must not null");
 }
 
 AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
@@ -505,7 +506,7 @@ std::string A_InfixExpr::toString() const {
 A_PrefixExpr::A_PrefixExpr(int a_prefixOp, std::shared_ptr<Ast> a_expr,
                            const yy::location &location)
     : Ast("prefixExpr", location), prefixOp(a_prefixOp), expr(a_expr) {
-  EX_ASSERT(expr, "expr must not null");
+  LOG_ASSERT(expr, "expr must not null");
 }
 
 AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
@@ -524,7 +525,7 @@ std::string A_PrefixExpr::toString() const {
 A_Call::A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Exprs> a_args,
                const yy::location &location)
     : Ast("call", location), id(a_id), args(a_args) {
-  EX_ASSERT(id, "id must not null");
+  LOG_ASSERT(id, "id must not null");
 }
 
 AstCategory A_Call::category() const { return AstCategory::Call; }
@@ -542,7 +543,7 @@ std::string A_Call::toString() const {
 A_Exprs::A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<A_Exprs> a_next,
                  const yy::location &location)
     : Ast("exprs", location), expr(a_expr), next(a_next) {
-  EX_ASSERT(expr, "id must not null");
+  LOG_ASSERT(expr, "id must not null");
 }
 
 AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
@@ -561,8 +562,8 @@ A_If::A_If(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_thenp,
            std::shared_ptr<Ast> a_elsep, const yy::location &location)
     : Ast("if", location), condition(a_condition), thenp(a_thenp),
       elsep(a_elsep) {
-  EX_ASSERT(condition, "condition must not null");
-  EX_ASSERT(thenp, "thenp must not null");
+  LOG_ASSERT(condition, "condition must not null");
+  LOG_ASSERT(thenp, "thenp must not null");
 }
 
 AstCategory A_If::category() const { return AstCategory::If; }
@@ -581,8 +582,8 @@ std::string A_If::toString() const {
 A_Loop::A_Loop(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_body,
                const yy::location &location)
     : Ast("loop", location), condition(a_condition), body(a_body) {
-  EX_ASSERT(condition, "condition must not null");
-  EX_ASSERT(body, "body must not null");
+  LOG_ASSERT(condition, "condition must not null");
+  LOG_ASSERT(body, "body must not null");
 }
 
 AstCategory A_Loop::category() const { return AstCategory::Loop; }
@@ -600,22 +601,22 @@ std::string A_Loop::toString() const {
 
 A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_init,
                                  std::shared_ptr<Ast> a_condition,
-                                 std::shared_ptr<Ast> a_update,
+                                 std::shared_ptr<Ast> a_update, bool a_do_once,
                                  const yy::location &location)
     : Ast("loopCondition", location), init(a_init), condition(a_condition),
-      update(a_update) {}
+      update(a_update), do_once(a_do_once) {}
 
 AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
 }
 
 std::string A_LoopCondition::toString() const {
-  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
-                     name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     init ? init->toString() : "nil",
-                     condition ? condition->toString() : "nil",
-                     update ? update->toString() : "nil");
+  return fmt::format(
+      "[{} location:{} init:{} condition:{} update:{} do_once:{}]",
+      name().toSymbolName(), (std::stringstream() << location()).str(),
+      init ? init->toString() : "nil",
+      condition ? condition->toString() : "nil",
+      update ? update->toString() : "nil", do_once);
 }
 
 // A_LoopCondition }
@@ -626,8 +627,8 @@ A_LoopEnumerator::A_LoopEnumerator(std::shared_ptr<Ast> a_id,
                                    std::shared_ptr<Ast> a_expr,
                                    const yy::location &location)
     : Ast("loopEnumerator", location), id(a_id), expr(a_expr) {
-  EX_ASSERT(id, "id must not null");
-  EX_ASSERT(expr, "expr must not null");
+  LOG_ASSERT(id, "id must not null");
+  LOG_ASSERT(expr, "expr must not null");
 }
 
 AstCategory A_LoopEnumerator::category() const {
@@ -648,8 +649,8 @@ A_Try::A_Try(std::shared_ptr<Ast> a_tryp, std::shared_ptr<Ast> a_catchp,
              std::shared_ptr<Ast> a_finallyp, const yy::location &location)
     : Ast("try", location), tryp(a_tryp), catchp(a_catchp),
       finallyp(a_finallyp) {
-  EX_ASSERT(tryp, "tryp must not null");
-  EX_ASSERT(catchp, "catchp must not null");
+  LOG_ASSERT(tryp, "tryp must not null");
+  LOG_ASSERT(catchp, "catchp must not null");
 }
 
 AstCategory A_Try::category() const { return AstCategory::Try; }
@@ -689,7 +690,7 @@ A_BlockStats::A_BlockStats(std::shared_ptr<Ast> a_blockStat,
                            std::shared_ptr<A_BlockStats> a_next,
                            const yy::location &location)
     : Ast("block", location), blockStat(a_blockStat), next(a_next) {
-  EX_ASSERT(blockStat, "blockStat must not null");
+  LOG_ASSERT(blockStat, "blockStat must not null");
 }
 
 AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
@@ -731,9 +732,9 @@ A_FuncDef::A_FuncDef(std::shared_ptr<Ast> a_funcSign,
                      std::shared_ptr<Ast> a_body, const yy::location &location)
     : Ast("funcDef", location), funcSign(a_funcSign), resultType(a_resultType),
       body(a_body) {
-  EX_ASSERT(funcSign, "funcSign must not null");
-  EX_ASSERT(resultType, "resultType must not null");
-  EX_ASSERT(body, "body must not null");
+  LOG_ASSERT(funcSign, "funcSign must not null");
+  LOG_ASSERT(resultType, "resultType must not null");
+  LOG_ASSERT(body, "body must not null");
 }
 
 AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
@@ -749,7 +750,7 @@ A_FuncSign::A_FuncSign(std::shared_ptr<Ast> a_id,
                        std::shared_ptr<A_Params> a_params,
                        const yy::location &location)
     : Ast("funcSign", location), id(a_id), params(a_params) {
-  EX_ASSERT(id, "id must not null");
+  LOG_ASSERT(id, "id must not null");
 }
 
 AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
@@ -765,7 +766,7 @@ A_Params::A_Params(std::shared_ptr<A_Param> a_param,
                    std::shared_ptr<A_Params> a_next,
                    const yy::location &location)
     : Ast("params", location), param(a_param), next(a_next) {
-  EX_ASSERT(param, "param must not null");
+  LOG_ASSERT(param, "param must not null");
 }
 
 AstCategory A_Params::category() const { return AstCategory::Params; }
@@ -780,8 +781,8 @@ std::string A_Params::toString() const {
 A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
                  const yy::location &location)
     : Ast("param", location), id(a_id), type(a_type) {
-  EX_ASSERT(id, "id must not null");
-  EX_ASSERT(type, "type must not null");
+  LOG_ASSERT(id, "id must not null");
+  LOG_ASSERT(type, "type must not null");
 }
 
 AstCategory A_Param::category() const { return AstCategory::Param; }
@@ -795,9 +796,9 @@ std::string A_Param::toString() const {
 A_VarDef::A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
                    std::shared_ptr<Ast> a_expr, const yy::location &location)
     : Ast("varDef", location), id(a_id), type(a_type), expr(a_expr) {
-  EX_ASSERT(id, "id must not null");
-  EX_ASSERT(type, "type must not null");
-  EX_ASSERT(expr, "expr must not null");
+  LOG_ASSERT(id, "id must not null");
+  LOG_ASSERT(type, "type must not null");
+  LOG_ASSERT(expr, "expr must not null");
 }
 
 AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
@@ -817,7 +818,7 @@ A_TopStats::A_TopStats(std::shared_ptr<Ast> a_topStat,
                        std::shared_ptr<A_TopStats> a_next,
                        const yy::location &location)
     : Ast("topStats", location), topStat(a_topStat), next(a_next) {
-  EX_ASSERT(topStat, "topStat must not null");
+  LOG_ASSERT(topStat, "topStat must not null");
 }
 
 AstCategory A_TopStats::category() const { return AstCategory::TopStats; }

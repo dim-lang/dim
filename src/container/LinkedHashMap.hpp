@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Exception.h"
 #include "LinkedHashMap.h"
+#include "Log.h"
 
 #define LN(x) ((LinkedNode<K, V> *)x)
 
@@ -128,57 +128,57 @@ void LinkedList<K, V>::traverse_remove(LinkedNode<K, V> *e) {
 }
 
 template <typename K, typename V> bool LinkedList<K, V>::empty() const {
-  EX_ASSERT(prev && next, "prev {}, next {} is null", (void *)prev,
-            (void *)next);
-  EX_ASSERT((prev == LN(this) && next == LN(this)) ||
-                (prev != LN(this) && next != LN(this)),
-            "this: {}, prev: {}, next: {}", (void *)this, (void *)prev,
-            (void *)next);
+  LOG_ASSERT(prev && next, "prev {}, next {} is null", (void *)prev,
+             (void *)next);
+  LOG_ASSERT((prev == LN(this) && next == LN(this)) ||
+                 (prev != LN(this) && next != LN(this)),
+             "this: {}, prev: {}, next: {}", (void *)this, (void *)prev,
+             (void *)next);
   return prev == LN(this) && next == LN(this);
 }
 
 template <typename K, typename V>
 bool LinkedList<K, V>::traverse_empty() const {
-  EX_ASSERT(traverse_prev && traverse_next,
-            "traverse_prev {}, traverse_next {} is null", (void *)prev,
-            (void *)next);
-  EX_ASSERT((traverse_prev == LN(this) && traverse_next == LN(this)) ||
-                (traverse_prev != LN(this) && traverse_next != LN(this)),
-            "this: {}, traverse_prev: {}, traverse_next: {}", (void *)this,
-            (void *)traverse_prev, (void *)traverse_next);
+  LOG_ASSERT(traverse_prev && traverse_next,
+             "traverse_prev {}, traverse_next {} is null", (void *)prev,
+             (void *)next);
+  LOG_ASSERT((traverse_prev == LN(this) && traverse_next == LN(this)) ||
+                 (traverse_prev != LN(this) && traverse_next != LN(this)),
+             "this: {}, traverse_prev: {}, traverse_next: {}", (void *)this,
+             (void *)traverse_prev, (void *)traverse_next);
   return traverse_prev == LN(this) && traverse_next == LN(this);
 }
 
 // { linked iterator start
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr>::Linkediterator(NodePtr node) : node_(node) {}
+LinkedIterator<K, V, NodePtr>::LinkedIterator(NodePtr node) : node_(node) {}
 
 // convert between other iterators
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr>::Linkediterator(
-    const Linkediterator<K, V, NodePtr> &other)
+LinkedIterator<K, V, NodePtr>::LinkedIterator(
+    const LinkedIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr>::Linkediterator(
-    const LinkedConstiterator<K, V, NodePtr> &other)
+LinkedIterator<K, V, NodePtr>::LinkedIterator(
+    const LinkedConstIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr>::Linkediterator(
-    const LinkedReverseiterator<K, V, NodePtr> &other)
+LinkedIterator<K, V, NodePtr>::LinkedIterator(
+    const LinkedReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr>::Linkediterator(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other)
+LinkedIterator<K, V, NodePtr>::LinkedIterator(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
-    const Linkediterator<K, V, NodePtr> &other) {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
+    const LinkedIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -187,8 +187,8 @@ Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
-    const LinkedConstiterator<K, V, NodePtr> &other) {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
+    const LinkedConstIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -197,8 +197,8 @@ Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
-    const LinkedReverseiterator<K, V, NodePtr> &other) {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
+    const LinkedReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -207,8 +207,8 @@ Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator=(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -217,73 +217,73 @@ Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator++() {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator++() {
   node_ = node_->traverse_next;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> &Linkediterator<K, V, NodePtr>::operator--() {
+LinkedIterator<K, V, NodePtr> &LinkedIterator<K, V, NodePtr>::operator--() {
   node_ = node_->traverse_prev;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> Linkediterator<K, V, NodePtr>::operator++(int) {
-  Linkediterator<K, V, NodePtr> save = *this;
+LinkedIterator<K, V, NodePtr> LinkedIterator<K, V, NodePtr>::operator++(int) {
+  LinkedIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_next;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-Linkediterator<K, V, NodePtr> Linkediterator<K, V, NodePtr>::operator--(int) {
-  Linkediterator<K, V, NodePtr> save = *this;
+LinkedIterator<K, V, NodePtr> LinkedIterator<K, V, NodePtr>::operator--(int) {
+  LinkedIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_prev;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool Linkediterator<K, V, NodePtr>::operator==(
-    const Linkediterator<K, V, NodePtr> &other) const {
+bool LinkedIterator<K, V, NodePtr>::operator==(
+    const LinkedIterator<K, V, NodePtr> &other) const {
   return node_ == other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool Linkediterator<K, V, NodePtr>::operator!=(
-    const Linkediterator<K, V, NodePtr> &other) const {
+bool LinkedIterator<K, V, NodePtr>::operator!=(
+    const LinkedIterator<K, V, NodePtr> &other) const {
   return node_ != other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool Linkediterator<K, V, NodePtr>::operator!() const {
+bool LinkedIterator<K, V, NodePtr>::operator!() const {
   return !node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-std::pair<const K, V> &Linkediterator<K, V, NodePtr>::operator*() {
+std::pair<const K, V> &LinkedIterator<K, V, NodePtr>::operator*() {
   return node_->value;
 }
 
 /* template <typename K, typename V, typename NodePtr> */
-/* const std::pair<const K, V> &Linkediterator<K, V, NodePtr>::operator*() const
+/* const std::pair<const K, V> &LinkedIterator<K, V, NodePtr>::operator*() const
  * { */
 /*   return (const std::pair<const K, V> &)node_->value; */
 /* } */
 
 template <typename K, typename V, typename NodePtr>
-std::pair<const K, V> *Linkediterator<K, V, NodePtr>::operator->() {
+std::pair<const K, V> *LinkedIterator<K, V, NodePtr>::operator->() {
   return &(node_->value);
 }
 
 /* template <typename K, typename V, typename NodePtr> */
-/* const std::pair<const K, V> *Linkediterator<K, V, NodePtr>::operator->()
+/* const std::pair<const K, V> *LinkedIterator<K, V, NodePtr>::operator->()
  * const { */
 /*   return (const std::pair<const K, V> *)&(node_->value); */
 /* } */
 
 template <typename K, typename V, typename NodePtr>
-std::string Linkediterator<K, V, NodePtr>::toString() const {
-  return fmt::format("[@Linkediterator node_:{}]", (void *)node_);
+std::string LinkedIterator<K, V, NodePtr>::toString() const {
+  return fmt::format("[@LinkedIterator node_:{}]", (void *)node_);
 }
 
 // } linked iterator end
@@ -291,33 +291,33 @@ std::string Linkediterator<K, V, NodePtr>::toString() const {
 // { linked const iterator start
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>::LinkedConstiterator(NodePtr node)
+LinkedConstIterator<K, V, NodePtr>::LinkedConstIterator(NodePtr node)
     : node_(node) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>::LinkedConstiterator(
-    const Linkediterator<K, V, NodePtr> &other)
+LinkedConstIterator<K, V, NodePtr>::LinkedConstIterator(
+    const LinkedIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>::LinkedConstiterator(
-    const LinkedConstiterator<K, V, NodePtr> &other)
+LinkedConstIterator<K, V, NodePtr>::LinkedConstIterator(
+    const LinkedConstIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>::LinkedConstiterator(
-    const LinkedReverseiterator<K, V, NodePtr> &other)
+LinkedConstIterator<K, V, NodePtr>::LinkedConstIterator(
+    const LinkedReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>::LinkedConstiterator(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other)
+LinkedConstIterator<K, V, NodePtr>::LinkedConstIterator(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator=(
-    const Linkediterator<K, V, NodePtr> &other) {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator=(
+    const LinkedIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -326,9 +326,9 @@ LinkedConstiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator=(
-    const LinkedConstiterator<K, V, NodePtr> &other) {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator=(
+    const LinkedConstIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -337,9 +337,9 @@ LinkedConstiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator=(
-    const LinkedReverseiterator<K, V, NodePtr> &other) {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator=(
+    const LinkedReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -348,9 +348,9 @@ LinkedConstiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator=(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator=(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -359,67 +359,67 @@ LinkedConstiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator++() {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator++() {
   node_ = node_->traverse_next;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr> &
-LinkedConstiterator<K, V, NodePtr>::operator--() {
+LinkedConstIterator<K, V, NodePtr> &
+LinkedConstIterator<K, V, NodePtr>::operator--() {
   node_ = node_->traverse_prev;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>
-LinkedConstiterator<K, V, NodePtr>::operator++(int) {
-  LinkedConstiterator<K, V, NodePtr> save = *this;
+LinkedConstIterator<K, V, NodePtr>
+LinkedConstIterator<K, V, NodePtr>::operator++(int) {
+  LinkedConstIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_next;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstiterator<K, V, NodePtr>
-LinkedConstiterator<K, V, NodePtr>::operator--(int) {
-  LinkedConstiterator<K, V, NodePtr> save = *this;
+LinkedConstIterator<K, V, NodePtr>
+LinkedConstIterator<K, V, NodePtr>::operator--(int) {
+  LinkedConstIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_prev;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstiterator<K, V, NodePtr>::operator==(
-    const LinkedConstiterator<K, V, NodePtr> &other) const {
+bool LinkedConstIterator<K, V, NodePtr>::operator==(
+    const LinkedConstIterator<K, V, NodePtr> &other) const {
   return node_ == other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstiterator<K, V, NodePtr>::operator!=(
-    const LinkedConstiterator<K, V, NodePtr> &other) const {
+bool LinkedConstIterator<K, V, NodePtr>::operator!=(
+    const LinkedConstIterator<K, V, NodePtr> &other) const {
   return node_ != other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstiterator<K, V, NodePtr>::operator!() const {
+bool LinkedConstIterator<K, V, NodePtr>::operator!() const {
   return !node_;
 }
 
 template <typename K, typename V, typename NodePtr>
 const std::pair<const K, V> &
-LinkedConstiterator<K, V, NodePtr>::operator*() const {
+LinkedConstIterator<K, V, NodePtr>::operator*() const {
   return node_->value;
 }
 
 template <typename K, typename V, typename NodePtr>
 const std::pair<const K, V> *
-LinkedConstiterator<K, V, NodePtr>::operator->() const {
+LinkedConstIterator<K, V, NodePtr>::operator->() const {
   return &(node_->value);
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedConstiterator<K, V, NodePtr>::toString() const {
-  return fmt::format("[@LinkedConstiterator node_:{}]", (void *)node_);
+std::string LinkedConstIterator<K, V, NodePtr>::toString() const {
+  return fmt::format("[@LinkedConstIterator node_:{}]", (void *)node_);
 }
 
 // { linked const iterator end
@@ -427,33 +427,33 @@ std::string LinkedConstiterator<K, V, NodePtr>::toString() const {
 // { linked reverse iterator start
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::LinkedReverseiterator(NodePtr node)
+LinkedReverseIterator<K, V, NodePtr>::LinkedReverseIterator(NodePtr node)
     : node_(node) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::LinkedReverseiterator(
-    const Linkediterator<K, V, NodePtr> &other)
+LinkedReverseIterator<K, V, NodePtr>::LinkedReverseIterator(
+    const LinkedIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::LinkedReverseiterator(
-    const LinkedConstiterator<K, V, NodePtr> &other)
+LinkedReverseIterator<K, V, NodePtr>::LinkedReverseIterator(
+    const LinkedConstIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::LinkedReverseiterator(
-    const LinkedReverseiterator<K, V, NodePtr> &other)
+LinkedReverseIterator<K, V, NodePtr>::LinkedReverseIterator(
+    const LinkedReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::LinkedReverseiterator(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other)
+LinkedReverseIterator<K, V, NodePtr>::LinkedReverseIterator(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator=(
-    const Linkediterator<K, V, NodePtr> &other) {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -462,9 +462,9 @@ LinkedReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedConstiterator<K, V, NodePtr> &other) {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedConstIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -473,9 +473,9 @@ LinkedReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedReverseiterator<K, V, NodePtr> &other) {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -484,9 +484,9 @@ LinkedReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -495,65 +495,65 @@ LinkedReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator++() {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator++() {
   node_ = node_->traverse_prev;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr> &
-LinkedReverseiterator<K, V, NodePtr>::operator--() {
+LinkedReverseIterator<K, V, NodePtr> &
+LinkedReverseIterator<K, V, NodePtr>::operator--() {
   node_ = node_->traverse_next;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::operator++(int) {
-  LinkedReverseiterator<K, V, NodePtr> save = *this;
+LinkedReverseIterator<K, V, NodePtr>
+LinkedReverseIterator<K, V, NodePtr>::operator++(int) {
+  LinkedReverseIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_prev;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedReverseiterator<K, V, NodePtr>
-LinkedReverseiterator<K, V, NodePtr>::operator--(int) {
-  LinkedReverseiterator<K, V, NodePtr> save = *this;
+LinkedReverseIterator<K, V, NodePtr>
+LinkedReverseIterator<K, V, NodePtr>::operator--(int) {
+  LinkedReverseIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_next;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedReverseiterator<K, V, NodePtr>::operator==(
-    const LinkedReverseiterator<K, V, NodePtr> &other) const {
+bool LinkedReverseIterator<K, V, NodePtr>::operator==(
+    const LinkedReverseIterator<K, V, NodePtr> &other) const {
   return node_ == other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedReverseiterator<K, V, NodePtr>::operator!=(
-    const LinkedReverseiterator<K, V, NodePtr> &other) const {
+bool LinkedReverseIterator<K, V, NodePtr>::operator!=(
+    const LinkedReverseIterator<K, V, NodePtr> &other) const {
   return node_ != other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedReverseiterator<K, V, NodePtr>::operator!() const {
+bool LinkedReverseIterator<K, V, NodePtr>::operator!() const {
   return !node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-std::pair<const K, V> &LinkedReverseiterator<K, V, NodePtr>::operator*() {
+std::pair<const K, V> &LinkedReverseIterator<K, V, NodePtr>::operator*() {
   return node_->value;
 }
 
 template <typename K, typename V, typename NodePtr>
-std::pair<const K, V> *LinkedReverseiterator<K, V, NodePtr>::operator->() {
+std::pair<const K, V> *LinkedReverseIterator<K, V, NodePtr>::operator->() {
   return &(node_->value);
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedReverseiterator<K, V, NodePtr>::toString() const {
-  return fmt::format("[@LinkedReverseiterator node_:{}]", (void *)node_);
+std::string LinkedReverseIterator<K, V, NodePtr>::toString() const {
+  return fmt::format("[@LinkedReverseIterator node_:{}]", (void *)node_);
 }
 
 // } linked reverse iterator end
@@ -561,34 +561,34 @@ std::string LinkedReverseiterator<K, V, NodePtr>::toString() const {
 // { linked const reverse iterator start
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::LinkedConstReverseiterator(
+LinkedConstReverseIterator<K, V, NodePtr>::LinkedConstReverseIterator(
     NodePtr node)
     : node_(node) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::LinkedConstReverseiterator(
-    const Linkediterator<K, V, NodePtr> &other)
+LinkedConstReverseIterator<K, V, NodePtr>::LinkedConstReverseIterator(
+    const LinkedIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::LinkedConstReverseiterator(
-    const LinkedConstiterator<K, V, NodePtr> &other)
+LinkedConstReverseIterator<K, V, NodePtr>::LinkedConstReverseIterator(
+    const LinkedConstIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::LinkedConstReverseiterator(
-    const LinkedReverseiterator<K, V, NodePtr> &other)
+LinkedConstReverseIterator<K, V, NodePtr>::LinkedConstReverseIterator(
+    const LinkedReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::LinkedConstReverseiterator(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other)
+LinkedConstReverseIterator<K, V, NodePtr>::LinkedConstReverseIterator(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other)
     : node_(other.node_) {}
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator=(
-    const Linkediterator<K, V, NodePtr> &other) {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -597,9 +597,9 @@ LinkedConstReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedConstiterator<K, V, NodePtr> &other) {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedConstIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -608,9 +608,9 @@ LinkedConstReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedReverseiterator<K, V, NodePtr> &other) {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -619,9 +619,9 @@ LinkedConstReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator=(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator=(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) {
   if (this == &other) {
     return *this;
   }
@@ -630,67 +630,67 @@ LinkedConstReverseiterator<K, V, NodePtr>::operator=(
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator++() {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator++() {
   node_ = node_->traverse_prev;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator--() {
+LinkedConstReverseIterator<K, V, NodePtr> &
+LinkedConstReverseIterator<K, V, NodePtr>::operator--() {
   node_ = node_->traverse_next;
   return *this;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::operator++(int) {
-  LinkedConstReverseiterator<K, V, NodePtr> save = *this;
+LinkedConstReverseIterator<K, V, NodePtr>
+LinkedConstReverseIterator<K, V, NodePtr>::operator++(int) {
+  LinkedConstReverseIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_prev;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>
-LinkedConstReverseiterator<K, V, NodePtr>::operator--(int) {
-  LinkedConstReverseiterator<K, V, NodePtr> save = *this;
+LinkedConstReverseIterator<K, V, NodePtr>
+LinkedConstReverseIterator<K, V, NodePtr>::operator--(int) {
+  LinkedConstReverseIterator<K, V, NodePtr> save = *this;
   node_ = node_->traverse_next;
   return save;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstReverseiterator<K, V, NodePtr>::operator==(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) const {
+bool LinkedConstReverseIterator<K, V, NodePtr>::operator==(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) const {
   return node_ == other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstReverseiterator<K, V, NodePtr>::operator!=(
-    const LinkedConstReverseiterator<K, V, NodePtr> &other) const {
+bool LinkedConstReverseIterator<K, V, NodePtr>::operator!=(
+    const LinkedConstReverseIterator<K, V, NodePtr> &other) const {
   return node_ != other.node_;
 }
 
 template <typename K, typename V, typename NodePtr>
-bool LinkedConstReverseiterator<K, V, NodePtr>::operator!() const {
+bool LinkedConstReverseIterator<K, V, NodePtr>::operator!() const {
   return !node_;
 }
 
 template <typename K, typename V, typename NodePtr>
 const std::pair<const K, V> &
-LinkedConstReverseiterator<K, V, NodePtr>::operator*() const {
+LinkedConstReverseIterator<K, V, NodePtr>::operator*() const {
   return node_->value;
 }
 
 template <typename K, typename V, typename NodePtr>
 const std::pair<const K, V> *
-LinkedConstReverseiterator<K, V, NodePtr>::operator->() const {
+LinkedConstReverseIterator<K, V, NodePtr>::operator->() const {
   return &(node_->value);
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedConstReverseiterator<K, V, NodePtr>::toString() const {
-  return fmt::format("[@LinkedConstReverseiterator node_:{}]", (void *)node_);
+std::string LinkedConstReverseIterator<K, V, NodePtr>::toString() const {
+  return fmt::format("[@LinkedConstReverseIterator node_:{}]", (void *)node_);
 }
 
 // } linked const reverse iterator end
@@ -704,7 +704,7 @@ LinkedHm<K, V, H, E>::LinkedHm()
 
 template <typename K, typename V, typename H, typename E>
 LinkedHm<K, V, H, E>::LinkedHm(int bucket) : LinkedHm() {
-  EX_ASSERT(bucket > 0, "bucket {} > 0", bucket);
+  LOG_ASSERT(bucket > 0, "bucket {} > 0", bucket);
   extend(bucket);
 }
 
@@ -715,10 +715,10 @@ LinkedHm<K, V, H, E>::~LinkedHm() {
 
 template <typename K, typename V, typename H, typename E>
 bool LinkedHm<K, V, H, E>::empty() const {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  EX_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
-            "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
-            (void *)count_, size_, bucket_);
+  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  LOG_ASSERT((ht_ && count_) || (!ht_ && !count_ && size_ == 0 && bucket_ == 0),
+             "ht_ {} null, count_ {} null, size_: {}, bucket_: {}", (void *)ht_,
+             (void *)count_, size_, bucket_);
   return size_ == 0;
 }
 
@@ -753,8 +753,8 @@ void LinkedHm<K, V, H, E>::release() {
     for (int i = 0; i < bucket_; i++) {
       destroyList(i);
     }
-    EX_ASSERT(head_.traverse_empty(), "head_#traverse_empty: {}",
-              head_.traverse_empty());
+    LOG_ASSERT(head_.traverse_empty(), "head_#traverse_empty: {}",
+               head_.traverse_empty());
     delete[] ht_;
     delete[] count_;
     ht_ = nullptr;
@@ -772,8 +772,8 @@ LinkedHm<K, V, H, E>::insert(const std::pair<const K, V> &value) {
   int b = getBucket(value.first, bucket_);
   ht_[b].insertHead(e);
   head_.traverse_insert(e);
-  EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   ++count_[b];
   ++size_;
   return LinkedHm<K, V, H, E>::iterator(e);
@@ -789,8 +789,8 @@ LinkedHm<K, V, H, E>::insertOrAssign(const std::pair<const K, V> &value) {
     int b = getBucket(value.first, bucket_);
     ht_[b].insertHead(e);
     head_.traverse_insert(e);
-    EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
     ++count_[b];
     ++size_;
     return LinkedHm<K, V, H, E>::iterator(e);
@@ -850,8 +850,8 @@ LinkedHm<K, V, H, E>::remove(typename LinkedHm<K, V, H, E>::iterator position) {
       delete e;
       --count_[b];
       --size_;
-      EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return next;
     }
     e = e->next;
@@ -875,8 +875,8 @@ typename LinkedHm<K, V, H, E>::iterator LinkedHm<K, V, H, E>::remove(
       delete e;
       --count_[b];
       --size_;
-      EX_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
-      EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+      LOG_ASSERT(count_[b] >= 0, "count_[{}] {} >= 0", b, count_[b]);
+      LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
       return next;
     }
     e = e->next;
@@ -957,17 +957,17 @@ LinkedHm<K, V, H, E>::crend() const {
 
 template <typename K, typename V, typename H, typename E>
 void LinkedHm<K, V, H, E>::extend(int n) {
-  EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
-  EX_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
+  LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+  LOG_ASSERT(bucket_ >= 0, "bucket_ {} >= 0", bucket_);
   if (!empty() && loadFactor() < 4.0) {
     return;
   }
   n = alignBucket(n);
-  EX_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
+  LOG_ASSERT(n > bucket_, "n {} > bucket_ {}", n, bucket_);
   LinkedList<K, V> *newHt = new LinkedList<K, V>[n];
   int *newCount = new int[n];
-  EX_ASSERT(newHt, "newHt is null");
-  EX_ASSERT(newCount, "newCount is null");
+  LOG_ASSERT(newHt, "newHt is null");
+  LOG_ASSERT(newCount, "newCount is null");
   std::memset(newCount, 0, n * sizeof(int));
 
   // first try rehash old hashmap
@@ -1005,11 +1005,11 @@ void LinkedHm<K, V, H, E>::destroyList(int i) {
     delete e;
     --count_[i];
     --size_;
-    EX_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
-    EX_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
+    LOG_ASSERT(count_[i] >= 0, "count_[{}] {} >= 0", i, count_[i]);
+    LOG_ASSERT(size_ >= 0, "size_ {} >= 0", size_);
   }
-  EX_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
-  EX_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
+  LOG_ASSERT(ht_[i].empty(), "ht_[{}]#empty: {}", i, ht_[i].empty());
+  LOG_ASSERT(count_[i] == 0, "count_[{}] {} == 0", i, count_[i]);
 }
 
 template <typename K, typename V, typename H, typename E>
@@ -1177,7 +1177,7 @@ typename LinkedHashMap<K, V, H, E>::iterator LinkedHashMap<K, V, H, E>::remove(
 
 template <typename K, typename V, typename H, typename E>
 typename LinkedHashMap<K, V, H, E>::iterator LinkedHashMap<K, V, H, E>::remove(
-    LinkedHashMap<K, V, H, E>::reverse_iterator position) {
+    LinkedHashMap<K, V, H, E>::const_iterator position) {
   return hm_.remove(position);
 }
 

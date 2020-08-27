@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "IrWriter.h"
-#include "Exception.h"
 #include "Log.h"
 #include "llvm/Config/llvm-config.h"
 #include "llvm/Support/CodeGen.h"
@@ -20,7 +19,7 @@
 #define OBJ ".o"
 
 IrLLWriter::IrLLWriter(IrContext *context) : context_(context) {
-  EX_ASSERT(context_, "context_ is null");
+  LOG_ASSERT(context_, "context_ is null");
 }
 
 void IrLLWriter::toStdout() {
@@ -35,8 +34,8 @@ std::string IrLLWriter::toFileOstream() {
   std::string llFileName = context_->sourceName + LL;
   std::error_code errcode;
   llvm::raw_fd_ostream fos(llFileName, errcode);
-  EX_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
-            errcode.message());
+  LOG_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
+             errcode.message());
   context_->llvmModule->print(fos, nullptr);
   fos.close();
   return llFileName;
@@ -59,7 +58,7 @@ IrObjectWriter::IrObjectWriter(IrContext *context) : context_(context) {
   std::string errorMessage;
   const llvm::Target *target =
       llvm::TargetRegistry::lookupTarget(targetTriple, errorMessage);
-  EX_ASSERT(target, "target must not null");
+  LOG_ASSERT(target, "target must not null");
   std::string cpu = "generic";
   std::string features = "";
   llvm::TargetOptions opt;
@@ -70,16 +69,16 @@ IrObjectWriter::IrObjectWriter(IrContext *context) : context_(context) {
   context_->llvmModule->setTargetTriple(targetTriple);
 }
 
-void IrObjectWriter::toStdout() { EX_ASSERT(false, "method not support"); }
+void IrObjectWriter::toStdout() { LOG_ASSERT(false, "method not support"); }
 
-void IrObjectWriter::toStderr() { EX_ASSERT(false, "method not support"); }
+void IrObjectWriter::toStderr() { LOG_ASSERT(false, "method not support"); }
 
 std::string IrObjectWriter::toFileOstream() {
   std::string objFileName = context_->sourceName + OBJ;
   std::error_code errcode;
   llvm::raw_fd_ostream fos(objFileName, errcode, llvm::sys::fs::OF_None);
-  EX_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
-            errcode.message());
+  LOG_ASSERT(!errcode, "raw_fd_ostream open file error: errcode {}",
+             errcode.message());
   llvm::legacy::PassManager passManager;
 #if LLVM_VERSION_MAJOR > 9
   llvm::CodeGenFileType cgft = llvm::CodeGenFileType::CGFT_ObjectFile;
@@ -89,7 +88,7 @@ std::string IrObjectWriter::toFileOstream() {
 #endif
   bool addResult =
       targetMachine_->addPassesToEmitFile(passManager, fos, nullptr, cgft);
-  EX_ASSERT(addResult, "targetMachine->addPassesToEmitFile must be true");
+  LOG_ASSERT(addResult, "targetMachine->addPassesToEmitFile must be true");
   passManager.run(*context_->llvmModule);
   fos.flush();
   fos.close();
@@ -97,5 +96,5 @@ std::string IrObjectWriter::toFileOstream() {
 }
 
 std::string IrObjectWriter::toStringOstream() {
-  EX_ASSERT(false, "method not support");
+  LOG_ASSERT(false, "method not support");
 }

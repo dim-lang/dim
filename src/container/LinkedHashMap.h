@@ -3,7 +3,6 @@
 
 #pragma once
 #include "boost/core/noncopyable.hpp"
-#include "interface/Stringify.h"
 #include <functional>
 #include <utility>
 
@@ -61,8 +60,7 @@ template <typename K, typename V, typename NodePtr>
 class LinkedConstReverseIterator;
 
 // linked iterator
-template <typename K, typename V, typename NodePtr>
-class LinkedIterator : public Stringify {
+template <typename K, typename V, typename NodePtr> class LinkedIterator {
 public:
   LinkedIterator(NodePtr node = nullptr);
   virtual ~LinkedIterator() = default;
@@ -100,8 +98,7 @@ private:
 };
 
 // linked const iterator
-template <typename K, typename V, typename NodePtr>
-class LinkedConstIterator : public Stringify {
+template <typename K, typename V, typename NodePtr> class LinkedConstIterator {
 public:
   LinkedConstIterator(const NodePtr node = nullptr);
   virtual ~LinkedConstIterator() = default;
@@ -140,7 +137,7 @@ private:
 
 // linked reverse iterator
 template <typename K, typename V, typename NodePtr>
-class LinkedReverseIterator : public Stringify {
+class LinkedReverseIterator {
 public:
   LinkedReverseIterator(NodePtr node = nullptr);
   virtual ~LinkedReverseIterator() = default;
@@ -179,7 +176,7 @@ private:
 
 // linked const reverse iterator
 template <typename K, typename V, typename NodePtr>
-class LinkedConstReverseIterator : public Stringify {
+class LinkedConstReverseIterator {
 public:
   LinkedConstReverseIterator(const NodePtr node = nullptr);
   virtual ~LinkedConstReverseIterator() = default;
@@ -306,8 +303,8 @@ public:
   iterator insert(const std::pair<const K, V> &value);
 
   // return   1 if insert, 0 if assign
-  int insertOrAssign(const K &key, const V &mapped);
-  int insertOrAssign(const std::pair<const K, V> &value);
+  iterator insertOrAssign(const K &key, const V &mapped);
+  iterator insertOrAssign(const std::pair<const K, V> &value);
 
   // return   0 if success, -1 if not exist
   iterator remove(const K &key);

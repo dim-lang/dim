@@ -5,7 +5,7 @@
 #include "catch2/catch.hpp"
 
 TEST_CASE("Log", "[Log]") {
-  SECTION("logging operations") {
+  SECTION("logging") {
     LOG_TRACE("trace test");
     LOG_TRACE("trace test with args: {} {} {}", "hello", 1, 4.281);
     LOG_DEBUG("debug test");
@@ -14,5 +14,10 @@ TEST_CASE("Log", "[Log]") {
     LOG_INFO("info test with args:{} {} {}", "hello", 1, 4.281);
     LOG_ERROR("error test");
     LOG_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
+    try {
+      LOG_ASSERT(false, "this is a wrong message which throw a string");
+    } catch (const std::string &e) {
+      LOG_ERROR("catch it:{}", e);
+    }
   }
 }
