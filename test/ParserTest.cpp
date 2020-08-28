@@ -17,7 +17,7 @@ static void parse(const char *fileName) {
 
 TEST_CASE("parser", "[parser]") {
   SECTION("parser") {
-    parse("test/case/Parser1.nd");
-    parse("test/case/Parser2.nd");
+    parse("test/case/Parse1.nd");
+    parse("test/case/Parse2.nd");
   }
 }

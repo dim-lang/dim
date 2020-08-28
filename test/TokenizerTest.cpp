@@ -30,7 +30,7 @@ static void tokenize(const char *fileName) {
 
 TEST_CASE("Token", "[Token]") {
   SECTION("Lexer") {
-    tokenize("test/case/Parser1.nd");
-    tokenize("test/case/Parser2.nd");
+    tokenize("test/case/Parse1.nd");
+    tokenize("test/case/Parse2.nd");
   }
 }
