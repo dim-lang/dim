@@ -33,14 +33,14 @@ def ok(y) { var x = 1; return x%y; }
 
 def testOnTokenLexer() {
     print("This is going to be a very long string, which is used for testing programming language");
-    print("Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
+    print("""Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.
-Maybe we need more troubleshooting while testing.");
+Maybe we need more troubleshooting while testing.""");
     print(
-            "Try punctuations like if \"'\" will stop this string literals."
-            "join string 2, "
-            "join string 3, "
-            "join string 4, "
+            "Try punctuations like if \"'\" will stop this string literals." +
+            "join string 2, " +
+            "join string 3, " +
+            "join string 4, " +
             );
     var a = """  Hello World,
 This is a multiple line string!\u0000
