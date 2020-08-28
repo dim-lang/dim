@@ -565,6 +565,8 @@ DynamicBuffer::DynamicBuffer(int capacity) {
   }
 }
 
+DynamicBuffer::~DynamicBuffer() {}
+
 std::string DynamicBuffer::toString() const {
   return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer<1>::toString());
 }
@@ -575,6 +577,8 @@ FixedBuffer::FixedBuffer(int capacity) {
     expand(capacity + 1);
   }
 }
+
+FixedBuffer::~FixedBuffer() {}
 
 std::string FixedBuffer::toString() const {
   return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer<0>::toString());

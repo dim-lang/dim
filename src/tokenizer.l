@@ -152,10 +152,8 @@ or          { MK_INTEGER(T_OR); }
 not         { MK_INTEGER(T_NOT); }
 
  /* optional newline or semicolon */
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"else"    { MK_INTEGER(T_SEMI_ELSE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"else"      { MK_INTEGER(T_SEMI_ELSE); }
-[\n]+({BC}|{LC}|[^ \t\v\f\r])*"while"   { MK_INTEGER(T_SEMI_WHILE); }
-";"({BC}|{LC}|[^ \t\v\f\r])*"while"     { MK_INTEGER(T_SEMI_WHILE); }
+(";"|[\n]+)({BC}|{LC}|[^ \t\v\f\r])*"else"    { MK_INTEGER(T_SEMI_ELSE); }
+(";"|[\n]+)({BC}|{LC}|[^ \t\v\f\r])*"while"   { MK_INTEGER(T_SEMI_WHILE); }
 
 "+"         { MK_INTEGER(T_PLUS); }
 "++"        { MK_INTEGER(T_PLUS2); }

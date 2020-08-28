@@ -90,7 +90,7 @@ set(NERD_LIB_DIR
     ${LLVM_LIBRARY_DIRS}
     )
 set(NERD
-    Log.cpp
+    # Log.cpp
     # Exception.cpp
     container/CycleBuffer.cpp
     Option.cpp

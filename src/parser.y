@@ -10,8 +10,9 @@
 %locations
 %param {yyscan_t yyscanner}
 
-%printer { LOG_INFO("{}", $$ ? $$->toString() : "nil"); } <std::shared_ptr<Ast>>
-%printer { LOG_INFO("{}", $$); } <*>
+%printer { LOG_INFO("integer: {}", $$); } <int>;
+%printer { LOG_INFO("string: {}", $$); } <std::string>;
+%printer { LOG_INFO("ast: {}", $$ ? $$->category()._to_string() : "unknown"); } <std::shared_ptr<Ast>>;
 
 %code top {
 #include <memory>
@@ -580,5 +581,5 @@ topStat : def { $$ = $1; }
 %%
 
 void yy::parser::error(const yy::parser::location_type& l, const std::string& m) {
-    LOG_INFO("{} {}", (std::stringstream() << l).str(), m);
+    LOG_INFO("{}:{} {}", static_cast<Scanner *>(yyget_extra(yyscanner))->fileName, (std::stringstream() << l).str(), m);
 }

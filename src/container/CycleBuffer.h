@@ -178,13 +178,13 @@ protected:
 class DynamicBuffer : public detail::CycleBuffer<1> {
 public:
   DynamicBuffer(int capacity = 0);
-  virtual ~DynamicBuffer() = default;
+  virtual ~DynamicBuffer();
   virtual std::string toString() const;
 };
 
 class FixedBuffer : public detail::CycleBuffer<0> {
 public:
   FixedBuffer(int capacity);
-  virtual ~FixedBuffer() = default;
+  virtual ~FixedBuffer();
   virtual std::string toString() const;
 };

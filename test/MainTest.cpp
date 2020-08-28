@@ -6,8 +6,11 @@
 #include "boost/filesystem.hpp"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
+#include "spdlog/sinks/basic_file_sink.h"
 
 TEST_CASE("Main", "[Main]") {
+  spdlog::set_default_logger(
+      spdlog::basic_logger_mt("nerd-test", "nerd-test.log"));
   SECTION("Main Initialize") {
     fmt::print(
         "nerd-test start at:{}\n",

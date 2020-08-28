@@ -689,9 +689,7 @@ std::string A_Block::toString() const {
 A_BlockStats::A_BlockStats(std::shared_ptr<Ast> a_blockStat,
                            std::shared_ptr<A_BlockStats> a_next,
                            const yy::location &location)
-    : Ast("block", location), blockStat(a_blockStat), next(a_next) {
-  LOG_ASSERT(blockStat, "blockStat must not null");
-}
+    : Ast("block", location), blockStat(a_blockStat), next(a_next) {}
 
 AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 
@@ -699,7 +697,8 @@ std::string A_BlockStats::toString() const {
   return fmt::format("[{} location:{} blockStat:{} next:{}]",
                      name().toSymbolName(),
                      (std::stringstream() << location()).str(),
-                     blockStat->toString(), next ? next->toString() : "nil");
+                     blockStat ? blockStat->toString() : "nil",
+                     next ? next->toString() : "nil");
 }
 
 // A_BlockStats }
@@ -817,17 +816,15 @@ std::string A_VarDef::toString() const {
 A_TopStats::A_TopStats(std::shared_ptr<Ast> a_topStat,
                        std::shared_ptr<A_TopStats> a_next,
                        const yy::location &location)
-    : Ast("topStats", location), topStat(a_topStat), next(a_next) {
-  LOG_ASSERT(topStat, "topStat must not null");
-}
+    : Ast("topStats", location), topStat(a_topStat), next(a_next) {}
 
 AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
 
 std::string A_TopStats::toString() const {
-  return fmt::format("[@{} location:{}, topStat:{} next:{}]",
-                     name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     topStat->toString(), next ? next->toString() : "nil");
+  return fmt::format(
+      "[@{} location:{}, topStat:{} next:{}]", name().toSymbolName(),
+      (std::stringstream() << location()).str(),
+      topStat ? topStat->toString() : "nil", next ? next->toString() : "nil");
 }
 
 A_CompileUnit::A_CompileUnit(std::shared_ptr<Ast> a_topStat,
@@ -838,10 +835,11 @@ A_CompileUnit::A_CompileUnit(std::shared_ptr<Ast> a_topStat,
 AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
 
 std::string A_CompileUnit::toString() const {
-  return fmt::format(
-      "[@{} location:{}, topStat:{} topStats:{}]", name().toSymbolName(),
-      (std::stringstream() << location()).str(), topStat->toString(),
-      topStats ? topStats->toString() : "nil");
+  return fmt::format("[@{} location:{}, topStat:{} topStats:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location()).str(),
+                     topStat ? topStat->toString() : "nil",
+                     topStats ? topStats->toString() : "nil");
 }
 
 // compile unit }
