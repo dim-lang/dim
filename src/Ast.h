@@ -16,8 +16,6 @@
 
 /*================ type start from 1000 ================*/
 BETTER_ENUM(AstCategory, int,
-            // token
-            /* Token = 1000, */
             // literal
             Integer = 1000, Float, Boolean, Character, String, Nil, Void,
             // id
@@ -38,9 +36,6 @@ BETTER_ENUM(AstCategory, int,
 
 /* ast */
 class Ast;
-
-/* token */
-/* class A_Token; */
 
 /* literal */
 class A_Integer;
@@ -107,22 +102,6 @@ public:
 };
 
 // Ast }
-
-// token {
-
-/* class A_Token : public Ast { */
-/* public: */
-/*   A_Token(int token, const yy::location &a_location = yy::location()); */
-/*   virtual ~A_Token() = default; */
-/*   virtual AstCategory category() const; */
-/*   virtual std::string toString() const; */
-/*   virtual int token() const; */
-
-/* private: */
-/*   int token_; */
-/* }; */
-
-// }
 
 // literal {
 

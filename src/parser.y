@@ -36,9 +36,7 @@ class Ast;
  /*     int tok; */
  /* } */
 
- /* token { */
-
-%token<int> T_EMPTY "empty"
+ /* token<int> { */
 
  /* keyword */
 %token<int> T_TRUE "true"
@@ -207,7 +205,7 @@ class Ast;
  /* compile unit */
 %type<std::shared_ptr<Ast>> compileUnit topStat topStats optionalTopStats
 
- /* token } */
+ /* token<int> } */
 
  /* low -> high precedence { */
 
@@ -273,15 +271,15 @@ semi : ";" { $$ = $1; }
      ;
 
 optionalNewline : "\n" { $$ = $1; }
-                | %empty { $$ = yy::parser::token::T_EMPTY; }
+                | %empty { $$ = yy::parser::token::YYUNDEF; }
                 ;
 
 optionalNewlines : newlines { $$ = $1; }
-                 | %empty { $$ = yy::parser::token::T_EMPTY; }
+                 | %empty { $$ = yy::parser::token::YYUNDEF; }
                  ;
 
 newlines : "\n" { $$ = $1; }
-         | newlines "\n" { $$ = $1; }
+         | newlines "\n" { $$ = $2; }
          ;
 
  /* semi and newline } */
@@ -351,7 +349,7 @@ optionalExpr : expr { $$ = $1; }
              ;
 
 /* optionalYield : "yield" { $$ = $1; } */
-/*               | %empty { $$ = yy::parser::token::T_EMPTY; } */
+/*               | %empty { $$ = yy::parser::token::YYUNDEF; } */
 /*               ; */
 
 assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }

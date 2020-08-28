@@ -26,6 +26,7 @@ LC  ("//".*\n)
 
 %{
 #include <string>
+#include "boost/preprocessor/cat.hpp"
 #include "Scanner.h"
 #include "Buffer.h"
 #include "Log.h"
@@ -55,8 +56,8 @@ LC  ("//".*\n)
 #define T_SCANNER           (static_cast<Scanner *>(yyextra))
 #define T_LOCATION          (T_SCANNER->bufferStack.top()->location)
 #define T_FILE_NAME         (T_SCANNER->bufferStack.top()->fileName)
-#define MK_LITERAL(t)       {yy::parser::token::token_kind_type tk = yy::parser::token:: ## t; return yy::parser::symbol_type(tk, yytext, T_LOCATION);}
-#define MK_INTEGER(t)       {yy::parser::token::token_kind_type tk = yy::parser::token:: ## t; return yy::parser::symbol_type(tk, tk, T_LOCATION);}
+#define MK_LITERAL(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION)
+#define MK_INTEGER(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yy::parser::token::t, T_LOCATION)
 
 #define YY_USER_ACTION                         \
     T_LOCATION.step();                         \
@@ -78,60 +79,60 @@ LC  ("//".*\n)
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { return yy::parser::make_T_TRUE(yy::parser::token::T_TRUE, T_LOCATION); }
-false       { return yy::parser::make_T_FALSE(yy::parser::token::T_FALSE, T_LOCATION); }
-try         { return yy::parser::make_T_TRY(yy::parser::token::T_TRY, T_LOCATION); }
-catch       { return yy::parser::make_T_CATCH(yy::parser::token::T_CATCH, T_LOCATION); }
-finally     { return yy::parser::make_T_FINALLY(yy::parser::token::T_FINALLY, T_LOCATION); }
-throw       { return yy::parser::make_T_THROW(yy::parser::token::T_THROW, T_LOCATION); }
-yield       { return yy::parser::make_T_YIELD(yy::parser::token::T_YIELD, T_LOCATION); }
-var         { return yy::parser::make_T_VAR(yy::parser::token::T_VAR, T_LOCATION); }
-val         { return yy::parser::make_T_VAL(yy::parser::token::T_VAL, T_LOCATION); }
-nil         { return yy::parser::make_T_NIL(yy::parser::token::T_NIL, T_LOCATION); }
-new         { return yy::parser::make_T_NEW(yy::parser::token::T_NEW, T_LOCATION); }
-delete      { return yy::parser::make_T_DELETE(yy::parser::token::T_DELETE, T_LOCATION); }
-def         { return yy::parser::make_T_DEF(yy::parser::token::T_DEF, T_LOCATION); }
-if          { return yy::parser::make_T_IF(yy::parser::token::T_IF, T_LOCATION); }
-then        { return yy::parser::make_T_THEN(yy::parser::token::T_THEN, T_LOCATION); }
-else        { return yy::parser::make_T_ELSE(yy::parser::token::T_ELSE, T_LOCATION); }
-match       { return yy::parser::make_T_MATCH(yy::parser::token::T_MATCH, T_LOCATION); }
-enum        { return yy::parser::make_T_ENUM(yy::parser::token::T_ENUM, T_LOCATION); }
-switch      { return yy::parser::make_T_SWITCH(yy::parser::token::T_SWITCH, T_LOCATION); }
-case        { return yy::parser::make_T_CASE(yy::parser::token::T_CASE, T_LOCATION); }
-for         { return yy::parser::make_T_FOR(yy::parser::token::T_FOR, T_LOCATION); }
-foreach     { return yy::parser::make_T_FOREACH(yy::parser::token::T_FOREACH, T_LOCATION); }
-in          { return yy::parser::make_T_IN(yy::parser::token::T_IN, T_LOCATION); }
-while       { return yy::parser::make_T_WHILE(yy::parser::token::T_WHILE, T_LOCATION); }
-do          { return yy::parser::make_T_DO(yy::parser::token::T_DO, T_LOCATION); }
-break       { return yy::parser::make_T_BREAK(yy::parser::token::T_BREAK, T_LOCATION); }
-continue    { return yy::parser::make_T_CONTINUE(yy::parser::token::T_CONTINUE, T_LOCATION); }
-class       { return yy::parser::make_T_CLASS(yy::parser::token::T_CLASS, T_LOCATION); }
-trait       { return yy::parser::make_T_TRAIT(yy::parser::token::T_TRAIT, T_LOCATION); }
-type        { return yy::parser::make_T_TYPE(yy::parser::token::T_TYPE, T_LOCATION); }
-this        { return yy::parser::make_T_THIS(yy::parser::token::T_THIS, T_LOCATION); }
-super       { return yy::parser::make_T_SUPER(yy::parser::token::T_SUPER, T_LOCATION); }
-is          { return yy::parser::make_T_IS(yy::parser::token::T_IS, T_LOCATION); }
-isa         { return yy::parser::make_T_ISA(yy::parser::token::T_ISA, T_LOCATION); }
-isinstanceof    { return yy::parser::make_T_ISINSTANCEOF(yy::parser::token::T_ISINSTANCEOF, T_LOCATION); }
-import      { return yy::parser::make_T_IMPORT(yy::parser::token::T_IMPORT, T_LOCATION); }
-as          { return yy::parser::make_T_AS(yy::parser::token::T_AS, T_LOCATION); }
-return      { return yy::parser::make_T_RETURN(yy::parser::token::T_RETURN, T_LOCATION); }
-void        { return yy::parser::make_T_VOID(yy::parser::token::T_VOID, T_LOCATION); }
-any         { return yy::parser::make_T_ANY(yy::parser::token::T_ANY, T_LOCATION); }
-nan         { return yy::parser::make_T_NAN(yy::parser::token::T_NAN, T_LOCATION); }
-inf         { return yy::parser::make_T_INF(yy::parser::token::T_INF, T_LOCATION); }
-async       { return yy::parser::make_T_ASYNC(yy::parser::token::T_ASYNC, T_LOCATION); }
-await       { return yy::parser::make_T_AWAIT(yy::parser::token::T_AWAIT, T_LOCATION); }
-static      { return yy::parser::make_T_STATIC(yy::parser::token::T_STATIC, T_LOCATION); }
-public      { return yy::parser::make_T_PUBLIC(yy::parser::token::T_PUBLIC, T_LOCATION); }
-protect     { return yy::parser::make_T_PROTECT(yy::parser::token::T_PROTECT, T_LOCATION); }
-private     { return yy::parser::make_T_PRIVATE(yy::parser::token::T_PRIVATE, T_LOCATION); }
-prefix      { return yy::parser::make_T_PREFIX(yy::parser::token::T_PREFIX, T_LOCATION); }
-postfix     { return yy::parser::make_T_POSTFIX(yy::parser::token::T_POSTFIX, T_LOCATION); }
-package     { return yy::parser::make_T_PACKAGE(yy::parser::token::T_PACKAGE, T_LOCATION); }
+true        { MK_INTEGER(T_TRUE); }
+false       { MK_INTEGER(T_FALSE); }
+try         { MK_INTEGER(T_TRY); }
+catch       { MK_INTEGER(T_CATCH); }
+finally     { MK_INTEGER(T_FINALLY); }
+throw       { MK_INTEGER(T_THROW); }
+yield       { MK_INTEGER(T_YIELD); }
+var         { MK_INTEGER(T_VAR); }
+val         { MK_INTEGER(T_VAL); }
+nil         { MK_INTEGER(T_NIL); }
+new         { MK_INTEGER(T_NEW); }
+delete      { MK_INTEGER(T_DELETE); }
+def         { MK_INTEGER(T_DEF); }
+if          { MK_INTEGER(T_IF); }
+then        { MK_INTEGER(T_THEN); }
+else        { MK_INTEGER(T_ELSE); }
+match       { MK_INTEGER(T_MATCH); }
+enum        { MK_INTEGER(T_ENUM); }
+switch      { MK_INTEGER(T_SWITCH); }
+case        { MK_INTEGER(T_CASE); }
+for         { MK_INTEGER(T_FOR); }
+foreach     { MK_INTEGER(T_FOREACH); }
+in          { MK_INTEGER(T_IN); }
+while       { MK_INTEGER(T_WHILE); }
+do          { MK_INTEGER(T_DO); }
+break       { MK_INTEGER(T_BREAK); }
+continue    { MK_INTEGER(T_CONTINUE); }
+class       { MK_INTEGER(T_CLASS); }
+trait       { MK_INTEGER(T_TRAIT); }
+type        { MK_INTEGER(T_TYPE); }
+this        { MK_INTEGER(T_THIS); }
+super       { MK_INTEGER(T_SUPER); }
+is          { MK_INTEGER(T_IS); }
+isa         { MK_INTEGER(T_ISA); }
+isinstanceof    { MK_INTEGER(T_ISINSTANCEOF); }
+import      { MK_INTEGER(T_IMPORT); }
+as          { MK_INTEGER(T_AS); }
+return      { MK_INTEGER(T_RETURN); }
+void        { MK_INTEGER(T_VOID); }
+any         { MK_INTEGER(T_ANY); }
+nan         { MK_INTEGER(T_NAN); }
+inf         { MK_INTEGER(T_INF); }
+async       { MK_INTEGER(T_ASYNC); }
+await       { MK_INTEGER(T_AWAIT); }
+static      { MK_INTEGER(T_STATIC); }
+public      { MK_INTEGER(T_PUBLIC); }
+protect     { MK_INTEGER(T_PROTECT); }
+private     { MK_INTEGER(T_PRIVATE); }
+prefix      { MK_INTEGER(T_PREFIX); }
+postfix     { MK_INTEGER(T_POSTFIX); }
+package     { MK_INTEGER(T_PACKAGE); }
 
  /* primitive type */
-byte        { MK_INTEGER(T_BYTE); } */
+byte        { MK_INTEGER(T_BYTE); }
 ubyte       { MK_INTEGER(T_UBYTE); }
 short       { MK_INTEGER(T_SHORT); }
 ushort      { MK_INTEGER(T_USHORT); }
@@ -256,10 +257,9 @@ not         { MK_INTEGER(T_NOT); }
 
 <<EOF>>                                     {
                                                 if (!T_SCANNER->bufferStack.pop()) {
-                                                    LOG_INFO("{}:{} pop buffer empty at {}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
-                                                    yyterminate();
+                                                    LOG_ASSERT(false, "{}:{} error! pop buffer empty at {}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                                 }
-                                                MK_INTEGER(YYEOF);
+                                                return yy::parser::make_YYEOF(T_LOCATION);
                                             }
 
  /* invalid token */

@@ -5,6 +5,14 @@ project(nerdc VERSION 0.0.2 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/Configure.h.in ${PROJECT_SOURCE_DIR}/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
+if(DEFINED NDEBUG)
+    set(TokenizerFlags "")
+    set(ParserFlags "")
+else()
+    set(TokenizerFlags "--debug --perf-report --verbose --warn")
+    set(ParserFlags "-Wcounterexamples -Wdeprecated -Dparse.trace --verbose --graph=parser.tab.dot")
+endif(DEFINED NDEBUG)
+
 if(WIN32)
     set(CMAKE_C_COMPILER cl)
     set(CMAKE_CXX_COMPILER cl)
@@ -19,6 +27,7 @@ if(WIN32)
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/stage/lib")
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
     set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/llvm-project/llvm/build_release/lib/cmake/llvm")
+    set(TokenizerFlags "${TokenizerFlags} --wincompat")
 else()
     set(CMAKE_C_COMPILER clang)
     set(CMAKE_CXX_COMPILER clang++)
@@ -50,40 +59,14 @@ if(WIN32)
     string(REGEX REPLACE ".lib " ".lib;" llvm_system_libs "${llvm_system_libs}")
 endif(WIN32)
 
-if(DEFINED NDEBUG)
-    # release flex and bison
-    find_package(FLEX)
-    find_package(BISON)
-    FLEX_TARGET(NerdTokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cc
-        DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
-    BISON_TARGET(NerdParser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cc
-        DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
-    ADD_FLEX_BISON_DEPENDENCY(NerdTokenizer NerdParser)
-else()
-    # add debug info to flex and bison
-    execute_process(COMMAND flex --debug --perf-report --trace --verbose --warn --outfile=tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l 
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE tokenizer_code
-        OUTPUT_FILE tokenizer_out.txt
-        ERROR_FILE tokenizer_err.txt)
-    if(NOT ${tokenizer_code} EQUAL 0)
-        message(FATAL_ERROR "[nerd] prepare tokenizer - failure! see tokenizer_out/err.txt")
-    else()
-        message("[nerd] prepare tokenizer - done")
-    endif()
-    execute_process(COMMAND bison -Wcounterexamples -Wdeprecated -Dparse.trace --verbose --graph=parser.tab.dot --output=parser.tab.cc --defines=parser.tab.hh parser.y 
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE parser_code
-        OUTPUT_FILE parser_out.txt
-        ERROR_FILE parser_err.txt)
-    if(NOT ${parser_code} EQUAL 0)
-        message(FATAL_ERROR "[nerd] prepare parser - failure! see parser_out/err.txt")
-    else()
-        message("[nerd] prepare parser - done")
-    endif()
-    set(FLEX_NerdTokenizer_OUTPUTS tokenizer.yy.cc)
-    set(BISON_NerdParser_OUTPUTS parser.tab.cc)
-endif(DEFINED NDEBUG)
+find_package(FLEX)
+find_package(BISON)
+FLEX_TARGET(Tokenizer tokenizer.l ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.cc
+    COMPILE_FLAGS ${TokenizerFlags}
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.yy.hh)
+BISON_TARGET(Parser parser.y ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.cc
+    DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/parser.tab.hh)
+ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
 
 set(NERD_INC
     ${NERD_INC}
@@ -134,8 +117,8 @@ set(NERD
     # IrFactory.cpp
     # IrUtil.cpp
     # IrWriter.cpp
-    ${BISON_NerdParser_OUTPUTS}
-    ${FLEX_NerdTokenizer_OUTPUTS}
+    ${BISON_Parser_OUTPUTS}
+    ${FLEX_Tokenizer_OUTPUTS}
 )
 set(NERDC
     nerdc.cpp
