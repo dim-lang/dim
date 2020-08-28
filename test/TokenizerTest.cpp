@@ -6,8 +6,7 @@
 #include "catch2/catch.hpp"
 
 static void tokenize(const char *fileName) {
-  Scanner scanner;
-  scanner.bufferStack.push(fileName);
+  Scanner scanner(fileName);
   LOG_INFO("tokenizer start: {}", fileName);
   while (true) {
     yy::parser::symbol_type t(scanner.tokenize());

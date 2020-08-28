@@ -19,7 +19,6 @@
 #include <sstream>
 #include "Log.h"
 #include "Ast.h"
-#include "yydef.h"
 #include "Scanner.h"
 #define SP_NULL             (std::shared_ptr<Ast>(nullptr))
 #define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))

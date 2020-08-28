@@ -106,8 +106,8 @@ set(NERD
     Namely.cpp
     Locationly.cpp
     TokenName.cpp
-    Buffer.cpp
-    BufferStack.cpp
+    # Buffer.cpp
+    # BufferStack.cpp
     Scanner.cpp
     Ast.cpp
     # Position.cpp

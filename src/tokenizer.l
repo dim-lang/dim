@@ -28,7 +28,6 @@ LC  ("//".*\n)
 #include <string>
 #include "boost/preprocessor/cat.hpp"
 #include "Scanner.h"
-#include "Buffer.h"
 #include "Log.h"
 
 #if 0
@@ -54,8 +53,8 @@ LC  ("//".*\n)
 
 
 #define T_SCANNER           (static_cast<Scanner *>(yyextra))
-#define T_LOCATION          (T_SCANNER->bufferStack.top()->location)
-#define T_FILE_NAME         (T_SCANNER->bufferStack.top()->fileName)
+#define T_LOCATION          (T_SCANNER->location)
+#define T_FILE_NAME         (T_SCANNER->fileName)
 #define MK_LITERAL(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION)
 #define MK_INTEGER(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yy::parser::token::t, T_LOCATION)
 
@@ -256,10 +255,7 @@ not         { MK_INTEGER(T_NOT); }
 {WS}+                                       { /* skip whitespace except newline */ }
 
 <<EOF>>                                     {
-                                                if (!T_SCANNER->bufferStack.pop()) {
-                                                    return yy::parser::make_YYEOF(T_LOCATION);
-                                                }
-                                                LOG_INFO("{}:{} pop buffer at {}:{}, lex more!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                return yy::parser::make_YYEOF(T_LOCATION);
                                             }
 
  /* invalid token */
