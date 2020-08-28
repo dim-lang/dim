@@ -8,7 +8,6 @@
 #include "fmt/format.h"
 
 TEST_CASE("Main", "[Main]") {
-  Log::initialize("nerd-test");
   SECTION("Main Initialize") {
     fmt::print(
         "nerd-test start at:{}\n",

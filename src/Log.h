@@ -30,8 +30,3 @@
                         BOOST_PP_STRINGIZE(cond), msg1);                       \
     }                                                                          \
   } while (0)
-
-class Log {
-public:
-  static void initialize(const std::string &name = "nerd");
-};
