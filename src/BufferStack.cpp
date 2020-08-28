@@ -35,7 +35,6 @@ int BufferStack::push(const std::string &fileName) {
 int BufferStack::pop() {
   LOG_ASSERT(!bufstack_.empty(), "bufstack_ must not empty: {}",
              bufstack_.size());
-  std::shared_ptr<Buffer> buffer = bufstack_.top();
   bufstack_.pop();
 
   // if no more buffer on stack, stop yylex
@@ -44,7 +43,7 @@ int BufferStack::pop() {
   }
 
   // if there's more buffer on stack, restore old buffer
-  buffer = bufstack_.top();
+  std::shared_ptr<Buffer> buffer = bufstack_.top();
   yy_switch_to_buffer(buffer->yyBufferState, scanner_->yyscanner);
   yyset_lineno(buffer->location.end.line, scanner_->yyscanner);
   return 1;

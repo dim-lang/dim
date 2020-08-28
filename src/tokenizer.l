@@ -257,9 +257,9 @@ not         { MK_INTEGER(T_NOT); }
 
 <<EOF>>                                     {
                                                 if (!T_SCANNER->bufferStack.pop()) {
-                                                    LOG_ASSERT(false, "{}:{} error! pop buffer empty at {}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                    return yy::parser::make_YYEOF(T_LOCATION);
                                                 }
-                                                return yy::parser::make_YYEOF(T_LOCATION);
+                                                LOG_INFO("{}:{} pop buffer at {}:{}, lex more!", T_FILE_NAME, yylineno, yytext, yyleng);
                                             }
 
  /* invalid token */
