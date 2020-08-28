@@ -11,6 +11,7 @@ if(DEFINED NDEBUG)
 else()
     set(TokenizerFlags "--debug --perf-report --verbose --warn")
     set(ParserFlags "-Wcounterexamples -Wdeprecated -Dparse.trace --verbose --graph=parser.tab.dot")
+    add_definitions(-DYYDEBUG=1)
 endif(DEFINED NDEBUG)
 
 if(WIN32)
