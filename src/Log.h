@@ -10,6 +10,7 @@
 #endif // #ifdef NDEBUG
 
 #include "boost/preprocessor/stringize.hpp"
+#include "fmt/format.h"
 #include "spdlog/spdlog.h"
 #include <string>
 

@@ -15,6 +15,8 @@
 
 %code top {
 #include <memory>
+#include <string>
+#include <sstream>
 #include "Log.h"
 #include "Ast.h"
 #include "yydef.h"
@@ -577,3 +579,7 @@ topStat : def { $$ = $1; }
  /* compile unit } */
 
 %%
+
+void yy::parser::error(const yy::parser::location_type& l, const std::string& m) {
+    LOG_INFO("{} {}", (std::stringstream() << l).str(), m);
+}

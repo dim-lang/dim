@@ -526,7 +526,7 @@ public:
   A_CompileUnit(std::shared_ptr<Ast> a_topStat,
                 std::shared_ptr<A_TopStats> a_topStats,
                 const yy::location &location);
-  virtual ~A_CompileUnit();
+  virtual ~A_CompileUnit() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> topStat;

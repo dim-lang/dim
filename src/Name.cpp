@@ -75,6 +75,10 @@ std::string Name::toSymbolName() const {
   return AT + parseSymbolName(*value_) + DOT + std::to_string(id());
 }
 
+std::string Name::toString() const {
+  return fmt::format("[@Name id:{} value:{}]", id(), raw());
+}
+
 Name Name::get(const std::string &name) {
   if (NameMap.find(name) == NameMap.end()) {
     NameMap.insert(std::make_pair(name, Name(name)));

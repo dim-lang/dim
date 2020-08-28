@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "Log.h"
 #include "Scanner.h"
+#include "tokenizer.yy.hh"
 #include <sstream>
 
 BufferStack::BufferStack(Scanner *scanner) : scanner_(scanner), bufstack_() {}
@@ -15,7 +16,7 @@ BufferStack::~BufferStack() {
 }
 
 int BufferStack::push(const std::string &fileName) {
-  Buffer *buffer = new Buffer(fileName, scanner_);
+  std::shared_ptr<Buffer> buffer(new Buffer(fileName, scanner_));
 
   /* remember state */
   if (!bufstack_.empty()) {
@@ -34,9 +35,8 @@ int BufferStack::push(const std::string &fileName) {
 int BufferStack::pop() {
   LOG_ASSERT(!bufstack_.empty(), "bufstack_ must not empty: {}",
              bufstack_.size());
-  Buffer *buffer = bufstack_.top();
+  std::shared_ptr<Buffer> buffer = bufstack_.top();
   bufstack_.pop();
-  delete buffer;
 
   // if no more buffer on stack, stop yylex
   if (bufstack_.empty()) {
@@ -50,7 +50,7 @@ int BufferStack::pop() {
   return 1;
 }
 
-Buffer *BufferStack::top() const { return bufstack_.top(); }
+std::shared_ptr<Buffer> BufferStack::top() const { return bufstack_.top(); }
 
 int BufferStack::size() const { return (int)bufstack_.size(); }
 
