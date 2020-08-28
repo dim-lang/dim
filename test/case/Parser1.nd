@@ -1,14 +1,13 @@
-var x = 1 + 6 / (-3) * (4 + 3 % -2);
-var y = 0;
-var z = x + y;
-var a9 = 228UL;
-var a10 = 1228l;
-var a11 = 1228u;
-var a18 = 123.901;
-
-def Hello(x, y) {
-    var a = 1;
-    var b = 2;
+def Hello(x:int, y:int):int {
+    var x:int = 1 + 6 / (-3) * (4 + 3 % -2);
+    var y:int = 0;
+    var z:int = x + y;
+    var a9:ulong = 228UL;
+    var a10:long = 1228l;
+    var a11:uint = 1228u;
+    var a18:float = 123.901;
+    var a:int = 1;
+    var b:int = 2;
     a = a + b;
     return a;
 
@@ -19,6 +18,7 @@ def Hello(x, y) {
 
     while (a < b)
         print(x+y);
+    0
 }
 
 // this is a line comment */ is for testing block comment ending
@@ -29,9 +29,9 @@ def Hello(x, y) {
  * integer: 10243+e31
  */
 
-def ok(y) { var x = 1; return x%y; }
+def ok(y:int):int = 1 % y
 
-def testOnTokenLexer() {
+def testOnTokenLexer():void = {
     print("This is going to be a very long string, which is used for testing programming language");
     print("""Since our language defines a string between double quotes, with new line break like this\n and this \r\n.
 Let's see if it works as we expect.
