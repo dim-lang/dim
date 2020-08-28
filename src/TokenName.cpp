@@ -8,7 +8,7 @@
 
 std::string tokenName(int token) {
   LOG_ASSERT(tokenExist(token), "token {} must exist", token);
-  return yy::parser::symbol_type(token, yy::location()).name();
+  return yy::parser::symbol_type(token, token, yy::location()).name();
 }
 
 bool tokenExist(int token) {

@@ -1,24 +1,24 @@
-def abs() {
-    var number = 3 + -2;
+def abs():void {
+    var number:int = 3 + -2;
     number = 1 + 6e+4 / (-3) * (4 + 3 % -2) + 2;
-    var a = number;
-    var b = 10 * a + 10 * number / 4;
-    var c = a - -b;
+    var a:int = number;
+    var b:int = 10 * a + 10 * number / 4;
+    var c:int = a - -b;
     ;
     ;
 }
 
-def World(x, y) {
+def World(x:int, y:int):int = {
     x = 1;
     y = 2;
-    var z = 2U;
+    var z:uint = 2U;
     z = x + y;
     return z + 10 / 4;
 }
 
 /* import test.Parser1; */
 
-def fail() {
+def fail():void = {
     print("This is the very end of Parser2");
     print("Goodbye World!");
 }
