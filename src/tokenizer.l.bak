@@ -1,12 +1,11 @@
 %option noyywrap
+%option nounput
+%option noinput
 %option nodefault
 %option nounistd
 %option reentrant
 %option yylineno
 %option 8bit
-
- /* inclusive start condition newline */
-%s SC_NEWLINE
 
 DIG ([0-9])
 OCT ([0-7])
@@ -27,10 +26,31 @@ LC  ("//".*\n)
 
 %{
 #include <string>
-#include <cctype>
 #include "boost/preprocessor/cat.hpp"
 #include "Scanner.h"
 #include "Log.h"
+
+#if 0
+#define Y_LENG    yyget_leng(yyextra->yy_scanner)
+#define Y_TEXT    yyget_text(yyextra->yy_scanner)
+#define Y_LVAL    yyget_lval(yyextra->yy_scanner)
+#define Y_LLOC    yyget_lloc(yyextra->yy_scanner)
+#define Y_LINENO  yyget_lineno(yyextra->yy_scanner)
+
+#define MK_LITERAL     (yylval->str = Strings::duplicate(yytext, yyleng))
+#define MK_INTEGER(t)  (yylval->tok = (t))
+
+#define YY_USER_ACTION                                                      \
+    yylloc->first_line = yylloc->last_line;                                 \
+    yylloc->first_column = yylloc->last_column;                             \
+    if (yylloc->last_line == yylineno) {                                    \
+        yylloc->last_column += yyleng;                                      \
+    } else {                                                                \
+        yylloc->last_line = yylineno;                                       \
+        yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');      \
+    }
+#endif
+
 
 #define T_SCANNER           (static_cast<Scanner *>(yyextra))
 #define T_LOCATION          (T_SCANNER->location)
@@ -47,9 +67,6 @@ LC  ("//".*\n)
         T_LOCATION.end.column = yytext + yyleng - strrchr(yytext, '\n');   \
     }
 
-static bool endWithNewline(yyscan_t yyscanner);
-static bool beginWithNewline(yyscan_t yyscanner);
-
 %}
 
 %%
@@ -61,8 +78,8 @@ static bool beginWithNewline(yyscan_t yyscanner);
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_TRUE); }
-false       { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_FALSE); }
+true        { MK_INTEGER(T_TRUE); }
+false       { MK_INTEGER(T_FALSE); }
 try         { MK_INTEGER(T_TRY); }
 catch       { MK_INTEGER(T_CATCH); }
 finally     { MK_INTEGER(T_FINALLY); }
@@ -70,7 +87,7 @@ throw       { MK_INTEGER(T_THROW); }
 yield       { MK_INTEGER(T_YIELD); }
 var         { MK_INTEGER(T_VAR); }
 val         { MK_INTEGER(T_VAL); }
-nil         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_NIL); }
+nil         { MK_INTEGER(T_NIL); }
 new         { MK_INTEGER(T_NEW); }
 delete      { MK_INTEGER(T_DELETE); }
 def         { MK_INTEGER(T_DEF); }
@@ -90,15 +107,15 @@ break       { MK_INTEGER(T_BREAK); }
 continue    { MK_INTEGER(T_CONTINUE); }
 class       { MK_INTEGER(T_CLASS); }
 trait       { MK_INTEGER(T_TRAIT); }
-type        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_TYPE); }
-this        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_THIS); }
+type        { MK_INTEGER(T_TYPE); }
+this        { MK_INTEGER(T_THIS); }
 super       { MK_INTEGER(T_SUPER); }
 is          { MK_INTEGER(T_IS); }
 isa         { MK_INTEGER(T_ISA); }
 isinstanceof    { MK_INTEGER(T_ISINSTANCEOF); }
 import      { MK_INTEGER(T_IMPORT); }
 as          { MK_INTEGER(T_AS); }
-return      { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RETURN); }
+return      { MK_INTEGER(T_RETURN); }
 void        { MK_INTEGER(T_VOID); }
 any         { MK_INTEGER(T_ANY); }
 nan         { MK_INTEGER(T_NAN); }
@@ -185,14 +202,14 @@ not         { MK_INTEGER(T_NOT); }
 
  /* parentheses */
 "("         { MK_INTEGER(T_LPAREN); }
-")"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RPAREN); }
+")"         { MK_INTEGER(T_RPAREN); }
 "["         { MK_INTEGER(T_LBRACKET); }
-"]"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RBRACKET); }
+"]"         { MK_INTEGER(T_RBRACKET); }
 "{"         { MK_INTEGER(T_LBRACE); }
-"}"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RBRACE); }
+"}"         { MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
-"_"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_UNDERSCORE); }
+"_"         { MK_INTEGER(T_UNDERSCORE); }
 ","         { MK_INTEGER(T_COMMA); }
 ";"         { MK_INTEGER(T_SEMI); }
 "?"         { MK_INTEGER(T_QUESTION); }
@@ -205,7 +222,7 @@ not         { MK_INTEGER(T_NOT); }
 "=>"        { MK_INTEGER(T_DOUBLE_RARROW); }
 ":>"        { MK_INTEGER(T_COLON_LARROW);  }
 "<:"        { MK_INTEGER(T_COLON_RARROW); }
-<SC_NEWLINE>[\n]+       { BEGIN(INITIAL); MK_INTEGER(T_NEWLINE); }
+[\n]+       { MK_INTEGER(T_NEWLINE); }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { MK_LITERAL(T_INTEGER_LITERAL); }
@@ -245,47 +262,3 @@ not         { MK_INTEGER(T_NOT); }
                                             }
 
 %%
-
-static char *realloc_newline(char *b, int &n) {
-    int nn = n < 8 ? 8 : (2 * n);
-    if (!b) {
-        b = new char[nn];
-        n = nn;
-        return b;
-    }
-    char *nb = new char[nn];
-    std::memset(nb, 0, nn * sizeof(char));
-    std::memcpy(nb, b, n);
-    delete[] b;
-    n = nn;
-    return nb;
-}
-
-bool endWithNewline(yyscan_t yyscanner) {
-    int n = 0, len = 0;
-    char *buf = realloc_newline(nullptr, len);
-    bool hasNewline = false;
-    while (true) {
-        if (n >= len) {
-            buf = realloc_newline(buf, len);
-        }
-        int c = yyinput(yyscanner);
-        buf[n++] = c;
-        if (c == '\n') {
-            hasNewline = true;
-            break;
-        }
-        if (!std::isspace(c)) {
-            break;
-        }
-    }
-    for (int i = n-1; i >= 0; i--) {
-        unput(buf[i]);
-    }
-    delete[] buf;
-    return hasNewline;
-}
-
-bool beginWithNewline(yyscan_t yyscanner) {
-
-}
