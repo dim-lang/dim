@@ -335,8 +335,8 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
 
 expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); }
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
-     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $2, @$); }
+     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition($3, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition($6, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $2, @$); }
      | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $7, @$); }
      | "try" expr "catch" expr %prec "try_catch" { $$ = SP_NEW(A_Try, $2, $4, SP_NULL, @$); }
      | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $2, $4, $6, @$); }
@@ -444,7 +444,14 @@ exprs : expr { $$ = SP_NEW(A_Exprs, $1, SP_SPC(A_Exprs, SP_NULL), @$); }
 callExpr : id "(" optionalExprs ")" { $$ = SP_NEW(A_Call, $1, SP_SPC(A_Exprs, $3), @$); }
          ;
 
-block : "{" blockStat optionalBlockStats "}" { $$ = SP_NEW(A_Block, $2, SP_SPC(A_BlockStats, $3), @$); }
+block : "{" blockStat optionalBlockStats "}" {
+            if ($2) {
+                std::shared_ptr<A_BlockStats> blockStats(new A_BlockStats($2, SP_SPC(A_BlockStats, $3), @2 += @3));
+                $$ = SP_NEW(A_Block, blockStats, @$);
+            } else {
+                $$ = SP_NEW(A_Block, SP_SPC(A_BlockStats, $3), @$);
+            }
+        }
       ;
 
 blockStat : expr { $$ = $1; }
@@ -555,7 +562,14 @@ varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
 
  /* compile unit { */
 
-compileUnit : topStat optionalTopStats { static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, $1, SP_SPC(A_TopStats, $2), @$); }
+compileUnit : topStat optionalTopStats {
+                    if ($1) {
+                        std::shared_ptr<A_TopStats> topStats(new A_TopStats($1, SP_SPC(A_TopStats, $2), @$));
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, topStats, @$);
+                    } else {
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, SP_SPC(A_TopStats, $2), @$);
+                    }
+                }
             ;
 
 optionalTopStats : topStats { $$ = $1; }

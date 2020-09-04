@@ -601,24 +601,21 @@ std::string A_Loop::toString() const {
 
 // A_LoopCondition {
 
-A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_init,
-                                 std::shared_ptr<Ast> a_condition,
-                                 std::shared_ptr<Ast> a_update, bool a_do_once,
+A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_expr,
+                                 bool a_doOnceAtFirst,
                                  const yy::location &location)
-    : Ast("loopCondition", location), init(a_init), condition(a_condition),
-      update(a_update), do_once(a_do_once) {}
+    : Ast("loopCondition", location), expr(a_expr),
+      doOnceAtFirst(a_doOnceAtFirst) {}
 
 AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
 }
 
 std::string A_LoopCondition::toString() const {
-  return fmt::format(
-      "[{} location:{} init:{} condition:{} update:{} do_once:{}]",
-      name().toSymbolName(), (std::stringstream() << location()).str(),
-      init ? init->toString() : "nil",
-      condition ? condition->toString() : "nil",
-      update ? update->toString() : "nil", do_once);
+  return fmt::format("[{} location:{} expr:{} doOnceAtFirst:{}]",
+                     name().toSymbolName(),
+                     (std::stringstream() << location()).str(),
+                     expr->toString(), doOnceAtFirst);
 }
 
 // A_LoopCondition }
@@ -668,19 +665,15 @@ std::string A_Try::toString() const {
 
 // A_Block {
 
-A_Block::A_Block(std::shared_ptr<Ast> a_blockStat,
-                 std::shared_ptr<A_BlockStats> a_blockStats,
+A_Block::A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
                  const yy::location &location)
-    : Ast("block", location), blockStat(a_blockStat), blockStats(a_blockStats) {
-}
+    : Ast("block", location), blockStats(a_blockStats) {}
 
 AstCategory A_Block::category() const { return AstCategory::Block; }
 
 std::string A_Block::toString() const {
-  return fmt::format("[{} location:{} blockStat:{} blockStats:{}]",
-                     name().toSymbolName(),
+  return fmt::format("[{} location:{} blockStats:{}]", name().toSymbolName(),
                      (std::stringstream() << location()).str(),
-                     blockStat ? blockStat->toString() : "nil",
                      blockStats ? blockStats->toString() : "nil");
 }
 
@@ -829,18 +822,15 @@ std::string A_TopStats::toString() const {
       topStat ? topStat->toString() : "nil", next ? next->toString() : "nil");
 }
 
-A_CompileUnit::A_CompileUnit(std::shared_ptr<Ast> a_topStat,
-                             std::shared_ptr<A_TopStats> a_topStats,
+A_CompileUnit::A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
                              const yy::location &location)
-    : Ast("compileUnit", location), topStat(a_topStat), topStats(a_topStats) {}
+    : Ast("compileUnit", location), topStats(a_topStats) {}
 
 AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
 
 std::string A_CompileUnit::toString() const {
-  return fmt::format("[@{} location:{}, topStat:{} topStats:{}]",
-                     name().toSymbolName(),
+  return fmt::format("[@{} location:{}, topStats:{}]", name().toSymbolName(),
                      (std::stringstream() << location()).str(),
-                     topStat ? topStat->toString() : "nil",
                      topStats ? topStats->toString() : "nil");
 }
 

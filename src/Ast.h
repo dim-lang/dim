@@ -60,13 +60,13 @@ class A_InfixExpr;
 class A_PrefixExpr;
 
 /* expression with block */
+class A_Call;
+class A_Exprs;
 class A_If;
 class A_Loop;
 class A_LoopCondition;
 class A_LoopEnumerator;
 class A_Try;
-class A_Call;
-class A_Exprs;
 class A_Block;
 class A_BlockStats;
 
@@ -373,16 +373,13 @@ public:
 
 class A_LoopCondition : public Ast {
 public:
-  A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
-                  std::shared_ptr<Ast> a_update, bool a_do_once,
+  A_LoopCondition(std::shared_ptr<Ast> a_expr, bool a_doOnceAtFirst,
                   const yy::location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  std::shared_ptr<Ast> init;
-  std::shared_ptr<Ast> condition;
-  std::shared_ptr<Ast> update;
-  bool do_once;
+  std::shared_ptr<Ast> expr;
+  bool doOnceAtFirst;
 };
 
 class A_LoopEnumerator : public Ast {
@@ -410,13 +407,11 @@ public:
 
 class A_Block : public Ast {
 public:
-  A_Block(std::shared_ptr<Ast> blockStat,
-          std::shared_ptr<A_BlockStats> a_blockStats,
+  A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
           const yy::location &location);
   virtual ~A_Block() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  std::shared_ptr<Ast> blockStat;
   std::shared_ptr<A_BlockStats> blockStats;
 };
 
@@ -523,13 +518,11 @@ public:
 
 class A_CompileUnit : public Ast {
 public:
-  A_CompileUnit(std::shared_ptr<Ast> a_topStat,
-                std::shared_ptr<A_TopStats> a_topStats,
+  A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
                 const yy::location &location);
   virtual ~A_CompileUnit() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  std::shared_ptr<Ast> topStat;
   std::shared_ptr<A_TopStats> topStats;
 };
 
