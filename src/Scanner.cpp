@@ -3,13 +3,16 @@
 
 #include "Scanner.h"
 #include "Log.h"
+#include "TokenName.h"
 #include "tokenizer.yy.hh"
+#include <unordered_map>
 
 extern YY_DECL;
 
 Scanner::Scanner(const std::string &a_fileName)
     : fileName(a_fileName), yyBufferState(nullptr), fp(nullptr),
-      yyscanner(nullptr), parser(nullptr), compileUnit(nullptr) {
+      yyscanner(nullptr), parser(nullptr), compileUnit(nullptr),
+      parenthesesStack_(), parentheses_region_(true) {
   // init scanner
   int r = yylex_init_extra(this, &yyscanner);
   LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
@@ -44,3 +47,51 @@ Scanner::~Scanner() {
 yy::parser::symbol_type Scanner::tokenize() { return yylex(yyscanner); }
 
 int Scanner::parse() { return parser->parse(); }
+
+static bool isParenthesesRegion(int tok) {
+  return tok == yy::parser::token::T_LPAREN ||
+         tok == yy::parser::token::T_LBRACKET ||
+         tok == yy::parser::token::T_LBRACE ||
+         tok == yy::parser::token::T_RPAREN ||
+         tok == yy::parser::token::T_RBRACKET ||
+         tok == yy::parser::token::T_RBRACE;
+}
+
+static bool isDoWhileRegion(int tok) {
+  return tok == yy::parser::token::T_DO || tok == yy::parser::token::T_WHILE;
+}
+
+static bool isTryCatchRegion(int tok) {
+  return tok == yy::parser::token::T_TRY || tok == yy::parser::token::T_CATCH ||
+         tok == yy::parser::token::T_FINALLY;
+}
+
+int Scanner::topRegionToken() { return bracketStack_.top(); }
+
+int Scanner::eatRegionToken(int tok) {
+  if (tok == yy::parser::token::T_LPAREN ||
+      tok == yy::parser::token::T_LBRACKET ||
+      tok == yy::parser::token::T_LBRACE) {
+    bracketStack_.push(tok);
+    return bracketStack_.top();
+  } else if (tok == yy::parser::token::T_RPAREN ||
+             tok == yy::parser::token::T_RBRACKET ||
+             tok == yy::parser::token::T_RBRACE) {
+    const static std::unordered_map<int, int> bracketMapping = {
+        {yy::parser::token::T_LPAREN, yy::parser::token::T_RPAREN},
+        {yy::parser::token::T_LBRACKET, yy::parser::token::T_RBRACKET},
+        {yy::parser::token::T_LBRACE, yy::parser::token::T_RBRACE}};
+    LOG_ASSERT(!bracketStack_.empty(), "bracketStack_ must not empty:{}",
+               bracketStack_.size());
+    int save = bracketStack_.top();
+    LOG_ASSERT(bracketMapping[save] == tok,
+               "bracketStack_.top {} must match token {}", bracketStack_.top(),
+               tok);
+    bracketStack_.pop();
+    return save;
+  } else {
+    LOG_ASSERT(false, "invalid token: {}", tokenName(tok));
+  }
+}
+
+int Scanner::newline_enabled() const { return nl_bracket_region_; }

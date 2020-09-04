@@ -1,12 +1,15 @@
 %option noyywrap
+%option noinput
+%option nounput
 %option nodefault
 %option nounistd
 %option reentrant
 %option yylineno
 %option 8bit
 
- /* inclusive start condition newline */
-%s SC_NEWLINE
+ /* INITIAL enable newline as a token */
+ /* NL_IGNORE ignore newline as a whitespace */
+%s NL_IGNORE
 
 DIG ([0-9])
 OCT ([0-7])
@@ -21,7 +24,8 @@ NL  ("\\\n"|"\\\r\n")
 SES (\\[\'\"?abfnrtv\\])
 OES (\\[0-7]{1,3})
 UCN (\\u[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8})
-WS  ([ \t\v\f\r])
+WS_NO_NL    ([ \t\v\f\r])
+WS_NL       ([ \n\t\v\f\r])
 BC  ("/*"((("*"[^/])?)|[^*])*"*/")
 LC  ("//".*\n)
 
@@ -32,9 +36,31 @@ LC  ("//".*\n)
 #include "Scanner.h"
 #include "Log.h"
 
-#define T_SCANNER           (static_cast<Scanner *>(yyextra))
-#define T_LOCATION          (T_SCANNER->location)
-#define T_FILE_NAME         (T_SCANNER->fileName)
+#define T_SCANNER               (static_cast<Scanner *>(yyextra))
+#define T_LOCATION              (T_SCANNER->location)
+#define T_FILE_NAME             (T_SCANNER->fileName)
+#define T_PARENSTACK            (T_SCANNER->bracketStack)
+
+#define T_PARENSTACK_STATE      do {    \
+    if (!T_PARENSTACK.empty()           \
+            && (T_PARENSTACK.top() == yy::parser::token::T_LPAREN || yy::parser::token::T_LBRACKET))  \
+        BEGIN(NL_IGNORE);   \
+    else                    \
+        BEGIN(INITIAL);     \
+} while (0)
+
+#define T_PARENSTACK_PUSH(t)    do {    \
+    T_PARENSTACK.push(t);   \
+    T_PARENSTACK_STATE;     \
+} while (0)
+
+#define T_PARENSTACK_POP(t)     do {    \
+    LOG_ASSERT(!T_PARENSTACK.empty(), "parenStack must not empty");                         \
+    LOG_ASSERT(T_PARENSTACK.top() == t, "parenStack.top {} == {}", T_PARENSTACK.top(), t);  \
+    T_PARENSTACK.pop();     \
+    T_PARENSTACK_STATE;     \
+} while (0)
+
 #define MK_LITERAL(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION)
 #define MK_INTEGER(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yy::parser::token::t, T_LOCATION)
 
@@ -47,9 +73,6 @@ LC  ("//".*\n)
         T_LOCATION.end.column = yytext + yyleng - strrchr(yytext, '\n');   \
     }
 
-static bool endWithNewline(yyscan_t yyscanner);
-static bool beginWithNewline(yyscan_t yyscanner);
-
 %}
 
 %%
@@ -61,22 +84,22 @@ static bool beginWithNewline(yyscan_t yyscanner);
 {LC}        { /* eat everything until newline */ }
 
  /* keywords */
-true        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_TRUE); }
-false       { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_FALSE); }
+true        { MK_INTEGER(T_TRUE); }
+false       { MK_INTEGER(T_FALSE); }
 try         { MK_INTEGER(T_TRY); }
-catch       { MK_INTEGER(T_CATCH); }
-finally     { MK_INTEGER(T_FINALLY); }
+({WS_NL}|{BC}|{LC})*catch({WS_NL}|{BC}|{LC})*   { MK_INTEGER(T_CATCH); }
+({WS_NL}|{BC}|{LC})*finally({WS_NL}|{BC}|{LC})* { MK_INTEGER(T_FINALLY); }
 throw       { MK_INTEGER(T_THROW); }
 yield       { MK_INTEGER(T_YIELD); }
 var         { MK_INTEGER(T_VAR); }
 val         { MK_INTEGER(T_VAL); }
-nil         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_NIL); }
+nil         { MK_INTEGER(T_NIL); }
 new         { MK_INTEGER(T_NEW); }
 delete      { MK_INTEGER(T_DELETE); }
 def         { MK_INTEGER(T_DEF); }
 if          { MK_INTEGER(T_IF); }
 then        { MK_INTEGER(T_THEN); }
-else        { MK_INTEGER(T_ELSE); }
+({WS_NL}|{BC}|{LC})*else({WS_NL}|{BC}|{LC})*    { MK_INTEGER(T_ELSE); }
 match       { MK_INTEGER(T_MATCH); }
 enum        { MK_INTEGER(T_ENUM); }
 switch      { MK_INTEGER(T_SWITCH); }
@@ -85,20 +108,20 @@ for         { MK_INTEGER(T_FOR); }
 foreach     { MK_INTEGER(T_FOREACH); }
 in          { MK_INTEGER(T_IN); }
 while       { MK_INTEGER(T_WHILE); }
-do          { MK_INTEGER(T_DO); }
+do({WS_NL}|{BC}|{LC})*                          { MK_INTEGER(T_DO); }
 break       { MK_INTEGER(T_BREAK); }
 continue    { MK_INTEGER(T_CONTINUE); }
 class       { MK_INTEGER(T_CLASS); }
 trait       { MK_INTEGER(T_TRAIT); }
-type        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_TYPE); }
-this        { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_THIS); }
+type        { MK_INTEGER(T_TYPE); }
+this        { MK_INTEGER(T_THIS); }
 super       { MK_INTEGER(T_SUPER); }
 is          { MK_INTEGER(T_IS); }
 isa         { MK_INTEGER(T_ISA); }
 isinstanceof    { MK_INTEGER(T_ISINSTANCEOF); }
 import      { MK_INTEGER(T_IMPORT); }
 as          { MK_INTEGER(T_AS); }
-return      { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RETURN); }
+return      { MK_INTEGER(T_RETURN); }
 void        { MK_INTEGER(T_VOID); }
 any         { MK_INTEGER(T_ANY); }
 nan         { MK_INTEGER(T_NAN); }
@@ -133,10 +156,6 @@ char        { MK_INTEGER(T_CHAR); }
 and         { MK_INTEGER(T_AND); }
 or          { MK_INTEGER(T_OR); }
 not         { MK_INTEGER(T_NOT); }
-
- /* optional newline or semicolon */
-(";"|[\n]+)({BC}|{LC}|[^ \t\v\f\r])*"else"    { MK_INTEGER(T_SEMI_ELSE); }
-(";"|[\n]+)({BC}|{LC}|[^ \t\v\f\r])*"while"   { MK_INTEGER(T_SEMI_WHILE); }
 
 "+"         { MK_INTEGER(T_PLUS); }
 "++"        { MK_INTEGER(T_PLUS2); }
@@ -184,15 +203,15 @@ not         { MK_INTEGER(T_NOT); }
 ">="        { MK_INTEGER(T_GE); }
 
  /* parentheses */
-"("         { MK_INTEGER(T_LPAREN); }
-")"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RPAREN); }
-"["         { MK_INTEGER(T_LBRACKET); }
-"]"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RBRACKET); }
-"{"         { MK_INTEGER(T_LBRACE); }
-"}"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_RBRACE); }
+"("         { T_PARENSTACK_PUSH(yy::parser::token::T_LPAREN); MK_INTEGER(T_LPAREN); }
+")"         { T_PARENSTACK_POP(yy::parser::token::T_LPAREN); MK_INTEGER(T_RPAREN); }
+"["         { T_PARENSTACK_PUSH(yy::parser::token::T_LBRACKET); MK_INTEGER(T_LBRACKET); }
+"]"         { T_PARENSTACK_POP(yy::parser::token::T_LBRACKET); MK_INTEGER(T_RBRACKET); }
+"{"         { T_PARENSTACK_PUSH(yy::parser::token::T_LBRACE); MK_INTEGER(T_LBRACE); }
+"}"         { T_PARENSTACK_POP(yy::parser::token::T_LBRACE); MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
-"_"         { if (endWithNewline(yyscanner)) { BEGIN(SC_NEWLINE); } MK_INTEGER(T_UNDERSCORE); }
+"_"         { MK_INTEGER(T_UNDERSCORE); }
 ","         { MK_INTEGER(T_COMMA); }
 ";"         { MK_INTEGER(T_SEMI); }
 "?"         { MK_INTEGER(T_QUESTION); }
@@ -205,7 +224,11 @@ not         { MK_INTEGER(T_NOT); }
 "=>"        { MK_INTEGER(T_DOUBLE_RARROW); }
 ":>"        { MK_INTEGER(T_COLON_LARROW);  }
 "<:"        { MK_INTEGER(T_COLON_RARROW); }
-<SC_NEWLINE>[\n]+       { BEGIN(INITIAL); MK_INTEGER(T_NEWLINE); }
+
+ /* whitespace and newline */
+<INITIAL>{WS_NO_NL}+                        { /* eat whitespace */ }
+<INITIAL>[\n]+                              { MK_INTEGER(T_NEWLINE); }
+<NL_IGNORE>{WS_NL}+                         { /* eat whitespace */ }
 
  /* decimal integer literal */
 {DEC}{IS}?                                  { MK_LITERAL(T_INTEGER_LITERAL); }
@@ -230,12 +253,10 @@ not         { MK_INTEGER(T_NOT); }
 \'({NES}|{NL}|{SES}|{OES}|{UCN})\'          { MK_LITERAL(T_CHARACTER_LITERAL); }
 
  /* var id */
-[a-zA-Z_][a-zA-Z0-9_]*                      { MK_LITERAL(T_VAR_ID); }
-
- /* whitespace except newline */
-{WS}+                                       { /* skip whitespace except newline */ }
+([a-zA-Z][a-zA-Z0-9_]*)|("_"[a-zA-Z0-9_]+)  { MK_LITERAL(T_VAR_ID); }
 
 <<EOF>>                                     {
+                                                LOG_ASSERT(T_PARENSTACK.empty(), "parenStack must be empty: {}", T_PARENSTACK.empty());
                                                 return yy::parser::make_YYEOF(T_LOCATION);
                                             }
 
@@ -245,47 +266,3 @@ not         { MK_INTEGER(T_NOT); }
                                             }
 
 %%
-
-static char *realloc_newline(char *b, int &n) {
-    int nn = n < 8 ? 8 : (2 * n);
-    if (!b) {
-        b = new char[nn];
-        n = nn;
-        return b;
-    }
-    char *nb = new char[nn];
-    std::memset(nb, 0, nn * sizeof(char));
-    std::memcpy(nb, b, n);
-    delete[] b;
-    n = nn;
-    return nb;
-}
-
-bool endWithNewline(yyscan_t yyscanner) {
-    int n = 0, len = 0;
-    char *buf = realloc_newline(nullptr, len);
-    bool hasNewline = false;
-    while (true) {
-        if (n >= len) {
-            buf = realloc_newline(buf, len);
-        }
-        int c = yyinput(yyscanner);
-        buf[n++] = c;
-        if (c == '\n') {
-            hasNewline = true;
-            break;
-        }
-        if (!std::isspace(c)) {
-            break;
-        }
-    }
-    for (int i = n-1; i >= 0; i--) {
-        unput(buf[i]);
-    }
-    delete[] buf;
-    return hasNewline;
-}
-
-bool beginWithNewline(yyscan_t yyscanner) {
-
-}

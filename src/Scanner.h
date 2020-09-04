@@ -13,6 +13,7 @@ void *yyget_extra(yyscan_t yyscanner);
 #include "parser.tab.hh"
 #include <cstdio>
 #include <memory>
+#include <stack>
 #include <string>
 #include <utility>
 
@@ -28,10 +29,18 @@ public:
   FILE *fp;
   yyscan_t yyscanner;
   std::shared_ptr<yy::parser> parser;
-
   std::shared_ptr<Ast> compileUnit;
 
   // wrapper for flex/bison
   virtual yy::parser::symbol_type tokenize();
   virtual int parse();
+
+  virtual int topRegionToken();
+  virtual int eatRegionToken(int tok);
+  virtual int newline_enabled() const;
+
+private:
+  // tokenizer parentheses stack
+  std::stack<int> parenthesesStack_;
+  bool parentheses_region_;
 };

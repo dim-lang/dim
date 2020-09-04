@@ -57,7 +57,6 @@ class Ast;
 %token<int> T_IF "if"
 %token<int> T_THEN "then"
 %token<int> T_ELSE "else"
-%token<int> T_SEMI_ELSE "semi_else"
 %token<int> T_MATCH "match"
 %token<int> T_ENUM "enum"
 %token<int> T_SWITCH "switch"
@@ -66,7 +65,6 @@ class Ast;
 %token<int> T_FOREACH "foreach"
 %token<int> T_IN "in"
 %token<int> T_WHILE "while"
-%token<int> T_SEMI_WHILE "semi_while"
 %token<int> T_DO "do"
 %token<int> T_BREAK "break"
 %token<int> T_CONTINUE "continue"
@@ -181,11 +179,10 @@ class Ast;
 %token<int> T_COLON_LARROW ":>"
 %token<int> T_COLON_RARROW "<:"
 
- /* semi */
 %token<int> T_NEWLINE "\n"
 
  /* separator and operator */
-%type<int> semi optionalNewline optionalNewlines newlines
+%type<int> optionalNewline optionalNewlines newlines
 %type<int> assignOp prefixOp infixOp postfixOp
 
  /* str */
@@ -198,7 +195,7 @@ class Ast;
 %type<std::shared_ptr<Ast>> id varId
  /* expr */
 %type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
-%type<std::shared_ptr<Ast>> /* optionalYield */ optionalExpr optionalExprs optionalForInit optionalBlockStats
+%type<std::shared_ptr<Ast>> optionalYield optionalExprs optionalBlockStats
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
@@ -216,11 +213,10 @@ class Ast;
 %nonassoc "try_catch_finally"
  /* do-while */
 %nonassoc "while"
-%nonassoc "semi_while"
+%nonassoc "do_while"
  /* if-else */
 %nonassoc "then"
 %nonassoc "else"
-%nonassoc "semi_else"
  /* return */
 %nonassoc "return"
 %nonassoc "return_expr"
@@ -266,11 +262,7 @@ class Ast;
 
 %%
 
- /* semi and newline { */
-
-semi : ";" { $$ = $1; }
-     | "\n" { $$ = $1; }
-     ;
+ /* newline { */
 
 optionalNewline : "\n" { $$ = $1; }
                 | %empty { $$ = yy::parser::token::YYUNDEF; }
@@ -284,7 +276,7 @@ newlines : "\n" { $$ = $1; }
          | newlines "\n" { $$ = $2; }
          ;
 
- /* semi and newline } */
+ /* newline } */
 
  /* literal { */
 
@@ -324,13 +316,11 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
 
 expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); } /* %prec fix optional if-else shift/reduce */
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "if" "(" expr ")" optionalNewlines expr "semi_else" expr %prec "semi_else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "while" "(" expr ")" optionalNewlines expr { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
-     | "do" optionalNewlines expr "while" "(" expr ")" %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); } /* %prec fix optional do-while shift/reduce */
-     | "do" optionalNewlines expr "semi_while" "(" expr ")" %prec "semi_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); }
-     | "for" "(" enumerators ")" optionalNewlines expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
-     | "try" optionalNewlines expr "catch" optionalNewlines expr %prec "try_catch" { $$ = SP_NEW(A_Try, $3, $6, SP_NULL, @$); } /* %prec fix optional try-catch-finally shift/reduce */
-     | "try" optionalNewlines expr "catch" optionalNewlines expr "finally" optionalNewlines expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $3, $6, $9, @$); }
+     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); }
+     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
+     | "try" expr "catch" expr %prec "try_catch" { $$ = SP_NEW(A_Try, $2, $4, SP_NULL, @$); } /* %prec fix optional try-catch-finally shift/reduce */
+     | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $2, $4, $6, @$); }
      | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
      | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); } /* %prec fix optional return shift/reduce */
      | "return" expr %prec "return_expr" { $$ = SP_NEW(A_Return, $2, @$); }
@@ -338,21 +328,12 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, 
      | postfixExpr { $$ = $1; }
      ;
 
-enumerators : optionalForInit semi optionalExpr semi optionalExpr { $$ = SP_NEW(A_LoopCondition, $1, $3, $5, false, @$); }
-            | id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
+enumerators : id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
             ;
 
-optionalForInit : varDef { $$ = $1; }
-                | %empty { $$ = SP_NULL; }
-                ;
-
-optionalExpr : expr { $$ = $1; }
-             | %empty { $$ = SP_NULL; }
-             ;
-
-/* optionalYield : "yield" { $$ = $1; } */
-/*               | %empty { $$ = yy::parser::token::YYUNDEF; } */
-/*               ; */
+optionalYield : "yield" { $$ = $1; }
+              | %empty { $$ = yy::parser::token::YYUNDEF; }
+              ;
 
 assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }
            ;
@@ -455,8 +436,8 @@ optionalBlockStats : blockStats { $$ = $1; }
                    | %empty { $$ = SP_SPC(A_BlockStats, SP_NULL); }
                    ;
 
-blockStats : semi blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_SPC(A_BlockStats, SP_NULL), @$); }
-           | blockStats semi blockStat { $$ = SP_NEW(A_BlockStats, $3, SP_SPC(A_BlockStats, $1), @$); }
+blockStats : "\n" blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_SPC(A_BlockStats, SP_NULL), @$); }
+           | blockStats "\n" blockStat { $$ = SP_NEW(A_BlockStats, $3, SP_SPC(A_BlockStats, $1), @$); }
            ;
 
  /* expression } */
@@ -559,8 +540,8 @@ optionalTopStats : topStats { $$ = $1; }
                  | %empty { $$ = SP_SPC(A_TopStats, SP_NULL); }
                  ;
 
-topStats : semi topStat { $$ = SP_NEW(A_TopStats, $2, SP_SPC(A_TopStats, SP_NULL), @$); }
-         | topStats semi topStat { $$ = SP_NEW(A_TopStats, $3, SP_SPC(A_TopStats, $1), @$); }
+topStats : "\n" topStat { $$ = SP_NEW(A_TopStats, $2, SP_SPC(A_TopStats, SP_NULL), @$); }
+         | topStats "\n" topStat { $$ = SP_NEW(A_TopStats, $3, SP_SPC(A_TopStats, $1), @$); }
          ;
 
 topStat : def { $$ = $1; }
