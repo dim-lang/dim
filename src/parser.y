@@ -1,7 +1,7 @@
 %require "3.2"
 %language "c++"
 %define lr.type ielr
-%expect 2
+/* %expect 2 */
 %define api.value.type variant
 %define api.token.constructor
 %define parse.assert
@@ -182,7 +182,7 @@ class Ast;
 %token<int> T_NEWLINE "\n"
 
  /* separator and operator */
-%type<int> optionalNewline optionalNewlines newlines
+%type<int> optionalNewline optionalNewlines newlines optionalYield
 %type<int> assignOp prefixOp infixOp postfixOp
 
  /* str */
@@ -195,7 +195,7 @@ class Ast;
 %type<std::shared_ptr<Ast>> id varId
  /* expr */
 %type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
-%type<std::shared_ptr<Ast>> optionalYield optionalExprs optionalBlockStats
+%type<std::shared_ptr<Ast>> optionalExprs optionalBlockStats
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
  /* def */
@@ -209,17 +209,19 @@ class Ast;
  /* low -> high precedence { */
 
  /* try-catch-finally */
-%nonassoc "try_catch"
-%nonassoc "try_catch_finally"
+%right "catch" "finally"
+%precedence "try_catch"
+%precedence "try_catch_finally"
  /* do-while */
-%nonassoc "while"
-%nonassoc "do_while"
+%precedence "while"
+%precedence "do_while"
  /* if-else */
-%nonassoc "then"
-%nonassoc "else"
+%precedence "then"
+%precedence "else"
  /* return */
-%nonassoc "return"
-%nonassoc "return_expr"
+%precedence "return"
+%precedence "return_expr"
+
 
  /* comma */
 %left T_COMMA
@@ -314,15 +316,32 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
 
  /* expression { */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); } /* %prec fix optional if-else shift/reduce */
+ /**
+  * 1. if-else
+  *     use `%prec "then"` and `%prec "else"` to fix dangling else shift/reduce
+  *     add `optionalNewlines` after `if (expr)` to enable newlines here
+  *     use magic `ws-else-ws`(ws short for eat-all-whitespaces-include-newline) token to eat all whitespaces around real keyword `else` to enable newlines here
+  * 2. while and do-while
+  *     use `%prec "while"` and `%prec "do_while"` to fix shift/reduce conflict between while and do-while
+  *     add `optionalNewlines` after `while (expr)` to enable newlines here
+  *     use magic `do-ws` token to eat all whitespaces after real keyword `do` to enable newlines here
+  *     add `optionalNewlines` after `do expr` to enable newlines here
+  * 3. for
+  *     add `optionalNewlines` after `for (enumerators)` to enable newlines here
+  * 4. try-catch-finally
+  *     use `%prec "try_catch"` and `%prec "try_catch_finally"` and `%right "catch" "finally"` to fix dangling finally shift/reduce
+  *     use magic `try-ws` token to eat all whitespaces after real keyword `try`, `ws-catch-ws` `ws-finally-ws` token to eat all whitespaces around real keyword `catch` `finally`
+  */
+
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); }
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
      | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $3, SP_NULL, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
-     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $3, @$); }
-     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $6, @$); }
-     | "try" expr "catch" expr %prec "try_catch" { $$ = SP_NEW(A_Try, $2, $4, SP_NULL, @$); } /* %prec fix optional try-catch-finally shift/reduce */
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, $6, SP_NULL, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $2, @$); }
+     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $7, @$); }
+     | "try" expr "catch" expr %prec "try_catch" { $$ = SP_NEW(A_Try, $2, $4, SP_NULL, @$); }
      | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $2, $4, $6, @$); }
      | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
-     | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); } /* %prec fix optional return shift/reduce */
+     | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); }
      | "return" expr %prec "return_expr" { $$ = SP_NEW(A_Return, $2, @$); }
      | assignExpr { $$ = $1; }
      | postfixExpr { $$ = $1; }

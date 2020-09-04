@@ -12,7 +12,7 @@ extern YY_DECL;
 Scanner::Scanner(const std::string &a_fileName)
     : fileName(a_fileName), yyBufferState(nullptr), fp(nullptr),
       yyscanner(nullptr), parser(nullptr), compileUnit(nullptr),
-      parenthesesStack_(), parentheses_region_(true) {
+      parenthesesStack_() {
   // init scanner
   int r = yylex_init_extra(this, &yyscanner);
   LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
@@ -48,50 +48,47 @@ yy::parser::symbol_type Scanner::tokenize() { return yylex(yyscanner); }
 
 int Scanner::parse() { return parser->parse(); }
 
-static bool isParenthesesRegion(int tok) {
+static bool isOpenParentheses(int tok) {
   return tok == yy::parser::token::T_LPAREN ||
          tok == yy::parser::token::T_LBRACKET ||
-         tok == yy::parser::token::T_LBRACE ||
-         tok == yy::parser::token::T_RPAREN ||
+         tok == yy::parser::token::T_LBRACE;
+}
+
+static bool isCloseParentheses(int tok) {
+  return tok == yy::parser::token::T_RPAREN ||
          tok == yy::parser::token::T_RBRACKET ||
          tok == yy::parser::token::T_RBRACE;
 }
 
-static bool isDoWhileRegion(int tok) {
-  return tok == yy::parser::token::T_DO || tok == yy::parser::token::T_WHILE;
-}
+int Scanner::topParentheses() const { return parenthesesStack_.top(); }
 
-static bool isTryCatchRegion(int tok) {
-  return tok == yy::parser::token::T_TRY || tok == yy::parser::token::T_CATCH ||
-         tok == yy::parser::token::T_FINALLY;
-}
-
-int Scanner::topRegionToken() { return bracketStack_.top(); }
-
-int Scanner::eatRegionToken(int tok) {
-  if (tok == yy::parser::token::T_LPAREN ||
-      tok == yy::parser::token::T_LBRACKET ||
-      tok == yy::parser::token::T_LBRACE) {
-    bracketStack_.push(tok);
-    return bracketStack_.top();
-  } else if (tok == yy::parser::token::T_RPAREN ||
-             tok == yy::parser::token::T_RBRACKET ||
-             tok == yy::parser::token::T_RBRACE) {
-    const static std::unordered_map<int, int> bracketMapping = {
-        {yy::parser::token::T_LPAREN, yy::parser::token::T_RPAREN},
-        {yy::parser::token::T_LBRACKET, yy::parser::token::T_RBRACKET},
-        {yy::parser::token::T_LBRACE, yy::parser::token::T_RBRACE}};
-    LOG_ASSERT(!bracketStack_.empty(), "bracketStack_ must not empty:{}",
-               bracketStack_.size());
-    int save = bracketStack_.top();
-    LOG_ASSERT(bracketMapping[save] == tok,
-               "bracketStack_.top {} must match token {}", bracketStack_.top(),
-               tok);
-    bracketStack_.pop();
-    return save;
+int Scanner::eatParentheses(int tok) {
+  if (isOpenParentheses(tok)) {
+    parenthesesStack_.push(tok);
+    return topParentheses();
   } else {
-    LOG_ASSERT(false, "invalid token: {}", tokenName(tok));
+    LOG_ASSERT(isCloseParentheses(tok), "token {} must be close parentheses",
+               tokenName(tok));
+    LOG_ASSERT(!parenthesesStack_.empty(),
+               "parenthesesStack_ must not empty:{}", parenthesesStack_.size());
+    const static std::unordered_map<int, int> parenthesesMapping = {
+        {yy::parser::token::T_RPAREN, yy::parser::token::T_LPAREN},
+        {yy::parser::token::T_RBRACKET, yy::parser::token::T_LBRACKET},
+        {yy::parser::token::T_RBRACE, yy::parser::token::T_LBRACE}};
+    int save = topParentheses();
+    LOG_ASSERT(parenthesesMapping.find(tok)->second == save,
+               "topParentheses {} must match token {}", topParentheses(), tok);
+    parenthesesStack_.pop();
+    return save;
   }
 }
 
-int Scanner::newline_enabled() const { return nl_bracket_region_; }
+int Scanner::newlineEnabled() const {
+  return parenthesesStack_.empty() ||
+         (topParentheses() == yy::parser::token::T_LBRACE ||
+          topParentheses() == yy::parser::token::T_RBRACE);
+}
+
+bool Scanner::parenthesesEmpty() const { return parenthesesStack_.empty(); }
+
+int Scanner::parenthesesSize() const { return parenthesesStack_.size(); }

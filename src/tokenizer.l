@@ -39,26 +39,12 @@ LC  ("//".*\n)
 #define T_SCANNER               (static_cast<Scanner *>(yyextra))
 #define T_LOCATION              (T_SCANNER->location)
 #define T_FILE_NAME             (T_SCANNER->fileName)
-#define T_PARENSTACK            (T_SCANNER->bracketStack)
+#define T_PARENTHESES_EMPTY     (T_SCANNER->parenthesesEmpty())
+#define T_PARENTHESES_SIZE      (T_SCANNER->parenthesesSize())
 
-#define T_PARENSTACK_STATE      do {    \
-    if (!T_PARENSTACK.empty()           \
-            && (T_PARENSTACK.top() == yy::parser::token::T_LPAREN || yy::parser::token::T_LBRACKET))  \
-        BEGIN(NL_IGNORE);   \
-    else                    \
-        BEGIN(INITIAL);     \
-} while (0)
-
-#define T_PARENSTACK_PUSH(t)    do {    \
-    T_PARENSTACK.push(t);   \
-    T_PARENSTACK_STATE;     \
-} while (0)
-
-#define T_PARENSTACK_POP(t)     do {    \
-    LOG_ASSERT(!T_PARENSTACK.empty(), "parenStack must not empty");                         \
-    LOG_ASSERT(T_PARENSTACK.top() == t, "parenStack.top {} == {}", T_PARENSTACK.top(), t);  \
-    T_PARENSTACK.pop();     \
-    T_PARENSTACK_STATE;     \
+#define T_EAT_PARENTHESES(t)    do {    \
+    T_SCANNER->eatParentheses(t);       \
+    BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
 #define MK_LITERAL(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION)
@@ -86,7 +72,7 @@ LC  ("//".*\n)
  /* keywords */
 true        { MK_INTEGER(T_TRUE); }
 false       { MK_INTEGER(T_FALSE); }
-try         { MK_INTEGER(T_TRY); }
+try({WS_NL}|{BC}|{LC})*                         { MK_INTEGER(T_TRY); }
 ({WS_NL}|{BC}|{LC})*catch({WS_NL}|{BC}|{LC})*   { MK_INTEGER(T_CATCH); }
 ({WS_NL}|{BC}|{LC})*finally({WS_NL}|{BC}|{LC})* { MK_INTEGER(T_FINALLY); }
 throw       { MK_INTEGER(T_THROW); }
@@ -203,12 +189,12 @@ not         { MK_INTEGER(T_NOT); }
 ">="        { MK_INTEGER(T_GE); }
 
  /* parentheses */
-"("         { T_PARENSTACK_PUSH(yy::parser::token::T_LPAREN); MK_INTEGER(T_LPAREN); }
-")"         { T_PARENSTACK_POP(yy::parser::token::T_LPAREN); MK_INTEGER(T_RPAREN); }
-"["         { T_PARENSTACK_PUSH(yy::parser::token::T_LBRACKET); MK_INTEGER(T_LBRACKET); }
-"]"         { T_PARENSTACK_POP(yy::parser::token::T_LBRACKET); MK_INTEGER(T_RBRACKET); }
-"{"         { T_PARENSTACK_PUSH(yy::parser::token::T_LBRACE); MK_INTEGER(T_LBRACE); }
-"}"         { T_PARENSTACK_POP(yy::parser::token::T_LBRACE); MK_INTEGER(T_RBRACE); }
+"("         { T_EAT_PARENTHESES(yy::parser::token::T_LPAREN); MK_INTEGER(T_LPAREN); }
+")"         { T_EAT_PARENTHESES(yy::parser::token::T_LPAREN); MK_INTEGER(T_RPAREN); }
+"["         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACKET); MK_INTEGER(T_LBRACKET); }
+"]"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACKET); MK_INTEGER(T_RBRACKET); }
+"{"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACE); MK_INTEGER(T_LBRACE); }
+"}"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACE); MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
 "_"         { MK_INTEGER(T_UNDERSCORE); }
@@ -256,7 +242,7 @@ not         { MK_INTEGER(T_NOT); }
 ([a-zA-Z][a-zA-Z0-9_]*)|("_"[a-zA-Z0-9_]+)  { MK_LITERAL(T_VAR_ID); }
 
 <<EOF>>                                     {
-                                                LOG_ASSERT(T_PARENSTACK.empty(), "parenStack must be empty: {}", T_PARENSTACK.empty());
+                                                LOG_ASSERT(T_PARENTHESES_EMPTY, "parentheses stack must be empty:{}", T_PARENTHESES_SIZE);
                                                 return yy::parser::make_YYEOF(T_LOCATION);
                                             }
 

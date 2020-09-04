@@ -35,12 +35,13 @@ public:
   virtual yy::parser::symbol_type tokenize();
   virtual int parse();
 
-  virtual int topRegionToken();
-  virtual int eatRegionToken(int tok);
-  virtual int newline_enabled() const;
+  virtual int topParentheses() const;
+  virtual int eatParentheses(int tok);
+  virtual int newlineEnabled() const;
+  virtual bool parenthesesEmpty() const;
+  virtual int parenthesesSize() const;
 
 private:
   // tokenizer parentheses stack
   std::stack<int> parenthesesStack_;
-  bool parentheses_region_;
 };
