@@ -36,8 +36,8 @@ static void tokenize(const char *fileName) {
   REQUIRE(true);
 }
 
-TEST_CASE("Tokenizer", "[Tokenizer]") {
-  SECTION("Success") {
+TEST_CASE("tokenizer", "[tokenizer]") {
+  SECTION("tokenize") {
     tokenize("test/case/parse-1.nerd");
     tokenize("test/case/parse-2.nerd");
     tokenize("test/case/parse-integer-literal-error-1.nerd");

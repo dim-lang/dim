@@ -150,15 +150,17 @@ A_Integer::A_Integer(const std::string &literal, const yy::location &location)
       startPosition = 2;
       break;
     default:
-      decimalCategory_ = A_Integer::DecimalCategory::DEC;
-      base_ = 10;
-      startPosition = 0;
       break;
     }
+  } else {
+    decimalCategory_ = A_Integer::DecimalCategory::DEC;
+    base_ = 10;
+    startPosition = 0;
   }
 
   int endPosition = (int)literal.length();
-  if (Strings::endWith(literal, std::vector<std::string>{"ul", "UL"})) {
+  if (Strings::endWith(literal,
+                       std::vector<std::string>{"ul", "UL", "uL", "Ul"})) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 2;

@@ -343,6 +343,8 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, 
      | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
      | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); }
      | "return" expr %prec "return_expr" { $$ = SP_NEW(A_Return, $2, @$); }
+     | "continue" { $$ = SP_NEW(A_Continue, @$); }
+     | "break" { $$ = SP_NEW(A_Break, @$); }
      | assignExpr { $$ = $1; }
      | postfixExpr { $$ = $1; }
      ;
@@ -489,6 +491,7 @@ plainType : "byte" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "ulong" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "llong" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "ullong" { $$ = SP_NEW(A_PlainType, $1, @$); }
+          | "char" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "float" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "double" { $$ = SP_NEW(A_PlainType, $1, @$); }
           | "boolean" { $$ = SP_NEW(A_PlainType, $1, @$); }

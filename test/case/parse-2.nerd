@@ -16,20 +16,21 @@ def f():void {
     var integer_list:int = 10
     for (i <- integer_list)
         yield i+1
-    val float_list:float = 10.2
-    val s:string = nil
-    val a:string = new string("hello world")
-    delete a
+    var float_list:float = 10.2
+    var a:char = 'h'
     while (true)
         if (i > 4)
             return
     do
+        println(true)
+    while (i < 6)
+    do {
         if (i == 0)
             continue
         println(true)
         if (i == 10)
             break
-    while (i < 5)
+    } while (i < 5)
     return
 }
 
