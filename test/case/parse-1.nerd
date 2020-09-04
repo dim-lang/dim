@@ -46,7 +46,7 @@ def integer_literal():void {
     0b0
     0B0011u
     0B1111U
-    0B11107l
+    0B11100l
     0b11010L
     0b00101ul
     0b11101UL
