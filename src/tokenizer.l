@@ -14,9 +14,9 @@
 DIG ([0-9])
 OCT ([0-7])
 HEX ([0-9a-fA-F])
-DEC (0|[1-9][0-9]*)
 BIN ([01])
-EXP ([eE][-+]?[0-9]+)
+DEC (0|[1-9][0-9]*)
+EXP ([eE][-+]?(0|[1-9][0-9]*))
 FS  ([dD])
 IS  ([uU]|([uU]?[lL]))
 NES ([^"\\\r\n])
@@ -43,7 +43,7 @@ LC  ("//".*\n)
 #define T_PARENTHESES_SIZE      (T_SCANNER->parenthesesSize())
 
 #define T_EAT_PARENTHESES(t)    do {    \
-    T_SCANNER->eatParentheses(t);       \
+    T_SCANNER->eatParentheses(yy::parser::token::t);       \
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
@@ -189,12 +189,12 @@ not         { MK_INTEGER(T_NOT); }
 ">="        { MK_INTEGER(T_GE); }
 
  /* parentheses */
-"("         { T_EAT_PARENTHESES(yy::parser::token::T_LPAREN); MK_INTEGER(T_LPAREN); }
-")"         { T_EAT_PARENTHESES(yy::parser::token::T_LPAREN); MK_INTEGER(T_RPAREN); }
-"["         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACKET); MK_INTEGER(T_LBRACKET); }
-"]"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACKET); MK_INTEGER(T_RBRACKET); }
-"{"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACE); MK_INTEGER(T_LBRACE); }
-"}"         { T_EAT_PARENTHESES(yy::parser::token::T_LBRACE); MK_INTEGER(T_RBRACE); }
+"("         { T_EAT_PARENTHESES(T_LPAREN); MK_INTEGER(T_LPAREN); }
+")"         { T_EAT_PARENTHESES(T_RPAREN); MK_INTEGER(T_RPAREN); }
+"["         { T_EAT_PARENTHESES(T_LBRACKET); MK_INTEGER(T_LBRACKET); }
+"]"         { T_EAT_PARENTHESES(T_RBRACKET); MK_INTEGER(T_RBRACKET); }
+"{"         { T_EAT_PARENTHESES(T_LBRACE); MK_INTEGER(T_LBRACE); }
+"}"         { T_EAT_PARENTHESES(T_RBRACE); MK_INTEGER(T_RBRACE); }
 
  /* other punctuation */
 "_"         { MK_INTEGER(T_UNDERSCORE); }
@@ -248,7 +248,7 @@ not         { MK_INTEGER(T_NOT); }
 
  /* invalid token */
 .                                           {
-                                                LOG_ASSERT(false, "{}:{} error! invalid token:{}, {}!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                LOG_ASSERT(false, "{}:{} tokenize error! invalid:{}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
                                             }
 
 %%

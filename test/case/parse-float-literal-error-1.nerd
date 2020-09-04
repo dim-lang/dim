@@ -1,0 +1,3 @@
+def float_literal_error():void {
+    018.82
+}

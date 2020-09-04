@@ -1,0 +1,100 @@
+
+/*
+ // parse testing for integer literals
+ */
+
+def integer_literal():void {
+// parse testing for decimal integer
+    10
+    100u
+    234U
+    3871l
+    3872L
+    812973ul
+    187134UL
+
+    // parse testing for heximal integer
+    0x8af7
+    0x0
+    0X80AF7u
+    0X8BEFU
+    0xfa287l
+    0xFA287L
+    0xfa287ul
+    0xFA287UL
+    0x00FF
+    0x0a1UL
+
+    /**
+     * parse testing for octal integer 
+     */
+    0o3107
+    0o0
+    0O4037u
+    0O1277U
+    0o43207l
+    0o73417L
+    0o37407ul
+    0o77207UL
+    0o0000
+    0O0172
+
+    /**
+     * parse testing for binary integer 
+     */
+    0b0100
+    0b0
+    0B0011u
+    0B1111U
+    0B11107l
+    0b11010L
+    0b00101ul
+    0b11101UL
+}
+
+/**
+ * parse testing for string literals
+ */
+
+
+def string_literal():void {
+    "a most simple ascii string literal"
+    "one line string literal with back slask \r\n \' \" \? \a \b \f \n \r \t \v \\"
+    "one line string literal with oct \0 \071 \014"
+    "one line string literal with unicode \u0020 \U00000000 \u1234 \u20AC \U00008000"
+
+    """--- a multiple line string literal ---
+here we begin with some comments:
+    multiple string literal begins and ends with triple quotes \"\"\",
+    then newline are enabled in it.
+    """
+
+    """--- multiple line string literal with unicode ---
+here we begin with some comments \u0020 \U00000000 \u1234 \u20AC \U00008000:
+    multiple string literal begins and ends with triple quotes \"\"\",
+    then newline are enabled in it.
+    here we test back slask \r\n \' \" \? \a \b \f \n \r \t \v \\.
+    """
+}
+
+// parse testing for floating point literal
+
+def floating_point_literal():void {
+    10.0
+    0.0
+    1028.12d
+    1028.13D
+    83.1e+10
+    3.8e-3
+}
+
+def character_literal():void {
+    'c'
+    'A'
+    '\000'
+    '\0'
+    '\u0020'
+    '\U00008000'
+    '\u20ac'
+    '\u1234'
+}

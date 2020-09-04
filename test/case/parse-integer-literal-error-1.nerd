@@ -1,0 +1,3 @@
+def integer_literal_error():void {
+    010
+}

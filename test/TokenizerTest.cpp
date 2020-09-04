@@ -6,9 +6,9 @@
 #include "catch2/catch.hpp"
 #include <vector>
 
-static void tokenize(const char *fileName) {
+static void tokenizeSuccess(const char *fileName) {
   Scanner scanner(fileName);
-  LOG_INFO("tokenizer start: {}", fileName);
+  LOG_INFO("start: {}", fileName);
   std::vector<std::string> tokenList;
   while (true) {
     yy::parser::symbol_type t(scanner.tokenize());
@@ -31,12 +31,34 @@ static void tokenize(const char *fileName) {
   for (int i = 0; i < (int)tokenList.size(); i++) {
     ss << tokenList[i] << " ";
   }
-  LOG_INFO("tokenizer end: {}", ss.str());
+  LOG_INFO("end: {}", ss.str());
 }
 
-TEST_CASE("Token", "[Token]") {
-  SECTION("Lexer") {
-    tokenize("test/case/Parse1.nd");
-    tokenize("test/case/Parse2.nd");
+static void tokenizeError(const char *fileName) {
+  try {
+    Scanner scanner(fileName);
+    LOG_INFO("start: {}", fileName);
+    while (true) {
+      yy::parser::symbol_type t(scanner.tokenize());
+      if (t.kind() == yy::parser::symbol_kind::S_YYEOF) {
+        break;
+      }
+    }
+    REQUIRE(false);
+  } catch (const std::string &e) {
+    LOG_INFO("end with exception:{}", e);
+  }
+}
+
+TEST_CASE("Tokenizer", "[Tokenizer]") {
+  SECTION("Success") {
+    tokenizeSuccess("test/case/parse-1.nerd");
+    /* tokenize("test/case/parse-1.nerd"); */
+  }
+
+  SECTION("Error") {
+    tokenizeError("test/case/parse-integer-literal-error-1.nerd");
+    tokenizeError("test/case/parse-float-literal-error-1.nerd");
+    tokenizeError("test/case/parse-float-literal-error-2.nerd");
   }
 }
