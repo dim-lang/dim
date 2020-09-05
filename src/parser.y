@@ -194,7 +194,7 @@ class Ast;
  /* id */
 %type<std::shared_ptr<Ast>> id varId
  /* expr */
-%type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
+%type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats exprSeq
 %type<std::shared_ptr<Ast>> optionalExprs optionalBlockStats
  /* type */
 %type<std::shared_ptr<Ast>> type plainType
