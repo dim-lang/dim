@@ -133,8 +133,8 @@ def main():int {
     * Use Windows' default console window.
 * Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `%PATH%`.
 * Install [python3](https://www.python.org/downloads/) and add `python3.exe` and `pip3.exe` to `%PATH%`.
-* If git clone is too slow, please download [llvm-project-10.0.0.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0) from github release for Windows.
-* If git clone is too slow, please download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows.
+* Please download [llvm-project-9.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-9.0.1) from github release for Windows if git clone is slow.
+* Please download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows if git clone is slow.
 
 #### Build
 

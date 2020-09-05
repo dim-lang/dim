@@ -21,10 +21,10 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Scanner.h"
+extern YY_DECL;
 #define SP_NULL             (std::shared_ptr<Ast>(nullptr))
 #define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
 #define SP_SPC(x, y)        (std::static_pointer_cast<x>(y))
-extern YY_DECL;
 }
 
 %code requires {
@@ -454,11 +454,15 @@ block : "{" blockStat optionalBlockStats "}" {
         }
       ;
 
-blockStat : expr { $$ = $1; }
+blockStat : exprSeq { $$ = $1; }
           | def { $$ = $1; }
           /* | import */
           | %empty { $$ = SP_NULL; }
           ;
+
+exprSeq : expr { $$ = SP_NEW(A_Exprs, $1, SP_SPC(A_Exprs, SP_NULL), @$); }
+        | exprSeq ";" expr { $$ = SP_NEW(A_Exprs, $3, SP_SPC(A_Exprs, $1), @$); }
+        ;
 
 optionalBlockStats : blockStats { $$ = $1; }
                    | %empty { $$ = SP_SPC(A_BlockStats, SP_NULL); }

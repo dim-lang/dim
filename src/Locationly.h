@@ -11,6 +11,9 @@ public:
   virtual yy::location &location();
   virtual const yy::location &location() const;
 
+  static std::string locationString(const yy::location &location);
+  static std::string positionString(const yy::position &position);
+
 private:
   yy::location location_;
 };

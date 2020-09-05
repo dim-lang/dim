@@ -187,7 +187,7 @@ std::string A_Integer::toString() const {
   return fmt::format("[{} location:{}, parsed:{}, "
                      "decimalCategory:{}, bitCategory:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(), parsed_,
+                     Locationly::locationString(location()), parsed_,
                      AIL_DC_Map.find(decimalCategory_)->second,
                      AIL_BC_Map.find(bitCategory_)->second);
 }
@@ -252,7 +252,7 @@ AstCategory A_Float::category() const { return AstCategory::Float; }
 std::string A_Float::toString() const {
   return fmt::format("[{} location:{}, parsed:{}, bitCategory:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(), parsed_,
+                     Locationly::locationString(location()), parsed_,
                      AFL_BC_Map.find(bitCategory_)->second);
 }
 
@@ -291,7 +291,7 @@ AstCategory A_String::category() const { return AstCategory::String; }
 
 std::string A_String::toString() const {
   return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), parsed_);
+                     Locationly::locationString(location()), parsed_);
 }
 
 A_String::QuoteCategory A_String::quoteCategory() const {
@@ -312,7 +312,7 @@ AstCategory A_Character::category() const { return AstCategory::Character; }
 
 std::string A_Character::toString() const {
   return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), parsed_);
+                     Locationly::locationString(location()), parsed_);
 }
 
 char A_Character::asChar() const { return parsed_; }
@@ -328,7 +328,7 @@ AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
 
 std::string A_Boolean::toString() const {
   return fmt::format("[{} location:{}, value:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), value);
+                     Locationly::locationString(location()), value);
 }
 
 // A_Boolean }
@@ -341,7 +341,7 @@ AstCategory A_Nil::category() const { return AstCategory::Nil; }
 
 std::string A_Nil::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str());
+                     Locationly::locationString(location()));
 }
 
 // A_Nil }
@@ -354,7 +354,7 @@ AstCategory A_Void::category() const { return AstCategory::Void; }
 
 std::string A_Void::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str());
+                     Locationly::locationString(location()));
 }
 
 // A_Void }
@@ -372,7 +372,7 @@ AstCategory A_VarId::category() const { return AstCategory::VarId; }
 
 std::string A_VarId::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str());
+                     Locationly::locationString(location()));
 }
 
 // A_VarId }
@@ -392,8 +392,7 @@ AstCategory A_Throw::category() const { return AstCategory::Throw; }
 
 std::string A_Throw::toString() const {
   return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     expr->toString());
+                     Locationly::locationString(location()), expr->toString());
 }
 
 // A_Throw }
@@ -407,7 +406,7 @@ AstCategory A_Return::category() const { return AstCategory::Return; }
 
 std::string A_Return::toString() const {
   return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      expr ? expr->toString() : "nil");
 }
 
@@ -421,7 +420,7 @@ AstCategory A_Break::category() const { return AstCategory::Break; }
 
 std::string A_Break::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str());
+                     Locationly::locationString(location()));
 }
 
 // A_Break }
@@ -435,7 +434,7 @@ AstCategory A_Continue::category() const { return AstCategory::Continue; }
 
 std::string A_Continue::toString() const {
   return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str());
+                     Locationly::locationString(location()));
 }
 
 // A_Continue }
@@ -456,7 +455,7 @@ AstCategory A_Assign::category() const { return AstCategory::Assign; }
 std::string A_Assign::toString() const {
   return fmt::format(
       "[{} location:{} assignee:{} assignOp:{} assignor:{}]",
-      name().toSymbolName(), (std::stringstream() << location()).str(),
+      name().toSymbolName(), Locationly::locationString(location()),
       assignee->toString(), tokenName(assignOp), assignor->toString());
 }
 
@@ -475,8 +474,8 @@ AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
 std::string A_PostfixExpr::toString() const {
   return fmt::format("[{} location:{} expr:{} postfixOp:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     expr->toString(), tokenName(postfixOp));
+                     Locationly::locationString(location()), expr->toString(),
+                     tokenName(postfixOp));
 }
 
 // A_PostfixExpr }
@@ -497,8 +496,8 @@ AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
 std::string A_InfixExpr::toString() const {
   return fmt::format("[{} location:{} left:{} infixOp:{} right:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     left->toString(), tokenName(infixOp), right->toString());
+                     Locationly::locationString(location()), left->toString(),
+                     tokenName(infixOp), right->toString());
 }
 
 // A_InfixExpr }
@@ -516,7 +515,7 @@ AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
 std::string A_PrefixExpr::toString() const {
   return fmt::format("[{} location:{} prefixOp:{} expr:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      tokenName(prefixOp), expr->toString());
 }
 
@@ -534,7 +533,7 @@ AstCategory A_Call::category() const { return AstCategory::Call; }
 
 std::string A_Call::toString() const {
   return fmt::format("[{} location:{} id:{} args:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), id->toString(),
+                     Locationly::locationString(location()), id->toString(),
                      args ? args->toString() : "nil");
 }
 
@@ -552,8 +551,8 @@ AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
 
 std::string A_Exprs::toString() const {
   return fmt::format("[{} location:{} expr:{} next:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     expr->toString(), next ? next->toString() : "nil");
+                     Locationly::locationString(location()), expr->toString(),
+                     next ? next->toString() : "nil");
 }
 
 // A_Exprs }
@@ -573,7 +572,7 @@ AstCategory A_If::category() const { return AstCategory::If; }
 std::string A_If::toString() const {
   return fmt::format(
       "[{} location:{} condition:{} thenp:{} elsep:{}]", name().toSymbolName(),
-      (std::stringstream() << location()).str(), condition->toString(),
+      Locationly::locationString(location()), condition->toString(),
       thenp->toString(), elsep ? elsep->toString() : "nil");
 }
 
@@ -593,7 +592,7 @@ AstCategory A_Loop::category() const { return AstCategory::Loop; }
 std::string A_Loop::toString() const {
   return fmt::format("[{} location:{} condition:{} body:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      condition->toString(), body->toString());
 }
 
@@ -612,10 +611,9 @@ AstCategory A_LoopCondition::category() const {
 }
 
 std::string A_LoopCondition::toString() const {
-  return fmt::format("[{} location:{} expr:{} doOnceAtFirst:{}]",
-                     name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     expr->toString(), doOnceAtFirst);
+  return fmt::format(
+      "[{} location:{} expr:{} doOnceAtFirst:{}]", name().toSymbolName(),
+      Locationly::locationString(location()), expr->toString(), doOnceAtFirst);
 }
 
 // A_LoopCondition }
@@ -636,7 +634,7 @@ AstCategory A_LoopEnumerator::category() const {
 
 std::string A_LoopEnumerator::toString() const {
   return fmt::format("[{} location:{} id:{} expr:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), id->toString(),
+                     Locationly::locationString(location()), id->toString(),
                      expr->toString());
 }
 
@@ -657,7 +655,7 @@ AstCategory A_Try::category() const { return AstCategory::Try; }
 std::string A_Try::toString() const {
   return fmt::format(
       "[{} location:{} init:{} condition:{} update:{}]", name().toSymbolName(),
-      (std::stringstream() << location()).str(), tryp->toString(),
+      Locationly::locationString(location()), tryp->toString(),
       catchp->toString(), finallyp ? finallyp->toString() : "nil");
 }
 
@@ -673,7 +671,7 @@ AstCategory A_Block::category() const { return AstCategory::Block; }
 
 std::string A_Block::toString() const {
   return fmt::format("[{} location:{} blockStats:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      blockStats ? blockStats->toString() : "nil");
 }
 
@@ -691,7 +689,7 @@ AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 std::string A_BlockStats::toString() const {
   return fmt::format("[{} location:{} blockStat:{} next:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      blockStat ? blockStat->toString() : "nil",
                      next ? next->toString() : "nil");
 }
@@ -711,8 +709,7 @@ AstCategory A_PlainType::category() const { return AstCategory::PlainType; }
 
 std::string A_PlainType::toString() const {
   return fmt::format("[@{} location:{}, token:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     tokenName(token));
+                     Locationly::locationString(location()), tokenName(token));
 }
 
 // A_PlainType }
@@ -736,7 +733,7 @@ AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
 std::string A_FuncDef::toString() const {
   return fmt::format(
       "[@{} location:{}, funcSign:{} resultType:{} body:{}]",
-      name().toSymbolName(), (std::stringstream() << location()).str(),
+      name().toSymbolName(), Locationly::locationString(location()),
       funcSign->toString(), resultType->toString(), body->toString());
 }
 
@@ -752,7 +749,7 @@ AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
 std::string A_FuncSign::toString() const {
   return fmt::format("[@{} location:{}, id:{} params:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(), id->toString(),
+                     Locationly::locationString(location()), id->toString(),
                      params ? params->toString() : "nil");
 }
 
@@ -768,8 +765,8 @@ AstCategory A_Params::category() const { return AstCategory::Params; }
 std::string A_Params::toString() const {
   return fmt::format("[@{} location:{}, param:{} next:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
-                     param->toString(), next ? next->toString() : "nil");
+                     Locationly::locationString(location()), param->toString(),
+                     next ? next->toString() : "nil");
 }
 
 A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
@@ -783,7 +780,7 @@ AstCategory A_Param::category() const { return AstCategory::Param; }
 
 std::string A_Param::toString() const {
   return fmt::format("[@{} location:{}, id:{} type:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(), id->toString(),
+                     Locationly::locationString(location()), id->toString(),
                      type->toString());
 }
 
@@ -800,7 +797,7 @@ AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
 std::string A_VarDef::toString() const {
   return fmt::format("[@{} location:{}, id:{} type:{} expr:{}]",
                      name().toSymbolName(),
-                     (std::stringstream() << location()).str(), id->toString(),
+                     Locationly::locationString(location()), id->toString(),
                      type->toString(), expr->toString());
 }
 
@@ -818,7 +815,7 @@ AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
 std::string A_TopStats::toString() const {
   return fmt::format(
       "[@{} location:{}, topStat:{} next:{}]", name().toSymbolName(),
-      (std::stringstream() << location()).str(),
+      Locationly::locationString(location()),
       topStat ? topStat->toString() : "nil", next ? next->toString() : "nil");
 }
 
@@ -830,7 +827,7 @@ AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
 
 std::string A_CompileUnit::toString() const {
   return fmt::format("[@{} location:{}, topStats:{}]", name().toSymbolName(),
-                     (std::stringstream() << location()).str(),
+                     Locationly::locationString(location()),
                      topStats ? topStats->toString() : "nil");
 }
 
