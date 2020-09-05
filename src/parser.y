@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Ast.h"
 #include "Scanner.h"
+#include "Locationly.h"
 extern YY_DECL;
 #define SP_NULL             (std::shared_ptr<Ast>(nullptr))
 #define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
@@ -602,5 +603,5 @@ topStat : def { $$ = $1; }
 %%
 
 void yy::parser::error(const yy::parser::location_type& l, const std::string& m) {
-    LOG_INFO("{}:{} {}", static_cast<Scanner *>(yyget_extra(yyscanner))->fileName, (std::stringstream() << l).str(), m);
+    LOG_INFO("{}:{} {}", static_cast<Scanner *>(yyget_extra(yyscanner))->fileName, Locationly::locationString(l), m);
 }
