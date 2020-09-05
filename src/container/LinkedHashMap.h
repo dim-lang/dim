@@ -4,6 +4,7 @@
 #pragma once
 #include "boost/core/noncopyable.hpp"
 #include <functional>
+#include <string>
 #include <utility>
 
 namespace detail {

@@ -1,7 +1,6 @@
 %require "3.2"
 %language "c++"
 %define lr.type ielr
-/* %expect 2 */
 %define api.value.type variant
 %define api.token.constructor
 %define parse.assert
@@ -32,12 +31,6 @@ extern YY_DECL;
 typedef void* yyscan_t;
 class Ast;
 }
-
- /* %union { */
- /*     std::shared_ptr<Ast> ast; */
- /*     std::string str; */
- /*     int tok; */
- /* } */
 
  /* token<int> { */
 
