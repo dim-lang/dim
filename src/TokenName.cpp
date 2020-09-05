@@ -150,7 +150,7 @@ namespace detail {
 struct TokenValueMapImpl {
   TokenValueMapImpl() {
     for (auto i = TokenNameMap.begin(); i != TokenNameMap.end(); i++) {
-      TokenNameeMap[i->second] = i->first;
+      TokenNameMap[i->second] = i->first;
     }
   }
   std::unordered_map<std::string, int> tokenValueMap;
