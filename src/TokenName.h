@@ -4,6 +4,10 @@
 #pragma once
 #include <string>
 
-std::string tokenName(int token);
+std::string tokenName(int value);
 
-bool tokenExist(int token);
+int tokenValue(const std::string &name);
+
+bool tokenValid(int token);
+
+bool tokenValid(const std::string &name);
