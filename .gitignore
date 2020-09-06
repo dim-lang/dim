@@ -35,13 +35,9 @@ llvm-project
 # auto generate source code
 tokenizer.yy.hh
 tokenizer.yy.cc
-tokenizer_out.txt
-tokenizer_err.txt
 parser.tab.hh
 parser.tab.cc
-location.hh
-parser_out.txt
-parser_err.txt
+parser.tab.dot
 src/Configure.h
 
 # vscode
