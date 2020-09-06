@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #define NAME_VALUE(t)                                                          \
-  { yy::parser::token::t, BOOST_PP_STRINGIZE(t) }
+  { yytokentype::t, BOOST_PP_STRINGIZE(t) }
 
 const static std::unordered_map<int, std::string> TokenNameMap = {
     NAME_VALUE(T_TRUE),
@@ -157,7 +157,7 @@ struct TokenValueMapImpl {
 };
 } // namespace detail
 
-const static TokenValueMapImpl tokenValueMapImpl;
+const static detail::TokenValueMapImpl tokenValueMapImpl;
 
 std::string tokenName(int value) {
   LOG_ASSERT(tokenValid(value), "invalid token value: {}", value);

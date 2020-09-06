@@ -4,10 +4,7 @@
 #include "Scanner.h"
 #include "Log.h"
 #include "TokenName.h"
-#include "tokenizer.yy.hh"
 #include <unordered_map>
-
-extern YY_DECL;
 
 Scanner::Scanner(const std::string &a_fileName)
     : fileName(a_fileName), yyBufferState(nullptr), fp(nullptr),

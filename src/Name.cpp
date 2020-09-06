@@ -90,3 +90,9 @@ const Name &Name::noName() {
   static Name noName("");
   return noName;
 }
+
+Nameable::Nameable(const std::string &name) : name_(Name::get(name)) {}
+
+Name &Nameable::name() { return name_; }
+
+const Name &Nameable::name() const { return name_; }

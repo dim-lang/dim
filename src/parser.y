@@ -1,30 +1,21 @@
-%require "3.2"
-%language "c++"
 %define lr.type ielr
-%define api.value.type variant
-%define api.token.constructor
+%define api.pure full
 %define parse.assert
 %define parse.error verbose
 %define parse.lac full
 %locations
 %param {yyscan_t yyscanner}
 
-%printer { LOG_INFO("integer: {}", $$); } <int>;
-%printer { LOG_INFO("string: {}", $$); } <std::string>;
-%printer { LOG_INFO("ast: {}", $$ ? $$->category()._to_string() : "unknown"); } <std::shared_ptr<Ast>>;
-
 %code top {
 #include <memory>
 #include <string>
-#include <sstream>
 #include "Log.h"
 #include "Ast.h"
 #include "Scanner.h"
-#include "Locationly.h"
-extern YY_DECL;
-#define SP_NULL             (std::shared_ptr<Ast>(nullptr))
-#define SP_NEW(x, ...)      (std::shared_ptr<Ast>(new x(__VA_ARGS__)))
-#define SP_SPC(x, y)        (std::static_pointer_cast<x>(y))
+#include "Location.h"
+#include "tokenizer.yy.hh"
+#define SP(ptr)         (std::shared_ptr<Ast>(ptr))
+#define SP_NULL         (std::shared_ptr<Ast>(nullptr))
 }
 
 %code requires {
@@ -32,173 +23,179 @@ typedef void* yyscan_t;
 class Ast;
 }
 
- /* token<int> { */
+%union {
+    Ast *ast;
+    char *literal;
+    int token;
+}
+
+ /* token { */
 
  /* keyword */
-%token<int> T_TRUE "true"
-%token<int> T_FALSE "false"
-%token<int> T_TRY "try"
-%token<int> T_CATCH "catch"
-%token<int> T_FINALLY "finally"
-%token<int> T_THROW "throw"
-%token<int> T_YIELD "yield"
-%token<int> T_VAR "var"
-%token<int> T_VAL "val"
-%token<int> T_NIL "nil"
-%token<int> T_NEW "new"
-%token<int> T_DELETE "delete"
-%token<int> T_DEF "def"
-%token<int> T_IF "if"
-%token<int> T_THEN "then"
-%token<int> T_ELSE "else"
-%token<int> T_MATCH "match"
-%token<int> T_ENUM "enum"
-%token<int> T_SWITCH "switch"
-%token<int> T_CASE "case"
-%token<int> T_FOR "for"
-%token<int> T_FOREACH "foreach"
-%token<int> T_IN "in"
-%token<int> T_WHILE "while"
-%token<int> T_DO "do"
-%token<int> T_BREAK "break"
-%token<int> T_CONTINUE "continue"
-%token<int> T_CLASS "class"
-%token<int> T_TRAIT "trait"
-%token<int> T_TYPE "type"
-%token<int> T_THIS "this"
-%token<int> T_SUPER "super"
-%token<int> T_ISINSTANCEOF "isinstanceof"
-%token<int> T_ISA "isa"
-%token<int> T_IS "is"
-%token<int> T_IMPORT "import"
-%token<int> T_AS "as"
-%token<int> T_RETURN "return"
-%token<int> T_VOID "void"
-%token<int> T_ANY "any"
-%token<int> T_NAN "nan"
-%token<int> T_INF "inf"
-%token<int> T_ASYNC "async"
-%token<int> T_AWAIT "await"
-%token<int> T_STATIC "static"
-%token<int> T_PUBLIC "public"
-%token<int> T_PROTECT "protect"
-%token<int> T_PRIVATE "private"
-%token<int> T_PREFIX "prefix"
-%token<int> T_POSTFIX "postfix"
-%token<int> T_PACKAGE "package"
+%token<token> T_TRUE "true"
+%token<token> T_FALSE "false"
+%token<token> T_TRY "try"
+%token<token> T_CATCH "catch"
+%token<token> T_FINALLY "finally"
+%token<token> T_THROW "throw"
+%token<token> T_YIELD "yield"
+%token<token> T_VAR "var"
+%token<token> T_VAL "val"
+%token<token> T_NIL "nil"
+%token<token> T_NEW "new"
+%token<token> T_DELETE "delete"
+%token<token> T_DEF "def"
+%token<token> T_IF "if"
+%token<token> T_THEN "then"
+%token<token> T_ELSE "else"
+%token<token> T_MATCH "match"
+%token<token> T_ENUM "enum"
+%token<token> T_SWITCH "switch"
+%token<token> T_CASE "case"
+%token<token> T_FOR "for"
+%token<token> T_FOREACH "foreach"
+%token<token> T_IN "in"
+%token<token> T_WHILE "while"
+%token<token> T_DO "do"
+%token<token> T_BREAK "break"
+%token<token> T_CONTINUE "continue"
+%token<token> T_CLASS "class"
+%token<token> T_TRAIT "trait"
+%token<token> T_TYPE "type"
+%token<token> T_THIS "this"
+%token<token> T_SUPER "super"
+%token<token> T_ISINSTANCEOF "isinstanceof"
+%token<token> T_ISA "isa"
+%token<token> T_IS "is"
+%token<token> T_IMPORT "import"
+%token<token> T_AS "as"
+%token<token> T_RETURN "return"
+%token<token> T_VOID "void"
+%token<token> T_ANY "any"
+%token<token> T_NAN "nan"
+%token<token> T_INF "inf"
+%token<token> T_ASYNC "async"
+%token<token> T_AWAIT "await"
+%token<token> T_STATIC "static"
+%token<token> T_PUBLIC "public"
+%token<token> T_PROTECT "protect"
+%token<token> T_PRIVATE "private"
+%token<token> T_PREFIX "prefix"
+%token<token> T_POSTFIX "postfix"
+%token<token> T_PACKAGE "package"
 
  /* primitive type */
-%token<int> T_BYTE "byte"
-%token<int> T_UBYTE "ubyte"
-%token<int> T_SHORT "short"
-%token<int> T_USHORT "ushort"
-%token<int> T_INT "int"
-%token<int> T_UINT "uint"
-%token<int> T_LONG "long"
-%token<int> T_ULONG "ulong"
-%token<int> T_LLONG "llong"
-%token<int> T_ULLONG "ullong"
-%token<int> T_FLOAT "float"
-%token<int> T_DOUBLE "double"
-%token<int> T_BOOLEAN "boolean"
-%token<int> T_CHAR "char"
+%token<token> T_BYTE "byte"
+%token<token> T_UBYTE "ubyte"
+%token<token> T_SHORT "short"
+%token<token> T_USHORT "ushort"
+%token<token> T_INT "int"
+%token<token> T_UINT "uint"
+%token<token> T_LONG "long"
+%token<token> T_ULONG "ulong"
+%token<token> T_LLONG "llong"
+%token<token> T_ULLONG "ullong"
+%token<token> T_FLOAT "float"
+%token<token> T_DOUBLE "double"
+%token<token> T_BOOLEAN "boolean"
+%token<token> T_CHAR "char"
 
  /* operator */
-%token<int> T_AND "and"
-%token<int> T_OR "or"
-%token<int> T_NOT "not"
+%token<token> T_AND "and"
+%token<token> T_OR "or"
+%token<token> T_NOT "not"
 
-%token<int> T_PLUS "+"
-%token<int> T_PLUS2 "++"
-%token<int> T_MINUS "-"
-%token<int> T_MINUS2 "--"
-%token<int> T_ASTERISK "*"
-%token<int> T_ASTERISK2 "**"
-%token<int> T_SLASH "/"
-%token<int> T_SLASH2 "//"
-%token<int> T_PERCENT "%"
-%token<int> T_PERCENT2 "%%"
+%token<token> T_PLUS "+"
+%token<token> T_PLUS2 "++"
+%token<token> T_MINUS "-"
+%token<token> T_MINUS2 "--"
+%token<token> T_ASTERISK "*"
+%token<token> T_ASTERISK2 "**"
+%token<token> T_SLASH "/"
+%token<token> T_SLASH2 "//"
+%token<token> T_PERCENT "%"
+%token<token> T_PERCENT2 "%%"
 
-%token<int> T_AMPERSAND "&"
-%token<int> T_AMPERSAND2 "&&"
-%token<int> T_BAR "|"
-%token<int> T_BAR2 "||"
-%token<int> T_TILDE "~"
-%token<int> T_EXCLAM "!"
-%token<int> T_CARET "^"
-%token<int> T_CARET2 "^^"
+%token<token> T_AMPERSAND "&"
+%token<token> T_AMPERSAND2 "&&"
+%token<token> T_BAR "|"
+%token<token> T_BAR2 "||"
+%token<token> T_TILDE "~"
+%token<token> T_EXCLAM "!"
+%token<token> T_CARET "^"
+%token<token> T_CARET2 "^^"
 
-%token<int> T_LSHIFT "<<"
-%token<int> T_RSHIFT ">>"
-%token<int> T_ARSHIFT ">>>"
+%token<token> T_LSHIFT "<<"
+%token<token> T_RSHIFT ">>"
+%token<token> T_ARSHIFT ">>>"
 
-%token<int> T_EQUAL "="
-%token<int> T_PLUS_EQUAL "+="
-%token<int> T_MINUS_EQUAL "-="
-%token<int> T_ASTERISK_EQUAL "*="
-%token<int> T_SLASH_EQUAL "/="
-%token<int> T_PERCENT_EQUAL "%="
-%token<int> T_AMPERSAND_EQUAL "&="
-%token<int> T_BAR_EQUAL "|="
-%token<int> T_CARET_EQUAL "^="
-%token<int> T_LSHIFT_EQUAL "<<="
-%token<int> T_RSHIFT_EQUAL ">>="
-%token<int> T_ARSHIFT_EQUAL ">>>="
+%token<token> T_EQUAL "="
+%token<token> T_PLUS_EQUAL "+="
+%token<token> T_MINUS_EQUAL "-="
+%token<token> T_ASTERISK_EQUAL "*="
+%token<token> T_SLASH_EQUAL "/="
+%token<token> T_PERCENT_EQUAL "%="
+%token<token> T_AMPERSAND_EQUAL "&="
+%token<token> T_BAR_EQUAL "|="
+%token<token> T_CARET_EQUAL "^="
+%token<token> T_LSHIFT_EQUAL "<<="
+%token<token> T_RSHIFT_EQUAL ">>="
+%token<token> T_ARSHIFT_EQUAL ">>>="
 
-%token<int> T_EQ "=="
-%token<int> T_NEQ "!="
-%token<int> T_LT "<"
-%token<int> T_LE "<="
-%token<int> T_GT ">"
-%token<int> T_GE ">="
+%token<token> T_EQ "=="
+%token<token> T_NEQ "!="
+%token<token> T_LT "<"
+%token<token> T_LE "<="
+%token<token> T_GT ">"
+%token<token> T_GE ">="
 
-%token<int> T_LPAREN "("
-%token<int> T_RPAREN ")"
-%token<int> T_LBRACKET "["
-%token<int> T_RBRACKET "]"
-%token<int> T_LBRACE "{"
-%token<int> T_RBRACE "}"
+%token<token> T_LPAREN "("
+%token<token> T_RPAREN ")"
+%token<token> T_LBRACKET "["
+%token<token> T_RBRACKET "]"
+%token<token> T_LBRACE "{"
+%token<token> T_RBRACE "}"
 
-%token<int> T_UNDERSCORE "_"
-%token<int> T_COMMA ","
-%token<int> T_SEMI ";"
-%token<int> T_QUESTION "?"
-%token<int> T_COLON ":"
-%token<int> T_COLON2 "::"
-%token<int> T_DOT "."
-%token<int> T_DOT2 ".."
-%token<int> T_LARROW "<-"
-%token<int> T_RARROW "->"
-%token<int> T_DOUBLE_RARROW "=>"
-%token<int> T_COLON_LARROW ":>"
-%token<int> T_COLON_RARROW "<:"
+%token<token> T_UNDERSCORE "_"
+%token<token> T_COMMA ","
+%token<token> T_SEMI ";"
+%token<token> T_QUESTION "?"
+%token<token> T_COLON ":"
+%token<token> T_COLON2 "::"
+%token<token> T_DOT "."
+%token<token> T_DOT2 ".."
+%token<token> T_LARROW "<-"
+%token<token> T_RARROW "->"
+%token<token> T_DOUBLE_RARROW "=>"
+%token<token> T_COLON_LARROW ":>"
+%token<token> T_COLON_RARROW "<:"
 
-%token<int> T_NEWLINE "\n"
+%token<token> T_NEWLINE "\n"
 
  /* separator and operator */
-%type<int> optionalNewline optionalNewlines newlines optionalYield
-%type<int> assignOp prefixOp infixOp postfixOp
+%type<token> optionalNewline optionalNewlines newlines optionalYield
+%type<token> assignOp prefixOp infixOp postfixOp
 
  /* str */
-%token<std::string> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
-%token<std::string> T_VAR_ID
+%token<literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
+%token<literal> T_VAR_ID
 
  /* literal */
-%type<std::shared_ptr<Ast>> literal booleanLiteral
+%type<ast> literal booleanLiteral
  /* id */
-%type<std::shared_ptr<Ast>> id varId
+%type<ast> id varId
  /* expr */
-%type<std::shared_ptr<Ast>> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats exprSeq
-%type<std::shared_ptr<Ast>> optionalExprs optionalBlockStats
+%type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats exprSeq
+%type<ast> optionalExprs optionalBlockStats
  /* type */
-%type<std::shared_ptr<Ast>> type plainType
+%type<ast> type plainType
  /* def */
-%type<std::shared_ptr<Ast>> def funcDef varDef funcSign resultType param params
-%type<std::shared_ptr<Ast>> /* optionalResultType */ optionalParams
+%type<ast> def funcDef varDef funcSign resultType param params
+%type<ast> /* optionalResultType */ optionalParams
  /* compile unit */
-%type<std::shared_ptr<Ast>> compileUnit topStat topStats optionalTopStats
+%type<ast> compileUnit topStat topStats optionalTopStats
 
- /* token<int> } */
+ /* token } */
 
  /* low -> high precedence { */
 
@@ -215,7 +212,6 @@ class Ast;
  /* return */
 %precedence "return"
 %precedence "return_expr"
-
 
  /* comma */
 %left T_COMMA
@@ -261,11 +257,11 @@ class Ast;
  /* newline { */
 
 optionalNewline : "\n" { $$ = $1; }
-                | %empty { $$ = yy::parser::token::YYUNDEF; }
+                | %empty { $$ = yytokentype::YYUNDEF; }
                 ;
 
 optionalNewlines : newlines { $$ = $1; }
-                 | %empty { $$ = yy::parser::token::YYUNDEF; }
+                 | %empty { $$ = yytokentype::YYUNDEF; }
                  ;
 
 newlines : "\n" { $$ = $1; }
@@ -347,7 +343,7 @@ enumerators : id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
             ;
 
 optionalYield : "yield" { $$ = $1; }
-              | %empty { $$ = yy::parser::token::YYUNDEF; }
+              | %empty { $$ = yytokentype::YYUNDEF; }
               ;
 
 assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }
@@ -595,6 +591,14 @@ topStat : def { $$ = $1; }
 
 %%
 
-void yy::parser::error(const yy::parser::location_type& l, const std::string& m) {
-    LOG_INFO("{}:{} {}", static_cast<Scanner *>(yyget_extra(yyscanner))->fileName, Locationly::locationString(l), m);
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg) {
+  if (yyllocp && yyllocp->first_line) {
+    fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
+            yyget_extra(yyscanner) ? yyget_extra(yyscanner)->fileName.c_str() : "unknown",
+            yyllocp->first_line,
+            yyllocp->first_column, 
+            yyllocp->last_line, 
+            yyllocp->last_column);
+  }
+  fprintf(stderr, "%s\n", msg);
 }

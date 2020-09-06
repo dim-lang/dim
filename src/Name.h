@@ -53,3 +53,14 @@ template <> struct hash<Name> {
 };
 
 } // namespace std
+
+class Nameable {
+public:
+  Nameable(const std::string &name = "");
+  virtual ~Nameable() = default;
+  virtual Name &name();
+  virtual const Name &name() const;
+
+private:
+  Name name_;
+};

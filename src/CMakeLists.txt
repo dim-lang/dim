@@ -104,8 +104,7 @@ set(NERD
     # Approximate.cpp
     # NameGenerator.cpp
     Name.cpp
-    Namely.cpp
-    Locationly.cpp
+    Location.cpp
     TokenName.cpp
     # Buffer.cpp
     # BufferStack.cpp

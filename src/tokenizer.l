@@ -4,6 +4,8 @@
 %option nodefault
 %option nounistd
 %option reentrant
+%option bison-bridge
+%option bison-locations
 %option yylineno
 %option 8bit
 
@@ -32,31 +34,28 @@ LC  ("//".*\n)
 %{
 #include <string>
 #include <cctype>
-#include "boost/preprocessor/cat.hpp"
 #include "Scanner.h"
+#include "parser.tab.hh"
+#include "Strings.h"
 #include "Log.h"
 
 #define T_SCANNER               (static_cast<Scanner *>(yyextra))
-#define T_LOCATION              (T_SCANNER->location)
-#define T_FILE_NAME             (T_SCANNER->fileName)
-#define T_PARENTHESES_EMPTY     (T_SCANNER->parenthesesEmpty())
-#define T_PARENTHESES_SIZE      (T_SCANNER->parenthesesSize())
-
 #define T_EAT_PARENTHESES(t)    do {    \
     T_SCANNER->eatParentheses(yy::parser::token::t);       \
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
-#define MK_LITERAL(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yytext, T_LOCATION)
-#define MK_INTEGER(t)       return BOOST_PP_CAT(yy::parser::make_, t)(yy::parser::token::t, T_LOCATION)
+#define MK_LITERAL(t)       yylval->literal = Strings::duplicate(yytext, yyleng); return t
+#define MK_INTEGER(t)       return yylval->token = t
 
-#define YY_USER_ACTION                         \
-    T_LOCATION.step();                         \
-    if (T_LOCATION.end.line == yylineno) {     \
-        T_LOCATION.end.columns(yyleng);        \
-    } else {                                   \
-        T_LOCATION.end.line = yylineno;        \
-        T_LOCATION.end.column = yytext + yyleng - strrchr(yytext, '\n');   \
+#define YY_USER_ACTION                                                      \
+    yylloc->first_line = yylloc->last_line;                                 \
+    yylloc->first_column = yylloc->last_column;                             \
+    if (yylloc->last_line == yylineno) {                                    \
+        yylloc->last_column += yyleng;                                      \
+    } else {                                                                \
+        yylloc->last_line = yylineno;                                       \
+        yylloc->last_column = yytext + yyleng - strrchr(yytext, '\n');      \
     }
 
 %}
@@ -242,13 +241,13 @@ not         { MK_INTEGER(T_NOT); }
 ([a-zA-Z][a-zA-Z0-9_]*)|("_"[a-zA-Z0-9_]+)  { MK_LITERAL(T_VAR_ID); }
 
 <<EOF>>                                     {
-                                                LOG_ASSERT(T_PARENTHESES_EMPTY, "parentheses stack must be empty:{}", T_PARENTHESES_SIZE);
-                                                return yy::parser::make_YYEOF(T_LOCATION);
+                                                LOG_ASSERT(T_SCANNER->parenthesesEmpty(), "parentheses stack must be empty:{}", T_SCANNER->parenthesesSize());
+                                                yyterminate();
                                             }
 
  /* invalid token */
 .                                           {
-                                                LOG_ASSERT(false, "{}:{} tokenize error! invalid:{}:{}!", T_FILE_NAME, yylineno, yytext, yyleng);
+                                                LOG_ASSERT(false, "{}:{} tokenize error! invalid:{}:{}!", T_SCANNER->fileName, yylineno, yytext, yyleng);
                                             }
 
 %%
