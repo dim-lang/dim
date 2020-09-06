@@ -11,6 +11,7 @@ struct Token {
   YYLTYPE yylloc;
 
   Token(int a_value, YYSTYPE a_yylval, YYLTYPE a_yylloc);
+  virtual ~Token() = default;
 };
 
 std::string tokenName(int value);
@@ -21,4 +22,4 @@ bool tokenValid(int token);
 
 bool tokenValid(const std::string &name);
 
-bool isLiteralToken(int value);
+bool tokenIsLiteral(int value);

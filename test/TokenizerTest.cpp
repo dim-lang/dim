@@ -13,18 +13,19 @@
 static void tokenize(const char *fileName) {
   Scanner scanner(fileName);
   LOG_INFO("start: {}", fileName);
-  std::vector<int> tokenList;
+  std::vector<std::string> tokenList;
   while (true) {
     Token t = scanner.tokenize();
     if (t.value == 0) {
       break;
     }
-    if (isLiteralToken(t.value)) {
+    if (tokenIsLiteral(t.value)) {
       LOG_INFO("token:{} tag:{}", t.yylval.literal, tokenName(t.value));
-      tokenList.push_back(t.value);
+      tokenList.push_back(t.yylval.literal);
+      std::free(t.yylval.literal);
     } else {
       LOG_INFO("token:{} tag:{}", tokenName(t.value), t.value);
-      tokenList.push_back(t.value);
+      tokenList.push_back(tokenName(t.value));
     }
   }
   std::stringstream ss;

@@ -181,7 +181,7 @@ bool tokenValid(const std::string &name) {
          tokenValueMapImpl.tokenValueMap.end();
 }
 
-bool isLiteralToken(int value) {
+bool tokenIsLiteral(int value) {
   return value == T_INTEGER_LITERAL || value == T_FLOAT_LITERAL ||
          value == T_STRING_LITERAL || value == T_CHARACTER_LITERAL;
 }
