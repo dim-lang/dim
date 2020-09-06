@@ -16,7 +16,7 @@ static void tokenize(const char *fileName) {
   std::vector<int> tokenList;
   while (true) {
     Token t = scanner.tokenize();
-    if (t.value == yytokentype::YYEOF) {
+    if (t.value == 0) {
       break;
     }
     if (isLiteralToken(t.value)) {
