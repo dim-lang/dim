@@ -114,7 +114,7 @@ set(NERD
     # Symbol.cpp
     # SymbolTable.cpp
     Counter.cpp
-    # Dump.cpp
+    Dump.cpp
     # Ir.cpp
     # IrContext.cpp
     # IrFactory.cpp

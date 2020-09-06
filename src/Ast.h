@@ -80,8 +80,8 @@ class A_Param;
 class A_VarDef;
 
 /* compile unit */
-class A_CompileUnit;
 class A_TopStats;
+class A_CompileUnit;
 
 // Ast {
 

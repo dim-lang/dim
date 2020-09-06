@@ -4,7 +4,7 @@
 #include "Dump.h"
 #include "File.h"
 #include "Log.h"
-#include "TokenName.h"
+#include "Token.h"
 #include "container/LinkedHashMap.hpp"
 #include <algorithm>
 #include <cstdio>
@@ -12,8 +12,8 @@
 #include <string>
 
 #define INDENT std::string(indent, ' ')
-#define DC(x, y) std::static_pointer_cast<x>(y)
-#define DCC(x, y) dynamic_cast<const x *>(y)
+#define SP_CAST(x, y) std::static_pointer_cast<x>(y)
+#define SP_CASTC(x, y) dynamic_cast<const x *>(y)
 
 static std::string dumpAstImpl(std::shared_ptr<Ast> node, int indent) {
   if (!node)
@@ -24,85 +24,96 @@ static std::string dumpAstImpl(std::shared_ptr<Ast> node, int indent) {
   if (Ast::isId(node)) {
     return node->name().raw();
   }
-  switch (node->type()) {
+  switch (node->category()) {
   case AstCategory::Throw: {
-    std::shared_ptr<A_Throw> e = DC(A_Throw, node);
-    return (std::stringstream() << "throw " << e->expr->name().raw()).str();
+    std::shared_ptr<A_Throw> e = SP_CAST(A_Throw, node);
+    std::stringstream ss;
+    ss << "throw " << e->expr->name().raw();
+    return ss.str();
   }
   case AstCategory::Return: {
-    std::shared_ptr<A_Return> e = DC(A_Return, node);
-    return e->expr ? (std::stringstream() << "return " << e->expr->name().raw())
-                         .str()
-                   : "return";
+    std::shared_ptr<A_Return> e = SP_CAST(A_Return, node);
+    std::stringstream ss;
+    ss << "return";
+    if (e->expr) {
+      ss << " " << e->expr->name().raw();
+    }
+    return ss.str();
   }
   case AstCategory::Break:
     return "break";
   case AstCategory::Continue:
     return "continue";
   case AstCategory::Assign: {
-    std::shared_ptr<A_Assign> e = DC(A_Assign, node);
+    std::shared_ptr<A_Assign> e = SP_CAST(A_Assign, node);
     return dumpAstImpl(e->assignee, indent) + "=" +
            dumpAstImpl(e->assignor, indent);
   }
   case AstCategory::PostfixExpr: {
-    std::shared_ptr<A_PostfixExpr> e = DC(A_PostfixExpr, node);
+    std::shared_ptr<A_PostfixExpr> e = SP_CAST(A_PostfixExpr, node);
     return dumpAstImpl(e->expr, indent) + tokenName(e->postfixOp);
   }
   case AstCategory::PrefixExpr: {
-    std::shared_ptr<A_PrefixExpr> e = DC(A_PrefixExpr, node);
+    std::shared_ptr<A_PrefixExpr> e = SP_CAST(A_PrefixExpr, node);
     return tokenName(e->prefixOp) + dumpAstImpl(e->expr, indent);
   }
   case AstCategory::InfixExpr: {
-    std::shared_ptr<A_InfixExpr> e = DC(A_InfixExpr, node);
+    std::shared_ptr<A_InfixExpr> e = SP_CAST(A_InfixExpr, node);
     return dumpAstImpl(e->left, indent) + tokenName(e->infixOp) +
            dumpAstImpl(e->right, indent);
   }
   case AstCategory::Call: {
-    std::shared_ptr<A_Call> e = DC(A_Call, node);
-    std::shared_ptr<A_VarId> id = DC(A_VarId, e->id);
-    return e->args
-               ? (std::stringstream() << id->name().raw() << "("
-                                      << dumpAstImpl(e->args, indent) << ")")
-                     .str()
-               : (std::stringstream() << id->name().raw() << "()").str();
+    std::shared_ptr<A_Call> e = SP_CAST(A_Call, node);
+    std::shared_ptr<A_VarId> id = SP_CAST(A_VarId, e->id);
+    std::stringstream ss;
+    ss << id->name().raw() << "(";
+    if (e->args) {
+      ss << dumpAstImpl(e->args, indent);
+    }
+    ss << ")";
+    return ss.str();
   }
   case AstCategory::Exprs: {
-    std::shared_ptr<A_Exprs> e = DC(A_Exprs, node);
-    return (std::stringstream() << dumpAstImpl(e->expr, indent) << ","
-                                << dumpAstImpl(e->next, indent))
-        .str();
+    std::shared_ptr<A_Exprs> e = SP_CAST(A_Exprs, node);
+    std::stringstream ss;
+    ss << dumpAstImpl(e->expr, indent) << "," << dumpAstImpl(e->next, indent);
+    return ss.str();
   }
   case AstCategory::If: {
-    std::shared_ptr<A_If> e = DC(A_If, node);
+    std::shared_ptr<A_If> e = SP_CAST(A_If, node);
     LOG_ASSERT(e->condition, "e->condition must not null");
     LOG_ASSERT(e->thenp, "e->thenp must not null");
     std::stringstream ss;
-    ss << "if(" << dumpAstImpl(e->condition) << ") " << dumpAstImpl(e->thenp);
+    ss << "if(" << dumpAstImpl(e->condition, indent) << ") "
+       << dumpAstImpl(e->thenp, indent);
     if (e->elsep) {
-      ss << " else " << dumpAstImpl(e->elsep);
+      ss << " else " << dumpAstImpl(e->elsep, indent);
     }
     return ss.str();
   }
   case AstCategory::Loop: {
-    std::shared_ptr<A_Loop> e = DC(A_Loop, node);
-    return (std::stringstream() << "loop(" << dumpAstImpl(e->condition, indent)
-                                << ")" << dumpAstImpl(e->body, indent))
-        .str();
+    std::shared_ptr<A_Loop> e = SP_CAST(A_Loop, node);
+    std::stringstream ss;
+    ss << "loop(" << dumpAstImpl(e->condition, indent) << ")"
+       << dumpAstImpl(e->body, indent);
+    return ss.str();
   }
   case AstCategory::LoopCondition: {
-    std::shared_ptr<A_LoopCondition> e = DC(A_LoopCondition, node);
-    return (std::stringstream()
-            << dumpAstImpl(e->expr) << ", doOnceAtFirst:" << e->doOnceAtFirst)
-        .str();
+    std::shared_ptr<A_LoopCondition> e = SP_CAST(A_LoopCondition, node);
+    std::stringstream ss;
+    ss << dumpAstImpl(e->init, indent) << ";"
+       << dumpAstImpl(e->condition, indent) << ";"
+       << dumpAstImpl(e->update, indent) << "; do_while:" << e->do_while;
+    return ss.str();
   }
   case AstCategory::LoopEnumerator: {
-    std::shared_ptr<A_LoopEnumerator> e = DC(A_LoopEnumerator, node);
-    return (std::stringstream()
-            << e->id->name().raw() << " <- " << dumpAstImpl(e->expr))
-        .str();
+    std::shared_ptr<A_LoopEnumerator> e = SP_CAST(A_LoopEnumerator, node);
+    std::stringstream ss;
+    ss << e->id->name().raw() << " <- " << dumpAstImpl(e->expr, indent);
+    return ss.str();
   }
   case AstCategory::Try: {
-    std::shared_ptr<A_Try> e = DC(A_Try, node);
+    std::shared_ptr<A_Try> e = SP_CAST(A_Try, node);
     LOG_ASSERT(e->tryp, "e->tryp must not null");
     LOG_ASSERT(e->catchp, "e->catchp must not null");
     std::stringstream ss;
@@ -114,90 +125,82 @@ static std::string dumpAstImpl(std::shared_ptr<Ast> node, int indent) {
     return ss.str();
   }
   case AstCategory::Block: {
-    AstCompoundStatement *e = DC(AstCompoundStatement, node);
+    std::shared_ptr<A_Block> e = SP_CAST(A_Block, node);
     std::stringstream ss;
-    ss << INDENT << "{";
-    if (e->statementList() && e->statementList()->size() > 0) {
+    ss << "{";
+    if (e->blockStats) {
       ss << "\n";
-      for (int i = 0; i < e->statementList()->size(); i++) {
-        ss << dumpAstImpl(e->statementList()->get(i), indent + 1);
-      }
-      ss << INDENT;
-    }
-    ss << "}\n\n";
-    return ss.str();
-  }
-  case AstCategory::ContinueStatement:
-    return INDENT + DC(AstContinueStatement, node)->name() + ";\n";
-  case AstCategory::BreakStatement:
-    return INDENT + DC(AstBreakStatement, node)->name() + ";\n";
-  case AstCategory::ReturnStatement:
-    return INDENT + DC(AstReturnStatement, node)->name() + " " +
-           dumpAstImpl(DC(AstReturnStatement, node)->expression(), indent) +
-           ";\n";
-  case AstCategory::EmptyStatement:
-    return INDENT + DC(AstEmptyStatement, node)->name() + ";\n";
-  case AstCategory::VariableDefinition: {
-    AstVariableDefinition *e = DC(AstVariableDefinition, node);
-    std::stringstream ss;
-    ss << INDENT << e->name() << ": ";
-    for (int i = 0; i < e->definitionList()->size(); i++) {
-      ss << dumpAstImpl(e->definitionList()->get(i), indent);
-      if (i < e->definitionList()->size() - 1) {
-        ss << ", ";
-      }
-    }
-    ss << ";\n";
-    return ss.str();
-  }
-  case AstCategory::VariableInitialDefinition: {
-    AstVariableInitialDefinition *e = DC(AstVariableInitialDefinition, node);
-    return e->identifier() + " = " + dumpAstImpl(e->expression(), indent);
-  }
-  case AstCategory::FunctionDefinition: {
-    AstFunctionDefinition *e = DC(AstFunctionDefinition, node);
-    AstFunctionSignatureDefinition *fsd = e->signature();
-    std::stringstream ss;
-    ss << INDENT << e->name() << "(";
-    if (fsd->argumentList() && fsd->argumentList()->size() > 0) {
-      for (int i = 0; i < fsd->argumentList()->size(); i++) {
-        ss << fsd->argumentList()->get(i)->name();
-        if (i < fsd->argumentList()->size() - 1) {
-          ss << ",";
-        }
-      }
-    }
-    ss << ") =>\n" << dumpAstImpl(e->statement(), indent);
-    return ss.str();
-  }
-  case AstCategory::DefinitionList: {
-    AstDefinitionList *e = DC(AstDefinitionList, node);
-    std::stringstream ss;
-    ss << INDENT << e->name() << "{\n";
-    for (int i = 0; i < e->size(); i++) {
-      ss << dumpAstImpl(e->get(i), indent);
+      dumpAstImpl(e->blockStats, indent + 1);
     }
     ss << "}\n";
     return ss.str();
   }
-  case AstCategory::TranslateUnit: {
-    AstTranslateUnit *e = DC(AstTranslateUnit, node);
+  case AstCategory::BlockStats: {
+    std::shared_ptr<A_BlockStats> e = SP_CAST(A_BlockStats, node);
     std::stringstream ss;
-    ss << INDENT << e->name() << " {\n";
-    for (int i = 0; i < e->size(); i++) {
-      ss << dumpAstImpl(e->get(i), indent + 1);
+    ss << INDENT;
+    if (e->blockStat) {
+      ss << dumpAstImpl(e->blockStat, indent);
+    } else {
+      ss << "nil";
     }
-    ss << "}\n";
+    ss << "\n";
+    ss << dumpAstImpl(e->next, indent);
     return ss.str();
   }
-    // case AstCategory::ExpressionList: {
-    // return DC(AstExpressionList, node)->name();
-    //}
-  case AstCategory::VoidExpression: {
-    AstVoidExpression *e = DC(AstVoidExpression, node);
+  case AstCategory::PlainType: {
+    std::shared_ptr<A_PlainType> e = SP_CAST(A_PlainType, node);
+    return tokenName(e->token);
+  }
+  case AstCategory::FuncDef: {
+    std::shared_ptr<A_FuncDef> e = SP_CAST(A_FuncDef, node);
     std::stringstream ss;
-    ss << INDENT << e->name();
+    ss << "def " << dumpAstImpl(e->funcSign, indent) << ":"
+       << dumpAstImpl(e->resultType, indent) << dumpAstImpl(e->body, indent);
     return ss.str();
+  }
+  case AstCategory::FuncSign: {
+    std::shared_ptr<A_FuncSign> e = SP_CAST(A_FuncSign, node);
+    std::stringstream ss;
+    ss << dumpAstImpl(e->id, indent) << "(";
+    if (e->params) {
+      ss << dumpAstImpl(e->params, indent);
+    }
+    ss << ")";
+    return ss.str();
+  }
+  case AstCategory::Params: {
+    std::shared_ptr<A_Params> e = SP_CAST(A_Params, node);
+    std::stringstream ss;
+    ss << dumpAstImpl(e->param, indent);
+    if (e->next) {
+      ss << "," << dumpAstImpl(e->next, indent);
+    }
+    return ss.str();
+  }
+  case AstCategory::Param: {
+    std::shared_ptr<A_Param> e = SP_CAST(A_Param, node);
+    std::stringstream ss;
+    ss << dumpAstImpl(e->id, indent) << ":" << dumpAstImpl(e->type, indent);
+    return ss.str();
+  }
+  case AstCategory::VarDef: {
+    std::shared_ptr<A_VarDef> e = SP_CAST(A_VarDef, node);
+    std::stringstream ss;
+    ss << "def " << dumpAstImpl(e->id, indent) << ":"
+       << dumpAstImpl(e->type, indent) << "=" << dumpAstImpl(e->expr, indent);
+    return ss.str();
+  }
+  case AstCategory::TopStats: {
+    std::shared_ptr<A_TopStats> e = SP_CAST(A_TopStats, node);
+    std::stringstream ss;
+    ss << INDENT << dumpAstImpl(e->topStat, indent) << "\n";
+    ss << dumpAstImpl(e->next, indent);
+    return ss.str();
+  }
+  case AstCategory::CompileUnit: {
+    std::shared_ptr<A_CompileUnit> e = SP_CAST(A_CompileUnit, node);
+    return dumpAstImpl(e->topStats, indent);
   }
   default: {
     LOG_ASSERT(false, "invalid node:{}", node->toString());
@@ -222,7 +225,8 @@ std::string dumpAst(std::shared_ptr<Ast> node) { return dumpAstImpl(node, 0); }
 /*     return std::string("var ") + snode->symbol->name() + ":" + */
 /*            snode->type->name(); */
 /*   case S_ty::Function: { */
-/*     const FunctionSymbol *funcsym = DCC(FunctionSymbol, snode->symbol); */
+/*     const FunctionSymbol *funcsym = SP_CASTC(FunctionSymbol, snode->symbol);
+ */
 /*     std::stringstream ss; */
 /*     ss << "func " << funcsym->name() << " {"; */
 /*     if (!funcsym->empty()) { */
@@ -243,7 +247,7 @@ std::string dumpAst(std::shared_ptr<Ast> node) { return dumpAstImpl(node, 0); }
 /*     return std::string("var ") + snode->symbol->name() + ":" + */
 /*            snode->type->name(); */
 /*   case S_ty::Class: { */
-/*     const ClassSymbol *clssym = DCC(ClassSymbol, snode->symbol); */
+/*     const ClassSymbol *clssym = SP_CASTC(ClassSymbol, snode->symbol); */
 /*     std::stringstream ss; */
 /*     ss << INDENT << "class " << clssym->name() << " {"; */
 /*     if (!clssym->empty()) { */
@@ -260,7 +264,7 @@ std::string dumpAst(std::shared_ptr<Ast> node) { return dumpAstImpl(node, 0); }
 /*     return ss.str(); */
 /*   } */
 /*   case S_ty::Local: { */
-/*     const LocalScope *locsym = DCC(LocalScope, snode->symbol); */
+/*     const LocalScope *locsym = SP_CASTC(LocalScope, snode->symbol); */
 /*     std::stringstream ss; */
 /*     ss << "local " << locsym->name() << " {"; */
 /*     if (!locsym->empty()) { */
@@ -276,7 +280,7 @@ std::string dumpAst(std::shared_ptr<Ast> node) { return dumpAstImpl(node, 0); }
 /*     return ss.str(); */
 /*   } */
 /*   case S_ty::Global: { */
-/*     const GlobalScope *glbsym = DCC(GlobalScope, snode->symbol); */
+/*     const GlobalScope *glbsym = SP_CASTC(GlobalScope, snode->symbol); */
 /*     std::stringstream ss; */
 /*     ss << INDENT << glbsym->name() << " {"; */
 /*     if (!glbsym->empty()) { */
@@ -301,48 +305,38 @@ std::string dumpAst(std::shared_ptr<Ast> node) { return dumpAstImpl(node, 0); }
 /* std::string dumpScope(ScopeNode *snode) { return dumpScopeImpl(snode, 0); }
  */
 
-/* static int whitespaceHeadCount(const std::string &line) { */
-/*   for (int i = 0; i < (int)line.length(); i++) { */
-/*     if (!std::isspace(line[i])) { */
-/*       return i; */
-/*     } */
-/*   } */
-/*   return line.length(); */
-/* } */
-
-/* static int whitespaceTailCount(const std::string &line) { */
-/*   for (int i = (int)line.length() - 1; i >= 0; i--) { */
-/*     if (!std::isspace(line[i])) { */
-/*       return i; */
-/*     } */
-/*   } */
-/*   return -1; */
-/* } */
-
-std::string dumpSource(const std::string &fileName,
-                       const yy::location &location) {
+std::string dumpSource(const std::string &fileName, const Location &location) {
   std::stringstream ss;
-  ss << fmt::format("{}[{}]\n", fileName,
-                    (std::stringstream() << location).str());
+  ss << fmt::format("{}[{}]\n", fileName, location.toString());
   FileReader fileReader(fileName);
   FileReader::LineIterator lineIterator = fileReader.lineIterator();
   for (int i = 1; lineIterator.hasNext() && i <= location.end.line + 2; i++) {
-    std::string line = lineIterator.next();
+    std::string oneline = lineIterator.next();
     if (i < location.begin.line - 1) {
       continue;
     }
     if (i > location.end.line + 1) {
       break;
     }
-    ss << line;
+    ss << oneline;
     if (i >= location.begin.line && i <= location.end.line) {
-      int hc = (std::find_if(line.begin(), line.end(),
-                             [](const char &c) { return !std::isspace(c); })) -
-               line.begin();
-      int tc = (std::find_if(line.rbegin(), line.rend(),
-                             [](const char &c) { return !std::isspace(c); })) -
-               line.begin();
-      if (hc < line.length() && tc >= 0 && hc <= tc) {
+      int hc = [&oneline]() {
+        for (int i = 0; i < (int)oneline.length(); i++) {
+          if (!std::isspace(oneline[i])) {
+            return i;
+          }
+        }
+        return (int)oneline.length();
+      }();
+      int tc = [&oneline]() {
+        for (int i = (int)oneline.length() - 1; i >= 0; i--) {
+          if (!std::isspace(oneline[i])) {
+            return i;
+          }
+        }
+        return -1;
+      }();
+      if (hc < (int)oneline.length() && tc >= 0 && hc <= tc) {
         ss << std::string(hc, ' ');
         ss << std::string(tc - hc + 1, '^');
       }
