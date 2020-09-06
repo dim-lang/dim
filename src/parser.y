@@ -17,6 +17,7 @@
 #define SP(ptr)         (std::shared_ptr<Ast>(ptr))
 #define SP_NULL         (std::shared_ptr<Ast>(nullptr))
 #define SP_CAST(x, y)   (std::static_pointer_cast<x>(y))
+#define T_UNDEF         0
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
 }
 
@@ -259,11 +260,11 @@ class Ast;
  /* newline { */
 
 optionalNewline : "\n" { $$ = $1; }
-                | %empty { $$ = yytokentype::YYUNDEF; }
+                | %empty { $$ = T_UNDEF; }
                 ;
 
 optionalNewlines : newlines { $$ = $1; }
-                 | %empty { $$ = yytokentype::YYUNDEF; }
+                 | %empty { $$ = T_UNDEF; }
                  ;
 
 newlines : "\n" { $$ = $1; }
@@ -354,7 +355,7 @@ optionalExpr : expr { $$ = $1; }
              ;
 
 optionalYield : "yield" { $$ = $1; }
-              | %empty { $$ = yytokentype::YYUNDEF; }
+              | %empty { $$ = T_UNDEF; }
               ;
 
 assignExpr : id assignOp expr { $$ = new A_Assign(SP($1), $2, SP($3), @$); }
