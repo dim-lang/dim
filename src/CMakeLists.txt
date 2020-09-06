@@ -105,7 +105,7 @@ set(NERD
     # NameGenerator.cpp
     Name.cpp
     Location.cpp
-    TokenName.cpp
+    Token.cpp
     # Buffer.cpp
     # BufferStack.cpp
     Scanner.cpp

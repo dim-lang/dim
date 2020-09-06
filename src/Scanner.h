@@ -2,20 +2,17 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ast.h"
-#include "parser.tab.hh"
-#include "tokenizer.yy.hh"
+#include "Location.h"
+#include "Token.h"
 #include <cstdio>
 #include <memory>
 #include <stack>
 #include <string>
-#include <utility>
 
-struct Token {
-  int token;
-  YYSTYPE yylval;
-  YYLTYPE yylloc;
-};
+struct yy_buffer_state;
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+typedef void *yyscan_t;
+class Ast;
 
 class Scanner {
 public:
@@ -25,7 +22,6 @@ public:
   // attributes
   std::string fileName;
   YY_BUFFER_STATE yyBufferState;
-  Location location;
   FILE *fp;
   yyscan_t yyscanner;
   std::shared_ptr<Ast> compileUnit;

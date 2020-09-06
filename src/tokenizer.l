@@ -41,12 +41,12 @@ LC  ("//".*\n)
 
 #define T_SCANNER               (static_cast<Scanner *>(yyextra))
 #define T_EAT_PARENTHESES(t)    do {    \
-    T_SCANNER->eatParentheses(yy::parser::token::t);       \
+    T_SCANNER->eatParentheses(yytokentype::t);       \
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
-#define MK_LITERAL(t)       yylval->literal = Strings::duplicate(yytext, yyleng); return t
-#define MK_INTEGER(t)       return yylval->token = t
+#define MK_LITERAL(t)       yylval->literal = Strings::duplicate(yytext, yyleng); return yytokentype::t
+#define MK_INTEGER(t)       return yylval->token = yytokentype::t
 
 #define YY_USER_ACTION                                                      \
     yylloc->first_line = yylloc->last_line;                                 \

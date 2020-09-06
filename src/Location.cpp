@@ -6,24 +6,7 @@
 
 // Position {
 
-static int positionAdd(int lhs, int rhs, int min) {
-  return lhs + rhs < min ? min : lhs + rhs;
-}
-
 Position::Position(int a_line, int a_column) : line(a_line), column(a_column) {}
-
-Position &Position::lines(int count) {
-  if (count) {
-    column = 1;
-    line = positionAdd(line, count, 1);
-  }
-}
-
-Position &Position::columns(int count) {
-  if (count) {
-    column = positionAdd(column, count, 1);
-  }
-}
 
 std::string Position::toString() const {
   return fmt::format("{}.{}", line, column);
@@ -46,9 +29,8 @@ std::string Location::toString() const {
 
 // Location }
 
-Locationable::Locationable(const yy::location &location)
-    : location_(location) {}
+Locationable::Locationable(const Location &location) : location_(location) {}
 
-yy::location &Locationable::location() { return location_; }
+Location &Locationable::location() { return location_; }
 
-const yy::location &Locationable::location() const { return location_; }
+const Location &Locationable::location() const { return location_; }

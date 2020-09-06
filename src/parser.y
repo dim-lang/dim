@@ -16,6 +16,8 @@
 #include "tokenizer.yy.hh"
 #define SP(ptr)         (std::shared_ptr<Ast>(ptr))
 #define SP_NULL         (std::shared_ptr<Ast>(nullptr))
+#define SP_CAST(x, y)   (std::static_pointer_cast<x>(y))
+void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
 }
 
 %code requires {
@@ -186,7 +188,7 @@ class Ast;
 %type<ast> id varId
  /* expr */
 %type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats exprSeq
-%type<ast> optionalExprs optionalBlockStats
+%type<ast> optionalExprs optionalBlockStats optionalVarDef optionalExpr
  /* type */
 %type<ast> type plainType
  /* def */
@@ -272,17 +274,17 @@ newlines : "\n" { $$ = $1; }
 
  /* literal { */
 
-literal : T_INTEGER_LITERAL { $$ = SP_NEW(A_Integer, $1, @$); }
-        | T_FLOAT_LITERAL { $$ = SP_NEW(A_Float, $1, @$); }
+literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, @$); }
+        | T_FLOAT_LITERAL { $$ = new A_Float($1, @$); }
         | booleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = SP_NEW(A_Character, $1, @$); }
-        | T_STRING_LITERAL { $$ = SP_NEW(A_String, $1, @$); }
-        | "nil" { $$ = SP_NEW(A_Nil, @$); }
-        | "void" { $$ = SP_NEW(A_Void, @$); }
+        | T_CHARACTER_LITERAL { $$ = new A_Character($1, @$); }
+        | T_STRING_LITERAL { $$ = new A_String($1, @$); }
+        | "nil" { $$ = new A_Nil(@$); }
+        | "void" { $$ = new A_Void(@$); }
         ;
 
-booleanLiteral : "true" { $$ = SP_NEW(A_Boolean, true, @$); }
-               | "false" { $$ = SP_NEW(A_Boolean, false, @$); }
+booleanLiteral : "true" { $$ = new A_Boolean(true, @$); }
+               | "false" { $$ = new A_Boolean(false, @$); }
                ;
 
  /* literal } */
@@ -293,7 +295,7 @@ id : varId { $$ = $1; }
    /* | Opid */
    ;
 
-varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
+varId : T_VAR_ID { $$ = new A_VarId($1, @$); }
       ;
 
 /* Opid : assignOp */
@@ -323,30 +325,39 @@ varId : T_VAR_ID { $$ = SP_NEW(A_VarId, $1, @$); }
   *     use magic `try-ws` token to eat all whitespaces after real keyword `try`, `ws-catch-ws` `ws-finally-ws` token to eat all whitespaces around real keyword `catch` `finally`
   */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = SP_NEW(A_If, $3, $6, SP_NULL, @$); }
-     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = SP_NEW(A_If, $3, $6, $8, @$); }
-     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition($3, false, @3)); $$ = SP_NEW(A_Loop, loopCondition, $6, @$); }
-     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition($6, true, @6)); $$ = SP_NEW(A_Loop, loopCondition, $2, @$); }
-     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = SP_NEW(A_Loop, $3, $7, @$); }
-     | "try" expr "catch" expr %prec "try_catch" { $$ = SP_NEW(A_Try, $2, $4, SP_NULL, @$); }
-     | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = SP_NEW(A_Try, $2, $4, $6, @$); }
-     | "throw" expr { $$ = SP_NEW(A_Throw, $2, @$); }
-     | "return" %prec "return" { $$ = SP_NEW(A_Return, SP_NULL, @$); }
-     | "return" expr %prec "return_expr" { $$ = SP_NEW(A_Return, $2, @$); }
-     | "continue" { $$ = SP_NEW(A_Continue, @$); }
-     | "break" { $$ = SP_NEW(A_Break, @$); }
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If(SP($3), SP($6), SP_NULL, @$); }
+     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = new A_If(SP($3), SP($6), SP($8), @$); }
+     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($3), SP_NULL, false, @3)); $$ = new A_Loop(loopCondition, SP($6), @$); }
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($6), SP_NULL, true, @6)); $$ = new A_Loop(loopCondition, SP($2), @$); }
+     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = new A_Loop(SP($3), SP($7), @$); }
+     | "try" expr "catch" expr %prec "try_catch" { $$ = new A_Try(SP($2), SP($4), SP_NULL, @$); }
+     | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = new A_Try(SP($2), SP($4), SP($6), @$); }
+     | "throw" expr { $$ = new A_Throw(SP($2), @$); }
+     | "return" %prec "return" { $$ = new A_Return(SP_NULL, @$); }
+     | "return" expr %prec "return_expr" { $$ = new A_Return(SP($2), @$); }
+     | "continue" { $$ = new A_Continue(@$); }
+     | "break" { $$ = new A_Break(@$); }
      | assignExpr { $$ = $1; }
      | postfixExpr { $$ = $1; }
      ;
 
-enumerators : id "<-" expr { $$ = SP_NEW(A_LoopEnumerator, $1, $3, @$); }
+enumerators : id "<-" expr { $$ = new A_LoopEnumerator(SP($1), SP($3), @$); }
+            | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition(SP($1), SP($3), SP($5), false, @$); }
             ;
+
+optionalVarDef : varDef { $$ = $1; }
+               | %empty { $$ = nullptr; }
+               ;
+
+optionalExpr : expr { $$ = $1; }
+             | %empty { $$ = nullptr; }
+             ;
 
 optionalYield : "yield" { $$ = $1; }
               | %empty { $$ = yytokentype::YYUNDEF; }
               ;
 
-assignExpr : id assignOp expr { $$ = SP_NEW(A_Assign, $1, $2, $3, @$); }
+assignExpr : id assignOp expr { $$ = new A_Assign(SP($1), $2, SP($3), @$); }
            ;
 
 assignOp : "=" { $$ = $1; }
@@ -364,7 +375,7 @@ assignOp : "=" { $$ = $1; }
          ;
 
 postfixExpr : infixExpr { $$ = $1; }
-            | infixExpr postfixOp { $$ = SP_NEW(A_PostfixExpr, $1, $2, @$); }
+            | infixExpr postfixOp { $$ = new A_PostfixExpr(SP($1), $2, @$); }
             ;
 
 postfixOp : "++" { $$ = $1; }
@@ -372,7 +383,7 @@ postfixOp : "++" { $$ = $1; }
           ;
 
 infixExpr : prefixExpr { $$ = $1; }
-          | infixExpr infixOp optionalNewline prefixExpr { $$ = SP_NEW(A_InfixExpr, $1, $2, $4, @$); }
+          | infixExpr infixOp optionalNewline prefixExpr { $$ = new A_InfixExpr(SP($1), $2, SP($4), @$); }
           ;
 
 infixOp : "||" { $$ = $1; }
@@ -404,7 +415,7 @@ infixOp : "||" { $$ = $1; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
-           | prefixOp primaryExpr { $$ = SP_NEW(A_PrefixExpr, $1, $2, @$); }
+           | prefixOp primaryExpr { $$ = new A_PrefixExpr($1, SP($2), @$); }
            ;
 
 prefixOp : "-" { $$ = $1; }
@@ -424,22 +435,22 @@ primaryExpr : literal { $$ = $1; }
             ;
 
 optionalExprs : exprs { $$ = $1; }
-              | %empty { $$ = SP_SPC(A_Exprs, SP_NULL); }
+              | %empty { $$ = nullptr; }
               ;
 
-exprs : expr { $$ = SP_NEW(A_Exprs, $1, SP_SPC(A_Exprs, SP_NULL), @$); }
-      | exprs "," expr { $$ = SP_NEW(A_Exprs, $3, SP_SPC(A_Exprs, $1), @$); }
+exprs : expr { $$ = new A_Exprs(SP($1), SP_CAST(A_Exprs, SP_NULL), @$); }
+      | exprs "," expr { $$ = new A_Exprs(SP($3), SP_CAST(A_Exprs, SP($1)), @$); }
       ;
 
-callExpr : id "(" optionalExprs ")" { $$ = SP_NEW(A_Call, $1, SP_SPC(A_Exprs, $3), @$); }
+callExpr : id "(" optionalExprs ")" { $$ = new A_Call(SP($1), SP_CAST(A_Exprs, SP($3)), @$); }
          ;
 
 block : "{" blockStat optionalBlockStats "}" {
             if ($2) {
-                std::shared_ptr<A_BlockStats> blockStats(new A_BlockStats($2, SP_SPC(A_BlockStats, $3), @2 += @3));
-                $$ = SP_NEW(A_Block, blockStats, @$);
+                std::shared_ptr<A_BlockStats> blockStats(new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP($3)), @$));
+                $$ = new A_Block(blockStats, @$);
             } else {
-                $$ = SP_NEW(A_Block, SP_SPC(A_BlockStats, $3), @$);
+                $$ = new A_Block(SP_CAST(A_BlockStats, SP($3)), @$);
             }
         }
       ;
@@ -447,19 +458,19 @@ block : "{" blockStat optionalBlockStats "}" {
 blockStat : exprSeq { $$ = $1; }
           | def { $$ = $1; }
           /* | import */
-          | %empty { $$ = SP_NULL; }
+          | %empty { $$ = nullptr; }
           ;
 
-exprSeq : expr { $$ = SP_NEW(A_Exprs, $1, SP_SPC(A_Exprs, SP_NULL), @$); }
-        | exprSeq ";" expr { $$ = SP_NEW(A_Exprs, $3, SP_SPC(A_Exprs, $1), @$); }
+exprSeq : expr { $$ = new A_Exprs(SP($1), SP_CAST(A_Exprs, SP_NULL), @$); }
+        | exprSeq ";" expr { $$ = new A_Exprs(SP($3), SP_CAST(A_Exprs, SP($1)), @$); }
         ;
 
 optionalBlockStats : blockStats { $$ = $1; }
-                   | %empty { $$ = SP_SPC(A_BlockStats, SP_NULL); }
+                   | %empty { $$ = nullptr; }
                    ;
 
-blockStats : "\n" blockStat { $$ = SP_NEW(A_BlockStats, $2, SP_SPC(A_BlockStats, SP_NULL), @$); }
-           | blockStats "\n" blockStat { $$ = SP_NEW(A_BlockStats, $3, SP_SPC(A_BlockStats, $1), @$); }
+blockStats : "\n" blockStat { $$ = new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$); }
+           | blockStats "\n" blockStat { $$ = new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$); }
            ;
 
  /* expression } */
@@ -482,22 +493,22 @@ type : plainType { $$ = $1; }
 /* paramtype : type */
 /*           ; */
 
-plainType : "byte" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "ubyte" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "short" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "ushort" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "int" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "uint" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "long" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "ulong" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "llong" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "ullong" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "char" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "float" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "double" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "boolean" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "void" { $$ = SP_NEW(A_PlainType, $1, @$); }
-          | "any" { $$ = SP_NEW(A_PlainType, $1, @$); }
+plainType : "byte" { $$ = new A_PlainType($1, @$); }
+          | "ubyte" { $$ = new A_PlainType($1, @$); }
+          | "short" { $$ = new A_PlainType($1, @$); }
+          | "ushort" { $$ = new A_PlainType($1, @$); }
+          | "int" { $$ = new A_PlainType($1, @$); }
+          | "uint" { $$ = new A_PlainType($1, @$); }
+          | "long" { $$ = new A_PlainType($1, @$); }
+          | "ulong" { $$ = new A_PlainType($1, @$); }
+          | "llong" { $$ = new A_PlainType($1, @$); }
+          | "ullong" { $$ = new A_PlainType($1, @$); }
+          | "char" { $$ = new A_PlainType($1, @$); }
+          | "float" { $$ = new A_PlainType($1, @$); }
+          | "double" { $$ = new A_PlainType($1, @$); }
+          | "boolean" { $$ = new A_PlainType($1, @$); }
+          | "void" { $$ = new A_PlainType($1, @$); }
+          | "any" { $$ = new A_PlainType($1, @$); }
           ;
 
 /* idType : id */
@@ -513,8 +524,8 @@ def : funcDef { $$ = $1; }
     | varDef { $$ = $1; }
     ;
 
-funcDef : "def" funcSign resultType "=" expr { $$ = SP_NEW(A_FuncDef, $2, $3, $5, @$); }
-        | "def" funcSign resultType optionalNewlines block { $$ = SP_NEW(A_FuncDef, $2, $3, $5, @$); }
+funcDef : "def" funcSign resultType "=" expr { $$ = new A_FuncDef(SP($2), SP($3), SP($5), @$); }
+        | "def" funcSign resultType optionalNewlines block { $$ = new A_FuncDef(SP($2), SP($3), SP($5), @$); }
         ;
 
 /* optionalResultType : resultType { $$ = nullptr; } */
@@ -524,22 +535,22 @@ funcDef : "def" funcSign resultType "=" expr { $$ = SP_NEW(A_FuncDef, $2, $3, $5
 resultType : ":" type { $$ = $2; }
            ;
 
-funcSign : id "(" optionalParams ")" { $$ = SP_NEW(A_FuncSign, $1, SP_SPC(A_Params, $3), @$); }
+funcSign : id "(" optionalParams ")" { $$ = new A_FuncSign(SP($1), SP_CAST(A_Params, SP($3)), @$); }
          ;
 
 optionalParams : params { $$ = $1; }
-               | %empty { $$ = SP_SPC(A_Params, SP_NULL); }
+               | %empty { $$ = nullptr; }
                ;
 
-params : param { $$ = SP_NEW(A_Params, SP_SPC(A_Param, $1), SP_SPC(A_Params, SP_NULL), @$); }
-       | params "," param { $$ = SP_NEW(A_Params, SP_SPC(A_Param, $3), SP_SPC(A_Params, $1), @$); }
+params : param { $$ = new A_Params(SP_CAST(A_Param, SP($1)), SP_CAST(A_Params, SP_NULL), @$); }
+       | params "," param { $$ = new A_Params(SP_CAST(A_Param, SP($3)), SP_CAST(A_Params, SP($1)), @$); }
        ;
 
-param : id ":" type { $$ = SP_NEW(A_Param, $1, $3, @$); }
+param : id ":" type { $$ = new A_Param(SP($1), SP($3), @$); }
       /* | id ":" type "=" expr */
       ;
 
-varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
+varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), @$); }
        ;
 
 /* Decl : "var" varDecl */
@@ -558,26 +569,26 @@ varDef : "var" id ":" type "=" expr { $$ = SP_NEW(A_VarDef, $2, $4, $6, @$); }
 
 compileUnit : topStat optionalTopStats {
                     if ($1) {
-                        std::shared_ptr<A_TopStats> topStats(new A_TopStats($1, SP_SPC(A_TopStats, $2), @$));
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, topStats, @$);
+                        std::shared_ptr<A_TopStats> topStats(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$));
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP(new A_CompileUnit(topStats, @$));
                     } else {
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP_NEW(A_CompileUnit, SP_SPC(A_TopStats, $2), @$);
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP(new A_CompileUnit(SP_CAST(A_TopStats, SP($2)), @$));
                     }
                 }
             ;
 
 optionalTopStats : topStats { $$ = $1; }
-                 | %empty { $$ = SP_SPC(A_TopStats, SP_NULL); }
+                 | %empty { $$ = nullptr; }
                  ;
 
-topStats : "\n" topStat { $$ = SP_NEW(A_TopStats, $2, SP_SPC(A_TopStats, SP_NULL), @$); }
-         | topStats "\n" topStat { $$ = SP_NEW(A_TopStats, $3, SP_SPC(A_TopStats, $1), @$); }
+topStats : "\n" topStat { $$ = new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$); }
+         | topStats "\n" topStat { $$ = new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$); }
          ;
 
 topStat : def { $$ = $1; }
         /* | import */
         /* | package */
-        | %empty { $$ = SP_NULL; }
+        | %empty { $$ = nullptr; }
         ;
 
 /* package : PACKAGE id LBRACE RBRACE */
@@ -594,7 +605,7 @@ topStat : def { $$ = $1; }
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg) {
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            yyget_extra(yyscanner) ? yyget_extra(yyscanner)->fileName.c_str() : "unknown",
+            yyget_extra(yyscanner) ? static_cast<Scanner *>(yyget_extra(yyscanner))->fileName.c_str() : "unknown",
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 

@@ -1,12 +1,15 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "TokenName.h"
+#include "Token.h"
 #include "Log.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "parser.tab.hh"
 #include <string>
 #include <unordered_map>
+
+Token::Token(int a_value, YYSTYPE a_yylval, YYLTYPE a_yylloc)
+    : value(a_value), yylval(a_yylval), yylloc(a_yylloc) {}
 
 #define NAME_VALUE(t)                                                          \
   { yytokentype::t, BOOST_PP_STRINGIZE(t) }
@@ -150,7 +153,7 @@ namespace detail {
 struct TokenValueMapImpl {
   TokenValueMapImpl() {
     for (auto i = TokenNameMap.begin(); i != TokenNameMap.end(); i++) {
-      TokenNameMap.insert(std::make_pair(i->second, i->first));
+      tokenValueMap.insert(std::make_pair(i->second, i->first));
     }
   }
   std::unordered_map<std::string, int> tokenValueMap;
@@ -165,7 +168,7 @@ std::string tokenName(int value) {
 }
 
 int tokenValue(const std::string &name) {
-  LOG_ASSERT(tokenValid(value), "invalid token name: {}", name);
+  LOG_ASSERT(tokenValid(name), "invalid token name: {}", name);
   return tokenValueMapImpl.tokenValueMap.find(name)->second;
 }
 
@@ -176,4 +179,9 @@ bool tokenValid(int token) {
 bool tokenValid(const std::string &name) {
   return tokenValueMapImpl.tokenValueMap.find(name) !=
          tokenValueMapImpl.tokenValueMap.end();
+}
+
+bool isLiteralToken(int value) {
+  return value == T_INTEGER_LITERAL || value == T_FLOAT_LITERAL ||
+         value == T_STRING_LITERAL || value == T_CHARACTER_LITERAL;
 }

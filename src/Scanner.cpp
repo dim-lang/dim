@@ -3,18 +3,16 @@
 
 #include "Scanner.h"
 #include "Log.h"
-#include "TokenName.h"
+#include "tokenizer.yy.hh"
 #include <unordered_map>
 
 Scanner::Scanner(const std::string &a_fileName)
     : fileName(a_fileName), yyBufferState(nullptr), fp(nullptr),
-      yyscanner(nullptr), parser(nullptr), compileUnit(nullptr),
-      parenthesesStack_() {
+      yyscanner(nullptr), compileUnit(nullptr), parenthesesStack_() {
   // init scanner
   int r = yylex_init_extra(this, &yyscanner);
   LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
   LOG_ASSERT(yyscanner, "yyscanner must not null");
-  parser = std::shared_ptr<yy::parser>(new yy::parser(yyscanner));
 
   // init buffer
   fp = std::fopen(fileName.c_str(), "r");
@@ -41,20 +39,23 @@ Scanner::~Scanner() {
   }
 }
 
-yy::parser::symbol_type Scanner::tokenize() { return yylex(yyscanner); }
+Token Scanner::tokenize() {
+  YYSTYPE yylval;
+  YYLTYPE yylloc;
+  int value = yylex(&yylval, &yylloc, yyscanner);
+  return Token(value, yylval, yylloc);
+}
 
-int Scanner::parse() { return parser->parse(); }
+int Scanner::parse() { return yyparse(yyscanner); }
 
 static bool isOpenParentheses(int tok) {
-  return tok == yy::parser::token::T_LPAREN ||
-         tok == yy::parser::token::T_LBRACKET ||
-         tok == yy::parser::token::T_LBRACE;
+  return tok == yytokentype::T_LPAREN || tok == yytokentype::T_LBRACKET ||
+         tok == yytokentype::T_LBRACE;
 }
 
 static bool isCloseParentheses(int tok) {
-  return tok == yy::parser::token::T_RPAREN ||
-         tok == yy::parser::token::T_RBRACKET ||
-         tok == yy::parser::token::T_RBRACE;
+  return tok == yytokentype::T_RPAREN || tok == yytokentype::T_RBRACKET ||
+         tok == yytokentype::T_RBRACE;
 }
 
 int Scanner::topParentheses() const { return parenthesesStack_.top(); }
@@ -69,9 +70,9 @@ int Scanner::eatParentheses(int tok) {
     LOG_ASSERT(!parenthesesStack_.empty(),
                "parenthesesStack_ must not empty:{}", parenthesesStack_.size());
     const static std::unordered_map<int, int> parenthesesMapping = {
-        {yy::parser::token::T_RPAREN, yy::parser::token::T_LPAREN},
-        {yy::parser::token::T_RBRACKET, yy::parser::token::T_LBRACKET},
-        {yy::parser::token::T_RBRACE, yy::parser::token::T_LBRACE}};
+        {yytokentype::T_RPAREN, yytokentype::T_LPAREN},
+        {yytokentype::T_RBRACKET, yytokentype::T_LBRACKET},
+        {yytokentype::T_RBRACE, yytokentype::T_LBRACE}};
     int save = topParentheses();
     LOG_ASSERT(parenthesesMapping.find(tok)->second == save,
                "topParentheses {} must match token {}", topParentheses(), tok);
@@ -82,8 +83,8 @@ int Scanner::eatParentheses(int tok) {
 
 int Scanner::newlineEnabled() const {
   return parenthesesStack_.empty() ||
-         (topParentheses() == yy::parser::token::T_LBRACE ||
-          topParentheses() == yy::parser::token::T_RBRACE);
+         (topParentheses() == yytokentype::T_LBRACE ||
+          topParentheses() == yytokentype::T_RBRACE);
 }
 
 bool Scanner::parenthesesEmpty() const { return parenthesesStack_.empty(); }

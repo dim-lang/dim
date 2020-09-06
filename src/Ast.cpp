@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Strings.h"
-#include "TokenName.h"
+#include "Token.h"
 #include "parser.tab.hh"
 #include <algorithm>
 #include <sstream>
@@ -589,19 +589,22 @@ std::string A_Loop::toString() const {
 
 // A_LoopCondition {
 
-A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_expr,
-                                 bool a_doOnceAtFirst, const Location &location)
-    : Ast("loopCondition", location), expr(a_expr),
-      doOnceAtFirst(a_doOnceAtFirst) {}
+A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_init,
+                                 std::shared_ptr<Ast> a_condition,
+                                 std::shared_ptr<Ast> a_update, bool a_do_while,
+                                 const Location &location)
+    : Ast("loopCondition", location), init(a_init), condition(a_condition),
+      update(a_update), do_while(a_do_while) {}
 
 AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
 }
 
 std::string A_LoopCondition::toString() const {
-  return fmt::format("[{} location:{} expr:{} doOnceAtFirst:{}]",
-                     name().toSymbolName(), location().toString(),
-                     expr->toString(), doOnceAtFirst);
+  return fmt::format(
+      "[{} location:{} init:{} condition:{} update:{} do_while:{}]",
+      name().toSymbolName(), location().toString(), init->toString(),
+      condition->toString(), update->toString(), do_while);
 }
 
 // A_LoopCondition }

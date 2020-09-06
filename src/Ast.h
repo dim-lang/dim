@@ -6,7 +6,6 @@
 #include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
-#include "location.hh"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -373,13 +372,16 @@ public:
 
 class A_LoopCondition : public Ast {
 public:
-  A_LoopCondition(std::shared_ptr<Ast> a_expr, bool a_doOnceAtFirst,
+  A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
+                  std::shared_ptr<Ast> a_update, bool a_do_while,
                   const Location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
-  std::shared_ptr<Ast> expr;
-  bool doOnceAtFirst;
+  std::shared_ptr<Ast> init;
+  std::shared_ptr<Ast> condition;
+  std::shared_ptr<Ast> update;
+  bool do_while;
 };
 
 class A_LoopEnumerator : public Ast {

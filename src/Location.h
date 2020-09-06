@@ -14,9 +14,6 @@ public:
 
   int line;
   int column;
-
-  virtual Position &lines(int count = 1);
-  virtual Position &columns(int count = 1);
   virtual std::string toString() const;
 };
 
@@ -31,7 +28,6 @@ public:
 
   Position begin;
   Position end;
-
   virtual std::string toString() const;
 };
 

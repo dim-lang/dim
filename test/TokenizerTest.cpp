@@ -3,29 +3,28 @@
 
 #include "Log.h"
 #include "Scanner.h"
+#include "Token.h"
 #include "catch2/catch.hpp"
+#include "parser.tab.hh"
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 
 static void tokenize(const char *fileName) {
   Scanner scanner(fileName);
   LOG_INFO("start: {}", fileName);
-  std::vector<std::string> tokenList;
+  std::vector<int> tokenList;
   while (true) {
-    yy::parser::symbol_type t(scanner.tokenize());
-    if (t.kind() == yy::parser::symbol_kind::S_YYEOF) {
+    Token t = scanner.tokenize();
+    if (t.value == yytokentype::YYEOF) {
       break;
     }
-    if (t.kind() == yy::parser::symbol_kind::S_T_INTEGER_LITERAL ||
-        t.kind() == yy::parser::symbol_kind::S_T_STRING_LITERAL ||
-        t.kind() == yy::parser::symbol_kind::S_T_FLOAT_LITERAL ||
-        t.kind() == yy::parser::symbol_kind::S_T_CHARACTER_LITERAL ||
-        t.kind() == yy::parser::symbol_kind::S_T_VAR_ID) {
-      LOG_INFO("token:{} tag:{}", t.value.as<std::string>(), t.name());
-      tokenList.push_back(t.value.as<std::string>());
+    if (isLiteralToken(t.value)) {
+      LOG_INFO("token:{} tag:{}", t.yylval.literal, tokenName(t.value));
+      tokenList.push_back(t.value);
     } else {
-      LOG_INFO("token:{} tag:{}", t.name(), t.value.as<int>());
-      tokenList.push_back(t.name());
+      LOG_INFO("token:{} tag:{}", tokenName(t.value), t.value);
+      tokenList.push_back(t.value);
     }
   }
   std::stringstream ss;
