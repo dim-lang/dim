@@ -176,7 +176,7 @@ class Ast;
 %token<token> T_NEWLINE "\n"
 
  /* separator and operator */
-%type<token> optionalNewline optionalNewlines newlines optionalYield
+%type<token> seminl optionalNewline optionalNewlines newlines optionalYield
 %type<token> assignOp prefixOp infixOp postfixOp
 
  /* str */
@@ -188,7 +188,7 @@ class Ast;
  /* id */
 %type<ast> id varId
  /* expr */
-%type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats exprSeq
+%type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
 %type<ast> optionalExprs optionalBlockStats optionalVarDef optionalExpr
  /* type */
 %type<ast> type plainType
@@ -258,6 +258,10 @@ class Ast;
 %%
 
  /* newline { */
+
+seminl : "\n" { $$ = $1; }
+       | ";" { $$ = $1; }
+       ;
 
 optionalNewline : "\n" { $$ = $1; }
                 | %empty { $$ = T_EOF; }
@@ -456,22 +460,18 @@ block : "{" blockStat optionalBlockStats "}" {
         }
       ;
 
-blockStat : exprSeq { $$ = $1; }
+blockStat : expr { $$ = $1; }
           | def { $$ = $1; }
           /* | import */
           | %empty { $$ = nullptr; }
           ;
 
-exprSeq : expr { $$ = new A_Exprs(SP($1), SP_CAST(A_Exprs, SP_NULL), @$); }
-        | exprSeq ";" expr { $$ = new A_Exprs(SP($3), SP_CAST(A_Exprs, SP($1)), @$); }
-        ;
-
 optionalBlockStats : blockStats { $$ = $1; }
                    | %empty { $$ = nullptr; }
                    ;
 
-blockStats : "\n" blockStat { $$ = new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$); }
-           | blockStats "\n" blockStat { $$ = new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$); }
+blockStats : seminl blockStat { $$ = new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$); }
+           | blockStats seminl blockStat { $$ = new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$); }
            ;
 
  /* expression } */
@@ -582,8 +582,8 @@ optionalTopStats : topStats { $$ = $1; }
                  | %empty { $$ = nullptr; }
                  ;
 
-topStats : "\n" topStat { $$ = new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$); }
-         | topStats "\n" topStat { $$ = new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$); }
+topStats : seminl topStat { $$ = new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$); }
+         | topStats seminl topStat { $$ = new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$); }
          ;
 
 topStat : def { $$ = $1; }
