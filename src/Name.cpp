@@ -15,14 +15,12 @@
 #define DOT std::string(".")
 #define HEX(s) fmt::format("{0:x}", std::hash<std::string>()(s))
 
-static Counter NameCounter;
-
 static std::unordered_map<std::string, Name> NameMap = {
     {"", Name::noName()},
 };
 
 Name::Name(const std::string &value)
-    : value_(new std::string(value)), id_(NameCounter.next()) {}
+    : value_(new std::string(value)), id_(Counter::get()) {}
 
 int Name::compare(const Name &name) const {
   return value_->compare(*name.value_);
