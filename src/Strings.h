@@ -2,13 +2,14 @@
 // Apache License Version 2.0
 
 #pragma once
+#include <memory>
 #include <string>
 #include <vector>
 
 class Strings {
 public:
-  static char *duplicate(const char *s);
-  static char *duplicate(const char *s, int n);
+  static const char *dup(const char *s);
+  static const char *dup(const char *s, int n);
 
   static bool startWith(const std::string &s,
                         const std::vector<std::string> &prefixList);

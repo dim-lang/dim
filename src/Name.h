@@ -12,15 +12,15 @@ class Name {
 public:
   virtual ~Name() = default;
 
-  virtual int compare(const Name &name) const;
-  virtual bool operator==(const Name &name) const;
-  virtual bool operator!=(const Name &name) const;
-  virtual bool operator>(const Name &name) const;
-  virtual bool operator>=(const Name &name) const;
-  virtual bool operator<(const Name &name) const;
-  virtual bool operator<=(const Name &name) const;
+  virtual int compare(const Name &other) const;
+  virtual bool operator==(const Name &other) const;
+  virtual bool operator!=(const Name &other) const;
+  virtual bool operator>(const Name &other) const;
+  virtual bool operator>=(const Name &other) const;
+  virtual bool operator<(const Name &other) const;
+  virtual bool operator<=(const Name &other) const;
 
-  virtual std::string raw() const;
+  virtual const char *raw() const;
   virtual unsigned long long id() const;
 
   // example:
@@ -35,12 +35,11 @@ public:
   virtual std::string toString() const;
 
   static Name get(const std::string &name);
-  static const Name &noName();
 
 protected:
-  Name(const std::string &value);
+  Name(const char *value);
 
-  std::shared_ptr<std::string> value_;
+  const char *value_;
   unsigned long long id_;
 };
 

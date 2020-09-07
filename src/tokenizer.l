@@ -45,7 +45,7 @@ LC  ("//".*\n)
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
-#define MK_LITERAL(t)       yylval->literal = Strings::duplicate(yytext, yyleng); return yytokentype::t
+#define MK_LITERAL(t)       yylval->literal = (char *)Strings::dup(yytext, yyleng); return yytokentype::t
 #define MK_INTEGER(t)       return yylval->token = yytokentype::t
 
 #define YY_USER_ACTION                                                      \

@@ -5,20 +5,24 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "Log.h"
+#include "Strings.h"
 #include "graphviz/cgraph.h"
 #include <cstdio>
 
 #define SP_CAST(x) (std::static_pointer_cast<x>(ast))
-#define NEW_NODE (agnode(g, (char *)ast->name().toSymbolName().c_str(), TRUE))
-#define NEW_EDGE(tail) (agedge(g, tail, u, counterName(), TRUE))
+#define NEW_NODE (agnode(g, getName(ast->name().toSymbolName()), TRUE))
+#define NEW_NIL (agnode(g, getName("nil."), TRUE))
+#define NEW_EDGE(tail) (agedge(g, u, tail, getName("edge."), TRUE))
 
-static char *counterName() {
+static char *getName(const std::string &name) {
   std::stringstream ss;
-  ss << "e" << Counter::get();
-  return (char *)ss.str().c_str();
+  ss << name << Counter::get();
+  return (char *)Strings::dup(ss.str().c_str());
 }
 
 static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
+  LOG_ASSERT(ast, "ast must not null");
+  LOG_ASSERT(g, "g must not null");
   switch (ast->category()) {
   case AstCategory::Integer: {
     return NEW_NODE;
@@ -61,6 +65,9 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
     if (SP_CAST(A_Return)->expr) {
       Agnode_t *v = draw(SP_CAST(A_Return)->expr, g);
       NEW_EDGE(v);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
     }
     return u;
   }
@@ -102,10 +109,20 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
   }
   case AstCategory::Exprs: {
     Agnode_t *u = NEW_NODE;
-    Agnode_t *p = draw(SP_CAST(A_Exprs)->expr, g);
-    Agnode_t *q = draw(SP_CAST(A_Exprs)->next, g);
-    NEW_EDGE(p);
-    NEW_EDGE(q);
+    if (SP_CAST(A_Exprs)->expr) {
+      Agnode_t *p = draw(SP_CAST(A_Exprs)->expr, g);
+      NEW_EDGE(p);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
+    if (SP_CAST(A_Exprs)->next) {
+      Agnode_t *q = draw(SP_CAST(A_Exprs)->next, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::If: {
@@ -114,6 +131,9 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
     Agnode_t *q = draw(SP_CAST(A_If)->thenp, g);
     if (SP_CAST(A_If)->elsep) {
       Agnode_t *v = draw(SP_CAST(A_If)->elsep, g);
+      NEW_EDGE(v);
+    } else {
+      Agnode_t *v = NEW_NIL;
       NEW_EDGE(v);
     }
     NEW_EDGE(p);
@@ -136,12 +156,27 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
   }
   case AstCategory::LoopCondition: {
     Agnode_t *u = NEW_NODE;
-    Agnode_t *p = draw(SP_CAST(A_LoopCondition)->init, g);
-    Agnode_t *q = draw(SP_CAST(A_LoopCondition)->condition, g);
-    Agnode_t *v = draw(SP_CAST(A_LoopCondition)->update, g);
-    NEW_EDGE(p);
-    NEW_EDGE(q);
-    NEW_EDGE(v);
+    if (SP_CAST(A_LoopCondition)->init) {
+      Agnode_t *p = draw(SP_CAST(A_LoopCondition)->init, g);
+      NEW_EDGE(p);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
+    if (SP_CAST(A_LoopCondition)->condition) {
+      Agnode_t *q = draw(SP_CAST(A_LoopCondition)->condition, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
+    if (SP_CAST(A_LoopCondition)->update) {
+      Agnode_t *v = draw(SP_CAST(A_LoopCondition)->update, g);
+      NEW_EDGE(v);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::LoopEnumerator: {
@@ -164,10 +199,15 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
     Agnode_t *u = NEW_NODE;
     Agnode_t *p = draw(SP_CAST(A_Try)->tryp, g);
     Agnode_t *q = draw(SP_CAST(A_Try)->catchp, g);
-    Agnode_t *v = draw(SP_CAST(A_Try)->finallyp, g);
     NEW_EDGE(p);
     NEW_EDGE(q);
-    NEW_EDGE(v);
+    if (SP_CAST(A_Try)->finallyp) {
+      Agnode_t *v = draw(SP_CAST(A_Try)->finallyp, g);
+      NEW_EDGE(v);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::Block: {
@@ -178,10 +218,20 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
   }
   case AstCategory::BlockStats: {
     Agnode_t *u = NEW_NODE;
-    Agnode_t *p = draw(SP_CAST(A_BlockStats)->blockStat, g);
-    Agnode_t *q = draw(SP_CAST(A_BlockStats)->next, g);
-    NEW_EDGE(p);
-    NEW_EDGE(q);
+    if (SP_CAST(A_BlockStats)->blockStat) {
+      Agnode_t *p = draw(SP_CAST(A_BlockStats)->blockStat, g);
+      NEW_EDGE(p);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
+    if (SP_CAST(A_BlockStats)->next) {
+      Agnode_t *q = draw(SP_CAST(A_BlockStats)->next, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::PlainType: {
@@ -200,17 +250,27 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
   case AstCategory::FuncSign: {
     Agnode_t *u = NEW_NODE;
     Agnode_t *p = draw(SP_CAST(A_FuncSign)->id, g);
-    Agnode_t *q = draw(SP_CAST(A_FuncSign)->params, g);
     NEW_EDGE(p);
-    NEW_EDGE(q);
+    if (SP_CAST(A_FuncSign)->params) {
+      Agnode_t *q = draw(SP_CAST(A_FuncSign)->params, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::Params: {
     Agnode_t *u = NEW_NODE;
     Agnode_t *p = draw(SP_CAST(A_Params)->param, g);
-    Agnode_t *q = draw(SP_CAST(A_Params)->next, g);
     NEW_EDGE(p);
-    NEW_EDGE(q);
+    if (SP_CAST(A_Params)->next) {
+      Agnode_t *q = draw(SP_CAST(A_Params)->next, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::Param: {
@@ -233,10 +293,20 @@ static Agnode_t *draw(std::shared_ptr<Ast> ast, Agraph_t *g) {
   }
   case AstCategory::TopStats: {
     Agnode_t *u = NEW_NODE;
-    Agnode_t *p = draw(SP_CAST(A_TopStats)->topStat, g);
-    Agnode_t *q = draw(SP_CAST(A_TopStats)->next, g);
-    NEW_EDGE(p);
-    NEW_EDGE(q);
+    if (SP_CAST(A_TopStats)->topStat) {
+      Agnode_t *p = draw(SP_CAST(A_TopStats)->topStat, g);
+      NEW_EDGE(p);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
+    if (SP_CAST(A_TopStats)->next) {
+      Agnode_t *q = draw(SP_CAST(A_TopStats)->next, g);
+      NEW_EDGE(q);
+    } else {
+      Agnode_t *v = NEW_NIL;
+      NEW_EDGE(v);
+    }
     return u;
   }
   case AstCategory::CompileUnit: {

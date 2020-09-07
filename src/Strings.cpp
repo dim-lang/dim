@@ -7,22 +7,37 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
+#include <list>
 #include <sstream>
 #include <utility>
 
-char *Strings::duplicate(const char *s, int n) {
+static std::unordered_map<size_t, std::list<char *>> StringPool;
+
+static char *cached_string(const char *s, int n) {
   if (!s || n <= 0) {
     return nullptr;
   }
-  char *r = (char *)std::malloc(n + 1);
-  LOG_ASSERT(r, "r must not be null");
-  std::memset(r, 0, n + 1);
-  std::strncpy(r, s, n);
-  return r;
+  size_t key = std::hash<std::string>()(std::string(s, n));
+  if (StringPool.find(key) != StringPool.end()) {
+    StringPool[key] = std::list<char *>();
+  }
+  for (std::list<char *>::iterator i = StringPool[key].begin();
+       i != StringPool[key].end(); i++) {
+    if (*i == s || (std::strlen(*i) == n && std::strncmp(*i, s, n) == 0)) {
+      return *i;
+    }
+  }
+  char *ns = new char[n + 1];
+  std::memset(ns, 0, n + 1);
+  std::memcpy(ns, s, n);
+  StringPool[key].push_back(ns);
+  return ns;
 }
 
-char *Strings::duplicate(const char *s) {
-  return duplicate(s, (int)std::strlen(s));
+const char *Strings::dup(const char *s, int n) { return cached_string(s, n); }
+
+const char *Strings::dup(const char *s) {
+  return cached_string(s, std::strlen(s));
 }
 
 bool Strings::startWith(const std::string &s,

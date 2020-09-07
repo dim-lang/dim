@@ -2,63 +2,58 @@
 // Apache License Version 2.0
 
 #include "Name.h"
+#include "Strings.h"
 #include "fmt/format.h"
 #include <algorithm>
 #include <cctype>
 #include <functional>
 #include <iomanip>
+#include <sstream>
 #include <utility>
 #include <vector>
 
-#define USD std::string("$")
-#define AT std::string("@")
-#define DOT std::string(".")
-#define HEX(s) fmt::format("{0:x}", std::hash<std::string>()(s))
+#define SYMBOL_LENGTH 16
 
-static std::unordered_map<std::string, Name> NameMap = {
-    {"", Name::noName()},
-};
+Name::Name(const char *value) : value_(value), id_(Counter::get()) {}
 
-Name::Name(const std::string &value)
-    : value_(new std::string(value)), id_(Counter::get()) {}
+int Name::compare(const Name &other) const { return value_ - other.value_; }
 
-int Name::compare(const Name &name) const {
-  return value_->compare(*name.value_);
+bool Name::operator==(const Name &other) const {
+  return value_ == other.value_;
 }
 
-bool Name::operator==(const Name &name) const {
-  return value_.get() == name.value_.get();
+bool Name::operator!=(const Name &other) const {
+  return value_ != other.value_;
 }
 
-bool Name::operator!=(const Name &name) const {
-  return value_.get() != name.value_.get();
+bool Name::operator>(const Name &other) const { return value_ > other.value_; }
+
+bool Name::operator>=(const Name &other) const {
+  return value_ >= other.value_;
 }
 
-bool Name::operator>(const Name &name) const { return *value_ > *name.value_; }
+bool Name::operator<(const Name &other) const { return value_ < other.value_; }
 
-bool Name::operator>=(const Name &name) const {
-  return *value_ >= *name.value_;
+bool Name::operator<=(const Name &other) const {
+  return value_ <= other.value_;
 }
 
-bool Name::operator<(const Name &name) const { return *value_ < *name.value_; }
-
-bool Name::operator<=(const Name &name) const {
-  return *value_ <= *name.value_;
-}
-
-std::string Name::raw() const { return *value_; }
+const char *Name::raw() const { return value_; }
 
 unsigned long long Name::id() const { return id_; }
 
 std::string Name::toLLVMName() const {
-  return USD + HEX(*value_) + DOT + std::to_string(id());
+  std::stringstream ss;
+  ss << "$" << fmt::format("{0:x}", std::hash<std::string>()(value_)) << "."
+     << id();
+  return ss.str();
 }
 
 static bool containsChar(char c, const std::vector<char> &vec) {
   return std::find(vec.begin(), vec.end(), c) != vec.end();
 }
 
-static std::string parseSymbolName(const std::string &s) {
+static std::string parseSymbolName(const char *s) {
   std::string r(s);
   std::for_each(r.begin(), r.end(), [](char &c) {
     if (!std::isalnum(c) &&
@@ -66,11 +61,13 @@ static std::string parseSymbolName(const std::string &s) {
       c = '-';
     }
   });
-  return r.length() > 10 ? r.substr(0, 10) : r;
+  return r.length() > SYMBOL_LENGTH ? r.substr(0, SYMBOL_LENGTH) : r;
 }
 
 std::string Name::toSymbolName() const {
-  return AT + parseSymbolName(*value_) + DOT + std::to_string(id());
+  std::stringstream ss;
+  ss << "@" << parseSymbolName(value_) << "." << id();
+  return ss.str();
 }
 
 std::string Name::toString() const {
@@ -78,15 +75,7 @@ std::string Name::toString() const {
 }
 
 Name Name::get(const std::string &name) {
-  if (NameMap.find(name) == NameMap.end()) {
-    NameMap.insert(std::make_pair(name, Name(name)));
-  }
-  return NameMap.find(name)->second;
-}
-
-const Name &Name::noName() {
-  static Name noName("");
-  return noName;
+  return Name(Strings::dup(name.c_str()));
 }
 
 Nameable::Nameable(const std::string &name) : name_(Name::get(name)) {}
