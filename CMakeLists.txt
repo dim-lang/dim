@@ -11,7 +11,7 @@ if(DEFINED NDEBUG)
     set(ParserFlags "")
 else()
     set(TokenizerFlags "--debug --perf-report --verbose --warn")
-    set(ParserFlags "-Wall -Dparse.trace --verbose --graph=parser.tab.dot")
+    set(ParserFlags "-Wall -Dparse.trace --verbose")
     add_definitions(-DYYDEBUG=1)
 endif(DEFINED NDEBUG)
 
