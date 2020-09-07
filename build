@@ -120,7 +120,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -t|--test)
-            debug/test/nerd-test
+            debug/nerd-test
             exit 0
             ;;
         --parser)
