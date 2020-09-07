@@ -587,24 +587,41 @@ std::string A_Loop::toString() const {
 
 // A_Loop }
 
+// A_Yield {
+
+A_Yield::A_Yield(std::shared_ptr<Ast> a_expr, const Location &location)
+    : Ast("yield", location), expr(a_expr) {
+  LOG_ASSERT(expr, "expr must not null");
+}
+
+AstCategory A_Yield::category() const { return AstCategory::Yield; }
+
+std::string A_Yield::toString() const {
+  return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
+                     location().toString(), expr->toString());
+}
+
+// A_Yield }
+
 // A_LoopCondition {
 
 A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_init,
                                  std::shared_ptr<Ast> a_condition,
-                                 std::shared_ptr<Ast> a_update, bool a_do_while,
+                                 std::shared_ptr<Ast> a_update,
                                  const Location &location)
     : Ast("loopCondition", location), init(a_init), condition(a_condition),
-      update(a_update), do_while(a_do_while) {}
+      update(a_update) {}
 
 AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
 }
 
 std::string A_LoopCondition::toString() const {
-  return fmt::format(
-      "[{} location:{} init:{} condition:{} update:{} do_while:{}]",
-      name().toSymbolName(), location().toString(), init->toString(),
-      condition->toString(), update->toString(), do_while);
+  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
+                     name().toSymbolName(), location().toString(),
+                     init ? init->toString() : "nil",
+                     condition ? condition->toString() : "nil",
+                     update ? update->toString() : "nil");
 }
 
 // A_LoopCondition }
@@ -629,6 +646,25 @@ std::string A_LoopEnumerator::toString() const {
 }
 
 // A_LoopEnumerator }
+
+// A_DoWhile {
+
+A_DoWhile::A_DoWhile(std::shared_ptr<Ast> a_body,
+                     std::shared_ptr<Ast> a_condition, const Location &location)
+    : Ast("dowhile", location), body(a_body), condition(a_condition) {
+  LOG_ASSERT(body, "body must not null");
+  LOG_ASSERT(condition, "condition must not null");
+}
+
+AstCategory A_DoWhile::category() const { return AstCategory::DoWhile; }
+
+std::string A_DoWhile::toString() const {
+  return fmt::format("[{} location:{} body:{} condition:{}]",
+                     name().toSymbolName(), location().toString(),
+                     body->toString(), condition->toString());
+}
+
+// A_DoWhile }
 
 // A_Try {
 

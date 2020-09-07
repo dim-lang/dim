@@ -176,7 +176,7 @@ class Ast;
 %token<token> T_NEWLINE "\n"
 
  /* separator and operator */
-%type<token> seminl optionalNewline optionalNewlines newlines optionalYield
+%type<token> seminl optionalNewline optionalNewlines newlines
 %type<token> assignOp prefixOp infixOp postfixOp
 
  /* str */
@@ -332,9 +332,10 @@ varId : T_VAR_ID { $$ = new A_VarId($1, @$); }
 
 expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If(SP($3), SP($6), SP_NULL, @$); }
      | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = new A_If(SP($3), SP($6), SP($8), @$); }
-     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($3), SP_NULL, false, @3)); $$ = new A_Loop(loopCondition, SP($6), @$); }
-     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($6), SP_NULL, true, @6)); $$ = new A_Loop(loopCondition, SP($2), @$); }
-     | "for" "(" enumerators ")" optionalNewlines optionalYield expr { $$ = new A_Loop(SP($3), SP($7), @$); }
+     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($3), SP_NULL, @3)); $$ = new A_Loop(loopCondition, SP($6), @$); }
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { $$ = new A_DoWhile(SP($2), SP($6), @$); }
+     | "for" "(" enumerators ")" optionalNewlines "yield" expr { std::shared_ptr<Ast> loopYield(new A_Yield(SP($7), @7)); $$ = new A_Loop(SP($3), loopYield, @$); }
+     | "for" "(" enumerators ")" optionalNewlines expr { $$ = new A_Loop(SP($3), SP($6), @$); }
      | "try" expr "catch" expr %prec "try_catch" { $$ = new A_Try(SP($2), SP($4), SP_NULL, @$); }
      | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = new A_Try(SP($2), SP($4), SP($6), @$); }
      | "throw" expr { $$ = new A_Throw(SP($2), @$); }
@@ -347,7 +348,7 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If(SP($
      ;
 
 enumerators : id "<-" expr { $$ = new A_LoopEnumerator(SP($1), SP($3), @$); }
-            | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition(SP($1), SP($3), SP($5), false, @$); }
+            | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition(SP($1), SP($3), SP($5), @$); }
             ;
 
 optionalVarDef : varDef { $$ = $1; }
@@ -357,10 +358,6 @@ optionalVarDef : varDef { $$ = $1; }
 optionalExpr : expr { $$ = $1; }
              | %empty { $$ = nullptr; }
              ;
-
-optionalYield : "yield" { $$ = $1; }
-              | %empty { $$ = T_EOF; }
-              ;
 
 assignExpr : id assignOp expr { $$ = new A_Assign(SP($1), $2, SP($3), @$); }
            ;

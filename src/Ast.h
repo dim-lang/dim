@@ -23,7 +23,8 @@ BETTER_ENUM(AstCategory, int,
             Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
             InfixExpr, Call, Exprs,
             // expr with block
-            If, Loop, LoopCondition, LoopEnumerator, Try, Block, BlockStats,
+            If, Loop, Yield, LoopCondition, LoopEnumerator, DoWhile, Try, Block,
+            BlockStats,
             // type
             PlainType,
             // declaration and definition
@@ -63,8 +64,10 @@ class A_Call;
 class A_Exprs;
 class A_If;
 class A_Loop;
+class A_Yield;
 class A_LoopCondition;
 class A_LoopEnumerator;
+class A_DoWhile;
 class A_Try;
 class A_Block;
 class A_BlockStats;
@@ -370,18 +373,25 @@ public:
   std::shared_ptr<Ast> body;
 };
 
+class A_Yield : public Ast {
+public:
+  A_Yield(std::shared_ptr<Ast> expr, const Location &location);
+  virtual ~A_Yield() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  std::shared_ptr<Ast> expr;
+};
+
 class A_LoopCondition : public Ast {
 public:
   A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
-                  std::shared_ptr<Ast> a_update, bool a_do_while,
-                  const Location &location);
+                  std::shared_ptr<Ast> a_update, const Location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
   virtual std::string toString() const;
   std::shared_ptr<Ast> init;
   std::shared_ptr<Ast> condition;
   std::shared_ptr<Ast> update;
-  bool do_while;
 };
 
 class A_LoopEnumerator : public Ast {
@@ -393,6 +403,17 @@ public:
   virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<Ast> expr;
+};
+
+class A_DoWhile : public Ast {
+public:
+  A_DoWhile(std::shared_ptr<Ast> a_body, std::shared_ptr<Ast> a_condition,
+            const Location &location);
+  virtual ~A_DoWhile() = default;
+  virtual AstCategory category() const;
+  virtual std::string toString() const;
+  std::shared_ptr<Ast> body;
+  std::shared_ptr<Ast> condition;
 };
 
 class A_Try : public Ast {

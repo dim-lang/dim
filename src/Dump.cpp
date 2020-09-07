@@ -103,7 +103,7 @@ static std::string dumpAstImpl(std::shared_ptr<Ast> node, int indent) {
     std::stringstream ss;
     ss << dumpAstImpl(e->init, indent) << ";"
        << dumpAstImpl(e->condition, indent) << ";"
-       << dumpAstImpl(e->update, indent) << "; do_while:" << e->do_while;
+       << dumpAstImpl(e->update, indent);
     return ss.str();
   }
   case AstCategory::LoopEnumerator: {
