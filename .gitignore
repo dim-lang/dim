@@ -37,7 +37,6 @@ tokenizer.yy.hh
 tokenizer.yy.cc
 parser.tab.hh
 parser.tab.cc
-parser.tab.dot
 src/Configure.h
 
 # vscode
@@ -48,3 +47,7 @@ compile_flags.txt
 # clion
 cmake-build-debug
 .idea
+
+# graphviz
+*.dot
+*.png
