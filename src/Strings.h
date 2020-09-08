@@ -10,6 +10,7 @@ class Strings {
 public:
   static char *dup(const char *s);
   static char *dup(const char *s, int n);
+  static char *dup(const std::string &s);
 
   static bool startWith(const std::string &s,
                         const std::vector<std::string> &prefixList);

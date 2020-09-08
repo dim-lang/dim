@@ -18,7 +18,7 @@ static bool containsChar(char c, const std::vector<char> &vec) {
   return std::find(vec.begin(), vec.end(), c) != vec.end();
 }
 
-static std::string parseSymbolName(const std::string &s) {
+static std::string parseSymbolName(const char *s) {
   std::string r(s);
   std::for_each(r.begin(), r.end(), [](char &c) {
     if (!std::isalnum(c) &&
@@ -29,61 +29,49 @@ static std::string parseSymbolName(const std::string &s) {
   return r.length() > SYMBOL_LENGTH ? r.substr(0, SYMBOL_LENGTH) : r;
 }
 
-Name::Name(std::shared_ptr<std::string> name)
-    : name_(name), symName_(nullptr), llvmName_(nullptr), id_(Counter::get()) {
-  std::stringstream ss;
-  ss << "@" << parseSymbolName(*name_) << "." << id();
-  symName_ = std::make_shared<std::string>(Strings::dup(ss.str().c_str()));
+Name::Name(char *name) : name_(name), id_(Counter::get()) {}
 
-  ss.clear();
-  ss << "$" << fmt::format("{0:x}", std::hash<std::string>()(*name_)) << "."
-     << id();
-  llvmName_ = std::make_shared<std::string>(Strings::dup(ss.str().c_str()));
-}
+int Name::compare(const Name &other) const { return name_ - other.name_; }
 
-int Name::compare(const Name &other) const {
-  return (char *)name_.get() - (char *)other.name_.get();
-}
+bool Name::operator==(const Name &other) const { return name_ == other.name_; }
 
-bool Name::operator==(const Name &other) const {
-  return name_.get() == other.name_.get();
-}
+bool Name::operator!=(const Name &other) const { return name_ != other.name_; }
 
-bool Name::operator!=(const Name &other) const {
-  return name_.get() != other.name_.get();
-}
+bool Name::operator>(const Name &other) const { return name_ > other.name_; }
 
-bool Name::operator>(const Name &other) const {
-  return name_.get() > other.name_.get();
-}
+bool Name::operator>=(const Name &other) const { return name_ >= other.name_; }
 
-bool Name::operator>=(const Name &other) const {
-  return name_.get() >= other.name_.get();
-}
+bool Name::operator<(const Name &other) const { return name_ < other.name_; }
 
-bool Name::operator<(const Name &other) const {
-  return name_.get() < other.name_.get();
-}
+bool Name::operator<=(const Name &other) const { return name_ <= other.name_; }
 
-bool Name::operator<=(const Name &other) const {
-  return name_.get() <= other.name_.get();
-}
-
-const std::string &Name::raw() const { return *name_; }
+const char *Name::raw() const { return name_; }
 
 unsigned long long Name::id() const { return id_; }
 
-const std::string &Name::toLLVMName() const { return *llvmName_; }
-
-const std::string &Name::toSymbolName() const { return *symName_; }
-
-Name Name::get(const std::string &name) {
-  std::shared_ptr<std::string> value =
-      std::make_shared<std::string>(Strings::dup(name.c_str()));
-  return Name(value);
+const char *Name::toLLVMName() const {
+  std::stringstream ss;
+  ss << "$"
+     << fmt::format("{0:x}", std::hash<std::string>()(std::string(name_)))
+     << "." << id();
+  return Strings::dup(ss.str().c_str());
 }
 
+const char *Name::toSymbolName() const {
+  std::stringstream ss;
+  ss << "@" << parseSymbolName(name_) << "." << id();
+  return Strings::dup(ss.str().c_str());
+}
+
+Name Name::get(const std::string &name) { return Name(Strings::dup(name)); }
+
+Name Name::get(const char *name) { return Name(Strings::dup(name)); }
+
+Nameable::Nameable() : name_(Name::get("")) {}
+
 Nameable::Nameable(const std::string &name) : name_(Name::get(name)) {}
+
+Nameable::Nameable(const char *name) : name_(Name::get(name)) {}
 
 Name &Nameable::name() { return name_; }
 

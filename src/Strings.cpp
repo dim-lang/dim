@@ -37,6 +37,10 @@ char *Strings::dup(const char *s, int n) { return cached_string(s, n); }
 
 char *Strings::dup(const char *s) { return cached_string(s, std::strlen(s)); }
 
+char *Strings::dup(const std::string &s) {
+  return cached_string(s.c_str(), (int)s.length());
+}
+
 bool Strings::startWith(const std::string &s,
                         const std::vector<std::string> &prefixList) {
   return std::all_of(

@@ -20,27 +20,26 @@ public:
   virtual bool operator<(const Name &other) const;
   virtual bool operator<=(const Name &other) const;
 
-  virtual const std::string &raw() const;
+  virtual const char *raw() const;
   virtual unsigned long long id() const;
 
   // example:
   // a -> $8f1b.2
   // "" -> $0000.1
-  virtual const std::string &toLLVMName() const;
+  virtual const char *toLLVMName() const;
 
   // example:
   // a -> @a.2
   // "" -> @.1
-  virtual const std::string &toSymbolName() const;
+  virtual const char *toSymbolName() const;
 
   static Name get(const std::string &name);
+  static Name get(const char *name);
 
 protected:
-  Name(std::shared_ptr<std::string> name);
+  Name(char *name);
 
-  std::shared_ptr<std::string> name_;
-  std::shared_ptr<std::string> symName_;
-  std::shared_ptr<std::string> llvmName_;
+  char *name_;
   unsigned long long id_;
 };
 
@@ -56,7 +55,9 @@ template <> struct hash<Name> {
 
 class Nameable {
 public:
-  Nameable(const std::string &name = "");
+  Nameable();
+  Nameable(const char *name);
+  Nameable(const std::string &name);
   virtual ~Nameable() = default;
   virtual Name &name();
   virtual const Name &name() const;
