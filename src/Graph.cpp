@@ -6,32 +6,41 @@
 #include "Counter.h"
 #include "Log.h"
 #include "Strings.h"
-#include "graphviz/cgraph.h"
+#include "Token.h"
 #include <cstdio>
 #include <list>
 #include <sstream>
 #include <utility>
 
-#define AST_SP(x) (std::static_pointer_cast<x>(ast))
+#define ASP(x) (std::static_pointer_cast<x>(ast))
+
+namespace detail {
 
 static char *getName(const std::string &name) {
   std::stringstream ss;
   ss << name << Counter::get();
-  return Strings::get(ss.str().c_str());
+  return Strings::dup(ss.str().c_str());
 }
 
-struct AstGraphvizNode {
-  char *name;
-  char *header;
+struct AstDotNode;
+struct AstDotEdge;
+struct AstDot;
+
+using adn = AstDotNode;
+using ade = AstDotEdge;
+using adnsp = std::shared_ptr<AstDotNode>;
+using adesp = std::shared_ptr<AstDotEdge>;
+
+struct AstDotNode {
+  std::string name;
+  std::string header;
   std::list<std::pair<char *, char *>> label;
 
-  AstGraphvizNode(char *a_header)
-      : name(getName("n")), header(a_header), label() {
-    LOG_ASSERT(name, "name must not null");
-    LOG_ASSERT(header, "header must not null");
-  }
+  AstDotNode(const std::string &a_header)
+      : name(getName("node.")), header(a_header), label() {}
+  virtual ~AstDotNode() = default;
 
-  std::string toString() const {
+  virtual std::string toString() const {
     std::stringstream ss;
     ss << name << " [label=\"{ " << header;
     for (auto i = label.begin(); i != label.end(); i++) {
@@ -42,34 +51,37 @@ struct AstGraphvizNode {
   }
 };
 
-struct AstGraphvizEdge {
-  char *label;
-  std::shared_ptr<AstGraphvizNode> head;
-  std::shared_ptr<AstGraphvizNode> tail;
+struct AstDotEdge {
+  std::string label;
+  adnsp head;
+  adnsp tail;
 
-  AstGraphvizEdge(char *a_label = nullptr,
-                  std::shared_ptr<AstGraphvizNode> a_head = nullptr,
-                  std::shared_ptr<AstGraphvizNode> a_tail = nullptr)
+  AstDotEdge(const std::string &a_label, adnsp a_head, adnsp a_tail)
       : label(a_label), head(a_head), tail(a_tail) {}
+  virtual ~AstDotEdge() = default;
 
-  std::string toString() const {
+  virtual std::string toString() const {
     std::stringstream ss;
-    ss << fmt::format("{} -> {} [label=\"{}\"]", head->name, tail->name, label);
+    ss << head->name << " -> " << tail->name << "[label=\"" << label << "\"]";
     return ss.str();
   }
 };
 
-struct AstGraphviz {
-  char *nodeShape;
-  std::list<std::shared_ptr<AstGraphvizNode>> nodes;
-  std::list<std::shared_ptr<AstGraphvizEdge>> edges;
+struct AstDot {
+  std::list<adnsp> nodes;
+  std::list<adesp> edges;
 
-  AstGraphviz() : nodeShape(nullptr), nodes(), edges() {}
+  AstDot() : nodes(), edges() {}
+  virtual ~AstDot() = default;
 
-  void draw(const std::string &output) {
+  virtual int draw(std::shared_ptr<Ast> ast, const std::string &output) {
     FILE *fp = std::fopen(output.c_str(), "w");
+    if (!fp) {
+      return -1;
+    }
+    drawImpl(ast);
     std::fprintf(fp, "digraph {\n");
-    std::fprintf(fp, "    node [shape=%s]\n\n", nodeShape);
+    std::fprintf(fp, "    node [shape=record]\n\n");
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
       std::fprintf(fp, "    %s\n", (*i)->toString().c_str());
     }
@@ -79,326 +91,335 @@ struct AstGraphviz {
     }
     std::fprintf(fp, "}\n");
     std::fclose(fp);
+    return 0;
   }
 
-  std::shared_ptr<AstGraphvizNode> drawImpl(std::shared_ptr<Ast> ast) {
-    LOG_ASSERT(ast, "ast must not null");
+private:
+  virtual adnsp drawImpl(std::shared_ptr<Ast> ast) {
+    if (!ast) {
+      return adnsp(new adn("nil"));
+    }
+    adnsp u(nullptr);
     switch (ast->category()) {
     case AstCategory::Integer: {
-      std::shared_ptr<AstGraphvizNode> u(
-          new AstGraphvizNode((char *)"integer"));
-      u->label.push_back(std::make_pair(Strings::get("literal"),
-                                        AST_SP(A_Integer)->name().raw()));
+      adnsp u(new adn("integer_literal"));
       u->label.push_back(
-          std::make_pair(Strings::get("symbolName"),
-                         AST_SP(A_Integer)->name().toSymbolName()));
-      u->label.push_back(std::make_pair(
-          Strings::get("llvmName"), AST_SP(A_Integer)->name().toLLVMName()));
+          std::make_pair(Strings::dup("literal"), (char *)ast->name().raw()));
+      u->label.push_back(std::make_pair(Strings::dup("symbolName"),
+                                        (char *)ast->name().toSymbolName()));
+      u->label.push_back(std::make_pair(Strings::dup("llvmName"),
+                                        (char *)ast->name().toLLVMName()));
       nodes.push_back(u);
       return u;
     }
     case AstCategory::Float: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"float"));
+      adnsp u(new adn("float_literal"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Boolean: {
-      std::shared_ptr<AstGraphvizNode> u(
-          new AstGraphvizNode((char *)"boolean"));
+      adnsp u(new adn("boolean_literal"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Character: {
-      std::shared_ptr<AstGraphvizNode> u(
-          new AstGraphvizNode((char *)"character"));
+      adnsp u(new adn("character_literal"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::String: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"string"));
+      adnsp u(new adn("string_literal"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Nil: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"nil"));
+      adnsp u(new adn("nil"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Void: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"void"));
+      adnsp u(new adn("void"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::VarId: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"varId"));
+      adnsp u(new adn("var_id"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Break: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"break"));
+      adnsp u(new adn("break"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Continue: {
-      std::shared_ptr<AstGraphvizNode> u(
-          new AstGraphvizNode((char *)"continue"));
+      adnsp u(new adn("continue"));
+      nodes.push_back(u);
       return u;
     }
     case AstCategory::Throw: {
-      std::shared_ptr<AstGraphvizNode> u(new AstGraphvizNode((char *)"throw"));
-      std::shared_ptr<AstGraphvizNode> v = drawImpl(AST_SP(A_Throw)->expr);
-      std::shared_ptr<AstGraphvizEdge> e(
-          new AstGraphvizEdge((char *)"expr", u, v));
+      adnsp u(new adn("throw"));
+      adnsp v = drawImpl(ASP(A_Throw)->expr);
+      adesp e(new ade("expr", u, v));
+      nodes.push_back(u);
       edges.push_back(e);
       return u;
     }
-    /* case AstCategory::Return: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   if (AST_SP(A_Return)->expr) { */
-    /*     Agnode_t *v = drawImpl(AST_SP(A_Return)->expr, g); */
-    /*     AST_EDGE(v); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Assign: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Assign)->assignee, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_Assign)->assignor, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::PostfixExpr: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_PostfixExpr)->expr, g); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::InfixExpr: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_InfixExpr)->left, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_InfixExpr)->right, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::PrefixExpr: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_PrefixExpr)->expr, g); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Call: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Call)->id, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_Call)->args, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Exprs: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   if (AST_SP(A_Exprs)->expr) { */
-    /*     Agnode_t *p = drawImpl(AST_SP(A_Exprs)->expr, g); */
-    /*     AST_EDGE(p); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   if (AST_SP(A_Exprs)->next) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_Exprs)->next, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::If: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_If)->condition, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_If)->thenp, g); */
-    /*   if (AST_SP(A_If)->elsep) { */
-    /*     Agnode_t *v = drawImpl(AST_SP(A_If)->elsep, g); */
-    /*     AST_EDGE(v); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Loop: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Loop)->condition, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_Loop)->body, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Yield: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_Yield)->expr, g); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::LoopCondition: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   if (AST_SP(A_LoopCondition)->init) { */
-    /*     Agnode_t *p = drawImpl(AST_SP(A_LoopCondition)->init, g); */
-    /*     AST_EDGE(p); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   if (AST_SP(A_LoopCondition)->condition) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_LoopCondition)->condition, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   if (AST_SP(A_LoopCondition)->update) { */
-    /*     Agnode_t *v = drawImpl(AST_SP(A_LoopCondition)->update, g); */
-    /*     AST_EDGE(v); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::LoopEnumerator: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_LoopEnumerator)->id, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_LoopEnumerator)->expr, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::DoWhile: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_DoWhile)->body, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_DoWhile)->condition, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Try: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Try)->tryp, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_Try)->catchp, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   if (AST_SP(A_Try)->finallyp) { */
-    /*     Agnode_t *v = drawImpl(AST_SP(A_Try)->finallyp, g); */
-    /*     AST_EDGE(v); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Block: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_Block)->blockStats, g); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::BlockStats: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   if (AST_SP(A_BlockStats)->blockStat) { */
-    /*     Agnode_t *p = drawImpl(AST_SP(A_BlockStats)->blockStat, g); */
-    /*     AST_EDGE(p); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   if (AST_SP(A_BlockStats)->next) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_BlockStats)->next, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::PlainType: { */
-    /*   return AST_NODE; */
-    /* } */
-    /* case AstCategory::FuncDef: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_FuncDef)->funcSign, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_FuncDef)->resultType, g); */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_FuncDef)->body, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::FuncSign: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_FuncSign)->id, g); */
-    /*   AST_EDGE(p); */
-    /*   if (AST_SP(A_FuncSign)->params) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_FuncSign)->params, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Params: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Params)->param, g); */
-    /*   AST_EDGE(p); */
-    /*   if (AST_SP(A_Params)->next) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_Params)->next, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::Param: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_Param)->id, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_Param)->type, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::VarDef: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *p = drawImpl(AST_SP(A_VarDef)->id, g); */
-    /*   Agnode_t *q = drawImpl(AST_SP(A_VarDef)->type, g); */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_VarDef)->expr, g); */
-    /*   AST_EDGE(p); */
-    /*   AST_EDGE(q); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::TopStats: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   if (AST_SP(A_TopStats)->topStat) { */
-    /*     Agnode_t *p = drawImpl(AST_SP(A_TopStats)->topStat, g); */
-    /*     AST_EDGE(p); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   if (AST_SP(A_TopStats)->next) { */
-    /*     Agnode_t *q = drawImpl(AST_SP(A_TopStats)->next, g); */
-    /*     AST_EDGE(q); */
-    /*   } else { */
-    /*     Agnode_t *v = AST_NIL; */
-    /*     AST_EDGE(v); */
-    /*   } */
-    /*   return u; */
-    /* } */
-    /* case AstCategory::CompileUnit: { */
-    /*   Agnode_t *u = AST_NODE; */
-    /*   Agnode_t *v = drawImpl(AST_SP(A_CompileUnit)->topStats, g); */
-    /*   AST_EDGE(v); */
-    /*   return u; */
-    /* } */
+    case AstCategory::Return: {
+      adnsp u(new adn("throw"));
+      adnsp v = drawImpl(ASP(A_Return)->expr);
+      adesp e(new ade("expr", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
+    case AstCategory::Assign: {
+      adnsp u(new adn("assign"));
+      adnsp p = drawImpl(ASP(A_Assign)->assignee);
+      adnsp q = drawImpl(ASP(A_Assign)->assignor);
+      adesp ep(new ade("assignee", u, p));
+      adesp eq(new ade("assignor", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::PostfixExpr: {
+      adnsp u(new adn("postfix"));
+      adnsp v = drawImpl(ASP(A_PostfixExpr)->expr);
+      adesp e(new ade("expr", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
+    case AstCategory::InfixExpr: {
+      adnsp u(new adn("infix"));
+      adnsp p = drawImpl(ASP(A_InfixExpr)->left);
+      adnsp q = drawImpl(ASP(A_InfixExpr)->right);
+      adesp ep(new ade("left", u, p));
+      adesp eq(new ade("right", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::PrefixExpr: {
+      adnsp u(new adn("prefix"));
+      adnsp v = drawImpl(ASP(A_PrefixExpr)->expr);
+      adesp e(new ade("expr", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
+    case AstCategory::Call: {
+      adnsp u(new adn("call"));
+      adnsp p = drawImpl(ASP(A_Call)->id);
+      adnsp q = drawImpl(ASP(A_Call)->args);
+      adesp ep(new ade("id", u, p));
+      adesp eq(new ade("args", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::Exprs: {
+      adnsp u(new adn("exprs"));
+      adnsp p = drawImpl(ASP(A_Exprs)->expr);
+      adnsp q = drawImpl(ASP(A_Exprs)->next);
+      adesp ep(new ade("expr", u, p));
+      adesp eq(new ade("next", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::If: {
+      adnsp u(new adn("if"));
+      adnsp p = drawImpl(ASP(A_If)->condition);
+      adnsp q = drawImpl(ASP(A_If)->thenp);
+      adnsp v = drawImpl(ASP(A_If)->elsep);
+      adesp ep(new ade("condition", u, p));
+      adesp eq(new ade("then", u, q));
+      adesp ev(new ade("else", u, v));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      edges.push_back(ev);
+      return u;
+    }
+    case AstCategory::Loop: {
+      adnsp u(new adn("loop"));
+      adnsp p = drawImpl(ASP(A_Loop)->condition);
+      adnsp q = drawImpl(ASP(A_Loop)->body);
+      adesp ep(new ade("condition", u, p));
+      adesp eq(new ade("body", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::Yield: {
+      adnsp u(new adn("yield"));
+      adnsp v = drawImpl(ASP(A_Yield)->expr);
+      adesp e(new ade("expr", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
+    case AstCategory::LoopCondition: {
+      adnsp u(new adn("loop_condition"));
+      adnsp p = drawImpl(ASP(A_LoopCondition)->init);
+      adnsp q = drawImpl(ASP(A_LoopCondition)->condition);
+      adnsp v = drawImpl(ASP(A_LoopCondition)->update);
+      adesp ep(new ade("init", u, p));
+      adesp eq(new ade("condition", u, q));
+      adesp ev(new ade("update", u, v));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      edges.push_back(ev);
+      return u;
+    }
+    case AstCategory::LoopEnumerator: {
+      adnsp u(new adn("loop_enumerator"));
+      adnsp p = drawImpl(ASP(A_LoopEnumerator)->id);
+      adnsp q = drawImpl(ASP(A_LoopEnumerator)->expr);
+      adesp ep(new ade("id", u, p));
+      adesp eq(new ade("expr", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::DoWhile: {
+      adnsp u(new adn("do_while"));
+      adnsp p = drawImpl(ASP(A_DoWhile)->body);
+      adnsp q = drawImpl(ASP(A_DoWhile)->condition);
+      adesp ep(new ade("body", u, p));
+      adesp eq(new ade("condition", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::Try: {
+      adnsp u(new adn("try"));
+      adnsp p = drawImpl(ASP(A_Try)->tryp);
+      adnsp q = drawImpl(ASP(A_Try)->catchp);
+      adnsp v = drawImpl(ASP(A_Try)->finallyp);
+      adesp ep(new ade("try", u, p));
+      adesp eq(new ade("catch", u, q));
+      adesp ev(new ade("finally", u, v));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      edges.push_back(ev);
+      return u;
+    }
+    case AstCategory::Block: {
+      adnsp u(new adn("block"));
+      adnsp v = drawImpl(ASP(A_Block)->blockStats);
+      adesp e(new ade("blockStats", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
+    case AstCategory::BlockStats: {
+      adnsp u(new adn("block_stats"));
+      adnsp p = drawImpl(ASP(A_BlockStats)->blockStat);
+      adnsp q = drawImpl(ASP(A_BlockStats)->next);
+      adesp ep(new ade("blockStat", u, p));
+      adesp eq(new ade("next", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::PlainType: {
+      adnsp u(new adn("plain_type"));
+      nodes.push_back(u);
+      return u;
+    }
+    case AstCategory::FuncDef: {
+      adnsp u(new adn("func_def"));
+      adnsp p = drawImpl(ASP(A_FuncDef)->funcSign);
+      adnsp q = drawImpl(ASP(A_FuncDef)->resultType);
+      adnsp v = drawImpl(ASP(A_FuncDef)->body);
+      adesp ep(new ade("funcSign", u, p));
+      adesp eq(new ade("resultType", u, q));
+      adesp ev(new ade("body", u, v));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      edges.push_back(ev);
+      return u;
+    }
+    case AstCategory::FuncSign: {
+      adnsp u(new adn("func_sign"));
+      adnsp p = drawImpl(ASP(A_FuncSign)->id);
+      adnsp q = drawImpl(ASP(A_FuncSign)->params);
+      adesp ep(new ade("id", u, p));
+      adesp eq(new ade("params", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::Params: {
+      adnsp u(new adn("params"));
+      adnsp p = drawImpl(ASP(A_Params)->param);
+      adnsp q = drawImpl(ASP(A_Params)->next);
+      adesp ep(new ade("param", u, p));
+      adesp eq(new ade("next", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::Param: {
+      adnsp u(new adn("param"));
+      adnsp p = drawImpl(ASP(A_Param)->id);
+      adnsp q = drawImpl(ASP(A_Param)->type);
+      adesp ep(new ade("id", u, p));
+      adesp eq(new ade("type", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::VarDef: {
+      adnsp u(new adn("var_def"));
+      adnsp p = drawImpl(ASP(A_VarDef)->id);
+      adnsp q = drawImpl(ASP(A_VarDef)->type);
+      adnsp v = drawImpl(ASP(A_VarDef)->expr);
+      adesp ep(new ade("id", u, p));
+      adesp eq(new ade("type", u, q));
+      adesp ev(new ade("expr", u, v));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      edges.push_back(ev);
+      return u;
+    }
+    case AstCategory::TopStats: {
+      adnsp u(new adn("top_stats"));
+      adnsp p = drawImpl(ASP(A_TopStats)->topStat);
+      adnsp q = drawImpl(ASP(A_TopStats)->next);
+      adesp ep(new ade("topStat", u, p));
+      adesp eq(new ade("next", u, q));
+      nodes.push_back(u);
+      edges.push_back(ep);
+      edges.push_back(eq);
+      return u;
+    }
+    case AstCategory::CompileUnit: {
+      adnsp u(new adn("compile_unit"));
+      adnsp v = drawImpl(ASP(A_CompileUnit)->topStats);
+      adesp e(new ade("topStats", u, v));
+      nodes.push_back(u);
+      edges.push_back(e);
+      return u;
+    }
     default:
       LOG_ASSERT(false, "invalid ast category: {}",
                  ast->category()._to_string());
@@ -406,335 +427,9 @@ struct AstGraphviz {
   }
 };
 
-#define AST_SP(x) (std::static_pointer_cast<x>(ast))
-#define AST_NODE (agnode(g, getName(ast->name().toSymbolName()), TRUE))
-#define AST_NIL (agnode(g, getName("nil."), TRUE))
-#define AST_EDGE(tail) (agedge(g, u, tail, getName("e."), TRUE))
-
-/* static std::shared_ptr<AstGraphvizNode> */
-/* drawImpl(std::shared_ptr<Ast> ast, std::shared_ptr<AstGraphviz> g) { */
-/*   LOG_ASSERT(ast, "ast must not null"); */
-/*   LOG_ASSERT(g, "g must not null"); */
-/*   switch (ast->category()) { */
-/*   case AstCategory::Integer: { */
-/*     std::shared_ptr<AstGraphvizNode> n( */
-/*         new AstGraphvizNode(getName("n"), (char *)"Integer")); */
-/*     n->label.push_back(std::make_pair((char *)Strings::get("literal"), */
-/*                                       (char
- * *)AST_SP(A_Integer)->name().raw())); */
-/*     n->label.push_back( */
-/*         std::make_pair((char *)Strings::get("symbolName"), */
-/*                        (char *)AST_SP(A_Integer)->name().toSymbolName())); */
-/*     n->label.push_back( */
-/*         std::make_pair((char *)Strings::get("llvmName"), */
-/*                        (char *)AST_SP(A_Integer)->name().toLLVMName())); */
-/*     g->nodes.push_back(n); */
-/*     return n; */
-/*   } */
-/*   case AstCategory::Float: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Boolean: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Character: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::String: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Nil: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Void: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::VarId: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Break: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Continue: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::Throw: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_Throw)->expr, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Return: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     if (AST_SP(A_Return)->expr) { */
-/*       Agnode_t *v = drawImpl(AST_SP(A_Return)->expr, g); */
-/*       AST_EDGE(v); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Assign: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Assign)->assignee, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_Assign)->assignor, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::PostfixExpr: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_PostfixExpr)->expr, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::InfixExpr: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_InfixExpr)->left, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_InfixExpr)->right, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::PrefixExpr: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_PrefixExpr)->expr, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Call: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Call)->id, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_Call)->args, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Exprs: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     if (AST_SP(A_Exprs)->expr) { */
-/*       Agnode_t *p = drawImpl(AST_SP(A_Exprs)->expr, g); */
-/*       AST_EDGE(p); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     if (AST_SP(A_Exprs)->next) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_Exprs)->next, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::If: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_If)->condition, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_If)->thenp, g); */
-/*     if (AST_SP(A_If)->elsep) { */
-/*       Agnode_t *v = drawImpl(AST_SP(A_If)->elsep, g); */
-/*       AST_EDGE(v); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Loop: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Loop)->condition, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_Loop)->body, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Yield: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_Yield)->expr, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::LoopCondition: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     if (AST_SP(A_LoopCondition)->init) { */
-/*       Agnode_t *p = drawImpl(AST_SP(A_LoopCondition)->init, g); */
-/*       AST_EDGE(p); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     if (AST_SP(A_LoopCondition)->condition) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_LoopCondition)->condition, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     if (AST_SP(A_LoopCondition)->update) { */
-/*       Agnode_t *v = drawImpl(AST_SP(A_LoopCondition)->update, g); */
-/*       AST_EDGE(v); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::LoopEnumerator: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_LoopEnumerator)->id, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_LoopEnumerator)->expr, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::DoWhile: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_DoWhile)->body, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_DoWhile)->condition, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Try: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Try)->tryp, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_Try)->catchp, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     if (AST_SP(A_Try)->finallyp) { */
-/*       Agnode_t *v = drawImpl(AST_SP(A_Try)->finallyp, g); */
-/*       AST_EDGE(v); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Block: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_Block)->blockStats, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::BlockStats: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     if (AST_SP(A_BlockStats)->blockStat) { */
-/*       Agnode_t *p = drawImpl(AST_SP(A_BlockStats)->blockStat, g); */
-/*       AST_EDGE(p); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     if (AST_SP(A_BlockStats)->next) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_BlockStats)->next, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::PlainType: { */
-/*     return AST_NODE; */
-/*   } */
-/*   case AstCategory::FuncDef: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_FuncDef)->funcSign, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_FuncDef)->resultType, g); */
-/*     Agnode_t *v = drawImpl(AST_SP(A_FuncDef)->body, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::FuncSign: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_FuncSign)->id, g); */
-/*     AST_EDGE(p); */
-/*     if (AST_SP(A_FuncSign)->params) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_FuncSign)->params, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Params: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Params)->param, g); */
-/*     AST_EDGE(p); */
-/*     if (AST_SP(A_Params)->next) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_Params)->next, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::Param: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_Param)->id, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_Param)->type, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::VarDef: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *p = drawImpl(AST_SP(A_VarDef)->id, g); */
-/*     Agnode_t *q = drawImpl(AST_SP(A_VarDef)->type, g); */
-/*     Agnode_t *v = drawImpl(AST_SP(A_VarDef)->expr, g); */
-/*     AST_EDGE(p); */
-/*     AST_EDGE(q); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   case AstCategory::TopStats: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     if (AST_SP(A_TopStats)->topStat) { */
-/*       Agnode_t *p = drawImpl(AST_SP(A_TopStats)->topStat, g); */
-/*       AST_EDGE(p); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     if (AST_SP(A_TopStats)->next) { */
-/*       Agnode_t *q = drawImpl(AST_SP(A_TopStats)->next, g); */
-/*       AST_EDGE(q); */
-/*     } else { */
-/*       Agnode_t *v = AST_NIL; */
-/*       AST_EDGE(v); */
-/*     } */
-/*     return u; */
-/*   } */
-/*   case AstCategory::CompileUnit: { */
-/*     Agnode_t *u = AST_NODE; */
-/*     Agnode_t *v = drawImpl(AST_SP(A_CompileUnit)->topStats, g); */
-/*     AST_EDGE(v); */
-/*     return u; */
-/*   } */
-/*   default: */
-/*     LOG_ASSERT(false, "invalid ast category: {}",
- * ast->category()._to_string()); */
-/*   } */
-/* } */
+} // namespace detail
 
 int Graph::drawAst(std::shared_ptr<Ast> ast, const std::string &output) {
-  Agraph_t *g = agopen((char *)"Graph", Agdirected, nullptr);
-  LOG_ASSERT(g, "g must not null");
-  // initialize attributes
-  Agsym_t *s = agattr(g, AGNODE, (char *)"shape", (char *)"record");
-  LOG_ASSERT(s, "s must not null");
-  /* drawImpl(ast, g); */
-  FILE *fp = std::fopen(output.c_str(), "w");
-  int result = agwrite(g, fp);
-  std::fclose(fp);
-  agclose(g);
-  return result;
+  detail::AstDot g;
+  return g.draw(ast, output);
 }
