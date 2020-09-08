@@ -8,8 +8,8 @@
 
 class Strings {
 public:
-  static const char *dup(const char *s);
-  static const char *dup(const char *s, int n);
+  static char *dup(const char *s);
+  static char *dup(const char *s, int n);
 
   static bool startWith(const std::string &s,
                         const std::vector<std::string> &prefixList);

@@ -20,26 +20,27 @@ public:
   virtual bool operator<(const Name &other) const;
   virtual bool operator<=(const Name &other) const;
 
-  virtual const char *raw() const;
+  virtual const std::string &raw() const;
   virtual unsigned long long id() const;
 
   // example:
   // a -> $8f1b.2
   // "" -> $0000.1
-  virtual std::string toLLVMName() const;
+  virtual const std::string &toLLVMName() const;
 
   // example:
   // a -> @a.2
   // "" -> @.1
-  virtual std::string toSymbolName() const;
-  virtual std::string toString() const;
+  virtual const std::string &toSymbolName() const;
 
   static Name get(const std::string &name);
 
 protected:
-  Name(const char *value);
+  Name(std::shared_ptr<std::string> name);
 
-  const char *value_;
+  std::shared_ptr<std::string> name_;
+  std::shared_ptr<std::string> symName_;
+  std::shared_ptr<std::string> llvmName_;
   unsigned long long id_;
 };
 

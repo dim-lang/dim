@@ -21,9 +21,8 @@ static char *cached_string(const char *s, int n) {
   if (StringPool.find(key) != StringPool.end()) {
     StringPool[key] = std::list<char *>();
   }
-  for (std::list<char *>::iterator i = StringPool[key].begin();
-       i != StringPool[key].end(); i++) {
-    if (*i == s || (std::strlen(*i) == n && std::strncmp(*i, s, n) == 0)) {
+  for (auto i = StringPool[key].begin(); i != StringPool[key].end(); i++) {
+    if (std::strlen(*i) == n && std::strncmp(*i, s, n) == 0) {
       return *i;
     }
   }
@@ -34,11 +33,9 @@ static char *cached_string(const char *s, int n) {
   return ns;
 }
 
-const char *Strings::dup(const char *s, int n) { return cached_string(s, n); }
+char *Strings::dup(const char *s, int n) { return cached_string(s, n); }
 
-const char *Strings::dup(const char *s) {
-  return cached_string(s, std::strlen(s));
-}
+char *Strings::dup(const char *s) { return cached_string(s, std::strlen(s)); }
 
 bool Strings::startWith(const std::string &s,
                         const std::vector<std::string> &prefixList) {

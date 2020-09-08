@@ -120,7 +120,7 @@ set(NERD_CORE
     # src/SymbolTable.cpp
     src/Counter.cpp
     # src/Dump.cpp
-    src/Graph.cpp
+    # src/Graph.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp
@@ -186,7 +186,7 @@ set(NERD_TEST
     test/TokenizerTest.cpp
     test/ParserTest.cpp
     # test/SemanticTest.cpp
-    test/GraphTest.cpp
+    # test/GraphTest.cpp
     # test/NameGeneratorTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp

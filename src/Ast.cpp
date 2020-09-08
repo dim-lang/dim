@@ -184,11 +184,7 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
 AstCategory A_Integer::category() const { return AstCategory::Integer; }
 
 std::string A_Integer::toString() const {
-  return fmt::format("[{} location:{}, parsed:{}, "
-                     "decimalCategory:{}, bitCategory:{}]",
-                     name().toSymbolName(), location().toString(), parsed_,
-                     AIL_DC_Map.find(decimalCategory_)->second,
-                     AIL_BC_Map.find(bitCategory_)->second);
+  return fmt::format("{}", name().raw());
 }
 
 int A_Integer::bits() const { return bits_; }
