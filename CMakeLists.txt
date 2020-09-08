@@ -102,7 +102,7 @@ set(NERD_CORE
     src/Option.cpp
     # src/Timer.cpp
     # src/DateTime.cpp
-    src/File.cpp
+    src/Files.cpp
     src/Strings.cpp
     # src/Hash.cpp
     # src/Random.cpp
@@ -177,7 +177,7 @@ set(NERD_TEST
     test/LogTest.cpp
     test/container/CycleBufferTest.cpp
     test/container/LinkedHashMapTest.cpp
-    test/FileTest.cpp
+    test/FilesTest.cpp
     # test/ExceptionTest.cpp
     # test/TimerTest.cpp
     # test/RandomTest.cpp
