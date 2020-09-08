@@ -46,7 +46,9 @@ else()
         )
     set(NERD_LIB_DIR
         /usr/lib
+        /usr/lib64
         /usr/local/lib
+        /usr/local/lib64
         )
 endif(WIN32)
 
