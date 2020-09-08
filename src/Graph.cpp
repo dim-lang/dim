@@ -37,7 +37,7 @@ struct AstDotNode {
   std::list<std::pair<char *, char *>> label;
 
   AstDotNode(const std::string &a_header)
-      : name(getName("node.")), header(a_header), label() {}
+      : name(getName("node")), header(a_header), label() {}
   virtual ~AstDotNode() = default;
 
   virtual std::string toString() const {
@@ -62,7 +62,7 @@ struct AstDotEdge {
 
   virtual std::string toString() const {
     std::stringstream ss;
-    ss << head->name << " -> " << tail->name << "[label=\"" << label << "\"]";
+    ss << head->name << " -> " << tail->name << " [label=\"" << label << "\"]";
     return ss.str();
   }
 };
@@ -97,12 +97,45 @@ struct AstDot {
 private:
   virtual adnsp drawImpl(std::shared_ptr<Ast> ast) {
     if (!ast) {
-      return adnsp(new adn("nil"));
+      adnsp u(new adn("nil"));
+      nodes.push_back(u);
+      return u;
     }
-    adnsp u(nullptr);
-    switch (ast->category()) {
-    case AstCategory::Integer: {
-      adnsp u(new adn("integer_literal"));
+    if (Ast::isLiteral(ast)) {
+      adnsp u(nullptr);
+      switch (ast->category()) {
+      case AstCategory::Integer: {
+        u = adnsp(new adn("integer_literal"));
+        break;
+      }
+      case AstCategory::Float: {
+        u = adnsp(new adn("float_literal"));
+        break;
+      }
+      case AstCategory::Boolean: {
+        u = adnsp(new adn("boolean_literal"));
+        break;
+      }
+      case AstCategory::Character: {
+        u = adnsp(new adn("character_literal"));
+        break;
+      }
+      case AstCategory::String: {
+        u = adnsp(new adn("string_literal"));
+        break;
+      }
+      case AstCategory::Nil: {
+        u = adnsp(new adn("nil"));
+        break;
+      }
+      case AstCategory::Void: {
+        u = adnsp(new adn("void"));
+        break;
+      }
+      default:
+        LOG_ASSERT(false, "invalid literal type: {}",
+                   ast->category()._to_string());
+      }
       u->label.push_back(
           std::make_pair(Strings::dup("literal"), (char *)ast->name().raw()));
       u->label.push_back(std::make_pair(Strings::dup("symbolName"),
@@ -112,38 +145,15 @@ private:
       nodes.push_back(u);
       return u;
     }
-    case AstCategory::Float: {
-      adnsp u(new adn("float_literal"));
-      nodes.push_back(u);
-      return u;
-    }
-    case AstCategory::Boolean: {
-      adnsp u(new adn("boolean_literal"));
-      nodes.push_back(u);
-      return u;
-    }
-    case AstCategory::Character: {
-      adnsp u(new adn("character_literal"));
-      nodes.push_back(u);
-      return u;
-    }
-    case AstCategory::String: {
-      adnsp u(new adn("string_literal"));
-      nodes.push_back(u);
-      return u;
-    }
-    case AstCategory::Nil: {
-      adnsp u(new adn("nil"));
-      nodes.push_back(u);
-      return u;
-    }
-    case AstCategory::Void: {
-      adnsp u(new adn("void"));
-      nodes.push_back(u);
-      return u;
-    }
+    switch (ast->category()) {
     case AstCategory::VarId: {
       adnsp u(new adn("var_id"));
+      u->label.push_back(
+          std::make_pair(Strings::dup("literal"), (char *)ast->name().raw()));
+      u->label.push_back(std::make_pair(Strings::dup("symbolName"),
+                                        (char *)ast->name().toSymbolName()));
+      u->label.push_back(std::make_pair(Strings::dup("llvmName"),
+                                        (char *)ast->name().toLLVMName()));
       nodes.push_back(u);
       return u;
     }
