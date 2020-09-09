@@ -16,6 +16,12 @@
 
 namespace detail {
 
+static const std::unordered_map<char, std::string> HtmlTranslator = {
+    {'\\', "\\\\"}, {'\n', "\\n"}, {'\t', "\\t"}, {'\r', "\\r"}, {'\?', "\\?"},
+    {'\a', "\\a"},  {'\b', "\\b"}, {'\f', "\\f"}, {'\v', "\\v"}, {'\'', "\\\'"},
+    {'\"', "\\\""}, {'<', "&lt;"}, {'>', "&gt;"},
+};
+
 static char *getName(const std::string &name) {
   std::stringstream ss;
   ss << name << Counter::get();
@@ -37,9 +43,20 @@ struct AstDotNode {
   std::list<std::pair<char *, char *>> label;
 
   AstDotNode(const std::string &a_header)
-      : name(getName("node")), header(a_header), label() {}
+      : name(getName("node")),
+        header(Strings::replace(a_header, HtmlTranslator)), label() {}
   virtual ~AstDotNode() = default;
 
+  virtual AstDotNode &add(char *a, char *b) {
+    label.push_back(std::make_pair(Strings::replace(a, HtmlTranslator),
+                                   Strings::replace(b, HtmlTranslator)));
+    return *this;
+  }
+  virtual AstDotNode &add(const std::string &a, const std::string &b) {
+    label.push_back(std::make_pair(Strings::replace(a, HtmlTranslator),
+                                   Strings::replace(b, HtmlTranslator)));
+    return *this;
+  }
   virtual std::string toString() const {
     std::stringstream ss;
     ss << name << " [label=\"{ " << header;
@@ -67,41 +84,25 @@ struct AstDotEdge {
   }
 };
 
-static const std::unordered_map<char, std::string> HtmlTranslator = {
-    {'\\', "\\\\"}, {'\n', "\\n"}, {'\t', "\\t"}, {'\r', "\\r"}, {'\?', "\\?"},
-    {'\a', "\\a"},  {'\b', "\\b"}, {'\f', "\\f"}, {'\v', "\\v"}, {'\'', "\\\'"},
-    {'\"', "\\\""}, {'<', "&lt;"}, {'>', "&gt;"},
-};
-
 #define LITERAL_NODE(ast_type)                                                 \
   do {                                                                         \
-    adnsp u(                                                                   \
-        new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)));  \
-    u->label.push_back(std::make_pair(                                         \
-        Strings::dup("literal"),                                               \
-        Strings::replace(ASP(ast_type)->literal(), HtmlTranslator)));          \
-    u->label.push_back(                                                        \
-        std::make_pair(Strings::dup("location"),                               \
-                       Strings::dup(ast->location().toString().c_str())));     \
-    u->label.push_back(std::make_pair(Strings::dup("llvmName"),                \
-                                      (char *)ast->name().llvmName()));        \
+    adnsp u(new adn(ast->name().symbolName()));                                \
+    u->add("literal", ASP(ast_type)->literal());                               \
+    u->add("location", ast->location().toString());                            \
+    u->add("llvmName", ast->name().llvmName());                                \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
 
 #define NODE                                                                   \
   do {                                                                         \
-    adnsp u(                                                                   \
-        new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)));  \
-    u->label.push_back(                                                        \
-        std::make_pair(Strings::dup("location"),                               \
-                       Strings::dup(ast->location().toString().c_str())));     \
+    adnsp u(new adn(ast->name().symbolName()));                                \
+    u->add("location", ast->location().toString());                            \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
 
-#define SYM_NODE                                                               \
-  adnsp u(new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)))
+#define SYM_NODE adnsp u(new adn(ast->name().symbolName()))
 
 struct AstDot {
   std::list<adnsp> nodes;
