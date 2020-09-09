@@ -19,6 +19,22 @@
 #define SP_CAST(x, y)   (std::static_pointer_cast<x>(y))
 #define T_EOF           0
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
+template<typename T> std::shared_ptr<T> reverseList(std::shared_ptr<T> list) {
+    // nil node
+    if (!list) {
+        return list;
+    }
+    std::shared_ptr<T> head = list;
+    std::shared_ptr<T> tail = list;
+    list = list->next;
+    while (list) {
+        tail->next = list;
+        list = list->next;
+        tail = tail->next;
+        tail->next = std::shared_ptr<T>(nullptr);
+    }
+    return head;
+}
 }
 
 %code requires {
@@ -447,13 +463,11 @@ exprs : expr { $$ = new A_Exprs(SP($1), SP_CAST(A_Exprs, SP_NULL), @$); }
 callExpr : id "(" optionalExprs ")" { $$ = new A_Call(SP($1), SP_CAST(A_Exprs, SP($3)), @$); }
          ;
 
-block : "{" blockStat optionalBlockStats "}" {
-            if ($2) {
-                std::shared_ptr<A_BlockStats> blockStats(new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP($3)), @$));
-                $$ = new A_Block(blockStats, @$);
-            } else {
-                $$ = new A_Block(SP_CAST(A_BlockStats, SP($3)), @$);
-            }
+block : "{" blockStat optionalBlockStats "}" { 
+            std::shared_ptr<A_BlockStats> blockStats = ($2)
+                ? std::shared_ptr<A_BlockStats>(new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP($3)), @$))
+                : SP_CAST(A_BlockStats, SP($3));
+            $$ = new A_Block(reverseList(blockStats), @$);
         }
       ;
 
@@ -467,8 +481,8 @@ optionalBlockStats : blockStats { $$ = $1; }
                    | %empty { $$ = nullptr; }
                    ;
 
-blockStats : seminl blockStat { $$ = new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$); }
-           | blockStats seminl blockStat { $$ = new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$); }
+blockStats : seminl blockStat { $$ = ($2) ? (new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$)) : nullptr; }
+           | blockStats seminl blockStat { $$ = ($3) ? (new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$)) : ($1); }
            ;
 
  /* expression } */
@@ -566,12 +580,10 @@ varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), 
  /* compile unit { */
 
 compileUnit : topStat optionalTopStats {
-                    if ($1) {
-                        std::shared_ptr<A_TopStats> topStats(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$));
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = SP(new A_CompileUnit(topStats, @$));
-                    } else {
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = SP(new A_CompileUnit(SP_CAST(A_TopStats, SP($2)), @$));
-                    }
+                    std::shared_ptr<A_TopStats> topStats = ($1)
+                        ? std::shared_ptr<A_TopStats>(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$))
+                        : SP_CAST(A_TopStats, SP($2));
+                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(reverseList(topStats), @$));
                 }
             ;
 
@@ -579,8 +591,8 @@ optionalTopStats : topStats { $$ = $1; }
                  | %empty { $$ = nullptr; }
                  ;
 
-topStats : seminl topStat { $$ = new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$); }
-         | topStats seminl topStat { $$ = new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$); }
+topStats : seminl topStat { $$ = ($2) ? (new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$)) : nullptr; }
+         | topStats seminl topStat { $$ = ($3) ? (new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$)) : ($1); }
          ;
 
 topStat : def { $$ = $1; }

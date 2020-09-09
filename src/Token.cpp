@@ -161,7 +161,7 @@ struct TokenValueMapImpl {
 
 const static detail::TokenValueMapImpl tokenValueMapImpl;
 
-std::string tokenName(int value) {
+const std::string &tokenName(int value) {
   LOG_ASSERT(tokenValid(value), "invalid token value: {}", value);
   return TokenNameMap.find(value)->second;
 }

@@ -14,7 +14,7 @@ struct Token {
   virtual ~Token() = default;
 };
 
-std::string tokenName(int value);
+const std::string &tokenName(int value);
 
 int tokenValue(const std::string &name);
 
