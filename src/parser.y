@@ -463,10 +463,11 @@ callExpr : id "(" optionalExprs ")" { $$ = new A_Call(SP($1), SP_CAST(A_Exprs, S
          ;
 
 block : "{" blockStat optionalBlockStats "}" { 
-            std::shared_ptr<A_BlockStats> blockStats = ($2)
-                ? std::shared_ptr<A_BlockStats>(new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP($3)), @$))
-                : SP_CAST(A_BlockStats, SP($3));
-            $$ = new A_Block(reverse(blockStats), @$);
+            std::shared_ptr<A_BlockStats> blockStats = reverse(SP_CAST(A_BlockStats, SP($3)));
+            blockStats = ($2)
+                ? std::shared_ptr<A_BlockStats>(new A_BlockStats(SP($2), blockStats, @$))
+                : blockStats;
+            $$ = new A_Block(blockStats, @$);
         }
       ;
 
@@ -579,10 +580,11 @@ varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), 
  /* compile unit { */
 
 compileUnit : topStat optionalTopStats {
-                    std::shared_ptr<A_TopStats> topStats = ($1)
-                        ? std::shared_ptr<A_TopStats>(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$))
-                        : SP_CAST(A_TopStats, SP($2));
-                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(reverse(topStats), @$));
+                    std::shared_ptr<A_TopStats> topStats = reverse(SP_CAST(A_TopStats, SP($2)));
+                    topStats = ($1)
+                        ? std::shared_ptr<A_TopStats>(new A_TopStats(SP($1), topStats, @$))
+                        : topStats;
+                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(topStats, @$));
                 }
             ;
 
