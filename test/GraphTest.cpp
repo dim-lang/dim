@@ -15,5 +15,6 @@ TEST_CASE("Graph", "[Graph]") {
   SECTION("ast graph") {
     dumpAst("test/case/parse-1.nerd");
     dumpAst("test/case/parse-2.nerd");
+    dumpAst("test/case/parse-3.nerd");
   }
 }

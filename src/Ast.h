@@ -95,12 +95,12 @@ public:
   virtual AstCategory category() const = 0;
   virtual std::string toString() const;
 
-  static bool isLiteral(std::shared_ptr<Ast> e);
-  static bool isId(std::shared_ptr<Ast> e);
-  static bool isExpr(std::shared_ptr<Ast> e);
-  static bool isDef(std::shared_ptr<Ast> e);
-  static bool isDecl(std::shared_ptr<Ast> e);
-  static bool isType(std::shared_ptr<Ast> e);
+  static bool isLiteral(Ast *e);
+  static bool isId(Ast *e);
+  static bool isExpr(Ast *e);
+  static bool isDef(Ast *e);
+  static bool isDecl(Ast *e);
+  static bool isType(Ast *e);
 };
 
 // Ast }
@@ -256,18 +256,18 @@ private:
 
 class A_Throw : public Ast {
 public:
-  A_Throw(std::shared_ptr<Ast> a_expr, const Location &location);
-  virtual ~A_Throw() = default;
+  A_Throw(Ast *a_expr, const Location &location);
+  virtual ~A_Throw();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> expr;
+  Ast *expr;
 };
 
 class A_Return : public Ast {
 public:
-  A_Return(std::shared_ptr<Ast> a_expr, const Location &location);
-  virtual ~A_Return() = default;
+  A_Return(Ast *a_expr, const Location &location);
+  virtual ~A_Return();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> expr;
+  Ast *expr;
 };
 
 class A_Break : public Ast {
@@ -286,64 +286,60 @@ public:
 
 class A_Assign : public Ast {
 public:
-  A_Assign(std::shared_ptr<Ast> a_assignee, int a_assignOp,
-           std::shared_ptr<Ast> a_assignor, const Location &location);
-  virtual ~A_Assign() = default;
+  A_Assign(Ast *a_assignee, int a_assignOp, Ast *a_assignor,
+           const Location &location);
+  virtual ~A_Assign();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> assignee; // left
+  Ast *assignee; // left
   int assignOp;
-  std::shared_ptr<Ast> assignor; // right
+  Ast *assignor; // right
 };
 
 class A_PostfixExpr : public Ast {
 public:
-  A_PostfixExpr(std::shared_ptr<Ast> a_expr, int a_postfixOp,
-                const Location &location);
-  virtual ~A_PostfixExpr() = default;
+  A_PostfixExpr(Ast *a_expr, int a_postfixOp, const Location &location);
+  virtual ~A_PostfixExpr();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> expr;
+  Ast *expr;
   int postfixOp;
 };
 
 class A_InfixExpr : public Ast {
 public:
-  A_InfixExpr(std::shared_ptr<Ast> a_left, int a_infixOp,
-              std::shared_ptr<Ast> a_right, const Location &location);
-  virtual ~A_InfixExpr() = default;
+  A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
+              const Location &location);
+  virtual ~A_InfixExpr();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> left;
+  Ast *left;
   int infixOp;
-  std::shared_ptr<Ast> right;
+  Ast *right;
 };
 
 class A_PrefixExpr : public Ast {
 public:
-  A_PrefixExpr(int a_prefixOp, std::shared_ptr<Ast> a_expr,
-               const Location &location);
-  virtual ~A_PrefixExpr() = default;
+  A_PrefixExpr(int a_prefixOp, Ast *a_expr, const Location &location);
+  virtual ~A_PrefixExpr();
   virtual AstCategory category() const;
   int prefixOp;
-  std::shared_ptr<Ast> expr;
+  Ast *expr;
 };
 
 class A_Call : public Ast {
 public:
-  A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Exprs> a_args,
-         const Location &location);
-  virtual ~A_Call() = default;
+  A_Call(Ast *a_id, A_Exprs *a_args, const Location &location);
+  virtual ~A_Call();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<A_Exprs> args;
+  Ast *id;
+  A_Exprs *args;
 };
 
 class A_Exprs : public Ast {
 public:
-  A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<A_Exprs> a_next,
-          const Location &location);
-  virtual ~A_Exprs() = default;
+  A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location);
+  virtual ~A_Exprs();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> expr;
-  std::shared_ptr<A_Exprs> next;
+  Ast *expr;
+  A_Exprs *next;
 };
 
 // simple expression without block }
@@ -352,92 +348,87 @@ public:
 
 class A_If : public Ast {
 public:
-  A_If(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_thenp,
-       std::shared_ptr<Ast> a_elsep, const Location &location);
-  virtual ~A_If() = default;
+  A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep, const Location &location);
+  virtual ~A_If();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> condition;
-  std::shared_ptr<Ast> thenp;
-  std::shared_ptr<Ast> elsep;
+  Ast *condition;
+  Ast *thenp;
+  Ast *elsep;
 };
 
 // for and while
 class A_Loop : public Ast {
 public:
-  A_Loop(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_body,
-         const Location &location);
-  virtual ~A_Loop() = default;
+  A_Loop(Ast *a_condition, Ast *a_body, const Location &location);
+  virtual ~A_Loop();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> condition;
-  std::shared_ptr<Ast> body;
+  Ast *condition;
+  Ast *body;
 };
 
 class A_Yield : public Ast {
 public:
-  A_Yield(std::shared_ptr<Ast> expr, const Location &location);
-  virtual ~A_Yield() = default;
+  A_Yield(Ast *expr, const Location &location);
+  virtual ~A_Yield();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> expr;
+  Ast *expr;
 };
 
 class A_LoopCondition : public Ast {
 public:
-  A_LoopCondition(std::shared_ptr<Ast> a_init, std::shared_ptr<Ast> a_condition,
-                  std::shared_ptr<Ast> a_update, const Location &location);
-  virtual ~A_LoopCondition() = default;
+  A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
+                  const Location &location);
+  virtual ~A_LoopCondition();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> init;
-  std::shared_ptr<Ast> condition;
-  std::shared_ptr<Ast> update;
+  Ast *init;
+  Ast *condition;
+  Ast *update;
 };
 
 class A_LoopEnumerator : public Ast {
 public:
-  A_LoopEnumerator(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_expr,
-                   const Location &location);
-  virtual ~A_LoopEnumerator() = default;
+  A_LoopEnumerator(Ast *a_id, Ast *a_expr, const Location &location);
+  virtual ~A_LoopEnumerator();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<Ast> expr;
+  Ast *id;
+  Ast *expr;
 };
 
 class A_DoWhile : public Ast {
 public:
-  A_DoWhile(std::shared_ptr<Ast> a_body, std::shared_ptr<Ast> a_condition,
-            const Location &location);
-  virtual ~A_DoWhile() = default;
+  A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location);
+  virtual ~A_DoWhile();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> body;
-  std::shared_ptr<Ast> condition;
+  Ast *body;
+  Ast *condition;
 };
 
 class A_Try : public Ast {
 public:
-  A_Try(std::shared_ptr<Ast> a_tryp, std::shared_ptr<Ast> a_catchp,
-        std::shared_ptr<Ast> a_finallyp, const Location &location);
-  virtual ~A_Try() = default;
+  A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp, const Location &location);
+  virtual ~A_Try();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> tryp;
-  std::shared_ptr<Ast> catchp;
-  std::shared_ptr<Ast> finallyp;
+  Ast *tryp;
+  Ast *catchp;
+  Ast *finallyp;
 };
 
 class A_Block : public Ast {
 public:
-  A_Block(std::shared_ptr<A_BlockStats> a_blockStats, const Location &location);
-  virtual ~A_Block() = default;
+  A_Block(A_BlockStats *a_blockStats, const Location &location);
+  virtual ~A_Block();
   virtual AstCategory category() const;
-  std::shared_ptr<A_BlockStats> blockStats;
+  A_BlockStats *blockStats;
 };
 
 class A_BlockStats : public Ast {
 public:
-  A_BlockStats(std::shared_ptr<Ast> a_blockStat,
-               std::shared_ptr<A_BlockStats> a_next, const Location &location);
-  virtual ~A_BlockStats() = default;
+  A_BlockStats(Ast *a_blockStat, A_BlockStats *a_next,
+               const Location &location);
+  virtual ~A_BlockStats();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> blockStat;
-  std::shared_ptr<A_BlockStats> next;
+  Ast *blockStat;
+  A_BlockStats *next;
 };
 
 // statement like expression with block }
@@ -458,54 +449,50 @@ public:
 
 class A_FuncDef : public Ast {
 public:
-  A_FuncDef(std::shared_ptr<Ast> a_funcSign, std::shared_ptr<Ast> a_resultType,
-            std::shared_ptr<Ast> a_body, const Location &location);
-  virtual ~A_FuncDef() = default;
+  A_FuncDef(Ast *a_funcSign, Ast *a_resultType, Ast *a_body,
+            const Location &location);
+  virtual ~A_FuncDef();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> funcSign;
-  std::shared_ptr<Ast> resultType;
-  std::shared_ptr<Ast> body;
+  Ast *funcSign;
+  Ast *resultType;
+  Ast *body;
 };
 
 class A_FuncSign : public Ast {
 public:
-  A_FuncSign(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Params> a_params,
-             const Location &location);
-  virtual ~A_FuncSign() = default;
+  A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location);
+  virtual ~A_FuncSign();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<A_Params> params;
+  Ast *id;
+  A_Params *params;
 };
 
 class A_Params : public Ast {
 public:
-  A_Params(std::shared_ptr<A_Param> a_param, std::shared_ptr<A_Params> a_next,
-           const Location &location);
-  virtual ~A_Params() = default;
+  A_Params(A_Param *a_param, A_Params *a_next, const Location &location);
+  virtual ~A_Params();
   virtual AstCategory category() const;
-  std::shared_ptr<A_Param> param;
-  std::shared_ptr<A_Params> next;
+  A_Param *param;
+  A_Params *next;
 };
 
 class A_Param : public Ast {
 public:
-  A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
-          const Location &location);
-  virtual ~A_Param() = default;
+  A_Param(Ast *a_id, Ast *a_type, const Location &location);
+  virtual ~A_Param();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<Ast> type;
+  Ast *id;
+  Ast *type;
 };
 
 class A_VarDef : public Ast {
 public:
-  A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
-           std::shared_ptr<Ast> a_expr, const Location &location);
-  virtual ~A_VarDef() = default;
+  A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr, const Location &location);
+  virtual ~A_VarDef();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> id;
-  std::shared_ptr<Ast> type;
-  std::shared_ptr<Ast> expr;
+  Ast *id;
+  Ast *type;
+  Ast *expr;
 };
 
 // definition and declaration }
@@ -514,21 +501,19 @@ public:
 
 class A_TopStats : public Ast {
 public:
-  A_TopStats(std::shared_ptr<Ast> a_topStat, std::shared_ptr<A_TopStats> a_next,
-             const Location &location);
-  virtual ~A_TopStats() = default;
+  A_TopStats(Ast *a_topStat, A_TopStats *a_next, const Location &location);
+  virtual ~A_TopStats();
   virtual AstCategory category() const;
-  std::shared_ptr<Ast> topStat;
-  std::shared_ptr<A_TopStats> next;
+  Ast *topStat;
+  A_TopStats *next;
 };
 
 class A_CompileUnit : public Ast {
 public:
-  A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
-                const Location &location);
-  virtual ~A_CompileUnit() = default;
+  A_CompileUnit(A_TopStats *a_topStats, const Location &location);
+  virtual ~A_CompileUnit();
   virtual AstCategory category() const;
-  std::shared_ptr<A_TopStats> topStats;
+  A_TopStats *topStats;
 };
 
 // compile unit }

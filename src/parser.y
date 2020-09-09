@@ -14,18 +14,16 @@
 #include "Scanner.h"
 #include "Location.h"
 #include "tokenizer.yy.hh"
-#define SP(ptr)         (std::shared_ptr<Ast>(ptr))
-#define SP_NULL         (std::shared_ptr<Ast>(nullptr))
-#define SP_CAST(x, y)   (std::static_pointer_cast<x>(y))
 #define T_EOF           0
+#define Y_SCANNER       (static_cast<Scanner *>(yyget_extra(yyscanner)))
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
-template<typename T> std::shared_ptr<T> reverse(std::shared_ptr<T> list) {
+template<typename T> T* reverse(T* list) {
   // nil node
   if (!list) {
     return list;
   }
-  std::shared_ptr<T> head(nullptr);
-  std::shared_ptr<T> tail(nullptr);
+  T* head = nullptr;
+  T* tail = nullptr;
   while (list) {
     head = list;
     list = list->next;
@@ -345,25 +343,25 @@ varId : T_VAR_ID { $$ = new A_VarId($1, @$); }
   *     use magic `try-ws` token to eat all whitespaces after real keyword `try`, `ws-catch-ws` `ws-finally-ws` token to eat all whitespaces around real keyword `catch` `finally`
   */
 
-expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If(SP($3), SP($6), SP_NULL, @$); }
-     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = new A_If(SP($3), SP($6), SP($8), @$); }
-     | "while" "(" expr ")" optionalNewlines expr %prec "while" { std::shared_ptr<Ast> loopCondition(new A_LoopCondition(SP_NULL, SP($3), SP_NULL, @3)); $$ = new A_Loop(loopCondition, SP($6), @$); }
-     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { $$ = new A_DoWhile(SP($2), SP($6), @$); }
-     | "for" "(" enumerators ")" optionalNewlines "yield" expr { std::shared_ptr<Ast> loopYield(new A_Yield(SP($7), @7)); $$ = new A_Loop(SP($3), loopYield, @$); }
-     | "for" "(" enumerators ")" optionalNewlines expr { $$ = new A_Loop(SP($3), SP($6), @$); }
-     | "try" expr "catch" expr %prec "try_catch" { $$ = new A_Try(SP($2), SP($4), SP_NULL, @$); }
-     | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = new A_Try(SP($2), SP($4), SP($6), @$); }
-     | "throw" expr { $$ = new A_Throw(SP($2), @$); }
-     | "return" %prec "return" { $$ = new A_Return(SP_NULL, @$); }
-     | "return" expr %prec "return_expr" { $$ = new A_Return(SP($2), @$); }
+expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If($3, $6, nullptr, @$); }
+     | "if" "(" expr ")" optionalNewlines expr "else" expr %prec "else" { $$ = new A_If($3, $6, $8, @$); }
+     | "while" "(" expr ")" optionalNewlines expr %prec "while" { Ast* loopCondition = new A_LoopCondition(nullptr, $3, nullptr, @3); $$ = new A_Loop(loopCondition, $6, @$); }
+     | "do" expr optionalNewlines "while" "(" expr ")" %prec "do_while" { $$ = new A_DoWhile($2, $6, @$); }
+     | "for" "(" enumerators ")" optionalNewlines "yield" expr { Ast* loopYield = new A_Yield($7, @7); $$ = new A_Loop($3, loopYield, @$); }
+     | "for" "(" enumerators ")" optionalNewlines expr { $$ = new A_Loop($3, $6, @$); }
+     | "try" expr "catch" expr %prec "try_catch" { $$ = new A_Try($2, $4, nullptr, @$); }
+     | "try" expr "catch" expr "finally" expr %prec "try_catch_finally" { $$ = new A_Try($2, $4, $6, @$); }
+     | "throw" expr { $$ = new A_Throw($2, @$); }
+     | "return" %prec "return" { $$ = new A_Return(nullptr, @$); }
+     | "return" expr %prec "return_expr" { $$ = new A_Return($2, @$); }
      | "continue" { $$ = new A_Continue(@$); }
      | "break" { $$ = new A_Break(@$); }
      | assignExpr { $$ = $1; }
      | postfixExpr { $$ = $1; }
      ;
 
-enumerators : id "<-" expr { $$ = new A_LoopEnumerator(SP($1), SP($3), @$); }
-            | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition(SP($1), SP($3), SP($5), @$); }
+enumerators : id "<-" expr { $$ = new A_LoopEnumerator($1, $3, @$); }
+            | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition($1, $3, $5, @$); }
             ;
 
 optionalVarDef : varDef { $$ = $1; }
@@ -374,7 +372,7 @@ optionalExpr : expr { $$ = $1; }
              | %empty { $$ = nullptr; }
              ;
 
-assignExpr : id assignOp expr { $$ = new A_Assign(SP($1), $2, SP($3), @$); }
+assignExpr : id assignOp expr { $$ = new A_Assign($1, $2, $3, @$); }
            ;
 
 assignOp : "=" { $$ = $1; }
@@ -392,7 +390,7 @@ assignOp : "=" { $$ = $1; }
          ;
 
 postfixExpr : infixExpr { $$ = $1; }
-            | infixExpr postfixOp { $$ = new A_PostfixExpr(SP($1), $2, @$); }
+            | infixExpr postfixOp { $$ = new A_PostfixExpr($1, $2, @$); }
             ;
 
 postfixOp : "++" { $$ = $1; }
@@ -400,7 +398,7 @@ postfixOp : "++" { $$ = $1; }
           ;
 
 infixExpr : prefixExpr { $$ = $1; }
-          | infixExpr infixOp optionalNewline prefixExpr { $$ = new A_InfixExpr(SP($1), $2, SP($4), @$); }
+          | infixExpr infixOp optionalNewline prefixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
           ;
 
 infixOp : "||" { $$ = $1; }
@@ -432,7 +430,7 @@ infixOp : "||" { $$ = $1; }
         ;
 
 prefixExpr : primaryExpr { $$ = $1; }
-           | prefixOp primaryExpr { $$ = new A_PrefixExpr($1, SP($2), @$); }
+           | prefixOp primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
            ;
 
 prefixOp : "-" { $$ = $1; }
@@ -451,21 +449,21 @@ primaryExpr : literal { $$ = $1; }
             | block { $$ = $1; }
             ;
 
-optionalExprs : exprs { $$ = $1; }
+optionalExprs : exprs { $$ = reverse(static_cast<A_Exprs *>($1)); }
               | %empty { $$ = nullptr; }
               ;
 
-exprs : expr { $$ = new A_Exprs(SP($1), SP_CAST(A_Exprs, SP_NULL), @$); }
-      | exprs "," expr { $$ = new A_Exprs(SP($3), SP_CAST(A_Exprs, SP($1)), @$); }
+exprs : expr { $$ = new A_Exprs($1, nullptr, @$); }
+      | exprs "," expr { $$ = new A_Exprs($3, static_cast<A_Exprs *>($1), @$); }
       ;
 
-callExpr : id "(" optionalExprs ")" { $$ = new A_Call(SP($1), SP_CAST(A_Exprs, SP($3)), @$); }
+callExpr : id "(" optionalExprs ")" { $$ = new A_Call($1, static_cast<A_Exprs *>($3), @$); }
          ;
 
-block : "{" blockStat optionalBlockStats "}" { 
-            std::shared_ptr<A_BlockStats> blockStats = reverse(SP_CAST(A_BlockStats, SP($3)));
+block : "{" blockStat optionalBlockStats "}" {
+            A_BlockStats* blockStats = reverse(static_cast<A_BlockStats *>($3));
             blockStats = ($2)
-                ? std::shared_ptr<A_BlockStats>(new A_BlockStats(SP($2), blockStats, @$))
+                ? (new A_BlockStats($2, blockStats, @$))
                 : blockStats;
             $$ = new A_Block(blockStats, @$);
         }
@@ -481,8 +479,8 @@ optionalBlockStats : blockStats { $$ = $1; }
                    | %empty { $$ = nullptr; }
                    ;
 
-blockStats : seminl blockStat { $$ = ($2) ? (new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP_NULL), @$)) : nullptr; }
-           | blockStats seminl blockStat { $$ = ($3) ? (new A_BlockStats(SP($3), SP_CAST(A_BlockStats, SP($1)), @$)) : ($1); }
+blockStats : seminl blockStat { $$ = ($2) ? (new A_BlockStats($2, nullptr, @$)) : nullptr; }
+           | blockStats seminl blockStat { $$ = ($3) ? (new A_BlockStats($3, static_cast<A_BlockStats *>($1), @$)) : ($1); }
            ;
 
  /* expression } */
@@ -536,8 +534,8 @@ def : funcDef { $$ = $1; }
     | varDef { $$ = $1; }
     ;
 
-funcDef : "def" funcSign resultType "=" expr { $$ = new A_FuncDef(SP($2), SP($3), SP($5), @$); }
-        | "def" funcSign resultType optionalNewlines block { $$ = new A_FuncDef(SP($2), SP($3), SP($5), @$); }
+funcDef : "def" funcSign resultType "=" expr { $$ = new A_FuncDef($2, $3, $5, @$); }
+        | "def" funcSign resultType optionalNewlines block { $$ = new A_FuncDef($2, $3, $5, @$); }
         ;
 
 /* optionalResultType : resultType { $$ = nullptr; } */
@@ -547,22 +545,22 @@ funcDef : "def" funcSign resultType "=" expr { $$ = new A_FuncDef(SP($2), SP($3)
 resultType : ":" type { $$ = $2; }
            ;
 
-funcSign : id "(" optionalParams ")" { $$ = new A_FuncSign(SP($1), SP_CAST(A_Params, SP($3)), @$); }
+funcSign : id "(" optionalParams ")" { $$ = new A_FuncSign($1, static_cast<A_Params *>($3), @$); }
          ;
 
-optionalParams : params { $$ = $1; }
+optionalParams : params { $$ = reverse(static_cast<A_Params *>($1)); }
                | %empty { $$ = nullptr; }
                ;
 
-params : param { $$ = new A_Params(SP_CAST(A_Param, SP($1)), SP_CAST(A_Params, SP_NULL), @$); }
-       | params "," param { $$ = new A_Params(SP_CAST(A_Param, SP($3)), SP_CAST(A_Params, SP($1)), @$); }
+params : param { $$ = new A_Params(static_cast<A_Param *>($1), nullptr, @$); }
+       | params "," param { $$ = new A_Params(static_cast<A_Param *>($3), static_cast<A_Params *>($1), @$); }
        ;
 
-param : id ":" type { $$ = new A_Param(SP($1), SP($3), @$); }
+param : id ":" type { $$ = new A_Param($1, $3, @$); }
       /* | id ":" type "=" expr */
       ;
 
-varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), @$); }
+varDef : "var" id ":" type "=" expr { $$ = new A_VarDef($2, $4, $6, @$); }
        ;
 
 /* Decl : "var" varDecl */
@@ -580,11 +578,11 @@ varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), 
  /* compile unit { */
 
 compileUnit : topStat optionalTopStats {
-                    std::shared_ptr<A_TopStats> topStats = reverse(SP_CAST(A_TopStats, SP($2)));
+                    A_TopStats* topStats = reverse(static_cast<A_TopStats *>($2));
                     topStats = ($1)
-                        ? std::shared_ptr<A_TopStats>(new A_TopStats(SP($1), topStats, @$))
+                        ? (new A_TopStats($1, topStats, @$))
                         : topStats;
-                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(topStats, @$));
+                    Y_SCANNER->compileUnit() = new A_CompileUnit(topStats, @$);
                 }
             ;
 
@@ -592,8 +590,8 @@ optionalTopStats : topStats { $$ = $1; }
                  | %empty { $$ = nullptr; }
                  ;
 
-topStats : seminl topStat { $$ = ($2) ? (new A_TopStats(SP($2), SP_CAST(A_TopStats, SP_NULL), @$)) : nullptr; }
-         | topStats seminl topStat { $$ = ($3) ? (new A_TopStats(SP($3), SP_CAST(A_TopStats, SP($1)), @$)) : ($1); }
+topStats : seminl topStat { $$ = ($2) ? (new A_TopStats($2, nullptr, @$)) : nullptr; }
+         | topStats seminl topStat { $$ = ($3) ? (new A_TopStats($3, static_cast<A_TopStats *>($1), @$)) : ($1); }
          ;
 
 topStat : def { $$ = $1; }
@@ -616,7 +614,7 @@ topStat : def { $$ = $1; }
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg) {
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            yyget_extra(yyscanner) ? static_cast<Scanner *>(yyget_extra(yyscanner))->fileName().c_str() : "unknown",
+            yyget_extra(yyscanner) ? Y_SCANNER->fileName().c_str() : "unknown",
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 

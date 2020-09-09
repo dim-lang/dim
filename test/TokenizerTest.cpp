@@ -40,6 +40,7 @@ TEST_CASE("tokenizer", "[tokenizer]") {
   SECTION("tokenize") {
     tokenize("test/case/parse-1.nerd");
     tokenize("test/case/parse-2.nerd");
+    tokenize("test/case/parse-3.nerd");
     tokenize("test/case/parse-integer-literal-error-1.nerd");
     tokenize("test/case/parse-float-literal-error-1.nerd");
     tokenize("test/case/parse-float-literal-error-2.nerd");

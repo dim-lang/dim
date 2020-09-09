@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "Scanner.h"
+#include "Ast.h"
 #include "Log.h"
 #include "tokenizer.yy.hh"
 #include <unordered_map>
@@ -37,13 +38,17 @@ Scanner::~Scanner() {
     yylex_destroy(yyscanner_);
     yyscanner_ = nullptr;
   }
+  if (compileUnit_) {
+    delete compileUnit_;
+    compileUnit_ = nullptr;
+  }
 }
 
 const std::string &Scanner::fileName() const { return fileName_; }
 
-std::shared_ptr<Ast> Scanner::compileUnit() const { return compileUnit_; }
+const Ast *Scanner::compileUnit() const { return compileUnit_; }
 
-std::shared_ptr<Ast> &Scanner::compileUnit() { return compileUnit_; }
+Ast *&Scanner::compileUnit() { return compileUnit_; }
 
 Token Scanner::tokenize() {
   YYSTYPE yylval;

@@ -21,8 +21,8 @@ public:
 
   // attributes
   virtual const std::string &fileName() const;
-  virtual std::shared_ptr<Ast> compileUnit() const;
-  virtual std::shared_ptr<Ast> &compileUnit();
+  virtual const Ast *compileUnit() const;
+  virtual Ast *&compileUnit();
 
   // wrapper for flex/bison
   virtual Token tokenize();
@@ -39,7 +39,7 @@ private:
   YY_BUFFER_STATE yyBufferState_;
   FILE *fp_;
   yyscan_t yyscanner_;
-  std::shared_ptr<Ast> compileUnit_;
+  Ast *compileUnit_;
   // tokenizer parentheses stack
   std::stack<int> parenthesesStack_;
 };

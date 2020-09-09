@@ -8,5 +8,5 @@ class Ast;
 
 class Graph {
 public:
-  static int drawAst(std::shared_ptr<Ast> ast, const std::string &output);
+  static int drawAst(Ast *ast, const std::string &output);
 };

@@ -12,7 +12,7 @@
 #include <sstream>
 #include <utility>
 
-#define ASP(x) (std::static_pointer_cast<x>(ast))
+#define ASP(x) (static_cast<x *>(ast))
 
 namespace detail {
 
@@ -111,7 +111,7 @@ struct AstDot {
   AstDot() : nodes(), edges() {}
   virtual ~AstDot() = default;
 
-  virtual int draw(std::shared_ptr<Ast> ast, const std::string &output) {
+  virtual int draw(Ast *ast, const std::string &output) {
     FileWriter fwriter(output);
     drawImpl(ast);
     fwriter.writeln("digraph {");
@@ -135,7 +135,7 @@ struct AstDot {
   }
 
 private:
-  virtual adnsp drawImpl(std::shared_ptr<Ast> ast) {
+  virtual adnsp drawImpl(Ast *ast) {
     if (!ast) {
       adnsp u(new adn("nil"));
       nodes.push_back(u);
@@ -546,7 +546,7 @@ private:
 
 } // namespace detail
 
-int Graph::drawAst(std::shared_ptr<Ast> ast, const std::string &output) {
+int Graph::drawAst(Ast *ast, const std::string &output) {
   detail::AstDot g;
   return g.draw(ast, output);
 }
