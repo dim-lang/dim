@@ -10,7 +10,7 @@
 static void parseSuccess(const char *fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  LOG_INFO("parse:{} ast:{}", fileName, scanner.compileUnit->toString());
+  LOG_INFO("parse:{} ast:{}", fileName, scanner.compileUnit()->toString());
 }
 
 static void parseError(const char *fileName) {

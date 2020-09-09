@@ -6,47 +6,53 @@
 #include "tokenizer.yy.hh"
 #include <unordered_map>
 
-Scanner::Scanner(const std::string &a_fileName)
-    : fileName(a_fileName), yyBufferState(nullptr), fp(nullptr),
-      yyscanner(nullptr), compileUnit(nullptr), parenthesesStack_() {
+Scanner::Scanner(const std::string &fileName)
+    : fileName_(fileName), yyBufferState_(nullptr), fp_(nullptr),
+      yyscanner_(nullptr), compileUnit_(nullptr), parenthesesStack_() {
   // init scanner
-  int r = yylex_init_extra(this, &yyscanner);
+  int r = yylex_init_extra(this, &yyscanner_);
   LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
-  LOG_ASSERT(yyscanner, "yyscanner must not null");
+  LOG_ASSERT(yyscanner_, "yyscanner_ must not null");
 
   // init buffer
-  fp = std::fopen(fileName.c_str(), "r");
-  LOG_ASSERT(fp, "file {} cannot open!", fileName);
-  yyBufferState = yy_create_buffer(fp, YY_BUF_SIZE, yyscanner);
-  LOG_ASSERT(yyBufferState, "yyBufferState {} on file {} create fail!",
-             (void *)yyBufferState, fileName);
-  yy_switch_to_buffer(yyBufferState, yyscanner);
-  yyset_lineno(1, yyscanner);
+  fp_ = std::fopen(fileName_.c_str(), "r");
+  LOG_ASSERT(fp_, "file {} cannot open!", fileName_);
+  yyBufferState_ = yy_create_buffer(fp_, YY_BUF_SIZE, yyscanner_);
+  LOG_ASSERT(yyBufferState_, "yyBufferState_ {} on file {} create fail!",
+             (void *)yyBufferState_, fileName_);
+  yy_switch_to_buffer(yyBufferState_, yyscanner_);
+  yyset_lineno(1, yyscanner_);
 }
 
 Scanner::~Scanner() {
-  if (yyBufferState) {
-    yy_delete_buffer(yyBufferState, yyscanner);
-    yyBufferState = nullptr;
+  if (yyBufferState_) {
+    yy_delete_buffer(yyBufferState_, yyscanner_);
+    yyBufferState_ = nullptr;
   }
-  if (fp) {
-    std::fclose(fp);
-    fp = nullptr;
+  if (fp_) {
+    std::fclose(fp_);
+    fp_ = nullptr;
   }
-  if (yyscanner) {
-    yylex_destroy(yyscanner);
-    yyscanner = nullptr;
+  if (yyscanner_) {
+    yylex_destroy(yyscanner_);
+    yyscanner_ = nullptr;
   }
 }
+
+const std::string &Scanner::fileName() const { return fileName_; }
+
+std::shared_ptr<Ast> Scanner::compileUnit() const { return compileUnit_; }
+
+std::shared_ptr<Ast> &Scanner::compileUnit() { return compileUnit_; }
 
 Token Scanner::tokenize() {
   YYSTYPE yylval;
   YYLTYPE yylloc;
-  int value = yylex(&yylval, &yylloc, yyscanner);
+  int value = yylex(&yylval, &yylloc, yyscanner_);
   return Token(value, yylval, yylloc);
 }
 
-int Scanner::parse() { return yyparse(yyscanner); }
+int Scanner::parse() { return yyparse(yyscanner_); }
 
 static bool isOpenParentheses(int tok) {
   return tok == yytokentype::T_LPAREN || tok == yytokentype::T_LBRACKET ||

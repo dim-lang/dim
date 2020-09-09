@@ -8,7 +8,7 @@
 static void dumpAst(const std::string &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  REQUIRE(Graph::drawAst(scanner.compileUnit, fileName + ".dot") == 0);
+  REQUIRE(Graph::drawAst(scanner.compileUnit(), fileName + ".dot") == 0);
 }
 
 TEST_CASE("Graph", "[Graph]") {

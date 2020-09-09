@@ -247,7 +247,7 @@ not         { MK_INTEGER(T_NOT); }
 
  /* invalid token */
 .                                           {
-                                                LOG_ASSERT(false, "{}:{} tokenize error! invalid:{}:{}!", T_SCANNER->fileName, yylineno, yytext, yyleng);
+                                                LOG_ASSERT(false, "{}:{} tokenize error! invalid:{}:{}!", T_SCANNER->fileName(), yylineno, yytext, yyleng);
                                             }
 
 %%

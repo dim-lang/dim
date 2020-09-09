@@ -16,15 +16,13 @@ class Ast;
 
 class Scanner {
 public:
-  Scanner(const std::string &a_fileName);
+  Scanner(const std::string &fileName);
   virtual ~Scanner();
 
   // attributes
-  std::string fileName;
-  YY_BUFFER_STATE yyBufferState;
-  FILE *fp;
-  yyscan_t yyscanner;
-  std::shared_ptr<Ast> compileUnit;
+  virtual const std::string &fileName() const;
+  virtual std::shared_ptr<Ast> compileUnit() const;
+  virtual std::shared_ptr<Ast> &compileUnit();
 
   // wrapper for flex/bison
   virtual Token tokenize();
@@ -37,6 +35,11 @@ public:
   virtual int parenthesesSize() const;
 
 private:
+  std::string fileName_;
+  YY_BUFFER_STATE yyBufferState_;
+  FILE *fp_;
+  yyscan_t yyscanner_;
+  std::shared_ptr<Ast> compileUnit_;
   // tokenizer parentheses stack
   std::stack<int> parenthesesStack_;
 };

@@ -568,9 +568,9 @@ varDef : "var" id ":" type "=" expr { $$ = new A_VarDef(SP($2), SP($4), SP($6), 
 compileUnit : topStat optionalTopStats {
                     if ($1) {
                         std::shared_ptr<A_TopStats> topStats(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$));
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP(new A_CompileUnit(topStats, @$));
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = SP(new A_CompileUnit(topStats, @$));
                     } else {
-                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit = SP(new A_CompileUnit(SP_CAST(A_TopStats, SP($2)), @$));
+                        static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = SP(new A_CompileUnit(SP_CAST(A_TopStats, SP($2)), @$));
                     }
                 }
             ;
@@ -603,7 +603,7 @@ topStat : def { $$ = $1; }
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg) {
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            yyget_extra(yyscanner) ? static_cast<Scanner *>(yyget_extra(yyscanner))->fileName.c_str() : "unknown",
+            yyget_extra(yyscanner) ? static_cast<Scanner *>(yyget_extra(yyscanner))->fileName().c_str() : "unknown",
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 
