@@ -27,12 +27,12 @@ public:
   // example:
   // a -> $8f1b.2
   // "" -> $0000.1
-  virtual const char *toLLVMName() const;
+  virtual const char *llvmName() const;
 
   // example:
   // a -> @a.2
   // "" -> @.1
-  virtual const char *toSymbolName() const;
+  virtual const char *symbolName() const;
 
   static Name get(const std::string &name);
   static Name get(const char *name);

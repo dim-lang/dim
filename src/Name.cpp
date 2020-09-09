@@ -12,23 +12,6 @@
 #include <utility>
 #include <vector>
 
-#define SYMBOL_LENGTH 16
-
-static bool containsChar(char c, const std::vector<char> &vec) {
-  return std::find(vec.begin(), vec.end(), c) != vec.end();
-}
-
-static std::string parseSymbolName(const char *s) {
-  std::string r(s);
-  std::for_each(r.begin(), r.end(), [](char &c) {
-    if (!std::isalnum(c) &&
-        !containsChar(c, std::vector<char>{'.', '$', '_', '-'})) {
-      c = '-';
-    }
-  });
-  return r.length() > SYMBOL_LENGTH ? r.substr(0, SYMBOL_LENGTH) : r;
-}
-
 Name::Name(char *name) : name_(name), id_(Counter::get()) {}
 
 int Name::compare(const Name &other) const { return name_ - other.name_; }
@@ -51,7 +34,7 @@ unsigned long long Name::id() const { return id_; }
 
 std::string Name::toString() const { return fmt::format("{}.{}", raw(), id()); }
 
-const char *Name::toLLVMName() const {
+const char *Name::llvmName() const {
   std::stringstream ss;
   ss << "$"
      << fmt::format("{0:x}", std::hash<std::string>()(std::string(name_)))
@@ -59,9 +42,9 @@ const char *Name::toLLVMName() const {
   return Strings::dup(ss.str().c_str());
 }
 
-const char *Name::toSymbolName() const {
+const char *Name::symbolName() const {
   std::stringstream ss;
-  ss << "@" << parseSymbolName(name_) << "." << id();
+  ss << "@" << toString();
   return Strings::dup(ss.str().c_str());
 }
 

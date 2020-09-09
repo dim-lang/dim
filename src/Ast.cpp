@@ -126,13 +126,15 @@ static const std::unordered_map<A_Integer::BitCategory, std::string>
 };
 
 A_Integer::A_Integer(const std::string &literal, const Location &location)
-    : Ast(literal, location) {
-  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
+    : Ast("integerLiteral", location), literal_(literal) {
+  LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
+             literal_.length());
 
   int startPosition = 0;
   std::vector<std::string> decimalPrefix = {"0x", "0X", "0o", "0O", "0b", "0B"};
-  if (Strings::startWith(literal, decimalPrefix.begin(), decimalPrefix.end())) {
-    switch (literal[1]) {
+  if (Strings::startWith(literal_, decimalPrefix.begin(),
+                         decimalPrefix.end())) {
+    switch (literal_[1]) {
     case 'x':
     case 'X':
       decimalCategory_ = A_Integer::DecimalCategory::HEX;
@@ -160,34 +162,36 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
     startPosition = 0;
   }
 
-  int endPosition = (int)literal.length();
+  int endPosition = (int)literal_.length();
   std::vector<std::string> bitPostfix = {"ul", "UL", "uL", "Ul"};
   std::vector<char> longPostfix = {'l', 'L'};
   std::vector<char> unsignedPostfix = {'u', 'U'};
-  if (Strings::endWith(literal, bitPostfix.begin(), bitPostfix.end())) {
+  if (Strings::endWith(literal_, bitPostfix.begin(), bitPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
-    endPosition = (int)literal.length() - 2;
-  } else if (Strings::endWith(literal, longPostfix.begin(),
+    endPosition = (int)literal_.length() - 2;
+  } else if (Strings::endWith(literal_, longPostfix.begin(),
                               longPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::LONG;
     bits_ = 64;
-    endPosition = (int)literal.length() - 1;
-  } else if (Strings::endWith(literal, unsignedPostfix.begin(),
+    endPosition = (int)literal_.length() - 1;
+  } else if (Strings::endWith(literal_, unsignedPostfix.begin(),
                               unsignedPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::UNSIGNED;
     bits_ = 32;
-    endPosition = (int)literal.length() - 1;
+    endPosition = (int)literal_.length() - 1;
   } else {
     bitCategory_ = A_Integer::BitCategory::SIGNED;
     bits_ = 32;
-    endPosition = (int)literal.length();
+    endPosition = (int)literal_.length();
   }
 
-  parsed_ = literal.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
 }
 
 AstCategory A_Integer::category() const { return AstCategory::Integer; }
+
+const std::string &A_Integer::literal() const { return literal_; }
 
 int A_Integer::bits() const { return bits_; }
 
@@ -226,26 +230,29 @@ const static std::unordered_map<A_Float::BitCategory, std::string> AFL_BC_Map =
 };
 
 A_Float::A_Float(const std::string &literal, const Location &location)
-    : Ast(literal, location) {
-  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
+    : Ast("floatLiteral", location), literal_(literal) {
+  LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
+             literal_.length());
 
   int startPosition = 0;
-  int endPosition = (int)literal.length();
+  int endPosition = (int)literal_.length();
   std::vector<char> doublePostfix = {'d', 'D'};
-  if (Strings::endWith(literal, doublePostfix.begin(), doublePostfix.end())) {
+  if (Strings::endWith(literal_, doublePostfix.begin(), doublePostfix.end())) {
     bitCategory_ = A_Float::BitCategory::DBL;
     bits_ = 64;
-    endPosition = (int)literal.length();
+    endPosition = (int)literal_.length();
   } else {
     bitCategory_ = A_Float::BitCategory::FLT;
     bits_ = 32;
-    endPosition = (int)literal.length() - 1;
+    endPosition = (int)literal_.length() - 1;
   }
 
-  parsed_ = literal.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
 }
 
 AstCategory A_Float::category() const { return AstCategory::Float; }
+
+const std::string &A_Float::literal() const { return literal_; }
 
 int A_Float::bits() const { return bits_; }
 
@@ -266,21 +273,23 @@ const static std::unordered_map<A_String::QuoteCategory, std::string>
 };
 
 A_String::A_String(const std::string &literal, const Location &location)
-    : Ast(literal, location) {
+    : Ast("stringLiteral", location), literal_(literal) {
   std::vector<std::string> multiplePrefix = {"\"\"\""};
-  parsed_ = literal.length() >= 3 &&
-                    Strings::startWith(literal, multiplePrefix.begin(),
+  parsed_ = literal_.length() >= 3 &&
+                    Strings::startWith(literal_, multiplePrefix.begin(),
                                        multiplePrefix.end())
-                ? literal.substr(3, literal.length() - 6)
-                : literal.substr(1, literal.length() - 2);
-  quoteCategory_ = literal.length() >= 3 &&
-                           Strings::startWith(literal, multiplePrefix.begin(),
+                ? literal_.substr(3, literal_.length() - 6)
+                : literal_.substr(1, literal_.length() - 2);
+  quoteCategory_ = literal_.length() >= 3 &&
+                           Strings::startWith(literal_, multiplePrefix.begin(),
                                               multiplePrefix.end())
                        ? A_String::QuoteCategory::TRIPLE
                        : A_String::QuoteCategory::SINGLE;
 }
 
 AstCategory A_String::category() const { return AstCategory::String; }
+
+const std::string &A_String::literal() const { return literal_; }
 
 A_String::QuoteCategory A_String::quoteCategory() const {
   return quoteCategory_;
@@ -293,9 +302,12 @@ const std::string &A_String::asString() const { return parsed_; }
 // A_Character {
 
 A_Character::A_Character(const std::string &literal, const Location &location)
-    : Ast(literal, location), parsed_(literal[1]) {}
+    : Ast("characterLiteral", location), literal_(literal),
+      parsed_(literal[1]) {}
 
 AstCategory A_Character::category() const { return AstCategory::Character; }
+
+const std::string &A_Character::literal() const { return literal_; }
 
 char A_Character::asChar() const { return parsed_; }
 
@@ -303,10 +315,15 @@ char A_Character::asChar() const { return parsed_; }
 
 // A_Boolean {
 
-A_Boolean::A_Boolean(bool a_value, const Location &location)
-    : Ast(a_value ? "true" : "false", location), value(a_value) {}
+A_Boolean::A_Boolean(const std::string &literal, const Location &location)
+    : Ast("booleanLiteral", location), literal_(literal),
+      parsed_(literal == "true") {}
 
 AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
+
+const std::string &A_Boolean::literal() const { return literal_; }
+
+bool A_Boolean::asBoolean() const { return parsed_; }
 
 // A_Boolean }
 
@@ -333,9 +350,11 @@ AstCategory A_Void::category() const { return AstCategory::Void; }
 // A_VarId {
 
 A_VarId::A_VarId(const std::string &literal, const Location &location)
-    : Ast(literal, location) {}
+    : Ast("varId", location), literal_(literal) {}
 
 AstCategory A_VarId::category() const { return AstCategory::VarId; }
+
+const std::string &A_VarId::literal() const { return literal_; }
 
 // A_VarId }
 
@@ -566,7 +585,7 @@ AstCategory A_Block::category() const { return AstCategory::Block; }
 A_BlockStats::A_BlockStats(std::shared_ptr<Ast> a_blockStat,
                            std::shared_ptr<A_BlockStats> a_next,
                            const Location &location)
-    : Ast("block", location), blockStat(a_blockStat), next(a_next) {}
+    : Ast("blockStats", location), blockStat(a_blockStat), next(a_next) {}
 
 AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 
@@ -579,7 +598,7 @@ AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 // A_PlainType {
 
 A_PlainType::A_PlainType(int a_token, const Location &location)
-    : Ast(tokenName(a_token), location), token(a_token) {}
+    : Ast("plainType", location), token(a_token) {}
 
 AstCategory A_PlainType::category() const { return AstCategory::PlainType; }
 

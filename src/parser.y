@@ -303,8 +303,8 @@ literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, @$); }
         | "void" { $$ = new A_Void(@$); }
         ;
 
-booleanLiteral : "true" { $$ = new A_Boolean(true, @$); }
-               | "false" { $$ = new A_Boolean(false, @$); }
+booleanLiteral : "true" { $$ = new A_Boolean("true", @$); }
+               | "false" { $$ = new A_Boolean("false", @$); }
                ;
 
  /* literal } */

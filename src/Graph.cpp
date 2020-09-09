@@ -73,22 +73,35 @@ static const std::unordered_map<char, std::string> HtmlTranslator = {
     {'\"', "\\\""}, {'<', "&lt;"}, {'>', "&gt;"},
 };
 
-#define LITERAL_ATTR(header)                                                   \
+#define LITERAL_NODE(ast_type)                                                 \
   do {                                                                         \
-    adnsp u(new adn(header));                                                  \
-    u->label.push_back(                                                        \
-        std::make_pair(Strings::dup("literal"),                                \
-                       Strings::replace(ast->name().raw(), HtmlTranslator)));  \
+    adnsp u(                                                                   \
+        new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)));  \
+    u->label.push_back(std::make_pair(                                         \
+        Strings::dup("literal"),                                               \
+        Strings::replace(ASP(ast_type)->literal(), HtmlTranslator)));          \
     u->label.push_back(                                                        \
         std::make_pair(Strings::dup("location"),                               \
                        Strings::dup(ast->location().toString().c_str())));     \
-    u->label.push_back(std::make_pair(Strings::dup("symbolName"),              \
-                                      (char *)ast->name().toSymbolName()));    \
     u->label.push_back(std::make_pair(Strings::dup("llvmName"),                \
-                                      (char *)ast->name().toLLVMName()));      \
+                                      (char *)ast->name().llvmName()));        \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
+
+#define NODE                                                                   \
+  do {                                                                         \
+    adnsp u(                                                                   \
+        new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)));  \
+    u->label.push_back(                                                        \
+        std::make_pair(Strings::dup("location"),                               \
+                       Strings::dup(ast->location().toString().c_str())));     \
+    nodes.push_back(u);                                                        \
+    return u;                                                                  \
+  } while (0)
+
+#define NODE_SYM                                                               \
+  adnsp u(new adn(Strings::replace(ast->name().symbolName(), HtmlTranslator)))
 
 struct AstDot {
   std::list<adnsp> nodes;
@@ -130,25 +143,25 @@ private:
     if (Ast::isLiteral(ast)) {
       switch (ast->category()) {
       case AstCategory::Integer: {
-        LITERAL_ATTR("integer_literal");
+        LITERAL_NODE(A_Integer);
       }
       case AstCategory::Float: {
-        LITERAL_ATTR("float_literal");
+        LITERAL_NODE(A_Float);
       }
       case AstCategory::Boolean: {
-        LITERAL_ATTR("boolean_literal");
+        LITERAL_NODE(A_Boolean);
       }
       case AstCategory::Character: {
-        LITERAL_ATTR("character_literal");
+        LITERAL_NODE(A_Character);
       }
       case AstCategory::String: {
-        LITERAL_ATTR("string_literal");
+        LITERAL_NODE(A_String);
       }
       case AstCategory::Nil: {
-        LITERAL_ATTR("nil");
+        NODE;
       }
       case AstCategory::Void: {
-        LITERAL_ATTR("void");
+        NODE;
       }
       default:
         LOG_ASSERT(false, "invalid literal type: {}",
@@ -157,38 +170,16 @@ private:
     }
     switch (ast->category()) {
     case AstCategory::VarId: {
-      adnsp u(new adn("var_id"));
-      u->label.push_back(
-          std::make_pair(Strings::dup("literal"),
-                         Strings::replace(ast->name().raw(), HtmlTranslator)));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
-      u->label.push_back(std::make_pair(Strings::dup("symbolName"),
-                                        (char *)ast->name().toSymbolName()));
-      u->label.push_back(std::make_pair(Strings::dup("llvmName"),
-                                        (char *)ast->name().toLLVMName()));
-      nodes.push_back(u);
-      return u;
+      LITERAL_NODE(A_VarId);
     }
     case AstCategory::Break: {
-      adnsp u(new adn("break"));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
-      nodes.push_back(u);
-      return u;
+      NODE;
     }
     case AstCategory::Continue: {
-      adnsp u(new adn("continue"));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
-      nodes.push_back(u);
-      return u;
+      NODE;
     }
     case AstCategory::Throw: {
-      adnsp u(new adn("throw"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -199,7 +190,7 @@ private:
       return u;
     }
     case AstCategory::Return: {
-      adnsp u(new adn("return"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -210,7 +201,7 @@ private:
       return u;
     }
     case AstCategory::Assign: {
-      adnsp u(new adn("assign"));
+      NODE_SYM;
       u->label.push_back(std::make_pair(
           Strings::dup("assignOp"),
           Strings::replace(tokenName(ASP(A_Assign)->assignOp).c_str(),
@@ -228,7 +219,7 @@ private:
       return u;
     }
     case AstCategory::PostfixExpr: {
-      adnsp u(new adn("postfix"));
+      NODE_SYM;
       u->label.push_back(std::make_pair(
           Strings::dup("postfixOp"),
           Strings::replace(tokenName(ASP(A_PostfixExpr)->postfixOp).c_str(),
@@ -243,7 +234,7 @@ private:
       return u;
     }
     case AstCategory::InfixExpr: {
-      adnsp u(new adn("infix"));
+      NODE_SYM;
       u->label.push_back(std::make_pair(
           Strings::dup("infixOp"),
           Strings::replace(tokenName(ASP(A_InfixExpr)->infixOp).c_str(),
@@ -261,7 +252,7 @@ private:
       return u;
     }
     case AstCategory::PrefixExpr: {
-      adnsp u(new adn("prefix"));
+      NODE_SYM;
       u->label.push_back(std::make_pair(
           Strings::dup("prefixOp"),
           Strings::replace(tokenName(ASP(A_PrefixExpr)->prefixOp).c_str(),
@@ -276,7 +267,7 @@ private:
       return u;
     }
     case AstCategory::Call: {
-      adnsp u(new adn("call"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -290,7 +281,7 @@ private:
       return u;
     }
     case AstCategory::Exprs: {
-      adnsp u(new adn("exprs"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -304,7 +295,7 @@ private:
       return u;
     }
     case AstCategory::If: {
-      adnsp u(new adn("if"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -321,7 +312,7 @@ private:
       return u;
     }
     case AstCategory::Loop: {
-      adnsp u(new adn("loop"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -335,7 +326,7 @@ private:
       return u;
     }
     case AstCategory::Yield: {
-      adnsp u(new adn("yield"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -346,7 +337,7 @@ private:
       return u;
     }
     case AstCategory::LoopCondition: {
-      adnsp u(new adn("loop_condition"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -363,7 +354,7 @@ private:
       return u;
     }
     case AstCategory::LoopEnumerator: {
-      adnsp u(new adn("loop_enumerator"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -377,7 +368,7 @@ private:
       return u;
     }
     case AstCategory::DoWhile: {
-      adnsp u(new adn("do_while"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -391,7 +382,7 @@ private:
       return u;
     }
     case AstCategory::Try: {
-      adnsp u(new adn("try"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -408,7 +399,7 @@ private:
       return u;
     }
     case AstCategory::Block: {
-      adnsp u(new adn("block"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -419,7 +410,7 @@ private:
       return u;
     }
     case AstCategory::BlockStats: {
-      adnsp u(new adn("block_stats"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -433,7 +424,7 @@ private:
       return u;
     }
     case AstCategory::PlainType: {
-      adnsp u(new adn("plain_type"));
+      NODE_SYM;
       u->label.push_back(std::make_pair(
           Strings::dup("token"),
           Strings::replace(tokenName(ASP(A_PlainType)->token).c_str(),
@@ -445,7 +436,7 @@ private:
       return u;
     }
     case AstCategory::FuncDef: {
-      adnsp u(new adn("func_def"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -462,7 +453,7 @@ private:
       return u;
     }
     case AstCategory::FuncSign: {
-      adnsp u(new adn("func_sign"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -476,7 +467,7 @@ private:
       return u;
     }
     case AstCategory::Params: {
-      adnsp u(new adn("params"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -490,7 +481,7 @@ private:
       return u;
     }
     case AstCategory::Param: {
-      adnsp u(new adn("param"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -504,7 +495,7 @@ private:
       return u;
     }
     case AstCategory::VarDef: {
-      adnsp u(new adn("var_def"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -521,7 +512,7 @@ private:
       return u;
     }
     case AstCategory::TopStats: {
-      adnsp u(new adn("top_stats"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -535,7 +526,7 @@ private:
       return u;
     }
     case AstCategory::CompileUnit: {
-      adnsp u(new adn("compile_unit"));
+      NODE_SYM;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));

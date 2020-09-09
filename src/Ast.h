@@ -127,6 +127,7 @@ public:
   virtual ~A_Integer() = default;
   virtual AstCategory category() const;
 
+  virtual const std::string &literal() const;
   virtual int bits() const;
   virtual int base() const;
   virtual DecimalCategory decimalCategory() const;
@@ -137,6 +138,7 @@ public:
   virtual uint64_t asUInt64() const;
 
 private:
+  std::string literal_;
   std::string parsed_;
   int bits_;
   int base_;
@@ -155,12 +157,14 @@ public:
   virtual ~A_Float() = default;
   virtual AstCategory category() const;
 
+  virtual const std::string &literal() const;
   virtual int bits() const;
   virtual BitCategory bitCategory() const;
   virtual float asFloat() const;
   virtual double asDouble() const;
 
 private:
+  std::string literal_;
   std::string parsed_;
   int bits_;
   BitCategory bitCategory_;
@@ -178,10 +182,12 @@ public:
   virtual ~A_String() = default;
   virtual AstCategory category() const;
 
+  virtual const std::string &literal() const;
   virtual QuoteCategory quoteCategory() const;
   virtual const std::string &asString() const;
 
 private:
+  std::string literal_;
   std::string parsed_;
   QuoteCategory quoteCategory_;
 };
@@ -192,18 +198,26 @@ public:
   virtual ~A_Character() = default;
   virtual AstCategory category() const;
 
+  virtual const std::string &literal() const;
   virtual char asChar() const;
 
 private:
+  std::string literal_;
   char parsed_;
 };
 
 class A_Boolean : public Ast {
 public:
-  A_Boolean(bool a_value, const Location &location);
+  A_Boolean(const std::string &literal, const Location &location);
   virtual ~A_Boolean() = default;
   virtual AstCategory category() const;
-  bool value;
+
+  virtual const std::string &literal() const;
+  virtual bool asBoolean() const;
+
+private:
+  std::string literal_;
+  bool parsed_;
 };
 
 class A_Nil : public Ast {
@@ -229,6 +243,11 @@ public:
   A_VarId(const std::string &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstCategory category() const;
+
+  virtual const std::string &literal() const;
+
+private:
+  std::string literal_;
 };
 
 // id }
