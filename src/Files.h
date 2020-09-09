@@ -102,7 +102,9 @@ public:
   // flush buffer
   virtual void flush();
   virtual void write(const char *buf, int n);
+  virtual void writeln(const char *buf, int n);
   virtual void write(const std::string &buf);
+  virtual void writeln(const std::string &buf = "");
 
 protected:
   DynamicBuffer buffer_;

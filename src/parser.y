@@ -19,21 +19,20 @@
 #define SP_CAST(x, y)   (std::static_pointer_cast<x>(y))
 #define T_EOF           0
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
-template<typename T> std::shared_ptr<T> reverseList(std::shared_ptr<T> list) {
-    // nil node
-    if (!list) {
-        return list;
-    }
-    std::shared_ptr<T> head = list;
-    std::shared_ptr<T> tail = list;
+template<typename T> std::shared_ptr<T> reverse(std::shared_ptr<T> list) {
+  // nil node
+  if (!list) {
+    return list;
+  }
+  std::shared_ptr<T> head(nullptr);
+  std::shared_ptr<T> tail(nullptr);
+  while (list) {
+    head = list;
     list = list->next;
-    while (list) {
-        tail->next = list;
-        list = list->next;
-        tail = tail->next;
-        tail->next = std::shared_ptr<T>(nullptr);
-    }
-    return head;
+    head->next = tail;
+    tail = head;
+  }
+  return head;
 }
 }
 
@@ -467,7 +466,7 @@ block : "{" blockStat optionalBlockStats "}" {
             std::shared_ptr<A_BlockStats> blockStats = ($2)
                 ? std::shared_ptr<A_BlockStats>(new A_BlockStats(SP($2), SP_CAST(A_BlockStats, SP($3)), @$))
                 : SP_CAST(A_BlockStats, SP($3));
-            $$ = new A_Block(reverseList(blockStats), @$);
+            $$ = new A_Block(reverse(blockStats), @$);
         }
       ;
 
@@ -583,7 +582,7 @@ compileUnit : topStat optionalTopStats {
                     std::shared_ptr<A_TopStats> topStats = ($1)
                         ? std::shared_ptr<A_TopStats>(new A_TopStats(SP($1), SP_CAST(A_TopStats, SP($2)), @$))
                         : SP_CAST(A_TopStats, SP($2));
-                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(reverseList(topStats), @$));
+                    static_cast<Scanner *>(yyget_extra(yyscanner))->compileUnit() = std::shared_ptr<Ast>(new A_CompileUnit(reverse(topStats), @$));
                 }
             ;
 

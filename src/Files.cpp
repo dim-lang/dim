@@ -114,8 +114,18 @@ void FileWriterImpl::write(const char *buf, int n) {
   }
 }
 
+void FileWriterImpl::writeln(const char *buf, int n) {
+  write(buf, n);
+  write("\n", (int)std::strlen("\n"));
+}
+
 void FileWriterImpl::write(const std::string &buf) {
   write(buf.data(), buf.length());
+}
+
+void FileWriterImpl::writeln(const std::string &buf) {
+  write(buf);
+  write("\n");
 }
 
 } // namespace detail

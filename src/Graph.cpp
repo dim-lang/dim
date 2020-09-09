@@ -100,16 +100,22 @@ struct AstDot {
   virtual int draw(std::shared_ptr<Ast> ast, const std::string &output) {
     FileWriter fwriter(output);
     drawImpl(ast);
-    fwriter.write("digraph {\n");
-    fwriter.write("    node [shape=record]\n\n");
+    fwriter.writeln("digraph {");
+    fwriter.writeln(
+        "    graph [fontname=\"Courier New, Courier\", fontsize=12]");
+    fwriter.writeln("    node [shape=record, fontname=\"Courier New, "
+                    "Courier\", fontsize=12]");
+    fwriter.writeln(
+        "    edge [fontname=\"Courier New, Courier\", fontsize=12]");
+    fwriter.writeln();
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
-      fwriter.write(fmt::format("    {}\n", (*i)->toString()));
+      fwriter.writeln(fmt::format("    {}", (*i)->toString()));
     }
     fwriter.write("\n");
     for (auto i = edges.begin(); i != edges.end(); i++) {
-      fwriter.write(fmt::format("    {}\n", (*i)->toString()));
+      fwriter.writeln(fmt::format("    {}", (*i)->toString()));
     }
-    fwriter.write("}\n");
+    fwriter.writeln("}");
     fwriter.flush();
     return 0;
   }
