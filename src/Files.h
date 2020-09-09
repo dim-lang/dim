@@ -9,7 +9,7 @@
 #include <vector>
 
 /*================ type start from 3000 ================*/
-BETTER_ENUM(FileModeType, int,
+BETTER_ENUM(FileMode, int,
             // type
             Read = 4000, Write, Append, ReadUpdate, WriteUpdate, AppendUpdate)
 
@@ -112,21 +112,21 @@ protected:
 
 class FileReader : public detail::FileInfo {
 public:
-  using LineIterator = detail::FileReaderLineIterator;
-  using CharIterator = detail::FileReaderCharIterator;
-  using BlockIterator = detail::FileReaderBlockIterator;
+  using line_iterator = detail::FileReaderLineIterator;
+  using char_iterator = detail::FileReaderCharIterator;
+  using block_iterator = detail::FileReaderBlockIterator;
 
   FileReader(const std::string &fileName);
   virtual ~FileReader() = default;
-  virtual FileModeType mode() const;
+  virtual FileMode mode() const;
 
   // reset reading offset
   virtual void reset(int offset = 0);
 
   // reader iterator
-  virtual LineIterator lineIterator();
-  virtual CharIterator charIterator();
-  virtual BlockIterator blockIterator();
+  virtual line_iterator lines();
+  virtual char_iterator chars();
+  virtual block_iterator blocks();
 
   virtual std::string read();
 
@@ -142,7 +142,7 @@ class FileWriter : public detail::FileWriterImpl {
 public:
   FileWriter(const std::string &fileName);
   virtual ~FileWriter() = default;
-  virtual FileModeType mode() const;
+  virtual FileMode mode() const;
   virtual void reset(int offset = 0);
 };
 
@@ -150,6 +150,6 @@ class FileAppender : public detail::FileWriterImpl {
 public:
   FileAppender(const std::string &fileName);
   virtual ~FileAppender() = default;
-  virtual FileModeType mode() const;
+  virtual FileMode mode() const;
   virtual void reset(int offset = 0);
 };

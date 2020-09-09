@@ -126,20 +126,20 @@ FileReader::FileReader(const std::string &fileName)
   LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
-FileModeType FileReader::mode() const { return FileModeType::Read; }
+FileMode FileReader::mode() const { return FileMode::Read; }
 
 void FileReader::reset(int offset) { std::fseek(fp_, offset, SEEK_SET); }
 
-FileReader::LineIterator FileReader::lineIterator() {
-  return FileReader::LineIterator(this);
+FileReader::line_iterator FileReader::lines() {
+  return FileReader::line_iterator(this);
 }
 
-FileReader::CharIterator FileReader::charIterator() {
-  return FileReader::CharIterator(this);
+FileReader::char_iterator FileReader::chars() {
+  return FileReader::char_iterator(this);
 }
 
-FileReader::BlockIterator FileReader::blockIterator() {
-  return FileReader::BlockIterator(this);
+FileReader::block_iterator FileReader::blocks() {
+  return FileReader::block_iterator(this);
 }
 
 std::string FileReader::read() {
@@ -153,7 +153,7 @@ FileWriter::FileWriter(const std::string &fileName)
   LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
 }
 
-FileModeType FileWriter::mode() const { return FileModeType::Write; }
+FileMode FileWriter::mode() const { return FileMode::Write; }
 
 void FileWriter::reset(int offset) { detail::FileWriterImpl::reset(offset); }
 
@@ -165,4 +165,4 @@ FileAppender::FileAppender(const std::string &fileName)
 
 void FileAppender::reset(int offset) { detail::FileWriterImpl::reset(offset); }
 
-FileModeType FileAppender::mode() const { return FileModeType::Append; }
+FileMode FileAppender::mode() const { return FileMode::Append; }

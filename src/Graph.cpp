@@ -4,10 +4,10 @@
 #include "Graph.h"
 #include "Ast.h"
 #include "Counter.h"
+#include "Files.h"
 #include "Log.h"
 #include "Strings.h"
 #include "Token.h"
-#include <cstdio>
 #include <list>
 #include <sstream>
 #include <utility>
@@ -75,22 +75,19 @@ struct AstDot {
   virtual ~AstDot() = default;
 
   virtual int draw(std::shared_ptr<Ast> ast, const std::string &output) {
-    FILE *fp = std::fopen(output.c_str(), "w");
-    if (!fp) {
-      return -1;
-    }
+    FileWriter fwriter(output);
     drawImpl(ast);
-    std::fprintf(fp, "digraph {\n");
-    std::fprintf(fp, "    node [shape=record]\n\n");
+    fwriter.write("digraph {\n");
+    fwriter.write("    node [shape=record]\n\n");
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
-      std::fprintf(fp, "    %s\n", (*i)->toString().c_str());
+      fwriter.write(fmt::format("    {}\n", (*i)->toString()));
     }
-    std::fprintf(fp, "\n");
+    fwriter.write("\n");
     for (auto i = edges.begin(); i != edges.end(); i++) {
-      std::fprintf(fp, "    %s\n", (*i)->toString().c_str());
+      fwriter.write(fmt::format("    {}\n", (*i)->toString()));
     }
-    std::fprintf(fp, "}\n");
-    std::fclose(fp);
+    fwriter.write("}\n");
+    fwriter.flush();
     return 0;
   }
 
@@ -136,8 +133,14 @@ private:
         LOG_ASSERT(false, "invalid literal type: {}",
                    ast->category()._to_string());
       }
+      static const std::unordered_map<char, std::string> backslashMap = {
+          {'\\', "\\\\"}, {'\n', "\\n"},  {'\t', "\\t"},  {'\r', "\\r"},
+          {'\?', "\\?"},  {'\a', "\\a"},  {'\b', "\\b"},  {'\f', "\\f"},
+          {'\v', "\\v"},  {'\'', "\\\'"}, {'\"', "\\\""},
+      };
       u->label.push_back(
-          std::make_pair(Strings::dup("literal"), (char *)ast->name().raw()));
+          std::make_pair(Strings::dup("literal"),
+                         Strings::replace(ast->name().raw(), backslashMap)));
       u->label.push_back(std::make_pair(Strings::dup("symbolName"),
                                         (char *)ast->name().toSymbolName()));
       u->label.push_back(std::make_pair(Strings::dup("llvmName"),

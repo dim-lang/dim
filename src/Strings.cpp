@@ -41,68 +41,176 @@ char *Strings::dup(const std::string &s) {
   return cached_string(s.c_str(), (int)s.length());
 }
 
-bool Strings::startWith(const std::string &s,
-                        const std::vector<std::string> &prefixList) {
-  return std::all_of(
-      prefixList.begin(), prefixList.end(), [&](const std::string &prefix) {
-        return s.length() >= prefix.length() && s.find(prefix) == 0;
-      });
+bool Strings::startWith(const char *s,
+                        std::vector<const char *>::const_iterator begin,
+                        std::vector<const char *>::const_iterator end) {
+  return startWith(s, (int)std::strlen(s), begin, end);
+}
+
+bool Strings::startWith(const char *s, int n,
+                        std::vector<const char *>::const_iterator begin,
+                        std::vector<const char *>::const_iterator end) {
+  return std::all_of(begin, end, [&](const char *prefix) {
+    size_t pn = std::strlen(prefix);
+    return n >= pn && std::strncmp(s, prefix, pn) == 0;
+  });
 }
 
 bool Strings::startWith(const std::string &s,
-                        const std::vector<char> &prefixList) {
-  return std::all_of(prefixList.begin(), prefixList.end(),
-                     [&](const char &prefix) {
-                       return s.length() >= 1 && s.find(prefix) == 0;
-                     });
+                        std::vector<std::string>::const_iterator begin,
+                        std::vector<std::string>::const_iterator end) {
+  return std::all_of(begin, end, [&](const std::string &prefix) {
+    return s.length() >= prefix.length() && s.find(prefix) == 0;
+  });
+}
+
+bool Strings::startWith(const char *s, std::vector<char>::const_iterator begin,
+                        std::vector<char>::const_iterator end) {
+  return startWith(s, (int)std::strlen(s), begin, end);
+}
+
+bool Strings::startWith(const char *s, int n,
+                        std::vector<char>::const_iterator begin,
+                        std::vector<char>::const_iterator end) {
+  return std::all_of(begin, end,
+                     [&](char prefix) { return n >= 1 && s[0] == prefix; });
+}
+
+bool Strings::startWith(const std::string &s,
+                        std::vector<char>::const_iterator begin,
+                        std::vector<char>::const_iterator end) {
+  return startWith(s.c_str(), (int)s.length(), begin, end);
+}
+
+bool Strings::endWith(const char *s,
+                      std::vector<const char *>::const_iterator begin,
+                      std::vector<const char *>::const_iterator end) {
+  return endWith(s, (int)std::strlen(s), begin, end);
+}
+
+bool Strings::endWith(const char *s, int n,
+                      std::vector<const char *>::const_iterator begin,
+                      std::vector<const char *>::const_iterator end) {
+  return std::all_of(begin, end, [&](const char *postfix) {
+    size_t pn = std::strlen(postfix);
+    return n >= pn && std::strncmp(s + n - pn, postfix, pn) == 0;
+  });
 }
 
 bool Strings::endWith(const std::string &s,
-                      const std::vector<std::string> &postfixList) {
+                      std::vector<std::string>::const_iterator begin,
+                      std::vector<std::string>::const_iterator end) {
+  return std::all_of(begin, end, [&](const std::string &postfix) {
+    return s.length() >= postfix.length() &&
+           s.rfind(postfix) == s.length() - postfix.length();
+  });
+}
+
+bool Strings::endWith(const char *s, std::vector<char>::const_iterator begin,
+                      std::vector<char>::const_iterator end) {
+  return endWith(s, (int)std::strlen(s), begin, end);
+}
+
+bool Strings::endWith(const char *s, int n,
+                      std::vector<char>::const_iterator begin,
+                      std::vector<char>::const_iterator end) {
   return std::all_of(
-      postfixList.begin(), postfixList.end(), [&](const std::string &postfix) {
-        return s.length() >= postfix.length() && s.find(postfix) == 0;
-      });
+      begin, end, [&](char postfix) { return n >= 1 && s[n - 1] == postfix; });
 }
 
 bool Strings::endWith(const std::string &s,
-                      const std::vector<char> &postfixList) {
-  return std::all_of(postfixList.begin(), postfixList.end(),
-                     [&](const char &postfix) {
-                       return s.length() >= 1 && s.find(postfix) == 0;
-                     });
+                      std::vector<char>::const_iterator begin,
+                      std::vector<char>::const_iterator end) {
+  return std::all_of(begin, end, [&](char postfix) {
+    return s.length() >= 1 && s.rfind(postfix) == s.length() - 1;
+  });
 }
 
-std::string Strings::replace(const std::string &s, const std::string &from,
-                             const std::string &to) {
+char *Strings::replace(const char *s, const char *from, const char *to) {
+  return replace(s, (int)std::strlen(s), from, (int)std::strlen(from), to,
+                 (int)std::strlen(to));
+}
+
+char *Strings::replace(const char *s, int n, const char *from, int fromn,
+                       const char *to, int ton) {
+  if (!s || n <= 0) {
+    return (char *)s;
+  }
+  if (!from || fromn <= 0) {
+    return (char *)s;
+  }
   std::stringstream ss;
   int i = 0;
-  while (i < (int)s.length()) {
-    if (s.length() - i >= from.length() &&
-        std::strncmp(s.c_str() + i, from.c_str(), from.length())) {
-      ss << to;
-      i += from.length();
+  while (i < n) {
+    if (n - i >= fromn && std::strncmp(s + i, from, fromn) == 0) {
+      if (to && ton > 0) {
+        ss << std::string(to, ton);
+      }
+      i += fromn;
     } else {
       ss << s[i++];
     }
   }
-  return ss.str();
+  return dup(ss.str().c_str());
 }
 
-std::string Strings::replace(const std::string &s, char from, char to) {
-  std::string r(s);
-  std::replace(r.begin(), r.end(), from, to);
-  return r;
+char *Strings::replace(const std::string &s, const std::string &from,
+                       const std::string &to) {
+  return replace(s.c_str(), (int)s.length(), from.c_str(), (int)from.length(),
+                 to.c_str(), (int)to.length());
 }
 
-std::string Strings::tuncate(const std::string &s, int n, bool exhaust) {
-  return tuncateRight(tuncateLeft(s, n, exhaust), n, exhaust);
+char *Strings::replace(const char *s, char from, char to) {
+  return replace(s, (int)std::strlen(s), &from, 1, &to, 1);
 }
 
-std::string Strings::tuncateLeft(const std::string &s, int n, bool exhaust) {
-  return s.length() > n ? s.substr(n, s.length() - n) : (exhaust ? "" : s);
+char *Strings::replace(const char *s, int n, char from, char to) {
+  return replace(s, n, &from, 1, &to, 1);
 }
 
-std::string Strings::tuncateRight(const std::string &s, int n, bool exhaust) {
-  return s.length() > n ? s.substr(0, s.length() - n) : (exhaust ? "" : s);
+char *Strings::replace(const std::string &s, char from, char to) {
+  return replace(s.c_str(), (int)s.length(), &from, 1, &to, 1);
+}
+
+char *Strings::replace(const char *s,
+                       const std::unordered_map<char, const char *> &fromto) {
+  return replace(s, (int)std::strlen(s), fromto);
+}
+
+char *Strings::replace(const char *s, int n,
+                       const std::unordered_map<char, const char *> &fromto) {
+  if (!s || n <= 0) {
+    return (char *)s;
+  }
+  if (fromto.size() == 0) {
+    return (char *)s;
+  }
+  std::stringstream ss;
+  for (int i = 0; i < n; i++) {
+    if (fromto.find(s[i]) != fromto.end()) {
+      ss << fromto.find(s[i])->second;
+    } else {
+      ss << s[i];
+    }
+  }
+  return dup(ss.str().c_str());
+}
+
+char *Strings::replace(const std::string &s,
+                       const std::unordered_map<char, std::string> &fromto) {
+  if (s.length() == 0) {
+    return (char *)s.c_str();
+  }
+  if (fromto.size() == 0) {
+    return (char *)s.c_str();
+  }
+  std::stringstream ss;
+  for (int i = 0; i < (int)s.length(); i++) {
+    if (fromto.find(s[i]) != fromto.end()) {
+      ss << fromto.find(s[i])->second;
+    } else {
+      ss << s[i];
+    }
+  }
+  return dup(ss.str().c_str());
 }

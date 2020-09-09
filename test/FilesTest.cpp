@@ -79,7 +79,7 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::LineIterator line1 = r1.lineIterator();
+    FileReader::line_iterator line1 = r1.lines();
     std::string t1;
     while (line1.hasNext()) {
       t1 += line1.next();
@@ -91,7 +91,7 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::LineIterator line2 = r2.lineIterator();
+    FileReader::line_iterator line2 = r2.lines();
     std::string t2;
     while (line2.hasNext()) {
       t2 += line2.next();
@@ -114,7 +114,7 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::CharIterator c1 = r1.charIterator();
+    FileReader::char_iterator c1 = r1.chars();
     std::string t1;
     while (c1.hasNext()) {
       t1 += c1.next();
@@ -126,7 +126,7 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::CharIterator c2 = r2.charIterator();
+    FileReader::char_iterator c2 = r2.chars();
     std::string t2;
     while (c2.hasNext()) {
       t2 += c2.next();
@@ -149,7 +149,7 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::BlockIterator block1 = r1.blockIterator();
+    FileReader::block_iterator block1 = r1.blocks();
     std::string t1;
     while (block1.hasNext(BLOCK_SIZE)) {
       t1 += block1.next(BLOCK_SIZE);
@@ -162,7 +162,7 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::BlockIterator block2 = r2.blockIterator();
+    FileReader::block_iterator block2 = r2.blocks();
     std::string t2;
     while (block2.hasNext(BLOCK_SIZE)) {
       t2 += block2.next(BLOCK_SIZE);

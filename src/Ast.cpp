@@ -128,8 +128,8 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
   LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  if (Strings::startWith(literal, std::vector<std::string>{"0x", "0X", "0o",
-                                                           "0O", "0b", "0B"})) {
+  std::vector<std::string> decimalPrefix = {"0x", "0X", "0o", "0O", "0b", "0B"};
+  if (Strings::startWith(literal, decimalPrefix.begin(), decimalPrefix.end())) {
     switch (literal[1]) {
     case 'x':
     case 'X':
@@ -159,16 +159,20 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
   }
 
   int endPosition = (int)literal.length();
-  if (Strings::endWith(literal,
-                       std::vector<std::string>{"ul", "UL", "uL", "Ul"})) {
+  std::vector<std::string> bitPostfix = {"ul", "UL", "uL", "Ul"};
+  std::vector<char> longPostfix = {'l', 'L'};
+  std::vector<char> unsignedPostfix = {'u', 'U'};
+  if (Strings::endWith(literal, bitPostfix.begin(), bitPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::ULONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 2;
-  } else if (Strings::endWith(literal, std::vector<char>{'l', 'L'})) {
+  } else if (Strings::endWith(literal, longPostfix.begin(),
+                              longPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::LONG;
     bits_ = 64;
     endPosition = (int)literal.length() - 1;
-  } else if (Strings::endWith(literal, std::vector<char>{'u', 'U'})) {
+  } else if (Strings::endWith(literal, unsignedPostfix.begin(),
+                              unsignedPostfix.end())) {
     bitCategory_ = A_Integer::BitCategory::UNSIGNED;
     bits_ = 32;
     endPosition = (int)literal.length() - 1;
@@ -229,7 +233,8 @@ A_Float::A_Float(const std::string &literal, const Location &location)
 
   int startPosition = 0;
   int endPosition = (int)literal.length();
-  if (Strings::endWith(literal, std::vector<std::string>{"d", "D"})) {
+  std::vector<char> doublePostfix = {'d', 'D'};
+  if (Strings::endWith(literal, doublePostfix.begin(), doublePostfix.end())) {
     bitCategory_ = A_Float::BitCategory::DBL;
     bits_ = 64;
     endPosition = (int)literal.length();
@@ -269,17 +274,19 @@ const static std::unordered_map<A_String::QuoteCategory, std::string>
 };
 
 A_String::A_String(const std::string &literal, const Location &location)
-    : Ast(literal, location),
-      parsed_(literal.length() >= 3 &&
-                      Strings::startWith(literal,
-                                         std::vector<std::string>{"\"\"\""})
-                  ? literal.substr(3, literal.length() - 6)
-                  : literal.substr(1, literal.length() - 2)),
-      quoteCategory_(literal.length() >= 3 &&
-                             Strings::startWith(
-                                 literal, std::vector<std::string>{"\"\"\""})
-                         ? A_String::QuoteCategory::TRIPLE
-                         : A_String::QuoteCategory::SINGLE) {}
+    : Ast(literal, location) {
+  std::vector<std::string> multiplePrefix = {"\"\"\""};
+  parsed_ = literal.length() >= 3 &&
+                    Strings::startWith(literal, multiplePrefix.begin(),
+                                       multiplePrefix.end())
+                ? literal.substr(3, literal.length() - 6)
+                : literal.substr(1, literal.length() - 2);
+  quoteCategory_ = literal.length() >= 3 &&
+                           Strings::startWith(literal, multiplePrefix.begin(),
+                                              multiplePrefix.end())
+                       ? A_String::QuoteCategory::TRIPLE
+                       : A_String::QuoteCategory::SINGLE;
+}
 
 AstCategory A_String::category() const { return AstCategory::String; }
 
