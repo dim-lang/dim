@@ -84,7 +84,7 @@ struct AstDotEdge {
   }
 };
 
-#define LITERAL_NODE(ast_type)                                                 \
+#define L_NODE(ast_type)                                                       \
   do {                                                                         \
     adnsp u(new adn(ast->name().symbolName()));                                \
     u->add("literal", ASP(ast_type)->literal());                               \
@@ -102,7 +102,7 @@ struct AstDotEdge {
     return u;                                                                  \
   } while (0)
 
-#define SYM_NODE adnsp u(new adn(ast->name().symbolName()))
+#define S_NODE adnsp u(new adn(ast->name().symbolName()))
 
 struct AstDot {
   std::list<adnsp> nodes;
@@ -144,19 +144,19 @@ private:
     if (Ast::isLiteral(ast)) {
       switch (ast->category()) {
       case AstCategory::Integer: {
-        LITERAL_NODE(A_Integer);
+        L_NODE(A_Integer);
       }
       case AstCategory::Float: {
-        LITERAL_NODE(A_Float);
+        L_NODE(A_Float);
       }
       case AstCategory::Boolean: {
-        LITERAL_NODE(A_Boolean);
+        L_NODE(A_Boolean);
       }
       case AstCategory::Character: {
-        LITERAL_NODE(A_Character);
+        L_NODE(A_Character);
       }
       case AstCategory::String: {
-        LITERAL_NODE(A_String);
+        L_NODE(A_String);
       }
       case AstCategory::Nil: {
         NODE;
@@ -171,7 +171,7 @@ private:
     }
     switch (ast->category()) {
     case AstCategory::VarId: {
-      LITERAL_NODE(A_VarId);
+      L_NODE(A_VarId);
     }
     case AstCategory::Break: {
       NODE;
@@ -180,7 +180,7 @@ private:
       NODE;
     }
     case AstCategory::Throw: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -191,7 +191,7 @@ private:
       return u;
     }
     case AstCategory::Return: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -202,7 +202,7 @@ private:
       return u;
     }
     case AstCategory::Assign: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("assignOp"),
           Strings::replace(tokenName(ASP(A_Assign)->assignOp).c_str(),
@@ -220,7 +220,7 @@ private:
       return u;
     }
     case AstCategory::PostfixExpr: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("postfixOp"),
           Strings::replace(tokenName(ASP(A_PostfixExpr)->postfixOp).c_str(),
@@ -235,7 +235,7 @@ private:
       return u;
     }
     case AstCategory::InfixExpr: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("infixOp"),
           Strings::replace(tokenName(ASP(A_InfixExpr)->infixOp).c_str(),
@@ -253,7 +253,7 @@ private:
       return u;
     }
     case AstCategory::PrefixExpr: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("prefixOp"),
           Strings::replace(tokenName(ASP(A_PrefixExpr)->prefixOp).c_str(),
@@ -268,7 +268,7 @@ private:
       return u;
     }
     case AstCategory::Call: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -282,7 +282,7 @@ private:
       return u;
     }
     case AstCategory::Exprs: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -296,7 +296,7 @@ private:
       return u;
     }
     case AstCategory::If: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -313,7 +313,7 @@ private:
       return u;
     }
     case AstCategory::Loop: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -327,7 +327,7 @@ private:
       return u;
     }
     case AstCategory::Yield: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -338,7 +338,7 @@ private:
       return u;
     }
     case AstCategory::LoopCondition: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -355,7 +355,7 @@ private:
       return u;
     }
     case AstCategory::LoopEnumerator: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -369,7 +369,7 @@ private:
       return u;
     }
     case AstCategory::DoWhile: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -383,7 +383,7 @@ private:
       return u;
     }
     case AstCategory::Try: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -400,7 +400,7 @@ private:
       return u;
     }
     case AstCategory::Block: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -411,7 +411,7 @@ private:
       return u;
     }
     case AstCategory::BlockStats: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -425,7 +425,7 @@ private:
       return u;
     }
     case AstCategory::PlainType: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("token"),
           Strings::replace(tokenName(ASP(A_PlainType)->token).c_str(),
@@ -437,7 +437,7 @@ private:
       return u;
     }
     case AstCategory::FuncDef: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -454,7 +454,7 @@ private:
       return u;
     }
     case AstCategory::FuncSign: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -468,7 +468,7 @@ private:
       return u;
     }
     case AstCategory::Params: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -482,7 +482,7 @@ private:
       return u;
     }
     case AstCategory::Param: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -496,7 +496,7 @@ private:
       return u;
     }
     case AstCategory::VarDef: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -513,7 +513,7 @@ private:
       return u;
     }
     case AstCategory::TopStats: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
@@ -527,7 +527,7 @@ private:
       return u;
     }
     case AstCategory::CompileUnit: {
-      SYM_NODE;
+      S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
                          Strings::dup(ast->location().toString().c_str())));
