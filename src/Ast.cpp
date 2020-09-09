@@ -19,6 +19,8 @@
 Ast::Ast(const std::string &name, const Location &location)
     : Nameable(name), Locationable(location) {}
 
+std::string Ast::toString() const { return name().toString(); }
+
 bool Ast::isLiteral(std::shared_ptr<Ast> e) {
   if (!e)
     return false;
@@ -187,10 +189,6 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
 
 AstCategory A_Integer::category() const { return AstCategory::Integer; }
 
-std::string A_Integer::toString() const {
-  return fmt::format("{}", name().raw());
-}
-
 int A_Integer::bits() const { return bits_; }
 
 int A_Integer::base() const { return base_; }
@@ -249,12 +247,6 @@ A_Float::A_Float(const std::string &literal, const Location &location)
 
 AstCategory A_Float::category() const { return AstCategory::Float; }
 
-std::string A_Float::toString() const {
-  return fmt::format("[{} location:{}, parsed:{}, bitCategory:{}]",
-                     name().toSymbolName(), location().toString(), parsed_,
-                     AFL_BC_Map.find(bitCategory_)->second);
-}
-
 int A_Float::bits() const { return bits_; }
 
 A_Float::BitCategory A_Float::bitCategory() const { return bitCategory_; }
@@ -290,11 +282,6 @@ A_String::A_String(const std::string &literal, const Location &location)
 
 AstCategory A_String::category() const { return AstCategory::String; }
 
-std::string A_String::toString() const {
-  return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     location().toString(), parsed_);
-}
-
 A_String::QuoteCategory A_String::quoteCategory() const {
   return quoteCategory_;
 }
@@ -310,11 +297,6 @@ A_Character::A_Character(const std::string &literal, const Location &location)
 
 AstCategory A_Character::category() const { return AstCategory::Character; }
 
-std::string A_Character::toString() const {
-  return fmt::format("[{} location:{}, parsed:{}]", name().toSymbolName(),
-                     location().toString(), parsed_);
-}
-
 char A_Character::asChar() const { return parsed_; }
 
 // A_Character }
@@ -326,11 +308,6 @@ A_Boolean::A_Boolean(bool a_value, const Location &location)
 
 AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
 
-std::string A_Boolean::toString() const {
-  return fmt::format("[{} location:{}, value:{}]", name().toSymbolName(),
-                     location().toString(), value);
-}
-
 // A_Boolean }
 
 // A_Nil {
@@ -339,11 +316,6 @@ A_Nil::A_Nil(const Location &location) : Ast("nil", location) {}
 
 AstCategory A_Nil::category() const { return AstCategory::Nil; }
 
-std::string A_Nil::toString() const {
-  return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     location().toString());
-}
-
 // A_Nil }
 
 // A_Void {
@@ -351,11 +323,6 @@ std::string A_Nil::toString() const {
 A_Void::A_Void(const Location &location) : Ast("void", location) {}
 
 AstCategory A_Void::category() const { return AstCategory::Void; }
-
-std::string A_Void::toString() const {
-  return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     location().toString());
-}
 
 // A_Void }
 
@@ -369,11 +336,6 @@ A_VarId::A_VarId(const std::string &literal, const Location &location)
     : Ast(literal, location) {}
 
 AstCategory A_VarId::category() const { return AstCategory::VarId; }
-
-std::string A_VarId::toString() const {
-  return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     location().toString());
-}
 
 // A_VarId }
 
@@ -390,11 +352,6 @@ A_Throw::A_Throw(std::shared_ptr<Ast> a_expr, const Location &location)
 
 AstCategory A_Throw::category() const { return AstCategory::Throw; }
 
-std::string A_Throw::toString() const {
-  return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     location().toString(), expr->toString());
-}
-
 // A_Throw }
 
 // A_Return {
@@ -404,11 +361,6 @@ A_Return::A_Return(std::shared_ptr<Ast> a_expr, const Location &location)
 
 AstCategory A_Return::category() const { return AstCategory::Return; }
 
-std::string A_Return::toString() const {
-  return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     location().toString(), expr ? expr->toString() : "nil");
-}
-
 // A_Return }
 
 // A_Break {
@@ -417,11 +369,6 @@ A_Break::A_Break(const Location &location) : Ast("break", location) {}
 
 AstCategory A_Break::category() const { return AstCategory::Break; }
 
-std::string A_Break::toString() const {
-  return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     location().toString());
-}
-
 // A_Break }
 
 // A_Continue {
@@ -429,11 +376,6 @@ std::string A_Break::toString() const {
 A_Continue::A_Continue(const Location &location) : Ast("continue", location) {}
 
 AstCategory A_Continue::category() const { return AstCategory::Continue; }
-
-std::string A_Continue::toString() const {
-  return fmt::format("[{} location:{}]", name().toSymbolName(),
-                     location().toString());
-}
 
 // A_Continue }
 
@@ -449,13 +391,6 @@ A_Assign::A_Assign(std::shared_ptr<Ast> a_assignee, int a_assignOp,
 
 AstCategory A_Assign::category() const { return AstCategory::Assign; }
 
-std::string A_Assign::toString() const {
-  return fmt::format("[{} location:{} assignee:{} assignOp:{} assignor:{}]",
-                     name().toSymbolName(), location().toString(),
-                     assignee->toString(), tokenName(assignOp),
-                     assignor->toString());
-}
-
 // A_Assign }
 
 // A_PostfixExpr {
@@ -467,12 +402,6 @@ A_PostfixExpr::A_PostfixExpr(std::shared_ptr<Ast> a_expr, int a_postfixOp,
 }
 
 AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
-
-std::string A_PostfixExpr::toString() const {
-  return fmt::format("[{} location:{} expr:{} postfixOp:{}]",
-                     name().toSymbolName(), location().toString(),
-                     expr->toString(), tokenName(postfixOp));
-}
 
 // A_PostfixExpr }
 
@@ -488,12 +417,6 @@ A_InfixExpr::A_InfixExpr(std::shared_ptr<Ast> a_left, int a_infixOp,
 
 AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
 
-std::string A_InfixExpr::toString() const {
-  return fmt::format("[{} location:{} left:{} infixOp:{} right:{}]",
-                     name().toSymbolName(), location().toString(),
-                     left->toString(), tokenName(infixOp), right->toString());
-}
-
 // A_InfixExpr }
 
 // A_PrefixExpr {
@@ -505,12 +428,6 @@ A_PrefixExpr::A_PrefixExpr(int a_prefixOp, std::shared_ptr<Ast> a_expr,
 }
 
 AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
-
-std::string A_PrefixExpr::toString() const {
-  return fmt::format("[{} location:{} prefixOp:{} expr:{}]",
-                     name().toSymbolName(), location().toString(),
-                     tokenName(prefixOp), expr->toString());
-}
 
 // A_PrefixExpr }
 
@@ -524,12 +441,6 @@ A_Call::A_Call(std::shared_ptr<Ast> a_id, std::shared_ptr<A_Exprs> a_args,
 
 AstCategory A_Call::category() const { return AstCategory::Call; }
 
-std::string A_Call::toString() const {
-  return fmt::format("[{} location:{} id:{} args:{}]", name().toSymbolName(),
-                     location().toString(), id->toString(),
-                     args ? args->toString() : "nil");
-}
-
 // A_Call }
 
 // A_Exprs {
@@ -541,12 +452,6 @@ A_Exprs::A_Exprs(std::shared_ptr<Ast> a_expr, std::shared_ptr<A_Exprs> a_next,
 }
 
 AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
-
-std::string A_Exprs::toString() const {
-  return fmt::format("[{} location:{} expr:{} next:{}]", name().toSymbolName(),
-                     location().toString(), expr->toString(),
-                     next ? next->toString() : "nil");
-}
 
 // A_Exprs }
 
@@ -562,13 +467,6 @@ A_If::A_If(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_thenp,
 
 AstCategory A_If::category() const { return AstCategory::If; }
 
-std::string A_If::toString() const {
-  return fmt::format("[{} location:{} condition:{} thenp:{} elsep:{}]",
-                     name().toSymbolName(), location().toString(),
-                     condition->toString(), thenp->toString(),
-                     elsep ? elsep->toString() : "nil");
-}
-
 // A_If }
 
 // A_Loop {
@@ -582,12 +480,6 @@ A_Loop::A_Loop(std::shared_ptr<Ast> a_condition, std::shared_ptr<Ast> a_body,
 
 AstCategory A_Loop::category() const { return AstCategory::Loop; }
 
-std::string A_Loop::toString() const {
-  return fmt::format("[{} location:{} condition:{} body:{}]",
-                     name().toSymbolName(), location().toString(),
-                     condition->toString(), body->toString());
-}
-
 // A_Loop }
 
 // A_Yield {
@@ -598,11 +490,6 @@ A_Yield::A_Yield(std::shared_ptr<Ast> a_expr, const Location &location)
 }
 
 AstCategory A_Yield::category() const { return AstCategory::Yield; }
-
-std::string A_Yield::toString() const {
-  return fmt::format("[{} location:{} expr:{}]", name().toSymbolName(),
-                     location().toString(), expr->toString());
-}
 
 // A_Yield }
 
@@ -617,14 +504,6 @@ A_LoopCondition::A_LoopCondition(std::shared_ptr<Ast> a_init,
 
 AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
-}
-
-std::string A_LoopCondition::toString() const {
-  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
-                     name().toSymbolName(), location().toString(),
-                     init ? init->toString() : "nil",
-                     condition ? condition->toString() : "nil",
-                     update ? update->toString() : "nil");
 }
 
 // A_LoopCondition }
@@ -643,11 +522,6 @@ AstCategory A_LoopEnumerator::category() const {
   return AstCategory::LoopEnumerator;
 }
 
-std::string A_LoopEnumerator::toString() const {
-  return fmt::format("[{} location:{} id:{} expr:{}]", name().toSymbolName(),
-                     location().toString(), id->toString(), expr->toString());
-}
-
 // A_LoopEnumerator }
 
 // A_DoWhile {
@@ -660,12 +534,6 @@ A_DoWhile::A_DoWhile(std::shared_ptr<Ast> a_body,
 }
 
 AstCategory A_DoWhile::category() const { return AstCategory::DoWhile; }
-
-std::string A_DoWhile::toString() const {
-  return fmt::format("[{} location:{} body:{} condition:{}]",
-                     name().toSymbolName(), location().toString(),
-                     body->toString(), condition->toString());
-}
 
 // A_DoWhile }
 
@@ -681,13 +549,6 @@ A_Try::A_Try(std::shared_ptr<Ast> a_tryp, std::shared_ptr<Ast> a_catchp,
 
 AstCategory A_Try::category() const { return AstCategory::Try; }
 
-std::string A_Try::toString() const {
-  return fmt::format("[{} location:{} init:{} condition:{} update:{}]",
-                     name().toSymbolName(), location().toString(),
-                     tryp->toString(), catchp->toString(),
-                     finallyp ? finallyp->toString() : "nil");
-}
-
 // A_Try }
 
 // A_Block {
@@ -697,12 +558,6 @@ A_Block::A_Block(std::shared_ptr<A_BlockStats> a_blockStats,
     : Ast("block", location), blockStats(a_blockStats) {}
 
 AstCategory A_Block::category() const { return AstCategory::Block; }
-
-std::string A_Block::toString() const {
-  return fmt::format("[{} location:{} blockStats:{}]", name().toSymbolName(),
-                     location().toString(),
-                     blockStats ? blockStats->toString() : "nil");
-}
 
 // A_Block }
 
@@ -714,13 +569,6 @@ A_BlockStats::A_BlockStats(std::shared_ptr<Ast> a_blockStat,
     : Ast("block", location), blockStat(a_blockStat), next(a_next) {}
 
 AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
-
-std::string A_BlockStats::toString() const {
-  return fmt::format("[{} location:{} blockStat:{} next:{}]",
-                     name().toSymbolName(), location().toString(),
-                     blockStat ? blockStat->toString() : "nil",
-                     next ? next->toString() : "nil");
-}
 
 // A_BlockStats }
 
@@ -734,11 +582,6 @@ A_PlainType::A_PlainType(int a_token, const Location &location)
     : Ast(tokenName(a_token), location), token(a_token) {}
 
 AstCategory A_PlainType::category() const { return AstCategory::PlainType; }
-
-std::string A_PlainType::toString() const {
-  return fmt::format("[@{} location:{}, token:{}]", name().toSymbolName(),
-                     location().toString(), tokenName(token));
-}
 
 // A_PlainType }
 
@@ -758,13 +601,6 @@ A_FuncDef::A_FuncDef(std::shared_ptr<Ast> a_funcSign,
 
 AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
 
-std::string A_FuncDef::toString() const {
-  return fmt::format("[@{} location:{}, funcSign:{} resultType:{} body:{}]",
-                     name().toSymbolName(), location().toString(),
-                     funcSign->toString(), resultType->toString(),
-                     body->toString());
-}
-
 A_FuncSign::A_FuncSign(std::shared_ptr<Ast> a_id,
                        std::shared_ptr<A_Params> a_params,
                        const Location &location)
@@ -774,12 +610,6 @@ A_FuncSign::A_FuncSign(std::shared_ptr<Ast> a_id,
 
 AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
 
-std::string A_FuncSign::toString() const {
-  return fmt::format("[@{} location:{}, id:{} params:{}]",
-                     name().toSymbolName(), location().toString(),
-                     id->toString(), params ? params->toString() : "nil");
-}
-
 A_Params::A_Params(std::shared_ptr<A_Param> a_param,
                    std::shared_ptr<A_Params> a_next, const Location &location)
     : Ast("params", location), param(a_param), next(a_next) {
@@ -787,12 +617,6 @@ A_Params::A_Params(std::shared_ptr<A_Param> a_param,
 }
 
 AstCategory A_Params::category() const { return AstCategory::Params; }
-
-std::string A_Params::toString() const {
-  return fmt::format("[@{} location:{}, param:{} next:{}]",
-                     name().toSymbolName(), location().toString(),
-                     param->toString(), next ? next->toString() : "nil");
-}
 
 A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
                  const Location &location)
@@ -803,11 +627,6 @@ A_Param::A_Param(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
 
 AstCategory A_Param::category() const { return AstCategory::Param; }
 
-std::string A_Param::toString() const {
-  return fmt::format("[@{} location:{}, id:{} type:{}]", name().toSymbolName(),
-                     location().toString(), id->toString(), type->toString());
-}
-
 A_VarDef::A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
                    std::shared_ptr<Ast> a_expr, const Location &location)
     : Ast("varDef", location), id(a_id), type(a_type), expr(a_expr) {
@@ -817,12 +636,6 @@ A_VarDef::A_VarDef(std::shared_ptr<Ast> a_id, std::shared_ptr<Ast> a_type,
 }
 
 AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
-
-std::string A_VarDef::toString() const {
-  return fmt::format("[@{} location:{}, id:{} type:{} expr:{}]",
-                     name().toSymbolName(), location().toString(),
-                     id->toString(), type->toString(), expr->toString());
-}
 
 // definition and declaration }
 
@@ -835,23 +648,10 @@ A_TopStats::A_TopStats(std::shared_ptr<Ast> a_topStat,
 
 AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
 
-std::string A_TopStats::toString() const {
-  return fmt::format("[@{} location:{}, topStat:{} next:{}]",
-                     name().toSymbolName(), location().toString(),
-                     topStat ? topStat->toString() : "nil",
-                     next ? next->toString() : "nil");
-}
-
 A_CompileUnit::A_CompileUnit(std::shared_ptr<A_TopStats> a_topStats,
                              const Location &location)
     : Ast("compileUnit", location), topStats(a_topStats) {}
 
 AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
-
-std::string A_CompileUnit::toString() const {
-  return fmt::format("[@{} location:{}, topStats:{}]", name().toSymbolName(),
-                     location().toString(),
-                     topStats ? topStats->toString() : "nil");
-}
 
 // compile unit }

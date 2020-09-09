@@ -93,7 +93,7 @@ public:
   Ast(const std::string &name, const Location &location = Location());
   virtual ~Ast() = default;
   virtual AstCategory category() const = 0;
-  virtual std::string toString() const = 0;
+  virtual std::string toString() const;
 
   static bool isLiteral(std::shared_ptr<Ast> e);
   static bool isId(std::shared_ptr<Ast> e);
@@ -126,7 +126,6 @@ public:
   A_Integer(const std::string &literal, const Location &location);
   virtual ~A_Integer() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 
   virtual int bits() const;
   virtual int base() const;
@@ -155,7 +154,6 @@ public:
   A_Float(const std::string &literal, const Location &location);
   virtual ~A_Float() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 
   virtual int bits() const;
   virtual BitCategory bitCategory() const;
@@ -179,7 +177,6 @@ public:
   A_String(const std::string &literal, const Location &location);
   virtual ~A_String() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 
   virtual QuoteCategory quoteCategory() const;
   virtual const std::string &asString() const;
@@ -194,7 +191,6 @@ public:
   A_Character(const std::string &literal, const Location &location);
   virtual ~A_Character() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 
   virtual char asChar() const;
 
@@ -207,7 +203,6 @@ public:
   A_Boolean(bool a_value, const Location &location);
   virtual ~A_Boolean() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   bool value;
 };
 
@@ -216,7 +211,6 @@ public:
   A_Nil(const Location &location);
   virtual ~A_Nil() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 };
 
 class A_Void : public Ast {
@@ -224,7 +218,6 @@ public:
   A_Void(const Location &location);
   virtual ~A_Void() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 };
 
 // literal }
@@ -236,7 +229,6 @@ public:
   A_VarId(const std::string &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 };
 
 // id }
@@ -248,7 +240,6 @@ public:
   A_Throw(std::shared_ptr<Ast> a_expr, const Location &location);
   virtual ~A_Throw() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> expr;
 };
 
@@ -257,7 +248,6 @@ public:
   A_Return(std::shared_ptr<Ast> a_expr, const Location &location);
   virtual ~A_Return() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> expr;
 };
 
@@ -266,7 +256,6 @@ public:
   A_Break(const Location &location);
   virtual ~A_Break() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 };
 
 class A_Continue : public Ast {
@@ -274,7 +263,6 @@ public:
   A_Continue(const Location &location);
   virtual ~A_Continue() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
 };
 
 class A_Assign : public Ast {
@@ -283,7 +271,6 @@ public:
            std::shared_ptr<Ast> a_assignor, const Location &location);
   virtual ~A_Assign() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> assignee; // left
   int assignOp;
   std::shared_ptr<Ast> assignor; // right
@@ -295,7 +282,6 @@ public:
                 const Location &location);
   virtual ~A_PostfixExpr() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> expr;
   int postfixOp;
 };
@@ -306,7 +292,6 @@ public:
               std::shared_ptr<Ast> a_right, const Location &location);
   virtual ~A_InfixExpr() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> left;
   int infixOp;
   std::shared_ptr<Ast> right;
@@ -318,7 +303,6 @@ public:
                const Location &location);
   virtual ~A_PrefixExpr() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   int prefixOp;
   std::shared_ptr<Ast> expr;
 };
@@ -329,7 +313,6 @@ public:
          const Location &location);
   virtual ~A_Call() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<A_Exprs> args;
 };
@@ -340,7 +323,6 @@ public:
           const Location &location);
   virtual ~A_Exprs() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> expr;
   std::shared_ptr<A_Exprs> next;
 };
@@ -355,7 +337,6 @@ public:
        std::shared_ptr<Ast> a_elsep, const Location &location);
   virtual ~A_If() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> condition;
   std::shared_ptr<Ast> thenp;
   std::shared_ptr<Ast> elsep;
@@ -368,7 +349,6 @@ public:
          const Location &location);
   virtual ~A_Loop() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> condition;
   std::shared_ptr<Ast> body;
 };
@@ -378,7 +358,6 @@ public:
   A_Yield(std::shared_ptr<Ast> expr, const Location &location);
   virtual ~A_Yield() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> expr;
 };
 
@@ -388,7 +367,6 @@ public:
                   std::shared_ptr<Ast> a_update, const Location &location);
   virtual ~A_LoopCondition() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> init;
   std::shared_ptr<Ast> condition;
   std::shared_ptr<Ast> update;
@@ -400,7 +378,6 @@ public:
                    const Location &location);
   virtual ~A_LoopEnumerator() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<Ast> expr;
 };
@@ -411,7 +388,6 @@ public:
             const Location &location);
   virtual ~A_DoWhile() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> body;
   std::shared_ptr<Ast> condition;
 };
@@ -422,7 +398,6 @@ public:
         std::shared_ptr<Ast> a_finallyp, const Location &location);
   virtual ~A_Try() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> tryp;
   std::shared_ptr<Ast> catchp;
   std::shared_ptr<Ast> finallyp;
@@ -433,7 +408,6 @@ public:
   A_Block(std::shared_ptr<A_BlockStats> a_blockStats, const Location &location);
   virtual ~A_Block() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<A_BlockStats> blockStats;
 };
 
@@ -443,7 +417,6 @@ public:
                std::shared_ptr<A_BlockStats> a_next, const Location &location);
   virtual ~A_BlockStats() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> blockStat;
   std::shared_ptr<A_BlockStats> next;
 };
@@ -457,7 +430,6 @@ public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   int token;
 };
 
@@ -471,7 +443,6 @@ public:
             std::shared_ptr<Ast> a_body, const Location &location);
   virtual ~A_FuncDef() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> funcSign;
   std::shared_ptr<Ast> resultType;
   std::shared_ptr<Ast> body;
@@ -483,7 +454,6 @@ public:
              const Location &location);
   virtual ~A_FuncSign() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<A_Params> params;
 };
@@ -494,7 +464,6 @@ public:
            const Location &location);
   virtual ~A_Params() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<A_Param> param;
   std::shared_ptr<A_Params> next;
 };
@@ -505,7 +474,6 @@ public:
           const Location &location);
   virtual ~A_Param() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<Ast> type;
 };
@@ -516,7 +484,6 @@ public:
            std::shared_ptr<Ast> a_expr, const Location &location);
   virtual ~A_VarDef() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> id;
   std::shared_ptr<Ast> type;
   std::shared_ptr<Ast> expr;
@@ -532,7 +499,6 @@ public:
              const Location &location);
   virtual ~A_TopStats() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<Ast> topStat;
   std::shared_ptr<A_TopStats> next;
 };
@@ -543,7 +509,6 @@ public:
                 const Location &location);
   virtual ~A_CompileUnit() = default;
   virtual AstCategory category() const;
-  virtual std::string toString() const;
   std::shared_ptr<A_TopStats> topStats;
 };
 

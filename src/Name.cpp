@@ -49,6 +49,8 @@ const char *Name::raw() const { return name_; }
 
 unsigned long long Name::id() const { return id_; }
 
+std::string Name::toString() const { return fmt::format("{}.{}", raw(), id()); }
+
 const char *Name::toLLVMName() const {
   std::stringstream ss;
   ss << "$"

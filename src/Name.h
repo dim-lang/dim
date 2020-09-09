@@ -22,6 +22,7 @@ public:
 
   virtual const char *raw() const;
   virtual unsigned long long id() const;
+  virtual std::string toString() const;
 
   // example:
   // a -> $8f1b.2
