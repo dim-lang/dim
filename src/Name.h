@@ -48,7 +48,7 @@ namespace std {
 
 template <> struct hash<Name> {
   std::size_t operator()(const Name &o) const {
-    return std::hash<std::string>()(o.raw());
+    return std::hash<std::string>()(o.toString());
   }
 };
 
