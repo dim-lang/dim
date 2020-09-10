@@ -19,67 +19,6 @@ class FileAppender;
 
 namespace detail {
 
-/**
- * read line by line terminate with '\0', usage:
- *
- * <code>
- * while (lineIterator.hasNext()) {
- *   std::string line = lineIterator.next();
- * }
- * </code>
- */
-class FileReaderLineIterator {
-public:
-  FileReaderLineIterator(FileReader *reader);
-  virtual ~FileReaderLineIterator() = default;
-  std::string next();
-  bool hasNext();
-
-private:
-  FileReader *reader_;
-  char *linePosition_;
-};
-
-/**
- * read char by char, usage:
- *
- * <code>
- * while (charIterator.hasNext()) {
- *   char c = charIterator.next();
- * }
- * </code>
- */
-class FileReaderCharIterator {
-public:
-  FileReaderCharIterator(FileReader *reader);
-  virtual ~FileReaderCharIterator() = default;
-  char next();
-  bool hasNext();
-
-private:
-  FileReader *reader_;
-};
-
-/**
- * read buffer by buffer, usage:
- *
- * <code>
- * while (bufferIterator.hasNext()) {
- *   std::string buffer = bufferIterator.next(n);
- * }
- * </code>
- */
-class FileReaderBlockIterator {
-public:
-  FileReaderBlockIterator(FileReader *reader);
-  virtual ~FileReaderBlockIterator() = default;
-  std::string next(int n);
-  bool hasNext(int n);
-
-private:
-  FileReader *reader_;
-};
-
 class FileInfo {
 public:
   FileInfo(const std::string &fileName);
@@ -100,11 +39,11 @@ public:
   // reset writing offset
   virtual void reset(int offset);
   // flush buffer
-  virtual void flush();
-  virtual void write(const char *buf, int n);
-  virtual void writeln(const char *buf, int n);
-  virtual void write(const std::string &buf);
-  virtual void writeln(const std::string &buf = "");
+  virtual int flush();
+  virtual int write(const char *buf, int n);
+  virtual int write(const std::string &buf);
+  virtual int writeln(const char *buf, int n);
+  virtual int writeln(const std::string &buf = "");
 
 protected:
   DynamicBuffer buffer_;
@@ -114,10 +53,6 @@ protected:
 
 class FileReader : public detail::FileInfo {
 public:
-  using line_iterator = detail::FileReaderLineIterator;
-  using char_iterator = detail::FileReaderCharIterator;
-  using block_iterator = detail::FileReaderBlockIterator;
-
   FileReader(const std::string &fileName);
   virtual ~FileReader() = default;
   virtual FileMode mode() const;
@@ -125,17 +60,22 @@ public:
   // reset reading offset
   virtual void reset(int offset = 0);
 
-  // reader iterator
-  virtual line_iterator lines();
-  virtual char_iterator chars();
-  virtual block_iterator blocks();
-
-  virtual std::string read();
+  // read block
+  virtual std::string read(int n);
+  virtual int read(char *buf, int n);
+  // read all
+  virtual std::string readall();
+  virtual int readall(char *buf, int n);
+  // read char
+  virtual std::string readc();
+  virtual int readc(char &c);
+  // read line
+  virtual std::string readln();
+  virtual int readln(char *buf, int n);
 
 private:
-  friend class detail::FileReaderLineIterator;
-  friend class detail::FileReaderCharIterator;
-  friend class detail::FileReaderBlockIterator;
+  virtual void prepareFor(int n);
+  virtual char *prepareUntil(char c);
 
   DynamicBuffer buffer_;
 };

@@ -52,7 +52,7 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    std::string t1 = r1.read();
+    std::string t1 = r1.readall();
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
 
@@ -60,7 +60,7 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    std::string t2 = r2.read();
+    std::string t2 = r2.readall();
     REQUIRE(t2.length() == text2.length());
     REQUIRE(t2 == text2);
   }
@@ -79,10 +79,9 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::line_iterator line1 = r1.lines();
-    std::string t1;
-    while (line1.hasNext()) {
-      t1 += line1.next();
+    std::string t1, t11;
+    while (!(t11 = r1.readln()).empty()) {
+      t1 += t11;
     }
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
@@ -91,10 +90,9 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::line_iterator line2 = r2.lines();
-    std::string t2;
-    while (line2.hasNext()) {
-      t2 += line2.next();
+    std::string t2, t22;
+    while (!(t22 = r2.readln()).empty()) {
+      t2 += t22;
     }
     REQUIRE(t2.length() == text2.length());
     REQUIRE(t2 == text2);
@@ -114,10 +112,9 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::char_iterator c1 = r1.chars();
-    std::string t1;
-    while (c1.hasNext()) {
-      t1 += c1.next();
+    std::string t1, t11;
+    while (!(t11 = r1.readc()).empty()) {
+      t1 += t11;
     }
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
@@ -126,10 +123,9 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::char_iterator c2 = r2.chars();
-    std::string t2;
-    while (c2.hasNext()) {
-      t2 += c2.next();
+    std::string t2, t22;
+    while (!(t22 = r2.readc()).empty()) {
+      t2 += t22;
     }
     REQUIRE(t2.length() == text2.length());
     REQUIRE(t2 == text2);
@@ -149,12 +145,11 @@ TEST_CASE("File", "[File]") {
     w1.write(text1);
     w1.flush();
     FileReader r1(f1);
-    FileReader::block_iterator block1 = r1.blocks();
-    std::string t1;
-    while (block1.hasNext(BLOCK_SIZE)) {
-      t1 += block1.next(BLOCK_SIZE);
+    std::string t1, t11;
+    while (!(t11 = r1.read(BLOCK_SIZE)).empty()) {
+      t1 += t11;
     }
-    t1 += block1.next(BLOCK_SIZE);
+    t1 += r1.read(BLOCK_SIZE);
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
 
@@ -162,12 +157,11 @@ TEST_CASE("File", "[File]") {
     w2.write(text2);
     w2.flush();
     FileReader r2(f2);
-    FileReader::block_iterator block2 = r2.blocks();
-    std::string t2;
-    while (block2.hasNext(BLOCK_SIZE)) {
-      t2 += block2.next(BLOCK_SIZE);
+    std::string t2, t22;
+    while (!(t22 = r2.read(BLOCK_SIZE)).empty()) {
+      t2 += t22;
     }
-    t2 += block2.next(BLOCK_SIZE);
+    t2 += r2.read(BLOCK_SIZE);
     REQUIRE(t2.length() == text2.length());
     REQUIRE(t2 == text2);
   }
@@ -187,7 +181,7 @@ TEST_CASE("File", "[File]") {
     a1.write(text1);
     a1.flush();
     FileReader r1(f1);
-    std::string t1 = r1.read();
+    std::string t1 = r1.readall();
     REQUIRE(t1.length() == text1.length());
     REQUIRE(t1 == text1);
 
@@ -199,7 +193,7 @@ TEST_CASE("File", "[File]") {
     a2.write(l5);
     a2.flush();
     FileReader r2(f2);
-    std::string t2 = r2.read();
+    std::string t2 = r2.readall();
     REQUIRE(t2.length() == l6.length());
     REQUIRE(t2 == l6);
   }

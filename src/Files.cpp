@@ -3,6 +3,7 @@
 
 #include "Files.h"
 #include "Log.h"
+#include <cerrno>
 #include <cstdio>
 
 #define BUF_SIZE 4096
@@ -21,78 +22,6 @@ FileInfo::~FileInfo() {
 
 const std::string &FileInfo::fileName() const { return fileName_; }
 
-FileReaderLineIterator::FileReaderLineIterator(FileReader *reader)
-    : reader_(reader), linePosition_(nullptr) {}
-
-std::string FileReaderLineIterator::next() {
-  LOG_ASSERT(linePosition_, "linePosition_ is null");
-  int len = linePosition_ - reader_->buffer_.begin() + 1;
-  linePosition_ = nullptr;
-  return reader_->buffer_.write(len);
-}
-
-bool FileReaderLineIterator::hasNext() {
-  if (linePosition_) {
-    return true;
-  }
-  int n = 0;
-  do {
-    n = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
-    linePosition_ = reader_->buffer_.search('\n');
-    if (linePosition_) {
-      return true;
-    }
-  } while (n > 0);
-  return false;
-}
-
-FileReaderCharIterator::FileReaderCharIterator(FileReader *reader)
-    : reader_(reader) {}
-
-char FileReaderCharIterator::next() {
-  LOG_ASSERT(!reader_->buffer_.empty(), "reader_->buffer_ is empty");
-  char c;
-  int writen = reader_->buffer_.write(&c, 1);
-  LOG_ASSERT(writen == 1, "writen {} == 1", writen);
-  return c;
-}
-
-bool FileReaderCharIterator::hasNext() {
-  if (!reader_->buffer_.empty()) {
-    return true;
-  }
-  int n = 0;
-  do {
-    n = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
-    if (!reader_->buffer_.empty()) {
-      return true;
-    }
-  } while (n > 0);
-  return false;
-}
-
-FileReaderBlockIterator::FileReaderBlockIterator(FileReader *reader)
-    : reader_(reader) {}
-
-std::string FileReaderBlockIterator::next(int n) {
-  LOG_ASSERT(n >= 0, "n {} >= 0", n);
-  return reader_->buffer_.write(n);
-}
-
-bool FileReaderBlockIterator::hasNext(int n) {
-  if (reader_->buffer_.size() >= n) {
-    return true;
-  }
-  int c = 0;
-  do {
-    c = reader_->buffer_.readfile(reader_->fp_, BUF_SIZE);
-    if (reader_->buffer_.size() >= n) {
-      return true;
-    }
-  } while (c > 0);
-  return false;
-}
-
 FileWriterImpl::FileWriterImpl(const std::string &fileName)
     : FileInfo(fileName) {}
 
@@ -100,32 +29,31 @@ FileWriterImpl::~FileWriterImpl() { flush(); }
 
 void FileWriterImpl::reset(int offset) { std::fseek(fp_, offset, SEEK_SET); }
 
-void FileWriterImpl::flush() {
+int FileWriterImpl::flush() {
   if (buffer_.size() > 0) {
     buffer_.writefile(fp_);
   }
-  std::fflush(fp_);
+  return std::fflush(fp_) ? errno : 0;
 }
 
-void FileWriterImpl::write(const char *buf, int n) {
-  buffer_.read(buf, n);
+int FileWriterImpl::write(const char *buf, int n) {
+  int r = buffer_.read(buf, n);
   if (buffer_.size() >= BUF_SIZE) {
     buffer_.writefile(fp_, BUF_SIZE);
   }
+  return r;
 }
 
-void FileWriterImpl::writeln(const char *buf, int n) {
-  write(buf, n);
-  write("\n", (int)std::strlen("\n"));
+int FileWriterImpl::write(const std::string &buf) {
+  return write(buf.data(), buf.length());
 }
 
-void FileWriterImpl::write(const std::string &buf) {
-  write(buf.data(), buf.length());
+int FileWriterImpl::writeln(const char *buf, int n) {
+  return write(buf, n) + write("\n", (int)std::strlen("\n"));
 }
 
-void FileWriterImpl::writeln(const std::string &buf) {
-  write(buf);
-  write("\n");
+int FileWriterImpl::writeln(const std::string &buf) {
+  return write(buf) + write("\n");
 }
 
 } // namespace detail
@@ -140,21 +68,86 @@ FileMode FileReader::mode() const { return FileMode::Read; }
 
 void FileReader::reset(int offset) { std::fseek(fp_, offset, SEEK_SET); }
 
-FileReader::line_iterator FileReader::lines() {
-  return FileReader::line_iterator(this);
+void FileReader::prepareFor(int n) {
+  if (n <= 0) {
+    return;
+  }
+  if (buffer_.size() < n) {
+    int c = 0;
+    do {
+      c = buffer_.readfile(fp_, BUF_SIZE);
+      if (buffer_.size() >= n) {
+        break;
+      }
+    } while (c > 0);
+  }
 }
 
-FileReader::char_iterator FileReader::chars() {
-  return FileReader::char_iterator(this);
+std::string FileReader::read(int n) {
+  if (n <= 0) {
+    return "";
+  }
+  prepareFor(n);
+  return buffer_.write(n);
 }
 
-FileReader::block_iterator FileReader::blocks() {
-  return FileReader::block_iterator(this);
+int FileReader::read(char *buf, int n) {
+  if (!buf || n <= 0) {
+    return 0;
+  }
+  prepareFor(n);
+  return buffer_.write(buf, n);
 }
 
-std::string FileReader::read() {
+std::string FileReader::readall() {
   buffer_.readfile(fp_);
   return buffer_.write(buffer_.size());
+}
+
+int FileReader::readall(char *buf, int n) {
+  buffer_.readfile(fp_);
+  return buffer_.write(buf, std::min(buffer_.size(), n));
+}
+
+std::string FileReader::readc() {
+  prepareFor(1);
+  return buffer_.write(1);
+}
+
+int FileReader::readc(char &c) {
+  prepareFor(1);
+  return buffer_.write(&c, 1);
+}
+
+char *FileReader::prepareUntil(char c) {
+  char *linepos = nullptr;
+  int n = 0;
+  do {
+    n = buffer_.readfile(fp_, BUF_SIZE);
+    linepos = buffer_.search(c);
+    if (linepos) {
+      break;
+    }
+  } while (n > 0);
+  return linepos;
+}
+
+std::string FileReader::readln() {
+  char *linepos = prepareUntil('\n');
+  if (!linepos) {
+    return "";
+  }
+  int len = linepos - buffer_.begin() + 1;
+  return buffer_.write(len);
+}
+
+int FileReader::readln(char *buf, int n) {
+  char *linepos = prepareUntil('\n');
+  if (!linepos) {
+    return 0;
+  }
+  int len = linepos - buffer_.begin() + 1;
+  return buffer_.write(buf, std::min(len, n));
 }
 
 FileWriter::FileWriter(const std::string &fileName)
