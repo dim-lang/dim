@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#define DLT(x)                                                                 \
+#define DEL(x)                                                                 \
   do {                                                                         \
     if (x) {                                                                   \
       delete x;                                                                \
@@ -375,7 +375,7 @@ A_Throw::A_Throw(Ast *a_expr, const Location &location)
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_Throw::~A_Throw() { DLT(expr); }
+A_Throw::~A_Throw() { DEL(expr); }
 
 AstCategory A_Throw::category() const { return AstCategory::Throw; }
 
@@ -386,7 +386,7 @@ AstCategory A_Throw::category() const { return AstCategory::Throw; }
 A_Return::A_Return(Ast *a_expr, const Location &location)
     : Ast("return", location), expr(a_expr) {}
 
-A_Return::~A_Return() { DLT(expr); }
+A_Return::~A_Return() { DEL(expr); }
 
 AstCategory A_Return::category() const { return AstCategory::Return; }
 
@@ -419,8 +419,8 @@ A_Assign::A_Assign(Ast *a_assignee, int a_assignOp, Ast *a_assignor,
 }
 
 A_Assign::~A_Assign() {
-  DLT(assignee);
-  DLT(assignor);
+  DEL(assignee);
+  DEL(assignor);
 }
 
 AstCategory A_Assign::category() const { return AstCategory::Assign; }
@@ -435,7 +435,7 @@ A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PostfixExpr::~A_PostfixExpr() { DLT(expr); }
+A_PostfixExpr::~A_PostfixExpr() { DEL(expr); }
 
 AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
 
@@ -452,8 +452,8 @@ A_InfixExpr::A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
 }
 
 A_InfixExpr::~A_InfixExpr() {
-  DLT(left);
-  DLT(right);
+  DEL(left);
+  DEL(right);
 }
 
 AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
@@ -468,7 +468,7 @@ A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PrefixExpr::~A_PrefixExpr() { DLT(expr); }
+A_PrefixExpr::~A_PrefixExpr() { DEL(expr); }
 
 AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
 
@@ -482,8 +482,8 @@ A_Call::A_Call(Ast *a_id, A_Exprs *a_args, const Location &location)
 }
 
 A_Call::~A_Call() {
-  DLT(id);
-  DLT(args);
+  DEL(id);
+  DEL(args);
 }
 
 AstCategory A_Call::category() const { return AstCategory::Call; }
@@ -498,8 +498,8 @@ A_Exprs::A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location)
 }
 
 A_Exprs::~A_Exprs() {
-  DLT(expr);
-  DLT(next);
+  DEL(expr);
+  DEL(next);
 }
 
 AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
@@ -517,9 +517,9 @@ A_If::A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep,
 }
 
 A_If::~A_If() {
-  DLT(condition);
-  DLT(thenp);
-  DLT(elsep);
+  DEL(condition);
+  DEL(thenp);
+  DEL(elsep);
 }
 
 AstCategory A_If::category() const { return AstCategory::If; }
@@ -535,8 +535,8 @@ A_Loop::A_Loop(Ast *a_condition, Ast *a_body, const Location &location)
 }
 
 A_Loop::~A_Loop() {
-  DLT(condition);
-  DLT(body);
+  DEL(condition);
+  DEL(body);
 }
 
 AstCategory A_Loop::category() const { return AstCategory::Loop; }
@@ -550,7 +550,7 @@ A_Yield::A_Yield(Ast *a_expr, const Location &location)
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_Yield::~A_Yield() { DLT(expr); }
+A_Yield::~A_Yield() { DEL(expr); }
 
 AstCategory A_Yield::category() const { return AstCategory::Yield; }
 
@@ -567,9 +567,9 @@ AstCategory A_LoopCondition::category() const {
   return AstCategory::LoopCondition;
 }
 A_LoopCondition::~A_LoopCondition() {
-  DLT(init);
-  DLT(condition);
-  DLT(update);
+  DEL(init);
+  DEL(condition);
+  DEL(update);
 }
 
 // A_LoopCondition }
@@ -584,8 +584,8 @@ A_LoopEnumerator::A_LoopEnumerator(Ast *a_id, Ast *a_expr,
 }
 
 A_LoopEnumerator::~A_LoopEnumerator() {
-  DLT(id);
-  DLT(expr);
+  DEL(id);
+  DEL(expr);
 }
 
 AstCategory A_LoopEnumerator::category() const {
@@ -603,8 +603,8 @@ A_DoWhile::A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location)
 }
 
 A_DoWhile::~A_DoWhile() {
-  DLT(body);
-  DLT(condition);
+  DEL(body);
+  DEL(condition);
 }
 
 AstCategory A_DoWhile::category() const { return AstCategory::DoWhile; }
@@ -622,9 +622,9 @@ A_Try::A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp,
 }
 
 A_Try::~A_Try() {
-  DLT(tryp);
-  DLT(catchp);
-  DLT(finallyp);
+  DEL(tryp);
+  DEL(catchp);
+  DEL(finallyp);
 }
 
 AstCategory A_Try::category() const { return AstCategory::Try; }
@@ -636,7 +636,7 @@ AstCategory A_Try::category() const { return AstCategory::Try; }
 A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
     : Ast("block", location), blockStats(a_blockStats) {}
 
-A_Block::~A_Block() { DLT(blockStats); }
+A_Block::~A_Block() { DEL(blockStats); }
 
 AstCategory A_Block::category() const { return AstCategory::Block; }
 
@@ -649,8 +649,8 @@ A_BlockStats::A_BlockStats(Ast *a_blockStat, A_BlockStats *a_next,
     : Ast("blockStats", location), blockStat(a_blockStat), next(a_next) {}
 
 A_BlockStats::~A_BlockStats() {
-  DLT(blockStat);
-  DLT(next);
+  DEL(blockStat);
+  DEL(next);
 }
 
 AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
@@ -684,9 +684,9 @@ A_FuncDef::A_FuncDef(Ast *a_funcSign, Ast *a_resultType, Ast *a_body,
 }
 
 A_FuncDef::~A_FuncDef() {
-  DLT(funcSign);
-  DLT(resultType);
-  DLT(body);
+  DEL(funcSign);
+  DEL(resultType);
+  DEL(body);
 }
 
 AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
@@ -697,8 +697,8 @@ A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
 }
 
 A_FuncSign::~A_FuncSign() {
-  DLT(id);
-  DLT(params);
+  DEL(id);
+  DEL(params);
 }
 
 AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
@@ -709,8 +709,8 @@ A_Params::A_Params(A_Param *a_param, A_Params *a_next, const Location &location)
 }
 
 A_Params::~A_Params() {
-  DLT(param);
-  DLT(next);
+  DEL(param);
+  DEL(next);
 }
 
 AstCategory A_Params::category() const { return AstCategory::Params; }
@@ -722,8 +722,8 @@ A_Param::A_Param(Ast *a_id, Ast *a_type, const Location &location)
 }
 
 A_Param::~A_Param() {
-  DLT(id);
-  DLT(type);
+  DEL(id);
+  DEL(type);
 }
 
 AstCategory A_Param::category() const { return AstCategory::Param; }
@@ -737,9 +737,9 @@ A_VarDef::A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr,
 }
 
 A_VarDef::~A_VarDef() {
-  DLT(id);
-  DLT(type);
-  DLT(expr);
+  DEL(id);
+  DEL(type);
+  DEL(expr);
 }
 
 AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
@@ -753,8 +753,8 @@ A_TopStats::A_TopStats(Ast *a_topStat, A_TopStats *a_next,
     : Ast("topStats", location), topStat(a_topStat), next(a_next) {}
 
 A_TopStats::~A_TopStats() {
-  DLT(topStat);
-  DLT(next);
+  DEL(topStat);
+  DEL(next);
 }
 
 AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
@@ -762,7 +762,7 @@ AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
 A_CompileUnit::A_CompileUnit(A_TopStats *a_topStats, const Location &location)
     : Ast("compileUnit", location), topStats(a_topStats) {}
 
-A_CompileUnit::~A_CompileUnit() { DLT(topStats); }
+A_CompileUnit::~A_CompileUnit() { DEL(topStats); }
 
 AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
 
