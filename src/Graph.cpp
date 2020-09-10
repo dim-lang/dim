@@ -142,44 +142,43 @@ private:
       return u;
     }
     if (Ast::isLiteral(ast)) {
-      switch (ast->category()) {
-      case AstCategory::Integer: {
+      switch (ast->kind()) {
+      case AstKind::Integer: {
         L_NODE(A_Integer);
       }
-      case AstCategory::Float: {
+      case AstKind::Float: {
         L_NODE(A_Float);
       }
-      case AstCategory::Boolean: {
+      case AstKind::Boolean: {
         L_NODE(A_Boolean);
       }
-      case AstCategory::Character: {
+      case AstKind::Character: {
         L_NODE(A_Character);
       }
-      case AstCategory::String: {
+      case AstKind::String: {
         L_NODE(A_String);
       }
-      case AstCategory::Nil: {
+      case AstKind::Nil: {
         NODE;
       }
-      case AstCategory::Void: {
+      case AstKind::Void: {
         NODE;
       }
       default:
-        LOG_ASSERT(false, "invalid literal type: {}",
-                   ast->category()._to_string());
+        LOG_ASSERT(false, "invalid literal type: {}", ast->kind()._to_string());
       }
     }
-    switch (ast->category()) {
-    case AstCategory::VarId: {
+    switch (ast->kind()) {
+    case AstKind::VarId: {
       L_NODE(A_VarId);
     }
-    case AstCategory::Break: {
+    case AstKind::Break: {
       NODE;
     }
-    case AstCategory::Continue: {
+    case AstKind::Continue: {
       NODE;
     }
-    case AstCategory::Throw: {
+    case AstKind::Throw: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -190,7 +189,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::Return: {
+    case AstKind::Return: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -201,7 +200,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::Assign: {
+    case AstKind::Assign: {
       S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("assignOp"),
@@ -219,7 +218,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::PostfixExpr: {
+    case AstKind::PostfixExpr: {
       S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("postfixOp"),
@@ -234,7 +233,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::InfixExpr: {
+    case AstKind::InfixExpr: {
       S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("infixOp"),
@@ -252,7 +251,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::PrefixExpr: {
+    case AstKind::PrefixExpr: {
       S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("prefixOp"),
@@ -267,7 +266,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::Call: {
+    case AstKind::Call: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -281,7 +280,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::Exprs: {
+    case AstKind::Exprs: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -295,7 +294,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::If: {
+    case AstKind::If: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -312,7 +311,7 @@ private:
       edges.push_back(ev);
       return u;
     }
-    case AstCategory::Loop: {
+    case AstKind::Loop: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -326,7 +325,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::Yield: {
+    case AstKind::Yield: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -337,7 +336,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::LoopCondition: {
+    case AstKind::LoopCondition: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -354,7 +353,7 @@ private:
       edges.push_back(ev);
       return u;
     }
-    case AstCategory::LoopEnumerator: {
+    case AstKind::LoopEnumerator: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -368,7 +367,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::DoWhile: {
+    case AstKind::DoWhile: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -382,7 +381,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::Try: {
+    case AstKind::Try: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -399,7 +398,7 @@ private:
       edges.push_back(ev);
       return u;
     }
-    case AstCategory::Block: {
+    case AstKind::Block: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -410,7 +409,7 @@ private:
       edges.push_back(e);
       return u;
     }
-    case AstCategory::BlockStats: {
+    case AstKind::BlockStats: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -424,7 +423,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::PlainType: {
+    case AstKind::PlainType: {
       S_NODE;
       u->label.push_back(std::make_pair(
           Strings::dup("token"),
@@ -436,7 +435,7 @@ private:
       nodes.push_back(u);
       return u;
     }
-    case AstCategory::FuncDef: {
+    case AstKind::FuncDef: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -453,7 +452,7 @@ private:
       edges.push_back(ev);
       return u;
     }
-    case AstCategory::FuncSign: {
+    case AstKind::FuncSign: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -467,7 +466,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::Params: {
+    case AstKind::Params: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -481,7 +480,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::Param: {
+    case AstKind::Param: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -495,7 +494,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::VarDef: {
+    case AstKind::VarDef: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -512,7 +511,7 @@ private:
       edges.push_back(ev);
       return u;
     }
-    case AstCategory::TopStats: {
+    case AstKind::TopStats: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -526,7 +525,7 @@ private:
       edges.push_back(eq);
       return u;
     }
-    case AstCategory::CompileUnit: {
+    case AstKind::CompileUnit: {
       S_NODE;
       u->label.push_back(
           std::make_pair(Strings::dup("location"),
@@ -538,8 +537,7 @@ private:
       return u;
     }
     default:
-      LOG_ASSERT(false, "invalid ast category: {}",
-                 ast->category()._to_string());
+      LOG_ASSERT(false, "invalid ast kind: {}", ast->kind()._to_string());
     }
   }
 };

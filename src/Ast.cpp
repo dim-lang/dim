@@ -32,14 +32,14 @@ std::string Ast::toString() const { return name().toString(); }
 bool Ast::isLiteral(Ast *e) {
   if (!e)
     return false;
-  switch (e->category()) {
-  case AstCategory::Integer:
-  case AstCategory::Float:
-  case AstCategory::Boolean:
-  case AstCategory::Character:
-  case AstCategory::String:
-  case AstCategory::Nil:
-  case AstCategory::Void:
+  switch (e->kind()) {
+  case AstKind::Integer:
+  case AstKind::Float:
+  case AstKind::Boolean:
+  case AstKind::Character:
+  case AstKind::String:
+  case AstKind::Nil:
+  case AstKind::Void:
     return true;
   default:
     return false;
@@ -47,27 +47,27 @@ bool Ast::isLiteral(Ast *e) {
   return false;
 }
 
-bool Ast::isId(Ast *e) { return e && e->category() == (+AstCategory::VarId); }
+bool Ast::isId(Ast *e) { return e && e->kind() == (+AstKind::VarId); }
 
 bool Ast::isExpr(Ast *e) {
   if (!e)
     return false;
-  switch (e->category()) {
-  case AstCategory::If:
-  case AstCategory::Loop:
-  case AstCategory::LoopCondition:
-  case AstCategory::Block:
-  case AstCategory::BlockStats:
-  case AstCategory::Throw:
-  case AstCategory::Return:
-  case AstCategory::Break:
-  case AstCategory::Continue:
-  case AstCategory::Assign:
-  case AstCategory::PostfixExpr:
-  case AstCategory::PrefixExpr:
-  case AstCategory::InfixExpr:
-  case AstCategory::Call:
-  case AstCategory::Exprs:
+  switch (e->kind()) {
+  case AstKind::If:
+  case AstKind::Loop:
+  case AstKind::LoopCondition:
+  case AstKind::Block:
+  case AstKind::BlockStats:
+  case AstKind::Throw:
+  case AstKind::Return:
+  case AstKind::Break:
+  case AstKind::Continue:
+  case AstKind::Assign:
+  case AstKind::PostfixExpr:
+  case AstKind::PrefixExpr:
+  case AstKind::InfixExpr:
+  case AstKind::Call:
+  case AstKind::Exprs:
     return true;
   default:
     return false;
@@ -78,12 +78,12 @@ bool Ast::isExpr(Ast *e) {
 bool Ast::isDef(Ast *e) {
   if (!e)
     return false;
-  switch (e->category()) {
-  case AstCategory::FuncDef:
-  case AstCategory::FuncSign:
-  case AstCategory::Params:
-  case AstCategory::Param:
-  case AstCategory::VarDef:
+  switch (e->kind()) {
+  case AstKind::FuncDef:
+  case AstKind::FuncSign:
+  case AstKind::Params:
+  case AstKind::Param:
+  case AstKind::VarDef:
     return true;
   default:
     return false;
@@ -94,10 +94,10 @@ bool Ast::isDef(Ast *e) {
 bool Ast::isDecl(Ast *e) {
   if (!e)
     return false;
-  switch (e->category()) {
-  case AstCategory::FuncSign:
-  case AstCategory::Params:
-  case AstCategory::Param:
+  switch (e->kind()) {
+  case AstKind::FuncSign:
+  case AstKind::Params:
+  case AstKind::Param:
     return true;
   default:
     return false;
@@ -105,9 +105,7 @@ bool Ast::isDecl(Ast *e) {
   return false;
 }
 
-bool Ast::isType(Ast *e) {
-  return e && e->category() == (+AstCategory::PlainType);
-}
+bool Ast::isType(Ast *e) { return e && e->kind() == (+AstKind::PlainType); }
 
 // Ast }
 
@@ -115,20 +113,19 @@ bool Ast::isType(Ast *e) {
 
 // A_Integer {
 
-static const std::unordered_map<A_Integer::DecimalCategory, std::string>
+static const std::unordered_map<A_Integer::DecimalKind, std::string>
     AIL_DC_Map = {
-        {A_Integer::DecimalCategory::DEC, "DEC"},
-        {A_Integer::DecimalCategory::HEX, "HEX"},
-        {A_Integer::DecimalCategory::BIN, "BIN"},
-        {A_Integer::DecimalCategory::OCT, "OCT"},
+        {A_Integer::DecimalKind::DEC, "DEC"},
+        {A_Integer::DecimalKind::HEX, "HEX"},
+        {A_Integer::DecimalKind::BIN, "BIN"},
+        {A_Integer::DecimalKind::OCT, "OCT"},
 };
 
-static const std::unordered_map<A_Integer::BitCategory, std::string>
-    AIL_BC_Map = {
-        {A_Integer::BitCategory::SIGNED, "SIGNED"},
-        {A_Integer::BitCategory::UNSIGNED, "UNSIGNED"},
-        {A_Integer::BitCategory::LONG, "LONG"},
-        {A_Integer::BitCategory::ULONG, "ULONG"},
+static const std::unordered_map<A_Integer::BitKind, std::string> AIL_BC_Map = {
+    {A_Integer::BitKind::SIGNED, "SIGNED"},
+    {A_Integer::BitKind::UNSIGNED, "UNSIGNED"},
+    {A_Integer::BitKind::LONG, "LONG"},
+    {A_Integer::BitKind::ULONG, "ULONG"},
 };
 
 A_Integer::A_Integer(const std::string &literal, const Location &location)
@@ -143,19 +140,19 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
     switch (literal_[1]) {
     case 'x':
     case 'X':
-      decimalCategory_ = A_Integer::DecimalCategory::HEX;
+      decimalKind_ = A_Integer::DecimalKind::HEX;
       base_ = 16;
       startPosition = 2;
       break;
     case 'o':
     case 'O':
-      decimalCategory_ = A_Integer::DecimalCategory::OCT;
+      decimalKind_ = A_Integer::DecimalKind::OCT;
       base_ = 8;
       startPosition = 2;
       break;
     case 'b':
     case 'B':
-      decimalCategory_ = A_Integer::DecimalCategory::BIN;
+      decimalKind_ = A_Integer::DecimalKind::BIN;
       base_ = 2;
       startPosition = 2;
       break;
@@ -163,7 +160,7 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
       break;
     }
   } else {
-    decimalCategory_ = A_Integer::DecimalCategory::DEC;
+    decimalKind_ = A_Integer::DecimalKind::DEC;
     base_ = 10;
     startPosition = 0;
   }
@@ -173,21 +170,21 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
   std::vector<char> longPostfix = {'l', 'L'};
   std::vector<char> unsignedPostfix = {'u', 'U'};
   if (Strings::endWith(literal_, bitPostfix.begin(), bitPostfix.end())) {
-    bitCategory_ = A_Integer::BitCategory::ULONG;
+    bitKind_ = A_Integer::BitKind::ULONG;
     bits_ = 64;
     endPosition = (int)literal_.length() - 2;
   } else if (Strings::endWith(literal_, longPostfix.begin(),
                               longPostfix.end())) {
-    bitCategory_ = A_Integer::BitCategory::LONG;
+    bitKind_ = A_Integer::BitKind::LONG;
     bits_ = 64;
     endPosition = (int)literal_.length() - 1;
   } else if (Strings::endWith(literal_, unsignedPostfix.begin(),
                               unsignedPostfix.end())) {
-    bitCategory_ = A_Integer::BitCategory::UNSIGNED;
+    bitKind_ = A_Integer::BitKind::UNSIGNED;
     bits_ = 32;
     endPosition = (int)literal_.length() - 1;
   } else {
-    bitCategory_ = A_Integer::BitCategory::SIGNED;
+    bitKind_ = A_Integer::BitKind::SIGNED;
     bits_ = 32;
     endPosition = (int)literal_.length();
   }
@@ -195,7 +192,7 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
   parsed_ = literal_.substr(startPosition, endPosition - startPosition);
 }
 
-AstCategory A_Integer::category() const { return AstCategory::Integer; }
+AstKind A_Integer::kind() const { return AstKind::Integer; }
 
 const std::string &A_Integer::literal() const { return literal_; }
 
@@ -203,11 +200,9 @@ int A_Integer::bits() const { return bits_; }
 
 int A_Integer::base() const { return base_; }
 
-A_Integer::DecimalCategory A_Integer::decimalCategory() const {
-  return decimalCategory_;
-}
+A_Integer::DecimalKind A_Integer::decimalKind() const { return decimalKind_; }
 
-A_Integer::BitCategory A_Integer::bitCategory() const { return bitCategory_; }
+A_Integer::BitKind A_Integer::bitKind() const { return bitKind_; }
 
 int32_t A_Integer::asInt32() const {
   return static_cast<int32_t>(std::stol(parsed_, nullptr, base_));
@@ -229,10 +224,9 @@ uint64_t A_Integer::asUInt64() const {
 
 // A_Float {
 
-const static std::unordered_map<A_Float::BitCategory, std::string> AFL_BC_Map =
-    {
-        {A_Float::BitCategory::FLT, "FLT"},
-        {A_Float::BitCategory::DBL, "DBL"},
+const static std::unordered_map<A_Float::BitKind, std::string> AFL_BC_Map = {
+    {A_Float::BitKind::FLT, "FLT"},
+    {A_Float::BitKind::DBL, "DBL"},
 };
 
 A_Float::A_Float(const std::string &literal, const Location &location)
@@ -244,11 +238,11 @@ A_Float::A_Float(const std::string &literal, const Location &location)
   int endPosition = (int)literal_.length();
   std::vector<char> doublePostfix = {'d', 'D'};
   if (Strings::endWith(literal_, doublePostfix.begin(), doublePostfix.end())) {
-    bitCategory_ = A_Float::BitCategory::DBL;
+    bitKind_ = A_Float::BitKind::DBL;
     bits_ = 64;
     endPosition = (int)literal_.length();
   } else {
-    bitCategory_ = A_Float::BitCategory::FLT;
+    bitKind_ = A_Float::BitKind::FLT;
     bits_ = 32;
     endPosition = (int)literal_.length() - 1;
   }
@@ -256,13 +250,13 @@ A_Float::A_Float(const std::string &literal, const Location &location)
   parsed_ = literal_.substr(startPosition, endPosition - startPosition);
 }
 
-AstCategory A_Float::category() const { return AstCategory::Float; }
+AstKind A_Float::kind() const { return AstKind::Float; }
 
 const std::string &A_Float::literal() const { return literal_; }
 
 int A_Float::bits() const { return bits_; }
 
-A_Float::BitCategory A_Float::bitCategory() const { return bitCategory_; }
+A_Float::BitKind A_Float::bitKind() const { return bitKind_; }
 
 float A_Float::asFloat() const { return std::stof(parsed_); }
 
@@ -272,10 +266,9 @@ double A_Float::asDouble() const { return std::stod(parsed_); }
 
 // A_String {
 
-const static std::unordered_map<A_String::QuoteCategory, std::string>
-    ASL_QC_Map = {
-        {A_String::QuoteCategory::SINGLE, "SINGLE"},
-        {A_String::QuoteCategory::TRIPLE, "TRIPLE"},
+const static std::unordered_map<A_String::QuoteKind, std::string> ASL_QC_Map = {
+    {A_String::QuoteKind::SINGLE, "SINGLE"},
+    {A_String::QuoteKind::TRIPLE, "TRIPLE"},
 };
 
 A_String::A_String(const std::string &literal, const Location &location)
@@ -286,20 +279,18 @@ A_String::A_String(const std::string &literal, const Location &location)
                                        multiplePrefix.end())
                 ? literal_.substr(3, literal_.length() - 6)
                 : literal_.substr(1, literal_.length() - 2);
-  quoteCategory_ = literal_.length() >= 3 &&
-                           Strings::startWith(literal_, multiplePrefix.begin(),
-                                              multiplePrefix.end())
-                       ? A_String::QuoteCategory::TRIPLE
-                       : A_String::QuoteCategory::SINGLE;
+  quoteKind_ = literal_.length() >= 3 &&
+                       Strings::startWith(literal_, multiplePrefix.begin(),
+                                          multiplePrefix.end())
+                   ? A_String::QuoteKind::TRIPLE
+                   : A_String::QuoteKind::SINGLE;
 }
 
-AstCategory A_String::category() const { return AstCategory::String; }
+AstKind A_String::kind() const { return AstKind::String; }
 
 const std::string &A_String::literal() const { return literal_; }
 
-A_String::QuoteCategory A_String::quoteCategory() const {
-  return quoteCategory_;
-}
+A_String::QuoteKind A_String::quoteKind() const { return quoteKind_; }
 
 const std::string &A_String::asString() const { return parsed_; }
 
@@ -311,7 +302,7 @@ A_Character::A_Character(const std::string &literal, const Location &location)
     : Ast("characterLiteral", location), literal_(literal),
       parsed_(literal[1]) {}
 
-AstCategory A_Character::category() const { return AstCategory::Character; }
+AstKind A_Character::kind() const { return AstKind::Character; }
 
 const std::string &A_Character::literal() const { return literal_; }
 
@@ -325,7 +316,7 @@ A_Boolean::A_Boolean(const std::string &literal, const Location &location)
     : Ast("booleanLiteral", location), literal_(literal),
       parsed_(literal == "true") {}
 
-AstCategory A_Boolean::category() const { return AstCategory::Boolean; }
+AstKind A_Boolean::kind() const { return AstKind::Boolean; }
 
 const std::string &A_Boolean::literal() const { return literal_; }
 
@@ -337,7 +328,7 @@ bool A_Boolean::asBoolean() const { return parsed_; }
 
 A_Nil::A_Nil(const Location &location) : Ast("nil", location) {}
 
-AstCategory A_Nil::category() const { return AstCategory::Nil; }
+AstKind A_Nil::kind() const { return AstKind::Nil; }
 
 // A_Nil }
 
@@ -345,7 +336,7 @@ AstCategory A_Nil::category() const { return AstCategory::Nil; }
 
 A_Void::A_Void(const Location &location) : Ast("void", location) {}
 
-AstCategory A_Void::category() const { return AstCategory::Void; }
+AstKind A_Void::kind() const { return AstKind::Void; }
 
 // A_Void }
 
@@ -358,7 +349,7 @@ AstCategory A_Void::category() const { return AstCategory::Void; }
 A_VarId::A_VarId(const std::string &literal, const Location &location)
     : Ast("varId", location), literal_(literal) {}
 
-AstCategory A_VarId::category() const { return AstCategory::VarId; }
+AstKind A_VarId::kind() const { return AstKind::VarId; }
 
 const std::string &A_VarId::literal() const { return literal_; }
 
@@ -377,7 +368,7 @@ A_Throw::A_Throw(Ast *a_expr, const Location &location)
 
 A_Throw::~A_Throw() { DEL(expr); }
 
-AstCategory A_Throw::category() const { return AstCategory::Throw; }
+AstKind A_Throw::kind() const { return AstKind::Throw; }
 
 // A_Throw }
 
@@ -388,7 +379,7 @@ A_Return::A_Return(Ast *a_expr, const Location &location)
 
 A_Return::~A_Return() { DEL(expr); }
 
-AstCategory A_Return::category() const { return AstCategory::Return; }
+AstKind A_Return::kind() const { return AstKind::Return; }
 
 // A_Return }
 
@@ -396,7 +387,7 @@ AstCategory A_Return::category() const { return AstCategory::Return; }
 
 A_Break::A_Break(const Location &location) : Ast("break", location) {}
 
-AstCategory A_Break::category() const { return AstCategory::Break; }
+AstKind A_Break::kind() const { return AstKind::Break; }
 
 // A_Break }
 
@@ -404,7 +395,7 @@ AstCategory A_Break::category() const { return AstCategory::Break; }
 
 A_Continue::A_Continue(const Location &location) : Ast("continue", location) {}
 
-AstCategory A_Continue::category() const { return AstCategory::Continue; }
+AstKind A_Continue::kind() const { return AstKind::Continue; }
 
 // A_Continue }
 
@@ -423,7 +414,7 @@ A_Assign::~A_Assign() {
   DEL(assignor);
 }
 
-AstCategory A_Assign::category() const { return AstCategory::Assign; }
+AstKind A_Assign::kind() const { return AstKind::Assign; }
 
 // A_Assign }
 
@@ -437,7 +428,7 @@ A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
 
 A_PostfixExpr::~A_PostfixExpr() { DEL(expr); }
 
-AstCategory A_PostfixExpr::category() const { return AstCategory::PostfixExpr; }
+AstKind A_PostfixExpr::kind() const { return AstKind::PostfixExpr; }
 
 // A_PostfixExpr }
 
@@ -456,7 +447,7 @@ A_InfixExpr::~A_InfixExpr() {
   DEL(right);
 }
 
-AstCategory A_InfixExpr::category() const { return AstCategory::InfixExpr; }
+AstKind A_InfixExpr::kind() const { return AstKind::InfixExpr; }
 
 // A_InfixExpr }
 
@@ -470,7 +461,7 @@ A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
 
 A_PrefixExpr::~A_PrefixExpr() { DEL(expr); }
 
-AstCategory A_PrefixExpr::category() const { return AstCategory::PrefixExpr; }
+AstKind A_PrefixExpr::kind() const { return AstKind::PrefixExpr; }
 
 // A_PrefixExpr }
 
@@ -486,7 +477,7 @@ A_Call::~A_Call() {
   DEL(args);
 }
 
-AstCategory A_Call::category() const { return AstCategory::Call; }
+AstKind A_Call::kind() const { return AstKind::Call; }
 
 // A_Call }
 
@@ -502,7 +493,7 @@ A_Exprs::~A_Exprs() {
   DEL(next);
 }
 
-AstCategory A_Exprs::category() const { return AstCategory::Exprs; }
+AstKind A_Exprs::kind() const { return AstKind::Exprs; }
 
 // A_Exprs }
 
@@ -522,7 +513,7 @@ A_If::~A_If() {
   DEL(elsep);
 }
 
-AstCategory A_If::category() const { return AstCategory::If; }
+AstKind A_If::kind() const { return AstKind::If; }
 
 // A_If }
 
@@ -539,7 +530,7 @@ A_Loop::~A_Loop() {
   DEL(body);
 }
 
-AstCategory A_Loop::category() const { return AstCategory::Loop; }
+AstKind A_Loop::kind() const { return AstKind::Loop; }
 
 // A_Loop }
 
@@ -552,7 +543,7 @@ A_Yield::A_Yield(Ast *a_expr, const Location &location)
 
 A_Yield::~A_Yield() { DEL(expr); }
 
-AstCategory A_Yield::category() const { return AstCategory::Yield; }
+AstKind A_Yield::kind() const { return AstKind::Yield; }
 
 // A_Yield }
 
@@ -563,9 +554,7 @@ A_LoopCondition::A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
     : Ast("loopCondition", location), init(a_init), condition(a_condition),
       update(a_update) {}
 
-AstCategory A_LoopCondition::category() const {
-  return AstCategory::LoopCondition;
-}
+AstKind A_LoopCondition::kind() const { return AstKind::LoopCondition; }
 A_LoopCondition::~A_LoopCondition() {
   DEL(init);
   DEL(condition);
@@ -588,9 +577,7 @@ A_LoopEnumerator::~A_LoopEnumerator() {
   DEL(expr);
 }
 
-AstCategory A_LoopEnumerator::category() const {
-  return AstCategory::LoopEnumerator;
-}
+AstKind A_LoopEnumerator::kind() const { return AstKind::LoopEnumerator; }
 
 // A_LoopEnumerator }
 
@@ -607,7 +594,7 @@ A_DoWhile::~A_DoWhile() {
   DEL(condition);
 }
 
-AstCategory A_DoWhile::category() const { return AstCategory::DoWhile; }
+AstKind A_DoWhile::kind() const { return AstKind::DoWhile; }
 
 // A_DoWhile }
 
@@ -627,7 +614,7 @@ A_Try::~A_Try() {
   DEL(finallyp);
 }
 
-AstCategory A_Try::category() const { return AstCategory::Try; }
+AstKind A_Try::kind() const { return AstKind::Try; }
 
 // A_Try }
 
@@ -638,7 +625,7 @@ A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
 
 A_Block::~A_Block() { DEL(blockStats); }
 
-AstCategory A_Block::category() const { return AstCategory::Block; }
+AstKind A_Block::kind() const { return AstKind::Block; }
 
 // A_Block }
 
@@ -653,7 +640,7 @@ A_BlockStats::~A_BlockStats() {
   DEL(next);
 }
 
-AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
+AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
 
 // A_BlockStats }
 
@@ -666,7 +653,7 @@ AstCategory A_BlockStats::category() const { return AstCategory::BlockStats; }
 A_PlainType::A_PlainType(int a_token, const Location &location)
     : Ast("plainType", location), token(a_token) {}
 
-AstCategory A_PlainType::category() const { return AstCategory::PlainType; }
+AstKind A_PlainType::kind() const { return AstKind::PlainType; }
 
 // A_PlainType }
 
@@ -689,7 +676,7 @@ A_FuncDef::~A_FuncDef() {
   DEL(body);
 }
 
-AstCategory A_FuncDef::category() const { return AstCategory::FuncDef; }
+AstKind A_FuncDef::kind() const { return AstKind::FuncDef; }
 
 A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
     : Ast("funcSign", location), id(a_id), params(a_params) {
@@ -701,7 +688,7 @@ A_FuncSign::~A_FuncSign() {
   DEL(params);
 }
 
-AstCategory A_FuncSign::category() const { return AstCategory::FuncSign; }
+AstKind A_FuncSign::kind() const { return AstKind::FuncSign; }
 
 A_Params::A_Params(A_Param *a_param, A_Params *a_next, const Location &location)
     : Ast("params", location), param(a_param), next(a_next) {
@@ -713,7 +700,7 @@ A_Params::~A_Params() {
   DEL(next);
 }
 
-AstCategory A_Params::category() const { return AstCategory::Params; }
+AstKind A_Params::kind() const { return AstKind::Params; }
 
 A_Param::A_Param(Ast *a_id, Ast *a_type, const Location &location)
     : Ast("param", location), id(a_id), type(a_type) {
@@ -726,7 +713,7 @@ A_Param::~A_Param() {
   DEL(type);
 }
 
-AstCategory A_Param::category() const { return AstCategory::Param; }
+AstKind A_Param::kind() const { return AstKind::Param; }
 
 A_VarDef::A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr,
                    const Location &location)
@@ -742,7 +729,7 @@ A_VarDef::~A_VarDef() {
   DEL(expr);
 }
 
-AstCategory A_VarDef::category() const { return AstCategory::VarDef; }
+AstKind A_VarDef::kind() const { return AstKind::VarDef; }
 
 // definition and declaration }
 
@@ -757,13 +744,13 @@ A_TopStats::~A_TopStats() {
   DEL(next);
 }
 
-AstCategory A_TopStats::category() const { return AstCategory::TopStats; }
+AstKind A_TopStats::kind() const { return AstKind::TopStats; }
 
 A_CompileUnit::A_CompileUnit(A_TopStats *a_topStats, const Location &location)
     : Ast("compileUnit", location), topStats(a_topStats) {}
 
 A_CompileUnit::~A_CompileUnit() { DEL(topStats); }
 
-AstCategory A_CompileUnit::category() const { return AstCategory::CompileUnit; }
+AstKind A_CompileUnit::kind() const { return AstKind::CompileUnit; }
 
 // compile unit }

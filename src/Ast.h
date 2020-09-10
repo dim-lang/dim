@@ -14,7 +14,7 @@
 #include <string>
 
 /*================ type start from 1000 ================*/
-BETTER_ENUM(AstCategory, int,
+BETTER_ENUM(AstKind, int,
             // literal
             Integer = 1000, Float, Boolean, Character, String, Nil, Void,
             // id
@@ -92,7 +92,7 @@ class Ast : public Nameable, public Locationable, private boost::noncopyable {
 public:
   Ast(const std::string &name, const Location &location = Location());
   virtual ~Ast() = default;
-  virtual AstCategory category() const = 0;
+  virtual AstKind kind() const = 0;
   virtual std::string toString() const;
 
   static bool isLiteral(Ast *e);
@@ -109,29 +109,29 @@ public:
 
 class A_Integer : public Ast {
 public:
-  // DecimalCategory:
+  // DecimalKind:
   // DEC: base 10
   // HEX: base 16
   // BIN: base 2
   // OCT: base 8
-  enum class DecimalCategory { DEC = 100, HEX, BIN, OCT };
+  enum class DecimalKind { DEC = 100, HEX, BIN, OCT };
 
-  // BitCategory:
+  // BitKind:
   // SIGNED: 32 bit signed
   // UNSIGNED: 32 bit unsigned
   // LONG: 64 bit signed long
   // ULONG: 64 bit unsigned long
-  enum class BitCategory { SIGNED = 110, UNSIGNED, LONG, ULONG };
+  enum class BitKind { SIGNED = 110, UNSIGNED, LONG, ULONG };
 
   A_Integer(const std::string &literal, const Location &location);
   virtual ~A_Integer() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
   virtual int bits() const;
   virtual int base() const;
-  virtual DecimalCategory decimalCategory() const;
-  virtual BitCategory bitCategory() const;
+  virtual DecimalKind decimalKind() const;
+  virtual BitKind bitKind() const;
   virtual int32_t asInt32() const;
   virtual uint32_t asUInt32() const;
   virtual int64_t asInt64() const;
@@ -142,24 +142,24 @@ private:
   std::string parsed_;
   int bits_;
   int base_;
-  DecimalCategory decimalCategory_;
-  BitCategory bitCategory_;
+  DecimalKind decimalKind_;
+  BitKind bitKind_;
 };
 
 class A_Float : public Ast {
 public:
-  // BitCategory:
+  // BitKind:
   // FLT: 32 bit
   // DBL: 64 bit
-  enum class BitCategory { FLT = 130, DBL };
+  enum class BitKind { FLT = 130, DBL };
 
   A_Float(const std::string &literal, const Location &location);
   virtual ~A_Float() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
   virtual int bits() const;
-  virtual BitCategory bitCategory() const;
+  virtual BitKind bitKind() const;
   virtual float asFloat() const;
   virtual double asDouble() const;
 
@@ -167,36 +167,36 @@ private:
   std::string literal_;
   std::string parsed_;
   int bits_;
-  BitCategory bitCategory_;
+  BitKind bitKind_;
 };
 
 // string literal
 class A_String : public Ast {
 public:
-  // QuoteCategory
+  // QuoteKind
   // Single: "
   // TRIPLE: """
-  enum class QuoteCategory { SINGLE = 140, TRIPLE };
+  enum class QuoteKind { SINGLE = 140, TRIPLE };
 
   A_String(const std::string &literal, const Location &location);
   virtual ~A_String() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
-  virtual QuoteCategory quoteCategory() const;
+  virtual QuoteKind quoteKind() const;
   virtual const std::string &asString() const;
 
 private:
   std::string literal_;
   std::string parsed_;
-  QuoteCategory quoteCategory_;
+  QuoteKind quoteKind_;
 };
 
 class A_Character : public Ast {
 public:
   A_Character(const std::string &literal, const Location &location);
   virtual ~A_Character() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
   virtual char asChar() const;
@@ -210,7 +210,7 @@ class A_Boolean : public Ast {
 public:
   A_Boolean(const std::string &literal, const Location &location);
   virtual ~A_Boolean() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
   virtual bool asBoolean() const;
@@ -224,14 +224,14 @@ class A_Nil : public Ast {
 public:
   A_Nil(const Location &location);
   virtual ~A_Nil() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 };
 
 class A_Void : public Ast {
 public:
   A_Void(const Location &location);
   virtual ~A_Void() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 };
 
 // literal }
@@ -242,7 +242,7 @@ class A_VarId : public Ast {
 public:
   A_VarId(const std::string &literal, const Location &location);
   virtual ~A_VarId() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 
   virtual const std::string &literal() const;
 
@@ -258,7 +258,7 @@ class A_Throw : public Ast {
 public:
   A_Throw(Ast *a_expr, const Location &location);
   virtual ~A_Throw();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *expr;
 };
 
@@ -266,7 +266,7 @@ class A_Return : public Ast {
 public:
   A_Return(Ast *a_expr, const Location &location);
   virtual ~A_Return();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *expr;
 };
 
@@ -274,14 +274,14 @@ class A_Break : public Ast {
 public:
   A_Break(const Location &location);
   virtual ~A_Break() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 };
 
 class A_Continue : public Ast {
 public:
   A_Continue(const Location &location);
   virtual ~A_Continue() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
 };
 
 class A_Assign : public Ast {
@@ -289,7 +289,7 @@ public:
   A_Assign(Ast *a_assignee, int a_assignOp, Ast *a_assignor,
            const Location &location);
   virtual ~A_Assign();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *assignee; // left
   int assignOp;
   Ast *assignor; // right
@@ -299,7 +299,7 @@ class A_PostfixExpr : public Ast {
 public:
   A_PostfixExpr(Ast *a_expr, int a_postfixOp, const Location &location);
   virtual ~A_PostfixExpr();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *expr;
   int postfixOp;
 };
@@ -309,7 +309,7 @@ public:
   A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
               const Location &location);
   virtual ~A_InfixExpr();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *left;
   int infixOp;
   Ast *right;
@@ -319,7 +319,7 @@ class A_PrefixExpr : public Ast {
 public:
   A_PrefixExpr(int a_prefixOp, Ast *a_expr, const Location &location);
   virtual ~A_PrefixExpr();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   int prefixOp;
   Ast *expr;
 };
@@ -328,7 +328,7 @@ class A_Call : public Ast {
 public:
   A_Call(Ast *a_id, A_Exprs *a_args, const Location &location);
   virtual ~A_Call();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *id;
   A_Exprs *args;
 };
@@ -337,7 +337,7 @@ class A_Exprs : public Ast {
 public:
   A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location);
   virtual ~A_Exprs();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *expr;
   A_Exprs *next;
 };
@@ -350,7 +350,7 @@ class A_If : public Ast {
 public:
   A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep, const Location &location);
   virtual ~A_If();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *condition;
   Ast *thenp;
   Ast *elsep;
@@ -361,7 +361,7 @@ class A_Loop : public Ast {
 public:
   A_Loop(Ast *a_condition, Ast *a_body, const Location &location);
   virtual ~A_Loop();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *condition;
   Ast *body;
 };
@@ -370,7 +370,7 @@ class A_Yield : public Ast {
 public:
   A_Yield(Ast *expr, const Location &location);
   virtual ~A_Yield();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *expr;
 };
 
@@ -379,7 +379,7 @@ public:
   A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
                   const Location &location);
   virtual ~A_LoopCondition();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *init;
   Ast *condition;
   Ast *update;
@@ -389,7 +389,7 @@ class A_LoopEnumerator : public Ast {
 public:
   A_LoopEnumerator(Ast *a_id, Ast *a_expr, const Location &location);
   virtual ~A_LoopEnumerator();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *id;
   Ast *expr;
 };
@@ -398,7 +398,7 @@ class A_DoWhile : public Ast {
 public:
   A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location);
   virtual ~A_DoWhile();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *body;
   Ast *condition;
 };
@@ -407,7 +407,7 @@ class A_Try : public Ast {
 public:
   A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp, const Location &location);
   virtual ~A_Try();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *tryp;
   Ast *catchp;
   Ast *finallyp;
@@ -417,7 +417,7 @@ class A_Block : public Ast {
 public:
   A_Block(A_BlockStats *a_blockStats, const Location &location);
   virtual ~A_Block();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   A_BlockStats *blockStats;
 };
 
@@ -426,7 +426,7 @@ public:
   A_BlockStats(Ast *a_blockStat, A_BlockStats *a_next,
                const Location &location);
   virtual ~A_BlockStats();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *blockStat;
   A_BlockStats *next;
 };
@@ -439,7 +439,7 @@ class A_PlainType : public Ast {
 public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   int token;
 };
 
@@ -452,7 +452,7 @@ public:
   A_FuncDef(Ast *a_funcSign, Ast *a_resultType, Ast *a_body,
             const Location &location);
   virtual ~A_FuncDef();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *funcSign;
   Ast *resultType;
   Ast *body;
@@ -462,7 +462,7 @@ class A_FuncSign : public Ast {
 public:
   A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location);
   virtual ~A_FuncSign();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *id;
   A_Params *params;
 };
@@ -471,7 +471,7 @@ class A_Params : public Ast {
 public:
   A_Params(A_Param *a_param, A_Params *a_next, const Location &location);
   virtual ~A_Params();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   A_Param *param;
   A_Params *next;
 };
@@ -480,7 +480,7 @@ class A_Param : public Ast {
 public:
   A_Param(Ast *a_id, Ast *a_type, const Location &location);
   virtual ~A_Param();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *id;
   Ast *type;
 };
@@ -489,7 +489,7 @@ class A_VarDef : public Ast {
 public:
   A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr, const Location &location);
   virtual ~A_VarDef();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *id;
   Ast *type;
   Ast *expr;
@@ -503,7 +503,7 @@ class A_TopStats : public Ast {
 public:
   A_TopStats(Ast *a_topStat, A_TopStats *a_next, const Location &location);
   virtual ~A_TopStats();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   Ast *topStat;
   A_TopStats *next;
 };
@@ -512,7 +512,7 @@ class A_CompileUnit : public Ast {
 public:
   A_CompileUnit(A_TopStats *a_topStats, const Location &location);
   virtual ~A_CompileUnit();
-  virtual AstCategory category() const;
+  virtual AstKind kind() const;
   A_TopStats *topStats;
 };
 
