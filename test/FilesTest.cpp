@@ -7,7 +7,7 @@
 
 #define BLOCK_SIZE 16
 
-TEST_CASE("File", "[File]") {
+TEST_CASE("Files", "[Files]") {
   const std::string text1 =
       "This is a long string for testing File::write and File::read "
       "static methods.\n"
