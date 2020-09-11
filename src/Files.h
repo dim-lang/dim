@@ -24,7 +24,7 @@ public:
   FileInfo(const Cowstr &fileName);
   // close fp_
   virtual ~FileInfo();
-  const Cowstr &fileName() const;
+  virtual const Cowstr &fileName() const;
 
 protected:
   Cowstr fileName_;

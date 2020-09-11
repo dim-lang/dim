@@ -8,7 +8,7 @@ class LabelNamely {
 public:
   LabelNamely(const std::string &name);
   virtual ~LabelNamely() = default;
-  virtual const Name &name() const;
+  const Name &name() const;
 
 protected:
   Name name_;

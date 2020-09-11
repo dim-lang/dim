@@ -4,13 +4,12 @@
 #pragma once
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
-#include <sstream>
 #include <string>
 #include <vector>
 
 class Option {
 public:
-  Option(int argCount, char **argString);
+  Option(int argc, char **argv);
   Option(const std::vector<std::string> &fileNames);
   virtual ~Option() = default;
 
@@ -32,7 +31,6 @@ public:
 
 private:
   Option();
-
   boost::program_options::options_description optDesc_;
   boost::program_options::positional_options_description posOptDesc_;
   boost::program_options::variables_map varMap_;

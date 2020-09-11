@@ -345,14 +345,8 @@ int CycleBuffer<D>::readImpl(void *src, int n,
   return readn;
 }
 
-template <unsigned int D> Cowstr CycleBuffer<D>::write(int n) {
-  char *buf = (char *)std::malloc(n + 1);
-  std::memset(buf, 0, '\0');
-  int wn = writeImpl(buf, n, writeMemHandler);
-  LOG_ASSERT(wn <= n, "wn {} <= n {}", wn, n);
-  Cowstr r(buf, wn);
-  std::free(buf);
-  return r;
+template <unsigned int D> int CycleBuffer<D>::write(char *buf, int n) {
+  return writeImpl(buf, n, writeMemHandler);
 }
 
 template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp, int n) {
@@ -369,8 +363,8 @@ template <unsigned int D> int CycleBuffer<D>::writefile(FILE *fp) {
   return n;
 }
 
-template <unsigned int D> int CycleBuffer<D>::read(const Cowstr &buf) {
-  return readImpl((void *)buf.rawstr(), buf.length(), readMemHandler);
+template <unsigned int D> int CycleBuffer<D>::read(const char *buf, int n) {
+  return readImpl((void *)buf, n, readMemHandler);
 }
 
 template <unsigned int D> int CycleBuffer<D>::readfile(FILE *fp, int n) {

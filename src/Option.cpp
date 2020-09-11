@@ -3,26 +3,21 @@
 
 #include "Option.h"
 #include "Configure.h"
-#include "Log.h"
 #include <fstream>
+#include <sstream>
 
 namespace boost_po = boost::program_options;
 
-#define OPT "Options"
 #define OPT_HELP "help"
-#define OPT_H "h"
 #define OPT_VERSION "version"
-#define OPT_V "v"
 #define OPT_FILE "file"
-#define OPT_F "f"
 #define OPT_DEBUG "debug"
-#define OPT_D "d"
 
-Option::Option() : optDesc_(OPT) {
-  optDesc_.add_options()(OPT_HELP "," OPT_H, "help message")(
-      OPT_VERSION "," OPT_V, "version information")(
-      OPT_FILE "," OPT_F, boost_po::value<std::vector<std::string>>(),
-      "file name")(OPT_DEBUG "," OPT_D, "debug mode");
+Option::Option() : optDesc_("Options") {
+  optDesc_.add_options()(OPT_HELP ",h", "help message")(OPT_VERSION ",v",
+                                                        "version information")(
+      OPT_FILE ",f", boost_po::value<std::vector<std::string>>(),
+      "file name")(OPT_DEBUG ",d", "debug mode");
   posOptDesc_.add(OPT_FILE, -1);
 }
 
@@ -37,7 +32,7 @@ Option::Option(int argCount, char **argList) : Option() {
 
 Option::Option(const std::vector<std::string> &fileNames) : Option() {
   for (int i = 0; i < (int)fileNames.size(); i++) {
-    std::ifstream ifile(fileNames[i].data());
+    std::ifstream ifile(fileNames[i].c_str());
     boost_po::store(boost_po::parse_config_file(ifile, optDesc_), varMap_);
   }
   boost_po::notify(varMap_);

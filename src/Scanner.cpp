@@ -5,18 +5,18 @@
 #include "Ast.h"
 #include "Log.h"
 #include "tokenizer.yy.hh"
-#include <unordered_map>
+#include <algorithm>
 
-Scanner::Scanner(const std::string &fileName)
+Scanner::Scanner(const Cowstr &fileName)
     : fileName_(fileName), yyBufferState_(nullptr), fp_(nullptr),
-      yyscanner_(nullptr), compileUnit_(nullptr), parenthesesStack_() {
+      yyscanner_(nullptr), compileUnit_(nullptr) {
   // init scanner
   int r = yylex_init_extra(this, &yyscanner_);
   LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
   LOG_ASSERT(yyscanner_, "yyscanner_ must not null");
 
   // init buffer
-  fp_ = std::fopen(fileName_.c_str(), "r");
+  fp_ = std::fopen(fileName_.rawstr(), "r");
   LOG_ASSERT(fp_, "file {} cannot open!", fileName_);
   yyBufferState_ = yy_create_buffer(fp_, YY_BUF_SIZE, yyscanner_);
   LOG_ASSERT(yyBufferState_, "yyBufferState_ {} on file {} create fail!",
@@ -44,7 +44,7 @@ Scanner::~Scanner() {
   }
 }
 
-const std::string &Scanner::fileName() const { return fileName_; }
+const Cowstr &Scanner::fileName() const { return fileName_; }
 
 const Ast *Scanner::compileUnit() const { return compileUnit_; }
 

@@ -16,13 +16,14 @@ static std::string mergeCowstrs(std::vector<Cowstr>::const_iterator begin,
   return ss.str();
 }
 
-Cowstr::Cowstr() : value_(new std::string("")) {}
+Cowstr::Cowstr(const std::string &s)
+    : value_(s.length() > 0 ? new std::string(s) : new std::string("")) {}
 
-Cowstr::Cowstr(const std::string &s) : value_(new std::string(s)) {}
+Cowstr::Cowstr(const char *s)
+    : value_(s ? new std::string(s) : new std::string("")) {}
 
-Cowstr::Cowstr(const char *s) : value_(new std::string(s)) {}
-
-Cowstr::Cowstr(const char *s, int n) : value_(new std::string(s, n)) {}
+Cowstr::Cowstr(const char *s, int n)
+    : value_((s && n > 0) ? new std::string(s, n) : new std::string("")) {}
 
 Cowstr::Cowstr(std::vector<Cowstr>::const_iterator begin,
                std::vector<Cowstr>::const_iterator end)
@@ -37,6 +38,20 @@ int Cowstr::length() const { return (int)value_->length(); }
 bool Cowstr::empty() const { return value_->empty(); }
 
 const char &Cowstr::operator[](int index) const { return (*value_)[index]; }
+
+const char &Cowstr::front() const { return value_->front(); }
+
+const char &Cowstr::back() const { return value_->back(); }
+
+const char *Cowstr::begin() const { return value_->c_str(); }
+
+const char *Cowstr::end() const { return value_->c_str() + value_->length(); }
+
+const char *Cowstr::rbegin() const {
+  return value_->c_str() + value_->length() - 1;
+}
+
+const char *Cowstr::rend() const { return value_->c_str() - 1; }
 
 Cowstr &Cowstr::insert(int index, const char &c, int count) {
   sps nv(new std::string(*value_));
@@ -93,6 +108,13 @@ Cowstr &Cowstr::append(std::vector<Cowstr>::const_iterator begin,
                        std::vector<Cowstr>::const_iterator end) {
   sps nv(new std::string(*value_));
   nv->append(mergeCowstrs(begin, end));
+  value_ = nv;
+  return *this;
+}
+
+Cowstr &Cowstr::operator+=(const Cowstr &s) {
+  sps nv(new std::string(*value_));
+  *nv += s.str();
   value_ = nv;
   return *this;
 }
@@ -237,11 +259,27 @@ Cowstr &Cowstr::replace(const std::map<char, Cowstr> &mapping) {
   return *this;
 }
 
-Cowstr &replace(int fromindex, int toindex, const char &c);
-Cowstr &replace(int fromindex, int toindex, const Cowstr &s);
+Cowstr &Cowstr::replace(int index, int count, const char &c) {
+  sps nv(new std::string(*value_));
+  nv->replace(index, count, 1, c);
+  value_ = nv;
+  return *this;
+}
 
-Cowstr &subString(int index);
-Cowstr &subString(int index, int count);
+Cowstr &Cowstr::replace(int index, int count, const Cowstr &s) {
+  sps nv(new std::string(*value_));
+  nv->replace(index, count, s.str());
+  value_ = nv;
+  return *this;
+}
+
+Cowstr Cowstr::subString(int index) const {
+  return Cowstr(value_->substr(index));
+}
+
+Cowstr Cowstr::subString(int index, int count) const {
+  return Cowstr(value_->substr(index, count));
+}
 
 int Cowstr::find(const char &c, int index) const {
   return value_->find(c, index);

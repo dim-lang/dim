@@ -16,7 +16,7 @@ TEST_CASE("Log", "[Log]") {
     LOG_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
     try {
       LOG_ASSERT(false, "this is a wrong message which throw a string");
-    } catch (const std::string &e) {
+    } catch (const Cowstr &e) {
       LOG_ERROR("catch it:{}", e);
     }
   }

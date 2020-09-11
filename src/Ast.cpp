@@ -3,7 +3,6 @@
 
 #include "Ast.h"
 #include "Log.h"
-#include "Strings.h"
 #include "Token.h"
 #include "parser.tab.hh"
 #include <algorithm>

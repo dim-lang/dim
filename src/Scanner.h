@@ -2,12 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "Location.h"
 #include "Token.h"
 #include <cstdio>
-#include <memory>
 #include <stack>
-#include <string>
 
 struct yy_buffer_state;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
@@ -16,30 +15,31 @@ class Ast;
 
 class Scanner {
 public:
-  Scanner(const std::string &fileName);
+  Scanner(const Cowstr &fileName);
   virtual ~Scanner();
 
   // attributes
-  virtual const std::string &fileName() const;
-  virtual const Ast *compileUnit() const;
-  virtual Ast *&compileUnit();
+  const Cowstr &fileName() const;
+  const Ast *compileUnit() const;
+  Ast *&compileUnit();
 
   // wrapper for flex/bison
-  virtual Token tokenize();
-  virtual int parse();
+  Token tokenize();
+  int parse();
 
-  virtual int topParentheses() const;
-  virtual int eatParentheses(int tok);
-  virtual int newlineEnabled() const;
-  virtual bool parenthesesEmpty() const;
-  virtual int parenthesesSize() const;
+  // tokenizer util
+  int topParentheses() const;
+  int eatParentheses(int tok);
+  int newlineEnabled() const;
+  bool parenthesesEmpty() const;
+  int parenthesesSize() const;
 
 private:
-  std::string fileName_;
+  Cowstr fileName_;
   YY_BUFFER_STATE yyBufferState_;
   FILE *fp_;
   yyscan_t yyscanner_;
   Ast *compileUnit_;
-  // tokenizer parentheses stack
+  // tokenizer util
   std::stack<int> parenthesesStack_;
 };

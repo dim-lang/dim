@@ -35,8 +35,8 @@ LC  ("//".*\n)
 #include <string>
 #include <cctype>
 #include "Scanner.h"
-#include "parser.tab.hh"
 #include "Strings.h"
+#include "parser.tab.hh"
 #include "Log.h"
 
 #define T_SCANNER               (static_cast<Scanner *>(yyextra))
@@ -45,7 +45,7 @@ LC  ("//".*\n)
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
 } while (0)
 
-#define MK_LITERAL(t)       yylval->literal = (char *)Strings::dup(yytext, yyleng); return yytokentype::t
+#define MK_LITERAL(t)       yylval->literal = Strings::dup(yytext, yyleng); return yytokentype::t
 #define MK_INTEGER(t)       return yylval->token = yytokentype::t
 
 #define YY_USER_ACTION                                                      \

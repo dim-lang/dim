@@ -8,7 +8,7 @@ class Counter {
 public:
   Counter(unsigned long long value = 1ULL);
   virtual ~Counter() = default;
-  virtual unsigned long long next();
+  unsigned long long next();
 
   static unsigned long long get();
 

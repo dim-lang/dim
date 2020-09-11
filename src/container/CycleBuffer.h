@@ -117,13 +117,12 @@ public:
   virtual Cowstr str() const;
 
   // write at most <n> bytes to <buf>
-  // @return    <buf>
-  virtual Cowstr write(int n);
+  // @return    bytes really write
+  virtual int write(char *buf, int n);
 
   // read at most <n> bytes from <buf>
   // @return    bytes really read
-  /* virtual int read(const char *buf, int n); */
-  virtual int read(const Cowstr &buf);
+  virtual int read(const char *buf, int n);
 
   // write all bytes to <fp>
   // @return    bytes really write

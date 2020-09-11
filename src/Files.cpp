@@ -5,6 +5,7 @@
 #include "Log.h"
 #include <cerrno>
 #include <cstdio>
+#include <cstdlib>
 
 #define BUF_SIZE 4096
 
@@ -36,7 +37,7 @@ int FileWriterImpl::flush() {
 }
 
 int FileWriterImpl::write(const Cowstr &buf) {
-  int r = buffer_.read(buf);
+  int r = buffer_.read(buf.rawstr(), buf.length());
   if (buffer_.size() >= BUF_SIZE) {
     buffer_.writefile(fp_, BUF_SIZE);
   }
@@ -78,17 +79,30 @@ Cowstr FileReader::read(int n) {
     return "";
   }
   prepareFor(n);
-  return buffer_.write(n);
+  char *buf = new char[n + 1];
+  std::memset(buf, 0, n + 1);
+  int c = buffer_.write(buf, n);
+  Cowstr r(buf, c);
+  delete[] buf;
+  return r;
 }
 
 Cowstr FileReader::readall() {
   buffer_.readfile(fp_);
-  return buffer_.write(buffer_.size());
+  char *buf = new char[buffer_.size() + 1];
+  std::memset(buf, 0, buffer_.size() + 1);
+  int c = buffer_.write(buf, buffer_.size());
+  Cowstr r(buf, c);
+  delete[] buf;
+  return r;
 }
 
 Cowstr FileReader::readc() {
   prepareFor(1);
-  return buffer_.write(1);
+  char buf;
+  int c = buffer_.write(&buf, 1);
+  Cowstr r(&buf, c);
+  return r;
 }
 
 char *FileReader::prepareUntil(char c) {
@@ -110,7 +124,12 @@ Cowstr FileReader::readln() {
     return "";
   }
   int len = linepos - buffer_.begin() + 1;
-  return buffer_.write(len);
+  char *buf = new char[len + 1];
+  std::memset(buf, 0, len + 1);
+  int c = buffer_.write(buf, len);
+  Cowstr r(buf, c);
+  delete[] buf;
+  return r;
 }
 
 FileWriter::FileWriter(const Cowstr &fileName)

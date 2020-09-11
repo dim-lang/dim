@@ -13,7 +13,7 @@
 static void tokenize(const char *fileName) {
   Scanner scanner(fileName);
   LOG_INFO("start: {}", fileName);
-  std::vector<std::string> tokenList;
+  std::vector<Cowstr> tokenList;
   while (true) {
     Token t = scanner.tokenize();
     if (t.value == 0) {

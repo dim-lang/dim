@@ -41,13 +41,12 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       LOG_INFO("db-1: {}", db.str());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
-        REQUIRE(db.write(1).length() == 0);
+        c = (char)i;
+        REQUIRE(db.write(&c, 1) == 0);
       }
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
-        Cowstr temp;
-        temp.append(c);
-        REQUIRE(db.read(temp) == 1);
+        REQUIRE(db.read(&c, 1) == 1);
       }
       LOG_INFO("db-2: {}", db.str());
       const char *cp = db.begin();
@@ -65,9 +64,8 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         *mp = (char)i;
       }
       for (int i = C_MAX - 1; i >= 0; i--) {
-        Cowstr temp;
-        REQUIRE((temp = db.write(1)).length() == 1);
-        REQUIRE((int)temp[0] == i);
+        REQUIRE(db.write(&c, 1) == 1);
+        REQUIRE((int)c == i);
       }
     }
     {
@@ -76,14 +74,12 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
-        REQUIRE(fb.write(1).length() == 0);
+        REQUIRE(fb.write(&c, 1) == 0);
       }
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
         fmt::format("i:{}", i);
-        Cowstr temp;
-        temp.append(c);
-        REQUIRE(fb.read(temp) == 1);
+        REQUIRE(fb.read(&c, 1) == 1);
       }
       LOG_INFO("fb-2: {}", fb.str());
       const char *cp = fb.begin();
@@ -101,9 +97,8 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         *mp = (char)v;
       }
       for (int i = C_MAX - 1; i >= 0; i--) {
-        Cowstr temp;
-        REQUIRE((temp = fb.write(1)).length() == 1);
-        REQUIRE((int)temp[0] == i);
+        REQUIRE(fb.write(&c, 1) == 1);
+        REQUIRE((int)c == i);
       }
     }
   }

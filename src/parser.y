@@ -7,13 +7,12 @@
 %param {yyscan_t yyscanner}
 
 %code top {
-#include <memory>
-#include <string>
 #include <cstdlib>
 #include "Log.h"
 #include "Ast.h"
 #include "Scanner.h"
 #include "Location.h"
+#include "Strings.h"
 #include "tokenizer.yy.hh"
 #define T_EOF           0
 #define Y_SCANNER       (static_cast<Scanner *>(yyget_extra(yyscanner)))
@@ -615,7 +614,7 @@ topStat : def { $$ = $1; }
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg) {
   if (yyllocp && yyllocp->first_line) {
     fprintf(stderr, "%s: %d.%d-%d.%d: error: ", 
-            yyget_extra(yyscanner) ? Y_SCANNER->fileName().c_str() : "unknown",
+            yyget_extra(yyscanner) ? Y_SCANNER->fileName().rawstr() : "unknown",
             yyllocp->first_line,
             yyllocp->first_column, 
             yyllocp->last_line, 

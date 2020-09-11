@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
-#include "Buffer.h"
-#include "Ir.h"
+#include "Graph.h"
 #include "Log.h"
 #include "Option.h"
 #include "Scanner.h"

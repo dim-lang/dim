@@ -15,8 +15,7 @@
 
 class Cowstr {
 public:
-  Cowstr();
-  Cowstr(const std::string &s);
+  Cowstr(const std::string &s = "");
   Cowstr(const char *s);
   Cowstr(const char *s, int n);
   Cowstr(std::vector<Cowstr>::const_iterator begin,
@@ -25,80 +24,86 @@ public:
   Cowstr(const Cowstr &) = default;
   Cowstr &operator=(const Cowstr &) = default;
 
-  virtual const std::string &str() const;
-  virtual const char *rawstr() const;
+  const std::string &str() const;
+  const char *rawstr() const;
 
-  virtual int length() const;
-  virtual bool empty() const;
+  int length() const;
+  bool empty() const;
 
-  virtual const char &operator[](int index) const;
+  const char &operator[](int index) const;
+  const char &front() const;
+  const char &back() const;
+  const char *begin() const;
+  const char *end() const;
+  const char *rbegin() const;
+  const char *rend() const;
 
   // return *this
-  virtual Cowstr &insert(int index, const char &c, int count = 1);
-  virtual Cowstr &insert(int index, const Cowstr &s);
-  virtual Cowstr &insert(int index, std::vector<Cowstr>::const_iterator begin,
-                         std::vector<Cowstr>::const_iterator end);
+  Cowstr &insert(int index, const char &c, int count = 1);
+  Cowstr &insert(int index, const Cowstr &s);
+  Cowstr &insert(int index, std::vector<Cowstr>::const_iterator begin,
+                 std::vector<Cowstr>::const_iterator end);
 
-  virtual Cowstr &erase(int index, int count = 1);
-  virtual Cowstr &popend(int count = 1); // equal to erase(length()-1)
+  Cowstr &erase(int index, int count = 1);
+  Cowstr &popend(int count = 1); // equal to erase(length()-1)
 
-  virtual Cowstr &append(const char &c, int count = 1);
-  virtual Cowstr &append(const Cowstr &s);
-  virtual Cowstr &append(std::vector<Cowstr>::const_iterator begin,
-                         std::vector<Cowstr>::const_iterator end);
+  Cowstr &append(const char &c, int count = 1);
+  Cowstr &append(const Cowstr &s);
+  Cowstr &append(std::vector<Cowstr>::const_iterator begin,
+                 std::vector<Cowstr>::const_iterator end);
+  Cowstr &operator+=(const Cowstr &s);
 
-  virtual Cowstr operator+(const char &c) const;
-  virtual Cowstr operator+(const Cowstr &s) const;
+  Cowstr operator+(const char &c) const;
+  Cowstr operator+(const Cowstr &s) const;
 
-  virtual int compare(const Cowstr &s) const;
+  int compare(const Cowstr &s) const;
 
-  virtual bool startWith(const char &c) const;
-  virtual bool startWith(const Cowstr &s) const;
-  virtual bool startWithAnyOf(std::vector<Cowstr>::const_iterator begin,
-                              std::vector<Cowstr>::const_iterator end) const;
+  bool startWith(const char &c) const;
+  bool startWith(const Cowstr &s) const;
+  bool startWithAnyOf(std::vector<Cowstr>::const_iterator begin,
+                      std::vector<Cowstr>::const_iterator end) const;
 
-  virtual bool endWith(const char &c) const;
-  virtual bool endWith(const Cowstr &s) const;
-  virtual bool endWithAnyOf(std::vector<Cowstr>::const_iterator begin,
-                            std::vector<Cowstr>::const_iterator end) const;
+  bool endWith(const char &c) const;
+  bool endWith(const Cowstr &s) const;
+  bool endWithAnyOf(std::vector<Cowstr>::const_iterator begin,
+                    std::vector<Cowstr>::const_iterator end) const;
 
-  virtual Cowstr &replace(const char &from, const char &to);
-  virtual Cowstr &replace(const Cowstr &from, const Cowstr &to);
-  virtual Cowstr &replace(const std::unordered_set<char> &from, const char &to);
-  virtual Cowstr &replace(const std::unordered_set<char> &from,
-                          const Cowstr &to);
-  virtual Cowstr &replace(const std::set<char> &from, const char &to);
-  virtual Cowstr &replace(const std::set<char> &from, const Cowstr &to);
-  virtual Cowstr &replace(const std::unordered_map<char, Cowstr> &mapping);
-  virtual Cowstr &replace(const std::map<char, Cowstr> &mapping);
+  Cowstr &replace(const char &from, const char &to);
+  Cowstr &replace(const Cowstr &from, const Cowstr &to);
+  Cowstr &replace(const std::unordered_set<char> &from, const char &to);
+  Cowstr &replace(const std::unordered_set<char> &from, const Cowstr &to);
+  Cowstr &replace(const std::set<char> &from, const char &to);
+  Cowstr &replace(const std::set<char> &from, const Cowstr &to);
+  Cowstr &replace(const std::unordered_map<char, Cowstr> &mapping);
+  Cowstr &replace(const std::map<char, Cowstr> &mapping);
 
-  virtual Cowstr &replace(int fromindex, int toindex, const char &c);
-  virtual Cowstr &replace(int fromindex, int toindex, const Cowstr &s);
+  Cowstr &replace(int index, int count, const char &c);
+  Cowstr &replace(int index, int count, const Cowstr &s);
 
-  virtual Cowstr &subString(int index);
-  virtual Cowstr &subString(int index, int count);
+  Cowstr subString(int index) const;
+  Cowstr subString(int index, int count) const;
 
-  virtual int find(const char &c, int index = 0) const;
-  virtual int find(const Cowstr &s, int index = 0) const;
-  virtual int rfind(const char &c, int index = 0) const;
-  virtual int rfind(const Cowstr &s, int index = 0) const;
+  int find(const char &c, int index = 0) const;
+  int find(const Cowstr &s, int index = 0) const;
+  int rfind(const char &c, int index = 0) const;
+  int rfind(const Cowstr &s, int index = 0) const;
 
-  virtual int findFirstOf(const char &c, int index = 0) const;
-  virtual int findFirstOf(const Cowstr &s, int index = 0) const;
-  virtual int findLastOf(const char &c, int index = 0) const;
-  virtual int findLastOf(const Cowstr &s, int index = 0) const;
+  int findFirstOf(const char &c, int index = 0) const;
+  int findFirstOf(const Cowstr &s, int index = 0) const;
+  int findLastOf(const char &c, int index = 0) const;
+  int findLastOf(const Cowstr &s, int index = 0) const;
 
-  virtual int findFirstNotOf(const char &c, int index = 0) const;
-  virtual int findFirstNotOf(const Cowstr &s, int index = 0) const;
-  virtual int findLastNotOf(const char &c, int index = 0) const;
-  virtual int findLastNotOf(const Cowstr &s, int index = 0) const;
+  int findFirstNotOf(const char &c, int index = 0) const;
+  int findFirstNotOf(const Cowstr &s, int index = 0) const;
+  int findLastNotOf(const char &c, int index = 0) const;
+  int findLastNotOf(const Cowstr &s, int index = 0) const;
 
-  virtual bool operator==(const Cowstr &other) const;
-  virtual bool operator!=(const Cowstr &other) const;
-  virtual bool operator>(const Cowstr &other) const;
-  virtual bool operator>=(const Cowstr &other) const;
-  virtual bool operator<(const Cowstr &other) const;
-  virtual bool operator<=(const Cowstr &other) const;
+  bool operator==(const Cowstr &other) const;
+  bool operator!=(const Cowstr &other) const;
+  bool operator>(const Cowstr &other) const;
+  bool operator>=(const Cowstr &other) const;
+  bool operator<(const Cowstr &other) const;
+  bool operator<=(const Cowstr &other) const;
 
 private:
   std::shared_ptr<std::string> value_;
