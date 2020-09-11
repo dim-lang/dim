@@ -9,6 +9,7 @@
 %code top {
 #include <memory>
 #include <string>
+#include <cstdlib>
 #include "Log.h"
 #include "Ast.h"
 #include "Scanner.h"
@@ -292,11 +293,11 @@ newlines : "\n" { $$ = $1; }
 
  /* literal { */
 
-literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, @$); }
-        | T_FLOAT_LITERAL { $$ = new A_Float($1, @$); }
+literal : T_INTEGER_LITERAL { $$ = new A_Integer($1, @$); std::free($1); }
+        | T_FLOAT_LITERAL { $$ = new A_Float($1, @$); std::free($1); }
         | booleanLiteral { $$ = $1; }
-        | T_CHARACTER_LITERAL { $$ = new A_Character($1, @$); }
-        | T_STRING_LITERAL { $$ = new A_String($1, @$); }
+        | T_CHARACTER_LITERAL { $$ = new A_Character($1, @$); std::free($1); }
+        | T_STRING_LITERAL { $$ = new A_String($1, @$); std::free($1); }
         | "nil" { $$ = new A_Nil(@$); }
         | "void" { $$ = new A_Void(@$); }
         ;
@@ -313,7 +314,7 @@ id : varId { $$ = $1; }
    /* | Opid */
    ;
 
-varId : T_VAR_ID { $$ = new A_VarId($1, @$); }
+varId : T_VAR_ID { $$ = new A_VarId($1, @$); std::free($1); }
       ;
 
 /* Opid : assignOp */

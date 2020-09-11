@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "boost/filesystem.hpp"
 #include "container/CycleBuffer.h"
 #include "enum.h"
-#include <string>
 #include <vector>
 
 /*================ type start from 3000 ================*/
@@ -21,29 +21,27 @@ namespace detail {
 
 class FileInfo {
 public:
-  FileInfo(const std::string &fileName);
+  FileInfo(const Cowstr &fileName);
   // close fp_
   virtual ~FileInfo();
-  const std::string &fileName() const;
+  const Cowstr &fileName() const;
 
 protected:
-  std::string fileName_;
+  Cowstr fileName_;
   FILE *fp_;
 };
 
 class FileWriterImpl : public FileInfo {
 public:
-  FileWriterImpl(const std::string &fileName);
+  FileWriterImpl(const Cowstr &fileName);
   virtual ~FileWriterImpl();
 
   // reset writing offset
   virtual void reset(int offset);
   // flush buffer
   virtual int flush();
-  virtual int write(const char *buf, int n);
-  virtual int write(const std::string &buf);
-  virtual int writeln(const char *buf, int n);
-  virtual int writeln(const std::string &buf = "");
+  virtual int write(const Cowstr &buf);
+  virtual int writeln(const Cowstr &buf = "");
 
 protected:
   DynamicBuffer buffer_;
@@ -53,7 +51,7 @@ protected:
 
 class FileReader : public detail::FileInfo {
 public:
-  FileReader(const std::string &fileName);
+  FileReader(const Cowstr &fileName);
   virtual ~FileReader() = default;
   virtual FileMode mode() const;
 
@@ -61,17 +59,13 @@ public:
   virtual void reset(int offset = 0);
 
   // read block
-  virtual std::string read(int n);
-  virtual int read(char *buf, int n);
+  virtual Cowstr read(int n);
   // read all
-  virtual std::string readall();
-  virtual int readall(char *buf, int n);
+  virtual Cowstr readall();
   // read char
-  virtual std::string readc();
-  virtual int readc(char &c);
+  virtual Cowstr readc();
   // read line
-  virtual std::string readln();
-  virtual int readln(char *buf, int n);
+  virtual Cowstr readln();
 
 private:
   virtual void prepareFor(int n);
@@ -82,7 +76,7 @@ private:
 
 class FileWriter : public detail::FileWriterImpl {
 public:
-  FileWriter(const std::string &fileName);
+  FileWriter(const Cowstr &fileName);
   virtual ~FileWriter() = default;
   virtual FileMode mode() const;
   virtual void reset(int offset = 0);
@@ -90,7 +84,7 @@ public:
 
 class FileAppender : public detail::FileWriterImpl {
 public:
-  FileAppender(const std::string &fileName);
+  FileAppender(const Cowstr &fileName);
   virtual ~FileAppender() = default;
   virtual FileMode mode() const;
   virtual void reset(int offset = 0);

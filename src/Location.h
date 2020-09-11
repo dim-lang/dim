@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "parser.tab.hh"
 #include <string>
 
@@ -14,7 +15,7 @@ public:
 
   int line;
   int column;
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 };
 
 class Location {
@@ -28,7 +29,7 @@ public:
 
   Position begin;
   Position end;
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 };
 
 class Locationable {

@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include <cstdio>
-#include <string>
 
 namespace detail {
 
@@ -114,17 +114,16 @@ public:
   virtual char *rsearch(char *s, int n);
   virtual const char *rsearch(const char *s, int n) const;
 
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 
   // write at most <n> bytes to <buf>
-  // @return    bytes really write
-  virtual int write(char *buf, int n);
-  virtual std::string write(int n);
+  // @return    <buf>
+  virtual Cowstr write(int n);
 
   // read at most <n> bytes from <buf>
   // @return    bytes really read
-  virtual int read(const char *buf, int n);
-  virtual int read(const std::string &buf);
+  /* virtual int read(const char *buf, int n); */
+  virtual int read(const Cowstr &buf);
 
   // write all bytes to <fp>
   // @return    bytes really write
@@ -179,12 +178,12 @@ class DynamicBuffer : public detail::CycleBuffer<1> {
 public:
   DynamicBuffer(int capacity = 0);
   virtual ~DynamicBuffer();
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 };
 
 class FixedBuffer : public detail::CycleBuffer<0> {
 public:
   FixedBuffer(int capacity);
   virtual ~FixedBuffer();
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 };

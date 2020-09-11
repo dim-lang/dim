@@ -1,0 +1,666 @@
+// Copyright 2019- <nerd-lang>
+// Apache License Version 2.0
+
+#pragma once
+#include "Ast.h"
+#include "IrContext.h"
+#include "Log.h"
+#include "SymbolTable.h"
+#include "boost/core/noncopyable.hpp"
+#include "container/LinkedHashMap.h"
+#include "enum.h"
+#include <vector>
+
+/*================ type from start 4000 ================*/
+BETTER_ENUM(I_ty, int,
+            // constant
+            Identifier = 4000, Float32Constant, Float64Constant, Int8Constant,
+            UInt8Constant, Int16Constant, UInt16Constant, Int32Constant,
+            UInt32Constant, Int64Constant, UInt64Constant, StringConstant,
+            BooleanConstant,
+            // expression
+            CallExpression, UnaryExpression, BinaryExpression,
+            ConditionalExpression, AssignmentExpression, SequelExpression,
+            VoidExpression,
+            // statement
+            ExpressionStatement, CompoundStatement, IfStatement, WhileStatement,
+            ForStatement, ReturnStatement,
+            // definition
+            GlobalVariableDefinition, LocalVariableDefinition,
+            FunctionDefinition, FunctionSignatureDefinition,
+            // list
+            ExpressionList, StatementList, DefinitionList,
+            // common
+            TranslateUnit, Expression, Statement, Definition)
+
+/*================ class ================*/
+// interface
+class Ir;
+class IrConstant;
+class IrExpression;
+class IrStatement;
+class IrDefinition;
+
+// translate unit
+class IrTranslateUnit;
+
+// list
+class IrExpressionList;
+class IrStatementList;
+class IrDefinitionList;
+
+// constant
+class IrInt8Constant;
+class IrUInt8Constant;
+class IrInt16Constant;
+class IrUInt16Constant;
+class IrInt32Constant;
+class IrUInt32Constant;
+class IrInt64Constant;
+class IrUInt64Constant;
+class IrFloat32Constant;
+class IrFloat64Constant;
+class IrStringConstant;
+class IrBooleanConstant;
+class IrIdentifier;
+
+// expression
+class IrCallExpression;
+class IrUnaryExpression;
+class IrBinaryExpression;
+class IrConditionalExpression;
+class IrAssignmentExpression;
+class IrSequelExpression;
+class IrVoidExpression;
+
+// statement
+class IrExpressionStatement;
+class IrCompoundStatement;
+class IrIfStatement;
+class IrWhileStatement;
+class IrForStatement;
+class IrReturnStatement;
+
+// definition
+class IrGlobalVariableDefinition; // global variable
+class IrLocalVariableDefinition;  // local variable in function
+class IrFunctionDefinition;
+class IrFunctionSignatureDefinition;
+
+/*================ definition ================*/
+
+class Ir : public Namely, public Stringify, private boost::noncopyable {
+public:
+  Ir(IrContext *context, const std::string &name);
+  virtual ~Ir() = default;
+  virtual std::string name() const;
+  virtual std::string toString() const = 0;
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() = 0;
+
+protected:
+  IrContext *context_;
+  std::string name_;
+};
+
+class IrExpression : public Ir {
+public:
+  IrExpression(IrContext *context, const std::string &name);
+  virtual ~IrExpression() = default;
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() = 0;
+};
+
+class IrConstant : public IrExpression {
+public:
+  IrConstant(IrContext *context, const std::string &name);
+  virtual ~IrConstant() = default;
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() = 0;
+};
+
+class IrStatement : public Ir {
+public:
+  IrStatement(IrContext *context, const std::string &name);
+  virtual ~IrStatement() = default;
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() = 0;
+};
+
+class IrDefinition : public IrStatement {
+public:
+  IrDefinition(IrContext *context, const std::string &name);
+  virtual ~IrDefinition() = default;
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() = 0;
+};
+
+namespace detail {
+
+template <class T> class IrList : public Ir {
+public:
+  IrList(IrContext *context, const std::string &name) : Ir(context, name) {}
+  virtual ~IrList() {
+    for (int i = 0; i < (int)items_.size(); i++) {
+      delete items_[i];
+      items_[i] = nullptr;
+    }
+    items_.clear();
+  }
+  virtual I_ty type() const = 0;
+  virtual llvm::Value *codeGen() {
+    llvm::Value *ret = nullptr;
+    for (int i = 0; i < (int)items_.size(); i++) {
+      Ir *item = dynamic_cast<Ir *>(items_[i]);
+      ret = item->codeGen();
+    }
+    return ret;
+  }
+  virtual std::string toString() const {
+    std::stringstream ss;
+    ss << fmt::format("[@{} size:{}", stringify(), items_.size());
+    if (items_.empty()) {
+      ss << "]";
+      return ss.str();
+    }
+    ss << ", ";
+    for (int i = 0; i < (int)items_.size(); i++) {
+      Ir *item = dynamic_cast<Ir *>(items_[i]);
+      ss << fmt::format("{}:{}", i, item ? item->toString() : "null");
+      if (i < (int)items_.size() - 1) {
+        ss << ",";
+      }
+    }
+    ss << "]";
+    return ss.str();
+  }
+  virtual bool empty() const { return items_.empty(); }
+  virtual int size() const { return items_.size(); }
+  virtual T *get(int pos) const {
+    LOG_ASSERT(pos >= 0, "pos {} >= 0");
+    LOG_ASSERT(items_[pos], "items_[{}] is null", pos);
+    return items_[pos];
+  }
+  virtual void add(T *item) {
+    LOG_ASSERT(item, "item is null");
+    items_.push_back(item);
+  }
+
+protected:
+  virtual std::string stringify() const = 0;
+  std::vector<T *> items_;
+};
+
+} // namespace detail
+
+class IrExpressionList : public detail::IrList<IrExpression> {
+public:
+  IrExpressionList(IrContext *context);
+  virtual ~IrExpressionList() = default;
+  virtual I_ty type() const;
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class IrStatementList : public detail::IrList<IrStatement> {
+public:
+  IrStatementList(IrContext *context);
+  virtual ~IrStatementList() = default;
+  virtual I_ty type() const;
+
+protected:
+  virtual std::string stringify() const;
+};
+
+class IrDefinitionList : public detail::IrList<IrDefinition> {
+public:
+  IrDefinitionList(IrContext *context);
+  virtual ~IrDefinitionList() = default;
+  virtual I_ty type() const;
+
+protected:
+  virtual std::string stringify() const;
+};
+
+/* translate unit */
+class IrTranslateUnit : public detail::IrList<IrDefinition> {
+public:
+  IrTranslateUnit(IrContext *context, AstTranslateUnit *node);
+  virtual ~IrTranslateUnit() = default;
+  virtual I_ty type() const;
+
+protected:
+  virtual std::string stringify() const;
+
+private:
+  AstTranslateUnit *node_;
+};
+
+/* identifier constant */
+class IrIdentifier : public IrExpression {
+public:
+  IrIdentifier(IrContext *context, AstIdentifier *node);
+  virtual ~IrIdentifier() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstIdentifier *node_;
+};
+
+/* i8 constant */
+class IrInt8Constant : public IrConstant {
+public:
+  IrInt8Constant(IrContext *context, AstInt8Literal *node);
+  virtual ~IrInt8Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstInt8Literal *node_;
+};
+
+/* u8 constant */
+class IrUInt8Constant : public IrConstant {
+public:
+  IrUInt8Constant(IrContext *context, AstUInt8Literal *node);
+  virtual ~IrUInt8Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstUInt8Literal *node_;
+};
+
+/* i16 constant */
+class IrInt16Constant : public IrConstant {
+public:
+  IrInt16Constant(IrContext *context, AstInt16Literal *node);
+  virtual ~IrInt16Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstInt16Literal *node_;
+};
+
+/* u16 constant */
+class IrUInt16Constant : public IrConstant {
+public:
+  IrUInt16Constant(IrContext *context, AstUInt16Literal *node);
+  virtual ~IrUInt16Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstUInt16Literal *node_;
+};
+
+/* i32 constant */
+class IrInt32Constant : public IrConstant {
+public:
+  IrInt32Constant(IrContext *context, AstInt32Literal *node);
+  virtual ~IrInt32Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstInt32Literal *node_;
+};
+
+/* u32 constant */
+class IrUInt32Constant : public IrConstant {
+public:
+  IrUInt32Constant(IrContext *context, AstUInt32Literal *node);
+  virtual ~IrUInt32Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstUInt32Literal *node_;
+};
+
+/* i64 constant */
+class IrInt64Constant : public IrConstant {
+public:
+  IrInt64Constant(IrContext *context, AstInt64Literal *node);
+  virtual ~IrInt64Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstInt64Literal *node_;
+};
+
+/* u64 constant */
+class IrUInt64Constant : public IrConstant {
+public:
+  IrUInt64Constant(IrContext *context, AstUInt64Literal *node);
+  virtual ~IrUInt64Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstUInt64Literal *node_;
+};
+
+/* f32 constant */
+class IrFloat32Constant : public IrConstant {
+public:
+  IrFloat32Constant(IrContext *context, AstFloat32Literal *node);
+  virtual ~IrFloat32Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstFloat32Literal *node_;
+};
+
+/* f64 constant */
+class IrFloat64Constant : public IrConstant {
+public:
+  IrFloat64Constant(IrContext *context, AstFloat64Literal *node);
+  virtual ~IrFloat64Constant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstFloat64Literal *node_;
+};
+
+/* string constant */
+class IrStringConstant : public IrConstant {
+public:
+  IrStringConstant(IrContext *context, AstStringLiteral *node);
+  virtual ~IrStringConstant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstStringLiteral *node_;
+};
+
+/* boolean constant */
+class IrBooleanConstant : public IrConstant {
+public:
+  IrBooleanConstant(IrContext *context, AstBooleanLiteral *node);
+  virtual ~IrBooleanConstant() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstBooleanLiteral *node_;
+};
+
+/* call expression */
+class IrCallExpression : public IrExpression {
+public:
+  IrCallExpression(IrContext *context, AstCallExpression *node);
+  virtual ~IrCallExpression() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstCallExpression *node_;
+};
+
+/* unary expression */
+class IrUnaryExpression : public IrExpression {
+public:
+  IrUnaryExpression(IrContext *context, AstUnaryExpression *node);
+  virtual ~IrUnaryExpression();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstUnaryExpression *node_;
+  IrExpression *expression_;
+};
+
+/* binary expression */
+class IrBinaryExpression : public IrExpression {
+public:
+  IrBinaryExpression(IrContext *context, AstBinaryExpression *node);
+  virtual ~IrBinaryExpression();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstBinaryExpression *node_;
+  IrExpression *left_;
+  IrExpression *right_;
+};
+
+/* conditional expression */
+class IrConditionalExpression : public IrExpression {
+public:
+  IrConditionalExpression(IrContext *context, AstConditionalExpression *node);
+  virtual ~IrConditionalExpression();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstConditionalExpression *node_;
+  IrExpression *condition_;
+  IrExpression *thens_;
+  IrExpression *elses_;
+};
+
+/* assignment expression */
+class IrAssignmentExpression : public IrExpression {
+public:
+  IrAssignmentExpression(IrContext *context, AstAssignmentExpression *node);
+  virtual ~IrAssignmentExpression();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstAssignmentExpression *node_;
+  IrExpression *value_;
+};
+
+/* sequel expression */
+class IrSequelExpression : public IrExpression {
+public:
+  IrSequelExpression(IrContext *context, AstSequelExpression *node);
+  virtual ~IrSequelExpression();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual IrExpressionList *expressionList();
+  virtual llvm::Value *codeGen();
+
+private:
+  AstSequelExpression *node_;
+  IrExpressionList *expressionList_;
+};
+
+class IrVoidExpression : public IrExpression {
+public:
+  IrVoidExpression(IrContext *context, AstVoidExpression *node);
+  virtual ~IrVoidExpression() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstVoidExpression *node_;
+};
+
+/* expression statement */
+class IrExpressionStatement : public IrStatement {
+public:
+  IrExpressionStatement(IrContext *context, AstExpressionStatement *node);
+  virtual ~IrExpressionStatement();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstExpressionStatement *node_;
+  IrExpression *expression_;
+};
+
+/* compound statement */
+class IrCompoundStatement : public IrStatement {
+public:
+  IrCompoundStatement(IrContext *context, AstCompoundStatement *node);
+  virtual ~IrCompoundStatement();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstCompoundStatement *node_;
+  IrStatementList *statementList_;
+};
+
+/* if statement */
+class IrIfStatement : public IrStatement {
+public:
+  IrIfStatement(IrContext *context, AstIfStatement *node);
+  virtual ~IrIfStatement();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstIfStatement *node_;
+  IrExpression *condition_;
+  IrStatement *thens_;
+  IrStatement *elses_;
+};
+
+/* while statement */
+class IrWhileStatement : public IrStatement {
+public:
+  IrWhileStatement(IrContext *context, AstWhileStatement *node);
+  virtual ~IrWhileStatement() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstWhileStatement *node_;
+  IrExpression *condition_;
+  IrStatement *statement_;
+};
+
+/* for statement */
+class IrForStatement : public IrStatement {
+public:
+  IrForStatement(IrContext *context, AstForStatement *node);
+  virtual ~IrForStatement();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstForStatement *node_;
+  IrStatement *start_;
+  IrStatement *step_;
+  IrExpression *end_;
+  IrStatement *statement_;
+};
+
+/* return statement */
+class IrReturnStatement : public IrStatement {
+public:
+  IrReturnStatement(IrContext *context, AstReturnStatement *node);
+  virtual ~IrReturnStatement();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstReturnStatement *node_;
+  IrExpression *expression_;
+};
+
+/* variable definition */
+class IrVariableDefinition : public IrDefinition {
+public:
+  IrVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrVariableDefinition() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstVariableDefinition *node_;
+};
+
+/* global variable */
+class IrGlobalVariableDefinition : public IrDefinition {
+public:
+  IrGlobalVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrGlobalVariableDefinition();
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstVariableDefinition *node_;
+  IrExpressionList *expressionList_;
+};
+
+/* local variable in function */
+class IrLocalVariableDefinition : public IrDefinition {
+public:
+  IrLocalVariableDefinition(IrContext *context, AstVariableDefinition *node);
+  virtual ~IrLocalVariableDefinition() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstVariableDefinition *node_;
+  IrExpressionList *expressionList_;
+};
+
+/* function definition */
+class IrFunctionDefinition : public IrDefinition {
+public:
+  IrFunctionDefinition(IrContext *context, AstFunctionDefinition *node);
+  virtual ~IrFunctionDefinition() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstFunctionDefinition *node_;
+  IrFunctionSignatureDefinition *signature_;
+  IrStatement *statement_;
+};
+
+/* function signature definition */
+class IrFunctionSignatureDefinition : public IrDefinition {
+public:
+  IrFunctionSignatureDefinition(IrContext *context,
+                                AstFunctionSignatureDefinition *node);
+  virtual ~IrFunctionSignatureDefinition() = default;
+  virtual std::string toString() const;
+  virtual I_ty type() const;
+  virtual llvm::Value *codeGen();
+
+private:
+  AstFunctionSignatureDefinition *node_;
+};

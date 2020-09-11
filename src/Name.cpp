@@ -2,62 +2,36 @@
 // Apache License Version 2.0
 
 #include "Name.h"
-#include "Strings.h"
-#include "fmt/format.h"
-#include <algorithm>
-#include <cctype>
-#include <functional>
-#include <iomanip>
 #include <sstream>
-#include <utility>
-#include <vector>
 
-Name::Name(char *name) : name_(name), id_(Counter::get()) {}
+Nameable::Nameable() : name_("") {}
 
-int Name::compare(const Name &other) const { return name_ - other.name_; }
+Nameable::Nameable(const Cowstr &name) : name_(name) {}
 
-bool Name::operator==(const Name &other) const { return name_ == other.name_; }
+Cowstr &Nameable::name() { return name_; }
 
-bool Name::operator!=(const Name &other) const { return name_ != other.name_; }
+const Cowstr &Nameable::name() const { return name_; }
 
-bool Name::operator>(const Name &other) const { return name_ > other.name_; }
+namespace detail {
 
-bool Name::operator>=(const Name &other) const { return name_ >= other.name_; }
-
-bool Name::operator<(const Name &other) const { return name_ < other.name_; }
-
-bool Name::operator<=(const Name &other) const { return name_ <= other.name_; }
-
-const char *Name::raw() const { return name_; }
-
-unsigned long long Name::id() const { return id_; }
-
-std::string Name::toString() const { return fmt::format("{}.{}", raw(), id()); }
-
-const char *Name::llvmName() const {
-  std::stringstream ss;
-  ss << "$"
-     << fmt::format("{0:x}", std::hash<std::string>()(std::string(name_)))
-     << "." << id();
-  return Strings::dup(ss.str().c_str());
+Cowstr NameGenerator::from(const Cowstr &hint) {
+  return hint + "." + counter_.next();
 }
 
-const char *Name::symbolName() const {
-  std::stringstream ss;
-  ss << "@" << toString();
-  return Strings::dup(ss.str().c_str());
+} // namespace detail
+
+Cowstr AstGraphNameGenerator::from(const Cowstr &hint) {
+  return detail::NameGenerator::from(hint);
 }
 
-Name Name::get(const std::string &name) { return Name(Strings::dup(name)); }
+Cowstr SymbolNameGenerator::from(const Cowstr &hint) {
+  std::stringstream ss;
+  ss << "nerd.sym." << hint << "." << counter_.next();
+  return Cowstr(ss.str());
+}
 
-Name Name::get(const char *name) { return Name(Strings::dup(name)); }
-
-Nameable::Nameable() : name_(Name::get("")) {}
-
-Nameable::Nameable(const std::string &name) : name_(Name::get(name)) {}
-
-Nameable::Nameable(const char *name) : name_(Name::get(name)) {}
-
-Name &Nameable::name() { return name_; }
-
-const Name &Nameable::name() const { return name_; }
+Cowstr IrNameGenerator::from(const Cowstr &hint) {
+  std::stringstream ss;
+  ss << "nerd.ir." << hint << "." << counter_.next();
+  return Cowstr(ss.str());
+}

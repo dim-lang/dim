@@ -3,66 +3,47 @@
 
 #pragma once
 #include "Counter.h"
-#include <functional>
-#include <memory>
-#include <string>
-#include <unordered_map>
-
-class Name {
-public:
-  virtual ~Name() = default;
-
-  virtual int compare(const Name &other) const;
-  virtual bool operator==(const Name &other) const;
-  virtual bool operator!=(const Name &other) const;
-  virtual bool operator>(const Name &other) const;
-  virtual bool operator>=(const Name &other) const;
-  virtual bool operator<(const Name &other) const;
-  virtual bool operator<=(const Name &other) const;
-
-  virtual const char *raw() const;
-  virtual unsigned long long id() const;
-  virtual std::string toString() const;
-
-  // example:
-  // a -> $8f1b.2
-  // "" -> $0000.1
-  virtual const char *llvmName() const;
-
-  // example:
-  // a -> @a.2
-  // "" -> @.1
-  virtual const char *symbolName() const;
-
-  static Name get(const std::string &name);
-  static Name get(const char *name);
-
-protected:
-  Name(char *name);
-
-  char *name_;
-  unsigned long long id_;
-};
-
-namespace std {
-
-template <> struct hash<Name> {
-  std::size_t operator()(const Name &o) const {
-    return std::hash<std::string>()(o.toString());
-  }
-};
-
-} // namespace std
+#include "Cowstr.h"
 
 class Nameable {
 public:
   Nameable();
-  Nameable(const char *name);
-  Nameable(const std::string &name);
+  Nameable(const Cowstr &name);
   virtual ~Nameable() = default;
-  virtual Name &name();
-  virtual const Name &name() const;
+  virtual Cowstr &name();
+  virtual const Cowstr &name() const;
 
 private:
-  Name name_;
+  Cowstr name_;
+};
+
+namespace detail {
+
+class NameGenerator {
+public:
+  virtual ~NameGenerator() = default;
+  virtual Cowstr from(const Cowstr &hint);
+
+protected:
+  Counter counter_;
+};
+
+} // namespace detail
+
+class AstGraphNameGenerator : public detail::NameGenerator {
+public:
+  virtual ~AstGraphNameGenerator() = default;
+  virtual Cowstr from(const Cowstr &hint);
+};
+
+class SymbolNameGenerator : public detail::NameGenerator {
+public:
+  virtual ~SymbolNameGenerator() = default;
+  virtual Cowstr from(const Cowstr &hint);
+};
+
+class IrNameGenerator : public detail::NameGenerator {
+public:
+  virtual ~IrNameGenerator() = default;
+  virtual Cowstr from(const Cowstr &hint);
 };

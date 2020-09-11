@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "Location.h"
 #include "Name.h"
 #include "boost/core/noncopyable.hpp"
@@ -90,10 +91,9 @@ class A_CompileUnit;
 
 class Ast : public Nameable, public Locationable, private boost::noncopyable {
 public:
-  Ast(const std::string &name, const Location &location = Location());
+  Ast(const Cowstr &name, const Location &location = Location());
   virtual ~Ast() = default;
   virtual AstKind kind() const = 0;
-  virtual std::string toString() const;
 
   static bool isLiteral(Ast *e);
   static bool isId(Ast *e);
@@ -123,11 +123,11 @@ public:
   // ULONG: 64 bit unsigned long
   enum class BitKind { SIGNED = 110, UNSIGNED, LONG, ULONG };
 
-  A_Integer(const std::string &literal, const Location &location);
+  A_Integer(const Cowstr &literal, const Location &location);
   virtual ~A_Integer() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
   virtual int bits() const;
   virtual int base() const;
   virtual DecimalKind decimalKind() const;
@@ -138,8 +138,8 @@ public:
   virtual uint64_t asUInt64() const;
 
 private:
-  std::string literal_;
-  std::string parsed_;
+  Cowstr literal_;
+  Cowstr parsed_;
   int bits_;
   int base_;
   DecimalKind decimalKind_;
@@ -153,19 +153,19 @@ public:
   // DBL: 64 bit
   enum class BitKind { FLT = 130, DBL };
 
-  A_Float(const std::string &literal, const Location &location);
+  A_Float(const Cowstr &literal, const Location &location);
   virtual ~A_Float() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
   virtual int bits() const;
   virtual BitKind bitKind() const;
   virtual float asFloat() const;
   virtual double asDouble() const;
 
 private:
-  std::string literal_;
-  std::string parsed_;
+  Cowstr literal_;
+  Cowstr parsed_;
   int bits_;
   BitKind bitKind_;
 };
@@ -178,45 +178,45 @@ public:
   // TRIPLE: """
   enum class QuoteKind { SINGLE = 140, TRIPLE };
 
-  A_String(const std::string &literal, const Location &location);
+  A_String(const Cowstr &literal, const Location &location);
   virtual ~A_String() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
   virtual QuoteKind quoteKind() const;
-  virtual const std::string &asString() const;
+  virtual const Cowstr &asString() const;
 
 private:
-  std::string literal_;
-  std::string parsed_;
+  Cowstr literal_;
+  Cowstr parsed_;
   QuoteKind quoteKind_;
 };
 
 class A_Character : public Ast {
 public:
-  A_Character(const std::string &literal, const Location &location);
+  A_Character(const Cowstr &literal, const Location &location);
   virtual ~A_Character() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
   virtual char asChar() const;
 
 private:
-  std::string literal_;
+  Cowstr literal_;
   char parsed_;
 };
 
 class A_Boolean : public Ast {
 public:
-  A_Boolean(const std::string &literal, const Location &location);
+  A_Boolean(const Cowstr &literal, const Location &location);
   virtual ~A_Boolean() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
   virtual bool asBoolean() const;
 
 private:
-  std::string literal_;
+  Cowstr literal_;
   bool parsed_;
 };
 
@@ -240,14 +240,14 @@ public:
 
 class A_VarId : public Ast {
 public:
-  A_VarId(const std::string &literal, const Location &location);
+  A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
 
-  virtual const std::string &literal() const;
+  virtual const Cowstr &literal() const;
 
 private:
-  std::string literal_;
+  Cowstr literal_;
 };
 
 // id }

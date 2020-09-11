@@ -6,7 +6,6 @@
 #include "Counter.h"
 #include "Files.h"
 #include "Log.h"
-#include "Strings.h"
 #include "Token.h"
 #include <list>
 #include <sstream>
@@ -16,17 +15,13 @@
 
 namespace detail {
 
-static const std::unordered_map<char, std::string> HtmlTranslator = {
+static const std::unordered_map<char, Cowstr> HtmlTranslator = {
     {'\\', "\\\\"}, {'\n', "\\n"}, {'\t', "\\t"}, {'\r', "\\r"}, {'\?', "\\?"},
     {'\a', "\\a"},  {'\b', "\\b"}, {'\f', "\\f"}, {'\v', "\\v"}, {'\'', "\\\'"},
     {'\"', "\\\""}, {'<', "&lt;"}, {'>', "&gt;"},
 };
 
-static char *getName(const std::string &name) {
-  std::stringstream ss;
-  ss << name << Counter::get();
-  return Strings::dup(ss.str().c_str());
-}
+static AstGraphNameGenerator nameGenerator;
 
 struct AstDotNode;
 struct AstDotEdge;
@@ -38,26 +33,21 @@ using adnsp = std::shared_ptr<AstDotNode>;
 using adesp = std::shared_ptr<AstDotEdge>;
 
 struct AstDotNode {
-  std::string name;
-  std::string header;
-  std::list<std::pair<char *, char *>> label;
+  Cowstr name;
+  Cowstr header;
+  std::list<std::pair<Cowstr, Cowstr>> label;
 
-  AstDotNode(const std::string &a_header)
-      : name(getName("node")),
-        header(Strings::replace(a_header, HtmlTranslator)), label() {}
+  AstDotNode(const Cowstr &a_header)
+      : name("node"), header(Cowstr(a_header).replace(HtmlTranslator)),
+        label() {}
   virtual ~AstDotNode() = default;
 
-  virtual AstDotNode &add(char *a, char *b) {
-    label.push_back(std::make_pair(Strings::replace(a, HtmlTranslator),
-                                   Strings::replace(b, HtmlTranslator)));
+  virtual AstDotNode &add(const Cowstr &a, const Cowstr &b) {
+    label.push_back(std::make_pair(Cowstr(a).replace(HtmlTranslator),
+                                   Cowstr(b).replace(HtmlTranslator)));
     return *this;
   }
-  virtual AstDotNode &add(const std::string &a, const std::string &b) {
-    label.push_back(std::make_pair(Strings::replace(a, HtmlTranslator),
-                                   Strings::replace(b, HtmlTranslator)));
-    return *this;
-  }
-  virtual std::string toString() const {
+  virtual Cowstr str() const {
     std::stringstream ss;
     ss << name << " [label=\"{ " << header;
     for (auto i = label.begin(); i != label.end(); i++) {
@@ -69,15 +59,15 @@ struct AstDotNode {
 };
 
 struct AstDotEdge {
-  std::string label;
+  Cowstr label;
   adnsp head;
   adnsp tail;
 
-  AstDotEdge(const std::string &a_label, adnsp a_head, adnsp a_tail)
+  AstDotEdge(const Cowstr &a_label, adnsp a_head, adnsp a_tail)
       : label(a_label), head(a_head), tail(a_tail) {}
   virtual ~AstDotEdge() = default;
 
-  virtual std::string toString() const {
+  virtual Cowstr str() const {
     std::stringstream ss;
     ss << head->name << " -> " << tail->name << " [label=\"" << label << "\"]";
     return ss.str();
@@ -86,23 +76,24 @@ struct AstDotEdge {
 
 #define L_NODE(ast_type)                                                       \
   do {                                                                         \
-    adnsp u(new adn(ast->name().symbolName()));                                \
+    adnsp u(new adn(nameGenerator.from(ast->name())));                         \
     u->add("literal", ASP(ast_type)->literal());                               \
-    u->add("location", ast->location().toString());                            \
-    u->add("llvmName", ast->name().llvmName());                                \
+    u->add("location", ast->location().str());                                 \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
 
 #define NODE                                                                   \
   do {                                                                         \
-    adnsp u(new adn(ast->name().symbolName()));                                \
-    u->add("location", ast->location().toString());                            \
+    adnsp u(new adn(nameGenerator.from(ast->name())));                         \
+    u->add("location", ast->location().str());                                 \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
 
-#define S_NODE adnsp u(new adn(ast->name().symbolName()))
+#define S_NODE                                                                 \
+  adnsp u(new adn(nameGenerator.from(ast->name())));                           \
+  u->add("location", ast->location().str())
 
 struct AstDot {
   std::list<adnsp> nodes;
@@ -111,7 +102,7 @@ struct AstDot {
   AstDot() : nodes(), edges() {}
   virtual ~AstDot() = default;
 
-  virtual int draw(Ast *ast, const std::string &output) {
+  virtual int draw(Ast *ast, const Cowstr &output) {
     FileWriter fwriter(output);
     drawImpl(ast);
     fwriter.writeln("digraph {");
@@ -123,11 +114,11 @@ struct AstDot {
         "    edge [fontname=\"Courier New, Courier\", fontsize=12]");
     fwriter.writeln();
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
-      fwriter.writeln(fmt::format("    {}", (*i)->toString()));
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
     }
     fwriter.write("\n");
     for (auto i = edges.begin(); i != edges.end(); i++) {
-      fwriter.writeln(fmt::format("    {}", (*i)->toString()));
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
     }
     fwriter.writeln("}");
     fwriter.flush();
@@ -180,9 +171,6 @@ private:
     }
     case AstKind::Throw: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp v = drawImpl(ASP(A_Throw)->expr);
       adesp e(new ade("expr", u, v));
       nodes.push_back(u);
@@ -191,9 +179,6 @@ private:
     }
     case AstKind::Return: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp v = drawImpl(ASP(A_Return)->expr);
       adesp e(new ade("expr", u, v));
       nodes.push_back(u);
@@ -203,12 +188,8 @@ private:
     case AstKind::Assign: {
       S_NODE;
       u->label.push_back(std::make_pair(
-          Strings::dup("assignOp"),
-          Strings::replace(tokenName(ASP(A_Assign)->assignOp).c_str(),
-                           HtmlTranslator)));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
+          "assignOp",
+          Cowstr(tokenName(ASP(A_Assign)->assignOp)).replace(HtmlTranslator)));
       adnsp p = drawImpl(ASP(A_Assign)->assignee);
       adnsp q = drawImpl(ASP(A_Assign)->assignor);
       adesp ep(new ade("assignee", u, p));
@@ -221,12 +202,8 @@ private:
     case AstKind::PostfixExpr: {
       S_NODE;
       u->label.push_back(std::make_pair(
-          Strings::dup("postfixOp"),
-          Strings::replace(tokenName(ASP(A_PostfixExpr)->postfixOp).c_str(),
-                           HtmlTranslator)));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
+          "postfixOp", Cowstr(tokenName(ASP(A_PostfixExpr)->postfixOp))
+                           .replace(HtmlTranslator)));
       adnsp v = drawImpl(ASP(A_PostfixExpr)->expr);
       adesp e(new ade("expr", u, v));
       nodes.push_back(u);
@@ -235,13 +212,9 @@ private:
     }
     case AstKind::InfixExpr: {
       S_NODE;
-      u->label.push_back(std::make_pair(
-          Strings::dup("infixOp"),
-          Strings::replace(tokenName(ASP(A_InfixExpr)->infixOp).c_str(),
-                           HtmlTranslator)));
       u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
+          std::make_pair("infixOp", Cowstr(tokenName(ASP(A_InfixExpr)->infixOp))
+                                        .replace(HtmlTranslator)));
       adnsp p = drawImpl(ASP(A_InfixExpr)->left);
       adnsp q = drawImpl(ASP(A_InfixExpr)->right);
       adesp ep(new ade("left", u, p));
@@ -254,12 +227,8 @@ private:
     case AstKind::PrefixExpr: {
       S_NODE;
       u->label.push_back(std::make_pair(
-          Strings::dup("prefixOp"),
-          Strings::replace(tokenName(ASP(A_PrefixExpr)->prefixOp).c_str(),
-                           HtmlTranslator)));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
+          "prefixOp", Cowstr(tokenName(ASP(A_PrefixExpr)->prefixOp))
+                          .replace(HtmlTranslator)));
       adnsp v = drawImpl(ASP(A_PrefixExpr)->expr);
       adesp e(new ade("expr", u, v));
       nodes.push_back(u);
@@ -268,9 +237,6 @@ private:
     }
     case AstKind::Call: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Call)->id);
       adnsp q = drawImpl(ASP(A_Call)->args);
       adesp ep(new ade("id", u, p));
@@ -282,9 +248,6 @@ private:
     }
     case AstKind::Exprs: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Exprs)->expr);
       adnsp q = drawImpl(ASP(A_Exprs)->next);
       adesp ep(new ade("expr", u, p));
@@ -296,9 +259,6 @@ private:
     }
     case AstKind::If: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_If)->condition);
       adnsp q = drawImpl(ASP(A_If)->thenp);
       adnsp v = drawImpl(ASP(A_If)->elsep);
@@ -313,9 +273,6 @@ private:
     }
     case AstKind::Loop: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Loop)->condition);
       adnsp q = drawImpl(ASP(A_Loop)->body);
       adesp ep(new ade("condition", u, p));
@@ -327,9 +284,6 @@ private:
     }
     case AstKind::Yield: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp v = drawImpl(ASP(A_Yield)->expr);
       adesp e(new ade("expr", u, v));
       nodes.push_back(u);
@@ -338,9 +292,6 @@ private:
     }
     case AstKind::LoopCondition: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_LoopCondition)->init);
       adnsp q = drawImpl(ASP(A_LoopCondition)->condition);
       adnsp v = drawImpl(ASP(A_LoopCondition)->update);
@@ -355,9 +306,6 @@ private:
     }
     case AstKind::LoopEnumerator: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_LoopEnumerator)->id);
       adnsp q = drawImpl(ASP(A_LoopEnumerator)->expr);
       adesp ep(new ade("id", u, p));
@@ -369,9 +317,6 @@ private:
     }
     case AstKind::DoWhile: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_DoWhile)->body);
       adnsp q = drawImpl(ASP(A_DoWhile)->condition);
       adesp ep(new ade("body", u, p));
@@ -383,9 +328,6 @@ private:
     }
     case AstKind::Try: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Try)->tryp);
       adnsp q = drawImpl(ASP(A_Try)->catchp);
       adnsp v = drawImpl(ASP(A_Try)->finallyp);
@@ -400,9 +342,6 @@ private:
     }
     case AstKind::Block: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp v = drawImpl(ASP(A_Block)->blockStats);
       adesp e(new ade("blockStats", u, v));
       nodes.push_back(u);
@@ -411,9 +350,6 @@ private:
     }
     case AstKind::BlockStats: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_BlockStats)->blockStat);
       adnsp q = drawImpl(ASP(A_BlockStats)->next);
       adesp ep(new ade("blockStat", u, p));
@@ -426,20 +362,13 @@ private:
     case AstKind::PlainType: {
       S_NODE;
       u->label.push_back(std::make_pair(
-          Strings::dup("token"),
-          Strings::replace(tokenName(ASP(A_PlainType)->token).c_str(),
-                           HtmlTranslator)));
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
+          "token",
+          Cowstr(tokenName(ASP(A_PlainType)->token)).replace(HtmlTranslator)));
       nodes.push_back(u);
       return u;
     }
     case AstKind::FuncDef: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_FuncDef)->funcSign);
       adnsp q = drawImpl(ASP(A_FuncDef)->resultType);
       adnsp v = drawImpl(ASP(A_FuncDef)->body);
@@ -454,9 +383,6 @@ private:
     }
     case AstKind::FuncSign: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_FuncSign)->id);
       adnsp q = drawImpl(ASP(A_FuncSign)->params);
       adesp ep(new ade("id", u, p));
@@ -468,9 +394,6 @@ private:
     }
     case AstKind::Params: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Params)->param);
       adnsp q = drawImpl(ASP(A_Params)->next);
       adesp ep(new ade("param", u, p));
@@ -482,9 +405,6 @@ private:
     }
     case AstKind::Param: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_Param)->id);
       adnsp q = drawImpl(ASP(A_Param)->type);
       adesp ep(new ade("id", u, p));
@@ -496,9 +416,6 @@ private:
     }
     case AstKind::VarDef: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_VarDef)->id);
       adnsp q = drawImpl(ASP(A_VarDef)->type);
       adnsp v = drawImpl(ASP(A_VarDef)->expr);
@@ -513,9 +430,6 @@ private:
     }
     case AstKind::TopStats: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp p = drawImpl(ASP(A_TopStats)->topStat);
       adnsp q = drawImpl(ASP(A_TopStats)->next);
       adesp ep(new ade("topStat", u, p));
@@ -527,9 +441,6 @@ private:
     }
     case AstKind::CompileUnit: {
       S_NODE;
-      u->label.push_back(
-          std::make_pair(Strings::dup("location"),
-                         Strings::dup(ast->location().toString().c_str())));
       adnsp v = drawImpl(ASP(A_CompileUnit)->topStats);
       adesp e(new ade("topStats", u, v));
       nodes.push_back(u);
@@ -544,7 +455,7 @@ private:
 
 } // namespace detail
 
-int Graph::drawAst(Ast *ast, const std::string &output) {
+int Graph::drawAst(Ast *ast, const Cowstr &output) {
   detail::AstDot g;
   return g.draw(ast, output);
 }

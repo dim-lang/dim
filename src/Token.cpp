@@ -13,7 +13,7 @@ Token::Token(int a_value, YYSTYPE a_yylval, YYLTYPE a_yylloc)
 #define NAME_VALUE(t, x)                                                       \
   { yytokentype::t, x }
 
-const static std::unordered_map<int, std::string> TokenNameMap = {
+const static std::unordered_map<int, Cowstr> TokenNameMap = {
     NAME_VALUE(T_TRUE, "true"),
     NAME_VALUE(T_FALSE, "false"),
     NAME_VALUE(T_TRY, "try"),
@@ -155,18 +155,18 @@ struct TokenValueMapImpl {
       tokenValueMap.insert(std::make_pair(i->second, i->first));
     }
   }
-  std::unordered_map<std::string, int> tokenValueMap;
+  std::unordered_map<Cowstr, int> tokenValueMap;
 };
 } // namespace detail
 
 const static detail::TokenValueMapImpl tokenValueMapImpl;
 
-const std::string &tokenName(int value) {
+const Cowstr &tokenName(int value) {
   LOG_ASSERT(tokenValid(value), "invalid token value: {}", value);
   return TokenNameMap.find(value)->second;
 }
 
-int tokenValue(const std::string &name) {
+int tokenValue(const Cowstr &name) {
   LOG_ASSERT(tokenValid(name), "invalid token name: {}", name);
   return tokenValueMapImpl.tokenValueMap.find(name)->second;
 }
@@ -175,7 +175,7 @@ bool tokenValid(int token) {
   return TokenNameMap.find(token) != TokenNameMap.end();
 }
 
-bool tokenValid(const std::string &name) {
+bool tokenValid(const Cowstr &name) {
   return tokenValueMapImpl.tokenValueMap.find(name) !=
          tokenValueMapImpl.tokenValueMap.end();
 }

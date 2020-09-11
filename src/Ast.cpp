@@ -8,7 +8,6 @@
 #include "parser.tab.hh"
 #include <algorithm>
 #include <sstream>
-#include <string>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
@@ -24,10 +23,8 @@
 
 // Ast {
 
-Ast::Ast(const std::string &name, const Location &location)
+Ast::Ast(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location) {}
-
-std::string Ast::toString() const { return name().toString(); }
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)
@@ -113,30 +110,28 @@ bool Ast::isType(Ast *e) { return e && e->kind() == (+AstKind::PlainType); }
 
 // A_Integer {
 
-static const std::unordered_map<A_Integer::DecimalKind, std::string>
-    AIL_DC_Map = {
-        {A_Integer::DecimalKind::DEC, "DEC"},
-        {A_Integer::DecimalKind::HEX, "HEX"},
-        {A_Integer::DecimalKind::BIN, "BIN"},
-        {A_Integer::DecimalKind::OCT, "OCT"},
+static const std::unordered_map<A_Integer::DecimalKind, Cowstr> AIL_DC_Map = {
+    {A_Integer::DecimalKind::DEC, "DEC"},
+    {A_Integer::DecimalKind::HEX, "HEX"},
+    {A_Integer::DecimalKind::BIN, "BIN"},
+    {A_Integer::DecimalKind::OCT, "OCT"},
 };
 
-static const std::unordered_map<A_Integer::BitKind, std::string> AIL_BC_Map = {
+static const std::unordered_map<A_Integer::BitKind, Cowstr> AIL_BC_Map = {
     {A_Integer::BitKind::SIGNED, "SIGNED"},
     {A_Integer::BitKind::UNSIGNED, "UNSIGNED"},
     {A_Integer::BitKind::LONG, "LONG"},
     {A_Integer::BitKind::ULONG, "ULONG"},
 };
 
-A_Integer::A_Integer(const std::string &literal, const Location &location)
+A_Integer::A_Integer(const Cowstr &literal, const Location &location)
     : Ast("integerLiteral", location), literal_(literal) {
   LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
              literal_.length());
 
   int startPosition = 0;
-  std::vector<std::string> decimalPrefix = {"0x", "0X", "0o", "0O", "0b", "0B"};
-  if (Strings::startWith(literal_, decimalPrefix.begin(),
-                         decimalPrefix.end())) {
+  std::vector<Cowstr> decimalPrefix = {"0x", "0X", "0o", "0O", "0b", "0B"};
+  if (literal_.startWithAnyOf(decimalPrefix.begin(), decimalPrefix.end())) {
     switch (literal_[1]) {
     case 'x':
     case 'X':
@@ -166,20 +161,19 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
   }
 
   int endPosition = (int)literal_.length();
-  std::vector<std::string> bitPostfix = {"ul", "UL", "uL", "Ul"};
-  std::vector<char> longPostfix = {'l', 'L'};
-  std::vector<char> unsignedPostfix = {'u', 'U'};
-  if (Strings::endWith(literal_, bitPostfix.begin(), bitPostfix.end())) {
+  std::vector<Cowstr> bitPostfix = {"ul", "UL", "uL", "Ul"};
+  std::vector<Cowstr> longPostfix = {"l", "L"};
+  std::vector<Cowstr> unsignedPostfix = {"u", "U"};
+  if (literal_.endWithAnyOf(bitPostfix.begin(), bitPostfix.end())) {
     bitKind_ = A_Integer::BitKind::ULONG;
     bits_ = 64;
     endPosition = (int)literal_.length() - 2;
-  } else if (Strings::endWith(literal_, longPostfix.begin(),
-                              longPostfix.end())) {
+  } else if (literal_.endWithAnyOf(longPostfix.begin(), longPostfix.end())) {
     bitKind_ = A_Integer::BitKind::LONG;
     bits_ = 64;
     endPosition = (int)literal_.length() - 1;
-  } else if (Strings::endWith(literal_, unsignedPostfix.begin(),
-                              unsignedPostfix.end())) {
+  } else if (literal_.endWithAnyOf(unsignedPostfix.begin(),
+                                   unsignedPostfix.end())) {
     bitKind_ = A_Integer::BitKind::UNSIGNED;
     bits_ = 32;
     endPosition = (int)literal_.length() - 1;
@@ -189,12 +183,12 @@ A_Integer::A_Integer(const std::string &literal, const Location &location)
     endPosition = (int)literal_.length();
   }
 
-  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal_.subString(startPosition, endPosition - startPosition);
 }
 
 AstKind A_Integer::kind() const { return AstKind::Integer; }
 
-const std::string &A_Integer::literal() const { return literal_; }
+const Cowstr &A_Integer::literal() const { return literal_; }
 
 int A_Integer::bits() const { return bits_; }
 
@@ -205,39 +199,39 @@ A_Integer::DecimalKind A_Integer::decimalKind() const { return decimalKind_; }
 A_Integer::BitKind A_Integer::bitKind() const { return bitKind_; }
 
 int32_t A_Integer::asInt32() const {
-  return static_cast<int32_t>(std::stol(parsed_, nullptr, base_));
+  return static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
 }
 
 uint32_t A_Integer::asUInt32() const {
-  return static_cast<uint32_t>(std::stoul(parsed_, nullptr, base_));
+  return static_cast<uint32_t>(std::stoul(parsed_.str(), nullptr, base_));
 }
 
 int64_t A_Integer::asInt64() const {
-  return static_cast<int64_t>(std::stoll(parsed_, nullptr, base_));
+  return static_cast<int64_t>(std::stoll(parsed_.str(), nullptr, base_));
 }
 
 uint64_t A_Integer::asUInt64() const {
-  return static_cast<uint64_t>(std::stoull(parsed_, nullptr, base_));
+  return static_cast<uint64_t>(std::stoull(parsed_.str(), nullptr, base_));
 }
 
 // A_Integer }
 
 // A_Float {
 
-const static std::unordered_map<A_Float::BitKind, std::string> AFL_BC_Map = {
+const static std::unordered_map<A_Float::BitKind, Cowstr> AFL_BC_Map = {
     {A_Float::BitKind::FLT, "FLT"},
     {A_Float::BitKind::DBL, "DBL"},
 };
 
-A_Float::A_Float(const std::string &literal, const Location &location)
+A_Float::A_Float(const Cowstr &literal, const Location &location)
     : Ast("floatLiteral", location), literal_(literal) {
   LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
              literal_.length());
 
   int startPosition = 0;
   int endPosition = (int)literal_.length();
-  std::vector<char> doublePostfix = {'d', 'D'};
-  if (Strings::endWith(literal_, doublePostfix.begin(), doublePostfix.end())) {
+  std::vector<Cowstr> doublePostfix = {"d", "D"};
+  if (literal_.endWithAnyOf(doublePostfix.begin(), doublePostfix.end())) {
     bitKind_ = A_Float::BitKind::DBL;
     bits_ = 64;
     endPosition = (int)literal_.length();
@@ -247,64 +241,62 @@ A_Float::A_Float(const std::string &literal, const Location &location)
     endPosition = (int)literal_.length() - 1;
   }
 
-  parsed_ = literal_.substr(startPosition, endPosition - startPosition);
+  parsed_ = literal_.subString(startPosition, endPosition - startPosition);
 }
 
 AstKind A_Float::kind() const { return AstKind::Float; }
 
-const std::string &A_Float::literal() const { return literal_; }
+const Cowstr &A_Float::literal() const { return literal_; }
 
 int A_Float::bits() const { return bits_; }
 
 A_Float::BitKind A_Float::bitKind() const { return bitKind_; }
 
-float A_Float::asFloat() const { return std::stof(parsed_); }
+float A_Float::asFloat() const { return std::stof(parsed_.str()); }
 
-double A_Float::asDouble() const { return std::stod(parsed_); }
+double A_Float::asDouble() const { return std::stod(parsed_.str()); }
 
 // A_Float }
 
 // A_String {
 
-const static std::unordered_map<A_String::QuoteKind, std::string> ASL_QC_Map = {
+const static std::unordered_map<A_String::QuoteKind, Cowstr> ASL_QC_Map = {
     {A_String::QuoteKind::SINGLE, "SINGLE"},
     {A_String::QuoteKind::TRIPLE, "TRIPLE"},
 };
 
-A_String::A_String(const std::string &literal, const Location &location)
+A_String::A_String(const Cowstr &literal, const Location &location)
     : Ast("stringLiteral", location), literal_(literal) {
-  std::vector<std::string> multiplePrefix = {"\"\"\""};
-  parsed_ = literal_.length() >= 3 &&
-                    Strings::startWith(literal_, multiplePrefix.begin(),
-                                       multiplePrefix.end())
-                ? literal_.substr(3, literal_.length() - 6)
-                : literal_.substr(1, literal_.length() - 2);
-  quoteKind_ = literal_.length() >= 3 &&
-                       Strings::startWith(literal_, multiplePrefix.begin(),
-                                          multiplePrefix.end())
-                   ? A_String::QuoteKind::TRIPLE
-                   : A_String::QuoteKind::SINGLE;
+  std::vector<Cowstr> multiplePrefix = {"\"\"\""};
+  if (literal_.length() >= 3 &&
+      literal_.startWithAnyOf(multiplePrefix.begin(), multiplePrefix.end())) {
+    parsed_ = literal_.subString(3, literal_.length() - 6);
+    quoteKind_ = A_String::QuoteKind::TRIPLE;
+  } else {
+    parsed_ = literal_.subString(1, literal_.length() - 2);
+    quoteKind_ = A_String::QuoteKind::SINGLE;
+  }
 }
 
 AstKind A_String::kind() const { return AstKind::String; }
 
-const std::string &A_String::literal() const { return literal_; }
+const Cowstr &A_String::literal() const { return literal_; }
 
 A_String::QuoteKind A_String::quoteKind() const { return quoteKind_; }
 
-const std::string &A_String::asString() const { return parsed_; }
+const Cowstr &A_String::asString() const { return parsed_; }
 
 // A_String }
 
 // A_Character {
 
-A_Character::A_Character(const std::string &literal, const Location &location)
+A_Character::A_Character(const Cowstr &literal, const Location &location)
     : Ast("characterLiteral", location), literal_(literal),
       parsed_(literal[1]) {}
 
 AstKind A_Character::kind() const { return AstKind::Character; }
 
-const std::string &A_Character::literal() const { return literal_; }
+const Cowstr &A_Character::literal() const { return literal_; }
 
 char A_Character::asChar() const { return parsed_; }
 
@@ -312,13 +304,13 @@ char A_Character::asChar() const { return parsed_; }
 
 // A_Boolean {
 
-A_Boolean::A_Boolean(const std::string &literal, const Location &location)
+A_Boolean::A_Boolean(const Cowstr &literal, const Location &location)
     : Ast("booleanLiteral", location), literal_(literal),
       parsed_(literal == "true") {}
 
 AstKind A_Boolean::kind() const { return AstKind::Boolean; }
 
-const std::string &A_Boolean::literal() const { return literal_; }
+const Cowstr &A_Boolean::literal() const { return literal_; }
 
 bool A_Boolean::asBoolean() const { return parsed_; }
 
@@ -346,12 +338,12 @@ AstKind A_Void::kind() const { return AstKind::Void; }
 
 // A_VarId {
 
-A_VarId::A_VarId(const std::string &literal, const Location &location)
+A_VarId::A_VarId(const Cowstr &literal, const Location &location)
     : Ast("varId", location), literal_(literal) {}
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
 
-const std::string &A_VarId::literal() const { return literal_; }
+const Cowstr &A_VarId::literal() const { return literal_; }
 
 // A_VarId }
 

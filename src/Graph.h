@@ -2,11 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include <memory>
-#include <string>
+#include "Cowstr.h"
 class Ast;
 
 class Graph {
 public:
-  static int drawAst(Ast *ast, const std::string &output);
+  static int drawAst(Ast *ast, const Cowstr &output);
 };

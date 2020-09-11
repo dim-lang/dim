@@ -38,17 +38,18 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
   SECTION("foreach") {
     {
       DynamicBuffer db;
-      LOG_INFO("db-1: {}", db.toString());
+      LOG_INFO("db-1: {}", db.str());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
-        c = (char)i;
-        REQUIRE(db.write(&c, 1) == 0);
+        REQUIRE(db.write(1).length() == 0);
       }
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
-        REQUIRE(db.read(&c, 1) == 1);
+        Cowstr temp;
+        temp.append(c);
+        REQUIRE(db.read(temp) == 1);
       }
-      LOG_INFO("db-2: {}", db.toString());
+      LOG_INFO("db-2: {}", db.str());
       const char *cp = db.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
         REQUIRE((int)*cp == i);
@@ -64,24 +65,27 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         *mp = (char)i;
       }
       for (int i = C_MAX - 1; i >= 0; i--) {
-        REQUIRE(db.write(&c, 1) == 1);
-        REQUIRE((int)c == i);
+        Cowstr temp;
+        REQUIRE((temp = db.write(1)).length() == 1);
+        REQUIRE((int)temp[0] == i);
       }
     }
     {
       FixedBuffer fb(C_MAX);
-      LOG_INFO("fb-1: {}", fb.toString());
+      LOG_INFO("fb-1: {}", fb.str());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
-        REQUIRE(fb.write(&c, 1) == 0);
+        REQUIRE(fb.write(1).length() == 0);
       }
       for (int i = C_MIN; i < C_MAX; i++) {
         c = (char)i;
         fmt::format("i:{}", i);
-        REQUIRE(fb.read(&c, 1) == 1);
+        Cowstr temp;
+        temp.append(c);
+        REQUIRE(fb.read(temp) == 1);
       }
-      LOG_INFO("fb-2: {}", fb.toString());
+      LOG_INFO("fb-2: {}", fb.str());
       const char *cp = fb.begin();
       for (int i = C_MIN; i < C_MAX; i++) {
         REQUIRE((int)*cp == i);
@@ -97,8 +101,9 @@ TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
         *mp = (char)v;
       }
       for (int i = C_MAX - 1; i >= 0; i--) {
-        REQUIRE(fb.write(&c, 1) == 1);
-        REQUIRE((int)c == i);
+        Cowstr temp;
+        REQUIRE((temp = fb.write(1)).length() == 1);
+        REQUIRE((int)temp[0] == i);
       }
     }
   }

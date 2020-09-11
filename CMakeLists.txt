@@ -108,6 +108,7 @@ set(NERD_CORE
     # src/Approximate.cpp
     # src/NameGenerator.cpp
     src/Name.cpp
+    src/Cowstr.cpp
     src/Location.cpp
     src/Token.cpp
     # src/Buffer.cpp

@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Cowstr.h"
 #include "parser.tab.hh"
-#include <string>
 
 struct Token {
   int value;
@@ -14,12 +14,12 @@ struct Token {
   virtual ~Token() = default;
 };
 
-const std::string &tokenName(int value);
+const Cowstr &tokenName(int value);
 
-int tokenValue(const std::string &name);
+int tokenValue(const Cowstr &name);
 
 bool tokenValid(int token);
 
-bool tokenValid(const std::string &name);
+bool tokenValid(const Cowstr &name);
 
 bool tokenIsLiteral(int value);
