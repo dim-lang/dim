@@ -24,9 +24,13 @@ if "%1" == "" (
     set BUILD_TYPE=Release
 ) else if "%1" == "--release" (
     set BUILD_TYPE=Release
+) else if "%1" == "-h" (
+    goto :HELP
+) else if "%1" == "--help" (
+    goto :HELP
 ) else (
     echo [nerd] unknown build type: "%1"
-    exit -1
+    goto :EOF
 )
 
 echo [nerd] build for %OS%, mode=%BUILD_TYPE%
@@ -38,7 +42,7 @@ if not exist %ROOT%\test\catch2 (
     git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2
     if errorlevel 1 (
         echo [nerd] prepare catchorg/Catch2 %CATCH2_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare catchorg/Catch2 %CATCH2_VERSION% - done
@@ -48,7 +52,7 @@ if not exist %ROOT%\src\spdlog (
     git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog
     if errorlevel 1 (
         echo [nerd] prepare gabime/spdlog %SPDLOG_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare gabime/spdlog %SPDLOG_VERSION% - done
@@ -58,7 +62,7 @@ if not exist %ROOT%\src\fmt (
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
     if errorlevel 1 (
         echo [nerd] prepare fmtlib/fmt %FMTLIB_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare fmtlib/fmt %FMTLIB_VERSION% - done
@@ -68,7 +72,7 @@ if not exist %ROOT%\src\better-enums (
     git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
     if errorlevel 1 (
         echo [nerd] prepare aantron/better-enums %ENUM_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare aantron/better-enums %ENUM_VERSION% - done
@@ -78,13 +82,13 @@ if not exist %ROOT%\src\boost (
     git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
     if errorlevel 1 (
         echo [nerd] prepare boostorg/boost %BOOST_VERSION% - fail
-        exit -1
+        goto :EOF
     )
     cd boost
     git submodule update --init
     if errorlevel 1 (
         echo [nerd] prepare boostorg/boost %BOOST_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 set BOOST_STAGE_DIR=stage_release
@@ -101,12 +105,12 @@ if not exist %ROOT%\src\boost\%BOOST_STAGE_DIR% (
     cmd /c bootstrap.bat
     if errorlevel 1 (
         echo [nerd] prepare boostorg/boost %BOOST_VERSION% - fail
-        exit -1
+        goto :EOF
     )
     cmd /c b2 address-model=64 variant=%BOOST_VARIANT% link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=%BOOST_STAGE_DIR% stage
     if errorlevel 1 (
         echo [nerd] prepare boostorg/boost %BOOST_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare boostorg/boost %BOOST_VERSION% - done
@@ -116,7 +120,7 @@ if not exist %ROOT%\src\llvm-project (
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
     if errorlevel 1 (
         echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 set LLVM_BUILD_CMAKE_DIR=build_cmake_release
@@ -133,7 +137,7 @@ if not exist %ROOT%\src\llvm-project\llvm\%LLVM_BUILD_CMAKE_DIR% (
     cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\%LLVM_BUILD_DIR%" -A x64 -Thost=x64 -B %LLVM_BUILD_CMAKE_DIR%
     if errorlevel 1 (
         echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 if not exist %ROOT%\src\llvm-project\llvm\%LLVM_BUILD_DIR% (
@@ -141,7 +145,7 @@ if not exist %ROOT%\src\llvm-project\llvm\%LLVM_BUILD_DIR% (
     cmake --build . --config %BUILD_TYPE% --target INSTALL
     if errorlevel 1 (
         echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - fail
-        exit -1
+        goto :EOF
     )
 )
 echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - done
@@ -154,3 +158,13 @@ cd %BUILD_TYPE%
 cmake --build . --config %BUILD_TYPE%
 cd %ROOT%
 echo [nerd] build - done
+
+:HELP
+echo [nerd] build help message:
+echo usage:
+echo   build -r/--release              build release.
+echo   build -d/--debug                build debug.
+echo flag:
+echo   build -h/--help                 show help message.
+
+:EOF

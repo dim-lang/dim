@@ -19,7 +19,7 @@ function clean_all() {
     if [ -d release ]; then cd release && make clean && cd ..; fi
 }
 
-function build_generate() {
+function build_dependency() {
     CATCH2_VERSION=v2.9.1
     SPDLOG_VERSION=v1.3.1
     FMTLIB_VERSION=5.3.0
@@ -59,7 +59,7 @@ function build_make() {
     cd $ROOT
 }
 
-# $1: trace/debug/release
+# $1: debug/release
 function build_routine() {
     case "$FOS" in
       solaris*) ;;
@@ -69,7 +69,7 @@ function build_routine() {
       *)        echo "[nerd] unknown os: $FOS!" && exit 3 ;;
     esac
     echo [nerd] build for $FOS, mode=$1
-    build_generate $1
+    build_dependency $1
     build_make $1
 }
 
@@ -82,7 +82,7 @@ function build_install() {
       *bsd*)    ;;
       *)        echo "[nerd] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [nerd] install for $FOS, INSTALL_PATH=$1
+    echo [nerd] install for $FOS, path=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 -B release
@@ -91,15 +91,17 @@ function build_install() {
 
 function build_help() {
     echo '[nerd] build help message:'
-    echo '  ./build -h/--help           show help message.'
-    echo '  ./build -r/--release        build release.'
-    echo '  ./build -d/--debug          build debug.'
-    echo '  ./build --trace             build trace.'
-    echo '  ./build --parser            build parser.'
-    echo '  ./build -i/--install        install, install path is /usr/local by default.'
-    echo '  ./build -p/--path [path]    custom install path.'
-    echo '  ./build -t/--test           run unit tests for debug/trace.'
-    echo '  ./build -c/--clean          clean objects.'
+    echo 'usage:'
+    echo '  build -r/--release              build release.'
+    echo '  build -d/--debug                build debug.'
+    echo '  build -p/--parser               generate tokenizer and parser.'
+    echo '  build [option] -i/--install     install with [--path] option.'
+    echo '  build -t/--test                 run unit tests in debug mode.'
+    echo '  build -c/--clean                clean objects.'
+    echo 'option:'
+    echo '  --path                          config install path prefix, by default is /usr/local.'
+    echo 'flag:'
+    echo '  build -h/--help                 show help message.'
 }
 
 # ---- main ----
@@ -131,10 +133,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -d|--debug)
             BUILD_TYPE=debug
-            shift
-            ;;
-        --trace)
-            BUILD_TYPE=trace
             shift
             ;;
         -r|--release)
