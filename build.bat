@@ -95,10 +95,10 @@ set BOOST_STAGE_DIR=stage_release
 set BOOST_VARIANT=release
 if "%BUILD_TYPE%" == "Debug" (
     set BOOST_STAGE_DIR=stage_debug
-    set BOOT_VARIANT=debug
+    set BOOST_VARIANT=debug
 ) else (
     set BOOST_STAGE_DIR=stage_release
-    set BOOT_VARIANT=release
+    set BOOST_VARIANT=release
 )
 if not exist %ROOT%\src\boost\%BOOST_STAGE_DIR% (
     cd %ROOT%\src\boost
@@ -158,6 +158,7 @@ cd %BUILD_TYPE%
 cmake --build . --config %BUILD_TYPE%
 cd %ROOT%
 echo [nerd] build - done
+goto :EOF
 
 :HELP
 echo [nerd] build help message:
