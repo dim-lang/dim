@@ -101,6 +101,11 @@ public:
   static bool isDef(Ast *e);
   static bool isDecl(Ast *e);
   static bool isType(Ast *e);
+
+  // virtual Cowstr &name();
+  // virtual const Cowstr &name() const;
+  // virtual Location &location();
+  // virtual const Location &location() const;
 };
 
 // Ast }
