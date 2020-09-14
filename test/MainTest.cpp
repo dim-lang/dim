@@ -16,6 +16,8 @@ TEST_CASE("Main", "[Main]") {
       fmt::format("{}/{}-{:04d}.{:02d}.{:02d}-{:02d}.{:02d}.{:02d}.log", ".",
                   logName, dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday,
                   dt.tm_hour, dt.tm_min, dt.tm_sec);
+  spdlog::set_pattern(
+      "%Y-%m-%d %H:%M:%S.%e [%n] %l process-%P thread-%t [%@ %!] %v");
   spdlog::set_default_logger(spdlog::basic_logger_mt(logName, logFile));
   SECTION("Main Initialize") {
     fmt::print(
