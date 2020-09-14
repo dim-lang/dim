@@ -10,7 +10,7 @@ set SPDLOG_VERSION=v1.3.1
 set FMTLIB_VERSION=5.3.0
 set ENUM_VERSION=0.11.2
 set CATCH2_VERSION=v2.9.1
-set LLVM_VERSION=llvmorg-9.0.1
+set LLVM_VERSION=llvmorg-10.0.1
 set BOOST_VERSION=boost-1.70.0
 
 if "%1" == "" (
