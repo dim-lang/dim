@@ -14,7 +14,7 @@
 #include <sstream>
 #include <string>
 
-/*================ type start from 1000 ================*/
+/*================ ast kind enum start from 1000 ================*/
 BETTER_ENUM(AstKind, int,
             // literal
             Integer = 1000, Float, Boolean, Character, String, Nil, Void,
