@@ -81,10 +81,14 @@ if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
 )
+set LLVM_CONFIG=CMakeConfigRelease
+if %BUILD_TYPE% == "Debug" (
+    set LLVM_CONFIG=CMakeConfigDebug
+)
 if not exist %ROOT%\src\llvm-project\llvm\%BUILD_TYPE% (
     cd %ROOT%\src\llvm-project\llvm
-    cmake -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\%BUILD_TYPE%" -A x64 -Thost=x64 -B %BUILD_TYPE%
-    cd %ROOT%\src\llvm-project\llvm\%BUILD_TYPE%
+    cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="%ROOT%\src\llvm-project\llvm\%BUILD_TYPE%" -A x64 -Thost=x64 -B %LLVM_CONFIG%
+    cd %ROOT%\src\llvm-project\llvm\%LLVM_CONFIG%
     cmake --build . --config %BUILD_TYPE% --target INSTALL
 )
 echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - done
