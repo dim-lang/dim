@@ -82,7 +82,7 @@ if not exist %ROOT%\src\llvm-project (
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
 )
 set LLVM_CONFIG=CMakeConfigRelease
-if %BUILD_TYPE% == "Debug" (
+if "%BUILD_TYPE%" == "Debug" (
     set LLVM_CONFIG=CMakeConfigDebug
 )
 if not exist %ROOT%\src\llvm-project\llvm\%BUILD_TYPE% (
