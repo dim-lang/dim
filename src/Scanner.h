@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Counter.h"
 #include "Location.h"
 #include "Token.h"
 #include "container/Cowstr.h"

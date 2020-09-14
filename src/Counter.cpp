@@ -7,6 +7,4 @@ Counter::Counter(unsigned long long value) : value_(value) {}
 
 unsigned long long Counter::next() { return value_++; }
 
-static Counter globalCounter_;
-
-unsigned long long Counter::get() { return globalCounter_.next(); }
+unsigned long long Counter::count() const { return value_; }

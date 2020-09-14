@@ -28,6 +28,8 @@ BETTER_ENUM(TypeSymbolKind, int,
             // class
             Class)
 
+class Ast;
+
 class Symbol : public Nameable,
                public Locationable,
                private boost::noncopyable {
@@ -42,6 +44,8 @@ public:
   // virtual const Cowstr &name() const;
   // virtual Location &location();
   // virtual const Location &location() const;
+
+  static std::shared_ptr<Symbol> from(Ast *compileUnit);
 
 private:
   std::shared_ptr<Symbol> owner_;
@@ -84,7 +88,7 @@ struct TypeSymbolData {
   virtual ~TypeSymbolData() = default;
 };
 
-class Scope : public Symbol {
+class SymbolTable : public Symbol {
 public:
   using s_map = LinkedHashMap<Cowstr, SymbolData>;
   using ts_map = LinkedHashMap<Cowstr, TypeSymbolData>;
@@ -93,9 +97,9 @@ public:
   using ts_iterator = ts_map::iterator;
   using ts_const_iterator = ts_map::const_iterator;
 
-  Scope(const Cowstr &name, const Location &location,
-        std::shared_ptr<Symbol> owner);
-  virtual ~Scope() = default;
+  SymbolTable(const Cowstr &name, const Location &location,
+              std::shared_ptr<Symbol> owner);
+  virtual ~SymbolTable() = default;
 
   virtual void define(std::shared_ptr<Symbol> s,
                       std::shared_ptr<TypeSymbol> ts);
@@ -141,11 +145,10 @@ public:
   virtual SymbolKind kind() const;
 };
 
-class S_Func : public Scope {
+class S_Func : public SymbolTable {
 public:
   S_Func(const Cowstr &name, const Location &location,
-         std::shared_ptr<Symbol> owner,
-         const std::vector<std::shared_ptr<Symbol>> &a_params);
+         std::shared_ptr<Symbol> owner);
   virtual ~S_Func() = default;
   virtual SymbolKind kind() const;
 
@@ -160,12 +163,10 @@ public:
   virtual SymbolKind kind() const;
 };
 
-class S_Class : public Scope {
+class S_Class : public SymbolTable {
 public:
   S_Class(const Cowstr &name, const Location &location,
-          std::shared_ptr<Symbol> owner,
-          const std::vector<std::shared_ptr<Symbol>> &a_fields,
-          const std::vector<std::shared_ptr<Symbol>> &a_methods);
+          std::shared_ptr<Symbol> owner);
   virtual ~S_Class() = default;
   virtual SymbolKind kind() const;
 
@@ -181,18 +182,17 @@ public:
   virtual SymbolKind kind() const;
 };
 
-class S_Method : public Scope {
+class S_Method : public SymbolTable {
 public:
   S_Method(const Cowstr &name, const Location &location,
-           std::shared_ptr<Symbol> owner,
-           const std::vector<std::shared_ptr<Symbol>> &a_params);
+           std::shared_ptr<Symbol> owner);
   virtual ~S_Method() = default;
   virtual SymbolKind kind() const;
 
   std::vector<std::shared_ptr<Symbol>> params;
 };
 
-class S_Local : public Scope {
+class S_Local : public SymbolTable {
 public:
   S_Local(const Cowstr &name, const Location &location,
           std::shared_ptr<Symbol> owner);
@@ -200,15 +200,11 @@ public:
   virtual SymbolKind kind() const;
 };
 
-class S_Global : public Scope {
+class S_Global : public SymbolTable {
 public:
+  S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
   virtual SymbolKind kind() const;
-
-  static std::shared_ptr<S_Global> global;
-
-private:
-  S_Global();
 };
 
 // symbol }
@@ -226,9 +222,7 @@ public:
 class Ts_Class : public TypeSymbol {
 public:
   Ts_Class(const Cowstr &name, const Location &location,
-           std::shared_ptr<Symbol> owner,
-           const std::vector<std::shared_ptr<Symbol>> &a_fields,
-           const std::vector<std::shared_ptr<Symbol>> &a_methods);
+           std::shared_ptr<Symbol> owner);
   virtual ~Ts_Class() = default;
   virtual TypeSymbolKind kind() const;
 
@@ -239,9 +233,7 @@ public:
 class Ts_Func : public TypeSymbol {
 public:
   Ts_Func(const Cowstr &name, const Location &location,
-          std::shared_ptr<Symbol> owner,
-          const std::vector<std::shared_ptr<TypeSymbol>> &a_params,
-          std::shared_ptr<TypeSymbol> a_result);
+          std::shared_ptr<Symbol> owner);
   virtual ~Ts_Func();
   virtual TypeSymbolKind kind() const;
 

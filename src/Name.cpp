@@ -2,6 +2,9 @@
 // Apache License Version 2.0
 
 #include "Name.h"
+#include "Ast.h"
+#include "fmt/format.h"
+#include <functional>
 #include <sstream>
 
 Nameable::Nameable() : name_("") {}
@@ -12,23 +15,16 @@ Cowstr &Nameable::name() { return name_; }
 
 const Cowstr &Nameable::name() const { return name_; }
 
-namespace detail {
-
-Cowstr NameGenerator::from(const Cowstr &hint) {
+Cowstr AstGraphNameGenerator::from(const Ast *ast) {
   std::stringstream ss;
-  ss << hint << "." << counter_.next();
+  ss << ast->name() << "." << counter_.next();
   return ss.str();
 }
 
-} // namespace detail
-
-Cowstr AstGraphNameGenerator::from(const Cowstr &hint) {
-  return detail::NameGenerator::from(hint);
-}
-
-Cowstr SymbolNameGenerator::from(const Cowstr &hint) {
+Cowstr SymbolNameGenerator::from(const Ast *ast) {
   std::stringstream ss;
-  ss << "nerd.sym." << hint << "." << counter_.next();
+  ss << "nerd.sym." << ast->name() << "."
+     << fmt::format("{:#x}", std::hash<std::string>()(ast->location().str()));
   return ss.str();
 }
 

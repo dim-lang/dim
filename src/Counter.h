@@ -9,8 +9,7 @@ public:
   Counter(unsigned long long value = 1ULL);
   virtual ~Counter() = default;
   unsigned long long next();
-
-  static unsigned long long get();
+  unsigned long long count() const;
 
 private:
   unsigned long long value_;

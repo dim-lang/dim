@@ -5,6 +5,9 @@
 #include "Counter.h"
 #include "container/Cowstr.h"
 
+class Ast;
+class Symbol;
+
 class Nameable {
 public:
   Nameable();
@@ -17,33 +20,29 @@ private:
   Cowstr name_;
 };
 
-namespace detail {
-
-class NameGenerator {
+class AstGraphNameGenerator {
 public:
-  virtual ~NameGenerator() = default;
-  virtual Cowstr from(const Cowstr &hint);
+  virtual ~AstGraphNameGenerator() = default;
+  virtual Cowstr from(const Ast *ast);
 
 protected:
   Counter counter_;
 };
 
-} // namespace detail
-
-class AstGraphNameGenerator : public detail::NameGenerator {
-public:
-  virtual ~AstGraphNameGenerator() = default;
-  virtual Cowstr from(const Cowstr &hint);
-};
-
-class SymbolNameGenerator : public detail::NameGenerator {
+class SymbolNameGenerator {
 public:
   virtual ~SymbolNameGenerator() = default;
-  virtual Cowstr from(const Cowstr &hint);
+  virtual Cowstr from(const Ast *ast);
 };
 
-class IrNameGenerator : public detail::NameGenerator {
+class IrNameGenerator {
 public:
   virtual ~IrNameGenerator() = default;
-  virtual Cowstr from(const Cowstr &hint);
+  virtual Cowstr from(const Ast *ast);
+  virtual Cowstr from(const Symbol *sym);
+  virtual Cowstr from(const Cowstr &s1, const Cowstr &s2 = "",
+                      const Cowstr &s3 = "", const Cowstr &s4 = "",
+                      const Cowstr &s5 = "", const Cowstr &s6 = "",
+                      const Cowstr &s7 = "", const Cowstr &s8 = "",
+                      const Cowstr &s9 = "");
 };
