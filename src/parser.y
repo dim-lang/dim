@@ -14,7 +14,6 @@
 #include "Location.h"
 #include "Strings.h"
 #include "tokenizer.yy.hh"
-#define T_EOF           0
 #define Y_SCANNER       (static_cast<Scanner *>(yyget_extra(yyscanner)))
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
 template<typename T> T* reverse(T* list) {
@@ -277,11 +276,11 @@ seminl : "\n" { $$ = $1; }
        ;
 
 optionalNewline : "\n" { $$ = $1; }
-                | %empty { $$ = T_EOF; }
+                | %empty { $$ = T_NEWLINE; }
                 ;
 
 optionalNewlines : newlines { $$ = $1; }
-                 | %empty { $$ = T_EOF; }
+                 | %empty { $$ = T_NEWLINE; }
                  ;
 
 newlines : "\n" { $$ = $1; }

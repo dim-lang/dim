@@ -3,7 +3,7 @@
 
 #pragma once
 #include "Counter.h"
-#include "Cowstr.h"
+#include "container/Cowstr.h"
 
 class Nameable {
 public:

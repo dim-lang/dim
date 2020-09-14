@@ -102,6 +102,7 @@ set(NERD_LIB_DIR
 set(NERD_CORE
     # src/Log.cpp
     # src/Exception.cpp
+    src/container/Cowstr.cpp
     src/container/CycleBuffer.cpp
     src/Option.cpp
     # src/Timer.cpp
@@ -113,7 +114,6 @@ set(NERD_CORE
     # src/Approximate.cpp
     # src/NameGenerator.cpp
     src/Name.cpp
-    src/Cowstr.cpp
     src/Location.cpp
     src/Token.cpp
     # src/Buffer.cpp
@@ -181,10 +181,12 @@ set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 set(NERD_TEST
     test/MainTest.cpp
     test/ConfigureTest.cpp
+    test/container/CowstrTest.cpp
     test/LogTest.cpp
     test/container/CycleBufferTest.cpp
     test/container/LinkedHashMapTest.cpp
     test/FilesTest.cpp
+    test/NameTest.cpp
     # test/ExceptionTest.cpp
     # test/TimerTest.cpp
     # test/RandomTest.cpp

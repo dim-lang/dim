@@ -32,6 +32,8 @@ if "%1" == "" (
     goto :EOF
 )
 
+echo [nerd] build for %OS%, mode=%BUILD_TYPE%
+
 @rem init third party library
 echo [nerd] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (

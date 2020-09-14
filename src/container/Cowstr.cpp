@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Cowstr.h"
+#include "container/Cowstr.h"
 #include <algorithm>
 #include <cstring>
 #include <sstream>
@@ -15,6 +15,8 @@ static std::string mergeCowstrs(std::vector<Cowstr>::const_iterator begin,
   }
   return ss.str();
 }
+
+Cowstr::Cowstr() : value_(new std::string("")) {}
 
 Cowstr::Cowstr(const std::string &s)
     : value_(s.length() > 0 ? new std::string(s) : new std::string("")) {}
@@ -85,7 +87,7 @@ Cowstr &Cowstr::erase(int index, int count) {
 Cowstr &Cowstr::popend(int count) {
   count = std::min<int>(count, length());
   sps nv(new std::string(*value_));
-  nv->erase(length() - count - 1, count);
+  nv->erase(length() - count, count);
   value_ = nv;
   return *this;
 }

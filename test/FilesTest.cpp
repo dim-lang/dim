@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "Files.h"
-#include "Cowstr.h"
 #include "catch2/catch.hpp"
 #include <numeric>
 

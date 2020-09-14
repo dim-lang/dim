@@ -15,7 +15,8 @@
 
 class Cowstr {
 public:
-  Cowstr(const std::string &s = "");
+  Cowstr();
+  Cowstr(const std::string &s);
   Cowstr(const char *s);
   Cowstr(const char *s, int n);
   Cowstr(std::vector<Cowstr>::const_iterator begin,
