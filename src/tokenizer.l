@@ -147,11 +147,8 @@ not         { MK_INTEGER(T_NOT); }
 "-"         { MK_INTEGER(T_MINUS); }
 "--"        { MK_INTEGER(T_MINUS2); }
 "*"         { MK_INTEGER(T_ASTERISK); }
-"**"        { MK_INTEGER(T_ASTERISK2); }
 "/"         { MK_INTEGER(T_SLASH); }
-"//"        { MK_INTEGER(T_SLASH2); }
 "%"         { MK_INTEGER(T_PERCENT); }
-"%%"        { MK_INTEGER(T_PERCENT2); }
 
 "&"         { MK_INTEGER(T_AMPERSAND); }
 "&&"        { MK_INTEGER(T_AMPERSAND2); }

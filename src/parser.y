@@ -125,11 +125,8 @@ class Ast;
 %token<token> T_MINUS "-"
 %token<token> T_MINUS2 "--"
 %token<token> T_ASTERISK "*"
-%token<token> T_ASTERISK2 "**"
 %token<token> T_SLASH "/"
-%token<token> T_SLASH2 "//"
 %token<token> T_PERCENT "%"
-%token<token> T_PERCENT2 "%%"
 
 %token<token> T_AMPERSAND "&"
 %token<token> T_AMPERSAND2 "&&"
@@ -138,7 +135,6 @@ class Ast;
 %token<token> T_TILDE "~"
 %token<token> T_EXCLAM "!"
 %token<token> T_CARET "^"
-%token<token> T_CARET2 "^^"
 
 %token<token> T_LSHIFT "<<"
 %token<token> T_RSHIFT ">>"
@@ -189,7 +185,7 @@ class Ast;
 
  /* separator and operator */
 %type<token> seminl optionalNewline optionalNewlines newlines
-%type<token> assignOp prefixOp infixOp postfixOp
+/* %type<token> assignOp prefixOp infixOp postfixOp */
 
  /* str */
 %token<literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
@@ -229,33 +225,32 @@ class Ast;
 %precedence "return_expr"
 
  /* comma */
-%left T_COMMA
+%left ","
 
  /* equal */
-%right T_AMPERSAND_EQUAL T_BAR_EQUAL T_CARET_EQUAL
-%right T_LSHIFT_EQUAL T_RSHIFT_EQUAL T_ARSHIFT_EQUAL
-%right T_ASTERISK_EQUAL T_SLASH_EQUAL T_PERCENT_EQUAL
-%right T_PLUS_EQUAL T_MINUS_EQUAL
-%right T_EQUAL
+%right "&=" "|=" "^="
+%right "<<=" ">>=" ">>>="
+%right "*=" "/=" "%="
+%right "+=" "-="
+%right "="
 
  /* conditional */
-%left T_QUESTION T_COLON
+%left "?" ":"
 
  /* binary op*/
-%left T_BAR2 T_OR
-%left T_AMPERSAND2 T_AND
-%left T_BAR
-%left T_CARET
-%left T_AMPERSAND
-%left T_EQ T_NEQ
-%left T_LT T_LE T_GT T_GE
-%left T_LSHIFT T_RSHIFT T_ARSHIFT
-%left T_PLUS T_MINUS
-%left T_ASTERISK T_SLASH T_PERCENT
-%left T_PLUS2 T_MINUS2
-%left T_ASTERISK2 T_SLASH2 T_PERCENT2
-%left T_CARET2 T_DOT2
-%right T_COLON2
+%left "||" "or"
+%left "&&" "and"
+%left "|"
+%left "^"
+%left "&"
+%left "==" "!="
+%left "<" "<=" ">" ">="
+%left "<<" ">>" ">>>"
+%left "+" "-"
+%left "*" "/" "%"
+%left "++" "--"
+%left ".."
+/* %right "::" */
 
  /* unary op */
 %nonassoc T_NOT T_TILDE T_EXCLAM
@@ -371,33 +366,65 @@ optionalExpr : expr { $$ = $1; }
              | %empty { $$ = nullptr; }
              ;
 
-assignExpr : id assignOp expr { $$ = new A_Assign($1, $2, $3, @$); }
+assignExpr : id "=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "+=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "-=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "*=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "/=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "%=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "&=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "|=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "^=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id "<<=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id ">>=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+           | id ">>>=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            ;
 
-assignOp : "=" { $$ = $1; }
-         | "+=" { $$ = $1; }
-         | "-=" { $$ = $1; }
-         | "*=" { $$ = $1; }
-         | "/=" { $$ = $1; }
-         | "%=" { $$ = $1; }
-         | "&=" { $$ = $1; }
-         | "|=" { $$ = $1; }
-         | "^=" { $$ = $1; }
-         | "<<=" { $$ = $1; }
-         | ">>=" { $$ = $1; }
-         | ">>>=" { $$ = $1; }
-         ;
+/* assignOp : "=" { $$ = $1; } */
+/*          | "+=" { $$ = $1; } */
+/*          | "-=" { $$ = $1; } */
+/*          | "*=" { $$ = $1; } */
+/*          | "/=" { $$ = $1; } */
+/*          | "%=" { $$ = $1; } */
+/*          | "&=" { $$ = $1; } */
+/*          | "|=" { $$ = $1; } */
+/*          | "^=" { $$ = $1; } */
+/*          | "<<=" { $$ = $1; } */
+/*          | ">>=" { $$ = $1; } */
+/*          | ">>>=" { $$ = $1; } */
+/*          ; */
 
 postfixExpr : infixExpr { $$ = $1; }
-            | infixExpr postfixOp { $$ = new A_PostfixExpr($1, $2, @$); }
+            | infixExpr "++" { $$ = new A_PostfixExpr($1, $2, @$); }
+            | infixExpr "--" { $$ = new A_PostfixExpr($1, $2, @$); }
             ;
 
-postfixOp : "++" { $$ = $1; }
-          | "--" { $$ = $1; }
-          ;
+/* postfixOp : "++" { $$ = $1; } */
+/*           | "--" { $$ = $1; } */
+/*           ; */
 
 infixExpr : prefixExpr { $$ = $1; }
-          | infixExpr infixOp optionalNewline prefixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "||" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "or" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "&&" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "and" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "|" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "^" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "&" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "==" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "!=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr ">" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr ">=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "<" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "<=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "<<" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr ">>" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr ">>>" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "+" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "-" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "*" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "/" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "%" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
           ;
 
 /* logicOrExpr : logicAndExpr */
@@ -451,14 +478,7 @@ infixExpr : prefixExpr { $$ = $1; }
 /*           | timesExpr '%' timesExpr1 */
 /*           ; */
 /*  */
-/* timesExpr1 : rangeExpr */
-/*            | timesExpr1 '**' rangeExpr */
-/*            | timesExpr1 '//' rangeExpr */
-/*            | timesExpr1 '%%' rangeExpr */
-/*            ; */
-/*  */
 /* rangeExpr : concatExpr */
-/*           | rangeExpr '^^' concatExpr */
 /*           | rangeExpr '..' concatExpr */
 /*           ; */
 /*  */
@@ -466,46 +486,49 @@ infixExpr : prefixExpr { $$ = $1; }
 /*            | prefixExpr "::" concatExpr */
 /*            ; */
 
-infixOp : "||" { $$ = $1; }
-        | "or" { $$ = $1; }
-        | "&&" { $$ = $1; }
-        | "and" { $$ = $1; }
-        | "|" { $$ = $1; }
-        | "^" { $$ = $1; }
-        | "&" { $$ = $1; }
-        | "==" { $$ = $1; }
-        | "!=" { $$ = $1; }
-        | "<" { $$ = $1; }
-        | "<=" { $$ = $1; }
-        | ">" { $$ = $1; }
-        | ">=" { $$ = $1; }
-        | "<<" { $$ = $1; }
-        | ">>" { $$ = $1; }
-        | ">>>" { $$ = $1; }
-        | "+" { $$ = $1; }
-        | "-" { $$ = $1; }
-        | "*" { $$ = $1; }
-        | "/" { $$ = $1; }
-        | "%" { $$ = $1; }
-        | "**" { $$ = $1; }
-        | "//" { $$ = $1; }
-        | "%%" { $$ = $1; }
-        | "^^" { $$ = $1; }
-        | "::" { $$ = $1; }
-        ;
+/* infixOp : "||" { $$ = $1; } */
+/*         | "or" { $$ = $1; } */
+/*         | "&&" { $$ = $1; } */
+/*         | "and" { $$ = $1; } */
+/*         | "|" { $$ = $1; } */
+/*         | "^" { $$ = $1; } */
+/*         | "&" { $$ = $1; } */
+/*         | "==" { $$ = $1; } */
+/*         | "!=" { $$ = $1; } */
+/*         | "<" { $$ = $1; } */
+/*         | "<=" { $$ = $1; } */
+/*         | ">" { $$ = $1; } */
+/*         | ">=" { $$ = $1; } */
+/*         | "<<" { $$ = $1; } */
+/*         | ">>" { $$ = $1; } */
+/*         | ">>>" { $$ = $1; } */
+/*         | "+" { $$ = $1; } */
+/*         | "-" { $$ = $1; } */
+/*         | "*" { $$ = $1; } */
+/*         | "/" { $$ = $1; } */
+/*         | "%" { $$ = $1; } */
+/*         | ".." { $$ = $1; } */
+/*         | "::" { $$ = $1; } */
+/*         ; */
 
 prefixExpr : primaryExpr { $$ = $1; }
-           | prefixOp primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "-" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "+" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "~" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "!" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "not" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "++" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "--" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
            ;
 
-prefixOp : "-" { $$ = $1; }
-         | "+" { $$ = $1; }
-         | "~" { $$ = $1; }
-         | "!" { $$ = $1; }
-         | "not" { $$ = $1; }
-         | "++" { $$ = $1; }
-         | "--" { $$ = $1; }
-         ;
+/* prefixOp : "-" { $$ = $1; } */
+/*          | "+" { $$ = $1; } */
+/*          | "~" { $$ = $1; } */
+/*          | "!" { $$ = $1; } */
+/*          | "not" { $$ = $1; } */
+/*          | "++" { $$ = $1; } */
+/*          | "--" { $$ = $1; } */
+/*          ; */
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
