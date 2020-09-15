@@ -400,6 +400,72 @@ infixExpr : prefixExpr { $$ = $1; }
           | infixExpr infixOp optionalNewline prefixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
           ;
 
+/* logicOrExpr : logicAndExpr */
+/*             | logicOrExpr "||" logicAndExpr */
+/*             | logicOrExpr "or" logicAndExpr */
+/*             ; */
+/*  */
+/* logicAndExpr : bitOrExpr */
+/*              | logicAndExpr '&&' bitOrExpr */
+/*              | logicAndExpr 'and' bitOrExpr */
+/*              ; */
+/*  */
+/* bitOrExpr : bitXorExpr */
+/*           | bitOrExpr '|' bitXorExpr */
+/*           ; */
+/*  */
+/* bitXorExpr : bitAndExpr */
+/*            | bitXorExpr '^' bitAndExpr */
+/*            ; */
+/*  */
+/* bitAndExpr : equalExpr */
+/*            | bitAndExpr '&' equalExpr */
+/*            ; */
+/*  */
+/* equalExpr : relationalExpr */
+/*           | equalExpr '==' relationalExpr */
+/*           | equalExpr '!=' relationalExpr */
+/*           ; */
+/*  */
+/* relationalExpr : shiftExpr */
+/*                | relationalExpr '<' shiftExpr */
+/*                | relationalExpr '<=' shiftExpr */
+/*                | relationalExpr '>' shiftExpr */
+/*                | relationalExpr '>=' shiftExpr */
+/*                ; */
+/*  */
+/* shiftExpr : addExpr */
+/*           | shiftExpr '<<' addExpr */
+/*           | shiftExpr '>>' addExpr */
+/*           | shiftExpr '>>>' addExpr */
+/*           ; */
+/*  */
+/* addExpr : timesExpr */
+/*         | addExpr '+' timesExpr */
+/*         | addExpr '-' timesExpr */
+/*         ; */
+/*  */
+/* timesExpr : times2Expr */
+/*           | timesExpr '*' timesExpr1 */
+/*           | timesExpr '/' timesExpr1 */
+/*           | timesExpr '%' timesExpr1 */
+/*           ; */
+/*  */
+/* timesExpr1 : rangeExpr */
+/*            | timesExpr1 '**' rangeExpr */
+/*            | timesExpr1 '//' rangeExpr */
+/*            | timesExpr1 '%%' rangeExpr */
+/*            ; */
+/*  */
+/* rangeExpr : concatExpr */
+/*           | rangeExpr '^^' concatExpr */
+/*           | rangeExpr '..' concatExpr */
+/*           ; */
+/*  */
+/* concatExpr : prefixExpr */
+/*            | prefixExpr "::" concatExpr */
+/*            ; */
+
 infixOp : "||" { $$ = $1; }
         | "or" { $$ = $1; }
         | "&&" { $$ = $1; }
