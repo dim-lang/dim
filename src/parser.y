@@ -445,7 +445,7 @@ infixExpr : prefixExpr { $$ = $1; }
 /*         | addExpr '-' timesExpr */
 /*         ; */
 /*  */
-/* timesExpr : times2Expr */
+/* timesExpr : timesExpr1 */
 /*           | timesExpr '*' timesExpr1 */
 /*           | timesExpr '/' timesExpr1 */
 /*           | timesExpr '%' timesExpr1 */
