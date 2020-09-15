@@ -43,18 +43,39 @@ else()
     find_package(Threads REQUIRED)
     set(NERD_INC
         Threads::Threads
-        /usr/include
-        /usr/local/include
         )
+    if(IS_DIRECTORY /usr/include)
+        set(NERD_INC
+            ${NERD_INC}
+            /usr/include
+            )
+    endif(IS_DIRECTORY /usr/include)
+    if(IS_DIRECTORY /usr/local/include)
+        set(NERD_INC
+            ${NERD_INC}
+            /usr/local/include
+            )
+    endif(IS_DIRECTORY /usr/local/include)
     set(NERD_LIB
         Threads::Threads
         )
     set(NERD_LIB_DIR
-        /usr/lib
-        /usr/lib64
-        /usr/local/lib
-        /usr/local/lib64
-        )
+        /usr/lib)
+    if(IS_DIRECTORY /usr/lib64)
+        set(NERD_LIB_DIR
+            ${NERD_LIB_DIR}
+            /usr/lib64)
+    endif(IS_DIRECTORY /usr/lib64)
+    if(IS_DIRECTORY /usr/local/lib)
+        set(NERD_LIB_DIR
+            ${NERD_LIB_DIR}
+            /usr/local/lib)
+    endif(IS_DIRECTORY /usr/local/lib)
+    if(IS_DIRECTORY /usr/local/lib64)
+        set(NERD_LIB_DIR
+            ${NERD_LIB_DIR}
+            /usr/local/lib64)
+    endif(IS_DIRECTORY /usr/local/lib64)
 endif(WIN32)
 
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
