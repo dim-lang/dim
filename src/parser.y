@@ -185,7 +185,6 @@ class Ast;
 
  /* separator and operator */
 %type<token> seminl optionalNewline optionalNewlines newlines
-/* %type<token> assignOp prefixOp infixOp postfixOp */
 
  /* str */
 %token<literal> T_INTEGER_LITERAL T_FLOAT_LITERAL T_STRING_LITERAL T_CHARACTER_LITERAL
@@ -366,6 +365,11 @@ optionalExpr : expr { $$ = $1; }
              | %empty { $$ = nullptr; }
              ;
 
+/**
+ * assign operator
+ * "=" "+=" "-=" "*=" "/=" "%=" "&=" "|=" "^=" "<<=" ">>=" ">>>="
+ */
+
 assignExpr : id "=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            | id "+=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            | id "-=" expr { $$ = new A_Assign($1, $2, $3, @$); }
@@ -380,28 +384,20 @@ assignExpr : id "=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            | id ">>>=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            ;
 
-/* assignOp : "=" { $$ = $1; } */
-/*          | "+=" { $$ = $1; } */
-/*          | "-=" { $$ = $1; } */
-/*          | "*=" { $$ = $1; } */
-/*          | "/=" { $$ = $1; } */
-/*          | "%=" { $$ = $1; } */
-/*          | "&=" { $$ = $1; } */
-/*          | "|=" { $$ = $1; } */
-/*          | "^=" { $$ = $1; } */
-/*          | "<<=" { $$ = $1; } */
-/*          | ">>=" { $$ = $1; } */
-/*          | ">>>=" { $$ = $1; } */
-/*          ; */
+/**
+ * postfix operator
+ * "++" "--"
+ */
 
 postfixExpr : infixExpr { $$ = $1; }
             | infixExpr "++" { $$ = new A_PostfixExpr($1, $2, @$); }
             | infixExpr "--" { $$ = new A_PostfixExpr($1, $2, @$); }
             ;
 
-/* postfixOp : "++" { $$ = $1; } */
-/*           | "--" { $$ = $1; } */
-/*           ; */
+/**
+ * infix operator
+ * "||" "or" "&&" "and" "|" "^" "&" "==" "!=" "<" "<=" ">" ">=" "<<" ">>" ">>>" "+" "-" "*" "/" "%" ".." "::"
+ */
 
 infixExpr : prefixExpr { $$ = $1; }
           | infixExpr "||" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
@@ -427,89 +423,10 @@ infixExpr : prefixExpr { $$ = $1; }
           | infixExpr "%" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
           ;
 
-/* logicOrExpr : logicAndExpr */
-/*             | logicOrExpr "||" logicAndExpr */
-/*             | logicOrExpr "or" logicAndExpr */
-/*             ; */
-/*  */
-/* logicAndExpr : bitOrExpr */
-/*              | logicAndExpr '&&' bitOrExpr */
-/*              | logicAndExpr 'and' bitOrExpr */
-/*              ; */
-/*  */
-/* bitOrExpr : bitXorExpr */
-/*           | bitOrExpr '|' bitXorExpr */
-/*           ; */
-/*  */
-/* bitXorExpr : bitAndExpr */
-/*            | bitXorExpr '^' bitAndExpr */
-/*            ; */
-/*  */
-/* bitAndExpr : equalExpr */
-/*            | bitAndExpr '&' equalExpr */
-/*            ; */
-/*  */
-/* equalExpr : relationalExpr */
-/*           | equalExpr '==' relationalExpr */
-/*           | equalExpr '!=' relationalExpr */
-/*           ; */
-/*  */
-/* relationalExpr : shiftExpr */
-/*                | relationalExpr '<' shiftExpr */
-/*                | relationalExpr '<=' shiftExpr */
-/*                | relationalExpr '>' shiftExpr */
-/*                | relationalExpr '>=' shiftExpr */
-/*                ; */
-/*  */
-/* shiftExpr : addExpr */
-/*           | shiftExpr '<<' addExpr */
-/*           | shiftExpr '>>' addExpr */
-/*           | shiftExpr '>>>' addExpr */
-/*           ; */
-/*  */
-/* addExpr : timesExpr */
-/*         | addExpr '+' timesExpr */
-/*         | addExpr '-' timesExpr */
-/*         ; */
-/*  */
-/* timesExpr : timesExpr1 */
-/*           | timesExpr '*' timesExpr1 */
-/*           | timesExpr '/' timesExpr1 */
-/*           | timesExpr '%' timesExpr1 */
-/*           ; */
-/*  */
-/* rangeExpr : concatExpr */
-/*           | rangeExpr '..' concatExpr */
-/*           ; */
-/*  */
-/* concatExpr : prefixExpr */
-/*            | prefixExpr "::" concatExpr */
-/*            ; */
-
-/* infixOp : "||" { $$ = $1; } */
-/*         | "or" { $$ = $1; } */
-/*         | "&&" { $$ = $1; } */
-/*         | "and" { $$ = $1; } */
-/*         | "|" { $$ = $1; } */
-/*         | "^" { $$ = $1; } */
-/*         | "&" { $$ = $1; } */
-/*         | "==" { $$ = $1; } */
-/*         | "!=" { $$ = $1; } */
-/*         | "<" { $$ = $1; } */
-/*         | "<=" { $$ = $1; } */
-/*         | ">" { $$ = $1; } */
-/*         | ">=" { $$ = $1; } */
-/*         | "<<" { $$ = $1; } */
-/*         | ">>" { $$ = $1; } */
-/*         | ">>>" { $$ = $1; } */
-/*         | "+" { $$ = $1; } */
-/*         | "-" { $$ = $1; } */
-/*         | "*" { $$ = $1; } */
-/*         | "/" { $$ = $1; } */
-/*         | "%" { $$ = $1; } */
-/*         | ".." { $$ = $1; } */
-/*         | "::" { $$ = $1; } */
-/*         ; */
+/**
+ * prefix operator
+ * "-" "+" "~" "!" "not" "++" "--"
+ */
 
 prefixExpr : primaryExpr { $$ = $1; }
            | "-" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
@@ -520,15 +437,6 @@ prefixExpr : primaryExpr { $$ = $1; }
            | "++" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
            | "--" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
            ;
-
-/* prefixOp : "-" { $$ = $1; } */
-/*          | "+" { $$ = $1; } */
-/*          | "~" { $$ = $1; } */
-/*          | "!" { $$ = $1; } */
-/*          | "not" { $$ = $1; } */
-/*          | "++" { $$ = $1; } */
-/*          | "--" { $$ = $1; } */
-/*          ; */
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
