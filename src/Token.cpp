@@ -53,7 +53,7 @@ const static std::unordered_map<int, Cowstr> TokenNameMap = {
     NAME_VALUE(T_AS, "as"),
     NAME_VALUE(T_RETURN, "return"),
     NAME_VALUE(T_VOID, "void"),
-    NAME_VALUE(T_ANY, "any"),
+    // NAME_VALUE(T_ANY, "any"),
     NAME_VALUE(T_NAN, "nan"),
     NAME_VALUE(T_INF, "inf"),
     NAME_VALUE(T_ASYNC, "async"),

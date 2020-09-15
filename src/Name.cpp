@@ -15,21 +15,20 @@ Cowstr &Nameable::name() { return name_; }
 
 const Cowstr &Nameable::name() const { return name_; }
 
-Cowstr AstGraphNameGenerator::from(const Ast *ast) {
+Cowstr AstGraphNameGenerator::from(const Cowstr &s) {
   std::stringstream ss;
-  ss << ast->name() << "." << counter_.next();
+  ss << s << counter_.next();
   return ss.str();
 }
 
 Cowstr SymbolNameGenerator::from(const Ast *ast) {
   std::stringstream ss;
-  ss << "nerd.sym." << ast->name() << "."
-     << fmt::format("{:#x}", std::hash<std::string>()(ast->location().str()));
+  ss << ast->name() << "." << ast->location().str();
   return ss.str();
 }
 
-Cowstr IrNameGenerator::from(const Cowstr &hint) {
-  std::stringstream ss;
-  ss << "nerd.ir." << hint << "." << counter_.next();
-  return ss.str();
-}
+// Cowstr IrNameGenerator::from(const Cowstr &hint) {
+//   std::stringstream ss;
+//   ss << "nerd.ir." << hint << "." << counter_.next();
+//   return ss.str();
+// }

@@ -86,7 +86,7 @@ class Ast;
 %token<token> T_AS "as"
 %token<token> T_RETURN "return"
 %token<token> T_VOID "void"
-%token<token> T_ANY "any"
+ /* %token<token> T_ANY "any" */
 %token<token> T_NAN "nan"
 %token<token> T_INF "inf"
 %token<token> T_ASYNC "async"
@@ -512,12 +512,11 @@ plainType : "byte" { $$ = new A_PlainType($1, @$); }
           | "ulong" { $$ = new A_PlainType($1, @$); }
           | "llong" { $$ = new A_PlainType($1, @$); }
           | "ullong" { $$ = new A_PlainType($1, @$); }
-          | "char" { $$ = new A_PlainType($1, @$); }
           | "float" { $$ = new A_PlainType($1, @$); }
           | "double" { $$ = new A_PlainType($1, @$); }
           | "boolean" { $$ = new A_PlainType($1, @$); }
+          | "char" { $$ = new A_PlainType($1, @$); }
           | "void" { $$ = new A_PlainType($1, @$); }
-          | "any" { $$ = new A_PlainType($1, @$); }
           ;
 
 /* idType : id */

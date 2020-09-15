@@ -38,8 +38,8 @@ struct AstDotNode {
   std::list<std::pair<Cowstr, Cowstr>> label;
 
   AstDotNode(const Cowstr &a_header)
-      : name("node"), header(Cowstr(a_header).replace(HtmlTranslator)),
-        label() {}
+      : name(nameGenerator.from("node")),
+        header(Cowstr(a_header).replace(HtmlTranslator)), label() {}
   virtual ~AstDotNode() = default;
 
   virtual AstDotNode &add(const Cowstr &a, const Cowstr &b) {
@@ -76,7 +76,7 @@ struct AstDotEdge {
 
 #define L_NODE(ast_type)                                                       \
   do {                                                                         \
-    adnsp u(new adn(nameGenerator.from(ast->name())));                         \
+    adnsp u(new adn(ast->name().replace(HtmlTranslator)));                     \
     u->add("literal", ASP(ast_type)->literal());                               \
     u->add("location", ast->location().str());                                 \
     nodes.push_back(u);                                                        \
@@ -85,14 +85,14 @@ struct AstDotEdge {
 
 #define NODE                                                                   \
   do {                                                                         \
-    adnsp u(new adn(nameGenerator.from(ast->name())));                         \
+    adnsp u(new adn(ast->name().replace(HtmlTranslator)));                     \
     u->add("location", ast->location().str());                                 \
     nodes.push_back(u);                                                        \
     return u;                                                                  \
   } while (0)
 
 #define S_NODE                                                                 \
-  adnsp u(new adn(nameGenerator.from(ast->name())));                           \
+  adnsp u(new adn(ast->name().replace(HtmlTranslator)));                       \
   u->add("location", ast->location().str())
 
 struct AstDot {

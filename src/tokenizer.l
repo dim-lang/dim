@@ -108,7 +108,7 @@ import      { MK_INTEGER(T_IMPORT); }
 as          { MK_INTEGER(T_AS); }
 return      { MK_INTEGER(T_RETURN); }
 void        { MK_INTEGER(T_VOID); }
-any         { MK_INTEGER(T_ANY); }
+ /* any         { MK_INTEGER(T_ANY); } */
 nan         { MK_INTEGER(T_NAN); }
 inf         { MK_INTEGER(T_INF); }
 async       { MK_INTEGER(T_ASYNC); }

@@ -15,10 +15,6 @@ TEST_CASE("Name", "[Name]") {
   }
   SECTION("NameGenerator") {
     AstGraphNameGenerator g1;
-    SymbolNameGenerator g2;
-    IrNameGenerator g3;
     LOG_INFO("g1.from:{} -> {}", "hello", g1.from("hello"));
-    LOG_INFO("g2.from:{} -> {}", "hello", g2.from("hello"));
-    LOG_INFO("g3.from:{} -> {}", "hello", g3.from("hello"));
   }
 }

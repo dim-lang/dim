@@ -127,6 +127,7 @@ set(NERD_CORE
     src/Counter.cpp
     # src/Dump.cpp
     src/Graph.cpp
+    src/Symbol.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp
