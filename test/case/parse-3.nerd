@@ -7,8 +7,6 @@ def cached_character(s:char, n:int):char {
 
 def duplicate(s:char, n:int):char = cached_character(s, n)
 
-def duplicate(s:char):char = cached_character(s, strlen(s))
-
 def startWith(
         s:char,
         begin:int,
