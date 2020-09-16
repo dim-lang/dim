@@ -13,46 +13,26 @@ Ownable::Ownable(std::shared_ptr<Scope> owner) : owner_(owner) {}
 
 std::shared_ptr<Scope> Ownable::owner() const { return owner_; }
 
+// scope {
+
 static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope);
 
-std::shared_ptr<Scope> Symbol::from(Ast *compileUnit) {
+std::shared_ptr<Scope> Scope::from(Ast *compileUnit) {
   return fromImpl(compileUnit, std::shared_ptr<Scope>(nullptr));
 }
-
-bool Symbol::isSymbol(std::shared_ptr<Symbol> sptr) {
-  if (!sptr) {
-    return false;
-  }
-  switch (sptr->kind()) {
-  case SymbolKind::Var:
-  case SymbolKind::Func:
-  case SymbolKind::Param:
-  case SymbolKind::Field:
-  case SymbolKind::Method:
-  case SymbolKind::Local:
-  case SymbolKind::Global:
-    return true;
-  default:
-    return false;
-  }
-  return false;
-}
-
-bool Symbol::isTypeSymbol(std::shared_ptr<Symbol> tsptr) {
-  return tsptr ? (!isSymbol(tsptr)) : false;
-}
-
-// scope {
 
 void Scope::s_define(std::shared_ptr<Symbol> s,
                      std::shared_ptr<TypeSymbol> ts) {
   LOG_ASSERT(s, "s must not null");
   LOG_ASSERT(ts, "ts must not null");
+  LOG_ASSERT(!smap_.contains(s->name()), "symbol already exist: {}", s->name());
   smap_.insert(s->name(), SymbolData(s, ts));
 }
 
 void Scope::ts_define(std::shared_ptr<TypeSymbol> ts) {
   LOG_ASSERT(ts, "ts must not null");
+  LOG_ASSERT(!tsmap_.contains(ts->name()), "type symbol already exist: {}",
+             ts->name());
   tsmap_.insert(ts->name(), TypeSymbolData(ts));
 }
 
@@ -81,7 +61,7 @@ bool Scope::ts_resolveContains(const Cowstr &name) const {
   if (tsmap_.contains(name)) {
     return true;
   }
-  return owner() ? owner()->s_resolveContains(name) : false;
+  return owner() ? owner()->ts_resolveContains(name) : false;
 }
 
 bool Scope::s_contains(const Cowstr &name) const {
@@ -149,6 +129,10 @@ S_Func::S_Func(const Cowstr &name, const Location &location,
 
 SymbolKind S_Func::kind() const { return SymbolKind::Func; }
 
+bool S_Func::isSymbol() const { return true; }
+
+bool S_Func::isTypeSymbol() const { return false; }
+
 SYMBOL_GENERATOR(S_Func)
 
 S_Param::S_Param(const Cowstr &name, const Location &location,
@@ -173,6 +157,10 @@ S_Method::S_Method(const Cowstr &name, const Location &location,
 
 SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 
+bool S_Method::isSymbol() const { return true; }
+
+bool S_Method::isTypeSymbol() const { return false; }
+
 SYMBOL_GENERATOR(S_Method)
 
 S_Local::S_Local(const Cowstr &name, const Location &location,
@@ -181,12 +169,20 @@ S_Local::S_Local(const Cowstr &name, const Location &location,
 
 SymbolKind S_Local::kind() const { return SymbolKind::Local; }
 
+bool S_Local::isSymbol() const { return true; }
+
+bool S_Local::isTypeSymbol() const { return false; }
+
 SYMBOL_GENERATOR(S_Local)
 
 S_Global::S_Global(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location), Ownable(nullptr) {}
 
 SymbolKind S_Global::kind() const { return SymbolKind::Global; }
+
+bool S_Global::isSymbol() const { return true; }
+
+bool S_Global::isTypeSymbol() const { return false; }
 
 SYMBOL_GENERATOR(S_Global)
 
@@ -197,7 +193,7 @@ SYMBOL_GENERATOR(S_Global)
 Ts_Plain::Ts_Plain(const Cowstr &name, std::shared_ptr<Scope> owner)
     : Nameable(name), Locationable(Location()), Ownable(owner) {}
 
-SymbolKind Ts_Plain::kind() const { return SymbolKind::PlainType; }
+TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 
 SYMBOL_GENERATOR(Ts_Plain)
 
@@ -205,7 +201,11 @@ Ts_Class::Ts_Class(const Cowstr &name, const Location &location,
                    std::shared_ptr<Scope> owner)
     : Nameable(name), Locationable(location), Ownable(owner) {}
 
-SymbolKind Ts_Class::kind() const { return SymbolKind::ClassType; }
+TypeSymbolKind Ts_Class::kind() const { return TypeSymbolKind::Class; }
+
+bool Ts_Class::isSymbol() const { return false; }
+
+bool Ts_Class::isTypeSymbol() const { return true; }
 
 SYMBOL_GENERATOR(Ts_Class)
 
@@ -213,7 +213,7 @@ Ts_Func::Ts_Func(const Cowstr &name, const Location &location,
                  std::shared_ptr<Scope> owner)
     : Nameable(name), Locationable(location), Ownable(owner) {}
 
-SymbolKind Ts_Func::kind() const { return SymbolKind::FuncType; }
+TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 
 SYMBOL_GENERATOR(Ts_Func)
 
@@ -247,36 +247,23 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);
     scptr s_global(new S_Global(e->name(), e->location()));
     // integer
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("byte", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("ubyte", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("short", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("ushort", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("int", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("uint", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("long", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("ulong", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("byte", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("ubyte", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("short", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("ushort", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("int", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("uint", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("long", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("ulong", s_global)));
     // float
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("float", s_global)));
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("double", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("float", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("double", s_global)));
     // char
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("char", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("char", s_global)));
     // boolean
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("boolean", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("boolean", s_global)));
     // void
-    s_global->ts_define(
-        std::shared_ptr<TypeSymbol>(new Ts_Plain("void", s_global)));
+    s_global->ts_define(tsptr(new Ts_Plain("void", s_global)));
     fromImpl(e->topStats, s_global);
     return s_global;
   }
@@ -304,6 +291,8 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     tsptr resultType = tsdata.typeSymbol;
     tsptr ts_func(new Ts_Func(generateFuncTypeName(paramTypes, resultType),
                               e->location(), scope));
+    std::dynamic_pointer_cast<Ts_Func>(ts_func)->params = paramTypes;
+    std::dynamic_pointer_cast<Ts_Func>(ts_func)->result = resultType;
     scope->s_define(s_func, ts_func);
     scptr s_func_scope = std::dynamic_pointer_cast<Scope>(s_func);
     fromImpl(sign, s_func_scope);
@@ -326,11 +315,14 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_VarId *varId = static_cast<A_VarId *>(e->id);
     A_PlainType *plainType = static_cast<A_PlainType *>(e->type);
     sptr s_param(new S_Param(varId->literal(), e->location(), scope));
-    LOG_ASSERT(scope->kind() == (+SymbolKind::Func),
+    LOG_ASSERT(scope->isSymbol(), "scope must be symbol");
+    LOG_ASSERT(std::dynamic_pointer_cast<Symbol>(scope)->kind() ==
+                   (+SymbolKind::Func),
                "scope->kind {} must be SymbolKind::Func",
-               scope->kind()._to_string());
+               std::dynamic_pointer_cast<Symbol>(scope)->kind()._to_string());
     LOG_ASSERT(scope->ts_resolveContains(tokenName(plainType->token)),
-               "scope {} must contains type symbol {}", scope->name(),
+               "scope {} must contains type symbol {}",
+               std::dynamic_pointer_cast<Symbol>(scope)->name(),
                tokenName(plainType->token));
     TypeSymbolData ts_data = scope->ts_resolve(tokenName(plainType->token));
     scope->s_define(s_param, ts_data.typeSymbol);

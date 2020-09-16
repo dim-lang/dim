@@ -475,39 +475,52 @@ struct SymbolDotGraph {
     if (!scope) {
       SDN_NIL;
     }
-    switch (scope->kind()) {
-    case SymbolKind::Var: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Param: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Field: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Func: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Method: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Local: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::Global: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::PlainType: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::FuncType: {
-      SDN_SYMBOL(scope);
-    }
-    case SymbolKind::ClassType: {
-      SDN_SYMBOL(scope);
-    }
-    default:
-      LOG_ASSERT(false, "invalid scope kind: {}", scope->kind()._to_string());
+    if (scope->isSymbol()) {
+      std::shared_ptr<Symbol> sym = std::dynamic_pointer_cast<Symbol>(scope);
+      switch (sym->kind()) {
+      case SymbolKind::Var: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Param: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Field: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Func: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Method: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Local: {
+        SDN_SYMBOL(sym);
+      }
+      case SymbolKind::Global: {
+        SDN_SYMBOL(sym);
+      }
+      default:
+        LOG_ASSERT(false, "invalid symbol kind: {}", sym->kind()._to_string());
+      }
+    } else if (scope->isTypeSymbol()) {
+      std::shared_ptr<TypeSymbol> sym =
+          std::dynamic_pointer_cast<TypeSymbol>(scope);
+      switch (sym->kind()) {
+      case TypeSymbolKind::Plain: {
+        SDN_SYMBOL(sym);
+      }
+      case TypeSymbolKind::Func: {
+        SDN_SYMBOL(sym);
+      }
+      case TypeSymbolKind::Class: {
+        SDN_SYMBOL(sym);
+      }
+      default:
+        LOG_ASSERT(false, "invalid type symbol kind: {}",
+                   sym->kind()._to_string());
+      }
+    } else {
+      LOG_ASSERT(false, "invalid scope type");
     }
   }
 };

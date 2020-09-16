@@ -19,11 +19,19 @@ BETTER_ENUM(SymbolKind, int,
             // class
             Field, Method,
             // scope
-            Local, Global,
-            // type symbol
-            PlainType, FuncType, ClassType)
+            Local, Global)
+
+/*================ type symbol kind enum start from 3000 ================*/
+BETTER_ENUM(TypeSymbolKind, int,
+            // plain type
+            Plain = 3000,
+            // function type
+            Func,
+            // class type
+            Class)
 
 class Ast;
+class Ownable;
 class Symbol;
 class TypeSymbol;
 class Scope;
@@ -58,17 +66,12 @@ public:
   virtual const Cowstr &name() const = 0;
   virtual Location &location() = 0;
   virtual const Location &location() const = 0;
-
-  static std::shared_ptr<Scope> from(Ast *compileUnit);
-  static void check(Ast *compileUnit, std::shared_ptr<Symbol> symbol);
-  static bool isSymbol(std::shared_ptr<Symbol> sptr);
-  static bool isTypeSymbol(std::shared_ptr<Symbol> tsptr);
 };
 
 class TypeSymbol : private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
-  virtual SymbolKind kind() const = 0;
+  virtual TypeSymbolKind kind() const = 0;
   virtual std::shared_ptr<Scope> owner() const = 0;
   virtual Cowstr &name() = 0;
   virtual const Cowstr &name() const = 0;
@@ -105,14 +108,14 @@ public:
 
   virtual ~Scope() = default;
 
-  // symbol api
-  virtual SymbolKind kind() const = 0;
-  virtual std::shared_ptr<Scope> owner() const = 0;
-  virtual Cowstr &name() = 0;
-  virtual const Cowstr &name() const = 0;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
+  static std::shared_ptr<Scope> from(Ast *compileUnit);
+  // static void check(Ast *compileUnit, std::shared_ptr<Symbol> symbol);
 
+  virtual std::shared_ptr<Scope> owner() const = 0;
+  virtual bool isSymbol() const = 0;
+  virtual bool isTypeSymbol() const = 0;
+
+  // scope api
   virtual void s_define(std::shared_ptr<Symbol> s,
                         std::shared_ptr<TypeSymbol> ts);
   virtual void ts_define(std::shared_ptr<TypeSymbol> ts);
@@ -179,6 +182,8 @@ public:
          std::shared_ptr<Scope> owner);
   virtual ~S_Func() = default;
   virtual SymbolKind kind() const;
+  virtual bool isSymbol() const;
+  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
   std::vector<std::shared_ptr<Symbol>> params;
 };
@@ -217,6 +222,8 @@ public:
            std::shared_ptr<Scope> owner);
   virtual ~S_Method() = default;
   virtual SymbolKind kind() const;
+  virtual bool isSymbol() const;
+  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 
   std::vector<std::shared_ptr<Symbol>> params;
@@ -232,6 +239,8 @@ public:
           std::shared_ptr<Scope> owner);
   virtual ~S_Local() = default;
   virtual SymbolKind kind() const;
+  virtual bool isSymbol() const;
+  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 };
 
@@ -244,6 +253,8 @@ public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
   virtual SymbolKind kind() const;
+  virtual bool isSymbol() const;
+  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 };
 
@@ -263,7 +274,7 @@ class Ts_Plain : public TypeSymbol,
 public:
   Ts_Plain(const Cowstr &name, std::shared_ptr<Scope> owner);
   virtual ~Ts_Plain() = default;
-  virtual SymbolKind kind() const;
+  virtual TypeSymbolKind kind() const;
   SYMBOL_DECLARATOR
 };
 
@@ -276,7 +287,9 @@ public:
   Ts_Class(const Cowstr &name, const Location &location,
            std::shared_ptr<Scope> owner);
   virtual ~Ts_Class() = default;
-  virtual SymbolKind kind() const;
+  virtual TypeSymbolKind kind() const;
+  virtual bool isSymbol() const;
+  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 
   std::vector<std::shared_ptr<Symbol>> fields;
@@ -291,7 +304,7 @@ public:
   Ts_Func(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);
   virtual ~Ts_Func() = default;
-  virtual SymbolKind kind() const;
+  virtual TypeSymbolKind kind() const;
   SYMBOL_DECLARATOR
 
   std::vector<std::shared_ptr<TypeSymbol>> params;
