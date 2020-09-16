@@ -143,8 +143,6 @@ set(NERD_CORE
     src/Scanner.cpp
     src/Ast.cpp
     # src/Position.cpp
-    # src/Symbol.cpp
-    # src/SymbolTable.cpp
     src/Counter.cpp
     # src/Dump.cpp
     src/Graph.cpp

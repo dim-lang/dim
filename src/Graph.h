@@ -5,10 +5,10 @@
 #include "container/Cowstr.h"
 #include <memory>
 class Ast;
-class Symbol;
+class Scope;
 
 class Graph {
 public:
   static int drawAst(Ast *ast, const Cowstr &output);
-  static int drawSymbol(std::shared_ptr<Symbol> symbol, const Cowstr &output);
+  static int drawSymbol(std::shared_ptr<Scope> scope, const Cowstr &output);
 };
