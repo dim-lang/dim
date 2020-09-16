@@ -33,6 +33,10 @@ class SymbolNameGenerator {
 public:
   virtual ~SymbolNameGenerator() = default;
   virtual Cowstr from(const Ast *ast);
+  virtual Cowstr from(const Cowstr &s);
+
+protected:
+  Counter counter_;
 };
 
 // class IrNameGenerator {

@@ -89,6 +89,16 @@ function build_install() {
     cd release && cmake --build . --config Release --target INSTALL
 }
 
+function build_graph() {
+    for f in *
+    do
+        if [ ${f: -4} == ".dot" ]; then
+            echo [nerd] generate $f.png for $f
+            dot -Tpng $f -o $f.png
+        fi
+    done
+}
+
 function build_help() {
     echo '[nerd] build help message:'
     echo 'usage:'
@@ -129,6 +139,11 @@ while [[ $# -gt 0 ]]; do
             cd src
             flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
             bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
+            exit 0
+            ;;
+        -g|--graph)
+            cd test/case
+            build_graph
             exit 0
             ;;
         -d|--debug)

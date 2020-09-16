@@ -112,6 +112,10 @@ public:
   // static void check(Ast *compileUnit, std::shared_ptr<Symbol> symbol);
 
   virtual std::shared_ptr<Scope> owner() const = 0;
+  virtual Cowstr &name() = 0;
+  virtual const Cowstr &name() const = 0;
+  virtual Location &location() = 0;
+  virtual const Location &location() const = 0;
   virtual bool isSymbol() const = 0;
   virtual bool isTypeSymbol() const = 0;
 

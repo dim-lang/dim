@@ -27,6 +27,12 @@ Cowstr SymbolNameGenerator::from(const Ast *ast) {
   return ss.str();
 }
 
+Cowstr SymbolNameGenerator::from(const Cowstr &s) {
+  std::stringstream ss;
+  ss << s << "." << counter_.next();
+  return ss.str();
+}
+
 // Cowstr IrNameGenerator::from(const Cowstr &hint) {
 //   std::stringstream ss;
 //   ss << "nerd.ir." << hint << "." << counter_.next();

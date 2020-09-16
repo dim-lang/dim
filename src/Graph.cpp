@@ -9,6 +9,7 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
+#include "container/LinkedHashMap.hpp"
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -81,13 +82,13 @@ template <typename _Node, typename _Edge> struct DotGraph {
   std::vector<Cowstr> fontnames;
   int fontsize;
   Cowstr shape;
+  Cowstr rankdir;
 
-  DotGraph(const std::vector<std::shared_ptr<_Node>> &a_nodes = {},
-           const std::vector<std::shared_ptr<_Edge>> &a_edges = {},
+  DotGraph(const Cowstr &a_rankdir = "TB",
            const std::vector<Cowstr> &a_fontnames = {"Courier New", "Courier"},
            int a_fontsize = 12, const Cowstr &a_shape = "record")
-      : nodes(a_nodes), edges(a_edges), fontnames(a_fontnames),
-        fontsize(a_fontsize), shape(a_shape) {}
+      : fontnames(a_fontnames), fontsize(a_fontsize), shape(a_shape),
+        rankdir(a_rankdir) {}
 
   virtual ~DotGraph() = default;
 
@@ -102,8 +103,9 @@ template <typename _Node, typename _Edge> struct DotGraph {
       }
     }
     Cowstr fontnames_str = fontname_ss.str();
-    fwriter.writeln(fmt::format("    graph [fontname=\"{}\", fontsize={}]",
-                                fontnames_str, fontsize));
+    fwriter.writeln(
+        fmt::format("    graph [fontname=\"{}\", fontsize={}, rankdir={}]",
+                    fontnames_str, fontsize, rankdir));
     fwriter.writeln(
         fmt::format("    node [shape={}, fontname=\"{}\", fontsize={}]", shape,
                     fontnames_str, fontsize));
@@ -368,101 +370,96 @@ struct AstDotGraph {
   }
 };
 
+/**
+ * { <field2> title: value | [ title: value ]* }
+ *     |       |      |
+ *     id     title  value
+ */
 struct SymbolDotNodeLabel {
   Cowstr id;
-  Cowstr title;
-  Cowstr value;
+  std::vector<std::pair<Cowstr, Cowstr>> attributes;
 
-  SymbolDotNodeLabel(const Cowstr &a_id, const Cowstr &a_title,
-                     const Cowstr &a_value)
-      : id(Cowstr(a_id).replace(HtmlTranslator)),
-        title(Cowstr(a_title).replace(HtmlTranslator)),
-        value(Cowstr(a_value).replace(HtmlTranslator)) {}
+  SymbolDotNodeLabel(const Cowstr &a_id)
+      : id(Cowstr(a_id).replace(HtmlTranslator)) {}
   virtual ~SymbolDotNodeLabel() = default;
+  virtual void add(const Cowstr &title, const Cowstr &value) {
+    attributes.push_back(std::make_pair(Cowstr(title).replace(HtmlTranslator),
+                                        Cowstr(value).replace(HtmlTranslator)));
+  }
   virtual Cowstr str() const {
-    return fmt::format("<{}> {}: {}", id, title, value);
+    std::stringstream ss;
+    ss << "{ <" << id << "> ";
+    for (int i = 0; i < (int)attributes.size(); i++) {
+      ss << fmt::format("{}: {}", attributes[i].first, attributes[i].second);
+      if (i < (int)attributes.size() - 1) {
+        ss << " | ";
+      }
+    }
+    ss << " }";
+    return ss.str();
   }
 };
 
+/**
+ * SymbolNode1[label="<field2>        name      | labels "]
+ *     |                 |             |            |
+ *     id              headLabelId    headLabel   labels
+ */
 struct SymbolDotNode {
   Cowstr id;
-  Cowstr headerId;
-  Cowstr header;
-  std::vector<SymbolDotNodeLabel> labels;
+  Cowstr headLabelId;
+  Cowstr headLabel;
+  std::vector<std::shared_ptr<SymbolDotNodeLabel>> labels;
 
-  SymbolDotNode(const Cowstr &a_id, const Cowstr &a_headerId,
-                const Cowstr &a_header)
+  SymbolDotNode(const Cowstr &a_id, const Cowstr &a_headLabelId,
+                const Cowstr &a_headLabel)
       : id(Cowstr(a_id).replace(HtmlTranslator)),
-        headerId(Cowstr(a_headerId).replace(HtmlTranslator)),
-        header(Cowstr(a_header).replace(HtmlTranslator)) {}
+        headLabelId(Cowstr(a_headLabelId).replace(HtmlTranslator)),
+        headLabel(Cowstr(a_headLabel).replace(HtmlTranslator)) {}
   virtual ~SymbolDotNode() = default;
   virtual Cowstr str() const {
     std::stringstream ss;
-    ss << id << " [label=\"<" << headerId << "> " << header;
+    ss << id << " [label=\"<" << headLabelId << "> " << headLabel;
     for (auto i = labels.begin(); i != labels.end(); i++) {
-      ss << " | " << i->str();
+      ss << " | " << (*i)->str();
     }
     ss << "\"]";
     return ss.str();
   }
 };
 
+/**
+ * SymbolNode1:field2      -> SymbolNode2:field5
+ *     |         |                 |        |
+ *   fromId    fromLabelId       toId     toLabelId
+ */
 struct SymbolDotEdge {
-  Cowstr headId;
-  Cowstr headLabelId;
-  Cowstr tailId;
-  Cowstr tailLabelId;
+  Cowstr fromId;      // from node id
+  Cowstr fromLabelId; // from node label id
+  Cowstr toId;        // to node id
+  Cowstr toLabelId;   // to node label id
 
-  SymbolDotEdge(const Cowstr &a_headId, const Cowstr &a_headLabelId,
-                const Cowstr &a_tailId, const Cowstr &a_tailLabelId)
-      : headId(a_headId), headLabelId(a_headLabelId), tailId(a_tailId),
-        tailLabelId(a_tailLabelId) {}
+  SymbolDotEdge(const Cowstr &a_fromId, const Cowstr &a_fromLabelId,
+                const Cowstr &a_toId, const Cowstr &a_toLabelId)
+      : fromId(a_fromId), fromLabelId(a_fromLabelId), toId(a_toId),
+        toLabelId(a_toLabelId) {}
   virtual ~SymbolDotEdge() = default;
   virtual Cowstr str() const {
-    return fmt::format("{}:{} -> {}:{}", headId, headLabelId, tailId,
-                       tailLabelId);
+    return fmt::format("{}:{} -> {}:{}", fromId, fromLabelId, toId, toLabelId);
   }
 };
 
 using sdnl = SymbolDotNodeLabel;
 using sdn = SymbolDotNode;
 using sde = SymbolDotEdge;
+using sdnlsp = std::shared_ptr<SymbolDotNodeLabel>;
 using sdnsp = std::shared_ptr<SymbolDotNode>;
 using sdesp = std::shared_ptr<SymbolDotEdge>;
-
-#define SDN_NIL                                                                \
-  do {                                                                         \
-    sdnsp u(new sdn(nameGenerator.from("SymbolNode"),                          \
-                    nameGenerator.from("field"), "nil"));                      \
-    g.nodes.push_back(u);                                                      \
-    return u;                                                                  \
-  } while (0)
-
-#define SDN_SYMBOL(scope)                                                      \
-  do {                                                                         \
-    sdnsp u(new sdn(nameGenerator.from("SymbolNode"),                          \
-                    nameGenerator.from("field"), (scope)->name()));            \
-    u->labels.push_back(sdnl(nameGenerator.from("field"), "kind",              \
-                             (scope)->kind()._to_string()));                   \
-    u->labels.push_back(                                                       \
-        sdnl(nameGenerator.from("field"), "name", (scope)->name()));           \
-    if ((scope)->owner()) {                                                    \
-      SymbolData sdata = (scope)->owner()->s_resolve((scope)->name());         \
-      u->labels.push_back(sdnl(nameGenerator.from("field"), "type",            \
-                               sdata.typeSymbol->name()));                     \
-    } else {                                                                   \
-      u->labels.push_back(sdnl(nameGenerator.from("field"), "type", "nil"));   \
-    }                                                                          \
-    u->labels.push_back(sdnl(nameGenerator.from("field"), "location",          \
-                             (scope)->location().str()));                      \
-    g.nodes.push_back(u);                                                      \
-    return u;                                                                  \
-  } while (0)
 
 struct SymbolDotGraph {
   DotGraph<SymbolDotNode, SymbolDotEdge> g;
 
-  SymbolDotGraph() {}
+  SymbolDotGraph() : g("LR") {}
   virtual ~SymbolDotGraph() = default;
 
   virtual int draw(std::shared_ptr<Scope> scope, const Cowstr &output) {
@@ -473,55 +470,69 @@ struct SymbolDotGraph {
   virtual std::shared_ptr<SymbolDotNode>
   drawImpl(std::shared_ptr<Scope> scope) {
     if (!scope) {
-      SDN_NIL;
+      sdnsp u(new sdn(nameGenerator.from("SymbolNode"),
+                      nameGenerator.from("field"), "nil"));
+      return u;
     }
-    if (scope->isSymbol()) {
-      std::shared_ptr<Symbol> sym = std::dynamic_pointer_cast<Symbol>(scope);
-      switch (sym->kind()) {
-      case SymbolKind::Var: {
-        SDN_SYMBOL(sym);
-      }
-      case SymbolKind::Param: {
-        SDN_SYMBOL(sym);
-      }
+    sdnsp u(new sdn(nameGenerator.from("SymbolNode"),
+                    nameGenerator.from("field"), scope->name()));
+    g.nodes.push_back(u);
+    for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+      SymbolData sdata = i->second;
+      switch (sdata.symbol->kind()) {
+      case SymbolKind::Var:
+      case SymbolKind::Param:
       case SymbolKind::Field: {
-        SDN_SYMBOL(sym);
+        u->labels.push_back(drawSymbol(sdata.symbol));
+        break;
       }
-      case SymbolKind::Func: {
-        SDN_SYMBOL(sym);
-      }
-      case SymbolKind::Method: {
-        SDN_SYMBOL(sym);
-      }
-      case SymbolKind::Local: {
-        SDN_SYMBOL(sym);
-      }
+      case SymbolKind::Func:
+      case SymbolKind::Method:
+      case SymbolKind::Local:
       case SymbolKind::Global: {
-        SDN_SYMBOL(sym);
+        sdnlsp label = drawSymbol(sdata.symbol);
+        u->labels.push_back(label);
+        sdnsp v = drawImpl(std::dynamic_pointer_cast<Scope>(sdata.symbol));
+        sdesp e(new sde(u->id, label->id, v->id, v->headLabelId));
+        g.edges.push_back(e);
+        break;
       }
       default:
-        LOG_ASSERT(false, "invalid symbol kind: {}", sym->kind()._to_string());
+        LOG_ASSERT(false, "invalid symbol type: {}",
+                   sdata.symbol->kind()._to_string());
       }
-    } else if (scope->isTypeSymbol()) {
-      std::shared_ptr<TypeSymbol> sym =
-          std::dynamic_pointer_cast<TypeSymbol>(scope);
-      switch (sym->kind()) {
-      case TypeSymbolKind::Plain: {
-        SDN_SYMBOL(sym);
-      }
-      case TypeSymbolKind::Func: {
-        SDN_SYMBOL(sym);
-      }
-      case TypeSymbolKind::Class: {
-        SDN_SYMBOL(sym);
-      }
-      default:
-        LOG_ASSERT(false, "invalid type symbol kind: {}",
-                   sym->kind()._to_string());
-      }
-    } else {
-      LOG_ASSERT(false, "invalid scope type");
     }
+    for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+      TypeSymbolData tsdata = i->second;
+      u->labels.push_back(drawTypeSymbol(tsdata.typeSymbol));
+    }
+    return u;
+  }
+
+  virtual sdnlsp drawSymbol(std::shared_ptr<Symbol> sym) {
+    if (!sym) {
+      return sdnlsp(new sdnl(nameGenerator.from("field")));
+    }
+    sdnlsp l(new sdnl(nameGenerator.from("field")));
+    l->add("name", sym->name());
+    if (sym->owner()) {
+      SymbolData sdata = sym->owner()->s_resolve(sym->name());
+      l->add("type", sdata.typeSymbol->name());
+    } else {
+      l->add("type", "void");
+    }
+    l->add("symbol kind", sym->kind()._to_string());
+    return l;
+  }
+
+  virtual sdnlsp drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
+    if (!sym) {
+      return sdnlsp(new sdnl(nameGenerator.from("field")));
+    }
+    sdnlsp l(new sdnl(nameGenerator.from("field")));
+    l->add("name", sym->name());
+    l->add("type symbol kind", sym->kind()._to_string());
+    return l;
   }
 };
 
