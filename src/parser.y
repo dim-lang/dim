@@ -108,8 +108,6 @@ class Ast;
 %token<token> T_UINT "uint"
 %token<token> T_LONG "long"
 %token<token> T_ULONG "ulong"
-%token<token> T_LLONG "llong"
-%token<token> T_ULLONG "ullong"
 %token<token> T_FLOAT "float"
 %token<token> T_DOUBLE "double"
 %token<token> T_BOOLEAN "boolean"
@@ -507,8 +505,6 @@ plainType : "byte" { $$ = new A_PlainType($1, @$); }
           | "uint" { $$ = new A_PlainType($1, @$); }
           | "long" { $$ = new A_PlainType($1, @$); }
           | "ulong" { $$ = new A_PlainType($1, @$); }
-          | "llong" { $$ = new A_PlainType($1, @$); }
-          | "ullong" { $$ = new A_PlainType($1, @$); }
           | "float" { $$ = new A_PlainType($1, @$); }
           | "double" { $$ = new A_PlainType($1, @$); }
           | "boolean" { $$ = new A_PlainType($1, @$); }

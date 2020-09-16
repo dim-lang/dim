@@ -1,7 +1,7 @@
 def cached_character(s:char, n:int):char {
     if (!s || n <= 0)
         return 0;
-    var key:ullong = hash(s, n);
+    var key:ulong = hash(s, n);
     return if (key == 0) s else s+1;
 }
 

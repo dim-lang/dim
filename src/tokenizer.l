@@ -130,8 +130,6 @@ int         { MK_INTEGER(T_INT); }
 uint        { MK_INTEGER(T_UINT); }
 long        { MK_INTEGER(T_LONG); }
 ulong       { MK_INTEGER(T_ULONG); }
-llong       { MK_INTEGER(T_LLONG); }
-ullong      { MK_INTEGER(T_ULLONG); }
 float       { MK_INTEGER(T_FLOAT); }
 double      { MK_INTEGER(T_DOUBLE); }
 boolean     { MK_INTEGER(T_BOOLEAN); }
