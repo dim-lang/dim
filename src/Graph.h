@@ -10,32 +10,18 @@ class Ast;
 class Scope;
 
 /**
- * <TD PORT="id">value</TD>
- */
-class GraphCell {
-public:
-  GraphCell(const Cowstr &value);
-  virtual ~GraphCell() = default;
-  virtual const Cowstr &id() const;
-  virtual Cowstr str() const;
-
-protected:
-  Cowstr id_;    // PORT="id"
-  Cowstr value_; // value
-};
-
-/**
- * <TR> xxx </TR>
+ * <TR><TD PORT="id"> xxx - xxx - xxx </TD></TR>
  */
 class GraphLine {
 public:
-  GraphLine(const std::vector<GraphCell> &cells = {});
+  GraphLine(const std::vector<Cowstr> &a_cells = {});
   virtual ~GraphLine() = default;
-  virtual void add(const GraphCell &cell);
-  virtual Cowstr str() const;
 
-protected:
-  std::vector<GraphCell> cells_;
+  Cowstr id; // PORT="id"
+  std::vector<Cowstr> cells;
+
+  virtual void add(const Cowstr &cell);
+  virtual Cowstr str() const;
 };
 
 /**
@@ -43,15 +29,19 @@ protected:
  */
 class GraphLabel {
 public:
-  GraphLabel(const std::vector<GraphLine> &table = {},
-             const std::unordered_map<Cowstr, Cowstr> &attributes = {});
+  GraphLabel(const std::vector<GraphLine> &a_lines = {},
+             const std::unordered_map<Cowstr, Cowstr> &a_attributes = {
+                 {"BORDER", "\"0\""},
+                 {"CELLBORDER", "\"1\""},
+                 {"CELLSPACING", "\"0\""},
+             });
   virtual ~GraphLabel() = default;
-  virtual void add(const GraphLine &line);
-  virtual Cowstr str() const;
 
-protected:
-  std::vector<GraphLine> table_;
-  std::unordered_map<Cowstr, Cowstr> attributes_;
+  std::vector<GraphLine> lines;
+  std::unordered_map<Cowstr, Cowstr> attributes;
+
+  virtual const Cowstr &id() const;
+  virtual Cowstr str() const;
 };
 
 /**
@@ -60,16 +50,18 @@ protected:
  */
 class GraphNode {
 public:
-  GraphNode(std::shared_ptr<GraphLabel> label);
-  GraphNode(const std::vector<GraphLine> &table = {},
-            const std::unordered_map<Cowstr, Cowstr> &attributes = {});
+  GraphNode(const std::vector<GraphLine> &a_lines = {},
+            const std::unordered_map<Cowstr, Cowstr> &a_attributes = {
+                {"BORDER", "\"0\""},
+                {"CELLBORDER", "\"1\""},
+                {"CELLSPACING", "\"0\""},
+            });
   virtual ~GraphNode() = default;
-  virtual const Cowstr &id() const;
-  virtual Cowstr str() const;
 
-protected:
-  Cowstr id_;
-  std::shared_ptr<GraphLabel> label_;
+  Cowstr id;
+  std::shared_ptr<GraphLabel> label;
+
+  virtual Cowstr str() const;
 };
 
 /**
@@ -112,21 +104,17 @@ class Graph {
 public:
   Graph(const Cowstr &fileName,
         const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
-            &attributes = {});
+            &a_attributes = {});
   virtual ~Graph() = default;
 
-  virtual void addNode(std::shared_ptr<GraphNode> node);
-  virtual void addEdge(std::shared_ptr<GraphEdge> edge);
+  std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>> attributes;
+  std::vector<std::shared_ptr<GraphNode>> nodes;
+  std::vector<std::shared_ptr<GraphEdge>> edges;
+
   virtual int draw();
 
 protected:
   Cowstr fileName_;
-
-  // graph, node, edge
-  std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>> attributes_;
-
-  std::vector<std::shared_ptr<GraphNode>> nodes_;
-  std::vector<std::shared_ptr<GraphEdge>> edges_;
 };
 
 class AstGraph {

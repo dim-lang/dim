@@ -8,12 +8,24 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
+#include "container/LinkedHashMap.hpp"
 
 static const std::unordered_map<char, Cowstr> HtmlTranslator = {
-    {'\\', "\\\\"}, {'\n', "\\n"},  {'\t', "\\t"},  {'\r', "\\r"},
-    {'\?', "\\?"},  {'\a', "\\a"},  {'\b', "\\b"},  {'\f', "\\f"},
-    {'\v', "\\v"},  {'\'', "\\\'"}, {'\"', "\\\""}, {'<', "&lt;"},
-    {'>', "&gt;"},  {'|', "&#124;"}};
+    {'\\', "\\\\"},
+    {'\n', "<BR/>"},
+    {'\t', "&#9;"},
+    {'\r', "\\r"},
+    // {'\?', "\\?"},
+    {'\a', "\\a"},
+    {'\b', "\\b"},
+    {'\f', "\\f"},
+    {'\v', "\\v"},
+    {'&', "&#38;"},
+    // {'\'', "\\\'"},
+    // {'\"', "\\\""},
+    {'<', "&lt;"},
+    {'>', "&gt;"},
+    {'|', "&#124;"}};
 
 #define TRANSLATE(x) (Cowstr(x).replace(HtmlTranslator))
 
@@ -24,48 +36,53 @@ static Cowstr nameGenerate(const Cowstr &name, const Cowstr &delimiter = "") {
   return ss.str();
 }
 
-GraphCell::GraphCell(const Cowstr &value)
-    : id_(nameGenerate("cell")), value_(TRANSLATE(value)) {}
-
-Cowstr GraphCell::str() const {
-  return fmt::format("<TD PORT=\"{}\">{}</TD>", id_, value_);
+GraphLine::GraphLine(const std::vector<Cowstr> &a_cells)
+    : id(nameGenerate("cell")) {
+  for (int i = 0; i < (int)a_cells.size(); i++) {
+    cells.push_back(TRANSLATE(a_cells[i]));
+  }
 }
 
-GraphLine::GraphLine(const std::vector<GraphCell> &cells) : cells_(cells) {}
-
-void GraphLine::add(const GraphCell &cell) { cells_.push_back(cell); }
+void GraphLine::add(const Cowstr &cell) { cells.push_back(TRANSLATE(cell)); }
 
 Cowstr GraphLine::str() const {
   std::stringstream ss;
-  ss << "<TR> ";
-  for (int i = 0; i < (int)cells_.size(); i++) {
-    ss << cells_[i].str();
+  ss << "        <TR><TD PORT=\"" << id << "\">";
+  if (cells.size() != 0) {
+    ss << cells[0];
+    if (cells.size() > 1) {
+      ss << ": ";
+      for (int i = 1; i < (int)cells.size(); i++) {
+        ss << cells[i];
+        if (i < (int)cells.size() - 1) {
+          ss << ", ";
+        }
+      }
+    }
   }
-  ss << " </TR>";
+  ss << "</TD></TR>";
   return ss.str();
 }
 
-GraphLabel::GraphLabel(const std::vector<GraphLine> &table,
-                       const std::unordered_map<Cowstr, Cowstr> &attributes)
-    : table_(table) {
-  for (auto i = attributes.begin(); i != attributes.end(); i++) {
-    attributes_.insert(
-        std::make_pair(TRANSLATE(i->first), TRANSLATE(i->second)));
-  }
-}
+GraphLabel::GraphLabel(const std::vector<GraphLine> &a_lines,
+                       const std::unordered_map<Cowstr, Cowstr> &a_attributes)
+    : lines(a_lines), attributes(a_attributes) {}
 
-void GraphLabel::add(const GraphLine &line) { table_.push_back(line); }
+const Cowstr &GraphLabel::id() const {
+  LOG_ASSERT(!lines.empty(), "lines must not empty");
+  return lines[0].id;
+}
 
 Cowstr GraphLabel::str() const {
   std::stringstream ss;
-  ss << "<TABLE ";
-  for (auto i = attributes_.begin(); i != attributes_.end(); i++) {
+  ss << "<TABLE";
+  for (auto i = attributes.begin(); i != attributes.end(); i++) {
     ss << " " << i->first << "=" << i->second;
   }
-  ss << ">";
-  for (int i = 0; i < (int)table_.size(); i++) {
-    ss << table_[i].str();
-    if (i < (int)table_.size() - 1) {
+  ss << ">\n";
+  for (int i = 0; i < (int)lines.size(); i++) {
+    ss << lines[i].str();
+    if (i < (int)lines.size() - 1) {
       ss << "\n";
     }
   }
@@ -73,21 +90,16 @@ Cowstr GraphLabel::str() const {
   return ss.str();
 }
 
-GraphNode::GraphNode(std::shared_ptr<GraphLabel> label)
-    : id_(nameGenerate("node")), label_(label) {}
-
-GraphNode::GraphNode(const std::vector<GraphLine> &table,
-                     const std::unordered_map<Cowstr, Cowstr> &attributes)
-    : id_(nameGenerate("node")), label_(new GraphLabel(table, attributes)) {}
+GraphNode::GraphNode(const std::vector<GraphLine> &a_lines,
+                     const std::unordered_map<Cowstr, Cowstr> &a_attributes)
+    : id(nameGenerate("node")), label(new GraphLabel(a_lines, a_attributes)) {}
 
 Cowstr GraphNode::str() const {
   std::stringstream ss;
-  ss << id_.str();
-  if (label_) {
-    ss << " [label=<";
-    ss << label_->str();
-    ss << ">]";
-  }
+  ss << id.str();
+  ss << " [label=<";
+  ss << label->str();
+  ss << ">]";
   return ss.str();
 }
 
@@ -115,25 +127,13 @@ Cowstr GraphEdge::str() const {
 Graph::Graph(
     const Cowstr &fileName,
     const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
-        &attributes)
-    : fileName_(fileName) {
-  for (auto i = attributes.begin(); i != attributes.end(); i++) {
-    std::unordered_map<Cowstr, Cowstr> temp;
-    for (auto j = i->second.begin(); j != i->second.end(); j++) {
-      temp.insert(std::make_pair(TRANSLATE(j->first), TRANSLATE(j->second)));
-    }
-    attributes_.insert(std::make_pair(TRANSLATE(i->first), temp));
-  }
-}
-
-void Graph::addNode(std::shared_ptr<GraphNode> node) { nodes_.push_back(node); }
-
-void Graph::addEdge(std::shared_ptr<GraphEdge> edge) { edges_.push_back(edge); }
+        &a_attributes)
+    : attributes(a_attributes), fileName_(fileName) {}
 
 int Graph::draw() {
   FileWriter fwriter(fileName_);
   fwriter.writeln("digraph {");
-  for (auto i = attributes_.begin(); i != attributes_.end(); i++) {
+  for (auto i = attributes.begin(); i != attributes.end(); i++) {
     fwriter.write(fmt::format("    {} [", i->first));
     int c = 0;
     for (auto j = i->second.begin(); j != i->second.end(); j++, c++) {
@@ -142,14 +142,14 @@ int Graph::draw() {
         fwriter.write(", ");
       }
     }
-    fwriter.writeln("    ]");
+    fwriter.writeln("]");
   }
   fwriter.writeln();
-  for (auto i = nodes_.begin(); i != nodes_.end(); i++) {
+  for (auto i = nodes.begin(); i != nodes.end(); i++) {
     fwriter.writeln(fmt::format("    {}", (*i)->str()));
   }
   fwriter.write("\n");
-  for (auto i = edges_.begin(); i != edges_.end(); i++) {
+  for (auto i = edges.begin(); i != edges.end(); i++) {
     fwriter.writeln(fmt::format("    {}", (*i)->str()));
   }
   fwriter.writeln("}");
@@ -158,185 +158,179 @@ int Graph::draw() {
 }
 
 using attrmap = std::unordered_map<Cowstr, Cowstr>;
-using gnode = GraphNode;
-using gnodesp = std::shared_ptr<gnode>;
-using gedge = GraphEdge;
-using gedgesp = std::shared_ptr<GraphEdge>;
+
+using gn = GraphNode;
+using gnsp = std::shared_ptr<gn>;
+using ge = GraphEdge;
+using gesp = std::shared_ptr<GraphEdge>;
 using glabel = GraphLabel;
 using glabelsp = std::shared_ptr<glabel>;
 using gline = GraphLine;
 using glinesp = std::shared_ptr<gline>;
-using gcell = GraphCell;
-using gcellsp = std::shared_ptr<gcell>;
 
-const static attrmap node_attr = {
+const static attrmap gnode_attr = {
     {"shape", "record"},
-    {"fontname", "Courier New, Courier"},
-    {"fontsize", "12"},
-};
-const static attrmap edge_attr = {
-    {"fontname", "Courier New, Courier"},
-    {"fontsize", "12"},
-};
-const static attrmap graph_attr = {
-    {"fontname", "Courier New, Courier"},
+    {"fontname", "\"Courier New, Courier\""},
     {"fontsize", "12"},
 };
 
-#define glinevec std::vector<GraphLine>()
+const static attrmap gedge_attr = {
+    {"fontname", "\"Courier New, Courier\""},
+    {"fontsize", "12"},
+};
 
-static GraphLine fromCell(const Cowstr &a) {
-  GraphLine gl;
-  gl.add(GraphCell(a));
-  return gl;
+const static attrmap ggraph_attr = {
+    {"fontname", "\"Courier New, Courier\""},
+    {"fontsize", "12"},
+};
+
+const static attrmap agelabel_attr = {
+    {"BORDER", "\"0\""},
+    {"CELLBORDER", "\"0\""},
+    {"CELLSPACING", "\"0\""},
+};
+
+static gline fromCell(const Cowstr &a) {
+  gline l;
+  l.add(a);
+  return l;
 }
 
-static GraphLine fromCell(const Cowstr &a, const Cowstr &b) {
-  GraphLine gl;
-  gl.add(GraphCell(a));
-  gl.add(GraphCell(b));
-  return gl;
+static gline fromCell(const Cowstr &a, const Cowstr &b) {
+  gline l;
+  l.add(a);
+  l.add(b);
+  return l;
 }
+
+#define AE_LABEL(x)                                                            \
+  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(x))}, agelabel_attr))
 
 #define AG_NIL                                                                 \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell("nil")}));                                   \
-    g.addNode(u);                                                              \
+    gnsp u(new gn({fromCell("nil")}));                                         \
+    g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG_LITERAL(ast, atype)                                                 \
   do {                                                                         \
-    gnodesp u(                                                                 \
-        new gnode({fromCell("literal", static_cast<atype *>(ast)->literal()),  \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell("literal", static_cast<atype *>(ast)->literal()),  \
                    fromCell("location", ast->location().str())}));             \
-    g.addNode(u);                                                              \
+    g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG_LOCATION(ast)                                                       \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell("location", ast->location().str())}));       \
-    g.addNode(u);                                                              \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell("location", ast->location().str())}));             \
+    g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AGOP(ast, atype, op)                                                   \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell(BOOST_PP_STRINGIZE(op),                      \
-                                  tokenName(static_cast<atype *>(ast)->op)),   \
-                         fromCell("location", ast->location().str())}));       \
-    g.addNode(u);                                                              \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell(BOOST_PP_STRINGIZE(op),                            \
+                            tokenName(static_cast<atype *>(ast)->op)),         \
+                   fromCell("location", ast->location().str())}));             \
+    g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG1(ast, atype, a)                                                     \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell("location", ast->location().str())}));       \
-    gnodesp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gedgesp e(new gedge(u->id(), v->id()));                                    \
-    g.addNode(u);                                                              \
-    g.addEdge(e);                                                              \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gesp e(new ge(u->id, v->id));                                              \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(e);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AGOP1(ast, atype, a, op)                                               \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell(BOOST_PP_STRINGIZE(op),                      \
-                                  tokenName(static_cast<atype *>(ast)->op)),   \
-                         fromCell("location", ast->location().str())}));       \
-    gnodesp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gedgesp e(                                                                 \
-        new gedge(u->id(), v->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(a))}))));   \
-    g.addNode(u);                                                              \
-    g.addEdge(e);                                                              \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell(BOOST_PP_STRINGIZE(op),                            \
+                            tokenName(static_cast<atype *>(ast)->op)),         \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gesp e(new ge(u->id, v->id, AE_LABEL(a)));                                 \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(e);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG2(ast, atype, a, b)                                                  \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell("location", ast->location().str())}));       \
-    gnodesp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gnodesp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                  \
-    gedgesp ep(                                                                \
-        new gedge(u->id(), p->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(a))}))));   \
-    gedgesp eq(                                                                \
-        new gedge(u->id(), q->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(b))}))));   \
-    g.addNode(u);                                                              \
-    g.addEdge(ep);                                                             \
-    g.addEdge(eq);                                                             \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
+    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
+    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(ep);                                                     \
+    g.edges.push_back(eq);                                                     \
     return u;                                                                  \
   } while (0)
 
 #define AGOP2(ast, atype, a, b, op)                                            \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell(BOOST_PP_STRINGIZE(op),                      \
-                                  tokenName(static_cast<atype *>(ast)->op)),   \
-                         fromCell("location", ast->location().str())}));       \
-    gnodesp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gnodesp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                  \
-    gedgesp ep(                                                                \
-        new gedge(u->id(), p->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(a))}))));   \
-    gedgesp eq(                                                                \
-        new gedge(u->id(), q->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(b))}))));   \
-    g.addNode(u);                                                              \
-    g.addEdge(ep);                                                             \
-    g.addEdge(eq);                                                             \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell(BOOST_PP_STRINGIZE(op),                            \
+                            tokenName(static_cast<atype *>(ast)->op)),         \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
+    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
+    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(ep);                                                     \
+    g.edges.push_back(eq);                                                     \
     return u;                                                                  \
   } while (0)
 
 #define AG3(ast, atype, a, b, c)                                               \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell("location", ast->location().str())}));       \
-    gnodesp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gnodesp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                  \
-    gnodesp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                  \
-    gedgesp ep(                                                                \
-        new gedge(u->id(), p->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(a))}))));   \
-    gedgesp eq(                                                                \
-        new gedge(u->id(), q->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(b))}))));   \
-    gedgesp ev(                                                                \
-        new gedge(u->id(), v->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(c))}))));   \
-    g.addNode(u);                                                              \
-    g.addEdge(ep);                                                             \
-    g.addEdge(eq);                                                             \
-    g.addEdge(ev);                                                             \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
+    gnsp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                     \
+    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
+    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    gesp ev(new ge(u->id, v->id, AE_LABEL(c)));                                \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(ep);                                                     \
+    g.edges.push_back(eq);                                                     \
+    g.edges.push_back(ev);                                                     \
     return u;                                                                  \
   } while (0)
 
 #define AGOP3(ast, atype, a, b, c, op)                                         \
   do {                                                                         \
-    gnodesp u(new gnode({fromCell(BOOST_PP_STRINGIZE(op),                      \
-                                  tokenName(static_cast<atype *>(ast)->op)),   \
-                         fromCell("location", ast->location().str())}));       \
-    gnodesp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                  \
-    gnodesp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                  \
-    gnodesp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                  \
-    gedgesp ep(                                                                \
-        new gedge(u->id(), p->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(a))}))));   \
-    gedgesp eq(                                                                \
-        new gedge(u->id(), q->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(b))}))));   \
-    gedgesp ev(                                                                \
-        new gedge(u->id(), v->id(),                                            \
-                  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(c))}))));   \
-    g.addNode(u);                                                              \
-    g.addEdge(ep);                                                             \
-    g.addEdge(eq);                                                             \
-    g.addEdge(ev);                                                             \
+    gnsp u(new gn({fromCell(ast->name()),                                      \
+                   fromCell(BOOST_PP_STRINGIZE(op),                            \
+                            tokenName(static_cast<atype *>(ast)->op)),         \
+                   fromCell("location", ast->location().str())}));             \
+    gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
+    gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
+    gnsp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                     \
+    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
+    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    gesp ev(new ge(u->id, v->id, AE_LABEL(c)));                                \
+    g.nodes.push_back(u);                                                      \
+    g.edges.push_back(ep);                                                     \
+    g.edges.push_back(eq);                                                     \
+    g.edges.push_back(ev);                                                     \
     return u;                                                                  \
   } while (0)
 
-static gnodesp astDrawImpl(Ast *ast, Graph &g) {
+static gnsp astDrawImpl(Ast *ast, Graph &g) {
   if (!ast) {
     AG_NIL;
   }
@@ -455,15 +449,96 @@ AstGraph::AstGraph(Ast *ast) : ast_(ast) {}
 
 int AstGraph::draw(const Cowstr &output) {
   std::unordered_map<Cowstr, attrmap> gattr = {
-      {"node", node_attr},
-      {"edge", edge_attr},
-      {"graph", graph_attr},
+      {"node", gnode_attr},
+      {"edge", gedge_attr},
+      {"graph", ggraph_attr},
   };
   Graph g(output, gattr);
   astDrawImpl(ast_, g);
   return g.draw();
 }
 
+using scsp = std::shared_ptr<Scope>;
+
+static GraphLine drawSymbol(std::shared_ptr<Symbol> sym) {
+  if (!sym) {
+    return fromCell("nil");
+  }
+  gline l;
+  l.add("symbol");
+  l.add(fmt::format("name: {}", sym->name()));
+  if (sym->owner()) {
+    SymbolData sdata = sym->owner()->s_resolve(sym->name());
+    l.add(fmt::format("type: {}", sdata.typeSymbol->name()));
+  } else {
+    l.add("type: void");
+  }
+  l.add(fmt::format("kind: {}", sym->kind()._to_string()));
+  return l;
+}
+
+static GraphLine drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
+  if (!sym) {
+    return fromCell("nil");
+  }
+  gline l;
+  l.add(fmt::format("typeSymbol"));
+  l.add(fmt::format("name: {}", sym->name()));
+  l.add(fmt::format("kind: {}", sym->kind()._to_string()));
+  return l;
+}
+
+static gnsp symbolDrawImpl(scsp scope, Graph &g) {
+  if (!scope) {
+    AG_NIL;
+  }
+  gnsp u(new gn({fromCell(scope->name())}));
+  g.nodes.push_back(u);
+  // draw symbol
+  for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+    SymbolData sdata = i->second;
+    LOG_ASSERT(sdata.symbol, "sdata.symbol must not null");
+    switch (sdata.symbol->kind()) {
+    case SymbolKind::Var:
+    case SymbolKind::Param:
+    case SymbolKind::Field: {
+      u->label->lines.push_back(drawSymbol(sdata.symbol));
+      break;
+    }
+    case SymbolKind::Func:
+    case SymbolKind::Method:
+    case SymbolKind::Local:
+    case SymbolKind::Global: {
+      gline l = drawSymbol(sdata.symbol);
+      u->label->lines.push_back(l);
+      gnsp v =
+          symbolDrawImpl(std::dynamic_pointer_cast<Scope>(sdata.symbol), g);
+      gesp e(new ge(u->id, l.id, v->id, v->label->id()));
+      g.edges.push_back(e);
+      break;
+    }
+    default:
+      LOG_ASSERT(false, "invalid sdata.symbol type: {}",
+                 sdata.symbol->kind()._to_string());
+    }
+  }
+  // draw type symbol
+  for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+    TypeSymbolData tsdata = i->second;
+    u->label->lines.push_back(drawTypeSymbol(tsdata.typeSymbol));
+  }
+  return u;
+}
+
 SymbolGraph::SymbolGraph(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
-int SymbolGraph::draw(const Cowstr &output) { return 0; }
+int SymbolGraph::draw(const Cowstr &output) {
+  std::unordered_map<Cowstr, attrmap> gattr = {
+      {"node", gnode_attr},
+      {"edge", gedge_attr},
+      {"graph", ggraph_attr},
+  };
+  Graph g(output, gattr);
+  symbolDrawImpl(scope_, g);
+  return g.draw();
+}
