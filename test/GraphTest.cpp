@@ -10,9 +10,11 @@
 static void drawTest(const std::string &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  REQUIRE(Graph::drawAst(scanner.compileUnit(), fileName + ".ast.dot") == 0);
+  AstGraph ag(scanner.compileUnit());
+  REQUIRE(ag.draw(fileName + ".ast.dot") == 0);
   std::shared_ptr<Scope> scope = Scope::from(scanner.compileUnit());
-  REQUIRE(Graph::drawSymbol(scope, fileName + ".symbol.dot") == 0);
+  SymbolGraph sg(scope);
+  REQUIRE(sg.draw(fileName + ".symbol.dot") == 0);
 }
 
 TEST_CASE("Graph", "[Graph]") {
