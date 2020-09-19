@@ -36,175 +36,252 @@ static Cowstr nameGenerate(const Cowstr &name, const Cowstr &delimiter = "") {
   return ss.str();
 }
 
-GraphLine::GraphLine(const std::vector<Cowstr> &a_cells)
-    : id(nameGenerate("cell")) {
-  for (int i = 0; i < (int)a_cells.size(); i++) {
-    cells.push_back(TRANSLATE(a_cells[i]));
+namespace detail {
+
+/**
+ * <TD>xxx</TD>
+ * <TD PORT="id">xxx</TD>
+ */
+class GCell {
+public:
+  GCell(const Cowstr &a_value)
+      : id(nameGenerate("cell")), value(TRANSLATE(a_value)) {}
+  virtual ~GCell() = default;
+
+  Cowstr id; // PORT="id"
+  Cowstr value;
+
+  virtual Cowstr str() const {
+    return fmt::format("<TD PORT=\"{}\">{}</TD>", id, value);
   }
-}
+};
 
-void GraphLine::add(const Cowstr &cell) { cells.push_back(TRANSLATE(cell)); }
+/**
+ * <TR>xxx</TR>
+ */
+class GLine {
+public:
+  GLine(const std::vector<GCell> &a_cells = {}) : cells(a_cells) {}
+  virtual ~GLine() = default;
 
-Cowstr GraphLine::str() const {
-  std::stringstream ss;
-  ss << "        <TR><TD PORT=\"" << id << "\">";
-  if (cells.size() != 0) {
-    ss << cells[0];
-    if (cells.size() > 1) {
-      ss << ": ";
-      for (int i = 1; i < (int)cells.size(); i++) {
-        ss << cells[i];
-        if (i < (int)cells.size() - 1) {
-          ss << ", ";
+  std::vector<GCell> cells;
+
+  virtual void add(const GCell &cell) { cells.push_back(cell); }
+  virtual Cowstr str() const {
+    std::stringstream ss;
+    ss << "        <TR>";
+    for (int i = 1; i < (int)cells.size(); i++) {
+      ss << cells[i].str();
+    }
+    ss << "</TR>\n";
+    return ss.str();
+  }
+};
+
+/**
+ * <TABLE attributes> xxx </TABLE>
+ */
+class GLabel {
+public:
+  GLabel(const std::vector<GLine> &a_lines = {},
+         const std::unordered_map<Cowstr, Cowstr> &a_attributes = {
+             {"BORDER", "\"0\""},
+             {"CELLBORDER", "\"1\""},
+             {"CELLSPACING", "\"0\""},
+         });
+  virtual ~GLabel() = default;
+
+  std::vector<GLine> lines;
+  std::unordered_map<Cowstr, Cowstr> attributes;
+
+  virtual const Cowstr &id() const { return lines[0][0].id(); }
+  virtual Cowstr str() const {
+    std::stringstream ss;
+    ss << "<TABLE";
+    for (auto i = attributes.begin(); i != attributes.end(); i++) {
+      ss << " " << i->first << "=" << i->second;
+    }
+    ss << ">\n";
+    for (int i = 0; i < (int)lines.size(); i++) {
+      ss << lines[i].str();
+    }
+    ss << "</TABLE>";
+    return ss.str();
+  }
+};
+
+/**
+ * node
+ * node [label=< xxx >]
+ */
+class GNode {
+public:
+  GNode(std::shared_ptr<GLabel> a_label)
+      : id(nameGenerate("node")), label(a_label) {}
+  virtual ~GNode() = default;
+
+  Cowstr id;
+  std::shared_ptr<GLabel> label;
+
+  virtual Cowstr str() const {
+    return fmt::format("{} [label=<{}>]", id, label->str());
+  }
+};
+
+/**
+ * from -> to
+ * from -> to [label=< xxx >]
+ */
+class GEdge {
+public:
+  GEdge(std::shared_ptr<GNode> a_from, std::shared_ptr<GNode> a_to,
+        std::shared_ptr<GLabel> a_label = nullptr)
+      : fromNode(a_from), fromCell(nullptr), toNode(a_to), toCell(nullptr),
+        label(a_label) {}
+  GEdge(std::shared_ptr<GNode> a_fromNode, std::shared_ptr<GCell> a_fromCell,
+        std::shared_ptr<GNode> a_toNode, std::shared_ptr<GCell> a_toCell,
+        std::shared_ptr<GLabel> a_label = nullptr)
+      : fromNode(a_fromNode), fromCell(a_fromCell), toNode(a_toNode),
+        toCell(a_toCell), label(a_label) {}
+  virtual ~GEdge() = default;
+
+  std::shared_ptr<GNode> fromNode;
+  std::shared_ptr<GCell> fromCell;
+  std::shared_ptr<GNode> toNode;
+  std::shared_ptr<GCell> toCell;
+  std::shared_ptr<GLabel> label;
+
+  virtual Cowstr str() const {
+    std::stringstream ss;
+    ss << fromNode->str();
+    if (fromCell) {
+      ss << ":" << fromCell->str();
+    }
+    ss << " -> " << toNode->str();
+    if (toCell) {
+      ss << ":" << toCell->str();
+    }
+    if (label) {
+      ss << " [label=<" << label->str() << ">]";
+    }
+    return ss.str();
+  }
+};
+
+/**
+ * digraph nerd {
+ *   node [ attributes ]
+ *   edge [ attributes ]
+ *   graph [ attributes ]
+ *
+ *   node1 [label=< xxx >]
+ *   node2 [label=< xxx >]
+ *   ...
+ *
+ *   node1 -> node2 [label=< xxx >]
+ *   node3 -> node3 [label=< xxx >]
+ *   ...
+ * }
+ */
+class Graph {
+public:
+  Graph(const Cowstr &a_fileName,
+        const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
+            &a_attributes =
+                {
+                    {
+                        "node",
+                        {
+                            {"shape", "record"},
+                            {"fontname", "\"Courier New, Courier\""},
+                            {"fontsize", "12"},
+                        },
+                    },
+                    {
+                        "edge",
+                        {
+                            {"fontname", "\"Courier New, Courier\""},
+                            {"fontsize", "12"},
+                        },
+                    },
+                    {
+                        "graph",
+                        {
+                            {"fontname", "\"Courier New, Courier\""},
+                            {"fontsize", "12"},
+                        },
+                    },
+                })
+      : fileName(a_fileName), attributes(a_attributes) {}
+  virtual ~Graph() = default;
+
+  Cowstr fileName;
+  std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>> attributes;
+  std::vector<std::shared_ptr<GNode>> nodes;
+  std::vector<std::shared_ptr<GEdge>> edges;
+
+  virtual int draw() {
+    FileWriter fwriter(fileName_);
+    fwriter.writeln("digraph {");
+    for (auto i = attributes.begin(); i != attributes.end(); i++) {
+      fwriter.write(fmt::format("    {} [", i->first));
+      int c = 0;
+      for (auto j = i->second.begin(); j != i->second.end(); j++, c++) {
+        fwriter.write(fmt::format("{}={}", j->first, j->second));
+        if (c < (int)i->second.size() - 1) {
+          fwriter.write(", ");
         }
       }
+      fwriter.writeln("]");
     }
-  }
-  ss << "</TD></TR>";
-  return ss.str();
-}
-
-GraphLabel::GraphLabel(const std::vector<GraphLine> &a_lines,
-                       const std::unordered_map<Cowstr, Cowstr> &a_attributes)
-    : lines(a_lines), attributes(a_attributes) {}
-
-const Cowstr &GraphLabel::id() const {
-  LOG_ASSERT(!lines.empty(), "lines must not empty");
-  return lines[0].id;
-}
-
-Cowstr GraphLabel::str() const {
-  std::stringstream ss;
-  ss << "<TABLE";
-  for (auto i = attributes.begin(); i != attributes.end(); i++) {
-    ss << " " << i->first << "=" << i->second;
-  }
-  ss << ">\n";
-  for (int i = 0; i < (int)lines.size(); i++) {
-    ss << lines[i].str();
-    if (i < (int)lines.size() - 1) {
-      ss << "\n";
+    fwriter.writeln();
+    for (auto i = nodes.begin(); i != nodes.end(); i++) {
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
     }
-  }
-  ss << "</TABLE>";
-  return ss.str();
-}
-
-GraphNode::GraphNode(const std::vector<GraphLine> &a_lines,
-                     const std::unordered_map<Cowstr, Cowstr> &a_attributes)
-    : id(nameGenerate("node")), label(new GraphLabel(a_lines, a_attributes)) {}
-
-Cowstr GraphNode::str() const {
-  std::stringstream ss;
-  ss << id.str();
-  ss << " [label=<";
-  ss << label->str();
-  ss << ">]";
-  return ss.str();
-}
-
-GraphEdge::GraphEdge(const Cowstr &from, const Cowstr &to,
-                     std::shared_ptr<GraphLabel> label)
-    : from_(from), to_(to), label_(label) {}
-
-GraphEdge::GraphEdge(const Cowstr &fromNode, const Cowstr &fromField,
-                     const Cowstr &toNode, const Cowstr &toField,
-                     std::shared_ptr<GraphLabel> label)
-    : from_(fmt::format("{}:{}", fromNode, fromField)),
-      to_(fmt::format("{}:{}", toNode, toField)), label_(label) {}
-
-Cowstr GraphEdge::str() const {
-  std::stringstream ss;
-  ss << from_ << " -> " << to_;
-  if (label_) {
-    ss << " [label=<";
-    ss << label_->str();
-    ss << " >]";
-  }
-  return ss.str();
-}
-
-Graph::Graph(
-    const Cowstr &fileName,
-    const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
-        &a_attributes)
-    : attributes(a_attributes), fileName_(fileName) {}
-
-int Graph::draw() {
-  FileWriter fwriter(fileName_);
-  fwriter.writeln("digraph {");
-  for (auto i = attributes.begin(); i != attributes.end(); i++) {
-    fwriter.write(fmt::format("    {} [", i->first));
-    int c = 0;
-    for (auto j = i->second.begin(); j != i->second.end(); j++, c++) {
-      fwriter.write(fmt::format("{}={}", j->first, j->second));
-      if (c < (int)i->second.size() - 1) {
-        fwriter.write(", ");
-      }
+    fwriter.write("\n");
+    for (auto i = edges.begin(); i != edges.end(); i++) {
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
     }
-    fwriter.writeln("]");
+    fwriter.writeln("}");
+    fwriter.flush();
+    return 0;
   }
-  fwriter.writeln();
-  for (auto i = nodes.begin(); i != nodes.end(); i++) {
-    fwriter.writeln(fmt::format("    {}", (*i)->str()));
-  }
-  fwriter.write("\n");
-  for (auto i = edges.begin(); i != edges.end(); i++) {
-    fwriter.writeln(fmt::format("    {}", (*i)->str()));
-  }
-  fwriter.writeln("}");
-  fwriter.flush();
-  return 0;
-}
+};
+
+} // namespace detail
 
 using attrmap = std::unordered_map<Cowstr, Cowstr>;
 
-using gn = GraphNode;
+using gc = GCell;
+using gcsp = std::shared_ptr<GCell>;
+using gli = GLine;
+using glisp = std::shared_ptr<GLine>;
+using gla = GLabel;
+using glasp = std::shared_ptr<GLabel>;
+using gn = GNode;
 using gnsp = std::shared_ptr<gn>;
-using ge = GraphEdge;
-using gesp = std::shared_ptr<GraphEdge>;
-using glabel = GraphLabel;
-using glabelsp = std::shared_ptr<glabel>;
-using gline = GraphLine;
-using glinesp = std::shared_ptr<gline>;
+using ge = GEdge;
+using gesp = std::shared_ptr<GEdge>;
 
-const static attrmap gnode_attr = {
-    {"shape", "record"},
-    {"fontname", "\"Courier New, Courier\""},
-    {"fontsize", "12"},
-};
-
-const static attrmap gedge_attr = {
-    {"fontname", "\"Courier New, Courier\""},
-    {"fontsize", "12"},
-};
-
-const static attrmap ggraph_attr = {
-    {"fontname", "\"Courier New, Courier\""},
-    {"fontsize", "12"},
-};
-
-const static attrmap agelabel_attr = {
+const static attrmap edge_label_attr = {
     {"BORDER", "\"0\""},
     {"CELLBORDER", "\"0\""},
     {"CELLSPACING", "\"0\""},
 };
 
-static gline fromCell(const Cowstr &a) {
-  gline l;
-  l.add(a);
-  return l;
+static gli fromCell(const Cowstr &a) {
+  gc gca(a);
+  return gli({gca});
 }
 
-static gline fromCell(const Cowstr &a, const Cowstr &b) {
-  gline l;
-  l.add(a);
-  l.add(b);
-  return l;
+static gli fromCell(const Cowstr &a, const Cowstr &b) {
+  gc gca(a);
+  gc gcb(b);
+  return gli({gca, gcb});
 }
 
 #define AE_LABEL(x)                                                            \
-  glabelsp(new glabel({fromCell(BOOST_PP_STRINGIZE(x))}, agelabel_attr))
+  glasp(new gla({fromCell(BOOST_PP_STRINGIZE(x))}, edge_label_attr))
 
 #define AG_NIL                                                                 \
   do {                                                                         \
@@ -245,7 +322,7 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
     gnsp u(new gn({fromCell(ast->name()),                                      \
                    fromCell("location", ast->location().str())}));             \
     gnsp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
-    gesp e(new ge(u->id, v->id));                                              \
+    gesp e(new ge(u, v));                                                      \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
     return u;                                                                  \
@@ -258,7 +335,7 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
                             tokenName(static_cast<atype *>(ast)->op)),         \
                    fromCell("location", ast->location().str())}));             \
     gnsp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
-    gesp e(new ge(u->id, v->id, AE_LABEL(a)));                                 \
+    gesp e(new ge(u, v, AE_LABEL(a)));                                         \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
     return u;                                                                  \
@@ -270,8 +347,8 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
                    fromCell("location", ast->location().str())}));             \
     gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
     gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
-    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
-    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    gesp ep(new ge(u, p, AE_LABEL(a)));                                        \
+    gesp eq(new ge(u, q, AE_LABEL(b)));                                        \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -286,8 +363,8 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
                    fromCell("location", ast->location().str())}));             \
     gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
     gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
-    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
-    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
+    gesp ep(new ge(u, p, AE_LABEL(a)));                                        \
+    gesp eq(new ge(u, q, AE_LABEL(b)));                                        \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -301,9 +378,9 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
     gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
     gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
     gnsp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                     \
-    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
-    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
-    gesp ev(new ge(u->id, v->id, AE_LABEL(c)));                                \
+    gesp ep(new ge(u, p, AE_LABEL(a)));                                        \
+    gesp eq(new ge(u, q, AE_LABEL(b)));                                        \
+    gesp ev(new ge(u, v, AE_LABEL(c)));                                        \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -320,9 +397,9 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
     gnsp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                     \
     gnsp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                     \
     gnsp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                     \
-    gesp ep(new ge(u->id, p->id, AE_LABEL(a)));                                \
-    gesp eq(new ge(u->id, q->id, AE_LABEL(b)));                                \
-    gesp ev(new ge(u->id, v->id, AE_LABEL(c)));                                \
+    gesp ep(new ge(u, p, AE_LABEL(a)));                                        \
+    gesp eq(new ge(u, q, AE_LABEL(b)));                                        \
+    gesp ev(new ge(u, v, AE_LABEL(c)));                                        \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -330,7 +407,7 @@ static gline fromCell(const Cowstr &a, const Cowstr &b) {
     return u;                                                                  \
   } while (0)
 
-static gnsp astDrawImpl(Ast *ast, Graph &g) {
+static gnsp astDrawImpl(Ast *ast, detail::Graph &g) {
   if (!ast) {
     AG_NIL;
   }
@@ -448,47 +525,46 @@ static gnsp astDrawImpl(Ast *ast, Graph &g) {
 AstGraph::AstGraph(Ast *ast) : ast_(ast) {}
 
 int AstGraph::draw(const Cowstr &output) {
-  std::unordered_map<Cowstr, attrmap> gattr = {
-      {"node", gnode_attr},
-      {"edge", gedge_attr},
-      {"graph", ggraph_attr},
-  };
-  Graph g(output, gattr);
+  detail::Graph g(output);
   astDrawImpl(ast_, g);
   return g.draw();
 }
 
 using scsp = std::shared_ptr<Scope>;
+using symsp = std::shared_ptr<Symbol>;
+using tsymsp = std::shared_ptr<TypeSymbol>;
 
-static GraphLine drawSymbol(std::shared_ptr<Symbol> sym) {
+static GLine drawSymbol(symsp sym) {
   if (!sym) {
     return fromCell("nil");
   }
-  gline l;
-  l.add("symbol");
-  l.add(fmt::format("name: {}", sym->name()));
+  gli l;
+  l.add(gc("symbol"));
+  l.add(gc(fmt::format("name: {}", sym->name())));
   if (sym->owner()) {
     SymbolData sdata = sym->owner()->s_resolve(sym->name());
-    l.add(fmt::format("type: {}", sdata.typeSymbol->name()));
+    l.add(gc(fmt::format("type: {}", sdata.typeSymbol->name())));
   } else {
-    l.add("type: void");
+    l.add(gc("type: void"));
   }
-  l.add(fmt::format("kind: {}", sym->kind()._to_string()));
+  l.add(gc(fmt::format("kind: {}", sym->kind()._to_string())));
+  l.add(gc(fmt::format("location: {}", sym->location().str())));
   return l;
 }
 
-static GraphLine drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
+static GLine drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
   if (!sym) {
     return fromCell("nil");
   }
-  gline l;
-  l.add(fmt::format("typeSymbol"));
-  l.add(fmt::format("name: {}", sym->name()));
-  l.add(fmt::format("kind: {}", sym->kind()._to_string()));
+  gli l;
+  l.add(gc("typeSymbol"));
+  l.add(gc(fmt::format("name: {}", sym->name())));
+  l.add(gc(fmt::format("kind: {}", sym->kind()._to_string())));
+  l.add(gc(fmt::format("location: {}", sym->location().str())));
   return l;
 }
 
-static gnsp symbolDrawImpl(scsp scope, Graph &g) {
+static gnsp symbolDrawImpl(scsp scope, detail::Graph &g) {
   if (!scope) {
     AG_NIL;
   }
@@ -509,11 +585,12 @@ static gnsp symbolDrawImpl(scsp scope, Graph &g) {
     case SymbolKind::Method:
     case SymbolKind::Local:
     case SymbolKind::Global: {
-      gline l = drawSymbol(sdata.symbol);
+      gli l = drawSymbol(sdata.symbol);
       u->label->lines.push_back(l);
       gnsp v =
           symbolDrawImpl(std::dynamic_pointer_cast<Scope>(sdata.symbol), g);
-      gesp e(new ge(u->id, l.id, v->id, v->label->id()));
+      glasp elabel(new gla({fromCell(sdata.symbol->name())}, edge_label_attr));
+      gesp e(new ge(u, l[0], v, v->label->lines[0], elabel));
       g.edges.push_back(e);
       break;
     }
@@ -533,12 +610,7 @@ static gnsp symbolDrawImpl(scsp scope, Graph &g) {
 SymbolGraph::SymbolGraph(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
 int SymbolGraph::draw(const Cowstr &output) {
-  std::unordered_map<Cowstr, attrmap> gattr = {
-      {"node", gnode_attr},
-      {"edge", gedge_attr},
-      {"graph", ggraph_attr},
-  };
-  Graph g(output, gattr);
+  detail::Graph g(output);
   symbolDrawImpl(scope_, g);
   return g.draw();
 }
