@@ -89,11 +89,13 @@ public:
 class GLabel {
 public:
   GLabel(const std::vector<GLine> &a_lines = {},
-         const std::unordered_map<Cowstr, Cowstr> &a_attributes = {
-             {"BORDER", "\"0\""},
-             {"CELLBORDER", "\"1\""},
-             {"CELLSPACING", "\"0\""},
-         });
+         const std::unordered_map<Cowstr, Cowstr> &a_attributes =
+             {
+                 {"BORDER", "\"0\""},
+                 {"CELLBORDER", "\"1\""},
+                 {"CELLSPACING", "\"0\""},
+             })
+      : lines(a_lines), attributes(a_attributes) {}
   virtual ~GLabel() = default;
 
   std::vector<GLine> lines;
