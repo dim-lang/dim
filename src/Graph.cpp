@@ -342,7 +342,7 @@ static glap newGLabel(const gli &a,
   return label;
 }
 
-#define AE_LABEL(x) newGLabel(newGLine(BOOST_PP_STRINGIZE(x)), edge_label_attr)
+#define LABEL(x) newGLabel(newGLine(BOOST_PP_STRINGIZE(x)), edge_label_attr)
 
 #define AG_NIL                                                                 \
   do {                                                                         \
@@ -397,7 +397,7 @@ static glap newGLabel(const gli &a,
                               tokenName(static_cast<atype *>(ast)->op)),       \
                      newGLine("location", ast->location().str()));             \
     gnp v = astDrawImpl(static_cast<atype *>(ast)->a, g);                      \
-    gep e(new ge(u, v, AE_LABEL(a)));                                          \
+    gep e(new ge(u, v, LABEL(a)));                                             \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
     return u;                                                                  \
@@ -409,8 +409,8 @@ static glap newGLabel(const gli &a,
                      newGLine("location", ast->location().str()));             \
     gnp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                      \
     gnp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                      \
-    gep ep(new ge(u, p, AE_LABEL(a)));                                         \
-    gep eq(new ge(u, q, AE_LABEL(b)));                                         \
+    gep ep(new ge(u, p, LABEL(a)));                                            \
+    gep eq(new ge(u, q, LABEL(b)));                                            \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -425,8 +425,8 @@ static glap newGLabel(const gli &a,
                      newGLine("location", ast->location().str()));             \
     gnp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                      \
     gnp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                      \
-    gep ep(new ge(u, p, AE_LABEL(a)));                                         \
-    gep eq(new ge(u, q, AE_LABEL(b)));                                         \
+    gep ep(new ge(u, p, LABEL(a)));                                            \
+    gep eq(new ge(u, q, LABEL(b)));                                            \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -440,9 +440,9 @@ static glap newGLabel(const gli &a,
     gnp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                      \
     gnp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                      \
     gnp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                      \
-    gep ep(new ge(u, p, AE_LABEL(a)));                                         \
-    gep eq(new ge(u, q, AE_LABEL(b)));                                         \
-    gep ev(new ge(u, v, AE_LABEL(c)));                                         \
+    gep ep(new ge(u, p, LABEL(a)));                                            \
+    gep eq(new ge(u, q, LABEL(b)));                                            \
+    gep ev(new ge(u, v, LABEL(c)));                                            \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -459,9 +459,9 @@ static glap newGLabel(const gli &a,
     gnp p = astDrawImpl(static_cast<atype *>(ast)->a, g);                      \
     gnp q = astDrawImpl(static_cast<atype *>(ast)->b, g);                      \
     gnp v = astDrawImpl(static_cast<atype *>(ast)->c, g);                      \
-    gep ep(new ge(u, p, AE_LABEL(a)));                                         \
-    gep eq(new ge(u, q, AE_LABEL(b)));                                         \
-    gep ev(new ge(u, v, AE_LABEL(c)));                                         \
+    gep ep(new ge(u, p, LABEL(a)));                                            \
+    gep eq(new ge(u, q, LABEL(b)));                                            \
+    gep ev(new ge(u, v, LABEL(c)));                                            \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
