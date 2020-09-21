@@ -183,7 +183,7 @@ public:
     }
     ss << " -> " << toNode->id;
     if (toCell) {
-      ss << ":" << toCell->id;
+      ss << ":" << toCell->id << ":n";
     }
     if (label) {
       ss << " [label=<" << label->str() << ">]";
