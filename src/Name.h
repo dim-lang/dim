@@ -4,9 +4,6 @@
 #pragma once
 #include "container/Cowstr.h"
 
-class Ast;
-class Symbol;
-
 class Nameable {
 public:
   Nameable();
