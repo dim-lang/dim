@@ -13,8 +13,4 @@ TEST_CASE("Name", "[Name]") {
     REQUIRE(a2.name().length() == 2);
     REQUIRE(a2.name().str() == "a2");
   }
-  SECTION("NameGenerator") {
-    AstGraphNameGenerator g1;
-    LOG_INFO("g1.from:{} -> {}", "hello", g1.from("hello"));
-  }
 }

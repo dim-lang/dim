@@ -381,17 +381,16 @@ static glap newGLabel(const gli &a,
 
 #define AG_LITERAL(ast, atype)                                                 \
   do {                                                                         \
-    gnp u =                                                                    \
-        newGNode(newGLine(ast->name()),                                        \
-                 newGLine("literal", static_cast<atype *>(ast)->literal()),    \
-                 newGLine("location", ast->location().str()));                 \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
+                     newGLine("literal", ast->name()),                         \
+                     newGLine("location", ast->location().str()));             \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG_LOCATION(ast)                                                       \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine("location", ast->location().str()));             \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
@@ -399,7 +398,7 @@ static glap newGLabel(const gli &a,
 
 #define AGOP(ast, atype, op)                                                   \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine(BOOST_PP_STRINGIZE(op),                          \
                               tokenName(static_cast<atype *>(ast)->op)),       \
                      newGLine("location", ast->location().str()));             \
@@ -409,7 +408,7 @@ static glap newGLabel(const gli &a,
 
 #define AG1(ast, atype, a)                                                     \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine("location", ast->location().str()));             \
     gnp v = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gep e(new ge(u, v));                                                       \
@@ -420,7 +419,7 @@ static glap newGLabel(const gli &a,
 
 #define AGOP1(ast, atype, a, op)                                               \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine(BOOST_PP_STRINGIZE(op),                          \
                               tokenName(static_cast<atype *>(ast)->op)),       \
                      newGLine("location", ast->location().str()));             \
@@ -433,7 +432,7 @@ static glap newGLabel(const gli &a,
 
 #define AG2(ast, atype, a, b)                                                  \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine("location", ast->location().str()));             \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
@@ -447,7 +446,7 @@ static glap newGLabel(const gli &a,
 
 #define AGOP2(ast, atype, a, b, op)                                            \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine(BOOST_PP_STRINGIZE(op),                          \
                               tokenName(static_cast<atype *>(ast)->op)),       \
                      newGLine("location", ast->location().str()));             \
@@ -463,7 +462,7 @@ static glap newGLabel(const gli &a,
 
 #define AG3(ast, atype, a, b, c)                                               \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine("location", ast->location().str()));             \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
@@ -480,7 +479,7 @@ static glap newGLabel(const gli &a,
 
 #define AGOP3(ast, atype, a, b, c, op)                                         \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->name()),                                    \
+    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
                      newGLine(BOOST_PP_STRINGIZE(op),                          \
                               tokenName(static_cast<atype *>(ast)->op)),       \
                      newGLine("location", ast->location().str()));             \

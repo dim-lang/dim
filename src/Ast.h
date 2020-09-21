@@ -132,7 +132,6 @@ public:
   virtual ~A_Integer() = default;
   virtual AstKind kind() const;
 
-  virtual const Cowstr &literal() const;
   virtual int bits() const;
   virtual int base() const;
   virtual DecimalKind decimalKind() const;
@@ -143,7 +142,6 @@ public:
   virtual uint64_t asUInt64() const;
 
 private:
-  Cowstr literal_;
   Cowstr parsed_;
   int bits_;
   int base_;
@@ -162,14 +160,12 @@ public:
   virtual ~A_Float() = default;
   virtual AstKind kind() const;
 
-  virtual const Cowstr &literal() const;
   virtual int bits() const;
   virtual BitKind bitKind() const;
   virtual float asFloat() const;
   virtual double asDouble() const;
 
 private:
-  Cowstr literal_;
   Cowstr parsed_;
   int bits_;
   BitKind bitKind_;
@@ -187,12 +183,10 @@ public:
   virtual ~A_String() = default;
   virtual AstKind kind() const;
 
-  virtual const Cowstr &literal() const;
   virtual QuoteKind quoteKind() const;
   virtual const Cowstr &asString() const;
 
 private:
-  Cowstr literal_;
   Cowstr parsed_;
   QuoteKind quoteKind_;
 };
@@ -203,11 +197,9 @@ public:
   virtual ~A_Character() = default;
   virtual AstKind kind() const;
 
-  virtual const Cowstr &literal() const;
   virtual char asChar() const;
 
 private:
-  Cowstr literal_;
   char parsed_;
 };
 
@@ -217,11 +209,9 @@ public:
   virtual ~A_Boolean() = default;
   virtual AstKind kind() const;
 
-  virtual const Cowstr &literal() const;
   virtual bool asBoolean() const;
 
 private:
-  Cowstr literal_;
   bool parsed_;
 };
 
@@ -248,11 +238,6 @@ public:
   A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
-
-  virtual const Cowstr &literal() const;
-
-private:
-  Cowstr literal_;
 };
 
 // id }

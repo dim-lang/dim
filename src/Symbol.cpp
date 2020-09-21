@@ -3,6 +3,7 @@
 
 #include "Symbol.h"
 #include "Ast.h"
+#include "Counter.h"
 #include "Location.h"
 #include "Log.h"
 #include "Name.h"
@@ -223,7 +224,12 @@ using sptr = std::shared_ptr<Symbol>;
 using tsptr = std::shared_ptr<TypeSymbol>;
 using scptr = std::shared_ptr<Scope>;
 
-static SymbolNameGenerator nameGenerator;
+static Cowstr nameGenerate(const Cowstr &hint, const Cowstr &delimiter = ".") {
+  static Counter counter;
+  std::stringstream ss;
+  ss << hint << delimiter << counter.next();
+  return ss.str();
+}
 
 static Cowstr generateFuncTypeName(const std::vector<tsptr> &paramTypes,
                                    tsptr resultType) {
@@ -277,7 +283,7 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_FuncDef *e = static_cast<A_FuncDef *>(ast);
     A_FuncSign *sign = static_cast<A_FuncSign *>(e->funcSign);
     A_VarId *varId = static_cast<A_VarId *>(sign->id);
-    sptr s_func(new S_Func(varId->literal(), e->location(), scope));
+    sptr s_func(new S_Func(varId->name(), e->location(), scope));
     std::vector<std::shared_ptr<TypeSymbol>> paramTypes;
     for (A_Params *params = sign->params; params; params = params->next) {
       LOG_ASSERT(params->param, "params->param must not null: {}",
@@ -314,7 +320,7 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_Param *e = static_cast<A_Param *>(ast);
     A_VarId *varId = static_cast<A_VarId *>(e->id);
     A_PlainType *plainType = static_cast<A_PlainType *>(e->type);
-    sptr s_param(new S_Param(varId->literal(), e->location(), scope));
+    sptr s_param(new S_Param(varId->name(), e->location(), scope));
     LOG_ASSERT(scope->isSymbol(), "scope must be symbol");
     LOG_ASSERT(std::dynamic_pointer_cast<Symbol>(scope)->kind() ==
                    (+SymbolKind::Func),
@@ -333,7 +339,7 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_VarDef *e = static_cast<A_VarDef *>(ast);
     A_VarId *varId = static_cast<A_VarId *>(e->id);
     A_PlainType *varType = static_cast<A_PlainType *>(e->type);
-    sptr s_var(new S_Var(varId->literal(), e->location(), scope));
+    sptr s_var(new S_Var(varId->name(), e->location(), scope));
     TypeSymbolData tsdata = scope->ts_resolve(tokenName(varType->token));
     tsptr ts_var = tsdata.typeSymbol;
     scope->s_define(s_var, ts_var);
@@ -341,8 +347,7 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
   }
   case AstKind::Block: {
     A_Block *e = static_cast<A_Block *>(ast);
-    sptr s_local(
-        new S_Local(nameGenerator.from("local"), e->location(), scope));
+    sptr s_local(new S_Local(nameGenerate("local"), e->location(), scope));
     TypeSymbolData tsdata = scope->ts_resolve("void");
     tsptr ts_local = tsdata.typeSymbol;
     scope->s_define(s_local, ts_local);

@@ -124,14 +124,13 @@ static const std::unordered_map<A_Integer::BitKind, Cowstr> AIL_BC_Map = {
 };
 
 A_Integer::A_Integer(const Cowstr &literal, const Location &location)
-    : Ast("integerLiteral", location), literal_(literal) {
-  LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
-             literal_.length());
+    : Ast(literal, location) {
+  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
   std::vector<Cowstr> decimalPrefix = {"0x", "0X", "0o", "0O", "0b", "0B"};
-  if (literal_.startWithAnyOf(decimalPrefix.begin(), decimalPrefix.end())) {
-    switch (literal_[1]) {
+  if (literal.startWithAnyOf(decimalPrefix.begin(), decimalPrefix.end())) {
+    switch (literal[1]) {
     case 'x':
     case 'X':
       decimalKind_ = A_Integer::DecimalKind::HEX;
@@ -159,35 +158,33 @@ A_Integer::A_Integer(const Cowstr &literal, const Location &location)
     startPosition = 0;
   }
 
-  int endPosition = (int)literal_.length();
+  int endPosition = (int)literal.length();
   std::vector<Cowstr> bitPostfix = {"ul", "UL", "uL", "Ul"};
   std::vector<Cowstr> longPostfix = {"l", "L"};
   std::vector<Cowstr> unsignedPostfix = {"u", "U"};
-  if (literal_.endWithAnyOf(bitPostfix.begin(), bitPostfix.end())) {
+  if (literal.endWithAnyOf(bitPostfix.begin(), bitPostfix.end())) {
     bitKind_ = A_Integer::BitKind::ULONG;
     bits_ = 64;
-    endPosition = (int)literal_.length() - 2;
-  } else if (literal_.endWithAnyOf(longPostfix.begin(), longPostfix.end())) {
+    endPosition = (int)literal.length() - 2;
+  } else if (literal.endWithAnyOf(longPostfix.begin(), longPostfix.end())) {
     bitKind_ = A_Integer::BitKind::LONG;
     bits_ = 64;
-    endPosition = (int)literal_.length() - 1;
-  } else if (literal_.endWithAnyOf(unsignedPostfix.begin(),
-                                   unsignedPostfix.end())) {
+    endPosition = (int)literal.length() - 1;
+  } else if (literal.endWithAnyOf(unsignedPostfix.begin(),
+                                  unsignedPostfix.end())) {
     bitKind_ = A_Integer::BitKind::UNSIGNED;
     bits_ = 32;
-    endPosition = (int)literal_.length() - 1;
+    endPosition = (int)literal.length() - 1;
   } else {
     bitKind_ = A_Integer::BitKind::SIGNED;
     bits_ = 32;
-    endPosition = (int)literal_.length();
+    endPosition = (int)literal.length();
   }
 
-  parsed_ = literal_.subString(startPosition, endPosition - startPosition);
+  parsed_ = literal.subString(startPosition, endPosition - startPosition);
 }
 
 AstKind A_Integer::kind() const { return AstKind::Integer; }
-
-const Cowstr &A_Integer::literal() const { return literal_; }
 
 int A_Integer::bits() const { return bits_; }
 
@@ -223,29 +220,26 @@ const static std::unordered_map<A_Float::BitKind, Cowstr> AFL_BC_Map = {
 };
 
 A_Float::A_Float(const Cowstr &literal, const Location &location)
-    : Ast("floatLiteral", location), literal_(literal) {
-  LOG_ASSERT(literal_.length() > 0, "literal_.length {} > 0",
-             literal_.length());
+    : Ast(literal, location) {
+  LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
 
   int startPosition = 0;
-  int endPosition = (int)literal_.length();
+  int endPosition = (int)literal.length();
   std::vector<Cowstr> doublePostfix = {"d", "D"};
-  if (literal_.endWithAnyOf(doublePostfix.begin(), doublePostfix.end())) {
+  if (literal.endWithAnyOf(doublePostfix.begin(), doublePostfix.end())) {
     bitKind_ = A_Float::BitKind::DBL;
     bits_ = 64;
-    endPosition = (int)literal_.length();
+    endPosition = (int)literal.length();
   } else {
     bitKind_ = A_Float::BitKind::FLT;
     bits_ = 32;
-    endPosition = (int)literal_.length() - 1;
+    endPosition = (int)literal.length() - 1;
   }
 
-  parsed_ = literal_.subString(startPosition, endPosition - startPosition);
+  parsed_ = literal.subString(startPosition, endPosition - startPosition);
 }
 
 AstKind A_Float::kind() const { return AstKind::Float; }
-
-const Cowstr &A_Float::literal() const { return literal_; }
 
 int A_Float::bits() const { return bits_; }
 
@@ -265,21 +259,19 @@ const static std::unordered_map<A_String::QuoteKind, Cowstr> ASL_QC_Map = {
 };
 
 A_String::A_String(const Cowstr &literal, const Location &location)
-    : Ast("stringLiteral", location), literal_(literal) {
+    : Ast(literal, location) {
   std::vector<Cowstr> multiplePrefix = {"\"\"\""};
-  if (literal_.length() >= 3 &&
-      literal_.startWithAnyOf(multiplePrefix.begin(), multiplePrefix.end())) {
-    parsed_ = literal_.subString(3, literal_.length() - 6);
+  if (literal.length() >= 3 &&
+      literal.startWithAnyOf(multiplePrefix.begin(), multiplePrefix.end())) {
+    parsed_ = literal.subString(3, literal.length() - 6);
     quoteKind_ = A_String::QuoteKind::TRIPLE;
   } else {
-    parsed_ = literal_.subString(1, literal_.length() - 2);
+    parsed_ = literal.subString(1, literal.length() - 2);
     quoteKind_ = A_String::QuoteKind::SINGLE;
   }
 }
 
 AstKind A_String::kind() const { return AstKind::String; }
-
-const Cowstr &A_String::literal() const { return literal_; }
 
 A_String::QuoteKind A_String::quoteKind() const { return quoteKind_; }
 
@@ -290,12 +282,9 @@ const Cowstr &A_String::asString() const { return parsed_; }
 // A_Character {
 
 A_Character::A_Character(const Cowstr &literal, const Location &location)
-    : Ast("characterLiteral", location), literal_(literal),
-      parsed_(literal[1]) {}
+    : Ast(literal, location), parsed_(literal[1]) {}
 
 AstKind A_Character::kind() const { return AstKind::Character; }
-
-const Cowstr &A_Character::literal() const { return literal_; }
 
 char A_Character::asChar() const { return parsed_; }
 
@@ -304,12 +293,9 @@ char A_Character::asChar() const { return parsed_; }
 // A_Boolean {
 
 A_Boolean::A_Boolean(const Cowstr &literal, const Location &location)
-    : Ast("booleanLiteral", location), literal_(literal),
-      parsed_(literal == "true") {}
+    : Ast(literal, location), parsed_(literal == "true") {}
 
 AstKind A_Boolean::kind() const { return AstKind::Boolean; }
-
-const Cowstr &A_Boolean::literal() const { return literal_; }
 
 bool A_Boolean::asBoolean() const { return parsed_; }
 
@@ -338,11 +324,9 @@ AstKind A_Void::kind() const { return AstKind::Void; }
 // A_VarId {
 
 A_VarId::A_VarId(const Cowstr &literal, const Location &location)
-    : Ast("varId", location), literal_(literal) {}
+    : Ast(literal, location) {}
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
-
-const Cowstr &A_VarId::literal() const { return literal_; }
 
 // A_VarId }
 
@@ -413,7 +397,8 @@ AstKind A_Assign::kind() const { return AstKind::Assign; }
 
 A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
                              const Location &location)
-    : Ast("postfixExpr", location), expr(a_expr), postfixOp(a_postfixOp) {
+    : Ast(Cowstr("postfix") + tokenName(a_postfixOp), location), expr(a_expr),
+      postfixOp(a_postfixOp) {
   LOG_ASSERT(expr, "expr must not null");
 }
 
@@ -427,8 +412,8 @@ AstKind A_PostfixExpr::kind() const { return AstKind::PostfixExpr; }
 
 A_InfixExpr::A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
                          const Location &location)
-    : Ast("infixExpr", location), left(a_left), infixOp(a_infixOp),
-      right(a_right) {
+    : Ast(Cowstr("infix") + tokenName(a_infixOp), location), left(a_left),
+      infixOp(a_infixOp), right(a_right) {
   LOG_ASSERT(left, "left must not null");
   LOG_ASSERT(right, "right must not null");
 }
@@ -446,7 +431,8 @@ AstKind A_InfixExpr::kind() const { return AstKind::InfixExpr; }
 
 A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
                            const Location &location)
-    : Ast("prefixExpr", location), prefixOp(a_prefixOp), expr(a_expr) {
+    : Ast(Cowstr("prefix") + tokenName(a_prefixOp), location),
+      prefixOp(a_prefixOp), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
 }
 
@@ -575,7 +561,7 @@ AstKind A_LoopEnumerator::kind() const { return AstKind::LoopEnumerator; }
 // A_DoWhile {
 
 A_DoWhile::A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location)
-    : Ast("dowhile", location), body(a_body), condition(a_condition) {
+    : Ast("doWhile", location), body(a_body), condition(a_condition) {
   LOG_ASSERT(body, "body must not null");
   LOG_ASSERT(condition, "condition must not null");
 }
