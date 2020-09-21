@@ -91,13 +91,8 @@ public:
  */
 class GLabel {
 public:
-  GLabel(const std::vector<GLine> &a_lines = {},
-         const std::unordered_map<Cowstr, Cowstr> &a_attributes =
-             {
-                 {"BORDER", "\"0\""},
-                 {"CELLBORDER", "\"1\""},
-                 {"CELLSPACING", "\"0\""},
-             })
+  GLabel(const std::vector<GLine> &a_lines,
+         const std::unordered_map<Cowstr, Cowstr> &a_attributes)
       : lines(a_lines), attributes(a_attributes) {}
   virtual ~GLabel() = default;
 
@@ -158,8 +153,13 @@ public:
 class GEdge {
 public:
   GEdge(std::shared_ptr<GNode> a_from, std::shared_ptr<GNode> a_to,
-        std::shared_ptr<GLabel> a_label = nullptr)
+        std::shared_ptr<GLabel> a_label)
       : fromNode(a_from), fromCell(nullptr), toNode(a_to), toCell(nullptr),
+        label(a_label) {}
+  GEdge(std::shared_ptr<GNode> a_from, std::shared_ptr<GCell> a_fromCell,
+        std::shared_ptr<GNode> a_to, std::shared_ptr<GCell> a_toCell,
+        std::shared_ptr<GLabel> a_label)
+      : fromNode(a_from), fromCell(a_fromCell), toNode(a_to), toCell(a_toCell),
         label(a_label) {}
   virtual ~GEdge() = default;
 
@@ -211,31 +211,7 @@ class Graph {
 public:
   Graph(const Cowstr &a_fileName,
         const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
-            &a_attributes =
-                {
-                    {
-                        "node",
-                        {
-                            {"shape", "record"},
-                            {"fontname", "\"Courier New, Courier\""},
-                            {"fontsize", "12"},
-                        },
-                    },
-                    {
-                        "edge",
-                        {
-                            {"fontname", "\"Courier New, Courier\""},
-                            {"fontsize", "12"},
-                        },
-                    },
-                    {
-                        "graph",
-                        {
-                            {"fontname", "\"Courier New, Courier\""},
-                            {"fontsize", "12"},
-                        },
-                    },
-                })
+            &a_attributes)
       : fileName(a_fileName), attributes(a_attributes) {}
   virtual ~Graph() = default;
 
@@ -275,7 +251,7 @@ public:
 } // namespace detail
 
 using attrmap = std::unordered_map<Cowstr, Cowstr>;
-
+using gattrmap = std::unordered_map<Cowstr, attrmap>;
 using gc = detail::GCell;
 using gcp = std::shared_ptr<gc>;
 using gli = detail::GLine;
@@ -293,21 +269,51 @@ const static attrmap edge_label_attr = {
     {"CELLSPACING", "\"0\""},
 };
 
-static gli newGLine(const Cowstr &a) {
+const static attrmap node_label_attr = {
+    {"BORDER", "\"0\""},
+    {"CELLBORDER", "\"1\""},
+    {"CELLSPACING", "\"0\""},
+};
+
+const static gattrmap graph_attr = {
+    {
+        "node",
+        {
+            {"shape", "none"}, {"fontname", "\"Courier New, Courier\""},
+            // {"fontsize", "12"},
+        },
+    },
+    {
+        "edge",
+        {
+            {"fontname", "\"Courier New, Courier\""},
+            // {"fontsize", "12"},
+        },
+    },
+    {
+        "graph",
+        {
+            {"fontname", "\"Courier New, Courier\""},
+            // {"fontsize", "12"},
+        },
+    },
+};
+
+static gli LINE(const Cowstr &a) {
   gli line;
   line.add(a);
   return line;
 }
 
-static gli newGLine(const Cowstr &a, const Cowstr &b) {
+static gli LINE(const Cowstr &a, const Cowstr &b) {
   gli line;
   line.add(a);
   line.add(b);
   return line;
 }
 
-static gli newGLine(const Cowstr &a, const Cowstr &b, const Cowstr &c,
-                    const Cowstr &d) {
+static gli LINE(const Cowstr &a, const Cowstr &b, const Cowstr &c,
+                const Cowstr &d) {
   gli line;
   line.add(a);
   line.add(b);
@@ -316,102 +322,85 @@ static gli newGLine(const Cowstr &a, const Cowstr &b, const Cowstr &c,
   return line;
 }
 
-static gnp newGNode(const gli &a,
-                    const std::unordered_map<Cowstr, Cowstr> &attributes = {
-                        {"BORDER", "\"0\""},
-                        {"CELLBORDER", "\"1\""},
-                        {"CELLSPACING", "\"0\""},
-                    }) {
+static gnp NODE(const gli &a) {
   std::vector<gli> lines;
   lines.push_back(a);
-  glap label(new gla(lines, attributes));
+  glap label(new gla(lines, node_label_attr));
   gnp node(new gn(label));
   return node;
 }
 
-static gnp newGNode(const gli &a, const gli &b,
-                    const std::unordered_map<Cowstr, Cowstr> &attributes = {
-                        {"BORDER", "\"0\""},
-                        {"CELLBORDER", "\"1\""},
-                        {"CELLSPACING", "\"0\""},
-                    }) {
+static gnp NODE(const gli &a, const gli &b) {
   std::vector<gli> lines;
   lines.push_back(a);
   lines.push_back(b);
-  glap label(new gla(lines, attributes));
+  glap label(new gla(lines, node_label_attr));
   gnp node(new gn(label));
   return node;
 }
 
-static gnp newGNode(const gli &a, const gli &b, const gli &c,
-                    const std::unordered_map<Cowstr, Cowstr> &attributes = {
-                        {"BORDER", "\"0\""},
-                        {"CELLBORDER", "\"1\""},
-                        {"CELLSPACING", "\"0\""},
-                    }) {
+static gnp NODE(const gli &a, const gli &b, const gli &c) {
   std::vector<gli> lines;
   lines.push_back(a);
   lines.push_back(b);
   lines.push_back(c);
-  glap label(new gla(lines, attributes));
+  glap label(new gla(lines, node_label_attr));
   gnp node(new gn(label));
   return node;
 }
 
-static glap newGLabel(const gli &a,
-                      const std::unordered_map<Cowstr, Cowstr> &attributes = {
-                          {"BORDER", "\"0\""},
-                          {"CELLBORDER", "\"1\""},
-                          {"CELLSPACING", "\"0\""},
-                      }) {
+static glap LABEL(const gli &a) {
   std::vector<gli> lines;
   lines.push_back(a);
-  glap label(new gla(lines, attributes));
+  glap label(new gla(lines, edge_label_attr));
   return label;
 }
 
-#define LABEL(x) newGLabel(newGLine(BOOST_PP_STRINGIZE(x)), edge_label_attr)
+static gep EDGE(gnp a, gnp b, glap c = nullptr) { return gep(new ge(a, b, c)); }
+
+static gep EDGE(gnp a, const gc &ac, gnp b, const gc &bc, glap c = nullptr) {
+  return gep(new ge(a, gcp(new gc(ac)), b, gcp(new gc(bc)), c));
+}
 
 #define AG_NIL                                                                 \
   do {                                                                         \
-    gnp u = newGNode(newGLine("nil"));                                         \
+    gnp u = NODE(LINE("nil"));                                                 \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG_LITERAL(ast, atype)                                                 \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine("literal", ast->name()),                         \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()), LINE("literal", ast->name()), \
+                 LINE("location", ast->location().str()));                     \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG_LOCATION(ast)                                                       \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE("location", ast->location().str()));                     \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AGOP(ast, atype, op)                                                   \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine(BOOST_PP_STRINGIZE(op),                          \
-                              tokenName(static_cast<atype *>(ast)->op)),       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE(BOOST_PP_STRINGIZE(op),                                  \
+                      tokenName(static_cast<atype *>(ast)->op)),               \
+                 LINE("location", ast->location().str()));                     \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define AG1(ast, atype, a)                                                     \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE("location", ast->location().str()));                     \
     gnp v = drawAst(static_cast<atype *>(ast)->a, g);                          \
-    gep e(new ge(u, v));                                                       \
+    gep e = EDGE(u, v);                                                        \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
     return u;                                                                  \
@@ -419,12 +408,12 @@ static glap newGLabel(const gli &a,
 
 #define AGOP1(ast, atype, a, op)                                               \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine(BOOST_PP_STRINGIZE(op),                          \
-                              tokenName(static_cast<atype *>(ast)->op)),       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE(BOOST_PP_STRINGIZE(op),                                  \
+                      tokenName(static_cast<atype *>(ast)->op)),               \
+                 LINE("location", ast->location().str()));                     \
     gnp v = drawAst(static_cast<atype *>(ast)->a, g);                          \
-    gep e(new ge(u, v, LABEL(a)));                                             \
+    gep e = EDGE(u, v, LABEL(LINE(BOOST_PP_STRINGIZE(a))));                    \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
     return u;                                                                  \
@@ -432,12 +421,12 @@ static glap newGLabel(const gli &a,
 
 #define AG2(ast, atype, a, b)                                                  \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE("location", ast->location().str()));                     \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
-    gep ep(new ge(u, p, LABEL(a)));                                            \
-    gep eq(new ge(u, q, LABEL(b)));                                            \
+    gep ep = EDGE(u, p, LABEL(LINE(BOOST_PP_STRINGIZE(a))));                   \
+    gep eq = EDGE(u, q, LABEL(LINE(BOOST_PP_STRINGIZE(b))));                   \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -446,14 +435,14 @@ static glap newGLabel(const gli &a,
 
 #define AGOP2(ast, atype, a, b, op)                                            \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine(BOOST_PP_STRINGIZE(op),                          \
-                              tokenName(static_cast<atype *>(ast)->op)),       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE(BOOST_PP_STRINGIZE(op),                                  \
+                      tokenName(static_cast<atype *>(ast)->op)),               \
+                 LINE("location", ast->location().str()));                     \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
-    gep ep(new ge(u, p, LABEL(a)));                                            \
-    gep eq(new ge(u, q, LABEL(b)));                                            \
+    gep ep = EDGE(u, p, LABEL(LINE(BOOST_PP_STRINGIZE(a))));                   \
+    gep eq = EDGE(u, q, LABEL(LINE(BOOST_PP_STRINGIZE(b))));                   \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -462,14 +451,14 @@ static glap newGLabel(const gli &a,
 
 #define AG3(ast, atype, a, b, c)                                               \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE("location", ast->location().str()));                     \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
     gnp v = drawAst(static_cast<atype *>(ast)->c, g);                          \
-    gep ep(new ge(u, p, LABEL(a)));                                            \
-    gep eq(new ge(u, q, LABEL(b)));                                            \
-    gep ev(new ge(u, v, LABEL(c)));                                            \
+    gep ep = EDGE(u, p, LABEL(LINE(BOOST_PP_STRINGIZE(a))));                   \
+    gep eq = EDGE(u, q, LABEL(LINE(BOOST_PP_STRINGIZE(b))));                   \
+    gep ev = EDGE(u, v, LABEL(LINE(BOOST_PP_STRINGIZE(c))));                   \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -479,16 +468,16 @@ static glap newGLabel(const gli &a,
 
 #define AGOP3(ast, atype, a, b, c, op)                                         \
   do {                                                                         \
-    gnp u = newGNode(newGLine(ast->kind()._to_string()),                       \
-                     newGLine(BOOST_PP_STRINGIZE(op),                          \
-                              tokenName(static_cast<atype *>(ast)->op)),       \
-                     newGLine("location", ast->location().str()));             \
+    gnp u = NODE(LINE(ast->kind()._to_string()),                               \
+                 LINE(BOOST_PP_STRINGIZE(op),                                  \
+                      tokenName(static_cast<atype *>(ast)->op)),               \
+                 LINE("location", ast->location().str()));                     \
     gnp p = drawAst(static_cast<atype *>(ast)->a, g);                          \
     gnp q = drawAst(static_cast<atype *>(ast)->b, g);                          \
     gnp v = drawAst(static_cast<atype *>(ast)->c, g);                          \
-    gep ep(new ge(u, p, LABEL(a)));                                            \
-    gep eq(new ge(u, q, LABEL(b)));                                            \
-    gep ev(new ge(u, v, LABEL(c)));                                            \
+    gep ep = EDGE(u, p, LABEL(LINE(BOOST_PP_STRINGIZE(a))));                   \
+    gep eq = EDGE(u, q, LABEL(LINE(BOOST_PP_STRINGIZE(b))));                   \
+    gep ev = EDGE(u, v, LABEL(LINE(BOOST_PP_STRINGIZE(c))));                   \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(ep);                                                     \
     g.edges.push_back(eq);                                                     \
@@ -614,7 +603,7 @@ static gnp drawAst(Ast *ast, detail::Graph &g) {
 AstGraph::AstGraph(Ast *ast) : ast_(ast) {}
 
 int AstGraph::draw(const Cowstr &output) {
-  detail::Graph g(output);
+  detail::Graph g(output, graph_attr);
   drawAst(ast_, g);
   return g.draw();
 }
@@ -625,7 +614,7 @@ using tsymsp = std::shared_ptr<TypeSymbol>;
 
 static gli drawSymbol(symsp sym) {
   if (!sym) {
-    return newGLine("nil");
+    return LINE("nil");
   }
   gli l;
   l.add("symbol");
@@ -642,7 +631,7 @@ static gli drawSymbol(symsp sym) {
 
 static gli drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
   if (!sym) {
-    return newGLine("nil");
+    return LINE("nil");
   }
   gli l;
   l.add("typeSymbol");
@@ -656,51 +645,52 @@ static gnp drawScope(scsp scope, detail::Graph &g) {
   if (!scope) {
     AG_NIL;
   }
-  gnp u = newGNode(newGLine(scope->name()));
-  u->label->lines.push_back(newGLine(" ", "name (: type)", "kind", "location"));
+  gnp u = NODE(LINE(scope->name()));
+  if (scope->s_empty() && scope->ts_empty()) {
+    u->label->lines.push_back(LINE("empty"));
+  } else {
+    u->label->lines.push_back(LINE(" ", "name (: type)", "kind", "location"));
+    // draw symbol
+    for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+      SymbolData sdata = i->second;
+      LOG_ASSERT(sdata.symbol, "sdata.symbol must not null");
+      switch (sdata.symbol->kind()) {
+      case SymbolKind::Var:
+      case SymbolKind::Param:
+      case SymbolKind::Field: {
+        u->label->lines.push_back(drawSymbol(sdata.symbol));
+        break;
+      }
+      case SymbolKind::Func:
+      case SymbolKind::Method:
+      case SymbolKind::Local:
+      case SymbolKind::Global: {
+        gli l = drawSymbol(sdata.symbol);
+        u->label->lines.push_back(l);
+        gnp v = drawScope(std::dynamic_pointer_cast<Scope>(sdata.symbol), g);
+        gep e = EDGE(u, l.cells[0], v, v->label->lines[0].cells[0]);
+        g.edges.push_back(e);
+        break;
+      }
+      default:
+        LOG_ASSERT(false, "invalid sdata.symbol type: {}",
+                   sdata.symbol->kind()._to_string());
+      }
+    }
+    // draw type symbol
+    for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+      TypeSymbolData tsdata = i->second;
+      u->label->lines.push_back(drawTypeSymbol(tsdata.typeSymbol));
+    }
+  }
   g.nodes.push_back(u);
-  // draw symbol
-  for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
-    SymbolData sdata = i->second;
-    LOG_ASSERT(sdata.symbol, "sdata.symbol must not null");
-    switch (sdata.symbol->kind()) {
-    case SymbolKind::Var:
-    case SymbolKind::Param:
-    case SymbolKind::Field: {
-      u->label->lines.push_back(drawSymbol(sdata.symbol));
-      break;
-    }
-    case SymbolKind::Func:
-    case SymbolKind::Method:
-    case SymbolKind::Local:
-    case SymbolKind::Global: {
-      gli l = drawSymbol(sdata.symbol);
-      u->label->lines.push_back(l);
-      gnp v = drawScope(std::dynamic_pointer_cast<Scope>(sdata.symbol), g);
-      glap elabel(new gla({newGLine(sdata.symbol->name())}, edge_label_attr));
-      gep e(new ge(u, v, elabel));
-      e->setFromCell(l.cells[0]);
-      e->setToCell(v->label->lines[0].cells[0]);
-      g.edges.push_back(e);
-      break;
-    }
-    default:
-      LOG_ASSERT(false, "invalid sdata.symbol type: {}",
-                 sdata.symbol->kind()._to_string());
-    }
-  }
-  // draw type symbol
-  for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
-    TypeSymbolData tsdata = i->second;
-    u->label->lines.push_back(drawTypeSymbol(tsdata.typeSymbol));
-  }
   return u;
 }
 
 SymbolGraph::SymbolGraph(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
 int SymbolGraph::draw(const Cowstr &output) {
-  detail::Graph g(output);
+  detail::Graph g(output, graph_attr);
   drawScope(scope_, g);
   return g.draw();
 }
