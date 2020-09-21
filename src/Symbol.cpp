@@ -245,7 +245,7 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
   switch (ast->kind()) {
   case AstKind::CompileUnit: {
     A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);
-    scptr s_global(new S_Global(nameGenerator.from("global"), e->location()));
+    scptr s_global(new S_Global("global", e->location()));
     // integer
     s_global->ts_define(tsptr(new Ts_Plain("byte", s_global)));
     s_global->ts_define(tsptr(new Ts_Plain("ubyte", s_global)));
