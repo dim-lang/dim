@@ -11,22 +11,31 @@ namespace boost_po = boost::program_options;
 #define OPT_HELP "help"
 #define OPT_VERSION "version"
 #define OPT_FILE "file"
-#define OPT_DEBUG "debug"
+#define OPT_DUMP_AST "dump-ast"
+#define OPT_DUMP_SYMBOL "dump-symbol"
 
 Option::Option() : optDesc_("Options") {
   optDesc_.add_options()(OPT_HELP ",h", "help message")(OPT_VERSION ",v",
                                                         "version information")(
       OPT_FILE ",f", boost_po::value<std::vector<std::string>>(),
-      "file name")(OPT_DEBUG ",d", "debug mode");
+      "file name")(OPT_DUMP_AST, "dump ast in graphviz dot file")(
+      OPT_DUMP_SYMBOL, "dump symbol in graphviz dot file");
   posOptDesc_.add(OPT_FILE, -1);
 }
 
 Option::Option(int argCount, char **argList) : Option() {
-  boost_po::store(boost_po::command_line_parser(argCount, argList)
-                      .options(optDesc_)
-                      .positional(posOptDesc_)
-                      .run(),
-                  varMap_);
+  boost_po::parsed_options options =
+      boost_po::command_line_parser(argCount, argList)
+          .options(optDesc_)
+          .positional(posOptDesc_)
+          .allow_unregistered()
+          .run();
+  std::vector<std::string> unregistered = boost_po::collect_unrecognized(
+      options.options, boost_po::include_positional);
+  if (unregistered.size() > 0) {
+    throw unregistered;
+  }
+  boost_po::store(options, varMap_);
   boost_po::notify(varMap_);
 }
 
@@ -56,4 +65,6 @@ std::vector<std::string> Option::fileNames() const {
   return varMap_[OPT_FILE].as<std::vector<std::string>>();
 }
 
-bool Option::debug() const { return varMap_.count(OPT_DEBUG); }
+bool Option::hasDumpAst() const { return varMap_.count(OPT_DUMP_AST); }
+
+bool Option::hasDumpSymbol() const { return varMap_.count(OPT_DUMP_SYMBOL); }

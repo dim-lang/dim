@@ -185,18 +185,16 @@ include_directories(${NERD_INC})
 link_directories(${NERD_LIB_DIR})
 
 # 1. nerdcore
-
 add_library(nerdcore STATIC ${NERD_CORE})
 target_include_directories(nerdcore PRIVATE ${NERD_INC})
 target_link_libraries(nerdcore ${NERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 2. nerdc
-
-# add_executable(nerdc ${NERDC})
-# target_include_directories(nerdc PRIVATE ${NERD_INC})
-# target_link_libraries(nerdc ${NERD_LIB} nerdcore)
-# set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerdc ${NERDC})
+target_include_directories(nerdc PRIVATE ${NERD_INC})
+target_link_libraries(nerdc ${NERD_LIB} nerdcore)
+set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 3. testing
 set(NERD_TEST

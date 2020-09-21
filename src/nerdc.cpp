@@ -6,40 +6,97 @@
 #include "Log.h"
 #include "Option.h"
 #include "Scanner.h"
+#include "Symbol.h"
+#include "boost/filesystem.hpp"
+#include "fmt/format.h"
 #include "parser.tab.hh"
 #include <iostream>
 #include <string>
 #include <vector>
 
-int main(int argc, char **argv) {
-  Log::initialize();
-  Option conf(argc, argv);
-  LOG_INFO("starting, argc:{} argv[0]:{}", argc, argv[0]);
-
-  if (conf.hasHelp()) {
-    std::cout << conf.help() << std::endl;
-    return 0;
-  }
-
-  if (conf.hasVersion()) {
-    std::cout << conf.version() << std::endl;
-    return 0;
-  }
-
-  if (conf.hasFileNames()) {
-    std::vector<std::string> fileNameList = conf.fileNames();
-    for (int i = 0; i < (int)fileNameList.size(); i++) {
-      std::string fileName = fileNameList[i];
-      LOG_INFO("fileName:{}", fileName);
-      Scanner scanner;
-      scanner.pushBuffer(fileName);
-      int p = scanner.parse();
-      LOG_INFO("parse: p:{}, currentBuffer: {}, yy_scanner: {}", p,
-               scanner.currentBuffer(), (void *)scanner.yy_scanner);
-      LOG_ASSERT(p == 0, "parse fail:{}", p);
-      IrContext context(fileName);
-      IrTranslateUnit tunit(&context, scanner.translateUnit());
+static void dumpAst(const std::vector<std::string> &fileNameList) {
+  for (int i = 0; i < (int)fileNameList.size(); i++) {
+    std::string fileName = fileNameList[i];
+    Scanner scanner(fileName);
+    if (scanner.parse() != 0) {
+      fmt::print("Error! syntax error in {}!", fileName);
+      return;
     }
+    AstGraph g(scanner.compileUnit());
+    g.draw(fileName + ".ast.dot");
+    fmt::print("Dump ast in {}", fileName + ".ast.dot\n");
+  }
+}
+
+static void dumpSymbol(const std::vector<std::string> &fileNameList) {
+  for (int i = 0; i < (int)fileNameList.size(); i++) {
+    std::string fileName = fileNameList[i];
+    Scanner scanner(fileName);
+    if (scanner.parse() != 0) {
+      fmt::print("Error! syntax error in {}!", fileName);
+      return;
+    }
+    SymbolGraph g(Scope::from(scanner.compileUnit()));
+    g.draw(fileName + ".symbol.dot");
+    fmt::print("Dump symbol in {}", fileName + ".symbol.dot\n");
+  }
+}
+
+int main(int argc, char **argv) {
+  fmt::print(
+      "Start at {}, argc:{}, ",
+      boost::filesystem::path(boost::filesystem::current_path()).string(),
+      argc);
+  for (int i = 0; i < argc; i++) {
+    fmt::print("argv[{}]:{}", i, argv[i]);
+    if (i < argc - 1) {
+      fmt::print(", ");
+    }
+  }
+  fmt::print("\n");
+
+  try {
+    Option conf(argc, argv);
+
+    if (conf.hasHelp()) {
+      fmt::print("{}\n", conf.help());
+      return 0;
+    }
+
+    if (conf.hasVersion()) {
+      fmt::print("{}\n", conf.version());
+      return 0;
+    }
+
+    if (conf.hasDumpAst()) {
+      if (!conf.hasFileNames()) {
+        fmt::print("Error! missing file names\n");
+        return 0;
+      }
+      dumpAst(conf.fileNames());
+      return 0;
+    }
+
+    if (conf.hasDumpSymbol()) {
+      if (!conf.hasFileNames()) {
+        fmt::print("Error! missing file names\n");
+        return 0;
+      }
+      dumpSymbol(conf.fileNames());
+      return 0;
+    }
+
+    fmt::print("Error! missing parameter!\n");
+
+  } catch (const std::vector<std::string> unregistered) {
+    fmt::print("Error! unrecognized parameters: ");
+    for (int i = 0; i < (int)unregistered.size(); i++) {
+      fmt::print("{}", unregistered[i]);
+      if (i < (int)unregistered.size() - 1) {
+        fmt::print(", ");
+      }
+    }
+    fmt::print("\n");
   }
 
   return 0;

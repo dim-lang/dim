@@ -25,9 +25,11 @@ public:
   bool hasFileNames() const;
   std::vector<std::string> fileNames() const;
 
-  // --debug, -d
-  // by default: false
-  bool debug() const;
+  // --dump-ast
+  bool hasDumpAst() const;
+
+  // --dump-symbol
+  bool hasDumpSymbol() const;
 
 private:
   Option();
