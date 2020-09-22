@@ -7,7 +7,7 @@
 /*================ kind start from 5000 ================*/
 BETTER_ENUM(IrKind, int,
             // literal
-            Module = 5000,
+            Module = 4000,
             // function
             FuncDef, FuncDecl,
             // call
@@ -29,7 +29,10 @@ class I_Return;
 
 // Ir {
 
-class Ir {};
+class Ir {
+public:
+  virtual ~Ir() = default;
+};
 
 // Ir }
 

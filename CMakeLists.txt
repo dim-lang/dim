@@ -126,7 +126,6 @@ set(NERD_CORE
     # src/Exception.cpp
     src/container/Cowstr.cpp
     src/container/CycleBuffer.cpp
-    src/Option.cpp
     # src/Timer.cpp
     # src/DateTime.cpp
     src/Files.cpp

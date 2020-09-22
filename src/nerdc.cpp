@@ -56,33 +56,33 @@ int main(int argc, char **argv) {
   fmt::print("\n");
 
   try {
-    Option conf(argc, argv);
+    Option opt(argc, argv);
 
-    if (conf.hasHelp()) {
-      fmt::print("{}\n", conf.help());
+    if (opt.has(OPT_HELP)) {
+      fmt::print("{}\n", opt.get<std::string>(OPT_HELP));
       return 0;
     }
 
-    if (conf.hasVersion()) {
-      fmt::print("{}\n", conf.version());
+    if (opt.has(OPT_VERSION)) {
+      fmt::print("{}\n", opt.get<std::string>(OPT_VERSION));
       return 0;
     }
 
-    if (conf.hasDumpAst()) {
-      if (!conf.hasFileNames()) {
+    if (opt.has(OPT_DUMP_AST)) {
+      if (!opt.has(OPT_INPUT_FILE)) {
         fmt::print("Error! missing file names\n");
         return 0;
       }
-      dumpAst(conf.fileNames());
+      dumpAst(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
       return 0;
     }
 
-    if (conf.hasDumpSymbol()) {
-      if (!conf.hasFileNames()) {
+    if (opt.has(OPT_DUMP_SYMBOL)) {
+      if (!opt.has(OPT_INPUT_FILE)) {
         fmt::print("Error! missing file names\n");
         return 0;
       }
-      dumpSymbol(conf.fileNames());
+      dumpSymbol(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
       return 0;
     }
 
