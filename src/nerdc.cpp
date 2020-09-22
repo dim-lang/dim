@@ -88,15 +88,8 @@ int main(int argc, char **argv) {
 
     fmt::print("Error! missing parameter!\n");
 
-  } catch (const std::vector<std::string> unregistered) {
-    fmt::print("Error! unrecognized parameters: ");
-    for (int i = 0; i < (int)unregistered.size(); i++) {
-      fmt::print("{}", unregistered[i]);
-      if (i < (int)unregistered.size() - 1) {
-        fmt::print(", ");
-      }
-    }
-    fmt::print("\n");
+  } catch (const boost::program_options::unknown_option &unknown) {
+    fmt::print("Error! {}\n", unknown.what());
   }
 
   return 0;
