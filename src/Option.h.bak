@@ -14,6 +14,7 @@
 #define OPT_INPUT_FILE "input-file"
 #define OPT_DUMP_AST "dump-ast"
 #define OPT_DUMP_SYMBOL "dump-symbol"
+#define OPT_DUMP_LLVM "dump-llvm"
 
 class Option {
 public:
@@ -23,7 +24,8 @@ public:
         OPT_INPUT_FILE,
         boost::program_options::value<std::vector<std::string>>(),
         "input files")(OPT_DUMP_AST, "dump ast in graphviz dot file")(
-        OPT_DUMP_SYMBOL, "dump symbol in graphviz dot file");
+        OPT_DUMP_SYMBOL, "dump symbol in graphviz dot file")(
+        OPT_DUMP_LLVM, "dump llvm in ll file");
 
     positional_opt_desc.add(OPT_INPUT_FILE, -1);
 
@@ -42,6 +44,7 @@ public:
   // --input-file
   // --dump-ast
   // --dump-symbol
+  // --dump-llvm
   bool has(const std::string &opt) const { return var_map.count(opt); }
 
   template <typename T> T get(const std::string &opt) const {

@@ -224,12 +224,15 @@ using sptr = std::shared_ptr<Symbol>;
 using tsptr = std::shared_ptr<TypeSymbol>;
 using scptr = std::shared_ptr<Scope>;
 
-static Cowstr nameGenerate(const Cowstr &hint, const Cowstr &delimiter = ".") {
-  static Counter counter;
-  std::stringstream ss;
-  ss << hint << delimiter << counter.next();
-  return ss.str();
-}
+static NameGenerator namegen(".");
+
+// static Cowstr nameGenerate(const Cowstr &hint, const Cowstr &delimiter = ".")
+// {
+//   static Counter counter;
+//   std::stringstream ss;
+//   ss << hint << delimiter << counter.next();
+//   return ss.str();
+// }
 
 static Cowstr generateFuncTypeName(const std::vector<tsptr> &paramTypes,
                                    tsptr resultType) {
@@ -347,7 +350,8 @@ static std::shared_ptr<Scope> fromImpl(Ast *ast, std::shared_ptr<Scope> scope) {
   }
   case AstKind::Block: {
     A_Block *e = static_cast<A_Block *>(ast);
-    sptr s_local(new S_Local(nameGenerate("local"), e->location(), scope));
+    sptr s_local(new S_Local(namegen.generate("local", e->location().str()),
+                             e->location(), scope));
     TypeSymbolData tsdata = scope->ts_resolve("void");
     tsptr ts_local = tsdata.typeSymbol;
     scope->s_define(s_local, ts_local);

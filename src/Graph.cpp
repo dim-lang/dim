@@ -6,6 +6,7 @@
 #include "Counter.h"
 #include "Files.h"
 #include "Log.h"
+#include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
@@ -30,14 +31,17 @@ static const std::unordered_map<char, Cowstr> HtmlTranslator = {
 
 #define TRANSLATE(x) (Cowstr(x).replace(HtmlTranslator))
 
-static Cowstr nameGenerate(const Cowstr &name, const Cowstr &delimiter = "") {
-  static Counter counter_;
-  std::stringstream ss;
-  ss << name << delimiter << counter_.next();
-  return ss.str();
-}
+// static Cowstr nameGenerate(const Cowstr &name, const Cowstr &delimiter = "")
+// {
+//   static Counter counter_;
+//   std::stringstream ss;
+//   ss << name << delimiter << counter_.next();
+//   return ss.str();
+// }
 
 namespace detail {
+
+static CounterNameGenerator namegen;
 
 /**
  * <TD>xxx</TD>
@@ -46,7 +50,8 @@ namespace detail {
 class GCell {
 public:
   GCell(const Cowstr &a_value, int a_width = 0)
-      : id(nameGenerate("cell")), value(TRANSLATE(a_value)), width(a_width) {}
+      : id(namegen.generate("cell")), value(TRANSLATE(a_value)),
+        width(a_width) {}
   virtual ~GCell() = default;
 
   Cowstr id; // PORT="id"
@@ -135,7 +140,7 @@ public:
 class GNode {
 public:
   GNode(std::shared_ptr<GLabel> a_label)
-      : id(nameGenerate("node")), label(a_label) {}
+      : id(namegen.generate("node")), label(a_label) {}
   virtual ~GNode() = default;
 
   Cowstr id;
