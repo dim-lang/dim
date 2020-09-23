@@ -639,7 +639,7 @@ static gli drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
     return LINE("nil");
   }
   gli l;
-  l.add("typeSymbol");
+  l.add("type symbol");
   l.add(sym->name());
   l.add(sym->kind()._to_string());
   l.add(sym->location().str());
