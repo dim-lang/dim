@@ -23,6 +23,10 @@ if "%1" == "" (
     set BUILD_TYPE=Release
 ) else if "%1" == "--release" (
     set BUILD_TYPE=Release
+) else if "%1" == "-g" (
+    goto :GRAPH
+) else if "%1" == "--graph" (
+    goto :GRAPH
 ) else if "%1" == "-h" (
     goto :HELP
 ) else if "%1" == "--help" (
@@ -106,9 +110,29 @@ goto :EOF
 :HELP
 echo [nerd] build help message:
 echo usage:
-echo   build -r/--release              build release.
-echo   build -d/--debug                build debug.
+echo   build -r/--release       build release.
+echo   build -d/--debug         build debug.
+echo   build -g/--graph         generate png picture from graphviz dot file.
 echo flag:
-echo   build -h/--help                 show help message.
+echo   build -h/--help          show help message.
+goto :EOF
+
+:GRAPH
+if exist %ROOT%\Debug\test\case (
+    cd %ROOT%\Debug\test\case
+    for /r %%x in (*.dot) do (
+        echo [nerd] generate %%x.png for %%x
+        dot -Tpng -Gdpi=300 %%x -o %%x.png
+    )
+)
+if exist %ROOT%\Release\test\case (
+    cd %ROOT%\Release\test\case
+    for /r %%x in (*.dot) do (
+        echo [nerd] generate %%x.png for %%x
+        dot -Tpng -Gdpi=300 %%x -o %%x.png
+    )
+)
+cd %ROOT%
+goto :EOF
 
 :EOF
