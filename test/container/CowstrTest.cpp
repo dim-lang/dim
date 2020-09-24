@@ -34,6 +34,7 @@ TEST_CASE("container/Cowstr", "[container/Cowstr]") {
     REQUIRE(s4.back() == 'o');
     REQUIRE(*(s4.end() - 1) == 'o');
     REQUIRE(*(s4.rend() + 1) == 'h');
+    REQUIRE(s1.compare(s2) != 0);
   }
   SECTION("modify") {
     Cowstr s1("hello");

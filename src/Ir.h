@@ -29,28 +29,30 @@ BETTER_ENUM(IrKind, int,
 /*================ class ================*/
 
 /* class list */
-struct Ir;
-struct I_Module;
-struct I_FuncDef;
-struct I_Call;
-struct I_Constant;
-struct I_BinaryOp;
-struct I_UnaryOp;
-struct I_Condition;
-struct I_Loop;
-struct I_Return;
+class Ir;
+class I_Module;
+class I_FuncDef;
+class I_Call;
+class I_Constant;
+class I_BinaryOp;
+class I_UnaryOp;
+class I_Condition;
+class I_Loop;
+class I_Return;
 
 // Ir {
 
-struct Ir {
+class Ir {
+public:
   virtual ~Ir() = default;
   virtual Cowstr str() const = 0;
 };
 
 // Ir }
 
-struct I_Module : public Ir, public Nameable {
-  I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope);
+class I_Module : public Ir, public Nameable {
+public:
+  I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope, const Cowstr &a_name);
   virtual ~I_Module() = default;
   virtual Cowstr str() const;
 
@@ -65,27 +67,32 @@ struct I_Module : public Ir, public Nameable {
   std::vector<std::shared_ptr<Ir>> globalVariables;
 };
 
-struct I_FuncDef : public Ir, public Nameable {
+// class I_FuncDecl : public Ir, public Nameable {};
+
+class I_FuncDef : public Ir, public Nameable {
+public:
   I_FuncDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope,
             const Cowstr &a_name);
   virtual ~I_FuncDef() = default;
   virtual Cowstr str() const;
 
   I_Module *iModule;
+
   Ast *ast;
   std::shared_ptr<Scope> scope;
 
-  Cowstr name;
   std::vector<std::shared_ptr<Ir>> parameters;
   std::vector<std::shared_ptr<Ir>> basicBlocks;
 };
 
-struct IrGVarDef : public Ir {
+class IrGVarDef : public Ir {
+public:
   virtual ~IrGVarDef() = default;
   virtual Cowstr str() const = 0;
 };
 
-struct IrVarDef : public Ir {
+class IrVarDef : public Ir {
+public:
   virtual ~IrVarDef() = default;
   virtual Cowstr str() const = 0;
 };
@@ -95,49 +102,71 @@ struct IrVarDef : public Ir {
 // short, ushort
 // int, uint
 // long, ulong
-struct I_IGVarDef : public IrGVarDef, public Nameable {
+class I_IGVarDef : public IrGVarDef, public Nameable {
+public:
   I_IGVarDef(I_Module *a_iModule, const Cowstr &a_name,
              llvm::ConstantInt *a_initializer = nullptr);
   virtual ~I_IGVarDef() = default;
   virtual Cowstr str() const;
 
   I_Module *iModule;
-  Cowstr &name;
   llvm::ConstantInt *initializer;
 };
 
 // float, double
-struct I_FGVarDef : public IrGVarDef, public Nameable {
+class I_FGVarDef : public IrGVarDef, public Nameable {
+public:
   I_FGVarDef(I_Module *a_iModule, const Cowstr &a_name,
              llvm::ConstantFP *a_initializer = nullptr);
   virtual ~I_FGVarDef() = default;
   virtual Cowstr str() const;
 
   I_Module *iModule;
-  Cowstr name;
   llvm::ConstantFP *initializer;
 };
 
-struct I_IVarDef : public IrVarDef, public Nameable {
-  I_IVarDef(I_Module *a_iModule, Ast *a_ast);
+class I_IVarDef : public IrVarDef, public Nameable {
+public:
+  I_IVarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
+            llvm::ConstantInt *a_initializer = nullptr);
+  virtual ~I_IVarDef() = default;
+  virtual Cowstr str() const;
+
+  I_FuncDef *iFunc;
+  llvm::ConstantInt *initializer;
 };
 
-struct I_Condition : public Ir {
+class I_FVarDef : public IrVarDef, public Nameable {
+public:
+  I_FVarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
+            llvm::ConstantFP *a_initializer = nullptr);
+  virtual ~I_FVarDef() = default;
+  virtual Cowstr str() const;
+
+  I_FuncDef *iFunc;
+  llvm::ConstantFP *initializer;
+};
+
+class I_Condition : public Ir {
+public:
   virtual ~I_Condition() = default;
   virtual Cowstr str() const;
 };
 
-struct I_Call : public Ir {
+class I_Call : public Ir {
+public:
   virtual ~I_Call() = default;
   virtual Cowstr str() const;
 };
 
-struct I_BinaryOp : public Ir {
+class I_BinaryOp : public Ir {
+public:
   virtual ~I_BinaryOp() = default;
   virtual Cowstr str() const;
 };
 
-struct I_UnaryOp : public Ir {
+class I_UnaryOp : public Ir {
+public:
   virtual ~I_UnaryOp() = default;
   virtual Cowstr str() const;
 };

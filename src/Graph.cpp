@@ -607,7 +607,7 @@ static gnp drawAst(Ast *ast, detail::Graph &g) {
 
 AstGraph::AstGraph(Ast *ast) : ast_(ast) {}
 
-int AstGraph::draw(const Cowstr &output) {
+int AstGraph::draw(const Cowstr &output) const {
   detail::Graph g(output, graph_attr);
   drawAst(ast_, g);
   return g.draw();
@@ -694,7 +694,7 @@ static gnp drawScope(scsp scope, detail::Graph &g) {
 
 SymbolGraph::SymbolGraph(std::shared_ptr<Scope> scope) : scope_(scope) {}
 
-int SymbolGraph::draw(const Cowstr &output) {
+int SymbolGraph::draw(const Cowstr &output) const {
   detail::Graph g(output, graph_attr);
   drawScope(scope_, g);
   return g.draw();

@@ -13,8 +13,10 @@
 #include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
 #include "parser.tab.hh"
+#include <exception>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -23,31 +25,49 @@
 #define OPT_INPUT_FILE "input-file"
 #define OPT_DUMP_AST "dump-ast"
 #define OPT_DUMP_SYMBOL "dump-symbol"
-#define OPT_DUMP_LLVM "dump-llvm"
+#define OPT_DUMP_LL "dump-ll"
+#define OPT_DUMP_BC "dump-bc"
+#define OPT_C "c"
+#define OPT_O "o"
 
 class Option {
 public:
-  // --help, -h
-  // --version, -v
-  // --input-file
-  // --dump-ast
-  // --dump-symbol
-  // --dump-llvm
-  Option(int argc, char **argv) : opt_desc("nerdc options") {
-    opt_desc.add_options()(OPT_HELP ",h", "help message")(
+  /**
+   * nerdc usage:
+   *  nerdc [options] [input files]
+   *
+   * options:
+   *  --help, -h          help message
+   *  --version, -v       version information
+   *  --dump-<option>     dump with <option>:
+   *                        ast: abstract syntax tree dot file
+   *                        symbol: symbol table dot file
+   *                        ll: LLVM ll file
+   *                        bc: LLVM bitcode(bc) file
+   *  --output-<option>   output with <option>:
+   *                        obj: object file
+   *                        exe: executable file
+   *                        lib: library file
+   */
+  Option(int argc, char **argv)
+      : desc_flags("nerdc usage:\n  nerdc [options] [input files] -o output "
+                   "file\n\n") {
+    desc_flags.add_options()(OPT_HELP ",h", "help message")(
         OPT_VERSION ",v", "version information")(
         OPT_INPUT_FILE,
         boost::program_options::value<std::vector<std::string>>(),
-        "input files")(OPT_DUMP_AST, "dump ast in graphviz dot file")(
-        OPT_DUMP_SYMBOL, "dump symbol in graphviz dot file")(
-        OPT_DUMP_LLVM, "dump llvm in ll file");
+        "input files")(OPT_DUMP_AST,
+                       "dump abstract syntax tree in graphviz dot file")(
+        OPT_DUMP_SYMBOL, "dump symbol table in graphviz dot file")(
+        OPT_DUMP_LL, "dump LLVM ll file")(OPT_DUMP_BC,
+                                          "dump LLVM bitcode(bc) file");
 
-    positional_opt_desc.add(OPT_INPUT_FILE, -1);
+    positional_desc_flags.add(OPT_INPUT_FILE, -1);
 
     boost::program_options::store(
         boost::program_options::command_line_parser(argc, argv)
-            .options(opt_desc)
-            .positional(positional_opt_desc)
+            .options(desc_flags)
+            .positional(positional_desc_flags)
             .run(),
         var_map);
     boost::program_options::notify(var_map);
@@ -63,7 +83,7 @@ public:
   template <> std::string get<std::string>(const std::string &opt) const {
     if (opt == OPT_HELP) {
       std::stringstream ss;
-      ss << opt_desc;
+      ss << desc_flags;
       return ss.str();
     }
     if (opt == OPT_VERSION) {
@@ -73,8 +93,9 @@ public:
   }
 
 private:
-  boost::program_options::options_description opt_desc;
-  boost::program_options::positional_options_description positional_opt_desc;
+  boost::program_options::options_description desc_flags;
+  boost::program_options::options_description desc_options;
+  boost::program_options::positional_options_description positional_desc_flags;
   boost::program_options::variables_map var_map;
 };
 
@@ -87,8 +108,9 @@ static void dumpAst(const std::vector<std::string> &fileNameList) {
       return;
     }
     AstGraph g(scanner.compileUnit());
-    g.draw(fileName + ".ast.dot");
-    fmt::print("Dumping ast in {}", fileName + ".ast.dot\n");
+    Cowstr dumpfile = fmt::format("{}.ast.dot", fileName);
+    g.draw(dumpfile);
+    fmt::print("Dumping ast in {}\n", dumpfile);
   }
 }
 
@@ -101,8 +123,9 @@ static void dumpSymbol(const std::vector<std::string> &fileNameList) {
       return;
     }
     SymbolGraph g(Scope::from(scanner.compileUnit()));
-    g.draw(fileName + ".symbol.dot");
-    fmt::print("Dumping symbol in {}", fileName + ".symbol.dot\n");
+    Cowstr dumpfile = fmt::format("{}.symbol.dot", fileName);
+    g.draw(dumpfile);
+    fmt::print("Dumping symbol in {}\n", dumpfile);
   }
 }
 
@@ -148,8 +171,10 @@ int main(int argc, char **argv) {
       dumpSymbol(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
     }
 
-  } catch (const boost::program_options::unknown_option &unknown) {
+  } catch (boost::program_options::unknown_option &unknown) {
     fmt::print("Error! {}\n", unknown.what());
+  } catch (std::exception &e) {
+    fmt::print("Unknown Error! {}\n", e.what());
   }
 
   return 0;

@@ -7,33 +7,60 @@
 #include <sstream>
 using sps = std::shared_ptr<std::string>;
 
-static std::string mergeCowstrs(std::vector<Cowstr>::const_iterator begin,
-                                std::vector<Cowstr>::const_iterator end) {
+static sps dupsps(sps s) {
+  return (s && !s->empty()) ? sps(new std::string(*s)) : sps(new std::string());
+}
+
+static std::string *dupstd(const std::string &s) {
+  return s.empty() ? new std::string() : new std::string(s);
+}
+
+static std::string *dupraw(const char *s, int n) {
+  return (s && n > 0) ? new std::string(s, n) : new std::string();
+}
+
+static std::string *dupraw(const char *s) { return dupraw(s, std::strlen(s)); }
+
+static std::string merge(std::vector<Cowstr>::const_iterator begin,
+                         std::vector<Cowstr>::const_iterator end) {
   std::stringstream ss;
   for (; begin != end; begin++) {
     ss << begin->str();
   }
-  return ss.str();
+  return ss.str().empty() ? std::string() : ss.str();
 }
 
-Cowstr::Cowstr() : value_(new std::string("")) {}
+template <typename T>
+std::string replaceSet(const T &fromset, const Cowstr &to,
+                       const std::string &value) {
+  std::stringstream ss;
+  for (int i = 0; i < value.length(); i++) {
+    if (fromset.find(value[i]) != fromset.end()) {
+      ss << to.str();
+    } else {
+      ss << value[i];
+    }
+  }
+  return ss.str().empty() ? std::string() : ss.str();
+}
 
-Cowstr::Cowstr(const std::string &s)
-    : value_(s.length() > 0 ? new std::string(s) : new std::string("")) {}
+Cowstr::Cowstr() : value_(new std::string()) {}
 
-Cowstr::Cowstr(const char *s)
-    : value_(s ? new std::string(s) : new std::string("")) {}
+Cowstr::Cowstr(const std::string &s) : value_(dupstd(s)) {}
 
-Cowstr::Cowstr(const char *s, int n)
-    : value_((s && n > 0) ? new std::string(s, n) : new std::string("")) {}
+Cowstr::Cowstr(const char *s) : value_(dupraw(s)) {}
+
+Cowstr::Cowstr(const char *s, int n) : value_(dupraw(s, n)) {}
 
 Cowstr::Cowstr(std::vector<Cowstr>::const_iterator begin,
                std::vector<Cowstr>::const_iterator end)
-    : value_(new std::string(mergeCowstrs(begin, end))) {}
+    : value_(dupstd(merge(begin, end))) {}
 
 const std::string &Cowstr::str() const { return *value_; }
 
-const char *Cowstr::rawstr() const { return value_->c_str(); }
+const char *Cowstr::rawstr() const {
+  return empty() ? nullptr : value_->c_str();
+}
 
 int Cowstr::length() const { return (int)value_->length(); }
 
@@ -56,14 +83,14 @@ const char *Cowstr::rbegin() const {
 const char *Cowstr::rend() const { return value_->c_str() - 1; }
 
 Cowstr &Cowstr::insert(int index, const char &c, int count) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->insert(index, count, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::insert(int index, const Cowstr &s) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->insert(index, s.str());
   value_ = nv;
   return *this;
@@ -71,14 +98,14 @@ Cowstr &Cowstr::insert(int index, const Cowstr &s) {
 
 Cowstr &Cowstr::insert(int index, std::vector<Cowstr>::const_iterator begin,
                        std::vector<Cowstr>::const_iterator end) {
-  sps nv(new std::string(*value_));
-  nv->insert(index, mergeCowstrs(begin, end));
+  sps nv = dupsps(value_);
+  nv->insert(index, merge(begin, end));
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::erase(int index, int count) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->erase(index, count);
   value_ = nv;
   return *this;
@@ -86,21 +113,21 @@ Cowstr &Cowstr::erase(int index, int count) {
 
 Cowstr &Cowstr::popend(int count) {
   count = std::min<int>(count, length());
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->erase(length() - count, count);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::append(const char &c, int count) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->append(count, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::append(const Cowstr &s) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->append(s.str());
   value_ = nv;
   return *this;
@@ -108,27 +135,27 @@ Cowstr &Cowstr::append(const Cowstr &s) {
 
 Cowstr &Cowstr::append(std::vector<Cowstr>::const_iterator begin,
                        std::vector<Cowstr>::const_iterator end) {
-  sps nv(new std::string(*value_));
-  nv->append(mergeCowstrs(begin, end));
+  sps nv = dupsps(value_);
+  nv->append(merge(begin, end));
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::operator+=(const Cowstr &s) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   *nv += s.str();
   value_ = nv;
   return *this;
 }
 
 Cowstr Cowstr::operator+(const char &c) const {
-  std::string r(*value_);
+  std::string r = str();
   r.append(1, c);
   return Cowstr(r);
 }
 
 Cowstr Cowstr::operator+(const Cowstr &s) const {
-  std::string r(*value_);
+  std::string r = str();
   r.append(s.str());
   return Cowstr(r);
 }
@@ -184,23 +211,9 @@ Cowstr &Cowstr::replace(const Cowstr &from, const Cowstr &to) {
       ss << (*value_)[i++];
     }
   }
-  sps nv(new std::string(ss.str()));
+  sps nv(dupstd(ss.str()));
   value_ = nv;
   return *this;
-}
-
-template <typename T>
-std::string replaceSet(const T &fromset, const Cowstr &to,
-                       const std::string &value) {
-  std::stringstream ss;
-  for (int i = 0; i < value.length(); i++) {
-    if (fromset.find(value[i]) != fromset.end()) {
-      ss << to.str();
-    } else {
-      ss << value[i];
-    }
-  }
-  return ss.str();
 }
 
 Cowstr &Cowstr::replace(const std::unordered_set<char> &from, const char &to) {
@@ -212,7 +225,7 @@ Cowstr &Cowstr::replace(const std::unordered_set<char> &from,
   if (from.empty()) {
     return *this;
   }
-  sps nv(new std::string(replaceSet(from, to, *value_)));
+  sps nv(dupstd(replaceSet(from, to, *value_)));
   value_ = nv;
   return *this;
 }
@@ -225,7 +238,7 @@ Cowstr &Cowstr::replace(const std::set<char> &from, const Cowstr &to) {
   if (from.empty()) {
     return *this;
   }
-  sps nv(new std::string(replaceSet(from, to, *value_)));
+  sps nv(dupstd(replaceSet(from, to, *value_)));
   value_ = nv;
   return *this;
 }
@@ -247,7 +260,7 @@ Cowstr &Cowstr::replace(const std::unordered_map<char, Cowstr> &mapping) {
   if (mapping.empty()) {
     return *this;
   }
-  sps nv(new std::string(replaceMap(mapping, *value_)));
+  sps nv(dupstd(replaceMap(mapping, *value_)));
   value_ = nv;
   return *this;
 }
@@ -256,20 +269,20 @@ Cowstr &Cowstr::replace(const std::map<char, Cowstr> &mapping) {
   if (mapping.empty()) {
     return *this;
   }
-  sps nv(new std::string(replaceMap(mapping, *value_)));
+  sps nv(dupstd(replaceMap(mapping, *value_)));
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::replace(int index, int count, const char &c) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->replace(index, count, 1, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::replace(int index, int count, const Cowstr &s) {
-  sps nv(new std::string(*value_));
+  sps nv = dupsps(value_);
   nv->replace(index, count, s.str());
   value_ = nv;
   return *this;
