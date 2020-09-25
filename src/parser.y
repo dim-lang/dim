@@ -573,7 +573,7 @@ compileUnit : topStat optionalTopStats {
                     topStats = ($1)
                         ? (new A_TopStats($1, topStats, @$))
                         : topStats;
-                    Y_SCANNER->compileUnit() = new A_CompileUnit(topStats, @$);
+                    Y_SCANNER->compileUnit() = new A_CompileUnit(Y_SCANNER->fileName(), topStats, @$);
                 }
             ;
 

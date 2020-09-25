@@ -500,7 +500,8 @@ public:
 
 class A_CompileUnit : public Ast {
 public:
-  A_CompileUnit(A_TopStats *a_topStats, const Location &location);
+  A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
+                const Location &location);
   virtual ~A_CompileUnit();
   virtual AstKind kind() const;
   A_TopStats *topStats;

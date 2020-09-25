@@ -2,18 +2,17 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Ast.h"
 #include "Cowstr.h"
 #include "Name.h"
+#include "Symbol.h"
 #include "enum.h"
+#include "llvm/IR/GlobalValue.h"
+#include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include <memory>
-
-class Ast;
-class Symbol;
-class TypeSymbol;
-class Scope;
 
 /*================ kind start from 5000 ================*/
 BETTER_ENUM(IrKind, int,
@@ -30,30 +29,34 @@ BETTER_ENUM(IrKind, int,
 
 /* class list */
 class Ir;
+
 class I_Module;
 class I_FuncDef;
-class I_Call;
-class I_Constant;
-class I_BinaryOp;
-class I_UnaryOp;
-class I_Condition;
-class I_Loop;
-class I_Return;
+class I_GVarDef;
+class I_VarDef;
+class I_ConstantExpr;
 
 // Ir {
 
 class Ir {
 public:
   virtual ~Ir() = default;
+  virtual llvm::Value *value() const = 0;
   virtual Cowstr str() const = 0;
+
+  static std::shared_ptr<Ir> expr(I_Module *a_iModule, Ast *a_ast,
+                                  std::shared_ptr<Scope> a_scope);
+  static std::shared_ptr<Ir> expr(I_FuncDef *a_iFuncDef, Ast *a_ast,
+                                  std::shared_ptr<Scope> a_scope);
 };
 
 // Ir }
 
 class I_Module : public Ir, public Nameable {
 public:
-  I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope, const Cowstr &a_name);
-  virtual ~I_Module() = default;
+  I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope);
+  virtual ~I_Module();
+  virtual llvm::Value *value() const;
   virtual Cowstr str() const;
 
   Ast *ast;
@@ -71,9 +74,9 @@ public:
 
 class I_FuncDef : public Ir, public Nameable {
 public:
-  I_FuncDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope,
-            const Cowstr &a_name);
+  I_FuncDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope);
   virtual ~I_FuncDef() = default;
+  virtual llvm::Value *value() const;
   virtual Cowstr str() const;
 
   I_Module *iModule;
@@ -85,88 +88,81 @@ public:
   std::vector<std::shared_ptr<Ir>> basicBlocks;
 };
 
-class IrGVarDef : public Ir {
-public:
-  virtual ~IrGVarDef() = default;
-  virtual Cowstr str() const = 0;
-};
-
-class IrVarDef : public Ir {
-public:
-  virtual ~IrVarDef() = default;
-  virtual Cowstr str() const = 0;
-};
-
 // boolean
 // byte, ubyte
 // short, ushort
 // int, uint
 // long, ulong
-class I_IGVarDef : public IrGVarDef, public Nameable {
-public:
-  I_IGVarDef(I_Module *a_iModule, const Cowstr &a_name,
-             llvm::ConstantInt *a_initializer = nullptr);
-  virtual ~I_IGVarDef() = default;
-  virtual Cowstr str() const;
-
-  I_Module *iModule;
-  llvm::ConstantInt *initializer;
-};
-
 // float, double
-class I_FGVarDef : public IrGVarDef, public Nameable {
+class I_GVarDef : public Ir, public Nameable {
 public:
-  I_FGVarDef(I_Module *a_iModule, const Cowstr &a_name,
-             llvm::ConstantFP *a_initializer = nullptr);
-  virtual ~I_FGVarDef() = default;
+  I_IGVarDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope);
+  virtual ~I_IGVarDef() = default;
+  virtual llvm::Value *value() const;
   virtual Cowstr str() const;
 
   I_Module *iModule;
-  llvm::ConstantFP *initializer;
+  Ast *ast;
+  std::shared_ptr<Scope> scope;
+
+  llvm::GlobalVariable *globalVariable;
+
+  std::shared_ptr<Ir> expr;
+
+private:
+  llvm::GlobalVariable *getInt(const Cowstr &name,
+                               llvm::ConstantInt *initializer);
+  llvm::GlobalVariable *getFP(const Cowstr &name,
+                              llvm::ConstantFP *initializer);
 };
 
-class I_IVarDef : public IrVarDef, public Nameable {
+class I_VarDef : public Ir, public Nameable {
 public:
-  I_IVarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
-            llvm::ConstantInt *a_initializer = nullptr);
-  virtual ~I_IVarDef() = default;
-  virtual Cowstr str() const;
+  I_VarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
+           llvm::ConstantInt *a_initializer = nullptr);
+  virtual ~I_VarDef() = default;
+  virtual llvm::Value *value();
 
   I_FuncDef *iFunc;
-  llvm::ConstantInt *initializer;
+  Ast *ast;
+  std::shared_ptr<Scope> scope;
+
+  llvm::AllocaInst *allocaVariable;
+
+  std::shared_ptr<Ir> expr;
 };
 
-class I_FVarDef : public IrVarDef, public Nameable {
+class I_ConstantExpr : public Ir, public Nameable {
 public:
-  I_FVarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
-            llvm::ConstantFP *a_initializer = nullptr);
-  virtual ~I_FVarDef() = default;
-  virtual Cowstr str() const;
-
-  I_FuncDef *iFunc;
-  llvm::ConstantFP *initializer;
+  I_ConstantExpr();
 };
+
+class I_ConstantInt : public Ir, public Nameable {};
+
+class I_ConstantFP : public Ir, public Nameable {};
+
+class I_ConstantVoid : public Ir, public Nameable {};
 
 class I_Condition : public Ir {
 public:
   virtual ~I_Condition() = default;
-  virtual Cowstr str() const;
+  virtual llvm::Value *value();
 };
 
 class I_Call : public Ir {
 public:
   virtual ~I_Call() = default;
-  virtual Cowstr str() const;
+  virtual llvm::Value *value();
 };
 
 class I_BinaryOp : public Ir {
 public:
   virtual ~I_BinaryOp() = default;
-  virtual Cowstr str() const;
+  virtual llvm::Value *value();
 };
 
 class I_UnaryOp : public Ir {
 public:
   virtual ~I_UnaryOp() = default;
-  virtual Cowstr str() const;
+  virtual llvm::Value *value();
 };

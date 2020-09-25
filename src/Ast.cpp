@@ -723,8 +723,9 @@ A_TopStats::~A_TopStats() {
 
 AstKind A_TopStats::kind() const { return AstKind::TopStats; }
 
-A_CompileUnit::A_CompileUnit(A_TopStats *a_topStats, const Location &location)
-    : Ast("compileUnit", location), topStats(a_topStats) {}
+A_CompileUnit::A_CompileUnit(const &Cowstr name, A_TopStats *a_topStats,
+                             const Location &location)
+    : Ast(name, location), topStats(a_topStats) {}
 
 A_CompileUnit::~A_CompileUnit() { DEL(topStats); }
 

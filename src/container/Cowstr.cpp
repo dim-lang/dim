@@ -297,51 +297,63 @@ Cowstr Cowstr::subString(int index, int count) const {
 }
 
 int Cowstr::find(const char &c, int index) const {
-  return value_->find(c, index);
+  size_t r = value_->find(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::find(const Cowstr &s, int index) const {
-  return value_->find(s.str(), index);
+  size_t r = value_->find(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::rfind(const char &c, int index) const {
-  return value_->rfind(c, index);
+  size_t r = value_->rfind(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::rfind(const Cowstr &s, int index) const {
-  return value_->rfind(s.str(), index);
+  size_t r = value_->rfind(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findFirstOf(const char &c, int index) const {
-  return value_->find_first_of(c, index);
+  size_t r = value_->find_first_of(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findFirstOf(const Cowstr &s, int index) const {
-  return value_->find_first_of(s.str(), index);
+  size_t r = value_->find_first_of(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findLastOf(const char &c, int index) const {
-  return value_->find_last_of(c, index);
+  size_t r = value_->find_last_of(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findLastOf(const Cowstr &s, int index) const {
-  return value_->find_last_of(s.str(), index);
+  size_t r = value_->find_last_of(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findFirstNotOf(const char &c, int index) const {
-  return value_->find_first_not_of(c, index);
+  size_t r = value_->find_first_not_of(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findFirstNotOf(const Cowstr &s, int index) const {
-  return value_->find_first_not_of(s.str(), index);
+  size_t r = value_->find_first_not_of(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findLastNotOf(const char &c, int index) const {
-  return value_->find_last_not_of(c, index);
+  size_t r = value_->find_last_not_of(c, index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 int Cowstr::findLastNotOf(const Cowstr &s, int index) const {
-  return value_->find_last_not_of(s.str(), index);
+  size_t r = value_->find_last_not_of(s.str(), index);
+  return r == std::string::npos ? (-1) : (int)r;
 }
 
 bool Cowstr::operator==(const Cowstr &other) const {
