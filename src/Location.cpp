@@ -12,6 +12,28 @@ Cowstr Position::str() const {
   return Cowstr(fmt::format("{}.{}", line, column));
 }
 
+bool Position::operator==(const Position &pos) const {
+  return (&pos == this) || (line == pos.line && column == pos.column);
+}
+
+bool Position::operator!=(const Position &pos) const { return !(pos == *this); }
+
+bool Position::operator>(const Position &pos) const {
+  return line == pos.line ? column > pos.column : line > pos.line;
+}
+
+bool Position::operator>=(const Position &pos) const {
+  return *this > pos || *this == pos;
+}
+
+bool Position::operator<(const Position &pos) const {
+  return line == pos.line ? column < pos.column : line < pos.line;
+}
+
+bool Position::operator<=(const Position &pos) const {
+  return *this < pos || *this == pos;
+}
+
 // Position }
 
 // Location {
@@ -27,10 +49,33 @@ Cowstr Location::str() const {
   return Cowstr(fmt::format("{}-{}", begin.str().str(), end.str().str()));
 }
 
+bool Location::operator==(const Location &loc) const {
+  return (&loc == this) || (begin == loc.begin && end == loc.end);
+}
+
+bool Location::operator!=(const Location &loc) const { return !(loc == *this); }
+
+bool Location::operator>(const Location &loc) const {
+  return end == loc.end ? begin > loc.begin : end > loc.end;
+}
+
+bool Location::operator>=(const Location &loc) const {
+  return *this > loc || *this == loc;
+}
+
+bool Location::operator<(const Location &loc) const {
+  return end == loc.end ? begin < loc.begin : end < loc.end;
+}
+
+bool Location::operator<=(const Location &loc) const {
+  return *this < loc || *this == loc;
+}
+
 // Location }
 
-Locationable::Locationable(const Location &location) : location_(location) {}
+LocationableImpl::LocationableImpl(const Location &location)
+    : locationableImpl_(location) {}
 
-Location &Locationable::location() { return location_; }
+Location &LocationableImpl::location() { return locationableImpl_; }
 
-const Location &Locationable::location() const { return location_; }
+const Location &LocationableImpl::location() const { return locationableImpl_; }

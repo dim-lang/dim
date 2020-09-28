@@ -10,14 +10,21 @@
 
 class Nameable {
 public:
-  Nameable();
-  Nameable(const Cowstr &name);
   virtual ~Nameable() = default;
+  virtual Cowstr &name() = 0;
+  virtual const Cowstr &name() const = 0;
+};
+
+class NameableImpl : public Nameable {
+public:
+  NameableImpl();
+  NameableImpl(const Cowstr &name);
+  virtual ~NameableImpl() = default;
   virtual Cowstr &name();
   virtual const Cowstr &name() const;
 
 private:
-  Cowstr name_;
+  Cowstr nameableImpl_;
 };
 
 class NameGenerator {

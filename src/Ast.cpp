@@ -23,7 +23,7 @@
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)
-    : Nameable(name), Locationable(location) {}
+    : NameableImpl(name), LocationableImpl(location) {}
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)

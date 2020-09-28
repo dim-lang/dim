@@ -49,6 +49,12 @@ class Scope;
 
 class Ownable {
 public:
+  virtual ~Ownable() = default;
+  virtual std::shared_ptr<Scope> owner() const = 0;
+};
+
+class OwnableImpl : public Ownable {
+public:
   Ownable(std::shared_ptr<Scope> owner);
   virtual ~Ownable() = default;
   virtual std::shared_ptr<Scope> owner() const;
@@ -57,7 +63,10 @@ protected:
   std::shared_ptr<Scope> owner_;
 };
 
-class Symbol : private boost::noncopyable {
+class Symbol : public Nameable,
+               public Locationable,
+               public Ownable,
+               private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
   virtual SymbolKind kind() const = 0;
@@ -68,7 +77,10 @@ public:
   virtual const Location &location() const = 0;
 };
 
-class TypeSymbol : private boost::noncopyable {
+class TypeSymbol : public Nameable,
+                   public Locationable,
+                   public Ownable,
+                   private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
   virtual TypeSymbolKind kind() const = 0;
@@ -97,7 +109,10 @@ struct TypeSymbolData {
   virtual ~TypeSymbolData() = default;
 };
 
-class Scope : private boost::noncopyable {
+class Scope : public Nameable,
+              public Locationable,
+              public Ownable,
+              private boost::noncopyable {
 public:
   using s_map = LinkedHashMap<Cowstr, SymbolData>;
   using ts_map = LinkedHashMap<Cowstr, TypeSymbolData>;
@@ -165,9 +180,9 @@ protected:
   virtual std::shared_ptr<Scope> owner() const;
 
 class S_Var : public Symbol,
-              public Nameable,
-              public Locationable,
-              public Ownable {
+              public NameableImpl,
+              public LocationableImpl,
+              public OwnableImpl {
 public:
   S_Var(const Cowstr &name, const Location &location,
         std::shared_ptr<Scope> owner);
@@ -178,9 +193,9 @@ public:
 
 class S_Func : public Symbol,
                public Scope,
-               public Nameable,
-               public Locationable,
-               public Ownable {
+               public NameableImpl,
+               public LocationableImpl,
+               public OwnableImpl {
 public:
   S_Func(const Cowstr &name, const Location &location,
          std::shared_ptr<Scope> owner);
@@ -193,9 +208,9 @@ public:
 };
 
 class S_Param : public Symbol,
-                public Nameable,
-                public Locationable,
-                public Ownable {
+                public NameableImpl,
+                public LocationableImpl,
+                public OwnableImpl {
 public:
   S_Param(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);
@@ -205,9 +220,9 @@ public:
 };
 
 class S_Field : public Symbol,
-                public Nameable,
-                public Locationable,
-                public Ownable {
+                public NameableImpl,
+                public LocationableImpl,
+                public OwnableImpl {
 public:
   S_Field(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);
@@ -218,9 +233,9 @@ public:
 
 class S_Method : public Symbol,
                  public Scope,
-                 public Nameable,
-                 public Locationable,
-                 public Ownable {
+                 public NameableImpl,
+                 public LocationableImpl,
+                 public OwnableImpl {
 public:
   S_Method(const Cowstr &name, const Location &location,
            std::shared_ptr<Scope> owner);
@@ -235,9 +250,9 @@ public:
 
 class S_Local : public Symbol,
                 public Scope,
-                public Nameable,
-                public Locationable,
-                public Ownable {
+                public NameableImpl,
+                public LocationableImpl,
+                public OwnableImpl {
 public:
   S_Local(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);
@@ -250,9 +265,9 @@ public:
 
 class S_Global : public Symbol,
                  public Scope,
-                 public Nameable,
-                 public Locationable,
-                 public Ownable {
+                 public NameableImpl,
+                 public LocationableImpl,
+                 public OwnableImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
@@ -272,9 +287,9 @@ public:
 // boolean
 // void
 class Ts_Plain : public TypeSymbol,
-                 public Nameable,
-                 public Locationable,
-                 public Ownable {
+                 public NameableImpl,
+                 public LocationableImpl,
+                 public OwnableImpl {
 public:
   Ts_Plain(const Cowstr &name, std::shared_ptr<Scope> owner);
   virtual ~Ts_Plain() = default;
@@ -284,9 +299,9 @@ public:
 
 class Ts_Class : public TypeSymbol,
                  public Scope,
-                 public Nameable,
-                 public Locationable,
-                 public Ownable {
+                 public NameableImpl,
+                 public LocationableImpl,
+                 public OwnableImpl {
 public:
   Ts_Class(const Cowstr &name, const Location &location,
            std::shared_ptr<Scope> owner);
@@ -301,9 +316,9 @@ public:
 };
 
 class Ts_Func : public TypeSymbol,
-                public Nameable,
-                public Locationable,
-                public Ownable {
+                public NameableImpl,
+                public LocationableImpl,
+                public OwnableImpl {
 public:
   Ts_Func(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);

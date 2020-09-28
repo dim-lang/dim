@@ -109,16 +109,19 @@ Scope::ts_const_iterator Scope::ts_cend() const { return tsmap_.cend(); }
 
 // symbol {
 
+#define SYMBOL_CONSTRUCTOR                                                     \
+  NameableImpl(name), LocationableImpl(location), OwnableImpl(owner)
+
 #define SYMBOL_GENERATOR(s)                                                    \
-  Cowstr &s::name() { return Nameable::name(); }                               \
-  const Cowstr &s::name() const { return Nameable::name(); }                   \
-  Location &s::location() { return Locationable::location(); }                 \
-  const Location &s::location() const { return Locationable::location(); }     \
-  std::shared_ptr<Scope> s::owner() const { return Ownable::owner(); }
+  Cowstr &s::name() { return NameableImpl::name(); }                           \
+  const Cowstr &s::name() const { return NameableImpl::name(); }               \
+  Location &s::location() { return LocationableImpl::location(); }             \
+  const Location &s::location() const { return LocationableImpl::location(); } \
+  std::shared_ptr<Scope> s::owner() const { return OwnableImpl::owner(); }
 
 S_Var::S_Var(const Cowstr &name, const Location &location,
              std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Var::kind() const { return SymbolKind::Var; }
 
@@ -126,7 +129,7 @@ SYMBOL_GENERATOR(S_Var)
 
 S_Func::S_Func(const Cowstr &name, const Location &location,
                std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Func::kind() const { return SymbolKind::Func; }
 
@@ -138,7 +141,7 @@ SYMBOL_GENERATOR(S_Func)
 
 S_Param::S_Param(const Cowstr &name, const Location &location,
                  std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Param::kind() const { return SymbolKind::Param; }
 
@@ -146,7 +149,7 @@ SYMBOL_GENERATOR(S_Param)
 
 S_Field::S_Field(const Cowstr &name, const Location &location,
                  std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Field::kind() const { return SymbolKind::Field; }
 
@@ -154,7 +157,7 @@ SYMBOL_GENERATOR(S_Field)
 
 S_Method::S_Method(const Cowstr &name, const Location &location,
                    std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 
@@ -166,7 +169,7 @@ SYMBOL_GENERATOR(S_Method)
 
 S_Local::S_Local(const Cowstr &name, const Location &location,
                  std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Local::kind() const { return SymbolKind::Local; }
 
@@ -177,7 +180,7 @@ bool S_Local::isTypeSymbol() const { return false; }
 SYMBOL_GENERATOR(S_Local)
 
 S_Global::S_Global(const Cowstr &name, const Location &location)
-    : Nameable(name), Locationable(location), Ownable(nullptr) {}
+    : NameableImpl(name), LocationableImpl(location), OwnableImpl(nullptr) {}
 
 SymbolKind S_Global::kind() const { return SymbolKind::Global; }
 
@@ -192,7 +195,7 @@ SYMBOL_GENERATOR(S_Global)
 // type symbol {
 
 Ts_Plain::Ts_Plain(const Cowstr &name, std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(Location()), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 
@@ -200,7 +203,7 @@ SYMBOL_GENERATOR(Ts_Plain)
 
 Ts_Class::Ts_Class(const Cowstr &name, const Location &location,
                    std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 TypeSymbolKind Ts_Class::kind() const { return TypeSymbolKind::Class; }
 
@@ -212,7 +215,7 @@ SYMBOL_GENERATOR(Ts_Class)
 
 Ts_Func::Ts_Func(const Cowstr &name, const Location &location,
                  std::shared_ptr<Scope> owner)
-    : Nameable(name), Locationable(location), Ownable(owner) {}
+    : SYMBOL_CONSTRUCTOR {}
 
 TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 

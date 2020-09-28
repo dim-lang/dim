@@ -15,7 +15,17 @@ public:
 
   int line;
   int column;
+
+  // to string
   virtual Cowstr str() const;
+
+  // comparison
+  virtual bool operator==(const Position &pos) const;
+  virtual bool operator!=(const Position &pos) const;
+  virtual bool operator>(const Position &pos) const;
+  virtual bool operator>=(const Position &pos) const;
+  virtual bool operator<(const Position &pos) const;
+  virtual bool operator<=(const Position &pos) const;
 };
 
 class Location {
@@ -29,16 +39,33 @@ public:
 
   Position begin;
   Position end;
+
+  // to string
   virtual Cowstr str() const;
+
+  // comparison
+  virtual bool operator==(const Location &loc) const;
+  virtual bool operator!=(const Location &loc) const;
+  virtual bool operator>(const Location &loc) const;
+  virtual bool operator>=(const Location &loc) const;
+  virtual bool operator<(const Location &loc) const;
+  virtual bool operator<=(const Location &loc) const;
 };
 
 class Locationable {
 public:
-  Locationable(const Location &location = Location());
   virtual ~Locationable() = default;
+  virtual Location &location() = 0;
+  virtual const Location &location() const = 0;
+};
+
+class LocationableImpl : public Locationable {
+public:
+  LocationableImpl(const Location &location = Location());
+  virtual ~LocationableImpl() = default;
   virtual Location &location();
   virtual const Location &location() const;
 
-private:
-  Location location_;
+protected:
+  Location locationableImpl_;
 };

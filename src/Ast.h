@@ -89,7 +89,9 @@ class A_CompileUnit;
 
 // Ast {
 
-class Ast : public Nameable, public Locationable, private boost::noncopyable {
+class Ast : public NameableImpl,
+            public LocationableImpl,
+            private boost::noncopyable {
 public:
   Ast(const Cowstr &name, const Location &location = Location());
   virtual ~Ast() = default;
