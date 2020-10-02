@@ -30,20 +30,20 @@ Nerd combines object-oriented and functional programming paradigms, inspired by 
     * bison: `$ echo 'export PATH=/usr/local/opt/bison/bin:$PATH' >> ~/.bash_profile`.
     * llvm: `$ echo 'export LLVM_DIR=/usr/local/opt/llvm/lib/cmake' >> ~/.bash_profile`.
 
-#### windows dependencies
+#### Windows dependencies
 
-* Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with:
+Note: we use PowerShell as default command line instead of legacy cmd on Windows.
+
+* Install [Visual Studio](https://visualstudio.microsoft.com/downloads/) with options:
     * .NET desktop development
     * Visual C++ desktop development
     * Common Windows Platform development
-* Install [cmake](https://cmake.org/download/) and add `cmake.exe` to `%PATH%`.
-* Install [git](https://git-scm.com/downloads) with options below, `git.exe` and other UNIX/Linux commands such as `cp.exe` `mv.exe` `rm.exe` are enabled in Windows CMD after this step.
-    * Use Git and optional Unix tools from the Command Prompt.
-    * Use Windows' default console window.
-* Install [win_flex_bison3-latest.zip](https://sourceforge.net/projects/winflexbison/files/) and add `win_flex.exe` and `win_bison.exe` to `%PATH%`.
-* Install [python3](https://www.python.org/downloads/) and add `python3.exe` and `pip3.exe` to `%PATH%`.
-* Please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) from github release for Windows if git clone is slow.
-* Please download [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/) from sourceforge for Windows if git clone is slow.
+* Install [chocolatey](https://chocolatey.org/), then install third party dependencies through chocolatey (run as administrator), add `git.exe`, `cmake.exe`, `win_flex.exe`, `win_bison.exe`, `python3.exe` to `$env:Path`:
+```
+$ choco install git cmake winflexbison3 python
+```
+
+Nerd installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `nerd/src` if these 2 packages are too large to git clone.
 
 #### Build
 
