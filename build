@@ -90,6 +90,7 @@ function build_install() {
 }
 
 function build_graph() {
+    cd test/case
     for f in *
     do
         if [ ${f: -4} == ".dot" ]; then
@@ -142,7 +143,6 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -g|--graph)
-            cd test/case
             build_graph
             exit 0
             ;;
