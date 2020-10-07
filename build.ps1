@@ -118,5 +118,12 @@ Function Build-Graph {
 Function Build-Help {
     Write-Output "[nerd] build help message:"
     Write-Output "usage:"
-    Write-Output "  build -r/--release      build release."
+    Write-Output "  build -r/--release              build release."
+    Write-Output "  build -d/--debug                build debug."
+    Write-Output "  build -p/--parser               generate tokenizer and parser."
+    Write-Output "  build [option] -i/--install     install with [--path] option."
+    Write-Output "option:"
+    Write-Output "  --path                          config install path prefix, by default is C:\Program Files\nerd."
+    Write-Output "flag:"
+    Write-Output "  build -h/--help                 show help message."
 }

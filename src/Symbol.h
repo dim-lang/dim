@@ -19,7 +19,9 @@ BETTER_ENUM(SymbolKind, int,
             // class
             Field, Method,
             // scope
-            Local, Global)
+            Local, Global,
+            // type symbol
+            PlainType, FuncType, ClassType)
 
 /*================ type symbol kind enum start from 3000 ================*/
 BETTER_ENUM(TypeSymbolKind, int,
@@ -42,8 +44,8 @@ class Scope;
  * Symbol = Var, Param
  * Symbol+Scope = Func, Method, Local, Global
  * TypeSymbol =
- *    PlainType: int, long, boolean, void, etc
- *    FuncType: (int, int)=>int, etc
+ *    Plain: int, long, boolean, void, etc
+ *    Func: (int, int)=>int, etc
  * TypeSymbol+Scope = Class
  */
 
@@ -63,41 +65,54 @@ protected:
   std::shared_ptr<Scope> owner_;
 };
 
+class Typeable {
+public:
+  virtual ~Typeable() = default;
+  virtual std::shared_ptr<TypeSymbol> type() const = 0;
+};
+
+class TypeableImpl : public Typeable {
+public:
+  TypeableImpl(std::shared_ptr<TypeSymbol> a_typeableImpl);
+  virtual ~TypeableImpl() = default;
+  virtual std::shared_ptr<TypeSymbol> type() const;
+
+protected:
+  std::shared_ptr<TypeSymbol> typeableImpl_;
+};
+
+#define SYMBOL_INTERFACE                                                       \
+  virtual std::shared_ptr<Scope> owner() const = 0;                            \
+  virtual Cowstr &name() = 0;                                                  \
+  virtual const Cowstr &name() const = 0;                                      \
+  virtual Location &location() = 0;                                            \
+  virtual const Location &location() const = 0;                                \
+  virtual SymbolKind kind() const = 0;                                         \
+  virtual std::shared_ptr<TypeSymbol> type() const = 0;
+
 class Symbol : public Nameable,
                public Locationable,
                public Ownable,
+               public Typeable,
                private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
-  virtual SymbolKind kind() const = 0;
-  virtual std::shared_ptr<Scope> owner() const = 0;
-  virtual Cowstr &name() = 0;
-  virtual const Cowstr &name() const = 0;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
+  SYMBOL_INTERFACE
+
+  static bool isSymbol(std::shared_ptr<Symbol> symbol);
+  static bool isTypeSymbol(std::shared_ptr<Symbol> symbol);
 };
 
-class TypeSymbol : public Nameable,
-                   public Locationable,
-                   public Ownable,
-                   private boost::noncopyable {
+class TypeSymbol : public Symbol {
 public:
   virtual ~TypeSymbol() = default;
-  virtual TypeSymbolKind kind() const = 0;
-  virtual std::shared_ptr<Scope> owner() const = 0;
-  virtual Cowstr &name() = 0;
-  virtual const Cowstr &name() const = 0;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
+  SYMBOL_INTERFACE
 };
 
 struct SymbolData {
   std::shared_ptr<Symbol> symbol;
-  std::shared_ptr<TypeSymbol> typeSymbol;
 
-  SymbolData(std::shared_ptr<Symbol> a_symbol,
-             std::shared_ptr<TypeSymbol> a_typeSymbol)
-      : symbol(a_symbol), typeSymbol(a_typeSymbol) {}
+  SymbolData(std::shared_ptr<Symbol> a_symbol) : symbol(a_symbol) {}
   virtual ~SymbolData() = default;
 };
 
@@ -109,100 +124,73 @@ struct TypeSymbolData {
   virtual ~TypeSymbolData() = default;
 };
 
-class Scope : public Nameable,
-              public Locationable,
-              public Ownable,
-              private boost::noncopyable {
+class Scope : public Symbol {
 public:
-  using s_map = LinkedHashMap<Cowstr, SymbolData>;
-  using ts_map = LinkedHashMap<Cowstr, TypeSymbolData>;
-  using s_iterator = s_map::iterator;
-  using s_const_iterator = s_map::const_iterator;
-  using ts_iterator = ts_map::iterator;
-  using ts_const_iterator = ts_map::const_iterator;
+  using scope_map = LinkedHashMap<Cowstr, std::shared_ptr<Symbol>>;
+  using scope_iterator = scope_map::iterator;
+  using scope_const_iterator = scope_map::const_iterator;
 
   virtual ~Scope() = default;
 
-  static std::shared_ptr<Scope> from(Ast *compileUnit);
+  // static std::shared_ptr<Scope> from(Ast *compileUnit);
   // static void check(Ast *compileUnit, std::shared_ptr<Symbol> symbol);
 
-  virtual std::shared_ptr<Scope> owner() const = 0;
-  virtual Cowstr &name() = 0;
-  virtual const Cowstr &name() const = 0;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
-  virtual bool isSymbol() const = 0;
-  virtual bool isTypeSymbol() const = 0;
+  SYMBOL_INTERFACE
 
   // scope api
-  virtual void s_define(std::shared_ptr<Symbol> s,
-                        std::shared_ptr<TypeSymbol> ts);
-  virtual void ts_define(std::shared_ptr<TypeSymbol> ts);
-  virtual SymbolData s_resolve(const Cowstr &name) const;
-  virtual TypeSymbolData ts_resolve(const Cowstr &name) const;
-  virtual bool s_resolveContains(const Cowstr &name) const;
-  virtual bool ts_resolveContains(const Cowstr &name) const;
+  virtual void define(std::shared_ptr<Symbol> symbol);
+  virtual std::shared_ptr<Symbol> resolve(const Cowstr &name) const;
 
-  // work only in plain level
-  virtual bool s_contains(const Cowstr &name) const;
-  virtual bool ts_contains(const Cowstr &name) const;
-  virtual bool s_empty() const;
-  virtual bool ts_empty() const;
-  virtual int s_size() const;
-  virtual int ts_size() const;
-
-  virtual s_iterator s_begin();
-  virtual s_const_iterator s_begin() const;
-  virtual s_const_iterator s_cbegin() const;
-  virtual s_iterator s_end();
-  virtual s_const_iterator s_end() const;
-  virtual s_const_iterator s_cend() const;
-
-  virtual ts_iterator ts_begin();
-  virtual ts_const_iterator ts_begin() const;
-  virtual ts_const_iterator ts_cbegin() const;
-  virtual ts_iterator ts_end();
-  virtual ts_const_iterator ts_end() const;
-  virtual ts_const_iterator ts_cend() const;
+  // work only in current map, not recursively
+  virtual bool contains(const Cowstr &name) const;
+  virtual bool empty() const;
+  virtual int size() const;
+  virtual scope_iterator begin();
+  virtual scope_const_iterator begin() const;
+  virtual scope_const_iterator cbegin() const;
+  virtual scope_iterator end();
+  virtual scope_const_iterator end() const;
+  virtual scope_const_iterator cend() const;
 
 protected:
-  s_map smap_;
-  ts_map tsmap_;
+  scope_map smap_;
 };
+
+#undef SYMBOL_INTERFACE
 
 // symbol {
 
 #define SYMBOL_DECLARATOR                                                      \
+  virtual std::shared_ptr<Scope> owner() const;                                \
   virtual Cowstr &name();                                                      \
   virtual const Cowstr &name() const;                                          \
   virtual Location &location();                                                \
   virtual const Location &location() const;                                    \
-  virtual std::shared_ptr<Scope> owner() const;
+  virtual std::shared_ptr<TypeSymbol> type() const;
 
 class S_Var : public Symbol,
               public NameableImpl,
               public LocationableImpl,
-              public OwnableImpl {
+              public OwnableImpl,
+              public TypeableImpl {
 public:
   S_Var(const Cowstr &name, const Location &location,
-        std::shared_ptr<Scope> owner);
+        std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner);
   virtual ~S_Var() = default;
   virtual SymbolKind kind() const;
   SYMBOL_DECLARATOR
 };
 
-class S_Func : public Symbol,
-               public Scope,
+class S_Func : public Scope,
                public NameableImpl,
                public LocationableImpl,
-               public OwnableImpl {
+               public OwnableImpl,
+               public TypeableImpl {
 public:
   S_Func(const Cowstr &name, const Location &location,
          std::shared_ptr<Scope> owner);
   virtual ~S_Func() = default;
   virtual SymbolKind kind() const;
-  virtual bool isSymbol() const;
-  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
   std::vector<std::shared_ptr<Symbol>> params;
 };
@@ -210,10 +198,11 @@ public:
 class S_Param : public Symbol,
                 public NameableImpl,
                 public LocationableImpl,
-                public OwnableImpl {
+                public OwnableImpl,
+                public TypeableImpl {
 public:
   S_Param(const Cowstr &name, const Location &location,
-          std::shared_ptr<Scope> owner);
+          std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner);
   virtual ~S_Param() = default;
   virtual SymbolKind kind() const;
   SYMBOL_DECLARATOR
@@ -222,58 +211,52 @@ public:
 class S_Field : public Symbol,
                 public NameableImpl,
                 public LocationableImpl,
-                public OwnableImpl {
+                public OwnableImpl,
+                public TypeableImpl {
 public:
   S_Field(const Cowstr &name, const Location &location,
-          std::shared_ptr<Scope> owner);
+          std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner);
   virtual ~S_Field() = default;
   virtual SymbolKind kind() const;
   SYMBOL_DECLARATOR
 };
 
-class S_Method : public Symbol,
-                 public Scope,
+class S_Method : public Scope,
                  public NameableImpl,
                  public LocationableImpl,
-                 public OwnableImpl {
+                 public OwnableImpl,
+                 public TypeableImpl {
 public:
   S_Method(const Cowstr &name, const Location &location,
            std::shared_ptr<Scope> owner);
   virtual ~S_Method() = default;
   virtual SymbolKind kind() const;
-  virtual bool isSymbol() const;
-  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
-
   std::vector<std::shared_ptr<Symbol>> params;
 };
 
-class S_Local : public Symbol,
-                public Scope,
+class S_Local : public Scope,
                 public NameableImpl,
                 public LocationableImpl,
-                public OwnableImpl {
+                public OwnableImpl,
+                public TypeableImpl {
 public:
   S_Local(const Cowstr &name, const Location &location,
           std::shared_ptr<Scope> owner);
   virtual ~S_Local() = default;
   virtual SymbolKind kind() const;
-  virtual bool isSymbol() const;
-  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 };
 
-class S_Global : public Symbol,
-                 public Scope,
+class S_Global : public Scope,
                  public NameableImpl,
                  public LocationableImpl,
-                 public OwnableImpl {
+                 public OwnableImpl,
+                 public TypeableImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
   virtual SymbolKind kind() const;
-  virtual bool isSymbol() const;
-  virtual bool isTypeSymbol() const;
   SYMBOL_DECLARATOR
 };
 
