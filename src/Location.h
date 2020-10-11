@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 #include "parser.tab.hh"
 #include <string>
 
@@ -50,22 +50,4 @@ public:
   virtual bool operator>=(const Location &loc) const;
   virtual bool operator<(const Location &loc) const;
   virtual bool operator<=(const Location &loc) const;
-};
-
-class Locationable {
-public:
-  virtual ~Locationable() = default;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
-};
-
-class LocationableImpl : public Locationable {
-public:
-  LocationableImpl(const Location &location = Location());
-  virtual ~LocationableImpl() = default;
-  virtual Location &location();
-  virtual const Location &location() const;
-
-protected:
-  Location locationableImpl_;
 };

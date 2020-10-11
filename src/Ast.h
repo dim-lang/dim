@@ -2,15 +2,17 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Location.h"
-#include "Name.h"
+#include "Cowstr.h"
+#include "Identifiable.h"
+#include "Locationable.h"
+#include "Nameable.h"
 #include "boost/core/noncopyable.hpp"
-#include "container/Cowstr.h"
 #include "enum.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <deque>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -34,6 +36,9 @@ BETTER_ENUM(AstKind, int,
             CompileUnit, TopStats)
 
 /*================ class ================*/
+
+class Symbol;
+class Scope;
 
 /* ast */
 class Ast;
@@ -91,6 +96,7 @@ class A_CompileUnit;
 
 class Ast : public NameableImpl,
             public LocationableImpl,
+            public IdentifiableImpl,
             private boost::noncopyable {
 public:
   Ast(const Cowstr &name, const Location &location = Location());
@@ -108,6 +114,7 @@ public:
   // virtual const Cowstr &name() const;
   // virtual Location &location();
   // virtual const Location &location() const;
+  // virtual unsigned long long identifier() const;
 };
 
 // Ast }
@@ -240,6 +247,9 @@ public:
   A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
+
+  std::shared_ptr<Symbol> symbol;
+  std::shared_ptr<Scope> scope;
 };
 
 // id }

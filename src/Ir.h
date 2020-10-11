@@ -4,7 +4,7 @@
 #pragma once
 #include "Ast.h"
 #include "Cowstr.h"
-#include "Name.h"
+#include "Nameable.h"
 #include "Symbol.h"
 #include "enum.h"
 #include "llvm/IR/GlobalValue.h"

@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 #include "Log.h"
 #include "catch2/catch.hpp"
 #include <algorithm>
@@ -10,7 +10,7 @@
 #define C_MIN 0
 #define C_MAX 100
 
-TEST_CASE("container/Cowstr", "[container/Cowstr]") {
+TEST_CASE("Cowstr", "[Cowstr]") {
   SECTION("basic") {
     Cowstr s1;
     Cowstr s2("hello");

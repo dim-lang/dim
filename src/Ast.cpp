@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+static Counter IdentifierCounter;
+
 #define DEL(x)                                                                 \
   do {                                                                         \
     if (x) {                                                                   \
@@ -23,7 +25,8 @@
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)
-    : NameableImpl(name), LocationableImpl(location) {}
+    : NameableImpl(name), LocationableImpl(location),
+      CountableImpl(IdentifierCounter.next()) {}
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)

@@ -78,8 +78,8 @@ set(NERD_TEST
     MainTest.cpp
     ConfigureTest.cpp
     LogTest.cpp
-    container/CycleBufferTest.cpp
-    container/LinkedHashMapTest.cpp
+    CycleBufferTest.cpp
+    LinkedHashMapTest.cpp
     FileTest.cpp
     # ExceptionTest.cpp
     # TimerTest.cpp

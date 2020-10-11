@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Location.h"
-#include "Name.h"
+#include "LinkedHashMap.h"
+#include "Locationable.h"
+#include "Nameable.h"
 #include "boost/core/noncopyable.hpp"
-#include "container/LinkedHashMap.h"
 #include "enum.h"
 #include <memory>
 

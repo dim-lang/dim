@@ -1,16 +1,16 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Ir.h"
 #include "Ast.h"
 #include "Dump.h"
+#include "Ir.h"
 #include "IrFactory.h"
 #include "IrUtil.h"
+#include "LinkedHashMap.hpp"
 #include "Log.h"
 #include "NameGenerator.h"
 #include "Symbol.h"
 #include "TokenName.h"
-#include "container/LinkedHashMap.hpp"
 #include "fmt/format.h"
 #include "parser.tab.hh"
 #include "llvm/ADT/STLExtras.h"

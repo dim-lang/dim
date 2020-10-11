@@ -3,29 +3,10 @@
 
 #pragma once
 #include "Counter.h"
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 #include "fmt/format.h"
 #include <algorithm>
 #include <sstream>
-
-class Nameable {
-public:
-  virtual ~Nameable() = default;
-  virtual Cowstr &name() = 0;
-  virtual const Cowstr &name() const = 0;
-};
-
-class NameableImpl : public Nameable {
-public:
-  NameableImpl();
-  NameableImpl(const Cowstr &name);
-  virtual ~NameableImpl() = default;
-  virtual Cowstr &name();
-  virtual const Cowstr &name() const;
-
-private:
-  Cowstr nameableImpl_;
-};
 
 class NameGenerator {
 public:
@@ -57,11 +38,11 @@ private:
   }
 };
 
-class CounterNameGenerator {
+class CountNameGenerator {
 public:
-  CounterNameGenerator(const Cowstr &a_delimiter = "",
-                       const Cowstr &a_prefix = "");
-  virtual ~CounterNameGenerator() = default;
+  CountNameGenerator(const Cowstr &a_delimiter = "",
+                     const Cowstr &a_prefix = "");
+  virtual ~CountNameGenerator() = default;
 
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;

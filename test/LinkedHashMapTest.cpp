@@ -1,11 +1,11 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "container/LinkedHashMap.h"
+#include "LinkedHashMap.h"
+#include "LinkedHashMap.hpp"
 #include "Log.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "catch2/catch.hpp"
-#include "container/LinkedHashMap.hpp"
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -242,7 +242,7 @@ void testRemove(std::string a, std::string b) {
   }
 }
 
-TEST_CASE("container/LinkedHashMap", "[container/LinkedHashMap]") {
+TEST_CASE("LinkedHashMap", "[LinkedHashMap]") {
   SECTION("constructor") {
     testConstructor((char)1, (unsigned char)1);
     testConstructor((unsigned char)1, (char)1);

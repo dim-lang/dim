@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 #include "parser.tab.hh"
 
 struct Token {

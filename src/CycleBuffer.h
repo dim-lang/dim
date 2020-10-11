@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 #include <cstdio>
 
 namespace detail {
@@ -173,16 +173,16 @@ protected:
 
 } // namespace detail
 
-class DynamicBuffer : public detail::CycleBuffer<1> {
+class DynamicCycleBuffer : public detail::CycleBuffer<1> {
 public:
-  DynamicBuffer(int capacity = 0);
-  virtual ~DynamicBuffer();
+  DynamicCycleBuffer(int capacity = 0);
+  virtual ~DynamicCycleBuffer() = default;
   virtual Cowstr str() const;
 };
 
-class FixedBuffer : public detail::CycleBuffer<0> {
+class FixedCycleBuffer : public detail::CycleBuffer<0> {
 public:
-  FixedBuffer(int capacity);
-  virtual ~FixedBuffer();
+  FixedCycleBuffer(int capacity);
+  virtual ~FixedCycleBuffer() = default;
   virtual Cowstr str() const;
 };

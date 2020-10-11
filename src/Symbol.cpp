@@ -4,11 +4,11 @@
 #include "Symbol.h"
 #include "Ast.h"
 #include "Counter.h"
+#include "LinkedHashMap.hpp"
 #include "Location.h"
 #include "Log.h"
 #include "Name.h"
 #include "Token.h"
-#include "container/LinkedHashMap.hpp"
 
 Ownable::Ownable(std::shared_ptr<Scope> owner) : owner_(owner) {}
 

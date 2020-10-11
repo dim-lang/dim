@@ -3,7 +3,7 @@
 
 #pragma once
 #include "Ast.h"
-#include "container/Cowstr.h"
+#include "Cowstr.h"
 
 class Label {
 public:

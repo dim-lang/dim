@@ -5,12 +5,12 @@
 #include "Ast.h"
 #include "Counter.h"
 #include "Files.h"
+#include "LinkedHashMap.hpp"
 #include "Log.h"
 #include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
-#include "container/LinkedHashMap.hpp"
 
 static const std::unordered_map<char, Cowstr> HtmlTranslator = {
     {'\\', "\\\\"},

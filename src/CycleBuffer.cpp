@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "container/CycleBuffer.h"
+#include "CycleBuffer.h"
 #include "Log.h"
 #include "fmt/format.h"
 #include <algorithm>
@@ -545,27 +545,23 @@ const char *CycleBuffer<D>::rsearch(const char *s, int n) const {
 
 } // namespace detail
 
-DynamicBuffer::DynamicBuffer(int capacity) {
+DynamicCycleBuffer::DynamicCycleBuffer(int capacity) {
   if (capacity > 0) {
     expand(ALIGN(capacity + 1));
   }
 }
 
-DynamicBuffer::~DynamicBuffer() {}
-
-Cowstr DynamicBuffer::str() const {
-  return fmt::format("[@DynamicBuffer {}]", detail::CycleBuffer<1>::str());
+Cowstr DynamicCycleBuffer::str() const {
+  return fmt::format("[@DynamicCycleBuffer {}]", detail::CycleBuffer<1>::str());
 }
 
-FixedBuffer::FixedBuffer(int capacity) {
+FixedCycleBuffer::FixedCycleBuffer(int capacity) {
   if (capacity > 0) {
     // precise capacity
     expand(capacity + 1);
   }
 }
 
-FixedBuffer::~FixedBuffer() {}
-
-Cowstr FixedBuffer::str() const {
-  return fmt::format("[@FixedBuffer {}]", detail::CycleBuffer<0>::str());
+Cowstr FixedCycleBuffer::str() const {
+  return fmt::format("[@FixedCycleBuffer {}]", detail::CycleBuffer<0>::str());
 }

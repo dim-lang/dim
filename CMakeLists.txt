@@ -130,8 +130,8 @@ set(NERD_LIB_DIR
 set(NERD_CORE
     # src/Log.cpp
     # src/Exception.cpp
-    src/container/Cowstr.cpp
-    src/container/CycleBuffer.cpp
+    src/Cowstr.cpp
+    src/CycleBuffer.cpp
     # src/Timer.cpp
     # src/DateTime.cpp
     src/Files.cpp
@@ -205,10 +205,10 @@ set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 set(NERD_TEST
     test/MainTest.cpp
     test/ConfigureTest.cpp
-    test/container/CowstrTest.cpp
+    test/CowstrTest.cpp
     test/LogTest.cpp
-    test/container/CycleBufferTest.cpp
-    test/container/LinkedHashMapTest.cpp
+    test/CycleBufferTest.cpp
+    test/LinkedHashMapTest.cpp
     test/FilesTest.cpp
     test/NameTest.cpp
     # test/ExceptionTest.cpp

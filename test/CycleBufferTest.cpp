@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "container/CycleBuffer.h"
+#include "CycleBuffer.h"
 #include "Log.h"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
@@ -11,7 +11,7 @@
 #define C_MIN 0
 #define C_MAX 100
 
-TEST_CASE("container/CycleBuffer", "[container/CycleBuffer]") {
+TEST_CASE("CycleBuffer", "[CycleBuffer]") {
   SECTION("attribute") {
     {
       DynamicBuffer db;
