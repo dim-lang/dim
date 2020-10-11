@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Typeable.h"
+#include "interface/Typeable.h"
 
 TypeableImpl::TypeableImpl(std::shared_ptr<TypeSymbol> typeableImpl)
     : typeableImpl_(typeableImpl) {}

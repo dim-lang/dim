@@ -326,8 +326,8 @@ AstKind A_Void::kind() const { return AstKind::Void; }
 
 // A_VarId {
 
-A_VarId::A_VarId(const Cowstr &literal, const Location &location)
-    : Ast(literal, location) {}
+A_VarId::A_VarId(const Cowstr &literal, const Location &location, Ast *parent)
+    : Ast(literal, location), ParentableImpl(parent) {}
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
 

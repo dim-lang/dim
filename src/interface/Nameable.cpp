@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Nameable.h"
+#include "interface/Nameable.h"
 
 NameableImpl::NameableImpl() : nameableImpl_("") {}
 

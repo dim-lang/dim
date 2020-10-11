@@ -3,11 +3,12 @@
 
 #pragma once
 #include "Cowstr.h"
-#include "Identifiable.h"
-#include "Locationable.h"
-#include "Nameable.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
+#include "interface/Identifiable.h"
+#include "interface/Locationable.h"
+#include "interface/Nameable.h"
+#include "interface/Parentable.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -242,14 +243,17 @@ public:
 
 // id {
 
-class A_VarId : public Ast {
+class A_VarId : public Ast, public ParentableImpl {
 public:
-  A_VarId(const Cowstr &literal, const Location &location);
+  A_VarId(const Cowstr &literal, const Location &location,
+          Ast *parent = nullptr);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
 
   std::shared_ptr<Symbol> symbol;
   std::shared_ptr<Scope> scope;
+
+  // virtual Ast *parent() const;
 };
 
 // id }

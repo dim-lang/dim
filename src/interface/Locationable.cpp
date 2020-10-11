@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Locationable.h"
+#include "interface/Locationable.h"
 
 LocationableImpl::LocationableImpl(const Location &location)
     : locationableImpl_(location) {}

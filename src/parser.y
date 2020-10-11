@@ -351,7 +351,7 @@ expr : "if" "(" expr ")" optionalNewlines expr %prec "then" { $$ = new A_If($3, 
      | postfixExpr { $$ = $1; }
      ;
 
-enumerators : id "<-" expr { $$ = new A_LoopEnumerator($1, $3, @$); }
+enumerators : id "<-" expr { Ast* tmp = new A_LoopEnumerator($1, $3, @$); $1->parent() = tmp; $$ = tmp; }
             | optionalVarDef ";" optionalExpr ";" optionalExpr { $$ = new A_LoopCondition($1, $3, $5, @$); }
             ;
 
@@ -368,14 +368,14 @@ optionalExpr : expr { $$ = $1; }
  * "=" "+=" "-=" "*=" "/=" "%=" "&=" "|=" "^=" "<<=" ">>=" ">>>="
  */
 
-assignExpr : id "=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "+=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "-=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "*=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "/=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "%=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "&=" expr { $$ = new A_Assign($1, $2, $3, @$); }
-           | id "|=" expr { $$ = new A_Assign($1, $2, $3, @$); }
+assignExpr : id "=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "+=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "-=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "*=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "/=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "%=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "&=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
+           | id "|=" expr { Ast *tmp = new A_Assign($1, $2, $3, @$); $1->parent() = tmp; $$ = tmp; }
            | id "^=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            | id "<<=" expr { $$ = new A_Assign($1, $2, $3, @$); }
            | id ">>=" expr { $$ = new A_Assign($1, $2, $3, @$); }
