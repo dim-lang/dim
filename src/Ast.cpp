@@ -22,6 +22,17 @@ static Counter IdentifierCounter;
     }                                                                          \
   } while (0)
 
+namespace detail {
+
+ParentableImpl::ParentableImpl(Ast *parentableImpl)
+    : parentableImpl_(parentableImpl) {}
+
+Ast *&ParentableImpl::parent() { return parentableImpl_; }
+
+Ast *ParentableImpl::parent() const { return parentableImpl_; }
+
+} // namespace detail
+
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)

@@ -8,6 +8,25 @@
 #include <algorithm>
 #include <sstream>
 
+class Nameable {
+public:
+  virtual ~Nameable() = default;
+  virtual Cowstr &name() = 0;
+  virtual const Cowstr &name() const = 0;
+};
+
+class NameableImpl : public Nameable {
+public:
+  NameableImpl();
+  NameableImpl(const Cowstr &name);
+  virtual ~NameableImpl() = default;
+  virtual Cowstr &name();
+  virtual const Cowstr &name() const;
+
+private:
+  Cowstr nameableImpl_;
+};
+
 class NameGenerator {
 public:
   NameGenerator(const Cowstr &a_delimiter = "", const Cowstr &a_prefix = "",

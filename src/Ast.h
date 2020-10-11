@@ -3,12 +3,11 @@
 
 #pragma once
 #include "Cowstr.h"
+#include "Identifiable.h"
+#include "Location.h"
+#include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
-#include "interface/Identifiable.h"
-#include "interface/Locationable.h"
-#include "interface/Nameable.h"
-#include "interface/Parentable.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -92,6 +91,27 @@ class A_VarDef;
 /* compile unit */
 class A_TopStats;
 class A_CompileUnit;
+
+namespace detail {
+
+class Parentable {
+public:
+  virtual ~Parentable() = default;
+  virtual Ast *parent() const = 0;
+};
+
+class ParentableImpl : public Parentable {
+public:
+  ParentableImpl(Ast *parentableImpl = nullptr);
+  virtual ~ParentableImpl() = default;
+  virtual Ast *&parent();
+  virtual Ast *parent() const;
+
+protected:
+  Ast *parentableImpl_;
+};
+
+} // namespace detail
 
 // Ast {
 

@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "interface/Identifiable.h"
+#include "Identifiable.h"
 #include "Counter.h"
 
 static Counter IdentifiableImplCounter;

@@ -3,8 +3,8 @@
 
 #pragma once
 #include "LinkedHashMap.h"
-#include "Locationable.h"
-#include "Nameable.h"
+#include "Location.h"
+#include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include <memory>
@@ -49,6 +49,8 @@ class Scope;
  * TypeSymbol+Scope = Class
  */
 
+namespace detail {
+
 class Ownable {
 public:
   virtual ~Ownable() = default;
@@ -80,6 +82,8 @@ public:
 protected:
   std::shared_ptr<TypeSymbol> typeableImpl_;
 };
+
+} // namespace detail
 
 #define SYMBOL_INTERFACE                                                       \
   virtual std::shared_ptr<Scope> owner() const = 0;                            \
