@@ -416,7 +416,8 @@ public:
 class S_Global : public detail::ScopeImpl,
                  public NameableImpl,
                  public LocationableImpl,
-                 public detail::OwnableImpl {
+                 public detail::OwnableImpl,
+                 public detail::AstableImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;

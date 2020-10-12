@@ -3,33 +3,9 @@
 
 #pragma once
 #include "Cowstr.h"
-#include "boost/core/noncopyable.hpp"
-#include <memory>
 class Ast;
-class Scope;
 
-class Graph : private boost::noncopyable {
+class Graph {
 public:
-  virtual ~Graph() = default;
-  virtual int draw(const Cowstr &output) const = 0;
-};
-
-class AstGraph : public Graph {
-public:
-  AstGraph(Ast *ast);
-  virtual ~AstGraph() = default;
-  virtual int draw(const Cowstr &output) const;
-
-private:
-  Ast *ast_;
-};
-
-class SymbolGraph : public Graph {
-public:
-  SymbolGraph(std::shared_ptr<Scope> scope);
-  virtual ~SymbolGraph() = default;
-  virtual int draw(const Cowstr &output) const;
-
-private:
-  std::shared_ptr<Scope> scope_;
+  static int draw(Ast *ast, const Cowstr &output);
 };

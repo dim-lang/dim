@@ -249,11 +249,11 @@ std::shared_ptr<TypeSymbol> TypeSymbol::ts_void() {
 static std::shared_ptr<Scope> createImpl(Ast *ast,
                                          std::shared_ptr<Scope> scope);
 
-static void checkImpl(Ast *ast);
+static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope);
 
 void Scope::create(Ast *compileUnit) {
-  createImpl(compileUnit, std::shared_ptr<Scope>(nullptr));
-  checkImpl(compileUnit);
+  createImpl(compileUnit, nullptr);
+  checkImpl(compileUnit, nullptr);
 }
 
 // symbol {
@@ -374,6 +374,7 @@ static std::shared_ptr<Scope> createImpl(Ast *ast,
     globalScope->ts_define(TypeSymbol::ts_char());
     globalScope->ts_define(TypeSymbol::ts_boolean());
     globalScope->ts_define(TypeSymbol::ts_void());
+    std::static_pointer_cast<S_Global>(globalScope)->ast() = e;
     e->globalScope = globalScope;
     createImpl(e->topStats, globalScope);
     return globalScope;
@@ -595,6 +596,186 @@ static std::shared_ptr<Scope> createImpl(Ast *ast,
     // Break
     // Continue
     // VarId
+    // Integer
+    // Float
+    // Boolean
+    // Character
+    // String
+    // Nil
+    // Void
+    return scope;
+  }
+}
+
+static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
+  if (!ast)
+    return;
+  switch (ast->kind()) {
+  case AstKind::CompileUnit: {
+    A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);
+    checkImpl(e->topStats, e->globalScope);
+    break;
+  }
+  case AstKind::TopStats: {
+    A_TopStats *e = static_cast<A_TopStats *>(ast);
+    checkImpl(e->topStat, scope);
+    checkImpl(e->next, scope);
+    break;
+  }
+  case AstKind::FuncDef: {
+    A_FuncDef *e = static_cast<A_FuncDef *>(ast);
+    A_FuncSign *sign = static_cast<A_FuncSign *>(e->funcSign);
+    A_VarId *varId = static_cast<A_VarId *>(sign->id);
+    LOG_ASSERT(varId->symbol, "function {} symbol must not null",
+               varId->name());
+    LOG_ASSERT(varId->symbol->kind() == (+SymbolKind::Func),
+               "function->symbol->kind {} == SymbolKind::Func",
+               varId->symbol->kind()._to_string());
+    scptr functionScope = std::static_pointer_cast<Scope>(varId->symbol);
+    createImpl(e->funcSign, functionScope);
+    createImpl(e->body, functionScope);
+    break;
+  }
+  case AstKind::FuncSign: {
+    A_FuncSign *e = static_cast<A_FuncSign *>(ast);
+    createImpl(e->params, scope);
+    break;
+  }
+  case AstKind::Block: {
+    A_Block *e = static_cast<A_Block *>(ast);
+    scptr localScope = e->localScope;
+    // use local scope as new enclosing scope
+    createImpl(e->blockStats, localScope);
+    break;
+  }
+  case AstKind::BlockStats: {
+    A_BlockStats *e = static_cast<A_BlockStats *>(ast);
+    createImpl(e->blockStat, scope);
+    createImpl(e->next, scope);
+    break;
+  }
+  case AstKind::If: {
+    A_If *e = static_cast<A_If *>(ast);
+    createImpl(e->condition, scope);
+    createImpl(e->thenp, scope);
+    createImpl(e->elsep, scope);
+    break;
+  }
+  case AstKind::Loop: {
+    A_Loop *e = static_cast<A_Loop *>(ast);
+    scptr loopScope = e->localScope;
+    // use local scope as new enclosing scope
+    createImpl(e->condition, loopScope);
+    createImpl(e->body, loopScope);
+    break;
+  }
+  case AstKind::LoopCondition: {
+    A_LoopCondition *e = static_cast<A_LoopCondition *>(ast);
+    createImpl(e->init, scope);
+    createImpl(e->condition, scope);
+    createImpl(e->update, scope);
+    break;
+  }
+  case AstKind::LoopEnumerator: {
+    A_LoopEnumerator *e = static_cast<A_LoopEnumerator *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::Yield: {
+    A_Yield *e = static_cast<A_Yield *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::DoWhile: {
+    A_DoWhile *e = static_cast<A_DoWhile *>(ast);
+    createImpl(e->body, scope);
+    createImpl(e->condition, scope);
+    break;
+  }
+  case AstKind::Try: {
+    A_Try *e = static_cast<A_Try *>(ast);
+    createImpl(e->tryp, scope);
+    createImpl(e->catchp, scope);
+    createImpl(e->finallyp, scope);
+    break;
+  }
+  case AstKind::Throw: {
+    A_Throw *e = static_cast<A_Throw *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::Return: {
+    A_Return *e = static_cast<A_Return *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::Assign: {
+    A_Assign *e = static_cast<A_Assign *>(ast);
+    A_VarId *varId = static_cast<A_VarId *>(e->assignee);
+    sptr variableSymbol = scope->s_resolve(varId->name());
+    LOG_ASSERT(variableSymbol, "assignee {} must already defined in scope {}",
+               varId->name(), scope->name());
+    LOG_ASSERT(variableSymbol->type(),
+               "assignee {} must already defined with type {}", varId->name(),
+               variableSymbol->type()->name());
+    createImpl(e->assignor, scope);
+    break;
+  }
+  case AstKind::PostfixExpr: {
+    A_PostfixExpr *e = static_cast<A_PostfixExpr *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::InfixExpr: {
+    A_InfixExpr *e = static_cast<A_InfixExpr *>(ast);
+    createImpl(e->left, scope);
+    createImpl(e->right, scope);
+    break;
+  }
+  case AstKind::PrefixExpr: {
+    A_PrefixExpr *e = static_cast<A_PrefixExpr *>(ast);
+    createImpl(e->expr, scope);
+    break;
+  }
+  case AstKind::VarId: {
+    A_VarId *varId = static_cast<A_VarId *>(ast);
+    sptr variableSymbol = scope->s_resolve(varId->name());
+    LOG_ASSERT(variableSymbol, "variable {} must already defined in scope {}",
+               varId->name(), scope->name());
+    LOG_ASSERT(variableSymbol->kind() == (+SymbolKind::Var),
+               "variableSymbol->kind {} == SymbolKind::Var",
+               variableSymbol->kind()._to_string());
+    LOG_ASSERT(variableSymbol->type(),
+               "variable {} must already defined with type {}", varId->name(),
+               variableSymbol->type()->name());
+    break;
+  }
+  case AstKind::Call: {
+    A_Call *e = static_cast<A_Call *>(ast);
+    A_VarId *varId = static_cast<A_VarId *>(e->id);
+    sptr functionSymbol = scope->s_resolve(varId->name());
+    LOG_ASSERT(functionSymbol, "function {} must already defined in scope {}",
+               varId->name(), scope->name());
+    LOG_ASSERT(functionSymbol->kind() == (+SymbolKind::Func),
+               "functionSymbol->kind {} == SymbolKind::Func",
+               functionSymbol->kind()._to_string());
+    LOG_ASSERT(functionSymbol->type(),
+               "function {} must already defined with type {}", varId->name(),
+               functionSymbol->type()->name());
+    createImpl(e->args, scope);
+    break;
+  }
+  case AstKind::Exprs: {
+    A_Exprs *e = static_cast<A_Exprs *>(ast);
+    createImpl(e->expr, scope);
+    createImpl(e->next, scope);
+    break;
+  }
+  default:
+    // Params
+    // Param
+    // Break
+    // Continue
     // Integer
     // Float
     // Boolean
