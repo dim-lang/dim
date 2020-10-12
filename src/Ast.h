@@ -16,7 +16,6 @@
 #include <sstream>
 #include <string>
 
-/*================ ast kind enum start from 1000 ================*/
 BETTER_ENUM(AstKind, int,
             // literal
             Integer = 1000, Float, Boolean, Character, String, Nil, Void,
@@ -38,6 +37,7 @@ BETTER_ENUM(AstKind, int,
 /*================ class ================*/
 
 class Symbol;
+class TypeSymbol;
 class Scope;
 
 /* ast */
@@ -53,6 +53,7 @@ class A_Nil;
 class A_Void;
 
 /* id */
+class AstId;
 class A_VarId;
 
 /* expression without block */
@@ -79,6 +80,7 @@ class A_Block;
 class A_BlockStats;
 
 /* type */
+class AstType;
 class A_PlainType;
 
 /* declaration and definition */
@@ -92,6 +94,7 @@ class A_VarDef;
 class A_TopStats;
 class A_CompileUnit;
 
+#if 0
 namespace detail {
 
 class Parentable {
@@ -112,6 +115,7 @@ protected:
 };
 
 } // namespace detail
+#endif
 
 // Ast {
 
@@ -263,17 +267,20 @@ public:
 
 // id {
 
-class A_VarId : public Ast, public ParentableImpl {
+// class AstId : public Ast {
+// public:
+//   AstId(const Cowstr &literal, const Location &location, Ast *parent =
+//   nullptr); virtual ~AstId() = default;
+// };
+
+class A_VarId : public Ast {
 public:
-  A_VarId(const Cowstr &literal, const Location &location,
-          Ast *parent = nullptr);
+  A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
 
   std::shared_ptr<Symbol> symbol;
-  std::shared_ptr<Scope> scope;
-
-  // virtual Ast *parent() const;
+  std::shared_ptr<TypeSymbol> typeSymbol;
 };
 
 // id }
@@ -390,6 +397,8 @@ public:
   virtual AstKind kind() const;
   Ast *condition;
   Ast *body;
+
+  std::shared_ptr<Scope> localScope;
 };
 
 class A_Yield : public Ast {
@@ -413,10 +422,12 @@ public:
 
 class A_LoopEnumerator : public Ast {
 public:
-  A_LoopEnumerator(Ast *a_id, Ast *a_expr, const Location &location);
+  A_LoopEnumerator(Ast *a_id, Ast *a_type, Ast *a_expr,
+                   const Location &location);
   virtual ~A_LoopEnumerator();
   virtual AstKind kind() const;
   Ast *id;
+  Ast *type;
   Ast *expr;
 };
 
@@ -445,6 +456,8 @@ public:
   virtual ~A_Block();
   virtual AstKind kind() const;
   A_BlockStats *blockStats;
+
+  std::shared_ptr<Scope> localScope;
 };
 
 class A_BlockStats : public Ast {
@@ -461,11 +474,19 @@ public:
 
 // type {
 
+// class AstType : public Ast {
+// public:
+//   AstType(const Cowstr &literal, const Location &location,
+//           Ast *parent = nullptr);
+//   virtual ~AstType() = default;
+// };
+
 class A_PlainType : public Ast {
 public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
   virtual AstKind kind() const;
+
   int token;
 };
 
@@ -489,6 +510,7 @@ public:
   A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location);
   virtual ~A_FuncSign();
   virtual AstKind kind() const;
+
   Ast *id;
   A_Params *params;
 };
@@ -507,6 +529,7 @@ public:
   A_Param(Ast *a_id, Ast *a_type, const Location &location);
   virtual ~A_Param();
   virtual AstKind kind() const;
+
   Ast *id;
   Ast *type;
 };
@@ -541,6 +564,8 @@ public:
   virtual ~A_CompileUnit();
   virtual AstKind kind() const;
   A_TopStats *topStats;
+
+  std::shared_ptr<Scope> globalScope;
 };
 
 // compile unit }

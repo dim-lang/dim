@@ -122,10 +122,10 @@ static void dumpSymbol(const std::vector<std::string> &fileNameList) {
       fmt::print("Error! syntax error in {}!", fileName);
       return;
     }
-    SymbolGraph g(Scope::from(scanner.compileUnit()));
-    Cowstr dumpfile = fmt::format("{}.symbol.dot", fileName);
-    g.draw(dumpfile);
-    fmt::print("Dumping symbol in {}\n", dumpfile);
+    // SymbolGraph g(Scope::from(scanner.compileUnit()));
+    // Cowstr dumpfile = fmt::format("{}.symbol.dot", fileName);
+    // g.draw(dumpfile);
+    // fmt::print("Dumping symbol in {}\n", dumpfile);
   }
 }
 

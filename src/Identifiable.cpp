@@ -7,7 +7,7 @@
 static Counter IdentifiableImplCounter;
 
 IdentifiableImpl::IdentifiableImpl()
-    : identifiableImpl_(IdentifiableImplCounter.next()) {}
+    : identifiableImpl_(IdentifiableImplCounter.count()) {}
 
 IdentifiableImpl::IdentifiableImpl(unsigned long long identifiableImpl)
     : identifiableImpl_(identifiableImpl) {}

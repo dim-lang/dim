@@ -57,16 +57,16 @@ private:
   }
 };
 
-class CountNameGenerator {
+class CounterNameGenerator {
 public:
-  CountNameGenerator(const Cowstr &a_delimiter = "",
-                     const Cowstr &a_prefix = "");
-  virtual ~CountNameGenerator() = default;
+  CounterNameGenerator(const Cowstr &a_delimiter = "",
+                       const Cowstr &a_prefix = "");
+  virtual ~CounterNameGenerator() = default;
 
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;
     ss << nameGenerator_.generate(args...) << nameGenerator_.delimiter
-       << counter_.next();
+       << counter_.count();
     return ss.str();
   }
 

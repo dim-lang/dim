@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-static Counter IdentifierCounter;
+static Counter AstIDCounter;
 
 #define DEL(x)                                                                 \
   do {                                                                         \
@@ -22,6 +22,7 @@ static Counter IdentifierCounter;
     }                                                                          \
   } while (0)
 
+#if 0
 namespace detail {
 
 ParentableImpl::ParentableImpl(Ast *parentableImpl)
@@ -32,12 +33,13 @@ Ast *&ParentableImpl::parent() { return parentableImpl_; }
 Ast *ParentableImpl::parent() const { return parentableImpl_; }
 
 } // namespace detail
+#endif
 
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)
     : NameableImpl(name), LocationableImpl(location),
-      CountableImpl(IdentifierCounter.next()) {}
+      IdentifiableImpl(AstIDCounter.count()) {}
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)
@@ -335,10 +337,13 @@ AstKind A_Void::kind() const { return AstKind::Void; }
 
 // id {
 
+// AstId::AstId(const Cowstr &literal, const Location &location, Ast *parent)
+//     : Ast(literal, location), detail::ParentableImpl(parent) {}
+
 // A_VarId {
 
-A_VarId::A_VarId(const Cowstr &literal, const Location &location, Ast *parent)
-    : Ast(literal, location), ParentableImpl(parent) {}
+A_VarId::A_VarId(const Cowstr &literal, const Location &location)
+    : Ast(literal, location), symbol(nullptr), typeSymbol(nullptr) {}
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
 
@@ -511,7 +516,8 @@ AstKind A_If::kind() const { return AstKind::If; }
 // A_Loop {
 
 A_Loop::A_Loop(Ast *a_condition, Ast *a_body, const Location &location)
-    : Ast("loop", location), condition(a_condition), body(a_body) {
+    : Ast("loop", location), condition(a_condition), body(a_body),
+      localScope(nullptr) {
   LOG_ASSERT(condition, "condition must not null");
   LOG_ASSERT(body, "body must not null");
 }
@@ -556,15 +562,17 @@ A_LoopCondition::~A_LoopCondition() {
 
 // A_LoopEnumerator {
 
-A_LoopEnumerator::A_LoopEnumerator(Ast *a_id, Ast *a_expr,
+A_LoopEnumerator::A_LoopEnumerator(Ast *a_id, Ast *a_type, Ast *a_expr,
                                    const Location &location)
-    : Ast("loopEnumerator", location), id(a_id), expr(a_expr) {
+    : Ast("loopEnumerator", location), id(a_id), type(a_type), expr(a_expr) {
   LOG_ASSERT(id, "id must not null");
+  LOG_ASSERT(type, "type must not null");
   LOG_ASSERT(expr, "expr must not null");
 }
 
 A_LoopEnumerator::~A_LoopEnumerator() {
   DEL(id);
+  DEL(type);
   DEL(expr);
 }
 
@@ -612,7 +620,7 @@ AstKind A_Try::kind() const { return AstKind::Try; }
 // A_Block {
 
 A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
-    : Ast("block", location), blockStats(a_blockStats) {}
+    : Ast("block", location), blockStats(a_blockStats), localScope(nullptr) {}
 
 A_Block::~A_Block() { DEL(blockStats); }
 
@@ -638,6 +646,10 @@ AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
 // expr }
 
 // type {
+
+// AstType::AstType(const Cowstr &literal, const Location &location, Ast
+// *parent)
+//     : Ast(literal, location), detail::ParentableImpl(parent) {}
 
 // A_PlainType {
 
@@ -737,9 +749,9 @@ A_TopStats::~A_TopStats() {
 
 AstKind A_TopStats::kind() const { return AstKind::TopStats; }
 
-A_CompileUnit::A_CompileUnit(const &Cowstr name, A_TopStats *a_topStats,
+A_CompileUnit::A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                              const Location &location)
-    : Ast(name, location), topStats(a_topStats) {}
+    : Ast(name, location), topStats(a_topStats), globalScope(nullptr) {}
 
 A_CompileUnit::~A_CompileUnit() { DEL(topStats); }
 

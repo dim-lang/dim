@@ -7,8 +7,8 @@ class Counter {
 public:
   Counter(unsigned long long value = 1ULL);
   virtual ~Counter() = default;
-  unsigned long long next();
-  unsigned long long count() const;
+  unsigned long long count();
+  unsigned long long total() const;
 
 private:
   unsigned long long value_;

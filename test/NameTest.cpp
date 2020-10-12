@@ -1,8 +1,8 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
+#include "Name.h"
 #include "Log.h"
-#include "Nameable.h"
 #include "catch2/catch.hpp"
 
 TEST_CASE("Name", "[Name]") {

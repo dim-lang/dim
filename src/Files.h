@@ -44,7 +44,7 @@ public:
   virtual int writeln(const Cowstr &buf = "");
 
 protected:
-  DynamicBuffer buffer_;
+  DynamicCycleBuffer buffer_;
 };
 
 } // namespace detail
@@ -71,7 +71,7 @@ private:
   virtual void prepareFor(int n);
   virtual char *prepareUntil(char c);
 
-  DynamicBuffer buffer_;
+  DynamicCycleBuffer buffer_;
 };
 
 class FileWriter : public detail::FileWriterImpl {

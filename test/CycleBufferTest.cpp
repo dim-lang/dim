@@ -14,21 +14,21 @@
 TEST_CASE("CycleBuffer", "[CycleBuffer]") {
   SECTION("attribute") {
     {
-      DynamicBuffer db;
+      DynamicCycleBuffer db;
       REQUIRE(db.capacity() == 0);
       REQUIRE(db.size() == 0);
       REQUIRE(db.empty());
       REQUIRE(db.full());
     }
     {
-      DynamicBuffer db(C_MAX);
+      DynamicCycleBuffer db(C_MAX);
       REQUIRE(db.capacity() >= C_MAX);
       REQUIRE(db.size() == 0);
       REQUIRE(db.empty());
       REQUIRE(!db.full());
     }
     {
-      FixedBuffer fb(C_MAX);
+      FixedCycleBuffer fb(C_MAX);
       REQUIRE(fb.capacity() == C_MAX);
       REQUIRE(fb.size() == 0);
       REQUIRE(fb.empty());
@@ -37,7 +37,7 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
   }
   SECTION("foreach") {
     {
-      DynamicBuffer db;
+      DynamicCycleBuffer db;
       LOG_INFO("db-1: {}", db.str());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
@@ -69,7 +69,7 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      FixedBuffer fb(C_MAX);
+      FixedCycleBuffer fb(C_MAX);
       LOG_INFO("fb-1: {}", fb.str());
       char c;
       for (int i = C_MIN; i < C_MAX; i++) {
@@ -104,8 +104,8 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
   }
   SECTION("read/write") {
     {
-      // DynamicBuffer single byte read
-      DynamicBuffer db;
+      // DynamicCycleBuffer single byte read
+      DynamicCycleBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
         char c = (char)i;
         REQUIRE(db.read(&c, 1) == 1);
@@ -122,8 +122,8 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      // DynamicBuffer block bytes read
-      DynamicBuffer db;
+      // DynamicCycleBuffer block bytes read
+      DynamicCycleBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
         char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
@@ -148,8 +148,8 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      // FixedBuffer single byte read
-      FixedBuffer fb(C_MAX);
+      // FixedCycleBuffer single byte read
+      FixedCycleBuffer fb(C_MAX);
       for (int i = C_MIN; i < C_MAX; i++) {
         char c = (char)i;
         REQUIRE(fb.read(&c, 1) == 1);
@@ -166,9 +166,9 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      // FixedBuffer block bytes read
+      // FixedCycleBuffer block bytes read
       int count = 0;
-      FixedBuffer fb(C_MAX);
+      FixedCycleBuffer fb(C_MAX);
       for (int i = C_MIN; i < C_MAX; i++) {
         char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
@@ -227,8 +227,8 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      // DynamicBuffer single byte write
-      DynamicBuffer db;
+      // DynamicCycleBuffer single byte write
+      DynamicCycleBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
         char c = (char)i;
         REQUIRE(db.read(&c, 1) == 1);
@@ -240,8 +240,8 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
       }
     }
     {
-      // DynamicBuffer block bytes write
-      DynamicBuffer db;
+      // DynamicCycleBuffer block bytes write
+      DynamicCycleBuffer db;
       for (int i = C_MIN; i < C_MAX; i++) {
         char *buf = new char[i + 1];
         for (int j = 0; j < i + 1; j++) {
@@ -278,7 +278,7 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
     };
     {
       std::deque<char> q;
-      DynamicBuffer db;
+      DynamicCycleBuffer db;
       int randc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
         int rn = randint[randc++];
@@ -299,7 +299,7 @@ TEST_CASE("CycleBuffer", "[CycleBuffer]") {
     }
     {
       std::deque<char> q;
-      FixedBuffer fb(C_MAX);
+      FixedCycleBuffer fb(C_MAX);
       int randc = 0;
       for (int i = C_MIN; i < C_MAX; i++) {
         int rn = std::min(randint[randc++], fb.capacity() - fb.size());

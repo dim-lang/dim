@@ -142,6 +142,7 @@ set(NERD_CORE
     # src/NameGenerator.cpp
     src/Name.cpp
     src/Location.cpp
+    src/Identifiable.cpp
     src/Token.cpp
     # src/Buffer.cpp
     # src/BufferStack.cpp
@@ -150,7 +151,7 @@ set(NERD_CORE
     # src/Position.cpp
     src/Counter.cpp
     # src/Dump.cpp
-    src/Graph.cpp
+    # src/Graph.cpp
     src/Symbol.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
@@ -196,10 +197,10 @@ target_link_libraries(nerdcore ${NERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 2. nerdc
-add_executable(nerdc ${NERDC})
-target_include_directories(nerdc PRIVATE ${NERD_INC})
-target_link_libraries(nerdc ${NERD_LIB} nerdcore)
-set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
+# add_executable(nerdc ${NERDC})
+# target_include_directories(nerdc PRIVATE ${NERD_INC})
+# target_link_libraries(nerdc ${NERD_LIB} nerdcore)
+# set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 3. testing
 set(NERD_TEST
@@ -219,7 +220,7 @@ set(NERD_TEST
     test/TokenizerTest.cpp
     test/ParserTest.cpp
     # test/SemanticTest.cpp
-    test/GraphTest.cpp
+    # test/GraphTest.cpp
     # test/NameGeneratorTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp
