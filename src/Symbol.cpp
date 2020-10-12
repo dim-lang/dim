@@ -295,7 +295,8 @@ SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 
 Ts_Plain::Ts_Plain(const Cowstr &name)
     : NameableImpl(name),
-      LocationableImpl(Location()), detail::OwnableImpl(nullptr) {}
+      LocationableImpl(Location(Position(-1, -1), Position(-1, -1))),
+      detail::OwnableImpl(nullptr) {}
 
 TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 

@@ -11,6 +11,7 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
+#include <memory>
 #include <unordered_map>
 
 static const std::unordered_map<char, Cowstr> HtmlTranslator = {
@@ -131,7 +132,7 @@ public:
   std::shared_ptr<GLabel> label;
 
   virtual Cowstr str() {
-    std::unordered_map<Cowstr, Cowstr> &attributes = {
+    const std::unordered_map<Cowstr, Cowstr> &attributes = {
         {"BORDER", "\"0\""},
         {"CELLBORDER", "\"1\""},
         {"CELLSPACING", "\"0\""},
@@ -232,8 +233,8 @@ public:
   std::vector<std::shared_ptr<GEdge>> edges;
 
   virtual int draw() {
-    std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>> &attributes =
-        {
+    const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
+        &attributes = {
             {
                 "node",
                 {
@@ -356,7 +357,7 @@ std::shared_ptr<GNode> node(const Cowstr &id, const GLine &a) {
   std::vector<GLine> lines;
   lines.push_back(a);
   std::shared_ptr<GLabel> label(new GLabel(lines));
-  return std::shared_ptr(new GNode(id, label));
+  return std::shared_ptr<GNode>(new GNode(id, label));
 }
 
 std::shared_ptr<GNode> node(const Cowstr &id, const GLine &a, const GLine &b) {
@@ -364,7 +365,7 @@ std::shared_ptr<GNode> node(const Cowstr &id, const GLine &a, const GLine &b) {
   lines.push_back(a);
   lines.push_back(b);
   std::shared_ptr<GLabel> label(new GLabel(lines));
-  return std::shared_ptr(new GNode(id, label));
+  return std::shared_ptr<GNode>(new GNode(id, label));
 }
 
 std::shared_ptr<GNode> node(const Cowstr &id, const GLine &a, const GLine &b,
@@ -374,7 +375,7 @@ std::shared_ptr<GNode> node(const Cowstr &id, const GLine &a, const GLine &b,
   lines.push_back(b);
   lines.push_back(c);
   std::shared_ptr<GLabel> label(new GLabel(lines));
-  return std::shared_ptr(new GNode(id, label));
+  return std::shared_ptr<GNode>(new GNode(id, label));
 }
 
 std::shared_ptr<GNode> node(const GLine &a) {
@@ -392,7 +393,7 @@ std::shared_ptr<GNode> node(const GLine &a, const GLine &b, const GLine &c) {
 std::shared_ptr<GLabel> label(const GLine &a) {
   std::vector<GLine> lines;
   lines.push_back(a);
-  return std::shared_ptr(new GLabel(lines));
+  return std::shared_ptr<GLabel>(new GLabel(lines));
 }
 
 std::shared_ptr<GEdge> edge(std::shared_ptr<GNode> a, std::shared_ptr<GNode> b,
@@ -406,7 +407,7 @@ std::shared_ptr<GEdge> edge(std::shared_ptr<GNode> a, const GCell &acell,
                             std::shared_ptr<GLabel> label,
                             bool dotted = false) {
   return std::shared_ptr<GEdge>(new GEdge(
-      a, std::shared_ptr<GCell>(new GCell(acell)) b,
+      a, std::shared_ptr<GCell>(new GCell(acell)), b,
       std::shared_ptr<GCell>(new GCell(bcell)), label, dotted ? "dotted" : ""));
 }
 
@@ -548,12 +549,79 @@ using GEdgePtr = std::shared_ptr<GEdge>;
     return u;                                                                  \
   } while (0)
 
-static GNodePtr drawSymbol(std::shared_ptr<Symbol> symbol, Graph &g) {}
+static GLine drawSymbol(std::shared_ptr<Symbol> sym) {
+  if (!sym) {
+    return line("nil");
+  }
+  return line("symbol",
+              fmt::format("{} : {}", sym->name(), sym->type()->name()),
+              sym->kind()._to_string(), sym->location().str());
+}
 
-static GNodePtr drawTypeSymbol(std::shared_ptr<TypeSymbol> typeSymbol,
-                               Graph &g) {}
+static GLine drawTypeSymbol(std::shared_ptr<TypeSymbol> sym) {
+  if (!sym) {
+    return line("nil");
+  }
+  return line("type symbol", sym->name(), sym->kind()._to_string(),
+              sym->location().str());
+}
 
-static GNodePtr drawScope(std::shared_ptr<Scope> scope, Graph &g) {}
+static GNodePtr drawScope(std::shared_ptr<Scope> scope, Graph &g) {
+  if (!scope) {
+    DA_NIL;
+  }
+  GNodePtr u = node(line(scope->name()));
+  if (scope->s_empty() && scope->ts_empty()) {
+    u->label->lines.push_back(line("empty"));
+  } else {
+    u->label->lines.push_back(line(" ", "name (: type)", "kind", "location"));
+    // draw symbol
+    for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+      std::shared_ptr<Symbol> symbol = i->second;
+      u->label->lines.push_back(drawSymbol(symbol));
+      // LOG_ASSERT(symbol, "symbol must not null");
+      // switch (symbol->kind()) {
+      // case SymbolKind::Var:
+      // case SymbolKind::Param:
+      // case SymbolKind::Field: {
+      //   u->label->lines.push_back(drawSymbol(symbol));
+      //   break;
+      // }
+      // case SymbolKind::Func:
+      // case SymbolKind::Method: {
+      //   GLine l = drawSymbol(symbol);
+      //   u->label->lines.push_back(l);
+      //   // GNodePtr v = drawScope(std::dynamic_pointer_cast<Scope>(symbol),
+      //   g);
+      //   // GEdgePtr e = edge(u, l.cells[0], v, v->label->lines[0].cells[0]);
+      //   // g.edges.push_back(e);
+      //   break;
+      // }
+      // default:
+      //   LOG_ASSERT(false, "invalid symbol kind: {}",
+      //              symbol->kind()._to_string());
+      // }
+    }
+    // draw type symbol
+    for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+      std::shared_ptr<TypeSymbol> typeSymbol = i->second;
+      u->label->lines.push_back(drawTypeSymbol(typeSymbol));
+    }
+    // draw scope
+    for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
+      std::shared_ptr<Scope> scope = i->second;
+      GLine l = line("scope", scope->name(), scope->kind()._to_string(),
+                     scope->location().str());
+      // u->label->lines.push_back(l);
+      // GNodePtr v = drawScope(scope, g);
+      // GEdgePtr e = edge(u, l.cells[0], v, v->label->lines[0].cells[0]);
+      // g.edges.push_back(e);
+      // break;
+    }
+  }
+  g.nodes.push_back(u);
+  return u;
+}
 
 static GNodePtr drawAst(Ast *ast, Graph &g) {
   if (!ast) {
@@ -588,17 +656,19 @@ static GNodePtr drawAst(Ast *ast, Graph &g) {
     g.nodes.push_back(u);
     A_VarId *tmp = static_cast<A_VarId *>(ast);
     if (tmp->symbol) {
-      GNodePtr v = drawSymbol(tmp->symbol, g);
       switch (tmp->symbol->kind()) {
       case SymbolKind::Var:
       case SymbolKind::Param:
       case SymbolKind::Field: {
+        GLine l = drawSymbol(tmp->symbol);
+        GNodePtr v = node(l);
         GEdgePtr ev = edge(u, v, true);
         g.edges.push_back(ev);
         break;
       }
       case SymbolKind::Func:
       case SymbolKind::Method: {
+        GNodePtr v = drawScope(std::static_pointer_cast<Scope>(tmp->symbol), g);
         GEdgePtr ev = edge(u, v);
         g.edges.push_back(ev);
         break;
@@ -607,16 +677,18 @@ static GNodePtr drawAst(Ast *ast, Graph &g) {
     } else {
       LOG_ASSERT(tmp->typeSymbol, "tmp {} type symbol must not null",
                  tmp->name());
-      // class definition
-      GNodePtr v = drawTypeSymbol(tmp->typeSymbol, g);
       switch (tmp->typeSymbol->kind()) {
       case SymbolKind::Plain:
       case SymbolKind::Func: {
+        GLine l = drawTypeSymbol(tmp->typeSymbol, g);
+        GNodePtr v = node(l);
         GEdgePtr ev = edge(u, v, true);
         g.edges.push_back(ev);
         break;
       }
       case SymbolKind::Class: {
+        GNodePtr v =
+            drawScope(std::static_pointer_cast<Scope>(tmp->typeSymbol), g);
         GEdgePtr ev = edge(u, v);
         g.edges.push_back(ev);
         break;
@@ -671,6 +743,8 @@ static GNodePtr drawAst(Ast *ast, Graph &g) {
     A_Loop *tmp = static_cast<A_Loop *>(ast);
     LOG_ASSERT(tmp->localScope, "tmp {} localScope must not null", tmp->name());
     GNodePtr s = drawScope(tmp->localScope, g);
+    GEdgePtr es = edge(u, s);
+    g.edges.push_back(es);
     return u;
   }
   case AstKind::Yield: {
@@ -689,7 +763,18 @@ static GNodePtr drawAst(Ast *ast, Graph &g) {
     DA3(ast, A_Try, tryp, catchp, finallyp);
   }
   case AstKind::Block: {
-    DA1(ast, A_Block, blockStats);
+    GNodePtr u = node(line(ast->kind()._to_string()),
+                      line("location", ast->location().str()));
+    GNodePtr v = drawAst(static_cast<A_Block *>(ast)->blockStats, g);
+    GEdgePtr e = edge(u, v);
+    g.nodes.push_back(u);
+    g.edges.push_back(e);
+    A_Block *tmp = static_cast<A_Block *>(ast);
+    LOG_ASSERT(tmp->localScope, "tmp {} localScope must not null", tmp->name());
+    GNodePtr s = drawScope(tmp->localScope, g);
+    GEdgePtr es = edge(u, s);
+    g.edges.push_back(es);
+    return u;
   }
   case AstKind::BlockStats: {
     DA2(ast, A_BlockStats, blockStat, next);
@@ -717,6 +802,19 @@ static GNodePtr drawAst(Ast *ast, Graph &g) {
   }
   case AstKind::CompileUnit: {
     DA1(ast, A_CompileUnit, topStats);
+    GNodePtr u = node(line(ast->kind()._to_string()),
+                      line("location", ast->location().str()));
+    GNodePtr v = drawAst(static_cast<A_CompileUnit *>(ast)->topStats, g);
+    GEdgePtr e = edge(u, v);
+    g.nodes.push_back(u);
+    g.edges.push_back(e);
+    A_CompileUnit *tmp = static_cast<A_CompileUnit *>(ast);
+    LOG_ASSERT(tmp->globalScope, "tmp {} globalScope must not null",
+               tmp->name());
+    GNodePtr s = drawScope(tmp->globalScope, g);
+    GEdgePtr es = edge(u, s);
+    g.edges.push_back(es);
+    return u;
   }
   default:
     LOG_ASSERT(false, "invalid ast kind: {}", ast->kind()._to_string());
