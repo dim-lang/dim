@@ -12,7 +12,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <deque>
-#include <memory>
 #include <sstream>
 #include <string>
 
@@ -53,7 +52,7 @@ class A_Nil;
 class A_Void;
 
 /* id */
-class AstId;
+// class AstId;
 class A_VarId;
 
 /* expression without block */
@@ -80,7 +79,7 @@ class A_Block;
 class A_BlockStats;
 
 /* type */
-class AstType;
+// class AstType;
 class A_PlainType;
 
 /* declaration and definition */
@@ -279,8 +278,8 @@ public:
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
 
-  std::shared_ptr<Symbol> symbol;
-  std::shared_ptr<TypeSymbol> typeSymbol;
+  Symbol *symbol;
+  TypeSymbol *typeSymbol;
 };
 
 // id }
@@ -398,7 +397,7 @@ public:
   Ast *condition;
   Ast *body;
 
-  std::shared_ptr<Scope> localScope;
+  Scope *localScope;
 };
 
 class A_Yield : public Ast {
@@ -457,7 +456,7 @@ public:
   virtual AstKind kind() const;
   A_BlockStats *blockStats;
 
-  std::shared_ptr<Scope> localScope;
+  Scope *localScope;
 };
 
 class A_BlockStats : public Ast {
@@ -520,6 +519,7 @@ public:
   A_Params(A_Param *a_param, A_Params *a_next, const Location &location);
   virtual ~A_Params();
   virtual AstKind kind() const;
+
   A_Param *param;
   A_Params *next;
 };
@@ -565,7 +565,7 @@ public:
   virtual AstKind kind() const;
   A_TopStats *topStats;
 
-  std::shared_ptr<Scope> globalScope;
+  Scope *globalScope;
 };
 
 // compile unit }

@@ -3,9 +3,10 @@
 
 #pragma once
 #include "Cowstr.h"
+
 class Ast;
 
 class Graph {
 public:
-  static int draw(Ast *ast, const Cowstr &output);
+  static int draw(Ast *anode, const Cowstr &output);
 };

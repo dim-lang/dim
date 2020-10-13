@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "Name.h"
 #include "Token.h"
+#include "Util.h"
 #include <algorithm>
 #include <cctype>
 
@@ -23,23 +24,22 @@ namespace detail {
 
 // OwnableImpl {
 
-OwnableImpl::OwnableImpl(std::shared_ptr<Scope> ownableImpl)
-    : ownableImpl_(ownableImpl) {}
+OwnableImpl::OwnableImpl(Scope *ownableImpl) : ownableImpl_(ownableImpl) {}
 
-std::shared_ptr<Scope> &OwnableImpl::owner() { return ownableImpl_; }
+Scope *&OwnableImpl::owner() { return ownableImpl_; }
 
-std::shared_ptr<Scope> OwnableImpl::owner() const { return ownableImpl_; }
+Scope *OwnableImpl::owner() const { return ownableImpl_; }
 
 // OwnableImpl }
 
 // TypeableImpl {
 
-TypeableImpl ::TypeableImpl(std::shared_ptr<TypeSymbol> typeableImpl)
+TypeableImpl ::TypeableImpl(TypeSymbol *typeableImpl)
     : typeableImpl_(typeableImpl) {}
 
-std::shared_ptr<TypeSymbol> &TypeableImpl::type() { return typeableImpl_; }
+TypeSymbol *&TypeableImpl::type() { return typeableImpl_; }
 
-std::shared_ptr<TypeSymbol> TypeableImpl::type() const { return typeableImpl_; }
+TypeSymbol *TypeableImpl::type() const { return typeableImpl_; }
 
 // TypeableImpl }
 
@@ -47,14 +47,29 @@ std::shared_ptr<TypeSymbol> TypeableImpl::type() const { return typeableImpl_; }
 
 // symbol api {
 
-void ScopeImpl::s_define(std::shared_ptr<Symbol> symbol) {
+ScopeImpl::~ScopeImpl() {
+  del(s_data_);
+  del(ts_data_);
+  del(sc_data_);
+  // for (auto i = s_data_.begin(); i != s_data_.end(); i++) {
+  //   delete i->second;
+  // }
+  // for (auto i = ts_data_.begin(); i != ts_data_.end(); i++) {
+  //   delete i->second;
+  // }
+  // for (auto i = sc_data_.begin(); i != sc_data_.end(); i++) {
+  //   delete i->second;
+  // }
+}
+
+void ScopeImpl::s_define(Symbol *symbol) {
   LOG_ASSERT(symbol, "symbol must not null");
   LOG_ASSERT(s_data_.find(symbol->name()) == s_data_.end(),
              "symbol {} already exist", symbol->name());
   s_data_.insert(symbol->name(), symbol);
 }
 
-std::shared_ptr<Symbol> ScopeImpl::s_resolve(const Cowstr &name) const {
+Symbol *ScopeImpl::s_resolve(const Cowstr &name) const {
   s_const_iterator it = s_data_.find(name);
   if (it != s_data_.end()) {
     return it->second;
@@ -86,14 +101,14 @@ Scope::s_const_iterator ScopeImpl::s_cend() const { return s_data_.end(); }
 
 // type symbol api {
 
-void ScopeImpl::ts_define(std::shared_ptr<TypeSymbol> symbol) {
+void ScopeImpl::ts_define(TypeSymbol *symbol) {
   LOG_ASSERT(symbol, "symbol must not null");
   LOG_ASSERT(ts_data_.find(symbol->name()) == ts_data_.end(),
              "symbol {} already exist", symbol->name());
   ts_data_.insert(symbol->name(), symbol);
 }
 
-std::shared_ptr<TypeSymbol> ScopeImpl::ts_resolve(const Cowstr &name) const {
+TypeSymbol *ScopeImpl::ts_resolve(const Cowstr &name) const {
   ts_const_iterator it = ts_data_.find(name);
   if (it != ts_data_.end()) {
     return it->second;
@@ -129,14 +144,14 @@ Scope::ts_const_iterator ScopeImpl::ts_cend() const { return ts_data_.cend(); }
 
 // sub scope api {
 
-void ScopeImpl::subscope_define(std::shared_ptr<Scope> scope) {
+void ScopeImpl::subscope_define(Scope *scope) {
   LOG_ASSERT(scope, "scope must not null");
   LOG_ASSERT(!sc_data_.contains(scope->name()), "scope already exist: {}",
              scope->name());
   sc_data_.insert(scope->name(), scope);
 }
 
-std::shared_ptr<Scope> ScopeImpl::subscope_resolve(const Cowstr &name) const {
+Scope *ScopeImpl::subscope_resolve(const Cowstr &name) const {
   auto it = sc_data_.find(name);
   return it == sc_data_.end() ? nullptr : it->second;
 }
@@ -177,68 +192,68 @@ Scope::sc_const_iterator ScopeImpl::subscope_cend() const {
 
 // TypeSymbol {
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_byte() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("byte"));
+TypeSymbol *TypeSymbol::ts_byte() {
+  static TypeSymbol *ts(new Ts_Plain("byte"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_ubyte() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("ubyte"));
+TypeSymbol *TypeSymbol::ts_ubyte() {
+  static TypeSymbol *ts(new Ts_Plain("ubyte"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_short() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("short"));
+TypeSymbol *TypeSymbol::ts_short() {
+  static TypeSymbol *ts(new Ts_Plain("short"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_ushort() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("ushort"));
+TypeSymbol *TypeSymbol::ts_ushort() {
+  static TypeSymbol *ts(new Ts_Plain("ushort"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_int() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("int"));
+TypeSymbol *TypeSymbol::ts_int() {
+  static TypeSymbol *ts(new Ts_Plain("int"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_uint() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("uint"));
+TypeSymbol *TypeSymbol::ts_uint() {
+  static TypeSymbol *ts(new Ts_Plain("uint"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_long() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("long"));
+TypeSymbol *TypeSymbol::ts_long() {
+  static TypeSymbol *ts(new Ts_Plain("long"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_ulong() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("ulong"));
+TypeSymbol *TypeSymbol::ts_ulong() {
+  static TypeSymbol *ts(new Ts_Plain("ulong"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_float() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("float"));
+TypeSymbol *TypeSymbol::ts_float() {
+  static TypeSymbol *ts(new Ts_Plain("float"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_double() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("double"));
+TypeSymbol *TypeSymbol::ts_double() {
+  static TypeSymbol *ts(new Ts_Plain("double"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_char() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("char"));
+TypeSymbol *TypeSymbol::ts_char() {
+  static TypeSymbol *ts(new Ts_Plain("char"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_boolean() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("boolean"));
+TypeSymbol *TypeSymbol::ts_boolean() {
+  static TypeSymbol *ts(new Ts_Plain("boolean"));
   return ts;
 }
 
-std::shared_ptr<TypeSymbol> TypeSymbol::ts_void() {
-  static std::shared_ptr<TypeSymbol> ts(new Ts_Plain("void"));
+TypeSymbol *TypeSymbol::ts_void() {
+  static TypeSymbol *ts(new Ts_Plain("void"));
   return ts;
 }
 
@@ -246,45 +261,34 @@ std::shared_ptr<TypeSymbol> TypeSymbol::ts_void() {
 
 // scope {
 
-static std::shared_ptr<Scope> createImpl(Ast *ast,
-                                         std::shared_ptr<Scope> scope);
-
-static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope);
-
-void Scope::create(Ast *compileUnit) {
-  createImpl(compileUnit, nullptr);
-  checkImpl(compileUnit, nullptr);
-}
-
 // symbol {
 
-S_Var::S_Var(const Cowstr &name, const Location &location,
-             std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner)
+S_Var::S_Var(const Cowstr &name, const Location &location, TypeSymbol *type,
+             Scope *owner)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Var::kind() const { return SymbolKind::Var; }
 
-S_Func::S_Func(const Cowstr &name, const Location &location,
-               std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner)
+S_Func::S_Func(const Cowstr &name, const Location &location, TypeSymbol *type,
+               Scope *owner)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Func::kind() const { return SymbolKind::Func; }
 
-S_Param::S_Param(const Cowstr &name, const Location &location,
-                 std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner)
+S_Param::S_Param(const Cowstr &name, const Location &location, TypeSymbol *type,
+                 Scope *owner)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Param::kind() const { return SymbolKind::Param; }
 
-S_Field::S_Field(const Cowstr &name, const Location &location,
-                 std::shared_ptr<TypeSymbol> type, std::shared_ptr<Scope> owner)
+S_Field::S_Field(const Cowstr &name, const Location &location, TypeSymbol *type,
+                 Scope *owner)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Field::kind() const { return SymbolKind::Field; }
 
 S_Method::S_Method(const Cowstr &name, const Location &location,
-                   std::shared_ptr<TypeSymbol> type,
-                   std::shared_ptr<Scope> owner)
+                   TypeSymbol *type, Scope *owner)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Method::kind() const { return SymbolKind::Method; }
@@ -300,24 +304,21 @@ Ts_Plain::Ts_Plain(const Cowstr &name)
 
 TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 
-Ts_Class::Ts_Class(const Cowstr &name, const Location &location,
-                   std::shared_ptr<Scope> owner)
+Ts_Class::Ts_Class(const Cowstr &name, const Location &location, Scope *owner)
     : TYPE_SYMBOL_CONSTRUCTOR {}
 
 TypeSymbolKind Ts_Class::kind() const { return TypeSymbolKind::Class; }
 
-Ts_Func::Ts_Func(const std::vector<std::shared_ptr<TypeSymbol>> a_params,
-                 std::shared_ptr<TypeSymbol> a_result, const Location &location,
-                 std::shared_ptr<Scope> owner)
+Ts_Func::Ts_Func(const std::vector<TypeSymbol *> a_params, TypeSymbol *a_result,
+                 const Location &location, Scope *owner)
     : NameableImpl(generateName(a_params, a_result)),
       LocationableImpl(location), detail::OwnableImpl(owner), params(a_params),
       result(a_result) {}
 
 TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 
-Cowstr
-Ts_Func::generateName(const std::vector<std::shared_ptr<TypeSymbol>> &params,
-                      std::shared_ptr<TypeSymbol> result) {
+Cowstr Ts_Func::generateName(const std::vector<TypeSymbol *> &params,
+                             TypeSymbol *result) {
   std::stringstream ss;
   ss << "(";
   for (int i = 0; i < (int)params.size(); i++) {
@@ -334,8 +335,7 @@ Ts_Func::generateName(const std::vector<std::shared_ptr<TypeSymbol>> &params,
 
 // scope {
 
-S_Local::S_Local(const Cowstr &name, const Location &location,
-                 std::shared_ptr<Scope> owner)
+S_Local::S_Local(const Cowstr &name, const Location &location, Scope *owner)
     : TYPE_SYMBOL_CONSTRUCTOR {}
 
 ScopeKind S_Local::kind() const { return ScopeKind::Local; }
@@ -348,14 +348,14 @@ ScopeKind S_Global::kind() const { return ScopeKind::Global; }
 
 // scope }
 
-using sptr = std::shared_ptr<Symbol>;
-using tsptr = std::shared_ptr<TypeSymbol>;
-using scptr = std::shared_ptr<Scope>;
+#if 0
+using sptr = Symbol *;
+using tsptr = TypeSymbol *;
+using scptr = Scope *;
 
 static NameGenerator ScopeNameGenerator(".");
 
-static std::shared_ptr<Scope> createImpl(Ast *ast,
-                                         std::shared_ptr<Scope> scope) {
+static Scope *createImpl(Ast *ast, Scope *scope) {
   if (!ast)
     return scope;
   switch (ast->kind()) {
@@ -391,7 +391,7 @@ static std::shared_ptr<Scope> createImpl(Ast *ast,
     A_FuncSign *sign = static_cast<A_FuncSign *>(e->funcSign);
     A_VarId *varId = static_cast<A_VarId *>(sign->id);
     // get function parameter type symbols
-    std::vector<std::shared_ptr<TypeSymbol>> parameterTypeSymbols;
+    std::vector<TypeSymbol *> parameterTypeSymbols;
     for (A_Params *params = sign->params; params; params = params->next) {
       LOG_ASSERT(params->param, "params {} param must not null",
                  params->name());
@@ -608,7 +608,7 @@ static std::shared_ptr<Scope> createImpl(Ast *ast,
   }
 }
 
-static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
+static void checkImpl(Ast *ast, Scope *scope) {
   if (!ast)
     return;
   switch (ast->kind()) {
@@ -714,8 +714,12 @@ static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_Assign *e = static_cast<A_Assign *>(ast);
     A_VarId *varId = static_cast<A_VarId *>(e->assignee);
     sptr variableSymbol = scope->s_resolve(varId->name());
-    LOG_ASSERT(variableSymbol, "assignee {} must already defined in scope {}",
-               varId->name(), scope->name());
+    LOG_ASSERT(
+        variableSymbol,
+        "assignee {} must already defined in scope
+        {} ",
+        varId->name(),
+        scope->name());
     LOG_ASSERT(variableSymbol->type(),
                "assignee {} must already defined with type {}", varId->name(),
                variableSymbol->type()->name());
@@ -741,8 +745,12 @@ static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
   case AstKind::VarId: {
     A_VarId *varId = static_cast<A_VarId *>(ast);
     sptr variableSymbol = scope->s_resolve(varId->name());
-    LOG_ASSERT(variableSymbol, "variable {} must already defined in scope {}",
-               varId->name(), scope->name());
+    LOG_ASSERT(
+        variableSymbol,
+        "variable {} must already defined in scope
+        {} ",
+        varId->name(),
+        scope->name());
     LOG_ASSERT(variableSymbol->kind() == (+SymbolKind::Var),
                "variableSymbol->kind {} == SymbolKind::Var",
                variableSymbol->kind()._to_string());
@@ -755,8 +763,12 @@ static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     A_Call *e = static_cast<A_Call *>(ast);
     A_VarId *varId = static_cast<A_VarId *>(e->id);
     sptr functionSymbol = scope->s_resolve(varId->name());
-    LOG_ASSERT(functionSymbol, "function {} must already defined in scope {}",
-               varId->name(), scope->name());
+    LOG_ASSERT(
+        functionSymbol,
+        "function {} must already defined in scope
+        {} ",
+        varId->name(),
+        scope->name());
     LOG_ASSERT(functionSymbol->kind() == (+SymbolKind::Func),
                "functionSymbol->kind {} == SymbolKind::Func",
                functionSymbol->kind()._to_string());
@@ -787,3 +799,4 @@ static void checkImpl(Ast *ast, std::shared_ptr<Scope> scope) {
     return scope;
   }
 }
+#endif

@@ -26,6 +26,10 @@ public:
   Cowstr(const Cowstr &) = default;
   Cowstr &operator=(const Cowstr &) = default;
 
+  template <typename T> static Cowstr from(T value) {
+    return Cowstr(std::to_string(value));
+  }
+
   const std::string &str() const;
   const char *rawstr() const;
 

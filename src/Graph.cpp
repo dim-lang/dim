@@ -10,6 +10,7 @@
 #include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
+#include "Visitor.h"
 #include "boost/preprocessor/stringize.hpp"
 #include <memory>
 #include <unordered_map>
@@ -283,6 +284,9 @@ public:
   }
 };
 
+using GNodePtr = std::shared_ptr<GNode>;
+using GEdgePtr = std::shared_ptr<GEdge>;
+
 GLine line(const Cowstr &id1, const Cowstr &value1, int width1) {
   GCell cell1(id1, value1, width1);
 
@@ -422,9 +426,6 @@ std::shared_ptr<GEdge> edge(std::shared_ptr<GNode> a, const GCell &acell,
   return edge(a, acell, b, bcell, nullptr, dotted ? "dotted" : "");
 }
 
-using GNodePtr = std::shared_ptr<GNode>;
-using GEdgePtr = std::shared_ptr<GEdge>;
-
 #define DA_NIL                                                                 \
   do {                                                                         \
     GNodePtr u = node(line("nil"));                                            \
@@ -435,35 +436,35 @@ using GEdgePtr = std::shared_ptr<GEdge>;
 #define DA_LITERAL                                                             \
   do {                                                                         \
     GNodePtr u =                                                               \
-        node(line(ast->kind()._to_string()), line("literal", ast->name()),     \
-             line("location", ast->location().str()));                         \
+        node(line(anode->kind()._to_string()), line("literal", anode->name()), \
+             line("location", anode->location().str()));                       \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
 #define DA_LOCATION                                                            \
   do {                                                                         \
-    GNodePtr u = node(line(ast->kind()._to_string()),                          \
-                      line("location", ast->location().str()));                \
+    GNodePtr u = node(line(anode->kind()._to_string()),                        \
+                      line("location", anode->location().str()));              \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
-#define DA_OP(ast, asttype, op)                                                \
+#define DA_OP(anode, atype, op)                                                \
   do {                                                                         \
-    GNodePtr u = node(line(ast->kind()._to_string()),                          \
+    GNodePtr u = node(line(anode->kind()._to_string()),                        \
                       line(BOOST_PP_STRINGIZE(op),                             \
-                           tokenName(static_cast<asttype *>(ast)->op)),        \
-                      line("location", ast->location().str()));                \
+                           tokenName(static_cast<atype *>(anode)->op)),        \
+                      line("location", anode->location().str()));              \
     g.nodes.push_back(u);                                                      \
     return u;                                                                  \
   } while (0)
 
-#define DA1(ast, asttype, a)                                                   \
+#define DA1(anode, atype, a)                                                   \
   do {                                                                         \
-    GNodePtr u = node(line(ast->kind()._to_string()),                          \
-                      line("location", ast->location().str()));                \
-    GNodePtr v = drawAst(static_cast<asttype *>(ast)->a, g);                   \
+    GNodePtr u = node(line(anode->kind()._to_string()),                        \
+                      line("location", anode->location().str()));              \
+    GNodePtr v = drawAst(static_cast<atype *>(anode)->a, g);                   \
     GEdgePtr e = edge(u, v);                                                   \
     g.nodes.push_back(u);                                                      \
     g.edges.push_back(e);                                                      \
@@ -828,3 +829,126 @@ int Graph::drawAst(Ast *ast, const Cowstr &output) {
   detail::drawAst(ast, g);
   return g.draw();
 }
+
+// nil
+#define DECL0(x)                                                               \
+  class x : public BaseVisitor {                                               \
+  public:                                                                      \
+    x() {}                                                                     \
+    virtual ~x() = default;                                                    \
+    virtual VisitorKind kind() const { return VisitorKind::x; }                \
+    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
+      GNodePtr u = node(line("nil"));                                          \
+      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
+    }                                                                          \
+  };
+
+// id, location
+#define DECL1(x)                                                               \
+  class x : public BaseVisitor {                                               \
+  public:                                                                      \
+    x() {}                                                                     \
+    virtual ~x() = default;                                                    \
+    virtual VisitorKind kind() const { return VisitorKind::x; }                \
+    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
+      GNodePtr u = node(Cowstr::from(anode->identifier()),                     \
+                        line(anode->kind()._to_string()),                      \
+                        line("id", anode->identifier()),                       \
+                        line("location", anode->location().str()));            \
+      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
+    }                                                                          \
+  };
+
+// id, location, literal
+#define DECL2(x)                                                               \
+  class x : public BaseVisitor {                                               \
+  public:                                                                      \
+    x() {}                                                                     \
+    virtual ~x() = default;                                                    \
+    virtual VisitorKind kind() const { return VisitorKind::x; }                \
+    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
+      GNodePtr u = node(                                                       \
+          Cowstr::from(anode->identifier()), line(anode->kind()._to_string()), \
+          line("id", anode->identifier()), line("literal", anode->name()),     \
+          line("location", anode->location().str()));                          \
+      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
+    }                                                                          \
+  };
+
+namespace detail {
+
+class Drawer {
+public:
+  Drawer(Ast *anode);
+  virtual ~Drawer() = default;
+  virtual void draw(const Cowstr &output);
+  virtual std::unordered_map<Cowstr, GNodePtr> &nodes() { return nodes_; }
+  virtual const std::unordered_map<Cowstr, GNodePtr> &nodes() const {
+    return nodes_;
+  }
+  virtual std::unordered_map<Cowstr, GEdgePtr> &edges() { return edges_; }
+  virtual const std::unordered_map<Cowstr, GEdgePtr> &edges() const {
+    return edges_;
+  }
+
+  class BaseVisitor : public Visitor {
+  public:
+    BaseVisitor(Drawer *drawer) : drawer_(drawer) {}
+    virtual ~BaseVisitor() = default;
+    virtual Cowstr &str() { return payload_; }
+    virtual const Cowstr &str() const { return payload_; }
+    virtual Drawer *&drawer() { return drawer_; }
+    virtual Drawer *drawer() const { return drawer_; }
+
+  protected:
+    Cowstr payload_;
+    Drawer *drawer_;
+  };
+
+  // do nothing
+  DECL1(Integer)
+  DECL1(Float)
+  DECL1(Boolean)
+  DECL1(Character)
+  DECL1(String)
+  DECL1(Nil)
+  DECL1(Void)
+  DECL1(VarId)
+  DECL1(Break)
+  DECL1(Continue)
+  DECL1(PlainType)
+
+  // pass scope parameter
+  DECL2(Throw)
+  DECL2(Return)
+  DECL2(Assign)
+  DECL2(PostfixExpr)
+  DECL2(PrefixExpr)
+  DECL2(InfixExpr)
+  DECL2(Call)
+  DECL2(Exprs)
+  DECL2(If)
+  DECL2(Yield)
+  DECL2(LoopCondition)
+  DECL2(DoWhile)
+  DECL2(Try)
+  DECL2(BlockStats)
+  DECL2(FuncSign)
+  DECL2(Params)
+  DECL2(TopStats)
+
+  // do visit action
+  DECL2(Loop)
+  DECL2(LoopEnumerator)
+  DECL2(Block)
+  DECL2(VarDef)
+  DECL2(Param)
+  DECL2(FuncDef)
+  DECL2(CompileUnit)
+
+private:
+  std::unordered_map<Cowstr, GNodePtr> nodes_;
+  std::unordered_map<Cowstr, GEdgePtr> edges_;
+};
+
+} // namespace detail
