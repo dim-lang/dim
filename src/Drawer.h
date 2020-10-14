@@ -6,7 +6,7 @@
 
 class Ast;
 
-class Graph {
+class Drawer {
 public:
-  static int draw(Ast *anode, const Cowstr &output);
+  static int draw(Ast *ast, const Cowstr &output);
 };

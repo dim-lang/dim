@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Identifiable.h"
 #include "LinkedHashMap.h"
 #include "Location.h"
 #include "Log.h"
@@ -108,6 +109,7 @@ protected:
 
 class Symbol : public Nameable,
                public Locationable,
+               public Identifiable,
                public detail::Typeable,
                public detail::Ownable,
                private boost::noncopyable {
@@ -121,6 +123,7 @@ public:
 
 class TypeSymbol : public Nameable,
                    public Locationable,
+                   public Identifiable,
                    public detail::Ownable,
                    private boost::noncopyable {
 public:
@@ -144,6 +147,7 @@ public:
 
 class Scope : public Nameable,
               public Locationable,
+              public Identifiable,
               public detail::Ownable,
               private boost::noncopyable {
 public:
@@ -269,6 +273,7 @@ protected:
 class S_Var : public Symbol,
               public NameableImpl,
               public LocationableImpl,
+              public IdentifiableImpl,
               public detail::TypeableImpl,
               public detail::OwnableImpl,
               public detail::AstableImpl {
@@ -282,6 +287,7 @@ public:
 class S_Func : public Symbol,
                public NameableImpl,
                public LocationableImpl,
+               public IdentifiableImpl,
                public detail::TypeableImpl,
                public detail::OwnableImpl,
                public detail::AstableImpl,
@@ -298,6 +304,7 @@ public:
 class S_Param : public Symbol,
                 public NameableImpl,
                 public LocationableImpl,
+                public IdentifiableImpl,
                 public detail::TypeableImpl,
                 public detail::OwnableImpl,
                 public detail::AstableImpl {
@@ -311,6 +318,7 @@ public:
 class S_Field : public Symbol,
                 public NameableImpl,
                 public LocationableImpl,
+                public IdentifiableImpl,
                 public detail::TypeableImpl,
                 public detail::OwnableImpl,
                 public detail::AstableImpl {
@@ -324,6 +332,7 @@ public:
 class S_Method : public Symbol,
                  public NameableImpl,
                  public LocationableImpl,
+                 public IdentifiableImpl,
                  public detail::TypeableImpl,
                  public detail::OwnableImpl,
                  public detail::AstableImpl,
@@ -352,6 +361,7 @@ public:
 class Ts_Plain : public TypeSymbol,
                  public NameableImpl,
                  public LocationableImpl,
+                 public IdentifiableImpl,
                  public detail::OwnableImpl {
 public:
   Ts_Plain(const Cowstr &name);
@@ -362,6 +372,7 @@ public:
 class Ts_Class : public TypeSymbol,
                  public NameableImpl,
                  public LocationableImpl,
+                 public IdentifiableImpl,
                  public detail::OwnableImpl,
                  public detail::ScopeImpl {
 public:
@@ -376,6 +387,7 @@ public:
 class Ts_Func : public TypeSymbol,
                 public NameableImpl,
                 public LocationableImpl,
+                public IdentifiableImpl,
                 public detail::OwnableImpl {
 public:
   Ts_Func(const std::vector<TypeSymbol *> a_params, TypeSymbol *a_result,
@@ -398,6 +410,7 @@ private:
 class S_Local : public detail::ScopeImpl,
                 public NameableImpl,
                 public LocationableImpl,
+                public IdentifiableImpl,
                 public detail::OwnableImpl,
                 public detail::AstableImpl {
 public:
@@ -409,6 +422,7 @@ public:
 class S_Global : public detail::ScopeImpl,
                  public NameableImpl,
                  public LocationableImpl,
+                 public IdentifiableImpl,
                  public detail::OwnableImpl,
                  public detail::AstableImpl {
 public:

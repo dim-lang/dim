@@ -18,7 +18,7 @@ class Visitor;
 // cast pointer {
 
 #define CAST_DEF(x)                                                            \
-  template <typename T> T *cast(x *e) { return (T *)(e); }
+  template <typename T> T *cast(x *e) { return static_cast<T *>(e); }
 
 CAST_DEF(Ast)
 CAST_DEF(A_Exprs)

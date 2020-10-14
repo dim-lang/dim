@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Graph.h"
+#include "Drawer.h"
 #include "Ast.h"
 #include "Counter.h"
 #include "Files.h"
@@ -10,6 +10,7 @@
 #include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
+#include "Util.h"
 #include "Visitor.h"
 #include "boost/preprocessor/stringize.hpp"
 #include <memory>
@@ -121,7 +122,7 @@ public:
 };
 
 /**
- * node [label=<<TABLE attributes> xxx </TABLE>>]
+ * nodeID [label=<<TABLE attributes> xxx </TABLE>>]
  */
 class GNode {
 public:
@@ -286,6 +287,7 @@ public:
 
 using GNodePtr = std::shared_ptr<GNode>;
 using GEdgePtr = std::shared_ptr<GEdge>;
+using GLabelPtr = std::shared_ptr<GLabel>;
 
 GLine line(const Cowstr &id1, const Cowstr &value1, int width1) {
   GCell cell1(id1, value1, width1);
@@ -830,80 +832,190 @@ int Graph::drawAst(Ast *ast, const Cowstr &output) {
   return g.draw();
 }
 
+#define DECL_BEGIN(x)                                                          \
+  struct x : public Visitor {                                                  \
+    x(Graph *g1) : g(g1) {}                                                    \
+    Graph *g;
+
+#define DECL_END                                                               \
+  }                                                                            \
+  ;
+
 // nil
 #define DECL0(x)                                                               \
-  class x : public BaseVisitor {                                               \
-  public:                                                                      \
-    x() {}                                                                     \
-    virtual ~x() = default;                                                    \
-    virtual VisitorKind kind() const { return VisitorKind::x; }                \
-    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
-      GNodePtr u = node(line("nil"));                                          \
-      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
-    }                                                                          \
-  };
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line("nil"),                                                           \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    u = GNodePtr(new GNode(anonymousNodeName(), label));                       \
+    g->anonymousNodes.insert(std::make_pair(u->id, u));                        \
+  }                                                                            \
+  DECL_END
 
-// id, location
+// id, kind, location
 #define DECL1(x)                                                               \
-  class x : public BaseVisitor {                                               \
-  public:                                                                      \
-    x() {}                                                                     \
-    virtual ~x() = default;                                                    \
-    virtual VisitorKind kind() const { return VisitorKind::x; }                \
-    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
-      GNodePtr u = node(Cowstr::from(anode->identifier()),                     \
-                        line(anode->kind()._to_string()),                      \
-                        line("id", anode->identifier()),                       \
-                        line("location", anode->location().str()));            \
-      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
-    }                                                                          \
-  };
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  DECL_END
 
-// id, location, literal
+// id, kind, literal, location
 #define DECL2(x)                                                               \
-  class x : public BaseVisitor {                                               \
-  public:                                                                      \
-    x() {}                                                                     \
-    virtual ~x() = default;                                                    \
-    virtual VisitorKind kind() const { return VisitorKind::x; }                \
-    virtual void visit(VisitorBinder *binder, Ast *anode) {                    \
-      GNodePtr u = node(                                                       \
-          Cowstr::from(anode->identifier()), line(anode->kind()._to_string()), \
-          line("id", anode->identifier()), line("literal", anode->name()),     \
-          line("location", anode->location().str()));                          \
-      drawer()->nodes().insert(std::make_pair(u->id, u));                      \
-    }                                                                          \
-  };
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line("literal", anode->name()),                                        \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  DECL_END
+
+// id, kind, token, location
+#define DECL_TOK(x, atype, tok)                                                \
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line(BOOST_PP_STRINGIZE(tok), tokenName(cast<atype>(anode)->tok)),     \
+        line("literal", anode->name()),                                        \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  DECL_END
+
+// id, kind, location, child
+#define DECL_CHILD1(x, atype, child)                                           \
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  virtual void postVisit(Ast *anode, VisitorContext *context) {                \
+    Ast *c = cast<atype>(anode)->child;                                        \
+    auto it1 = g->astNodes.find(astNodeName(anode));                           \
+    auto it2 = g->astNodes.find(astNodeName(c));                               \
+    LOG_ASSERT(it1 != g->astNodes.end(), "anode {} must has related GNode",    \
+               anode->name());                                                 \
+    LOG_ASSERT(it2 != g->astNodes.end(),                                       \
+               "anode->child {} must has related GNode", c->name());           \
+    GNodePtr u = it1->second;                                                  \
+    GNodePtr v = it2->second;                                                  \
+    LOG_ASSERT(u, "anode {} GNode u must not null", anode->name());            \
+    LOG_ASSERT(v, "anode->child {} GNode v must not null", c->name());         \
+    GEdgePtr e = edge(u, v);                                                   \
+    g->edges.insert(std::make_pair(astEdgeName(anode, c), e));                 \
+  }                                                                            \
+  DECL_END
+
+// id, kind, location, token, child
+#define DECL_TOK_CHILD1(x, atype, tok, child)                                  \
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line(BOOST_PP_STRINGIZE(tok),                                          \
+             tokenName(static_cast<asttype *>(ast)->tok)),                     \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  virtual void postVisit(Ast *anode, VisitorContext *context) {                \
+    Ast *c = cast<atype>(anode)->child;                                        \
+    auto it1 = g->astNodes.find(astNodeName(anode));                           \
+    auto it2 = g->astNodes.find(astNodeName(c));                               \
+    LOG_ASSERT(it1 != g->astNodes.end(), "anode {} must has related GNode",    \
+               anode->name());                                                 \
+    LOG_ASSERT(it2 != g->astNodes.end(),                                       \
+               "anode->child {} must has related GNode", c->name());           \
+    GNodePtr u = it1->second;                                                  \
+    GNodePtr v = it2->second;                                                  \
+    LOG_ASSERT(u, "anode {} GNode u must not null", anode->name());            \
+    LOG_ASSERT(v, "anode->child {} GNode v must not null", c->name());         \
+    GEdgePtr e = edge(u, v, label(line(BOOST_PP_STRINGIZE(child))));           \
+    g->edges.insert(std::make_pair(astEdgeName(anode, c), e));                 \
+  }                                                                            \
+  DECL_END
+
+// id, kind, location, child1, child2
+#define DECL_CHILD2(x, atype, child1, child2)                                  \
+  DECL_BEGIN(x)                                                                \
+  virtual void visit(Ast *anode, VisitorContext *context) {                    \
+    std::vector<GLine> lines = {                                               \
+        line(anode->kind()._to_string()),                                      \
+        line("id", anode->identifier()),                                       \
+        line("location", anode->location().str()),                             \
+    };                                                                         \
+    GLabelPtr label(new GLabel(lines));                                        \
+    GNodePtr u(new GNode(astNodeName(anode), label));                          \
+    g->astNodes.insert(std::make_pair(u->id, u));                              \
+  }                                                                            \
+  virtual void postVisit(Ast *anode, VisitorContext *context) {                \
+    Ast *c = cast<atype>(anode)->child;                                        \
+    auto it1 = g->astNodes.find(astNodeName(anode));                           \
+    auto it2 = g->astNodes.find(astNodeName(c));                               \
+    LOG_ASSERT(it1 != g->astNodes.end(), "anode {} must has related GNode",    \
+               anode->name());                                                 \
+    LOG_ASSERT(it2 != g->astNodes.end(),                                       \
+               "anode->child {} must has related GNode", c->name());           \
+    GNodePtr u = it1->second;                                                  \
+    GNodePtr v = it2->second;                                                  \
+    LOG_ASSERT(u, "anode {} GNode u must not null", anode->name());            \
+    LOG_ASSERT(v, "anode->child {} GNode v must not null", c->name());         \
+    GEdgePtr e = edge(u, v);                                                   \
+    g->edges.insert(std::make_pair(astEdgeName(anode, c), e));                 \
+  }                                                                            \
+  DECL_END
 
 namespace detail {
 
-class Drawer {
+static CounterNameGenerator namegen;
+
+class Graph {
 public:
-  Drawer(Ast *anode);
-  virtual ~Drawer() = default;
+  Graph(Ast *anode);
+  virtual ~Graph() = default;
   virtual void draw(const Cowstr &output);
-  virtual std::unordered_map<Cowstr, GNodePtr> &nodes() { return nodes_; }
-  virtual const std::unordered_map<Cowstr, GNodePtr> &nodes() const {
-    return nodes_;
-  }
-  virtual std::unordered_map<Cowstr, GEdgePtr> &edges() { return edges_; }
-  virtual const std::unordered_map<Cowstr, GEdgePtr> &edges() const {
-    return edges_;
+
+  static Cowstr astNodeName(Ast *anode) {
+    return Cowstr("astnode") + Cowstr::from(anode->identifier());
   }
 
-  class BaseVisitor : public Visitor {
-  public:
-    BaseVisitor(Drawer *drawer) : drawer_(drawer) {}
-    virtual ~BaseVisitor() = default;
-    virtual Cowstr &str() { return payload_; }
-    virtual const Cowstr &str() const { return payload_; }
-    virtual Drawer *&drawer() { return drawer_; }
-    virtual Drawer *drawer() const { return drawer_; }
+  static Cowstr anonymousNodeName() {
+    return namegen.generate("anonymousnode");
+  }
 
-  protected:
-    Cowstr payload_;
-    Drawer *drawer_;
-  };
+  static Cowstr astEdgeName(Ast *a, Ast *b) {
+    return Cowstr("astedge") + Cowstr::from(a->identifier()) +
+           Cowstr::from(b->identifier());
+  }
 
   // do nothing
   DECL1(Integer)
@@ -946,9 +1058,11 @@ public:
   DECL2(FuncDef)
   DECL2(CompileUnit)
 
-private:
-  std::unordered_map<Cowstr, GNodePtr> nodes_;
-  std::unordered_map<Cowstr, GEdgePtr> edges_;
+  std::unordered_map<Cowstr, GNodePtr> astNodes;
+  std::unordered_map<Cowstr, GNodePtr> scopeNodes;
+  std::unordered_map<Cowstr, GEdgePtr> edges;
+  std::unordered_map<Cowstr, GNodePtr> anonymousNodes;
+  std::unordered_map<Cowstr, GEdgePtr> anonymousEdges;
 };
 
 } // namespace detail

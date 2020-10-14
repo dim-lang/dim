@@ -16,15 +16,15 @@ public:
   int column;
 
   // to string
-  virtual Cowstr str() const;
+  Cowstr str() const;
 
   // comparison
-  virtual bool operator==(const Position &pos) const;
-  virtual bool operator!=(const Position &pos) const;
-  virtual bool operator>(const Position &pos) const;
-  virtual bool operator>=(const Position &pos) const;
-  virtual bool operator<(const Position &pos) const;
-  virtual bool operator<=(const Position &pos) const;
+  bool operator==(const Position &pos) const;
+  bool operator!=(const Position &pos) const;
+  bool operator>(const Position &pos) const;
+  bool operator>=(const Position &pos) const;
+  bool operator<(const Position &pos) const;
+  bool operator<=(const Position &pos) const;
 };
 
 class Location {
@@ -40,15 +40,15 @@ public:
   Position end;
 
   // to string
-  virtual Cowstr str() const;
+  Cowstr str() const;
 
   // comparison
-  virtual bool operator==(const Location &loc) const;
-  virtual bool operator!=(const Location &loc) const;
-  virtual bool operator>(const Location &loc) const;
-  virtual bool operator>=(const Location &loc) const;
-  virtual bool operator<(const Location &loc) const;
-  virtual bool operator<=(const Location &loc) const;
+  bool operator==(const Location &loc) const;
+  bool operator!=(const Location &loc) const;
+  bool operator>(const Location &loc) const;
+  bool operator>=(const Location &loc) const;
+  bool operator<(const Location &loc) const;
+  bool operator<=(const Location &loc) const;
 };
 
 class Locationable {
