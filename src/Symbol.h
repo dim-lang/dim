@@ -112,6 +112,7 @@ class Symbol : public Nameable,
                public Identifiable,
                public detail::Typeable,
                public detail::Ownable,
+               public detail::Astable,
                private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
@@ -125,6 +126,7 @@ class TypeSymbol : public Nameable,
                    public Locationable,
                    public Identifiable,
                    public detail::Ownable,
+                   public detail::Astable,
                    private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
@@ -149,6 +151,7 @@ class Scope : public Nameable,
               public Locationable,
               public Identifiable,
               public detail::Ownable,
+              public detail::Astable,
               private boost::noncopyable {
 public:
   using s_map = LinkedHashMap<Cowstr, Symbol *>;
@@ -362,7 +365,8 @@ class Ts_Plain : public TypeSymbol,
                  public NameableImpl,
                  public LocationableImpl,
                  public IdentifiableImpl,
-                 public detail::OwnableImpl {
+                 public detail::OwnableImpl,
+                 public detail::AstableImpl {
 public:
   Ts_Plain(const Cowstr &name);
   virtual ~Ts_Plain() = default;
@@ -374,6 +378,7 @@ class Ts_Class : public TypeSymbol,
                  public LocationableImpl,
                  public IdentifiableImpl,
                  public detail::OwnableImpl,
+                 public detail::AstableImpl,
                  public detail::ScopeImpl {
 public:
   Ts_Class(const Cowstr &name, const Location &location, Scope *owner);
@@ -388,7 +393,8 @@ class Ts_Func : public TypeSymbol,
                 public NameableImpl,
                 public LocationableImpl,
                 public IdentifiableImpl,
-                public detail::OwnableImpl {
+                public detail::OwnableImpl,
+                public detail::AstableImpl {
 public:
   Ts_Func(const std::vector<TypeSymbol *> a_params, TypeSymbol *a_result,
           const Location &location, Scope *owner);
