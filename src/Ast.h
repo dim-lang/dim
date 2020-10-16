@@ -118,9 +118,9 @@ protected:
 
 // Ast {
 
-class Ast : public NameableImpl,
-            public LocationableImpl,
-            public IdentifiableImpl,
+class Ast : public Nameable,
+            public Locationable,
+            public Identifiable,
             private boost::noncopyable {
 public:
   Ast(const Cowstr &name, const Location &location = Location());

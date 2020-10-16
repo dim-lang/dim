@@ -14,34 +14,43 @@
 #include <cctype>
 
 #define SYMBOL_CONSTRUCTOR                                                     \
-  NameableImpl(name), LocationableImpl(location), detail::TypeableImpl(type),  \
-      detail::OwnableImpl(owner)
+  Nameable(name), Locationable(location), detail::Ownable(owner),              \
+      detail::Typeable(type)
 
 #define TYPE_SYMBOL_CONSTRUCTOR                                                \
-  NameableImpl(name), LocationableImpl(location), detail::OwnableImpl(owner)
+  Nameable(name), Locationable(location), detail::Ownable(owner)
 
 namespace detail {
 
-// OwnableImpl {
+// Ownable {
 
-OwnableImpl::OwnableImpl(Scope *ownableImpl) : ownableImpl_(ownableImpl) {}
+Ownable::Ownable(Scope *owner) : ownable_(owner) {}
 
-Scope *&OwnableImpl::owner() { return ownableImpl_; }
+Scope *&Ownable::owner() { return ownable_; }
 
-Scope *OwnableImpl::owner() const { return ownableImpl_; }
+Scope *Ownable::owner() const { return ownable_; }
 
-// OwnableImpl }
+// Ownable }
 
-// TypeableImpl {
+// Typeable {
 
-TypeableImpl ::TypeableImpl(TypeSymbol *typeableImpl)
-    : typeableImpl_(typeableImpl) {}
+Typeable ::Typeable(TypeSymbol *type) : typeable_(type) {}
 
-TypeSymbol *&TypeableImpl::type() { return typeableImpl_; }
+TypeSymbol *&Typeable::type() { return typeable_; }
 
-TypeSymbol *TypeableImpl::type() const { return typeableImpl_; }
+TypeSymbol *Typeable::type() const { return typeable_; }
 
-// TypeableImpl }
+// Typeable }
+
+// Astable {
+
+Astable::Astable(Ast *ast) : astable_(ast) {}
+
+Ast *&Astable::ast() { return astable_; }
+
+Ast *Astable::ast() const { return astable_; }
+
+// Astable }
 
 // ScopeImpl {
 
@@ -254,32 +263,32 @@ TypeSymbol *TypeSymbol::ts_void() {
 
 // symbol {
 
-S_Var::S_Var(const Cowstr &name, const Location &location, TypeSymbol *type,
-             Scope *owner)
+S_Var::S_Var(const Cowstr &name, const Location &location, Scope *owner,
+             TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Var::kind() const { return SymbolKind::Var; }
 
-S_Func::S_Func(const Cowstr &name, const Location &location, TypeSymbol *type,
-               Scope *owner)
+S_Func::S_Func(const Cowstr &name, const Location &location, Scope *owner,
+               TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Func::kind() const { return SymbolKind::Func; }
 
-S_Param::S_Param(const Cowstr &name, const Location &location, TypeSymbol *type,
-                 Scope *owner)
+S_Param::S_Param(const Cowstr &name, const Location &location, Scope *owner,
+                 TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Param::kind() const { return SymbolKind::Param; }
 
-S_Field::S_Field(const Cowstr &name, const Location &location, TypeSymbol *type,
-                 Scope *owner)
+S_Field::S_Field(const Cowstr &name, const Location &location, Scope *owner,
+                 TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Field::kind() const { return SymbolKind::Field; }
 
-S_Method::S_Method(const Cowstr &name, const Location &location,
-                   TypeSymbol *type, Scope *owner)
+S_Method::S_Method(const Cowstr &name, const Location &location, Scope *owner,
+                   TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
 
 SymbolKind S_Method::kind() const { return SymbolKind::Method; }
@@ -289,8 +298,7 @@ SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 // type symbol {
 
 Ts_Plain::Ts_Plain(const Cowstr &name)
-    : NameableImpl(name),
-      LocationableImpl(Location()), detail::OwnableImpl(nullptr) {}
+    : Nameable(name), Locationable(), detail::Ownable(nullptr) {}
 
 TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 
@@ -299,16 +307,8 @@ Ts_Class::Ts_Class(const Cowstr &name, const Location &location, Scope *owner)
 
 TypeSymbolKind Ts_Class::kind() const { return TypeSymbolKind::Class; }
 
-Ts_Func::Ts_Func(const std::vector<TypeSymbol *> a_params, TypeSymbol *a_result,
-                 const Location &location, Scope *owner)
-    : NameableImpl(generateName(a_params, a_result)),
-      LocationableImpl(location), detail::OwnableImpl(owner), params(a_params),
-      result(a_result) {}
-
-TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
-
-Cowstr Ts_Func::generateName(const std::vector<TypeSymbol *> &params,
-                             TypeSymbol *result) {
+static Cowstr createFunctionName(const std::vector<TypeSymbol *> &params,
+                                 TypeSymbol *result) {
   std::stringstream ss;
   ss << "(";
   for (int i = 0; i < (int)params.size(); i++) {
@@ -321,6 +321,14 @@ Cowstr Ts_Func::generateName(const std::vector<TypeSymbol *> &params,
   return ss.str();
 }
 
+Ts_Func::Ts_Func(const std::vector<TypeSymbol *> &a_params,
+                 TypeSymbol *a_result, const Location &location, Scope *owner)
+    : Nameable(createFunctionName(a_params, a_result)),
+      Locationable(location), detail::Ownable(owner), params(a_params),
+      result(a_result) {}
+
+TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
+
 // type symbol }
 
 // scope {
@@ -331,8 +339,7 @@ S_Local::S_Local(const Cowstr &name, const Location &location, Scope *owner)
 ScopeKind S_Local::kind() const { return ScopeKind::Local; }
 
 S_Global::S_Global(const Cowstr &name, const Location &location)
-    : NameableImpl(name),
-      LocationableImpl(location), detail::OwnableImpl(nullptr) {}
+    : Nameable(name), Locationable(location), detail::Ownable(nullptr) {}
 
 ScopeKind S_Global::kind() const { return ScopeKind::Global; }
 

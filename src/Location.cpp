@@ -73,9 +73,9 @@ bool Location::operator<=(const Location &loc) const {
 
 // Location }
 
-LocationableImpl::LocationableImpl(const Location &location)
-    : locationableImpl_(location) {}
+Locationable::Locationable(const Location &location)
+    : locationable_(location) {}
 
-Location &LocationableImpl::location() { return locationableImpl_; }
+Location &Locationable::location() { return locationable_; }
 
-const Location &LocationableImpl::location() const { return locationableImpl_; }
+const Location &Locationable::location() const { return locationable_; }

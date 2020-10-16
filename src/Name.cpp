@@ -3,13 +3,11 @@
 
 #include "Name.h"
 
-NameableImpl::NameableImpl() : nameableImpl_("") {}
+Nameable::Nameable(const Cowstr &name) : nameable_(name) {}
 
-NameableImpl::NameableImpl(const Cowstr &name) : nameableImpl_(name) {}
+Cowstr &Nameable::name() { return nameable_; }
 
-Cowstr &NameableImpl::name() { return nameableImpl_; }
-
-const Cowstr &NameableImpl::name() const { return nameableImpl_; }
+const Cowstr &Nameable::name() const { return nameable_; }
 
 NameGenerator::NameGenerator(const Cowstr &a_delimiter, const Cowstr &a_prefix,
                              const Cowstr &a_postfix)

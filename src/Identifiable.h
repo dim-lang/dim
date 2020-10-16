@@ -5,17 +5,10 @@
 
 class Identifiable {
 public:
+  Identifiable();
   virtual ~Identifiable() = default;
-  virtual unsigned long long identifier() const = 0;
-};
-
-class IdentifiableImpl : public Identifiable {
-public:
-  IdentifiableImpl();
-  IdentifiableImpl(unsigned long long a_identifier);
-  virtual ~IdentifiableImpl() = default;
   virtual unsigned long long identifier() const;
 
 protected:
-  unsigned long long identifiableImpl_;
+  unsigned long long identifiable_;
 };

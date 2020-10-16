@@ -4,14 +4,7 @@
 #include "Identifiable.h"
 #include "Counter.h"
 
-static Counter IdentifiableImplCounter;
+Identifiable::Identifiable()
+    : identifiable_(Counter::instance("Identifiable")->count()) {}
 
-IdentifiableImpl::IdentifiableImpl()
-    : identifiableImpl_(IdentifiableImplCounter.count()) {}
-
-IdentifiableImpl::IdentifiableImpl(unsigned long long identifiableImpl)
-    : identifiableImpl_(identifiableImpl) {}
-
-unsigned long long IdentifiableImpl::identifier() const {
-  return identifiableImpl_;
-}
+unsigned long long Identifiable::identifier() const { return identifiable_; }

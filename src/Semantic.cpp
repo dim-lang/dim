@@ -24,70 +24,75 @@ static NameGenerator ScopeNameGenerator(".");
 // do action {
 
 void SymbolBuilder::Loop::visit(Ast *ast, VisitorContext *context) {
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
   A_Loop *e = cast(A_Loop, ast);
 
   // create local scope
   Scope *loopScope =
       new S_Local(ScopeNameGenerator.generate("loop", e->location().str()),
-                  e->location(), scope());
+                  e->location(), sbcontext->scope);
   cast(S_Local, loopScope)->ast() = e;
   e->localScope = loopScope;
-  cast(SymbolBuilder::Context, context)->scope->subscope_define(loopScope);
+  sbcontext->scope->subscope_define(loopScope);
 }
 
 void SymbolBuilder::LoopEnumerator::visit(Ast *ast, VisitorContext *context) {
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
   A_LoopEnumerator *e = cast(A_LoopEnumerator, ast);
   A_VarId *varId = cast(A_VarId, e->id);
   A_PlainType *varType = cast(A_PlainType, e->type);
 
   // get variable type symbol
   TypeSymbol *variableTypeSymbol =
-      scope()->ts_resolve(tokenName(varType->token));
+      sbcontext->scope->ts_resolve(tokenName(varType->token));
   LOG_ASSERT(variableTypeSymbol, "variable type {} type symbol must exist",
              tokenName(varType->token));
 
   // create variable symbol
-  Symbol *variableSymbol =
-      new S_Var(varId->name(), varId->location(), variableTypeSymbol, scope());
-  cast<S_Var>(variableSymbol)->ast() = varId;
+  Symbol *variableSymbol = new S_Var(varId->name(), varId->location(),
+                                     variableTypeSymbol, sbcontext->scope);
+  cast(S_Var, variableSymbol)->ast() = varId;
   varId->symbol = variableSymbol;
-  cast<SymbolBuilder::Context>(context)->scope->s_define(variableSymbol);
+  sbcontext->scope->s_define(variableSymbol);
 }
 
 void SymbolBuilder::Block::visit(Ast *ast, VisitorContext *context) {
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
+  A_Block *e = cast(A_Block, ast);
 
-  A_Block *e = cast<A_Block>(ast);
   Scope *localScope =
       new S_Local(ScopeNameGenerator.generate("local", e->location().str()),
-                  e->location(), scope());
-  cast<S_Local>(localScope)->ast() = e;
+                  e->location(), sbcontext->scope);
+  cast(S_Local, localScope)->ast() = e;
   e->localScope = localScope;
-  cast<SymbolBuilder::Context>(context)->scope->subscope_define(localScope);
+  sbcontext->scope->subscope_define(localScope);
 }
 
 void SymbolBuilder::VarDef::visit(Ast *ast, VisitorContext *context) {
-  A_VarDef *e = cast<A_VarDef>(ast);
-  A_VarId *varId = cast<A_VarId>(e->id);
-  A_PlainType *varType = cast<A_PlainType>(e->type);
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
+  A_VarDef *e = cast(A_VarDef, ast);
+  A_VarId *varId = cast(A_VarId, e->id);
+  A_PlainType *varType = cast(A_PlainType, e->type);
 
   // get variable type symbol
   TypeSymbol *variableTypeSymbol =
-      scope()->ts_resolve(tokenName(varType->token));
+      sbcontext->scope->ts_resolve(tokenName(varType->token));
   LOG_ASSERT(variableTypeSymbol, "variable type {} type symbol must exist",
              tokenName(varType->token));
 
   // create variable symbol
-  Symbol *variableSymbol =
-      new S_Var(varId->name(), varId->location(), variableTypeSymbol, scope());
-  cast<S_Var>(variableSymbol)->ast() = varId;
+  Symbol *variableSymbol = new S_Var(varId->name(), varId->location(),
+                                     variableTypeSymbol, sbcontext->scope);
+  cast(S_Var, variableSymbol)->ast() = varId;
   varId->symbol = variableSymbol;
-  cast<SymbolBuilder::Context>(context)->scope->s_define(variableSymbol);
+  sbcontext->scope->s_define(variableSymbol);
 }
 
 void SymbolBuilder::Param::visit(Ast *ast, VisitorContext *context) {
-  A_Param *e = cast<A_Param>(ast);
-  A_VarId *varId = cast<A_VarId>(e->id);
-  A_PlainType *plainType = cast<A_PlainType>(e->type);
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
+  A_Param *e = cast(A_Param, ast);
+  A_VarId *varId = cast(A_VarId, e->id);
+  A_PlainType *plainType = cast(A_PlainType, e->type);
 
   // get parameter type symbol
   TypeSymbol *parameterTypeSymbol =
@@ -98,49 +103,51 @@ void SymbolBuilder::Param::visit(Ast *ast, VisitorContext *context) {
 
   // create parameter symbol
   Symbol *parameterSymbol = new S_Param(varId->name(), varId->location(),
-                                        parameterTypeSymbol, scope());
-  cast<S_Param>(parameterSymbol)->ast() = varId;
+                                        parameterTypeSymbol, sbcontext->scope);
+  cast(S_Param, parameterSymbol)->ast() = varId;
   varId->symbol = parameterSymbol;
-  Scope *scope = cast<SymbolBuilder::Context>(context)->scope;
-  scope->s_define(parameterSymbol);
-  LOG_ASSERT(scope->kind() == (+SymbolKind::Func),
-             "scope->kind {} must be SymbolKind::Func",
-             scope->kind()._to_string());
-  cast<S_Func>(scope)->params.push_back(parameterSymbol);
+  sbcontext->scope->s_define(parameterSymbol);
+  LOG_ASSERT(sbcontext->scope->kind() == (+SymbolKind::Func),
+             "sbcontext->scope->kind {} must be SymbolKind::Func",
+             sbcontext->scope->kind()._to_string());
+  cast(S_Func, sbcontext->scope)->params.push_back(parameterSymbol);
 }
 
 void SymbolBuilder::FuncDef::visit(Ast *ast, VisitorContext *context) {
-  A_FuncDef *e = cast<A_FuncDef>(ast);
-  A_FuncSign *sign = cast<A_FuncSign>(e->funcSign);
-  A_VarId *varId = cast<A_VarId>(sign->id);
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
+  A_FuncDef *e = cast(A_FuncDef, ast);
+  A_FuncSign *sign = cast(A_FuncSign, e->funcSign);
+  A_VarId *varId = cast(A_VarId, sign->id);
 
   // get function parameter types and result type
   std::vector<TypeSymbol *> parameterTypeSymbols;
   for (A_Params *params = sign->params; params; params = params->next) {
     LOG_ASSERT(params->param, "params {} param must not null", params->name());
-    TypeSymbol *parameterTypeSymbol = scope()->ts_resolve(
-        tokenName(static_cast<A_PlainType *>(params->param->type)->token));
+    TypeSymbol *parameterTypeSymbol = sbcontext->scope->ts_resolve(
+        tokenName(cast(A_PlainType, params)->param->type)->token));
     parameterTypeSymbols.push_back(parameterTypeSymbol);
   }
-  TypeSymbol *resultTypeSymbol = scope()->ts_resolve(
-      tokenName(static_cast<A_PlainType *>(e->resultType)->token));
+  TypeSymbol *resultTypeSymbol = sbcontext->scope->ts_resolve(
+      tokenName(cast(A_PlainType, e->resultType)->token));
 
   // create function type and symbol
-  TypeSymbol *functionTypeSymbol = new Ts_Func(
-      parameterTypeSymbols, resultTypeSymbol, sign->location(), scope());
-  Symbol *functionSymbol =
-      new S_Func(varId->name(), varId->location(), functionTypeSymbol, scope());
-  cast<S_Func>(functionSymbol)->ast() = varId;
+  TypeSymbol *functionTypeSymbol =
+      new Ts_Func(parameterTypeSymbols, resultTypeSymbol, sign->location(),
+                  sbcontext->scope);
+  Symbol *functionSymbol = new S_Func(varId->name(), varId->location(),
+                                      functionTypeSymbol, sbcontext->scope);
+  cast(S_Func, functionSymbol)->ast() = varId;
   varId->symbol = functionSymbol;
-  scope()->s_define(functionSymbol);
+  sbcontext->scope->s_define(functionSymbol);
 
   // pass function symbol to subscope
-  Scope *functionScope = cast<Scope>(functionSymbol);
-  cast<SymbolBuilder::Context>(context)->scope = functionScope;
+  Scope *functionScope = cast(Scope, functionSymbol);
+  sbcontext->scope = functionScope;
 }
 
 void SymbolBuilder::CompileUnit::visit(Ast *ast, VisitorContext *context) {
-  A_CompileUnit *e = cast<A_CompileUnit>(ast);
+  SymbolBuilder::Context *sbcontext = cast(SymbolBuilder::Context, context);
+  A_CompileUnit *e = cast(A_CompileUnit, ast);
 
   // create global scope
   Scope *globalScope = new S_Global("global", e->location());
@@ -157,11 +164,11 @@ void SymbolBuilder::CompileUnit::visit(Ast *ast, VisitorContext *context) {
   globalScope->ts_define(TypeSymbol::ts_char());
   globalScope->ts_define(TypeSymbol::ts_boolean());
   globalScope->ts_define(TypeSymbol::ts_void());
-  cast<S_Global>(globalScope)->ast() = e;
+  cast(S_Global, globalScope)->ast() = e;
   e->globalScope = globalScope;
 
   // pass globalScope to subscope
-  cast<SymbolBuilder::Context>(context)->scope = globalScope;
+  sbcontext->scope = globalScope;
 }
 
 // do action }

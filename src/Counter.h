@@ -12,7 +12,7 @@ public:
   unsigned long long count();
   unsigned long long total() const;
 
-  static Counter *get(const Cowstr &name);
+  static Counter *instance(const Cowstr &name);
 
 private:
   unsigned long long value_;

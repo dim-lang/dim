@@ -53,18 +53,11 @@ public:
 
 class Locationable {
 public:
+  Locationable(const Location &location = Location());
   virtual ~Locationable() = default;
-  virtual Location &location() = 0;
-  virtual const Location &location() const = 0;
-};
-
-class LocationableImpl : public Locationable {
-public:
-  LocationableImpl(const Location &location = Location());
-  virtual ~LocationableImpl() = default;
   virtual Location &location();
   virtual const Location &location() const;
 
 protected:
-  Location locationableImpl_;
+  Location locationable_;
 };

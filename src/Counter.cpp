@@ -11,7 +11,7 @@ unsigned long long Counter::count() { return value_++; }
 
 unsigned long long Counter::total() const { return value_; }
 
-Counter *Counter::get(const Cowstr &name) {
+Counter *Counter::instance(const Cowstr &name) {
   if (instances_.find(name) == instances_.end()) {
     instances_.insert(std::make_pair(name, new Counter()));
   }

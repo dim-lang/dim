@@ -28,91 +28,65 @@ BETTER_ENUM(TypeSymbolKind, int,
             // class
             Class)
 
-BETTER_ENUM(ScopeKind, int, Global = 4000, Local)
-
 class Ast;
 class Symbol;
 class TypeSymbol;
 class Scope;
 
-/**
- * relationship between Symbol, TypeSymbol and Scope:
- *
- * Symbol = Var, Param
- * Symbol+Scope = Func, Method
- * TypeSymbol =
- *    Plain: int, long, boolean, void, etc
- *    Func: (int, int)=>int, etc
- * TypeSymbol+Scope = Class
- * Scope = Local, Global
- *
- * TypeSymbol is a specilized Symbol
- */
-
 namespace detail {
 
 class Ownable {
 public:
+  Ownable(Scope *owner = nullptr);
   virtual ~Ownable() = default;
-  virtual Scope *&owner() = 0;
-  virtual Scope *owner() const = 0;
-};
-
-class OwnableImpl : public Ownable {
-public:
-  OwnableImpl(Scope *owner);
-  virtual ~OwnableImpl() = default;
   virtual Scope *&owner();
   virtual Scope *owner() const;
 
 protected:
-  Scope *ownableImpl_;
+  Scope *ownable_;
 };
 
 class Typeable {
 public:
+  Typeable(TypeSymbol *type = nullptr);
   virtual ~Typeable() = default;
-  virtual TypeSymbol *&type() = 0;
-  virtual TypeSymbol *type() const = 0;
-};
-
-class TypeableImpl : public Typeable {
-public:
-  TypeableImpl(TypeSymbol *typeableImpl);
-  virtual ~TypeableImpl() = default;
   virtual TypeSymbol *&type();
   virtual TypeSymbol *type() const;
 
 protected:
-  TypeSymbol *typeableImpl_;
+  TypeSymbol *typeable_;
 };
 
 class Astable {
 public:
+  Astable(Ast *ast = nullptr);
   virtual ~Astable() = default;
-  virtual Ast *&ast() = 0;
-  virtual Ast *ast() const = 0;
-};
-
-class AstableImpl : public Astable {
-public:
-  AstableImpl(Ast *astableImpl = nullptr);
-  virtual ~AstableImpl() = default;
   virtual Ast *&ast();
   virtual Ast *ast() const;
 
 protected:
-  Ast *astableImpl_;
+  Ast *astable_;
 };
 
 } // namespace detail
 
-class Symbol : public Nameable,
-               public Locationable,
-               public Identifiable,
+/**
+ * Symbol/TypeSymbol/Scope relationship:
+ *
+ * Symbol: Var, Param
+ * Symbol+Scope: Func, Method
+ * TypeSymbol: Plain, Func
+ * TypeSymbol+Scope: Class
+ * Scope: Local, Global
+ *
+ * TypeSymbol is a specilized Symbol
+ */
+class Symbol : public virtual Nameable,
+               public virtual Locationable,
+               public virtual Identifiable,
+               public virtual detail::Ownable,
+               public virtual detail::Astable,
                public detail::Typeable,
-               public detail::Ownable,
-               public detail::Astable,
                private boost::noncopyable {
 public:
   virtual ~Symbol() = default;
@@ -122,11 +96,11 @@ public:
   static bool isTypeSymbol(Symbol *sym);
 };
 
-class TypeSymbol : public Nameable,
-                   public Locationable,
-                   public Identifiable,
-                   public detail::Ownable,
-                   public detail::Astable,
+class TypeSymbol : public virtual Nameable,
+                   public virtual Locationable,
+                   public virtual Identifiable,
+                   public virtual detail::Ownable,
+                   public virtual detail::Astable,
                    private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
@@ -147,11 +121,11 @@ public:
   static TypeSymbol *ts_void();
 };
 
-class Scope : public Nameable,
-              public Locationable,
-              public Identifiable,
-              public detail::Ownable,
-              public detail::Astable,
+class Scope : public virtual Nameable,
+              public virtual Locationable,
+              public virtual Identifiable,
+              public virtual detail::Ownable,
+              public virtual detail::Astable,
               private boost::noncopyable {
 public:
   using s_map = LinkedHashMap<Cowstr, Symbol *>;
@@ -273,76 +247,44 @@ protected:
 
 // symbol {
 
-class S_Var : public Symbol,
-              public NameableImpl,
-              public LocationableImpl,
-              public IdentifiableImpl,
-              public detail::TypeableImpl,
-              public detail::OwnableImpl,
-              public detail::AstableImpl {
+class S_Var : public Symbol {
 public:
-  S_Var(const Cowstr &name, const Location &location, TypeSymbol *type,
-        Scope *owner);
+  S_Var(const Cowstr &name, const Location &location, Scope *owner,
+        TypeSymbol *type);
   virtual ~S_Var() = default;
   virtual SymbolKind kind() const;
 };
 
-class S_Func : public Symbol,
-               public NameableImpl,
-               public LocationableImpl,
-               public IdentifiableImpl,
-               public detail::TypeableImpl,
-               public detail::OwnableImpl,
-               public detail::AstableImpl,
-               public detail::ScopeImpl {
+class S_Func : public Symbol, public detail::ScopeImpl {
 public:
-  S_Func(const Cowstr &name, const Location &location, TypeSymbol *type,
-         Scope *owner);
+  S_Func(const Cowstr &name, const Location &location, Scope *owner,
+         TypeSymbol *type);
   virtual ~S_Func() = default;
   virtual SymbolKind kind() const;
 
   std::vector<Symbol *> params;
 };
 
-class S_Param : public Symbol,
-                public NameableImpl,
-                public LocationableImpl,
-                public IdentifiableImpl,
-                public detail::TypeableImpl,
-                public detail::OwnableImpl,
-                public detail::AstableImpl {
+class S_Param : public Symbol {
 public:
-  S_Param(const Cowstr &name, const Location &location, TypeSymbol *type,
-          Scope *owner);
+  S_Param(const Cowstr &name, const Location &location, Scope *owner,
+          TypeSymbol *type);
   virtual ~S_Param() = default;
   virtual SymbolKind kind() const;
 };
 
-class S_Field : public Symbol,
-                public NameableImpl,
-                public LocationableImpl,
-                public IdentifiableImpl,
-                public detail::TypeableImpl,
-                public detail::OwnableImpl,
-                public detail::AstableImpl {
+class S_Field : public Symbol {
 public:
-  S_Field(const Cowstr &name, const Location &location, TypeSymbol *type,
-          Scope *owner);
+  S_Field(const Cowstr &name, const Location &location, Scope *owner,
+          TypeSymbol *type);
   virtual ~S_Field() = default;
   virtual SymbolKind kind() const;
 };
 
-class S_Method : public Symbol,
-                 public NameableImpl,
-                 public LocationableImpl,
-                 public IdentifiableImpl,
-                 public detail::TypeableImpl,
-                 public detail::OwnableImpl,
-                 public detail::AstableImpl,
-                 public detail::ScopeImpl {
+class S_Method : public Symbol, public detail::ScopeImpl {
 public:
-  S_Method(const Cowstr &name, const Location &location, TypeSymbol *type,
-           Scope *owner);
+  S_Method(const Cowstr &name, const Location &location, Scope *owner,
+           TypeSymbol *type);
   virtual ~S_Method() = default;
   virtual SymbolKind kind() const;
 
@@ -361,25 +303,14 @@ public:
  *  boolean
  *  void
  */
-class Ts_Plain : public TypeSymbol,
-                 public NameableImpl,
-                 public LocationableImpl,
-                 public IdentifiableImpl,
-                 public detail::OwnableImpl,
-                 public detail::AstableImpl {
+class Ts_Plain : public TypeSymbol {
 public:
   Ts_Plain(const Cowstr &name);
   virtual ~Ts_Plain() = default;
   virtual TypeSymbolKind kind() const;
 };
 
-class Ts_Class : public TypeSymbol,
-                 public NameableImpl,
-                 public LocationableImpl,
-                 public IdentifiableImpl,
-                 public detail::OwnableImpl,
-                 public detail::AstableImpl,
-                 public detail::ScopeImpl {
+class Ts_Class : public TypeSymbol, public detail::ScopeImpl {
 public:
   Ts_Class(const Cowstr &name, const Location &location, Scope *owner);
   virtual ~Ts_Class() = default;
@@ -389,48 +320,39 @@ public:
   std::vector<Symbol *> methods;
 };
 
-class Ts_Func : public TypeSymbol,
-                public NameableImpl,
-                public LocationableImpl,
-                public IdentifiableImpl,
-                public detail::OwnableImpl,
-                public detail::AstableImpl {
+class Ts_Func : public TypeSymbol {
 public:
-  Ts_Func(const std::vector<TypeSymbol *> a_params, TypeSymbol *a_result,
+  Ts_Func(const std::vector<TypeSymbol *> &a_params, TypeSymbol *a_result,
           const Location &location, Scope *owner);
   virtual ~Ts_Func() = default;
   virtual TypeSymbolKind kind() const;
 
   std::vector<TypeSymbol *> params;
   TypeSymbol *result;
-
-private:
-  virtual Cowstr generateName(const std::vector<TypeSymbol *> &params,
-                              TypeSymbol *result);
 };
 
 // type symbol }
 
 // scope {
 
-class S_Local : public detail::ScopeImpl,
-                public NameableImpl,
+class S_Local : public NameableImpl,
                 public LocationableImpl,
                 public IdentifiableImpl,
-                public detail::OwnableImpl,
-                public detail::AstableImpl {
+                public detail::Ownable,
+                public detail::Astable,
+                public detail::ScopeImpl {
 public:
   S_Local(const Cowstr &name, const Location &location, Scope *owner);
   virtual ~S_Local() = default;
   virtual ScopeKind kind() const;
 };
 
-class S_Global : public detail::ScopeImpl,
-                 public NameableImpl,
+class S_Global : public NameableImpl,
                  public LocationableImpl,
                  public IdentifiableImpl,
-                 public detail::OwnableImpl,
-                 public detail::AstableImpl {
+                 public detail::Ownable,
+                 public detail::Astable,
+                 public detail::ScopeImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
