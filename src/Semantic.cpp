@@ -24,21 +24,21 @@ static NameGenerator ScopeNameGenerator(".");
 // do action {
 
 void SymbolBuilder::Loop::visit(Ast *ast, VisitorContext *context) {
-  A_Loop *e = cast<A_Loop>(ast);
+  A_Loop *e = cast(A_Loop, ast);
 
   // create local scope
   Scope *loopScope =
       new S_Local(ScopeNameGenerator.generate("loop", e->location().str()),
                   e->location(), scope());
-  cast<S_Local>(loopScope)->ast() = e;
+  cast(S_Local, loopScope)->ast() = e;
   e->localScope = loopScope;
-  cast<SymbolBuilder::Context>(context)->scope->subscope_define(loopScope);
+  cast(SymbolBuilder::Context, context)->scope->subscope_define(loopScope);
 }
 
 void SymbolBuilder::LoopEnumerator::visit(Ast *ast, VisitorContext *context) {
-  A_LoopEnumerator *e = cast<A_LoopEnumerator>(ast);
-  A_VarId *varId = cast<A_VarId>(e->id);
-  A_PlainType *varType = cast<A_PlainType>(e->type);
+  A_LoopEnumerator *e = cast(A_LoopEnumerator, ast);
+  A_VarId *varId = cast(A_VarId, e->id);
+  A_PlainType *varType = cast(A_PlainType, e->type);
 
   // get variable type symbol
   TypeSymbol *variableTypeSymbol =

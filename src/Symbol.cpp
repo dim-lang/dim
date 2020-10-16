@@ -48,18 +48,9 @@ TypeSymbol *TypeableImpl::type() const { return typeableImpl_; }
 // symbol api {
 
 ScopeImpl::~ScopeImpl() {
-  del(s_data_);
-  del(ts_data_);
-  del(sc_data_);
-  // for (auto i = s_data_.begin(); i != s_data_.end(); i++) {
-  //   delete i->second;
-  // }
-  // for (auto i = ts_data_.begin(); i != ts_data_.end(); i++) {
-  //   delete i->second;
-  // }
-  // for (auto i = sc_data_.begin(); i != sc_data_.end(); i++) {
-  //   delete i->second;
-  // }
+  del_map_second(s_data_);
+  del_map_second(ts_data_);
+  del_map_second(sc_data_);
 }
 
 void ScopeImpl::s_define(Symbol *symbol) {
@@ -299,8 +290,7 @@ SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 
 Ts_Plain::Ts_Plain(const Cowstr &name)
     : NameableImpl(name),
-      LocationableImpl(Location(Position(-1, -1), Position(-1, -1))),
-      detail::OwnableImpl(nullptr) {}
+      LocationableImpl(Location()), detail::OwnableImpl(nullptr) {}
 
 TypeSymbolKind Ts_Plain::kind() const { return TypeSymbolKind::Plain; }
 

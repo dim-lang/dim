@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Graph.h"
+#include "Drawer.h"
 #include "Ast.h"
 #include "Scanner.h"
 #include "Symbol.h"
@@ -10,14 +10,10 @@
 static void drawTest(const std::string &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  AstGraph ag(scanner.compileUnit());
-  REQUIRE(ag.draw(fileName + ".ast.dot") == 0);
-  std::shared_ptr<Scope> scope = Scope::from(scanner.compileUnit());
-  SymbolGraph sg(scope);
-  REQUIRE(sg.draw(fileName + ".symbol.dot") == 0);
+  REQUIRE(Drawer::draw(scanner.compileUnit(), fileName + ".dot") == 0);
 }
 
-TEST_CASE("Graph", "[Graph]") {
+TEST_CASE("Drawer", "[Drawer]") {
   SECTION("ast/symbol graph") {
     drawTest("test/case/parse-1.nerd");
     drawTest("test/case/parse-2.nerd");

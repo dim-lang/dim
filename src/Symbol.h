@@ -251,8 +251,8 @@ public:
   /**
    * scope interface
    */
-  virtual void subscope_insert(Scope *scope);
-  virtual Scope *subscope_find(const Cowstr &name) const;
+  virtual void subscope_define(Scope *scope);
+  virtual Scope *subscope_resolve(const Cowstr &name) const;
   virtual bool subscope_contains(const Cowstr &name) const;
   virtual bool subscope_empty() const;
   virtual int subscope_size() const;

@@ -6,6 +6,8 @@
 #include "Counter.h"
 #include "Symbol.h"
 #include "Token.h"
+#include "Visitor.h"
+#include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
 #include <algorithm>
 #include <sstream>
@@ -356,10 +358,74 @@ struct TypeSymbolToAstEdge : public GEdge {
               GEdgeID(AstNode::identify(to)), false) {}
 };
 
+#define BIND(x)                                                                \
+  x BOOST_PP_CAT(drawerVisitor_, x);                                           \
+  binder_.bind((+AstKind::x)._to_integral(),                                   \
+               &(BOOST_PP_CAT(drawerVisitor_, x)));
+
 struct Graph {
-  Graph(Ast *a_ast) : ast(a_ast) {}
-  void draw(const Cowstr &fileName) {
-    const static std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
+  Graph(Ast *ast) {
+    Context context(this);
+    VisitorBinder binder(&context);
+
+    BIND(Nil)
+    BIND(Void)
+    BIND(Break)
+    BIND(Continue)
+
+    BIND(Integer)
+    BIND(Float)
+    BIND(Boolean)
+    BIND(Character)
+    BIND(String)
+
+    BIND(VarId)
+
+    BIND(PlainType)
+
+    BIND(Throw)
+    BIND(Return)
+    BIND(Yield)
+    BIND(Block)
+    BIND(CompileUnit)
+
+    BIND(PostfixExpr)
+    BIND(PrefixExpr)
+
+    BIND(Call)
+    BIND(Exprs)
+
+    BIND(Loop)
+    BIND(DoWhile)
+    BIND(BlockStats)
+    BIND(FuncSign)
+    BIND(Params)
+    BIND(Param)
+    BIND(TopStats)
+
+    BIND(Assign)
+    BIND(InfixExpr)
+
+    BIND(If)
+    BIND(LoopCondition)
+    BIND(LoopEnumerator)
+    BIND(Try)
+    BIND(FuncDef)
+    BIND(VarDef)
+
+    Visitor::traverse(&binder, ast);
+  }
+
+  std::unordered_map<Cowstr, GNode *> nodes;
+  std::unordered_map<Cowstr, GEdge *> edges;
+
+  struct Context : public VisitorContext {
+    Context(Graph *g1) : g(g1) {}
+    Graph *g;
+  };
+
+  int draw(const Cowstr &fileName) {
+    const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
         attributes = {
             {
                 "node",
@@ -383,11 +449,32 @@ struct Graph {
                 },
             },
         };
-  }
 
-  Ast *ast;
-  std::unordered_map<Cowstr, GNode *> nodes;
-  std::unordered_map<Cowstr, GEdge *> edges;
+    FileWriter fwriter(fileName);
+    fwriter.writeln("digraph {");
+    for (auto i = attributes.begin(); i != attributes.end(); i++) {
+      fwriter.write(fmt::format("    {} [", i->first));
+      int c = 0;
+      for (auto j = i->second.begin(); j != i->second.end(); j++, c++) {
+        fwriter.write(fmt::format("{}={}", j->first, j->second));
+        if (c < (int)i->second.size() - 1) {
+          fwriter.write(", ");
+        }
+      }
+      fwriter.writeln("]");
+    }
+    fwriter.writeln();
+    for (auto i = nodes.begin(); i != nodes.end(); i++) {
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
+    }
+    fwriter.write("\n");
+    for (auto i = edges.begin(); i != edges.end(); i++) {
+      fwriter.writeln(fmt::format("    {}", (*i)->str()));
+    }
+    fwriter.writeln("}");
+    fwriter.flush();
+    return 0;
+  }
 
   static void linkAstToAst(Ast *a, Ast *b, VisitorContext *context,
                            const Cowstr &name) {
@@ -416,10 +503,113 @@ struct Graph {
       g->edges.insert(std::make_pair(e->id(), e));
     }
   }
+  static void linkAstToVar(A_VarId *varId) {
+    S_Var *variableSymbol = cast(S_Var, varId->symbol);
+    GEdgeID from(AstNode::identify(varId));
+    GEdgeID to(ScopeNode::identify(variableSymbol->owner()),
+               ScopeNode::identifySymbol(variableSymbol));
+    Cowstr eid = GEdge::identify(from, to);
+    LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
+               "eid {} not exist, varId {} has no link to Variable Symbol {}",
+               eid, varId->name(), variableSymbol->name());
+    AstToSymbolEdge *e = new AstToSymbolEdge(varId, variableSymbol);
+    LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
+    g->edges.insert(std::make_pair(e->id(), e));
+  }
 
-  struct Context : public VisitorContext {
-    Graph *g;
-  };
+  static void linkAstToParam(A_VarId *varId) {
+    S_Param *parameterSymbol = cast(S_Var, varId->symbol);
+    GEdgeID from(AstNode::identify(varId));
+    GEdgeID to(ScopeNode::identify(parameterSymbol->owner()),
+               ScopeNode::identifySymbol(parameterSymbol));
+    Cowstr eid = GEdge::identify(from, to);
+    LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
+               "eid {} not exist, varId {} has no link to Parameter Symbol {}",
+               eid, varId->name(), parameterSymbol->name());
+    AstToSymbolEdge *e = new AstToSymbolEdge(varId, parameterSymbol);
+    LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
+    g->edges.insert(std::make_pair(e->id(), e));
+  }
+
+  static void linkAstToFunction(A_VarId *varId) {
+    S_Func functionSymbol = cast(S_Func, varId->symbol);
+    ScopeNode *node = new ScopeNode(functionSymbol);
+    node->add("symbol");
+    if (functionSymbol->s_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = functionSymbol->s_begin(); i != functionSymbol->s_end();
+           i++) {
+        node->addSymbol(i->second);
+      }
+    }
+    node->add("type symbol");
+    if (functionSymbol->ts_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = functionSymbol->ts_begin(); i != functionSymbol->ts_end();
+           i++) {
+        node->addTypeSymbol(i->second);
+      }
+    }
+    node->add("sub scope");
+    if (functionSymbol->sc_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = functionSymbol->sc_begin(); i != functionSymbol->sc_end();
+           i++) {
+        node->addScope(i->second);
+      }
+    }
+    g->nodes.insert(std::make_pair(node->id(), node));
+    Cowstr eid = AstToScopeEdge::identify(varId, functionSymbol);
+    LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
+               "eid {} not exist, varId {} has no link to Scope {}", eid,
+               varId->name(), functionSymbol->name());
+    AstToScopeEdge *e = new AstToScopeEdge(varId, functionSymbol);
+    LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
+    g->edges.insert(std::make_pair(e->id(), e));
+  }
+
+  static void linkAstToClass(A_VarId *varId) {
+    LOG_ASSERT(false, "not implemented!");
+  }
+
+  static void linkAstToScope(Ast *ast, Scope *scope) {
+    ScopeNode *node = new ScopeNode(scope);
+    node->add("symbol");
+    if (scope->s_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+        node->addSymbol(i->second);
+      }
+    }
+    node->add("type symbol");
+    if (scope->ts_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+        node->addTypeSymbol(i->second);
+      }
+    }
+    node->add("sub scope");
+    if (scope->sc_empty()) {
+      node->add("empty");
+    } else {
+      for (auto i = scope->sc_begin(); i != scope->sc_end(); i++) {
+        node->addScope(i->second);
+      }
+    }
+    g->nodes.insert(std::make_pair(node->id(), node));
+    Cowstr eid = AstToScopeEdge::identify(ast, scope);
+    LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
+               "eid {} not exist, ast {} has no link to Scope {}", eid,
+               ast->name(), scope->name());
+    AstToScopeEdge *e = new AstToScopeEdge(ast, scope);
+    LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
+    g->edges.insert(std::make_pair(e->id(), e));
+  }
 
   // kind, id, location
 #define DECL1(x)                                                               \
@@ -544,8 +734,6 @@ struct Graph {
   DECL2(Character)
   DECL2(String)
 
-  DECL2(VarId)
-
   struct VarId : public Visitor {
     virtual void visit(Ast *ast, VisitorContext *context) {
       Graph *g = cast(Context, context)->g;
@@ -566,8 +754,6 @@ struct Graph {
       // create symbol/typeSymbol/scope gnode
       link(cast(A_VarId, ast));
     }
-    virtual void postVisit(Ast *ast, VisitorContext *context) {}
-
     void link(A_VarId *varId) {
       if (varId->symbol) {
         switch (varId->symbol->kind()) {
@@ -601,7 +787,7 @@ struct Graph {
         switch (varId->typeSymbol->kind()) {
         case TypeSymbolKind::Class: {
           if (defineTypeSymbol(varId)) {
-            linkClassToAst(varId);
+            linkAstToClass(varId);
           }
           break;
         }
@@ -614,58 +800,12 @@ struct Graph {
         }
       }
     }
-
     bool defineSymbol(A_VarId *varId) {
       return varId->symbol && varId->symbol->ast() == varId;
     }
-
     bool defineTypeSymbol(A_VarId *varId) {
       return varId->typeSymbol && varId->typeSymbol->ast() == varId;
     }
-
-    void linkAstToVar(A_VarId *varId) {}
-
-    void linkAstToFunction(A_VarId *varId) {
-      S_Func functionSymbol = cast(S_Func, varId->symbol);
-      ScopeNode *node = new ScopeNode(functionSymbol);
-      node->add("symbol");
-      if (functionSymbol->s_empty()) {
-        node->add("empty");
-      } else {
-        for (auto i = functionSymbol->s_begin(); i != functionSymbol->s_end();
-             i++) {
-          node->addSymbol(i->second);
-        }
-      }
-      node->add("type symbol");
-      if (functionSymbol->ts_empty()) {
-        node->add("empty");
-      } else {
-        for (auto i = functionSymbol->ts_begin(); i != functionSymbol->ts_end();
-             i++) {
-          node->addTypeSymbol(i->second);
-        }
-      }
-      node->add("sub scope");
-      if (functionSymbol->sc_empty()) {
-        node->add("empty");
-      } else {
-        for (auto i = functionSymbol->sc_begin(); i != functionSymbol->sc_end();
-             i++) {
-          node->addScope(i->second);
-        }
-      }
-      g->nodes.insert(std::make_pair(node->id(), node));
-      Cowstr eid = AstToScopeEdge::identify(varId, functionSymbol);
-      LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
-                 "eid {} not exist, varId {} has no link to Scope {}", eid,
-                 varId->name(), functionSymbol->name());
-      AstToScopeEdge *e = new AstToScopeEdge(varId, functionSymbol);
-      LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
-      g->edges.insert(std::make_pair(e->id(), e));
-    }
-
-    void linkAstToParam(A_VarId *varId) {}
   };
 
   DECL3(PlainType, A_PlainType, token)
@@ -673,15 +813,69 @@ struct Graph {
   DECL4(Throw, A_Throw, expr)
   DECL4(Return, A_Return, expr)
   DECL4(Yield, A_Yield, expr)
-  DECL4(Block, A_Block, blockStats)
-  DECL4(CompileUnit, A_CompileUnit, topStats)
+
+  struct Block : public Visitor {
+    virtual void visit(Ast *ast, VisitorContext *context) {
+      Graph *g = cast(Context, context)->g;
+      AstNode *node = new AstNode(ast);
+      g->nodes.insert(std::make_pair(node->id(), node));
+
+      // create local scope
+      A_Block *block = cast(A_Block, ast);
+      LOG_ASSERT(block->localScope, "block {} localScope must not null",
+                 block->name());
+      linkAstToScope(block, block->localScope);
+    }
+    virtual void postVisit(Ast *ast, VisitorContext *context) {
+      linkAstToAst(ast, cast(A_Block, ast)->blockStats,
+                   BOOST_PP_STRINGIZE(blockStats));
+    }
+  };
+
+  struct CompileUnit : public Visitor {
+    virtual void visit(Ast *ast, VisitorContext *context) {
+      Graph *g = cast(Context, context)->g;
+      AstNode *node = new AstNode(ast);
+      g->nodes.insert(std::make_pair(node->id(), node));
+
+      // create global scope
+      A_CompileUnit *compileUnit = cast(A_CompileUnit, ast);
+      LOG_ASSERT(compileUnit->globalScope,
+                 "compile unit {} globalScope must not null",
+                 compileUnit->name());
+      linkAstToScope(compileUnit, compileUnit->localScope);
+    }
+    virtual void postVisit(Ast *ast, VisitorContext *context) {
+      linkAstToAst(ast, cast(A_CompileUnit, ast)->topStats,
+                   BOOST_PP_STRINGIZE(topStats));
+    }
+  };
 
   DECL5(PostfixExpr, A_PostfixExpr, postfixOp, expr)
   DECL5(PrefixExpr, A_PrefixExpr, prefixOp, expr)
 
   DECL6(Call, A_Call, id, args)
   DECL6(Exprs, A_Exprs, expr, next)
-  DECL6(Loop, A_Loop, condition, body)
+
+  struct Loop : public Visitor {
+    virtual void visit(Ast *ast, VisitorContext *context) {
+      Graph *g = cast(Context, context)->g;
+      AstNode *node = new AstNode(ast);
+      g->nodes.insert(std::make_pair(node->id(), node));
+
+      // create local scope
+      A_Loop *loop = cast(A_Loop, ast);
+      LOG_ASSERT(loop->localScope, "loop {} localScope must not null",
+                 loop->name());
+      linkAstToScope(loop, loop->localScope);
+    }
+    virtual void postVisit(Ast *ast, VisitorContext *context) {
+      linkAstToAst(ast, cast(A_Loop, ast)->condition,
+                   BOOST_PP_STRINGIZE(condition));
+      linkAstToAst(ast, cast(A_Loop, ast)->body, BOOST_PP_STRINGIZE(body));
+    }
+  };
+
   DECL6(DoWhile, A_DoWhile, body, condition)
   DECL6(BlockStats, A_BlockStats, blockStat, next)
   DECL6(FuncSign, A_FuncSign, id, params)
@@ -697,9 +891,12 @@ struct Graph {
   DECL8(LoopEnumerator, A_LoopEnumerator, id, type, expr)
   DECL8(Try, A_Try, tryp, catchp, finallyp)
   DECL8(FuncDef, A_FuncDef, funcSign, resultType, body)
-  DECL2(VarDef, A_VarDef, id, type, expr)
+  DECL8(VarDef, A_VarDef, id, type, expr)
 };
 
 } // namespace detail
 
-int Drawer::draw(Ast *ast, const Cowstr &output) { return 0; }
+int Drawer::draw(Ast *ast, const Cowstr &output) {
+  detail::Graph g(ast);
+  return g.draw(output);
+}

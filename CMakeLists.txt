@@ -151,8 +151,9 @@ set(NERD_CORE
     # src/Position.cpp
     src/Counter.cpp
     # src/Dump.cpp
-    src/Graph.cpp
-    src/Symbol.cpp
+    # src/Symbol.cpp
+    src/Semantic.cpp
+    src/Drawer.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp
@@ -211,6 +212,7 @@ set(NERD_TEST
     test/CycleBufferTest.cpp
     test/LinkedHashMapTest.cpp
     test/FilesTest.cpp
+    test/LocationTest.cpp
     test/NameTest.cpp
     # test/ExceptionTest.cpp
     # test/TimerTest.cpp
@@ -219,9 +221,7 @@ set(NERD_TEST
     # test/HashTest.cpp
     test/TokenizerTest.cpp
     test/ParserTest.cpp
-    # test/SemanticTest.cpp
-    test/GraphTest.cpp
-    # test/NameGeneratorTest.cpp
+    test/DrawerTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp
 )
