@@ -14,8 +14,7 @@
 #include <cctype>
 
 #define SYMBOL_CONSTRUCTOR                                                     \
-  Nameable(name), Locationable(location), detail::Ownable(owner),              \
-      detail::Typeable(type)
+  Nameable(name), Locationable(location), detail::Ownable(owner), Symbol(type)
 
 #define TYPE_SYMBOL_CONSTRUCTOR                                                \
   Nameable(name), Locationable(location), detail::Ownable(owner)
@@ -190,6 +189,12 @@ Scope::sc_const_iterator ScopeImpl::subscope_cend() const {
 
 } // namespace detail
 
+// Symbol {
+
+Symbol::Symbol(TypeSymbol *type) : detail::Typeable(type) {}
+
+// Symbol }
+
 // TypeSymbol {
 
 TypeSymbol *TypeSymbol::ts_byte() {
@@ -336,11 +341,7 @@ TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 S_Local::S_Local(const Cowstr &name, const Location &location, Scope *owner)
     : TYPE_SYMBOL_CONSTRUCTOR {}
 
-ScopeKind S_Local::kind() const { return ScopeKind::Local; }
-
 S_Global::S_Global(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location), detail::Ownable(nullptr) {}
-
-ScopeKind S_Global::kind() const { return ScopeKind::Global; }
 
 // scope }

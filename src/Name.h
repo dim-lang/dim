@@ -58,13 +58,12 @@ public:
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;
     ss << nameGenerator_.generate(args...) << nameGenerator_.delimiter
-       << counter_.count();
+       << Counter::instance("CounterNameGenerator")->count();
     return ss.str();
   }
 
 private:
   NameGenerator nameGenerator_;
-  Counter counter_;
 };
 
 class TagNameGenerator {

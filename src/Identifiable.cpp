@@ -3,8 +3,26 @@
 
 #include "Identifiable.h"
 #include "Counter.h"
+#include "fmt/format.h"
+#include <string>
 
 Identifiable::Identifiable()
     : identifiable_(Counter::instance("Identifiable")->count()) {}
 
 unsigned long long Identifiable::identifier() const { return identifiable_; }
+
+Cowstr Identifiable::hexIdentifier() const {
+  return fmt::format("{0:x}", identifiable_);
+}
+
+Cowstr Identifiable::decIdentifier() const {
+  return std::to_string(identifiable_);
+}
+
+Cowstr Identifiable::octIdentifier() const {
+  return fmt::format("{0:o}", identifiable_);
+}
+
+Cowstr Identifiable::binIdentifier() const {
+  return fmt::format("{0:b}", identifiable_);
+}

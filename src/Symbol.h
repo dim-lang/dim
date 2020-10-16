@@ -89,6 +89,7 @@ class Symbol : public virtual Nameable,
                public detail::Typeable,
                private boost::noncopyable {
 public:
+  Symbol(TypeSymbol *type = nullptr);
   virtual ~Symbol() = default;
   virtual SymbolKind kind() const = 0;
 
@@ -335,28 +336,16 @@ public:
 
 // scope {
 
-class S_Local : public NameableImpl,
-                public LocationableImpl,
-                public IdentifiableImpl,
-                public detail::Ownable,
-                public detail::Astable,
-                public detail::ScopeImpl {
+class S_Local : public detail::ScopeImpl {
 public:
   S_Local(const Cowstr &name, const Location &location, Scope *owner);
   virtual ~S_Local() = default;
-  virtual ScopeKind kind() const;
 };
 
-class S_Global : public NameableImpl,
-                 public LocationableImpl,
-                 public IdentifiableImpl,
-                 public detail::Ownable,
-                 public detail::Astable,
-                 public detail::ScopeImpl {
+class S_Global : public detail::ScopeImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;
-  virtual ScopeKind kind() const;
 };
 
 // scope }

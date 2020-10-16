@@ -151,9 +151,10 @@ set(NERD_CORE
     # src/Position.cpp
     src/Counter.cpp
     # src/Dump.cpp
-    # src/Symbol.cpp
+    src/Symbol.cpp
     src/Semantic.cpp
     src/Drawer.cpp
+    src/Phase.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp

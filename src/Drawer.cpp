@@ -17,6 +17,10 @@ namespace detail {
 
 static CounterNameGenerator CNG;
 
+static Cowstr identify(Identifiable *identifier) {
+  return Cowstr("id") + identifier->decIdentifier();
+}
+
 static const std::unordered_map<char, Cowstr> HtmlTranslator = {
     {'\\', "\\\\"},
     {'\n', "<BR/>"},
@@ -41,15 +45,16 @@ static const std::unordered_map<char, Cowstr> HtmlTranslator = {
  * <TD PORT="id" COLSPAN="width"> value </TD>
  */
 struct GCell {
-  GCell(const Cowstr &a_id, const Cowstr &a_value, int a_width)
-      : id(a_id), value(TRANSLATE(a_value)), width(a_width) {}
-  ~GCell() = default;
+  GCell(const Cowstr &a_value)
+      : id(CNG.generate("anonymous")), value(TRANSLATE(a_value)), width(0) {}
+  GCell(const Cowstr &a_id, const Cowstr &a_value)
+      : id(a_id), value(TRANSLATE(a_value)), width(0) {}
 
   Cowstr id; // PORT="id"
   Cowstr value;
   int width; // COLSPAN="width"
 
-  Cowstr str() {
+  Cowstr str() const {
     return width ? fmt::format("<TD PORT=\"{}\" COLSPAN=\"{}\">{}</TD>", id,
                                width, value)
                  : fmt::format("<TD PORT=\"{}\">{}</TD>", id, value);
@@ -61,11 +66,10 @@ struct GCell {
  */
 struct GLine {
   GLine(const std::vector<GCell> &a_cells) : cells(a_cells) {}
-  ~GLine() = default;
 
   std::vector<GCell> cells;
 
-  Cowstr str() {
+  Cowstr str() const {
     std::stringstream ss;
     ss << "        <TR>";
     for (int i = 0; i < (int)cells.size(); i++) {
@@ -80,6 +84,7 @@ struct GLine {
  * (node)id [label=<<TABLE attributes> GLine+ </TABLE>>]
  */
 struct GNode {
+  GNode() : id(CNG.generate("id")) {}
   GNode(const Cowstr &a_id) : id(a_id) {}
   virtual ~GNode() = default;
 
@@ -95,14 +100,13 @@ struct GNode {
       maxWidth = std::max<int>(lines[i].cells.size(), maxWidth);
     }
     for (int i = 0; i < (int)lines.size(); i++) {
-      if (lines[i].cells.size() < maxWidth) {
+      if (lines[i].cells.size() > 0 && lines[i].cells.size() < maxWidth) {
         lines[i].cells[0].width = maxWidth - lines[i].cells.size() + 1;
       }
     }
   }
 
-  virtual Cowstr str() {
-    adjust();
+  virtual Cowstr str() const {
     const std::unordered_map<Cowstr, Cowstr> &attributes = {
         {"BORDER", "\"0\""},
         {"CELLBORDER", "\"1\""},
@@ -127,8 +131,8 @@ struct GNode {
 };
 
 struct NilNode : public GNode {
-  NilNode() : GNode(CNG.generate("nilnode")) {
-    GCell c(CNG.generate("cell"), "nil", 0);
+  NilNode() : GNode() {
+    GCell c("nil");
     GLine l({c});
     lines.push_back(l);
   }
@@ -137,21 +141,18 @@ struct NilNode : public GNode {
 struct AstNode : public GNode {
   AstGNode(Ast *ast) : GNode(identify(ast)) {
     add(ast->kind()._to_string());
-    add("id", Cowstr::from(ast->identifier()));
+    add("id", ast->decIdentifier());
     add("location", ast->location().str());
   }
 
-  static Cowstr identify(Ast *ast) {
-    return Cowstr("astnode") + Cowstr::from(ast->identifier());
-  }
-  void add(const Cowstr &a) {
-    GCell c(CNG.generate("cell"), a, 0);
+  virtual void add(const Cowstr &a) {
+    GCell c(a);
     GLine l({c});
     lines.push_back(l);
   }
-  void add(const Cowstr &a, const Cowstr &b) {
-    GCell c1(CNG.generate("cell"), a, 0);
-    GCell c2(CNG.generate("cell"), b, 0);
+  virtual void add(const Cowstr &a, const Cowstr &b) {
+    GCell c1(a);
+    GCell c2(b);
     GLine l({c1, c2});
     lines.push_back(l);
   }
@@ -160,109 +161,99 @@ struct AstNode : public GNode {
 struct ScopeNode : public GNode {
   ScopeNode(Scope *scope) : GNode(identify(scope)) {
     add(scope->name());
-    add("id", Cowstr::from(ast->identifier()));
+    add("id", ast->decIdentifier());
     add("location", ast->location().str());
   }
 
-  static Cowstr identify(Scope *scope) {
-    return Cowstr("scopenode") + Cowstr::from(scope->identifier());
-  }
-  static Cowstr identifySymbol(Symbol *sym) {
-    return Cowstr("symbolcell") + Cowstr::from(sym->identifier());
-  }
-  static Cowstr identifyTypeSymbol(TypeSymbol *tsym) {
-    return Cowstr("typesymbolcell") + Cowstr::from(tsym->identifier());
-  }
-  static Cowstr identifyScope(TypeSymbol *tsym) {
-    return Cowstr("scopecell") + Cowstr::from(tsym->identifier());
-  }
-  void add(const Cowstr &a) {
-    GCell c(CNG.generate("cell"), a, 0);
+  virtual void add(const Cowstr &a) {
+    GCell c(a);
     GLine line({c});
     node.lines.push_back(line);
   }
-  void add(const Cowstr &a, const Cowstr &b) {
-    GCell c1(CNG.generate("cell"), a, 0);
-    GCell c2(CNG.generate("cell"), b, 0);
+  virtual void add(const Cowstr &a, const Cowstr &b) {
+    GCell c1(a);
+    GCell c2(b);
     GLine line({c1, c2});
     node.lines.push_back(line);
   }
-  void add(const Cowstr &a, const Cowstr &b, const Cowstr &c) {
-    GCell c1(CNG.generate("cell"), a, 0);
-    GCell c2(CNG.generate("cell"), b, 0);
-    GCell c3(CNG.generate("cell"), c, 0);
+  virtual void add(const Cowstr &a, const Cowstr &b, const Cowstr &c) {
+    GCell c1(a);
+    GCell c2(b);
+    GCell c3(c);
     GLine line({c1, c2, c3});
     node.lines.push_back(line);
   }
-  void add(const Cowstr &a, const Cowstr &b, const Cowstr &c, const Cowstr &d) {
-    GCell c1(CNG.generate("cell"), a, 0);
-    GCell c2(CNG.generate("cell"), b, 0);
-    GCell c3(CNG.generate("cell"), c, 0);
-    GCell c4(CNG.generate("cell"), d, 0);
+  virtual void add(const Cowstr &a, const Cowstr &b, const Cowstr &c,
+                   const Cowstr &d) {
+    GCell c1(a);
+    GCell c2(b);
+    GCell c3(c);
+    GCell c4(d);
     GLine line({c1, c2, c3, c4});
     node.lines.push_back(line);
   }
-  void add(const Cowstr &a, const Cowstr &b, const Cowstr &c, const Cowstr &d,
-           const Cowstr &e) {
-    GCell c1(CNG.generate("cell"), a, 0);
-    GCell c2(CNG.generate("cell"), b, 0);
-    GCell c3(CNG.generate("cell"), c, 0);
-    GCell c4(CNG.generate("cell"), d, 0);
-    GCell c5(CNG.generate("cell"), e, 0);
+  virtual void add(const Cowstr &a, const Cowstr &b, const Cowstr &c,
+                   const Cowstr &d, const Cowstr &e) {
+    GCell c1(a);
+    GCell c2(b);
+    GCell c3(c);
+    GCell c4(d);
+    GCell c5(e);
     GLine line({c1, c2, c3, c4, c5});
     node.lines.push_back(line);
   }
-  void addSymbol(Symbol *sym) {
-    GCell c1(identifySymbol(sym), Cowstr::from(sym->identifier()), 0);
-    GCell c2(CNG.generate("cell"), sym->name(), 0);
-    GCell c3(CNG.generate("cell"), sym->type()->name(), 0);
-    GCell c4(CNG.generate("cell"), sym->kind()._to_string(), 0);
-    GCell c5(CNG.generate("cell"), sym->location().str(), 0);
+  virtual void addSymbol(Symbol *sym) {
+    GCell c1(identify(sym), sym->decIdentifier());
+    GCell c2(sym->name());
+    GCell c3(sym->type()->name());
+    GCell c4(sym->kind()._to_string());
+    GCell c5(sym->location().str());
     GLine line({c1, c2, c3, c4, c5});
     node.lines.push_back(line);
   }
-  void addTypeSymbol(TypeSymbol *tsym) {
-    GCell c1(identifyTypeSymbol(tsym), Cowstr::from(tsym->identifier()), 0);
-    GCell c2(CNG.generate("cell"), tsym->name(), 0);
-    GCell c3(CNG.generate("cell"), tsym->kind()._to_string(), 0);
-    GCell c4(CNG.generate("cell"), tsym->location().str(), 0);
+  virtual void addTypeSymbol(TypeSymbol *tsym) {
+    GCell c1(identify(tsym), tsym->decIdentifier());
+    GCell c2(tsym->name());
+    GCell c3(tsym->kind()._to_string());
+    GCell c4(tsym->location().str());
     GLine line({c1, c2, c3, c4});
     node.lines.push_back(line);
   }
-  void addScope(Scope *scope) {
-    GCell c1(identifyScope(scope), Cowstr::from(scope->identifier()), 0);
-    GCell c2(CNG.generate("cell"), scope->name(), 0);
-    GCell c3(CNG.generate("cell"), scope->kind()._to_string(), 0);
-    GCell c4(CNG.generate("cell"), scope->location().str(), 0);
+  virtual void addScope(Scope *scope) {
+    GCell c1(identify(scope), scope->decIdentifier());
+    GCell c2(scope->name());
+    GCell c3(scope->kind()._to_string());
+    GCell c4(scope->location().str());
     GLine line({c1, c2, c3, c4});
     node.lines.push_back(line);
   }
 };
 
-struct GEdgeID {
-  GEdgeID(const Cowstr &a_id1) : id1(a_id1) {}
-  GEdgeID(const Cowstr &a_id1, const Cowstr &a_id2) : id1(a_id1), id2(a_id2) {}
+struct GEdgeKey {
+  GEdgeKey(const Cowstr &a_key1) : key1(a_key1) {}
+  GEdgeKey(const Cowstr &a_key1, const Cowstr &a_key2)
+      : key1(a_key1), key2(a_key2) {}
 
-  Cowstr id1;
-  Cowstr id2;
+  Cowstr key1;
+  Cowstr key2;
 
-  Cowstr str() { return id2.empty() ? id1 : (id1 + ":" + id2); }
+  static Cowstr identify(const GEdgeKey &from, const GEdgeKey &to) {
+    return from.str() + "-" + to.str();
+  }
+  Cowstr str() { return key2.empty() ? key1 : (key1 + ":" + key2); }
 };
 
 struct GEdge {
-  GEdge(GEdgeID a_from, GEdgeID a_to, bool a_dotted)
+  GEdge(GEdgeKey a_from, GEdgeKey a_to, bool a_dotted)
       : from(a_from), to(a_to), dotted(a_dotted) {}
   virtual ~GEdge() = default;
 
-  GEdgeID from;
-  GEdgeID to;
+  GEdgeKey from;
+  GEdgeKey to;
   std::vector<GLine> lines;
   bool dotted;
 
-  static Cowstr identify(GEdgeID from, GEdgeID to) {
-    return from.str() + "-" + to.str();
-  }
-  virtual Cowstr id() { return identify(from, to); }
+  virtual Cowstr id() { return GEdgeKey::identify(from, to); }
   virtual Cowstr str() {
     const std::unordered_map<Cowstr, Cowstr> &attributes = {
         {"BORDER", "\"0\""},
@@ -293,69 +284,69 @@ struct GEdge {
 
 struct AstToNilEdge : public GEdge {
   AstToNilEdge(Ast *from, const Cowstr &to, const Cowstr &name)
-      : GEdge(GEdgeID(AstNode::identify(from)), GEdgeID(to), false) {}
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(to), false) {
+    add(name);
+  }
+
+  virtual void add(const Cowstr &a) {
+    GCell c(a);
+    GLine line({c});
+    lines.push_back(line);
+  }
 };
 
 struct AstToAstEdge : public GEdge {
   AstToAstEdge(Ast *from, Ast *to, const Cowstr &name)
-      : GEdge(GEdgeID(AstNode::identify(from)), GEdgeID(AstNode::identify(to)),
-              false) {
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), false) {
     add(name);
   }
 
   static Cowstr identify(Ast *from, Ast *to) {
-    GEdgeID a(AstNode::identify(from));
-    GEdgeID b(AstNode::identify(to));
-    return GEdge::identify(a, b);
+    GEdgeKey a(identify(from));
+    GEdgeKey b(identify(to));
+    return GEdgeKey::identify(a, b);
   }
-  void add(const Cowstr &a) {
-    GCell c(CNG.generate("edge"), a, 0);
+
+  virtual void add(const Cowstr &a) {
+    GCell c(a);
     GLine line({c});
-    edge.lines.push_back(line);
+    lines.push_back(line);
   }
 };
 
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, Scope *to)
-      : GEdge(GEdgeID(AstNode::identify(from)),
-              GEdgeID(ScopeNode::identify(to)), true) {}
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), true) {}
 
   static Cowstr identify(Ast *from, Scope *to) {
-    GEdgeID a(AstNode::identify(from));
-    GEdgeID b(ScopeNode::identify(to));
-    return GEdge::identify(a, b);
+    GEdgeKey a(identify(from));
+    GEdgeKey b(identify(to));
+    return GEdgeKey::identify(a, b);
   }
 };
 
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
-      : edge(GEdgeID(AstNode::identify(from)),
-             GEdgeID(ScopeNode::identify(to->owner()),
-                     ScopeNode::identifySymbol(to)),
-             true) {}
+      : edge(GEdgeKey(identify(from)),
+             GEdgeKey(identify(to->owner()), identify(to)), true) {}
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
-      : GEdge(GEdgeID(AstNode::identify(from)),
-              GEdgeID(ScopeNode::identify(to->owner()),
-                      ScopeNode::identifyTypeSymbol(to)),
-              true) {}
+      : GEdge(GEdgeKey(identify(from)),
+              GEdgeKey(identify(to->owner()), identify(to)), true) {}
 };
 
 struct SymbolToAstEdge : public GEdge {
   SymbolToAstEdge(Symbol *from, Ast *to)
-      : GEdge(GEdgeID(AstNode::identify(from)),
-              GEdgeID(ScopeNode::identify(to->owner()),
-                      ScopeNode::identifySymbol(to)),
-              false) {}
+      : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
+              GEdgeKey(identify(to)), false) {}
 };
 
 struct TypeSymbolToAstEdge : public GEdge {
   TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
-      : GEdge(GEdgeID(ScopeNode::identify(from->owner()),
-                      ScopeNode::identifyTypeSymbol(from)),
-              GEdgeID(AstNode::identify(to)), false) {}
+      : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
+              GEdgeKey(identify(to)), false) {}
 };
 
 #define BIND(x)                                                                \
@@ -480,15 +471,15 @@ struct Graph {
                            const Cowstr &name) {
     LOG_ASSERT(a, "Ast a is null");
     Graph *g = cast(Context, context)->g;
-    auto u = g->nodes.find(AstNode::identify(a));
+    auto u = g->nodes.find(identify(a));
     LOG_ASSERT(u != g->nodes.end() && cast(GNode, u->second),
                "Ast a {} don't has related GNode {} in graph", a->name(),
-               AstNode::identify(a));
+               identify(a));
     if (b) {
-      auto v = g->nodes.find(AstNode::identify(b));
+      auto v = g->nodes.find(identify(b));
       LOG_ASSERT(v != g->nodes.end() && cast(GNode, v->second),
                  "Ast b {} don't has related GNode {} in graph", b->name(),
-                 AstNode::identify(b));
+                 identify(b));
       Cowstr eid = AstToAstEdge::identify(a, b);
       LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                  "eid {} not exist, Ast a {} hasn't link to Ast b {}", eid,
@@ -505,9 +496,8 @@ struct Graph {
   }
   static void linkAstToVar(A_VarId *varId) {
     S_Var *variableSymbol = cast(S_Var, varId->symbol);
-    GEdgeID from(AstNode::identify(varId));
-    GEdgeID to(ScopeNode::identify(variableSymbol->owner()),
-               ScopeNode::identifySymbol(variableSymbol));
+    GEdgeKey from(identify(varId));
+    GEdgeKey to(identify(variableSymbol->owner()), identify(variableSymbol));
     Cowstr eid = GEdge::identify(from, to);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, varId {} has no link to Variable Symbol {}",
@@ -519,9 +509,8 @@ struct Graph {
 
   static void linkAstToParam(A_VarId *varId) {
     S_Param *parameterSymbol = cast(S_Var, varId->symbol);
-    GEdgeID from(AstNode::identify(varId));
-    GEdgeID to(ScopeNode::identify(parameterSymbol->owner()),
-               ScopeNode::identifySymbol(parameterSymbol));
+    GEdgeKey from(identify(varId));
+    GEdgeKey to(identify(parameterSymbol->owner()), identify(parameterSymbol));
     Cowstr eid = GEdge::identify(from, to);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, varId {} has no link to Parameter Symbol {}",

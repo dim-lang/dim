@@ -29,7 +29,7 @@ Ast *ParentableImpl::parent() const { return parentableImpl_; }
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)
-    : NameableImpl(name), LocationableImpl(location) {}
+    : Nameable(name), Locationable(location) {}
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)

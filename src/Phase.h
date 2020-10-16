@@ -6,9 +6,8 @@
 #include <vector>
 
 class Ast;
-class Scanner;
 
-class Phase : public NameableImpl {
+class Phase : public Nameable {
 public:
   Phase(const Cowstr &name);
   virtual ~Phase() = default;
@@ -21,7 +20,6 @@ public:
   virtual ~PhaseManager() = default;
   virtual void add(Phase *phase);
   virtual void run();
-  virtual Cowstr str() const;
 
 private:
   Ast *ast_;

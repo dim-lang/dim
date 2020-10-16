@@ -50,11 +50,10 @@ protected:
  *       / | \
  *      a  b  c
  *
- * Fristly visitor arrive ast, do the `visit` action. Then visit child
- * node a, b and c seperately, Finally visitor do `post-visit` action before
- * leaves ast.
- * If ast doesn't have any child node, `visit` `post-visit` action will still
- * been execute as well.
+ * Fristly visitor arrive ast, do the `visit` action.
+ * After visit all child node a, b and c, do `post-visit` action.
+ *
+ * These 2 actions still execute even if ast doesn't have any children.
  */
 class Visitor {
 public:

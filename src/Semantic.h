@@ -46,21 +46,19 @@ private:
   VISITOR_DECL0(TopStats);
 
   // do visit action
-  VISITOR_DECL1(Loop);
+  VISITOR_DECL2(Loop);
   VISITOR_DECL1(LoopEnumerator);
-  VISITOR_DECL1(Block);
+  VISITOR_DECL2(Block);
   VISITOR_DECL1(VarDef);
   VISITOR_DECL1(Param);
-  VISITOR_DECL1(FuncDef);
-  VISITOR_DECL1(CompileUnit);
+  VISITOR_DECL2(FuncDef);
+  VISITOR_DECL2(CompileUnit);
 
   struct Context : public VisitorContext {
     Context();
     virtual ~Context() = default;
     Scope *scope;
-  };
-
-  Context context_;
+  } context_;
   VisitorBinder binder_;
   std::vector<Visitor *> visitors_;
 };
