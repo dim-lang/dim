@@ -8,10 +8,10 @@
 class Ast;
 class Scope;
 
-class SymbolBuilder : public Phase {
+class SemanticBuilder : public Phase {
 public:
-  SymbolBuilder();
-  virtual ~SymbolBuilder();
+  SemanticBuilder();
+  virtual ~SemanticBuilder();
   virtual void run(Ast *ast);
 
 private:
@@ -63,9 +63,9 @@ private:
   std::vector<Visitor *> visitors_;
 };
 
-class SymbolReviewer : public Phase {
+class SemanticReviewer : public Phase {
 public:
-  SymbolReviewer();
-  virtual ~SymbolReviewer();
+  SemanticReviewer();
+  virtual ~SemanticReviewer();
   virtual void run(Ast *ast);
 };
