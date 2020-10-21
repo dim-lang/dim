@@ -18,8 +18,9 @@ static NameGenerator SNG(".");
 // do action {
 
 void SemanticBuilder::Loop::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_Loop *e = cast(A_Loop, ast);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_Loop *e = static_cast<A_Loop *>(ast);
 
   // create local scope
   S_Local *sc_loop = new S_Local(SNG.generate("loop", e->location().str()),
@@ -34,15 +35,17 @@ void SemanticBuilder::Loop::visit(Ast *ast, VisitorContext *context) {
 
 void SemanticBuilder::Loop::postVisit(Ast *ast, VisitorContext *context) {
   // pop loop scope back to owner scope
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
   sbc->scope = sbc->scope->owner();
 }
 
 void SemanticBuilder::LoopEnumerator::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_LoopEnumerator *e = cast(A_LoopEnumerator, ast);
-  A_VarId *varId = cast(A_VarId, e->id);
-  A_PlainType *varType = cast(A_PlainType, e->type);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_LoopEnumerator *e = static_cast<A_LoopEnumerator *>(ast);
+  A_VarId *varId = static_cast<A_VarId *>(e->id);
+  A_PlainType *varType = static_cast<A_PlainType *>(e->type);
 
   // get variable type symbol
   TypeSymbol *ts_var = sbc->scope->ts_resolve(tokenName(varType->token));
@@ -57,8 +60,9 @@ void SemanticBuilder::LoopEnumerator::visit(Ast *ast, VisitorContext *context) {
 }
 
 void SemanticBuilder::Block::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_Block *e = cast(A_Block, ast);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_Block *e = static_cast<A_Block *>(ast);
 
   // create block scope
   S_Local *sc_block = new S_Local(SNG.generate("block", e->location().str()),
@@ -73,15 +77,17 @@ void SemanticBuilder::Block::visit(Ast *ast, VisitorContext *context) {
 
 void SemanticBuilder::Block::postVisit(Ast *ast, VisitorContext *context) {
   // pop block scope back to owner scope
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
   sbc->scope = sbc->scope->owner();
 }
 
 void SemanticBuilder::VarDef::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_VarDef *e = cast(A_VarDef, ast);
-  A_VarId *varId = cast(A_VarId, e->id);
-  A_PlainType *varType = cast(A_PlainType, e->type);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_VarDef *e = static_cast<A_VarDef *>(ast);
+  A_VarId *varId = static_cast<A_VarId *>(e->id);
+  A_PlainType *varType = static_cast<A_PlainType *>(e->type);
 
   // get variable type symbol
   TypeSymbol *ts_var = sbc->scope->ts_resolve(tokenName(varType->token));
@@ -96,10 +102,11 @@ void SemanticBuilder::VarDef::visit(Ast *ast, VisitorContext *context) {
 }
 
 void SemanticBuilder::Param::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_Param *e = cast(A_Param, ast);
-  A_VarId *varId = cast(A_VarId, e->id);
-  A_PlainType *plainType = cast(A_PlainType, e->type);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_Param *e = static_cast<A_Param *>(ast);
+  A_VarId *varId = static_cast<A_VarId *>(e->id);
+  A_PlainType *plainType = static_cast<A_PlainType *>(e->type);
 
   // get parameter type symbol
   TypeSymbol *ts_param = sbc->scope->ts_resolve(tokenName(plainType->token));
@@ -113,30 +120,31 @@ void SemanticBuilder::Param::visit(Ast *ast, VisitorContext *context) {
   sbc->scope->s_define(s_param);
 
   // add param to owner function scope
-  LOG_ASSERT(cast(Symbol, sbc->scope)->kind() == (+SymbolKind::Func),
+  LOG_ASSERT(dynamic_cast<Symbol *>(sbc->scope)->kind() == (+SymbolKind::Func),
              "sbc->scope->kind {} != SymbolKind::Func",
-             cast(Symbol, sbc->scope)->kind()._to_string());
-  cast(S_Func, sbc->scope)->params.push_back(s_param);
+             dynamic_cast<Symbol *>(sbc->scope)->kind()._to_string());
+  static_cast<S_Func *>(sbc->scope)->params.push_back(s_param);
 }
 
 void SemanticBuilder::FuncDef::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_FuncDef *e = cast(A_FuncDef, ast);
-  A_FuncSign *sign = cast(A_FuncSign, e->funcSign);
-  A_VarId *varId = cast(A_VarId, sign->id);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_FuncDef *e = static_cast<A_FuncDef *>(ast);
+  A_FuncSign *sign = static_cast<A_FuncSign *>(e->funcSign);
+  A_VarId *varId = static_cast<A_VarId *>(sign->id);
 
   // get function parameter types
   std::vector<TypeSymbol *> ts_params;
   for (A_Params *params = sign->params; params; params = params->next) {
     LOG_ASSERT(params->param, "params's ({}) param is null", params->name());
     TypeSymbol *ts_param = sbc->scope->ts_resolve(
-        tokenName(cast(A_PlainType, params->param->type)->token));
+        tokenName(static_cast<A_PlainType *>(params->param->type)->token));
     ts_params.push_back(ts_param);
   }
 
   // get result type
   TypeSymbol *ts_result = sbc->scope->ts_resolve(
-      tokenName(cast(A_PlainType, e->resultType)->token));
+      tokenName(static_cast<A_PlainType *>(e->resultType)->token));
 
   // create function type and symbol
   Ts_Func *ts_func =
@@ -153,13 +161,15 @@ void SemanticBuilder::FuncDef::visit(Ast *ast, VisitorContext *context) {
 
 void SemanticBuilder::FuncDef::postVisit(Ast *ast, VisitorContext *context) {
   // pop function scope back to owner scope
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
   sbc->scope = sbc->scope->owner();
 }
 
 void SemanticBuilder::CompileUnit::visit(Ast *ast, VisitorContext *context) {
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
-  A_CompileUnit *e = cast(A_CompileUnit, ast);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
+  A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);
 
   // create global scope
   S_Global *sc_global = new S_Global("global", e->location());
@@ -187,7 +197,8 @@ void SemanticBuilder::CompileUnit::visit(Ast *ast, VisitorContext *context) {
 void SemanticBuilder::CompileUnit::postVisit(Ast *ast,
                                              VisitorContext *context) {
   // pop global scope back to owner scope
-  SemanticBuilder::Context *sbc = cast(SemanticBuilder::Context, context);
+  SemanticBuilder::Context *sbc =
+      static_cast<SemanticBuilder::Context *>(context);
   sbc->scope = sbc->scope->owner();
   LOG_ASSERT(!sbc->scope, "global scope has no owner scope, while not null:{}!",
              sbc->scope->name());
@@ -244,7 +255,13 @@ SemanticBuilder::SemanticBuilder()
   BIND(CompileUnit);
 }
 
-SemanticBuilder::~SemanticBuilder() { del_array(visitors_); }
+SemanticBuilder::~SemanticBuilder() {
+  for (auto i = visitors_.begin(); i != visitors_.end(); i++) {
+    delete (*i);
+    *i = nullptr;
+  }
+  visitors_.clear();
+}
 
 void SemanticBuilder::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
 

@@ -4,6 +4,7 @@
 #include "Drawer.h"
 #include "Ast.h"
 #include "Counter.h"
+#include "Files.h"
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
@@ -350,10 +351,17 @@ struct TypeSymbolToAstEdge : public GEdge {
 
 #define BIND(x)                                                                \
   x BOOST_PP_CAT(drawerVisitor_, x);                                           \
-  binder_.bind((+AstKind::x)._to_integral(),                                   \
-               &(BOOST_PP_CAT(drawerVisitor_, x)));
+  binder.bind((+AstKind::x)._to_integral(), &(BOOST_PP_CAT(drawerVisitor_, x)));
 
 struct Graph {
+  std::unordered_map<Cowstr, GNode *> nodes;
+  std::unordered_map<Cowstr, GEdge *> edges;
+
+  struct Context : public VisitorContext {
+    Context(Graph *g1) : g(g1) {}
+    Graph *g;
+  };
+
   Graph(Ast *ast) {
     Context context(this);
     VisitorBinder binder(&context);
@@ -406,14 +414,6 @@ struct Graph {
     Visitor::traverse(&binder, ast);
   }
 
-  std::unordered_map<Cowstr, GNode *> nodes;
-  std::unordered_map<Cowstr, GEdge *> edges;
-
-  struct Context : public VisitorContext {
-    Context(Graph *g1) : g(g1) {}
-    Graph *g;
-  };
-
   int draw(const Cowstr &fileName) {
     const std::unordered_map<Cowstr, std::unordered_map<Cowstr, Cowstr>>
         attributes = {
@@ -455,31 +455,29 @@ struct Graph {
     }
     fwriter.writeln();
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
-      (*i)->adjust();
+      i->second->adjust();
     }
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
-      fwriter.writeln(fmt::format("    {}", (*i)->str()));
+      fwriter.writeln(fmt::format("    {}", i->second->str()));
     }
     fwriter.write("\n");
     for (auto i = edges.begin(); i != edges.end(); i++) {
-      fwriter.writeln(fmt::format("    {}", (*i)->str()));
+      fwriter.writeln(fmt::format("    {}", i->second->str()));
     }
     fwriter.writeln("}");
     fwriter.flush();
     return 0;
   }
 
-  static void linkAstToAst(Ast *a, Ast *b, VisitorContext *context,
-                           const Cowstr &name) {
+  static void linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
     LOG_ASSERT(a, "Ast a is null");
-    Graph *g = cast(Context, context)->g;
     auto u = g->nodes.find(identify(a));
-    LOG_ASSERT(u != g->nodes.end() && cast(GNode, u->second),
+    LOG_ASSERT(u != g->nodes.end() && u->second,
                "Ast a {} don't has related GNode {} in graph", a->name(),
                identify(a));
     if (b) {
       auto v = g->nodes.find(identify(b));
-      LOG_ASSERT(v != g->nodes.end() && cast(GNode, v->second),
+      LOG_ASSERT(v != g->nodes.end() && v->second,
                  "Ast b {} don't has related GNode {} in graph", b->name(),
                  identify(b));
       Cowstr eid = AstToAstEdge::ident(a, b);
@@ -490,17 +488,18 @@ struct Graph {
       LOG_ASSERT(e->id() == eid, "e->id {} != eid {}", e->id(), eid);
       g->edges.insert(std::make_pair(e->id(), e));
     } else {
-      NilNode *ndoe = new NilNode();
+      NilNode *node = new NilNode();
       g->nodes.insert(std::make_pair(node->id(), node));
       AstToNilEdge *e = new AstToNilEdge(a, node->id(), name);
       g->edges.insert(std::make_pair(e->id(), e));
     }
   }
-  static void linkAstToVar(A_VarId *varId) {
-    S_Var *variableSymbol = cast(S_Var, varId->symbol);
+
+  static void linkAstToVar(A_VarId *varId, Graph *g) {
+    S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol);
     GEdgeKey from(identify(varId));
     GEdgeKey to(identify(variableSymbol->owner()), identify(variableSymbol));
-    Cowstr eid = GEdge::identify(from, to);
+    Cowstr eid = GEdgeKey::ident(from, to);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, varId {} has no link to Variable Symbol {}",
                eid, varId->name(), variableSymbol->name());
@@ -509,11 +508,11 @@ struct Graph {
     g->edges.insert(std::make_pair(e->id(), e));
   }
 
-  static void linkAstToParam(A_VarId *varId) {
-    S_Param *parameterSymbol = cast(S_Var, varId->symbol);
+  static void linkAstToParam(A_VarId *varId, Graph *g) {
+    S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol);
     GEdgeKey from(identify(varId));
     GEdgeKey to(identify(parameterSymbol->owner()), identify(parameterSymbol));
-    Cowstr eid = GEdge::identify(from, to);
+    Cowstr eid = GEdgeKey::ident(from, to);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, varId {} has no link to Parameter Symbol {}",
                eid, varId->name(), parameterSymbol->name());
@@ -522,8 +521,8 @@ struct Graph {
     g->edges.insert(std::make_pair(e->id(), e));
   }
 
-  static void linkAstToFunction(A_VarId *varId) {
-    S_Func functionSymbol = cast(S_Func, varId->symbol);
+  static void linkAstToFunction(A_VarId *varId, Graph *g) {
+    S_Func *functionSymbol = static_cast<S_Func *>(varId->symbol);
     ScopeNode *node = new ScopeNode(functionSymbol);
     node->add("symbol");
     if (functionSymbol->s_empty()) {
@@ -544,16 +543,16 @@ struct Graph {
       }
     }
     node->add("sub scope");
-    if (functionSymbol->sc_empty()) {
+    if (functionSymbol->subscope_empty()) {
       node->add("empty");
     } else {
-      for (auto i = functionSymbol->sc_begin(); i != functionSymbol->sc_end();
-           i++) {
+      for (auto i = functionSymbol->subscope_begin();
+           i != functionSymbol->subscope_end(); i++) {
         node->addScope(i->second);
       }
     }
     g->nodes.insert(std::make_pair(node->id(), node));
-    Cowstr eid = AstToScopeEdge::identify(varId, functionSymbol);
+    Cowstr eid = AstToScopeEdge::ident(varId, functionSymbol);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, varId {} has no link to Scope {}", eid,
                varId->name(), functionSymbol->name());
@@ -562,11 +561,11 @@ struct Graph {
     g->edges.insert(std::make_pair(e->id(), e));
   }
 
-  static void linkAstToClass(A_VarId *varId) {
+  static void linkAstToClass(A_VarId *varId, Graph *g) {
     LOG_ASSERT(false, "not implemented!");
   }
 
-  static void linkAstToScope(Ast *ast, Scope *scope) {
+  static void linkAstToScope(Ast *ast, Scope *scope, Graph *g) {
     ScopeNode *node = new ScopeNode(scope);
     node->add("symbol");
     if (scope->s_empty()) {
@@ -585,15 +584,15 @@ struct Graph {
       }
     }
     node->add("sub scope");
-    if (scope->sc_empty()) {
+    if (scope->subscope_empty()) {
       node->add("empty");
     } else {
-      for (auto i = scope->sc_begin(); i != scope->sc_end(); i++) {
+      for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
         node->addScope(i->second);
       }
     }
     g->nodes.insert(std::make_pair(node->id(), node));
-    Cowstr eid = AstToScopeEdge::identify(ast, scope);
+    Cowstr eid = AstToScopeEdge::ident(ast, scope);
     LOG_ASSERT(g->edges.find(eid) == g->edges.end(),
                "eid {} not exist, ast {} has no link to Scope {}", eid,
                ast->name(), scope->name());
@@ -606,7 +605,7 @@ struct Graph {
 #define DECL1(x)                                                               \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
@@ -616,7 +615,7 @@ struct Graph {
 #define DECL2(x)                                                               \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
       node->add("literal", ast->name());                                       \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
@@ -627,9 +626,9 @@ struct Graph {
 #define DECL3(x, astype, tok)                                                  \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(cast(astype, ast)->tok));   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
   };
@@ -638,13 +637,14 @@ struct Graph {
 #define DECL4(x, astype, child1)                                               \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
     virtual void postVisit(Ast *ast, VisitorContext *context) {                \
-      linkAstToAst(ast, cast(astype, ast)->child1,                             \
-                   BOOST_PP_STRINGIZE(child1));                                \
+      Graph *g = static_cast<Context *>(context)->g;                           \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
+                   BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
   };
 
@@ -652,14 +652,15 @@ struct Graph {
 #define DECL5(x, astype, tok, child1)                                          \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(cast(astype, ast)->tok));   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
     virtual void postVisit(Ast *ast, VisitorContext *context) {                \
-      linkAstToAst(ast, cast(astype, ast)->child1,                             \
-                   BOOST_PP_STRINGIZE(child1));                                \
+      Graph *g = static_cast<Context *>(context)->g;                           \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
+                   BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
   };
 
@@ -667,15 +668,16 @@ struct Graph {
 #define DECL6(x, astype, child1, child2)                                       \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
     virtual void postVisit(Ast *ast, VisitorContext *context) {                \
-      linkAstToAst(ast, cast(astype, ast)->child1,                             \
-                   BOOST_PP_STRINGIZE(child1));                                \
-      linkAstToAst(ast, cast(astype, ast)->child2,                             \
-                   BOOST_PP_STRINGIZE(child2));                                \
+      Graph *g = static_cast<Context *>(context)->g;                           \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
+                   BOOST_PP_STRINGIZE(child1), g);                             \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child2,                    \
+                   BOOST_PP_STRINGIZE(child2), g);                             \
     }                                                                          \
   };
 
@@ -683,16 +685,17 @@ struct Graph {
 #define DECL7(x, astype, tok, child1, child2)                                  \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(cast(astype, ast)->tok));   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
     virtual void postVisit(Ast *ast, VisitorContext *context) {                \
-      linkAstToAst(ast, cast(astype, ast)->child1,                             \
-                   BOOST_PP_STRINGIZE(child1));                                \
-      linkAstToAst(ast, cast(astype, ast)->child2,                             \
-                   BOOST_PP_STRINGIZE(child2));                                \
+      Graph *g = static_cast<Context *>(context)->g;                           \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
+                   BOOST_PP_STRINGIZE(child1), g);                             \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child2,                    \
+                   BOOST_PP_STRINGIZE(child2), g);                             \
     }                                                                          \
   };
 
@@ -700,17 +703,18 @@ struct Graph {
 #define DECL8(x, astype, child1, child2, child3)                               \
   struct x : public Visitor {                                                  \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = cast(Context, context)->g;                                    \
+      Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(std::make_pair(node->id(), node));                       \
     }                                                                          \
     virtual void postVisit(Ast *ast, VisitorContext *context) {                \
-      linkAstToAst(ast, cast(astype, ast)->child1,                             \
-                   BOOST_PP_STRINGIZE(child1));                                \
-      linkAstToAst(ast, cast(astype, ast)->child2,                             \
-                   BOOST_PP_STRINGIZE(child2));                                \
-      linkAstToAst(ast, cast(astype, ast)->child3,                             \
-                   BOOST_PP_STRINGIZE(child3));                                \
+      Graph *g = static_cast<Context *>(context)->g;                           \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
+                   BOOST_PP_STRINGIZE(child1), g);                             \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child2,                    \
+                   BOOST_PP_STRINGIZE(child2), g);                             \
+      linkAstToAst(ast, static_cast<astype *>(ast)->child3,                    \
+                   BOOST_PP_STRINGIZE(child3), g);                             \
     }                                                                          \
   };
 
@@ -727,13 +731,13 @@ struct Graph {
 
   struct VarId : public Visitor {
     virtual void visit(Ast *ast, VisitorContext *context) {
-      Graph *g = cast(Context, context)->g;
+      Graph *g = static_cast<Context *>(context)->g;
 
       // create ast gnode
       AstNode *node = new AstNode(ast);
       node->add("literal", ast->name());
-      Symbol *sym = cast(A_VarId, ast)->symbol;
-      TypeSymbol *tsym = cast(A_VarId, ast)->typeSymbol;
+      Symbol *sym = static_cast<A_VarId *>(ast)->symbol;
+      TypeSymbol *tsym = static_cast<A_VarId *>(ast)->typeSymbol;
       node->add("symbol",
                 sym ? fmt::format("{}:{}", sym->name(), sym->identifier())
                     : "null");
@@ -743,26 +747,26 @@ struct Graph {
       g->nodes.insert(std::make_pair(node->id(), node));
 
       // create symbol/typeSymbol/scope gnode
-      link(cast(A_VarId, ast));
+      link(static_cast<A_VarId *>(ast), g);
     }
-    void link(A_VarId *varId) {
+    void link(A_VarId *varId, Graph *g) {
       if (varId->symbol) {
         switch (varId->symbol->kind()) {
         case SymbolKind::Var: {
           if (defineSymbol(varId)) {
-            linkAstToVar(varId);
+            linkAstToVar(varId, g);
           }
           break;
         }
         case SymbolKind::Param: {
           if (defineSymbol(varId)) {
-            linkAstToParam(varId);
+            linkAstToParam(varId, g);
           }
           break;
         }
         case SymbolKind::Func: {
           if (defineSymbol(varId)) {
-            linkAstToFunction(varId);
+            linkAstToFunction(varId, g);
           }
           break;
         }
@@ -778,7 +782,7 @@ struct Graph {
         switch (varId->typeSymbol->kind()) {
         case TypeSymbolKind::Class: {
           if (defineTypeSymbol(varId)) {
-            linkAstToClass(varId);
+            linkAstToClass(varId, g);
           }
           break;
         }
@@ -807,38 +811,40 @@ struct Graph {
 
   struct Block : public Visitor {
     virtual void visit(Ast *ast, VisitorContext *context) {
-      Graph *g = cast(Context, context)->g;
+      Graph *g = static_cast<Context *>(context)->g;
       AstNode *node = new AstNode(ast);
       g->nodes.insert(std::make_pair(node->id(), node));
 
       // create local scope
-      A_Block *block = cast(A_Block, ast);
+      A_Block *block = static_cast<A_Block *>(ast);
       LOG_ASSERT(block->localScope, "block {} localScope must not null",
                  block->name());
-      linkAstToScope(block, block->localScope);
+      linkAstToScope(block, block->localScope, g);
     }
     virtual void postVisit(Ast *ast, VisitorContext *context) {
-      linkAstToAst(ast, cast(A_Block, ast)->blockStats,
-                   BOOST_PP_STRINGIZE(blockStats));
+      Graph *g = static_cast<Context *>(context)->g;
+      linkAstToAst(ast, static_cast<A_Block *>(ast)->blockStats,
+                   BOOST_PP_STRINGIZE(blockStats), g);
     }
   };
 
   struct CompileUnit : public Visitor {
     virtual void visit(Ast *ast, VisitorContext *context) {
-      Graph *g = cast(Context, context)->g;
+      Graph *g = static_cast<Context *>(context)->g;
       AstNode *node = new AstNode(ast);
       g->nodes.insert(std::make_pair(node->id(), node));
 
       // create global scope
-      A_CompileUnit *compileUnit = cast(A_CompileUnit, ast);
+      A_CompileUnit *compileUnit = static_cast<A_CompileUnit *>(ast);
       LOG_ASSERT(compileUnit->globalScope,
                  "compile unit {} globalScope must not null",
                  compileUnit->name());
-      linkAstToScope(compileUnit, compileUnit->localScope);
+      linkAstToScope(compileUnit, compileUnit->globalScope, g);
     }
     virtual void postVisit(Ast *ast, VisitorContext *context) {
-      linkAstToAst(ast, cast(A_CompileUnit, ast)->topStats,
-                   BOOST_PP_STRINGIZE(topStats));
+      Graph *g = static_cast<Context *>(context)->g;
+      linkAstToAst(ast, static_cast<A_CompileUnit *>(ast)->topStats,
+                   BOOST_PP_STRINGIZE(topStats), g);
     }
   };
 
@@ -850,20 +856,22 @@ struct Graph {
 
   struct Loop : public Visitor {
     virtual void visit(Ast *ast, VisitorContext *context) {
-      Graph *g = cast(Context, context)->g;
+      Graph *g = static_cast<Context *>(context)->g;
       AstNode *node = new AstNode(ast);
       g->nodes.insert(std::make_pair(node->id(), node));
 
       // create local scope
-      A_Loop *loop = cast(A_Loop, ast);
+      A_Loop *loop = static_cast<A_Loop *>(ast);
       LOG_ASSERT(loop->localScope, "loop {} localScope must not null",
                  loop->name());
-      linkAstToScope(loop, loop->localScope);
+      linkAstToScope(loop, loop->localScope, g);
     }
     virtual void postVisit(Ast *ast, VisitorContext *context) {
-      linkAstToAst(ast, cast(A_Loop, ast)->condition,
-                   BOOST_PP_STRINGIZE(condition));
-      linkAstToAst(ast, cast(A_Loop, ast)->body, BOOST_PP_STRINGIZE(body));
+      Graph *g = static_cast<Context *>(context)->g;
+      linkAstToAst(ast, static_cast<A_Loop *>(ast)->condition,
+                   BOOST_PP_STRINGIZE(condition), g);
+      linkAstToAst(ast, static_cast<A_Loop *>(ast)->body,
+                   BOOST_PP_STRINGIZE(body), g);
     }
   };
 

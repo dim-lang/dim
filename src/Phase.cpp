@@ -15,6 +15,6 @@ void PhaseManager::add(Phase *phase) {
 
 void PhaseManager::run() {
   for (int i = 0; i < (int)phases_.size(); i++) {
-    phases_[i]->run();
+    phases_[i]->run(ast_);
   }
 }

@@ -87,7 +87,7 @@ endif(WIN32)
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)
 find_package(LLVM REQUIRED CONFIG)
 # llvm_map_components_to_libnames(llvm_libs AllTargetsCodeGens AllTargetsAsmPrinters AllTargetsAsmParsers AllTargetsDescs AllTargetsDisassemblers AllTargetsInfos)
-llvm_map_components_to_libnames(llvm_libs native nativecodegen)
+llvm_map_components_to_libnames(llvm_libs native)
 # execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
 # execute_process(COMMAND llvm-config --system-libs all OUTPUT_VARIABLE llvm_system_libs)
 # string(REGEX REPLACE "\n$" "" llvm_libs "${llvm_libs}")
@@ -144,18 +144,19 @@ set(NERD_CORE
     src/Name.cpp
     src/Location.cpp
     src/Identifiable.cpp
+    src/Counter.cpp
     src/Token.cpp
     # src/Buffer.cpp
     # src/BufferStack.cpp
     src/Scanner.cpp
     src/Ast.cpp
     # src/Position.cpp
-    src/Counter.cpp
     # src/Dump.cpp
     src/Symbol.cpp
+    src/Visitor.cpp
+    src/Phase.cpp
     src/Semantic.cpp
     src/Drawer.cpp
-    src/Phase.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp

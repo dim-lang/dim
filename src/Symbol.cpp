@@ -9,7 +9,6 @@
 #include "Log.h"
 #include "Name.h"
 #include "Token.h"
-#include "Util.h"
 #include <algorithm>
 #include <cctype>
 
@@ -18,6 +17,15 @@
 
 #define TYPE_SYMBOL_CONSTRUCTOR                                                \
   Nameable(name), Locationable(location), detail::Ownable(owner)
+
+#define DESTROY_MAP_SECOND(x)                                                  \
+  do {                                                                         \
+    for (auto i = x.begin(); i != x.end(); i++) {                              \
+      delete i->second;                                                        \
+      i->second = nullptr;                                                     \
+    }                                                                          \
+    x.clear();                                                                 \
+  } while (0)
 
 namespace detail {
 
@@ -56,9 +64,9 @@ Ast *Astable::ast() const { return astable_; }
 // symbol api {
 
 ScopeImpl::~ScopeImpl() {
-  del_map_second(s_data_);
-  del_map_second(ts_data_);
-  del_map_second(sc_data_);
+  DESTROY_MAP_SECOND(s_data_);
+  DESTROY_MAP_SECOND(ts_data_);
+  DESTROY_MAP_SECOND(sc_data_);
 }
 
 void ScopeImpl::s_define(Symbol *symbol) {

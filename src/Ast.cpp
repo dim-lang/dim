@@ -4,7 +4,6 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Token.h"
-#include "Util.h"
 #include "parser.tab.hh"
 #include <algorithm>
 #include <sstream>
@@ -12,6 +11,12 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+#define DESTROY(x)                                                             \
+  do {                                                                         \
+    delete x;                                                                  \
+    x = nullptr;                                                               \
+  } while (0)
 
 #if 0
 namespace detail {
@@ -354,7 +359,7 @@ A_Throw::A_Throw(Ast *a_expr, const Location &location)
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_Throw::~A_Throw() { del(expr); }
+A_Throw::~A_Throw() { DESTROY(expr); }
 
 AstKind A_Throw::kind() const { return AstKind::Throw; }
 
@@ -365,7 +370,7 @@ AstKind A_Throw::kind() const { return AstKind::Throw; }
 A_Return::A_Return(Ast *a_expr, const Location &location)
     : Ast("return", location), expr(a_expr) {}
 
-A_Return::~A_Return() { del(expr); }
+A_Return::~A_Return() { DESTROY(expr); }
 
 AstKind A_Return::kind() const { return AstKind::Return; }
 
@@ -398,8 +403,8 @@ A_Assign::A_Assign(Ast *a_assignee, int a_assignOp, Ast *a_assignor,
 }
 
 A_Assign::~A_Assign() {
-  del(assignee);
-  del(assignor);
+  DESTROY(assignee);
+  DESTROY(assignor);
 }
 
 AstKind A_Assign::kind() const { return AstKind::Assign; }
@@ -415,7 +420,7 @@ A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PostfixExpr::~A_PostfixExpr() { del(expr); }
+A_PostfixExpr::~A_PostfixExpr() { DESTROY(expr); }
 
 AstKind A_PostfixExpr::kind() const { return AstKind::PostfixExpr; }
 
@@ -432,8 +437,8 @@ A_InfixExpr::A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
 }
 
 A_InfixExpr::~A_InfixExpr() {
-  del(left);
-  del(right);
+  DESTROY(left);
+  DESTROY(right);
 }
 
 AstKind A_InfixExpr::kind() const { return AstKind::InfixExpr; }
@@ -449,7 +454,7 @@ A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PrefixExpr::~A_PrefixExpr() { del(expr); }
+A_PrefixExpr::~A_PrefixExpr() { DESTROY(expr); }
 
 AstKind A_PrefixExpr::kind() const { return AstKind::PrefixExpr; }
 
@@ -463,8 +468,8 @@ A_Call::A_Call(Ast *a_id, A_Exprs *a_args, const Location &location)
 }
 
 A_Call::~A_Call() {
-  del(id);
-  del(args);
+  DESTROY(id);
+  DESTROY(args);
 }
 
 AstKind A_Call::kind() const { return AstKind::Call; }
@@ -479,8 +484,8 @@ A_Exprs::A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location)
 }
 
 A_Exprs::~A_Exprs() {
-  del(expr);
-  del(next);
+  DESTROY(expr);
+  DESTROY(next);
 }
 
 AstKind A_Exprs::kind() const { return AstKind::Exprs; }
@@ -498,9 +503,9 @@ A_If::A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep,
 }
 
 A_If::~A_If() {
-  del(condition);
-  del(thenp);
-  del(elsep);
+  DESTROY(condition);
+  DESTROY(thenp);
+  DESTROY(elsep);
 }
 
 AstKind A_If::kind() const { return AstKind::If; }
@@ -517,8 +522,8 @@ A_Loop::A_Loop(Ast *a_condition, Ast *a_body, const Location &location)
 }
 
 A_Loop::~A_Loop() {
-  del(condition);
-  del(body);
+  DESTROY(condition);
+  DESTROY(body);
 }
 
 AstKind A_Loop::kind() const { return AstKind::Loop; }
@@ -532,7 +537,7 @@ A_Yield::A_Yield(Ast *a_expr, const Location &location)
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_Yield::~A_Yield() { del(expr); }
+A_Yield::~A_Yield() { DESTROY(expr); }
 
 AstKind A_Yield::kind() const { return AstKind::Yield; }
 
@@ -547,9 +552,9 @@ A_LoopCondition::A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
 
 AstKind A_LoopCondition::kind() const { return AstKind::LoopCondition; }
 A_LoopCondition::~A_LoopCondition() {
-  del(init);
-  del(condition);
-  del(update);
+  DESTROY(init);
+  DESTROY(condition);
+  DESTROY(update);
 }
 
 // A_LoopCondition }
@@ -565,9 +570,9 @@ A_LoopEnumerator::A_LoopEnumerator(Ast *a_id, Ast *a_type, Ast *a_expr,
 }
 
 A_LoopEnumerator::~A_LoopEnumerator() {
-  del(id);
-  del(type);
-  del(expr);
+  DESTROY(id);
+  DESTROY(type);
+  DESTROY(expr);
 }
 
 AstKind A_LoopEnumerator::kind() const { return AstKind::LoopEnumerator; }
@@ -583,8 +588,8 @@ A_DoWhile::A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location)
 }
 
 A_DoWhile::~A_DoWhile() {
-  del(body);
-  del(condition);
+  DESTROY(body);
+  DESTROY(condition);
 }
 
 AstKind A_DoWhile::kind() const { return AstKind::DoWhile; }
@@ -602,9 +607,9 @@ A_Try::A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp,
 }
 
 A_Try::~A_Try() {
-  del(tryp);
-  del(catchp);
-  del(finallyp);
+  DESTROY(tryp);
+  DESTROY(catchp);
+  DESTROY(finallyp);
 }
 
 AstKind A_Try::kind() const { return AstKind::Try; }
@@ -616,7 +621,7 @@ AstKind A_Try::kind() const { return AstKind::Try; }
 A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
     : Ast("block", location), blockStats(a_blockStats), localScope(nullptr) {}
 
-A_Block::~A_Block() { del(blockStats); }
+A_Block::~A_Block() { DESTROY(blockStats); }
 
 AstKind A_Block::kind() const { return AstKind::Block; }
 
@@ -629,8 +634,8 @@ A_BlockStats::A_BlockStats(Ast *a_blockStat, A_BlockStats *a_next,
     : Ast("blockStats", location), blockStat(a_blockStat), next(a_next) {}
 
 A_BlockStats::~A_BlockStats() {
-  del(blockStat);
-  del(next);
+  DESTROY(blockStat);
+  DESTROY(next);
 }
 
 AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
@@ -668,9 +673,9 @@ A_FuncDef::A_FuncDef(Ast *a_funcSign, Ast *a_resultType, Ast *a_body,
 }
 
 A_FuncDef::~A_FuncDef() {
-  del(funcSign);
-  del(resultType);
-  del(body);
+  DESTROY(funcSign);
+  DESTROY(resultType);
+  DESTROY(body);
 }
 
 AstKind A_FuncDef::kind() const { return AstKind::FuncDef; }
@@ -681,8 +686,8 @@ A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
 }
 
 A_FuncSign::~A_FuncSign() {
-  del(id);
-  del(params);
+  DESTROY(id);
+  DESTROY(params);
 }
 
 AstKind A_FuncSign::kind() const { return AstKind::FuncSign; }
@@ -693,8 +698,8 @@ A_Params::A_Params(A_Param *a_param, A_Params *a_next, const Location &location)
 }
 
 A_Params::~A_Params() {
-  del(param);
-  del(next);
+  DESTROY(param);
+  DESTROY(next);
 }
 
 AstKind A_Params::kind() const { return AstKind::Params; }
@@ -706,8 +711,8 @@ A_Param::A_Param(Ast *a_id, Ast *a_type, const Location &location)
 }
 
 A_Param::~A_Param() {
-  del(id);
-  del(type);
+  DESTROY(id);
+  DESTROY(type);
 }
 
 AstKind A_Param::kind() const { return AstKind::Param; }
@@ -721,9 +726,9 @@ A_VarDef::A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr,
 }
 
 A_VarDef::~A_VarDef() {
-  del(id);
-  del(type);
-  del(expr);
+  DESTROY(id);
+  DESTROY(type);
+  DESTROY(expr);
 }
 
 AstKind A_VarDef::kind() const { return AstKind::VarDef; }
@@ -737,8 +742,8 @@ A_TopStats::A_TopStats(Ast *a_topStat, A_TopStats *a_next,
     : Ast("topStats", location), topStat(a_topStat), next(a_next) {}
 
 A_TopStats::~A_TopStats() {
-  del(topStat);
-  del(next);
+  DESTROY(topStat);
+  DESTROY(next);
 }
 
 AstKind A_TopStats::kind() const { return AstKind::TopStats; }
@@ -747,7 +752,7 @@ A_CompileUnit::A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                              const Location &location)
     : Ast(name, location), topStats(a_topStats), globalScope(nullptr) {}
 
-A_CompileUnit::~A_CompileUnit() { del(topStats); }
+A_CompileUnit::~A_CompileUnit() { DESTROY(topStats); }
 
 AstKind A_CompileUnit::kind() const { return AstKind::CompileUnit; }
 

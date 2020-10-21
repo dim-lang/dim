@@ -7,8 +7,8 @@
 
 TEST_CASE("Name", "[Name]") {
   SECTION("Nameable") {
-    NameableImpl a1;
-    NameableImpl a2("a2");
+    Nameable a1;
+    Nameable a2("a2");
     REQUIRE(a1.name().length() == 0);
     REQUIRE(a2.name().length() == 2);
     REQUIRE(a2.name().str() == "a2");

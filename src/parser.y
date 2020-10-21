@@ -14,7 +14,8 @@
 #include "Location.h"
 #include "Strings.h"
 #include "tokenizer.yy.hh"
-#define Y_SCANNER       (static_cast<Scanner *>(yyget_extra(yyscanner)))
+
+#define Y_SCANNER       (static_cast<Scanner*>(yyget_extra(yyscanner)))
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
 template<typename T> T* reverse(T* list) {
   // nil node
@@ -443,19 +444,19 @@ primaryExpr : literal { $$ = $1; }
             | block { $$ = $1; }
             ;
 
-optionalExprs : exprs { $$ = reverse(static_cast<A_Exprs *>($1)); }
+optionalExprs : exprs { $$ = reverse(static_cast<A_Exprs*>($1)); }
               | %empty { $$ = nullptr; }
               ;
 
 exprs : expr { $$ = new A_Exprs($1, nullptr, @$); }
-      | exprs "," expr { $$ = new A_Exprs($3, static_cast<A_Exprs *>($1), @$); }
+      | exprs "," expr { $$ = new A_Exprs($3, static_cast<A_Exprs*>($1), @$); }
       ;
 
-callExpr : id "(" optionalExprs ")" { $$ = new A_Call($1, static_cast<A_Exprs *>($3), @$); }
+callExpr : id "(" optionalExprs ")" { $$ = new A_Call($1, static_cast<A_Exprs*>($3), @$); }
          ;
 
 block : "{" blockStat optionalBlockStats "}" {
-            A_BlockStats* blockStats = reverse(static_cast<A_BlockStats *>($3));
+            A_BlockStats* blockStats = reverse(static_cast<A_BlockStats*>($3));
             blockStats = ($2)
                 ? (new A_BlockStats($2, blockStats, @$))
                 : blockStats;
@@ -474,7 +475,7 @@ optionalBlockStats : blockStats { $$ = $1; }
                    ;
 
 blockStats : seminl blockStat { $$ = ($2) ? (new A_BlockStats($2, nullptr, @$)) : nullptr; }
-           | blockStats seminl blockStat { $$ = ($3) ? (new A_BlockStats($3, static_cast<A_BlockStats *>($1), @$)) : ($1); }
+           | blockStats seminl blockStat { $$ = ($3) ? (new A_BlockStats($3, static_cast<A_BlockStats*>($1), @$)) : ($1); }
            ;
 
  /* expression } */
@@ -536,15 +537,15 @@ funcDef : "def" funcSign resultType "=" expr { $$ = new A_FuncDef($2, $3, $5, @$
 resultType : ":" type { $$ = $2; }
            ;
 
-funcSign : id "(" optionalParams ")" { $$ = new A_FuncSign($1, static_cast<A_Params *>($3), @$); }
+funcSign : id "(" optionalParams ")" { $$ = new A_FuncSign($1, static_cast<A_Params*>($3), @$); }
          ;
 
-optionalParams : params { $$ = reverse(static_cast<A_Params *>($1)); }
+optionalParams : params { $$ = reverse(static_cast<A_Params*>($1)); }
                | %empty { $$ = nullptr; }
                ;
 
-params : param { $$ = new A_Params(static_cast<A_Param *>($1), nullptr, @$); }
-       | params "," param { $$ = new A_Params(static_cast<A_Param *>($3), static_cast<A_Params *>($1), @$); }
+params : param { $$ = new A_Params(static_cast<A_Param*>($1), nullptr, @$); }
+       | params "," param { $$ = new A_Params(static_cast<A_Param*>($3), static_cast<A_Params*>($1), @$); }
        ;
 
 param : id ":" type { $$ = new A_Param($1, $3, @$); }
@@ -569,7 +570,7 @@ varDef : "var" id ":" type "=" expr { $$ = new A_VarDef($2, $4, $6, @$); }
  /* compile unit { */
 
 compileUnit : topStat optionalTopStats {
-                    A_TopStats* topStats = reverse(static_cast<A_TopStats *>($2));
+                    A_TopStats* topStats = reverse(static_cast<A_TopStats*>($2));
                     topStats = ($1)
                         ? (new A_TopStats($1, topStats, @$))
                         : topStats;
@@ -582,7 +583,7 @@ optionalTopStats : topStats { $$ = $1; }
                  ;
 
 topStats : seminl topStat { $$ = ($2) ? (new A_TopStats($2, nullptr, @$)) : nullptr; }
-         | topStats seminl topStat { $$ = ($3) ? (new A_TopStats($3, static_cast<A_TopStats *>($1), @$)) : ($1); }
+         | topStats seminl topStat { $$ = ($3) ? (new A_TopStats($3, static_cast<A_TopStats*>($1), @$)) : ($1); }
          ;
 
 topStat : def { $$ = $1; }

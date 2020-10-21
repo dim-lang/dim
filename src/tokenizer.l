@@ -34,12 +34,12 @@ LC  ("//".*\n)
 %{
 #include <string>
 #include <cctype>
+#include "Log.h"
 #include "Scanner.h"
 #include "Strings.h"
 #include "parser.tab.hh"
-#include "Log.h"
 
-#define T_SCANNER               (static_cast<Scanner *>(yyextra))
+#define T_SCANNER               (static_cast<Scanner*>(yyextra))
 #define T_EAT_PARENTHESES(t)    do {    \
     T_SCANNER->eatParentheses(yytokentype::t);       \
     BEGIN(T_SCANNER->newlineEnabled() ? INITIAL : NL_IGNORE);     \
