@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Scanner.h"
 #include "catch2/catch.hpp"
+#include "fmt/format.h"
 #include <cstdio>
 
 static void parseSuccess(const char *fileName) {
@@ -29,6 +30,7 @@ TEST_CASE("parser", "[parser]") {
   }
 
   SECTION("error") {
+    fmt::print("parser [parser] expect error syntax");
     parseError("test/case/parse-integer-literal-error-1.nerd");
     parseError("test/case/parse-float-literal-error-1.nerd");
     parseError("test/case/parse-float-literal-error-2.nerd");

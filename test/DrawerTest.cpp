@@ -7,16 +7,17 @@
 #include "Symbol.h"
 #include "catch2/catch.hpp"
 
-static void drawTest(const std::string &fileName) {
+static void testDrawer(const std::string &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  REQUIRE(Drawer::draw(scanner.compileUnit(), fileName + ".dot") == 0);
+  Drawer drawer(fileName + ".dot");
+  drawer.run(scanner.compileUnit());
 }
 
 TEST_CASE("Drawer", "[Drawer]") {
   SECTION("ast/symbol graph") {
-    drawTest("test/case/parse-1.nerd");
-    drawTest("test/case/parse-2.nerd");
-    drawTest("test/case/parse-3.nerd");
+    testDrawer("test/case/parse-1.nerd");
+    testDrawer("test/case/parse-2.nerd");
+    testDrawer("test/case/parse-3.nerd");
   }
 }

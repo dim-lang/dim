@@ -6,7 +6,13 @@
 #include "Log.h"
 #include <utility>
 
-VisitorBinder::VisitorBinder(VisitorContext *context) : context_(context) {}
+VisitorBinder::VisitorBinder(VisitorContext *context)
+    : context_(context), idleVisitor_(new Visitor()) {}
+
+VisitorBinder::~VisitorBinder() {
+  delete idleVisitor_;
+  idleVisitor_ = nullptr;
+}
 
 int VisitorBinder::bind(int astKind, Visitor *visitor) {
   LOG_ASSERT(visitor, "visitor must not null");
@@ -19,7 +25,7 @@ int VisitorBinder::bind(int astKind, Visitor *visitor) {
 
 Visitor *VisitorBinder::get(int astKind) const {
   auto it = visitors_.find(astKind);
-  return it == visitors_.end() ? nullptr : it->second;
+  return it == visitors_.end() ? idleVisitor_ : it->second;
 }
 
 Visitor *VisitorBinder::get(Ast *ast) const {
@@ -27,9 +33,9 @@ Visitor *VisitorBinder::get(Ast *ast) const {
   return get(ast->kind()._to_integral());
 }
 
-void VisitorBinder::setContext(VisitorContext *context) { context_ = context; }
-
 VisitorContext *VisitorBinder::context() const { return context_; }
+
+Visitor::Visitor(const Cowstr &name) : Nameable(name) {}
 
 void Visitor::visit(Ast *ast, VisitorContext *context) {}
 

@@ -3,6 +3,7 @@
 
 #pragma once
 #include "Cowstr.h"
+#include "Name.h"
 #include "enum.h"
 #include <unordered_map>
 #include <vector>
@@ -10,27 +11,10 @@
 class Ast;
 class Visitor;
 class VisitorBinder;
-class VisitorContext;
 
 class VisitorContext {
 public:
   virtual ~VisitorContext() = default;
-};
-
-// get visitor for ast
-class VisitorBinder {
-public:
-  VisitorBinder(VisitorContext *context = nullptr);
-  virtual ~VisitorBinder() = default;
-  virtual int bind(int astKind, Visitor *visitor);
-  virtual Visitor *get(int astKind) const;
-  virtual Visitor *get(Ast *ast) const;
-  virtual void setContext(VisitorContext *context);
-  virtual VisitorContext *context() const;
-
-protected:
-  std::unordered_map<int, Visitor *> visitors_;
-  VisitorContext *context_;
 };
 
 /**
@@ -55,9 +39,9 @@ protected:
  *
  * These 2 actions still execute even if ast doesn't have any children.
  */
-class Visitor {
+class Visitor : public Nameable {
 public:
-  Visitor() = default;
+  Visitor(const Cowstr &name = "IdleVisitor");
   virtual ~Visitor() = default;
 
   // do nothing by default
@@ -65,6 +49,22 @@ public:
   virtual void postVisit(Ast *ast, VisitorContext *context);
 
   static void traverse(VisitorBinder *binder, Ast *ast);
+};
+
+// get visitor for ast
+class VisitorBinder {
+public:
+  VisitorBinder(VisitorContext *context = nullptr);
+  virtual ~VisitorBinder();
+  virtual int bind(int astKind, Visitor *visitor);
+  virtual Visitor *get(int astKind) const;
+  virtual Visitor *get(Ast *ast) const;
+  virtual VisitorContext *context() const;
+
+protected:
+  std::unordered_map<int, Visitor *> visitors_;
+  VisitorContext *context_;
+  Visitor *idleVisitor_;
 };
 
 #define VISITOR_DECL0(x)                                                       \

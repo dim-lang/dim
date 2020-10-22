@@ -31,7 +31,13 @@ public:
 
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;
-    ss << prefix << delimiter << generateImpl(args...) << delimiter << postfix;
+    if (!prefix.empty()) {
+      ss << prefix << delimiter;
+    }
+    ss << generateImpl(args...);
+    if (!postfix.empty()) {
+      ss << delimiter << postfix;
+    }
     return ss.str();
   }
 

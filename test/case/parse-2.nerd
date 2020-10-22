@@ -14,7 +14,7 @@ def f():void {
         print(false)
     throw "error message"
     var integer_list:int = 10
-    for (i <- integer_list)
+    for (i:int <- integer_list)
         yield i+1
     var float_list:float = 10.2
     var a:char = 'h'

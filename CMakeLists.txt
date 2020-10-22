@@ -155,7 +155,7 @@ set(NERD_CORE
     src/Symbol.cpp
     src/Visitor.cpp
     src/Phase.cpp
-    src/Semantic.cpp
+    src/SymbolBuilder.cpp
     src/Drawer.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
@@ -224,6 +224,7 @@ set(NERD_TEST
     # test/HashTest.cpp
     test/TokenizerTest.cpp
     test/ParserTest.cpp
+    test/SymbolBuilderTest.cpp
     test/DrawerTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp
