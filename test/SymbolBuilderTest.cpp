@@ -8,7 +8,7 @@
 #include "Symbol.h"
 #include "catch2/catch.hpp"
 
-static void testSymbolBuilder(const char *fileName) {
+static void testSymbolBuilder(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
   LOG_INFO("compileUnit: {}", scanner.compileUnit()->name());

@@ -5,11 +5,14 @@
 #include "Ast.h"
 #include "Scanner.h"
 #include "Symbol.h"
+#include "SymbolBuilder.h"
 #include "catch2/catch.hpp"
 
-static void testDrawer(const std::string &fileName) {
+static void testDrawer(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
+  SymbolBuilder builder;
+  builder.run(scanner.compileUnit());
   Drawer drawer(fileName + ".dot");
   drawer.run(scanner.compileUnit());
 }

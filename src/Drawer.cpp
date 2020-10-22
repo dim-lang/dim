@@ -50,7 +50,7 @@ static const std::unordered_map<char, Cowstr> HtmlTranslator = {
  */
 struct GCell {
   GCell(const Cowstr &a_value)
-      : id(CNG.generate("anonymous")), value(TRANSLATE(a_value)), width(0) {}
+      : id(CNG.generate("cell")), value(TRANSLATE(a_value)), width(0) {}
   GCell(const Cowstr &a_id, const Cowstr &a_value)
       : id(a_id), value(TRANSLATE(a_value)), width(0) {}
 
@@ -170,8 +170,8 @@ struct ScopeNode : public GNode {
   }
 
   virtual void add(const Cowstr &a) {
-    GCell c(a);
-    GLine line({c});
+    GCell c1(a);
+    GLine line({c1});
     lines.push_back(line);
   }
   virtual void add(const Cowstr &a, const Cowstr &b) {
@@ -371,7 +371,7 @@ struct Graph {
     for (auto i = nodes.begin(); i != nodes.end(); i++) {
       fwriter.writeln(fmt::format("    {}", i->second->str()));
     }
-    fwriter.write("\n");
+    fwriter.writeln();
     for (auto i = edges.begin(); i != edges.end(); i++) {
       fwriter.writeln(fmt::format("    {}", i->second->str()));
     }
