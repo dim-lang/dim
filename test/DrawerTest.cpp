@@ -4,7 +4,6 @@
 #include "Drawer.h"
 #include "Ast.h"
 #include "Scanner.h"
-#include "Symbol.h"
 #include "SymbolBuilder.h"
 #include "catch2/catch.hpp"
 

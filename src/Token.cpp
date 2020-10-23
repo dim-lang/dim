@@ -4,7 +4,6 @@
 #include "Token.h"
 #include "Log.h"
 #include "parser.tab.hh"
-#include <string>
 #include <unordered_map>
 
 Token::Token(int a_value, YYSTYPE a_yylval, YYLTYPE a_yylloc)

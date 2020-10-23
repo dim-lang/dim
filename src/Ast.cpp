@@ -4,8 +4,6 @@
 #include "Ast.h"
 #include "Log.h"
 #include "Token.h"
-#include "parser.tab.hh"
-#include <algorithm>
 #include <sstream>
 #include <tuple>
 #include <unordered_map>
@@ -17,19 +15,6 @@
     delete x;                                                                  \
     x = nullptr;                                                               \
   } while (0)
-
-#if 0
-namespace detail {
-
-ParentableImpl::ParentableImpl(Ast *parentableImpl)
-    : parentableImpl_(parentableImpl) {}
-
-Ast *&ParentableImpl::parent() { return parentableImpl_; }
-
-Ast *ParentableImpl::parent() const { return parentableImpl_; }
-
-} // namespace detail
-#endif
 
 // Ast {
 

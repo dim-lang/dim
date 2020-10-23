@@ -8,9 +8,7 @@
 #include "Location.h"
 #include "Log.h"
 #include "Name.h"
-#include "Token.h"
 #include <algorithm>
-#include <cctype>
 
 #define SYMBOL_CONSTRUCTOR                                                     \
   Nameable(name), Locationable(location), detail::Ownable(owner), Symbol(type)

@@ -5,7 +5,6 @@
 #include "Log.h"
 #include <cerrno>
 #include <cstdio>
-#include <cstdlib>
 
 #define BUF_SIZE 4096
 

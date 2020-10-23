@@ -4,7 +4,6 @@
 #pragma once
 #include "Cowstr.h"
 #include "Name.h"
-#include "enum.h"
 #include <unordered_map>
 #include <vector>
 

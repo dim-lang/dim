@@ -7,9 +7,7 @@
 #include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
-#include "Util.h"
 #include "Visitor.h"
-#include "boost/preprocessor/cat.hpp"
 
 namespace detail {
 
