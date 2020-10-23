@@ -37,7 +37,7 @@ static const std::unordered_map<char, Cowstr> HtmlTranslator = {
     {'\f', "\\f"},
     {'\v', "\\v"},
     {'&', "&#38;"},
-    // {'\'', "\\\'"},
+    // {'\'', "\\'"},
     // {'\"', "\\\""},
     {'<', "&lt;"},
     {'>', "&gt;"},
@@ -51,18 +51,30 @@ static const std::unordered_map<char, Cowstr> HtmlTranslator = {
  */
 struct GCell {
   GCell(const Cowstr &a_value)
-      : id(CNG.generate("cell")), value(TRANSLATE(a_value)), width(0) {}
+      : id(CNG.generate("cell")), value(TRANSLATE(a_value)), width(0),
+        align("") {}
   GCell(const Cowstr &a_id, const Cowstr &a_value)
-      : id(a_id), value(TRANSLATE(a_value)), width(0) {}
+      : id(a_id), value(TRANSLATE(a_value)), width(0), align("") {}
 
   Cowstr id; // PORT="id"
   Cowstr value;
   int width; // COLSPAN="width"
+  Cowstr align;
 
   Cowstr str() const {
-    return width ? fmt::format("<TD PORT=\"{}\" COLSPAN=\"{}\">{}</TD>", id,
-                               width, value)
-                 : fmt::format("<TD PORT=\"{}\">{}</TD>", id, value);
+    std::stringstream ss;
+    ss << "<TD PORT=\"" << id << "\"";
+    if (width) {
+      ss << " COLSPAN=\"" << width << "\"";
+    }
+    if (!align.empty()) {
+      ss << " ALIGN=\"" << align << "\"";
+    }
+    ss << ">" << value << "</TD>";
+    return ss.str();
+    // return width ? fmt::format("<TD PORT=\"{}\" COLSPAN=\"{}\">{}</TD>", id,
+    //                            width, value)
+    //              : fmt::format("<TD PORT=\"{}\">{}</TD>", id, value);
   }
 };
 
@@ -100,6 +112,8 @@ struct GNode {
     if (lines.empty()) {
       return;
     }
+
+    // adjust for max width
     int maxWidth = 0;
     for (int i = 0; i < (int)lines.size(); i++) {
       maxWidth = std::max<int>(lines[i].cells.size(), maxWidth);
@@ -109,6 +123,15 @@ struct GNode {
         lines[i].cells[0].width = maxWidth - lines[i].cells.size() + 1;
       }
     }
+
+    // adjust for string literal left align
+    for (int i = 0; i < (int)lines.size(); i++) {
+      for (int j = 0; j < (int)lines[i].cells.size(); j++) {
+        if (lines[i].cells[j].value.startWith('"')) {
+          lines[i].cells[j].align = "LEFT";
+        }
+      }
+    }
   }
 
   virtual Cowstr str() const {
@@ -116,7 +139,10 @@ struct GNode {
     ss << ident
        << " [label=<<TABLE CELLBORDER=\"1\" CELLSPACING=\"0\" BORDER=\"0\">\n";
     for (int i = 0; i < (int)lines.size(); i++) {
-      ss << lines[i].str() << "\n";
+      ss << lines[i].str();
+      if (i < lines.size() - 1) {
+        ss << "\n";
+      }
     }
     ss << "</TABLE>>]";
     return ss.str();
@@ -234,6 +260,7 @@ struct GEdgeKey {
   static Cowstr ident(const GEdgeKey &from, const GEdgeKey &to) {
     return from.str() + "-" + to.str();
   }
+  bool hasCell() const { return !key2.empty(); }
   Cowstr str() const { return key2.empty() ? key1 : (key1 + ":" + key2); }
 };
 
@@ -251,6 +278,9 @@ struct GEdge {
   virtual Cowstr str() const {
     std::stringstream ss;
     ss << from.str() << "->" << to.str();
+    if (from.hasCell() || to.hasCell()) {
+      ss << ":w";
+    }
     if (!dotted && lines.empty()) {
       return ss.str();
     }
@@ -308,6 +338,10 @@ struct AstToAstEdge : public GEdge {
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, Scope *to)
       : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), true) {}
+
+  AstToScopeEdge(Ast *from, ScopeNode *to)
+      : GEdge(GEdgeKey(identify(from)),
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), true) {}
 
   static Cowstr ident(Ast *from, Scope *to) {
     GEdgeKey a(identify(from));
@@ -517,40 +551,41 @@ static void linkAstToParam(A_VarId *varId, Graph *g) {
   g->edges.push_back(edge);
 }
 
+#if 0
 static void linkAstToFunction(A_VarId *varId, Graph *g) {
   S_Func *functionSymbol = static_cast<S_Func *>(varId->symbol);
   ScopeNode *node = new ScopeNode(functionSymbol);
-  node->add("symbol");
-  if (functionSymbol->s_empty()) {
+  if (functionSymbol->s_empty() && functionSymbol->ts_empty() &&
+      functionSymbol->subscope_empty()) {
     node->add("empty");
   } else {
-    for (auto i = functionSymbol->s_begin(); i != functionSymbol->s_end();
-         i++) {
-      node->addSymbol(i->second);
+    if (!functionSymbol->s_empty()) {
+      node->add("symbol");
+      for (auto i = functionSymbol->s_begin(); i != functionSymbol->s_end();
+           i++) {
+        node->addSymbol(i->second);
+      }
     }
-  }
-  node->add("type symbol");
-  if (functionSymbol->ts_empty()) {
-    node->add("empty");
-  } else {
-    for (auto i = functionSymbol->ts_begin(); i != functionSymbol->ts_end();
-         i++) {
-      node->addTypeSymbol(i->second);
+    if (!functionSymbol->ts_empty()) {
+      node->add("type symbol");
+      for (auto i = functionSymbol->ts_begin(); i != functionSymbol->ts_end();
+           i++) {
+        node->addTypeSymbol(i->second);
+      }
     }
-  }
-  node->add("sub scope");
-  if (functionSymbol->subscope_empty()) {
-    node->add("empty");
-  } else {
-    for (auto i = functionSymbol->subscope_begin();
-         i != functionSymbol->subscope_end(); i++) {
-      node->addScope(i->second);
+    if (!functionSymbol->subscope_empty()) {
+      node->add("sub scope");
+      for (auto i = functionSymbol->subscope_begin();
+           i != functionSymbol->subscope_end(); i++) {
+        node->addScope(i->second);
+      }
     }
   }
   g->nodes.push_back(node);
-  AstToScopeEdge *edge = new AstToScopeEdge(varId, functionSymbol);
+  AstToScopeEdge *edge = new AstToScopeEdge(varId, node);
   g->edges.push_back(edge);
 }
+#endif
 
 static void linkAstToClass(A_VarId *varId, Graph *g) {
   LOG_ASSERT(false, "not implemented!");
@@ -581,7 +616,7 @@ static void linkAstToScope(Ast *ast, Scope *scope, Graph *g) {
     }
   }
   g->nodes.push_back(node);
-  AstToScopeEdge *edge = new AstToScopeEdge(ast, scope);
+  AstToScopeEdge *edge = new AstToScopeEdge(ast, node);
   g->edges.push_back(edge);
 }
 
@@ -609,14 +644,6 @@ struct VarId : public Visitor {
     // create ast gnode
     AstNode *node = new AstNode(ast);
     node->add("literal", ast->name());
-    Symbol *sym = static_cast<A_VarId *>(ast)->symbol;
-    TypeSymbol *tsym = static_cast<A_VarId *>(ast)->typeSymbol;
-    node->add("symbol",
-              sym ? fmt::format("{}:{}", sym->name(), sym->identifier())
-                  : "null");
-    node->add("type symbol",
-              tsym ? fmt::format("{}:{}", tsym->name(), tsym->identifier())
-                   : "null");
     g->nodes.push_back(node);
 
     // create symbol/typeSymbol/scope gnode
@@ -639,7 +666,7 @@ struct VarId : public Visitor {
       }
       case SymbolKind::Func: {
         if (defineSymbol(varId)) {
-          linkAstToFunction(varId, g);
+          linkAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
         }
         break;
       }
