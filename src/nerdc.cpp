@@ -1,12 +1,13 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Ast.h"
+#include "Configure.h"
 #include "Drawer.h"
 #include "Log.h"
-#include "Configure.h"
+#include "Phase.h"
 #include "Scanner.h"
-#include "Symbol.h"
+#include "SymbolBuilder.h"
+#include "SymbolReviewer.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
@@ -23,7 +24,6 @@
 #define OPT_VERSION "version"
 #define OPT_INPUT_FILE "input-file"
 #define OPT_DUMP_AST "dump-ast"
-#define OPT_DUMP_SYMBOL "dump-symbol"
 #define OPT_DUMP_LL "dump-ll"
 #define OPT_DUMP_BC "dump-bc"
 #define OPT_C "c"
@@ -40,7 +40,6 @@ public:
    *  --version, -v       version information
    *  --dump-<option>     dump with <option>:
    *                        ast: abstract syntax tree dot file
-   *                        symbol: symbol table dot file
    *                        ll: LLVM ll file
    *                        bc: LLVM bitcode(bc) file
    *  --output-<option>   output with <option>:
@@ -57,7 +56,6 @@ public:
         boost::program_options::value<std::vector<std::string>>(),
         "input files")(OPT_DUMP_AST,
                        "dump abstract syntax tree in graphviz dot file")(
-        OPT_DUMP_SYMBOL, "dump symbol table in graphviz dot file")(
         OPT_DUMP_LL, "dump LLVM ll file")(OPT_DUMP_BC,
                                           "dump LLVM bitcode(bc) file");
 
@@ -98,7 +96,8 @@ private:
   boost::program_options::variables_map var_map;
 };
 
-static void dumpAst(const std::vector<std::string> &fileNameList) {
+static void dump_ast(const std::vector<std::string> &fileNameList) {
+  PhaseManager pm({new SymbolBuilder(), new SymbolReviewer(), new Drawer()});
   for (int i = 0; i < (int)fileNameList.size(); i++) {
     std::string fileName = fileNameList[i];
     Scanner scanner(fileName);
@@ -106,25 +105,10 @@ static void dumpAst(const std::vector<std::string> &fileNameList) {
       fmt::print("Error! syntax error in {}!", fileName);
       return;
     }
-    AstGraph g(scanner.compileUnit());
-    Cowstr dumpfile = fmt::format("{}.ast.dot", fileName);
-    g.draw(dumpfile);
+    Cowstr dumpfile = fmt::format("{}.dot", fileName);
+    static_cast<Drawer *>(pm.phase(2))->fileName() = dumpfile;
+    pm.run(scanner.compileUnit());
     fmt::print("Dumping ast in {}\n", dumpfile);
-  }
-}
-
-static void dumpSymbol(const std::vector<std::string> &fileNameList) {
-  for (int i = 0; i < (int)fileNameList.size(); i++) {
-    std::string fileName = fileNameList[i];
-    Scanner scanner(fileName);
-    if (scanner.parse() != 0) {
-      fmt::print("Error! syntax error in {}!", fileName);
-      return;
-    }
-    // SymbolGraph g(Scope::from(scanner.compileUnit()));
-    // Cowstr dumpfile = fmt::format("{}.symbol.dot", fileName);
-    // g.draw(dumpfile);
-    // fmt::print("Dumping symbol in {}\n", dumpfile);
   }
 }
 
@@ -154,20 +138,14 @@ int main(int argc, char **argv) {
       return 0;
     }
 
+    PhaseManager pm;
+
     if (opt.has(OPT_DUMP_AST)) {
       if (!opt.has(OPT_INPUT_FILE)) {
         fmt::print("Error! missing file names\n");
         return 0;
       }
-      dumpAst(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
-    }
-
-    if (opt.has(OPT_DUMP_SYMBOL)) {
-      if (!opt.has(OPT_INPUT_FILE)) {
-        fmt::print("Error! missing file names\n");
-        return 0;
-      }
-      dumpSymbol(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
+      dump_ast(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
     }
 
   } catch (boost::program_options::unknown_option &unknown) {

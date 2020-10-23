@@ -16,12 +16,15 @@ public:
 
 class PhaseManager {
 public:
-  PhaseManager(Ast *ast);
-  virtual ~PhaseManager() = default;
+  PhaseManager(const std::vector<Phase *> phases = {});
+  virtual ~PhaseManager();
+
   virtual void add(Phase *phase);
-  virtual void run();
+  virtual void run(Ast *ast);
+
+  virtual Phase *phase(int pos) const;
+  virtual Phase *&phase(int pos);
 
 private:
-  Ast *ast_;
   std::vector<Phase *> phases_;
 };

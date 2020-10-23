@@ -2,22 +2,20 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
 #include "Phase.h"
 #include "Visitor.h"
+#include <vector>
 
 class Ast;
+class Scope;
 
-class Drawer : public Phase {
+class SymbolReviewer : public Phase {
 public:
-  Drawer(const Cowstr &output = "");
-  virtual ~Drawer();
+  SymbolReviewer();
+  virtual ~SymbolReviewer();
   virtual void run(Ast *ast);
-  virtual const Cowstr &fileName() const;
-  virtual Cowstr &fileName();
 
 private:
-  Cowstr fileName_;
   std::vector<Visitor *> visitors_;
   VisitorContext *context_;
   VisitorBinder binder_;

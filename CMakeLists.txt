@@ -156,6 +156,7 @@ set(NERD_CORE
     src/Visitor.cpp
     src/Phase.cpp
     src/SymbolBuilder.cpp
+    src/SymbolReviewer.cpp
     src/Drawer.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
@@ -201,10 +202,10 @@ target_link_libraries(nerdcore ${NERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 2. nerdc
-# add_executable(nerdc ${NERDC})
-# target_include_directories(nerdc PRIVATE ${NERD_INC})
-# target_link_libraries(nerdc ${NERD_LIB} nerdcore)
-# set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerdc ${NERDC})
+target_include_directories(nerdc PRIVATE ${NERD_INC})
+target_link_libraries(nerdc ${NERD_LIB} nerdcore)
+set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 3. testing
 set(NERD_TEST
@@ -225,6 +226,7 @@ set(NERD_TEST
     test/TokenizerTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
+    # test/SymbolReviewerTest.cpp
     test/DrawerTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp

@@ -868,3 +868,7 @@ void Drawer::run(Ast *ast) {
   Visitor::traverse(&binder_, ast);
   g.draw(fileName_);
 }
+
+const Cowstr &Drawer::fileName() const { return fileName_; }
+
+Cowstr &Drawer::fileName() { return fileName_; }
