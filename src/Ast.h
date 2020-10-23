@@ -93,29 +93,6 @@ class A_VarDef;
 class A_TopStats;
 class A_CompileUnit;
 
-#if 0
-namespace detail {
-
-class Parentable {
-public:
-  virtual ~Parentable() = default;
-  virtual Ast *parent() const = 0;
-};
-
-class ParentableImpl : public Parentable {
-public:
-  ParentableImpl(Ast *parentableImpl = nullptr);
-  virtual ~ParentableImpl() = default;
-  virtual Ast *&parent();
-  virtual Ast *parent() const;
-
-protected:
-  Ast *parentableImpl_;
-};
-
-} // namespace detail
-#endif
-
 // Ast {
 
 class Ast : public Nameable,
@@ -133,12 +110,6 @@ public:
   static bool isDef(Ast *e);
   static bool isDecl(Ast *e);
   static bool isType(Ast *e);
-
-  // virtual Cowstr &name();
-  // virtual const Cowstr &name() const;
-  // virtual Location &location();
-  // virtual const Location &location() const;
-  // virtual unsigned long long identifier() const;
 };
 
 // Ast }
