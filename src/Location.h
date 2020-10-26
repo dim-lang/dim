@@ -3,7 +3,9 @@
 
 #pragma once
 #include "Cowstr.h"
+#include "fmt/format.h"
 #include "parser.tab.hh"
+#include <iostream>
 
 class Position {
 public:
@@ -61,3 +63,16 @@ public:
 protected:
   Location locationable_;
 };
+
+std::ostream &operator<<(std::ostream &os, const Location &loc);
+
+namespace fmt {
+
+template <> struct formatter<Location> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(Location s, FormatContext &ctx) {
+    return formatter<std::string>::format(s.str().str(), ctx);
+  }
+};
+
+} // namespace fmt

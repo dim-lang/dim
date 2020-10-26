@@ -100,8 +100,15 @@ struct VarId : public Visitor {
     } else {
       if (sym) {
         varId->symbol = sym;
+        LOG_ASSERT(sym->ast() != varId, "symbol {}:{} resolve in varId {}:{}",
+                   sym->name(), sym->location().str(), varId->name(),
+                   varId->location().str());
       } else if (tsym) {
         varId->typeSymbol = tsym;
+        LOG_ASSERT(tsym->ast() != varId,
+                   "type symbol {}:{} resolve in varId {}:{}", tsym->name(),
+                   tsym->location().str(), varId->name(),
+                   varId->location().str());
       } else {
         LOG_ASSERT(false,
                    "varId [{}:{}] not exist as both symbol and type symbol in "

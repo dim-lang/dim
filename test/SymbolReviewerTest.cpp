@@ -13,8 +13,10 @@
 static void testSymbolReviewer(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
+
   SymbolBuilder builder;
   SymbolReviewer reviewer;
+
   PhaseManager pm({&builder, &reviewer});
   pm.run(scanner.compileUnit());
 }
