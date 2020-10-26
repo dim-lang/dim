@@ -1,0 +1,21 @@
+// Copyright 2019- <nerd-lang>
+// Apache License Version 2.0
+
+def add(x:int, y:int):int = x + y
+def sub(x:int, y:int):int = x - y
+def mul(x:int, y:int):int = x * y
+def div(x:int, y:int):int = x / y
+def mod(x:int, y:int):int = x % y
+def calculate(x:int, y:int, op:char):int = if (op == '+') 
+        add(x, y) 
+    else if (op == '-')
+        sub(x, y)
+    else if (op == '*')
+        mul(x, y)
+    else if (op == '/')
+        mul(x, y)       
+    else if (op == '%') 
+        mod(x, y) 
+    else
+        0
+def main(arg1:int, arg2:int, arg3:char):int = calculate(arg1, arg2, arg3)

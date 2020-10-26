@@ -26,6 +26,7 @@ TEST_CASE("parser", "[parser]") {
     parseSuccess("test/case/parse-1.nerd");
     parseSuccess("test/case/parse-2.nerd");
     parseSuccess("test/case/parse-3.nerd");
+    parseSuccess("test/case/parse-4.nerd");
   }
 
   SECTION("error") {

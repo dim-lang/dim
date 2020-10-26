@@ -26,5 +26,6 @@ TEST_CASE("Drawer", "[Drawer]") {
     testDrawer("test/case/parse-1.nerd");
     testDrawer("test/case/parse-2.nerd");
     testDrawer("test/case/parse-3.nerd");
+    testDrawer("test/case/parse-4.nerd");
   }
 }

@@ -26,5 +26,6 @@ TEST_CASE("SymbolReviewer", "[SymbolReviewer]") {
     testSymbolReviewer("test/case/parse-1.nerd");
     testSymbolReviewer("test/case/parse-2.nerd");
     testSymbolReviewer("test/case/parse-3.nerd");
+    testSymbolReviewer("test/case/parse-4.nerd");
   }
 }

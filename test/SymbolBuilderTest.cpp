@@ -22,5 +22,6 @@ TEST_CASE("SymbolBuilder", "[SymbolBuilder]") {
     testSymbolBuilder("test/case/parse-1.nerd");
     testSymbolBuilder("test/case/parse-2.nerd");
     testSymbolBuilder("test/case/parse-3.nerd");
+    testSymbolBuilder("test/case/parse-4.nerd");
   }
 }
