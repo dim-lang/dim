@@ -101,7 +101,7 @@ struct GLine {
  * (node)id [label=<<TABLE> GLine+ </TABLE>>]
  */
 struct GNode {
-  GNode() : ident(CNG.generate("id")) {}
+  GNode() : ident(CNG.generate("node")) {}
   GNode(const Cowstr &a_ident) : ident(a_ident) {}
   virtual ~GNode() = default;
 
@@ -301,18 +301,17 @@ struct GEdge {
     ss << "]";
     return ss.str();
   }
+  virtual void add(const Cowstr &a) {
+    GCell c(a);
+    GLine line({c});
+    lines.push_back(line);
+  }
 };
 
 struct AstToNilEdge : public GEdge {
   AstToNilEdge(Ast *from, const Cowstr &to, const Cowstr &name)
       : GEdge(GEdgeKey(identify(from)), GEdgeKey(to), false) {
     add(name);
-  }
-
-  virtual void add(const Cowstr &a) {
-    GCell c(a);
-    GLine line({c});
-    lines.push_back(line);
   }
 };
 
@@ -327,27 +326,12 @@ struct AstToAstEdge : public GEdge {
     GEdgeKey b(identify(to));
     return GEdgeKey::ident(a, b);
   }
-
-  virtual void add(const Cowstr &a) {
-    GCell c(a);
-    GLine line({c});
-    lines.push_back(line);
-  }
 };
 
 struct AstToScopeEdge : public GEdge {
-  AstToScopeEdge(Ast *from, Scope *to)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), true) {}
-
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
               GEdgeKey(to->id(), to->lines[0].cells[0].id), true) {}
-
-  static Cowstr ident(Ast *from, Scope *to) {
-    GEdgeKey a(identify(from));
-    GEdgeKey b(identify(to));
-    return GEdgeKey::ident(a, b);
-  }
 };
 
 struct AstToSymbolEdge : public GEdge {
