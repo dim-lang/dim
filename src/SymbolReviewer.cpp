@@ -90,11 +90,13 @@ struct VarId : public Visitor {
     Symbol *sym = scope->s_resolve(varId->name());
     TypeSymbol *tsym = scope->ts_resolve(varId->name());
     if (varId->symbol) {
-      LOG_ASSERT(sym, "varId {}:{} cannot resolve symbol", varId->name(),
-                 varId->location().str());
+      LOG_ASSERT(sym, "symbol [{}:{}] not exist in scope [{}:{}]",
+                 varId->name(), varId->location().str(), scope->name(),
+                 scope->location().str());
     } else if (varId->typeSymbol) {
-      LOG_ASSERT(tsym, "varId {}:{} cannot resolve type symbol", varId->name(),
-                 varId->location().str());
+      LOG_ASSERT(tsym, "symbol [{}:{}] not exist in scope [{}:{}]",
+                 varId->name(), varId->location().str(), scope->name(),
+                 scope->location().str());
     } else {
       if (sym) {
         varId->symbol = sym;
@@ -102,8 +104,10 @@ struct VarId : public Visitor {
         varId->typeSymbol = tsym;
       } else {
         LOG_ASSERT(false,
-                   "varId {}:{} cannot resolve both symbol and type symbol",
-                   varId->name(), varId->location().str());
+                   "varId [{}:{}] not exist as both symbol and type symbol in "
+                   "scope [{}:{}]",
+                   varId->name(), varId->location().str(), scope->name(),
+                   scope->location().str());
       }
     }
   }

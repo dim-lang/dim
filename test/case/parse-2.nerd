@@ -20,18 +20,18 @@ def f():void {
     var float_list:float = 10.2
     var a:char = 'h'
     while (true)
-        if (i > 4)
+        if (try_var > 4)
             return
     do
         tf = (true)
-    while (i < 6)
+    while (try_var < 6)
     do {
-        if (i == 0)
+        if (try_var == 0)
             continue
         tf = (true)
-        if (i == 10)
+        if (try_var == 10)
             break
-    } while (i < 5)
+    } while (try_var < 5)
     return
 }
 

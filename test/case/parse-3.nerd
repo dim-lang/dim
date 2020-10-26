@@ -1,7 +1,7 @@
 def cached_character(s:char, n:int):char {
     if (!s || n <= 0)
         return 0;
-    var key:ulong = hash(s, n);
+    var key:ulong = n;
     return if (key == 0) s else s+1;
 }
 
@@ -10,14 +10,14 @@ def duplicate(s:char, n:int):char = cached_character(s, n)
 def startWith(
         s:char,
         begin:int,
-        end:int):boolean = all_of(begin, end, s == begin)
+        end:int):boolean = begin > end && end >= begin
 
 def replace(s:char, n:int, from:char, fromn:int, to:char, ton:int):char {
     if (!s || n <= 0) return s
     if (!from || fromn <= 0) return s
     var i:int = 0
     while (i < n) {
-        if (n - i >= fromn && strncmp(s+i, from, fromn) == 0) {
+        if (n - i >= fromn && s+i+fromn == from+i+fromn) {
             if (to && ton > 0) {
                 ton = to
             }
