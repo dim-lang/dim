@@ -265,14 +265,14 @@ struct GEdgeKey {
 };
 
 struct GEdge {
-  GEdge(GEdgeKey a_from, GEdgeKey a_to, bool a_dotted)
-      : from(a_from), to(a_to), dotted(a_dotted) {}
+  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "")
+      : from(a_from), to(a_to), style(a_style) {}
   virtual ~GEdge() = default;
 
   GEdgeKey from;
   GEdgeKey to;
   std::vector<GLine> lines;
-  bool dotted;
+  Cowstr style;
 
   virtual Cowstr id() const { return GEdgeKey::ident(from, to); }
   virtual Cowstr str() const {
@@ -281,12 +281,12 @@ struct GEdge {
     if (from.hasCell() || to.hasCell()) {
       ss << ":w";
     }
-    if (!dotted && lines.empty()) {
+    if (style.empty() && lines.empty()) {
       return ss.str();
     }
     ss << " [";
-    if (dotted) {
-      ss << "style=dashed";
+    if (!style.empty()) {
+      ss << "style=" << style;
     }
     if (lines.size() > 0) {
       ss << " label=<<TABLE CELLBORDER=\"0\" CELLSPACING=\"0\" BORDER=\"0\">";
@@ -310,14 +310,14 @@ struct GEdge {
 
 struct AstToNilEdge : public GEdge {
   AstToNilEdge(Ast *from, const Cowstr &to, const Cowstr &name)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(to), false) {
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(to)) {
     add(name);
   }
 };
 
 struct AstToAstEdge : public GEdge {
   AstToAstEdge(Ast *from, Ast *to, const Cowstr &name)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), false) {
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to))) {
     add(name);
   }
 
@@ -331,31 +331,37 @@ struct AstToAstEdge : public GEdge {
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), true) {}
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {}
 };
 
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), true) {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), true) {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct SymbolToAstEdge : public GEdge {
   SymbolToAstEdge(Symbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), false) {}
+              GEdgeKey(identify(to)), "dotted") {}
 };
 
 struct TypeSymbolToAstEdge : public GEdge {
   TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), false) {}
+              GEdgeKey(identify(to)), "dotted") {}
+};
+
+struct ScopeToAstEdge : public GEdge {
+  ScopeToAstEdge(ScopeNode *from, Ast *to)
+      : GEdge(GEdgeKey(from->id(), from->lines[0].cells[0].id),
+              GEdgeKey(identify(to)), "dashed") {}
 };
 
 struct Graph {
