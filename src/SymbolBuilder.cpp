@@ -36,7 +36,7 @@ struct Loop : public Visitor {
     // push loop scope down to subscope
     ctx->scope = sc_loop;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop loop scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -80,7 +80,7 @@ struct Block : public Visitor {
     // push block scope down to subscope
     ctx->scope = sc_block;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -169,7 +169,7 @@ struct FuncDef : public Visitor {
     // push function scope down to subscope
     ctx->scope = s_func;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop function scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -204,7 +204,7 @@ struct CompileUnit : public Visitor {
     // pass global scope down to subscope
     ctx->scope = sc_global;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop global scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();

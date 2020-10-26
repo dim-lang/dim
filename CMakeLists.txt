@@ -226,7 +226,7 @@ set(NERD_TEST
     test/TokenizerTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
-    # test/SymbolReviewerTest.cpp
+    test/SymbolReviewerTest.cpp
     test/DrawerTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp

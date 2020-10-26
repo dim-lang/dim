@@ -4,15 +4,15 @@
 #pragma once
 #include "Ast.h"
 #include "Cowstr.h"
-#include "Nameable.h"
-#include "Symbol.h"
+#include "Name.h"
+#include "Phase.h"
+#include "Visitor.h"
 #include "enum.h"
 #include "llvm/IR/GlobalValue.h"
 #include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include <memory>
 
 /*================ kind start from 5000 ================*/
 BETTER_ENUM(IrKind, int,
@@ -31,23 +31,21 @@ BETTER_ENUM(IrKind, int,
 class Ir;
 
 class I_Module;
-class I_FuncDef;
-class I_GVarDef;
-class I_VarDef;
-class I_ConstantExpr;
+class I_GlobalVariable;
+class I_Funcion;
+class I_Instruction;
 
 // Ir {
 
 class Ir {
 public:
+  Ir(llvm::Value *value = nullptr);
   virtual ~Ir() = default;
-  virtual llvm::Value *value() const = 0;
-  virtual Cowstr str() const = 0;
+  virtual llvm::Value *value() const;
+  virtual Cowstr str() const;
 
-  static std::shared_ptr<Ir> expr(I_Module *a_iModule, Ast *a_ast,
-                                  std::shared_ptr<Scope> a_scope);
-  static std::shared_ptr<Ir> expr(I_FuncDef *a_iFuncDef, Ast *a_ast,
-                                  std::shared_ptr<Scope> a_scope);
+protected:
+  llvm::Value *value_;
 };
 
 // Ir }

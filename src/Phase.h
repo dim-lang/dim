@@ -17,7 +17,7 @@ public:
 class PhaseManager {
 public:
   PhaseManager(const std::vector<Phase *> phases = {});
-  virtual ~PhaseManager();
+  virtual ~PhaseManager() = default;
 
   virtual void add(Phase *phase);
   virtual void run(Ast *ast);

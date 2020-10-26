@@ -25,7 +25,7 @@ struct Loop : public Visitor {
     static_cast<Context *>(context)->scope =
         static_cast<A_Loop *>(ast)->localScope;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop loop scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -39,7 +39,7 @@ struct Block : public Visitor {
     static_cast<Context *>(context)->scope =
         static_cast<A_Block *>(ast)->localScope;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -57,7 +57,7 @@ struct FuncDef : public Visitor {
     // push block scope down to subscope
     ctx->scope = dynamic_cast<Scope *>(varId->symbol);
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -71,7 +71,7 @@ struct CompileUnit : public Visitor {
     static_cast<Context *>(context)->scope =
         static_cast<A_CompileUnit *>(ast)->globalScope;
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop global scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
     ctx->scope = ctx->scope->owner();
@@ -90,11 +90,13 @@ struct VarId : public Visitor {
     Symbol *sym = scope->s_resolve(varId->name());
     TypeSymbol *tsym = scope->ts_resolve(varId->name());
     if (varId->symbol) {
-      LOG_ASSERT(sym, "varId {}:{} cannot resolve symbol", varId->name(),
-                 varId->location().str());
+      LOG_ASSERT(sym, "symbol [{}:{}] not exist in scope [{}:{}]",
+                 varId->name(), varId->location().str(), scope->name(),
+                 scope->location().str());
     } else if (varId->typeSymbol) {
-      LOG_ASSERT(tsym, "varId {}:{} cannot resolve type symbol", varId->name(),
-                 varId->location().str());
+      LOG_ASSERT(tsym, "symbol [{}:{}] not exist in scope [{}:{}]",
+                 varId->name(), varId->location().str(), scope->name(),
+                 scope->location().str());
     } else {
       if (sym) {
         varId->symbol = sym;
@@ -102,8 +104,10 @@ struct VarId : public Visitor {
         varId->typeSymbol = tsym;
       } else {
         LOG_ASSERT(false,
-                   "varId {}:{} cannot resolve both symbol and type symbol",
-                   varId->name(), varId->location().str());
+                   "varId [{}:{}] not exist as both symbol and type symbol in "
+                   "scope [{}:{}]",
+                   varId->name(), varId->location().str(), scope->name(),
+                   scope->location().str());
       }
     }
   }

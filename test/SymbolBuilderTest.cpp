@@ -11,13 +11,12 @@
 static void testSymbolBuilder(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-  LOG_INFO("compileUnit: {}", scanner.compileUnit()->name());
   SymbolBuilder builder;
   builder.run(scanner.compileUnit());
 }
 
 TEST_CASE("SymbolBuilder", "[SymbolBuilder]") {
-  SECTION("symbol") {
+  SECTION("build symbol") {
     testSymbolBuilder("test/case/parse-1.nerd");
     testSymbolBuilder("test/case/parse-2.nerd");
     testSymbolBuilder("test/case/parse-3.nerd");

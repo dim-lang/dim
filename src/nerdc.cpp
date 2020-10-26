@@ -20,6 +20,10 @@
 #include <string>
 #include <vector>
 
+static Drawer drawer;
+static SymbolBuilder symbolBuilder;
+static SymbolReviewer symbolReviewer;
+
 #define OPT_HELP "help"
 #define OPT_VERSION "version"
 #define OPT_INPUT_FILE "input-file"
@@ -96,8 +100,8 @@ private:
   boost::program_options::variables_map var_map;
 };
 
-static void dump_ast(const std::vector<std::string> &fileNameList) {
-  PhaseManager pm({new SymbolBuilder(), new SymbolReviewer(), new Drawer()});
+static void dumpAst(const std::vector<std::string> &fileNameList) {
+  PhaseManager pm({&symbolBuilder, &symbolReviewer, &drawer});
   for (int i = 0; i < (int)fileNameList.size(); i++) {
     std::string fileName = fileNameList[i];
     Scanner scanner(fileName);
@@ -145,7 +149,7 @@ int main(int argc, char **argv) {
         fmt::print("Error! missing file names\n");
         return 0;
       }
-      dump_ast(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
+      dumpAst(opt.get<std::vector<std::string>>(OPT_INPUT_FILE));
     }
 
   } catch (boost::program_options::unknown_option &unknown) {

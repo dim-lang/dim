@@ -191,23 +191,19 @@ A_Integer::DecimalKind A_Integer::decimalKind() const { return decimalKind_; }
 A_Integer::BitKind A_Integer::bitKind() const { return bitKind_; }
 
 int32_t A_Integer::asInt32() const {
-  return (int32_t)std::stol(parsed_.str(), nullptr, base_);
-  // return static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
+  return static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
 }
 
 uint32_t A_Integer::asUInt32() const {
-  return (uint32_t)std::stoul(parsed_.str(), nullptr, base_);
-  // return static_cast<uint32_t>(std::stoul(parsed_.str(), nullptr, base_));
+  return static_cast<uint32_t>(std::stoul(parsed_.str(), nullptr, base_));
 }
 
 int64_t A_Integer::asInt64() const {
-  return (int64_t)std::stoll(parsed_.str(), nullptr, base_);
-  // return static_cast<int64_t>(std::stoll(parsed_.str(), nullptr, base_));
+  return static_cast<int64_t>(std::stoll(parsed_.str(), nullptr, base_));
 }
 
 uint64_t A_Integer::asUInt64() const {
-  return (uint64_t)std::stoull(parsed_.str(), nullptr, base_);
-  // return static_cast<uint64_t>(std::stoull(parsed_.str(), nullptr, base_));
+  return static_cast<uint64_t>(std::stoull(parsed_.str(), nullptr, base_));
 }
 
 // A_Integer }
