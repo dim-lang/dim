@@ -79,3 +79,8 @@ Locationable::Locationable(const Location &location)
 Location &Locationable::location() { return locationable_; }
 
 const Location &Locationable::location() const { return locationable_; }
+
+std::ostream &operator<<(std::ostream &os, const Location &loc) {
+  os << loc.str().str();
+  return os;
+}

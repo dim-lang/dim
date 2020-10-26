@@ -3,17 +3,22 @@
 
 #include "Drawer.h"
 #include "Ast.h"
+#include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
+#include "SymbolReviewer.h"
 #include "catch2/catch.hpp"
 
 static void testDrawer(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
+
   SymbolBuilder builder;
-  builder.run(scanner.compileUnit());
+  SymbolReviewer reviewer;
   Drawer drawer(fileName + ".dot");
-  drawer.run(scanner.compileUnit());
+
+  PhaseManager pm({&builder, &reviewer, &drawer});
+  pm.run(scanner.compileUnit());
 }
 
 TEST_CASE("Drawer", "[Drawer]") {

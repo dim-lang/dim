@@ -11,7 +11,9 @@
 static void testSymbolBuilder(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
+
   SymbolBuilder builder;
+
   builder.run(scanner.compileUnit());
 }
 

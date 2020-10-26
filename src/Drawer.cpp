@@ -264,21 +264,23 @@ struct GEdgeKey {
 };
 
 struct GEdge {
-  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "")
-      : from(a_from), to(a_to), style(a_style) {}
+  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "",
+        const Cowstr &a_direction = "")
+      : from(a_from), to(a_to), style(a_style), direction(a_direction) {}
   virtual ~GEdge() = default;
 
   GEdgeKey from;
   GEdgeKey to;
   std::vector<GLine> lines;
   Cowstr style;
+  Cowstr direction;
 
   virtual Cowstr id() const { return GEdgeKey::ident(from, to); }
   virtual Cowstr str() const {
     std::stringstream ss;
     ss << from.str() << "->" << to.str();
-    if (from.hasCell() || to.hasCell()) {
-      ss << ":w";
+    if (!direction.empty()) {
+      ss << direction;
     }
     if (style.empty() && lines.empty()) {
       return ss.str();
@@ -324,40 +326,56 @@ struct AstToAstEdge : public GEdge {
   }
 };
 
-struct AstToScopeEdge : public GEdge {
-  AstToScopeEdge(Ast *from, ScopeNode *to)
-      : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {}
-};
+// define edge
 
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
+    add("#def");
+  }
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
+    add("#def");
+  }
 };
 
+struct AstToScopeEdge : public GEdge {
+  AstToScopeEdge(Ast *from, ScopeNode *to)
+      : GEdge(GEdgeKey(identify(from)),
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {
+    add("#def");
+  }
+};
+
+// resolve edge
+
 struct SymbolToAstEdge : public GEdge {
-  SymbolToAstEdge(Symbol *from, Ast *to)
-      : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), "dotted") {}
+  SymbolToAstEdge(Ast *from, Symbol *to)
+      : GEdge(GEdgeKey(identify(from)),
+              GEdgeKey(identify(to->owner()), identify(to)), "dotted") {
+    add("&ref");
+  }
 };
 
 struct TypeSymbolToAstEdge : public GEdge {
   TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), "dotted") {}
+              GEdgeKey(identify(to)), "dotted") {
+    add("&ref");
+  }
 };
 
 struct ScopeToAstEdge : public GEdge {
-  ScopeToAstEdge(ScopeNode *from, Ast *to)
-      : GEdge(GEdgeKey(from->id(), from->lines[0].cells[0].id),
-              GEdgeKey(identify(to)), "dashed") {}
+  ScopeToAstEdge(Ast *from, ScopeNode *to)
+      : GEdge(GEdgeKey(identify(from)),
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dotted") {
+    add("&ref");
+  }
 };
 
 struct GEdgeRank {
@@ -594,23 +612,39 @@ static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
   g->ranks.push_back(r);
 }
 
-static void linkAstToVar(A_VarId *varId, Graph *g) {
+static void defineAstToVar(A_VarId *varId, Graph *g) {
   S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol);
   AstToSymbolEdge *edge = new AstToSymbolEdge(varId, variableSymbol);
   g->edges.insert(edge->id(), edge);
 }
 
-static void linkAstToParam(A_VarId *varId, Graph *g) {
+static void resolveAstToVar(A_VarId *varId, Graph *g) {
+  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol);
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, variableSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void defineAstToParam(A_VarId *varId, Graph *g) {
   S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol);
   AstToSymbolEdge *edge = new AstToSymbolEdge(varId, parameterSymbol);
   g->edges.insert(edge->id(), edge);
 }
 
-static void linkAstToClass(A_VarId *varId, Graph *g) {
+static void resolveAstToParam(A_VarId *varId, Graph *g) {
+  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol);
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, parameterSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void defineAstToClass(A_VarId *varId, Graph *g) {
   LOG_ASSERT(false, "not implemented!");
 }
 
-static void linkAstToScope(Ast *ast, Scope *scope, Graph *g) {
+static void resolveAstToClass(A_VarId *varId, Graph *g) {
+  LOG_ASSERT(false, "not implemented!");
+}
+
+static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
   ScopeNode *node = new ScopeNode(scope);
   if (scope->s_empty() && scope->ts_empty() && scope->subscope_empty()) {
     node->add("empty");
@@ -635,7 +669,17 @@ static void linkAstToScope(Ast *ast, Scope *scope, Graph *g) {
     }
   }
   g->nodes.insert(node->id(), node);
-  AstToScopeEdge *edge = new AstToScopeEdge(ast, node);
+  AstToScopeEdge *edge = new AstToScopeEdge(varId, node);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
+  auto it = g->nodes.find(identify(scope));
+  LOG_ASSERT(it != g->nodes.end(), "scope {} related ScopeNode not exist",
+             scope->name());
+  GNode *node = it->second;
+  ScopeToAstEdge *edge =
+      new ScopeToAstEdge(varId, static_cast<ScopeNode *>(node));
   g->edges.insert(edge->id(), edge);
 }
 
@@ -672,20 +716,26 @@ struct VarId : public Visitor {
     if (varId->symbol) {
       switch (varId->symbol->kind()) {
       case SymbolKind::Var: {
-        if (defineSymbol(varId)) {
-          linkAstToVar(varId, g);
+        if (isSymbolDefined(varId)) {
+          defineAstToVar(varId, g);
+        } else {
+          resolveAstToVar(varId, g);
         }
         break;
       }
       case SymbolKind::Param: {
-        if (defineSymbol(varId)) {
-          linkAstToParam(varId, g);
+        if (isSymbolDefined(varId)) {
+          defineAstToParam(varId, g);
+        } else {
+          resolveAstToParam(varId, g);
         }
         break;
       }
       case SymbolKind::Func: {
-        if (defineSymbol(varId)) {
-          linkAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
+        if (isSymbolDefined(varId)) {
+          defineAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
+        } else {
+          resolveAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
         }
         break;
       }
@@ -696,8 +746,10 @@ struct VarId : public Visitor {
     } else if (varId->typeSymbol) {
       switch (varId->typeSymbol->kind()) {
       case TypeSymbolKind::Class: {
-        if (defineTypeSymbol(varId)) {
-          linkAstToClass(varId, g);
+        if (isTypeSymbolDefined(varId)) {
+          defineAstToClass(varId, g);
+        } else {
+          resolveAstToClass(varId, g);
         }
         break;
       }
@@ -708,12 +760,15 @@ struct VarId : public Visitor {
                    varId->typeSymbol->name(),
                    varId->typeSymbol->kind()._to_string());
       }
+    } else {
+      LOG_ASSERT(false, "invalid varId {}:{}", varId->name(),
+                 varId->location().str());
     }
   }
-  bool defineSymbol(A_VarId *varId) {
+  bool isSymbolDefined(A_VarId *varId) {
     return varId->symbol && varId->symbol->ast() == varId;
   }
-  bool defineTypeSymbol(A_VarId *varId) {
+  bool isTypeSymbolDefined(A_VarId *varId) {
     return varId->typeSymbol && varId->typeSymbol->ast() == varId;
   }
 };
@@ -735,7 +790,7 @@ struct Block : public Visitor {
     A_Block *block = static_cast<A_Block *>(ast);
     LOG_ASSERT(block->localScope, "block {} localScope must not null",
                block->name());
-    linkAstToScope(block, block->localScope, g);
+    defineAstToScope(block, block->localScope, g);
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
@@ -756,7 +811,7 @@ struct CompileUnit : public Visitor {
     LOG_ASSERT(compileUnit->globalScope,
                "compile unit {} globalScope must not null",
                compileUnit->name());
-    linkAstToScope(compileUnit, compileUnit->globalScope, g);
+    defineAstToScope(compileUnit, compileUnit->globalScope, g);
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
@@ -782,7 +837,7 @@ struct Loop : public Visitor {
     A_Loop *loop = static_cast<A_Loop *>(ast);
     LOG_ASSERT(loop->localScope, "loop {} localScope must not null",
                loop->name());
-    linkAstToScope(loop, loop->localScope, g);
+    defineAstToScope(loop, loop->localScope, g);
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
