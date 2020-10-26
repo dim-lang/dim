@@ -265,14 +265,14 @@ struct GEdgeKey {
 };
 
 struct GEdge {
-  GEdge(GEdgeKey a_from, GEdgeKey a_to, bool a_dotted)
-      : from(a_from), to(a_to), dotted(a_dotted) {}
+  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "")
+      : from(a_from), to(a_to), style(a_style) {}
   virtual ~GEdge() = default;
 
   GEdgeKey from;
   GEdgeKey to;
   std::vector<GLine> lines;
-  bool dotted;
+  Cowstr style;
 
   virtual Cowstr id() const { return GEdgeKey::ident(from, to); }
   virtual Cowstr str() const {
@@ -281,12 +281,12 @@ struct GEdge {
     if (from.hasCell() || to.hasCell()) {
       ss << ":w";
     }
-    if (!dotted && lines.empty()) {
+    if (style.empty() && lines.empty()) {
       return ss.str();
     }
     ss << " [";
-    if (dotted) {
-      ss << "style=dashed";
+    if (!style.empty()) {
+      ss << "style=" << style;
     }
     if (lines.size() > 0) {
       ss << " label=<<TABLE CELLBORDER=\"0\" CELLSPACING=\"0\" BORDER=\"0\">";
@@ -301,14 +301,6 @@ struct GEdge {
     ss << "]";
     return ss.str();
   }
-};
-
-struct AstToNilEdge : public GEdge {
-  AstToNilEdge(Ast *from, const Cowstr &to, const Cowstr &name)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(to), false) {
-    add(name);
-  }
-
   virtual void add(const Cowstr &a) {
     GCell c(a);
     GLine line({c});
@@ -316,9 +308,16 @@ struct AstToNilEdge : public GEdge {
   }
 };
 
+struct AstToNilEdge : public GEdge {
+  AstToNilEdge(Ast *from, const Cowstr &to, const Cowstr &name)
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(to)) {
+    add(name);
+  }
+};
+
 struct AstToAstEdge : public GEdge {
   AstToAstEdge(Ast *from, Ast *to, const Cowstr &name)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), false) {
+      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to))) {
     add(name);
   }
 
@@ -327,51 +326,42 @@ struct AstToAstEdge : public GEdge {
     GEdgeKey b(identify(to));
     return GEdgeKey::ident(a, b);
   }
-
-  virtual void add(const Cowstr &a) {
-    GCell c(a);
-    GLine line({c});
-    lines.push_back(line);
-  }
 };
 
 struct AstToScopeEdge : public GEdge {
-  AstToScopeEdge(Ast *from, Scope *to)
-      : GEdge(GEdgeKey(identify(from)), GEdgeKey(identify(to)), true) {}
-
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), true) {}
-
-  static Cowstr ident(Ast *from, Scope *to) {
-    GEdgeKey a(identify(from));
-    GEdgeKey b(identify(to));
-    return GEdgeKey::ident(a, b);
-  }
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {}
 };
 
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), true) {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), true) {}
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct SymbolToAstEdge : public GEdge {
   SymbolToAstEdge(Symbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), false) {}
+              GEdgeKey(identify(to)), "dotted") {}
 };
 
 struct TypeSymbolToAstEdge : public GEdge {
   TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), false) {}
+              GEdgeKey(identify(to)), "dotted") {}
+};
+
+struct ScopeToAstEdge : public GEdge {
+  ScopeToAstEdge(ScopeNode *from, Ast *to)
+      : GEdge(GEdgeKey(from->id(), from->lines[0].cells[0].id),
+              GEdgeKey(identify(to)), "dotted") {}
 };
 
 struct Graph {
@@ -551,42 +541,6 @@ static void linkAstToParam(A_VarId *varId, Graph *g) {
   g->edges.push_back(edge);
 }
 
-#if 0
-static void linkAstToFunction(A_VarId *varId, Graph *g) {
-  S_Func *functionSymbol = static_cast<S_Func *>(varId->symbol);
-  ScopeNode *node = new ScopeNode(functionSymbol);
-  if (functionSymbol->s_empty() && functionSymbol->ts_empty() &&
-      functionSymbol->subscope_empty()) {
-    node->add("empty");
-  } else {
-    if (!functionSymbol->s_empty()) {
-      node->add("symbol");
-      for (auto i = functionSymbol->s_begin(); i != functionSymbol->s_end();
-           i++) {
-        node->addSymbol(i->second);
-      }
-    }
-    if (!functionSymbol->ts_empty()) {
-      node->add("type symbol");
-      for (auto i = functionSymbol->ts_begin(); i != functionSymbol->ts_end();
-           i++) {
-        node->addTypeSymbol(i->second);
-      }
-    }
-    if (!functionSymbol->subscope_empty()) {
-      node->add("sub scope");
-      for (auto i = functionSymbol->subscope_begin();
-           i != functionSymbol->subscope_end(); i++) {
-        node->addScope(i->second);
-      }
-    }
-  }
-  g->nodes.push_back(node);
-  AstToScopeEdge *edge = new AstToScopeEdge(varId, node);
-  g->edges.push_back(edge);
-}
-#endif
-
 static void linkAstToClass(A_VarId *varId, Graph *g) {
   LOG_ASSERT(false, "not implemented!");
 }
@@ -647,25 +601,25 @@ struct VarId : public Visitor {
     g->nodes.push_back(node);
 
     // create symbol/typeSymbol/scope gnode
-    link(static_cast<A_VarId *>(ast), g);
+    makeLink(static_cast<A_VarId *>(ast), g);
   }
-  void link(A_VarId *varId, Graph *g) {
+  void makeLink(A_VarId *varId, Graph *g) {
     if (varId->symbol) {
       switch (varId->symbol->kind()) {
       case SymbolKind::Var: {
-        if (defineSymbol(varId)) {
+        if (isSymbolDefined(varId)) {
           linkAstToVar(varId, g);
         }
         break;
       }
       case SymbolKind::Param: {
-        if (defineSymbol(varId)) {
+        if (isSymbolDefined(varId)) {
           linkAstToParam(varId, g);
         }
         break;
       }
       case SymbolKind::Func: {
-        if (defineSymbol(varId)) {
+        if (isSymbolDefined(varId)) {
           linkAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
         }
         break;
@@ -677,7 +631,7 @@ struct VarId : public Visitor {
     } else if (varId->typeSymbol) {
       switch (varId->typeSymbol->kind()) {
       case TypeSymbolKind::Class: {
-        if (defineTypeSymbol(varId)) {
+        if (isTypeSymbolDefined(varId)) {
           linkAstToClass(varId, g);
         }
         break;
@@ -691,10 +645,10 @@ struct VarId : public Visitor {
       }
     }
   }
-  bool defineSymbol(A_VarId *varId) {
+  bool isSymbolDefined(A_VarId *varId) {
     return varId->symbol && varId->symbol->ast() == varId;
   }
-  bool defineTypeSymbol(A_VarId *varId) {
+  bool isTypeSymbolDefined(A_VarId *varId) {
     return varId->typeSymbol && varId->typeSymbol->ast() == varId;
   }
 };
