@@ -331,7 +331,7 @@ struct AstToAstEdge : public GEdge {
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed", "") {
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
     add("#def");
   }
 };
@@ -339,7 +339,7 @@ struct AstToSymbolEdge : public GEdge {
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed", "") {
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
     add("#def");
   }
 };
@@ -347,7 +347,7 @@ struct AstToTypeSymbolEdge : public GEdge {
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed", "") {
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {
     add("#def");
   }
 };
@@ -357,7 +357,7 @@ struct AstToScopeEdge : public GEdge {
 struct SymbolToAstEdge : public GEdge {
   SymbolToAstEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dotted", "") {
+              GEdgeKey(identify(to->owner()), identify(to)), "dotted") {
     add("&ref");
   }
 };
@@ -365,7 +365,7 @@ struct SymbolToAstEdge : public GEdge {
 struct TypeSymbolToAstEdge : public GEdge {
   TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
       : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), "dotted", "") {
+              GEdgeKey(identify(to)), "dotted") {
     add("&ref");
   }
 };
@@ -373,7 +373,7 @@ struct TypeSymbolToAstEdge : public GEdge {
 struct ScopeToAstEdge : public GEdge {
   ScopeToAstEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dotted", "") {
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dotted") {
     add("&ref");
   }
 };
