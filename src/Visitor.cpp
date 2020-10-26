@@ -7,7 +7,7 @@
 #include <utility>
 
 VisitorBinder::VisitorBinder(VisitorContext *context)
-    : context_(context), idleVisitor_(new Visitor()) {}
+    : context_(context), idleVisitor_(new Visitor("IdleVisitor")) {}
 
 VisitorBinder::~VisitorBinder() {
   delete idleVisitor_;
@@ -39,7 +39,47 @@ Visitor::Visitor(const Cowstr &name) : Nameable(name) {}
 
 void Visitor::visit(Ast *ast, VisitorContext *context) {}
 
-void Visitor::postVisit(Ast *ast, VisitorContext *context) {}
+void Visitor::visitBefore(Ast *ast, Ast *child, VisitorContext *context) {}
+
+void Visitor::visitAfter(Ast *ast, Ast *child, VisitorContext *context) {}
+
+void Visitor::finishVisit(Ast *ast, VisitorContext *context) {}
+
+#define TRAVEL1(ast, astype, child1)                                           \
+  do {                                                                         \
+    Ast *c1 = static_cast<astype *>(ast)->child1;                              \
+    visitor->visitBefore(ast, c1, binder->context());                          \
+    traverse(binder, c1);                                                      \
+    visitor->visitAfter(ast, c1, binder->context());                           \
+  } while (0)
+
+#define TRAVEL2(ast, astype, child1, child2)                                   \
+  do {                                                                         \
+    Ast *c1 = static_cast<astype *>(ast)->child1;                              \
+    Ast *c2 = static_cast<astype *>(ast)->child2;                              \
+    visitor->visitBefore(ast, c1, binder->context());                          \
+    traverse(binder, c1);                                                      \
+    visitor->visitAfter(ast, c1, binder->context());                           \
+    visitor->visitBefore(ast, c2, binder->context());                          \
+    traverse(binder, c2);                                                      \
+    visitor->visitAfter(ast, c2, binder->context());                           \
+  } while (0)
+
+#define TRAVEL3(ast, astype, child1, child2, child3)                           \
+  do {                                                                         \
+    Ast *c1 = static_cast<astype *>(ast)->child1;                              \
+    Ast *c2 = static_cast<astype *>(ast)->child2;                              \
+    Ast *c3 = static_cast<astype *>(ast)->child3;                              \
+    visitor->visitBefore(ast, c1, binder->context());                          \
+    traverse(binder, c1);                                                      \
+    visitor->visitAfter(ast, c1, binder->context());                           \
+    visitor->visitBefore(ast, c2, binder->context());                          \
+    traverse(binder, c2);                                                      \
+    visitor->visitAfter(ast, c2, binder->context());                           \
+    visitor->visitBefore(ast, c3, binder->context());                          \
+    traverse(binder, c3);                                                      \
+    visitor->visitAfter(ast, c3, binder->context());                           \
+  } while (0)
 
 void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
   if (!ast) {
@@ -68,111 +108,108 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
   case AstKind::PlainType:
     break;
     // one child node
-  case AstKind::Throw:
-    traverse(binder, static_cast<A_Throw *>(ast)->expr);
+  case AstKind::Throw: {
+    TRAVEL1(ast, A_Throw, expr);
     break;
-  case AstKind::Return:
-    traverse(binder, static_cast<A_Return *>(ast)->expr);
+  }
+  case AstKind::Return: {
+    TRAVEL1(ast, A_Return, expr);
     break;
-  case AstKind::PostfixExpr:
-    traverse(binder, static_cast<A_PostfixExpr *>(ast)->expr);
+  }
+  case AstKind::PostfixExpr: {
+    TRAVEL1(ast, A_PostfixExpr, expr);
     break;
-  case AstKind::PrefixExpr:
-    traverse(binder, static_cast<A_PrefixExpr *>(ast)->expr);
+  }
+  case AstKind::PrefixExpr: {
+    TRAVEL1(ast, A_PrefixExpr, expr);
     break;
-  case AstKind::Yield:
-    traverse(binder, static_cast<A_Yield *>(ast)->expr);
+  }
+  case AstKind::Yield: {
+    TRAVEL1(ast, A_Yield, expr);
     break;
-  case AstKind::Block:
-    traverse(binder,
-             dynamic_cast<Ast *>(static_cast<A_Block *>(ast)->blockStats));
+  }
+  case AstKind::Block: {
+    TRAVEL1(ast, A_Block, blockStats);
     break;
-  case AstKind::CompileUnit:
-    traverse(binder,
-             dynamic_cast<Ast *>(static_cast<A_CompileUnit *>(ast)->topStats));
+  }
+  case AstKind::CompileUnit: {
+    TRAVEL1(ast, A_CompileUnit, topStats);
     break;
+  }
     // two child node
-  case AstKind::Assign:
-    traverse(binder, static_cast<A_Assign *>(ast)->assignee);
-    traverse(binder, static_cast<A_Assign *>(ast)->assignor);
+  case AstKind::Assign: {
+    TRAVEL2(ast, A_Assign, assignee, assignor);
     break;
-  case AstKind::InfixExpr:
-    traverse(binder, static_cast<A_InfixExpr *>(ast)->left);
-    traverse(binder, static_cast<A_InfixExpr *>(ast)->right);
+  }
+  case AstKind::InfixExpr: {
+    TRAVEL2(ast, A_InfixExpr, left, right);
     break;
-  case AstKind::Call:
-    traverse(binder, static_cast<A_Call *>(ast)->id);
-    traverse(binder, dynamic_cast<Ast *>(static_cast<A_Call *>(ast)->args));
+  }
+  case AstKind::Call: {
+    TRAVEL2(ast, A_Call, id, args);
     break;
-  case AstKind::Exprs:
-    traverse(binder, static_cast<A_Exprs *>(ast)->expr);
-    traverse(binder, dynamic_cast<Ast *>(static_cast<A_Exprs *>(ast)->next));
+  }
+  case AstKind::Exprs: {
+    TRAVEL2(ast, A_Exprs, expr, next);
     break;
-  case AstKind::Loop:
-    traverse(binder, static_cast<A_Loop *>(ast)->condition);
-    traverse(binder, static_cast<A_Loop *>(ast)->body);
+  }
+  case AstKind::Loop: {
+    TRAVEL2(ast, A_Loop, condition, body);
     break;
-  case AstKind::DoWhile:
-    traverse(binder, static_cast<A_DoWhile *>(ast)->body);
-    traverse(binder, static_cast<A_DoWhile *>(ast)->condition);
+  }
+  case AstKind::DoWhile: {
+    TRAVEL2(ast, A_DoWhile, body, condition);
     break;
-  case AstKind::BlockStats:
-    traverse(binder, static_cast<A_BlockStats *>(ast)->blockStat);
-    traverse(binder,
-             dynamic_cast<Ast *>(static_cast<A_BlockStats *>(ast)->next));
+  }
+  case AstKind::BlockStats: {
+    TRAVEL2(ast, A_BlockStats, blockStat, next);
     break;
-  case AstKind::FuncSign:
-    traverse(binder, static_cast<A_FuncSign *>(ast)->id);
-    traverse(binder,
-             dynamic_cast<Ast *>(static_cast<A_FuncSign *>(ast)->params));
+  }
+  case AstKind::FuncSign: {
+    TRAVEL2(ast, A_FuncSign, id, params);
     break;
-  case AstKind::Params:
-    traverse(binder, dynamic_cast<Ast *>(static_cast<A_Params *>(ast)->param));
-    traverse(binder, dynamic_cast<Ast *>(static_cast<A_Params *>(ast)->next));
+  }
+  case AstKind::Params: {
+    TRAVEL2(ast, A_Params, param, next);
     break;
-  case AstKind::Param:
-    traverse(binder, static_cast<A_Param *>(ast)->id);
-    traverse(binder, static_cast<A_Param *>(ast)->type);
+  }
+  case AstKind::Param: {
+    TRAVEL2(ast, A_Param, id, type);
     break;
-  case AstKind::TopStats:
-    traverse(binder, static_cast<A_TopStats *>(ast)->topStat);
-    traverse(binder, dynamic_cast<Ast *>(static_cast<A_TopStats *>(ast)->next));
+  }
+  case AstKind::TopStats: {
+    TRAVEL2(ast, A_TopStats, topStat, next);
     break;
+  }
     // three child node
-  case AstKind::If:
-    traverse(binder, static_cast<A_If *>(ast)->condition);
-    traverse(binder, static_cast<A_If *>(ast)->thenp);
-    traverse(binder, static_cast<A_If *>(ast)->elsep);
+  case AstKind::If: {
+    TRAVEL3(ast, A_If, condition, thenp, elsep);
     break;
-  case AstKind::LoopCondition:
-    traverse(binder, static_cast<A_LoopCondition *>(ast)->init);
-    traverse(binder, static_cast<A_LoopCondition *>(ast)->condition);
-    traverse(binder, static_cast<A_LoopCondition *>(ast)->update);
+  }
+  case AstKind::LoopCondition: {
+    TRAVEL3(ast, A_LoopCondition, init, condition, update);
     break;
-  case AstKind::LoopEnumerator:
-    traverse(binder, static_cast<A_LoopEnumerator *>(ast)->id);
-    traverse(binder, static_cast<A_LoopEnumerator *>(ast)->type);
-    traverse(binder, static_cast<A_LoopEnumerator *>(ast)->expr);
+  }
+  case AstKind::LoopEnumerator: {
+    TRAVEL3(ast, A_LoopEnumerator, id, type, expr);
     break;
-  case AstKind::Try:
-    traverse(binder, static_cast<A_Try *>(ast)->tryp);
-    traverse(binder, static_cast<A_Try *>(ast)->catchp);
-    traverse(binder, static_cast<A_Try *>(ast)->finallyp);
+  }
+  case AstKind::Try: {
+    TRAVEL3(ast, A_Try, tryp, catchp, finallyp);
     break;
-  case AstKind::FuncDef:
-    traverse(binder, static_cast<A_FuncDef *>(ast)->funcSign);
-    traverse(binder, static_cast<A_FuncDef *>(ast)->resultType);
-    traverse(binder, static_cast<A_FuncDef *>(ast)->body);
+  }
+  case AstKind::FuncDef: {
+    TRAVEL3(ast, A_FuncDef, funcSign, resultType, body);
     break;
-  case AstKind::VarDef:
-    traverse(binder, static_cast<A_VarDef *>(ast)->id);
-    traverse(binder, static_cast<A_VarDef *>(ast)->type);
-    traverse(binder, static_cast<A_VarDef *>(ast)->expr);
+  }
+  case AstKind::VarDef: {
+    TRAVEL3(ast, A_VarDef, id, type, expr);
     break;
+  }
   default:
     LOG_ASSERT(false, "invalid ast node kind: {}", ast->kind()._to_string());
   }
 
   // post visit
-  visitor->postVisit(ast, binder->context());
+  visitor->finishVisit(ast, binder->context());
 }

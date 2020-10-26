@@ -17,15 +17,17 @@ public:
 };
 
 /**
- * For any tree node which contains N (N >= 0) child node:
+ * For any tree node which contains N (N >= 0) children node:
  *
  *         ast
  *        / |..\
  *       c1 c2  cN
  *
- * visitor traverse an entire tree in preorder with:
+ * visitor traverse an entire tree with actions:
  *  - visit
- *  - post visit
+ *  - visit before child
+ *  - visit after child
+ *  - finish visit
  *
  * For example traverse tree node below:
  *
@@ -33,19 +35,28 @@ public:
  *       / | \
  *      a  b  c
  *
- * Fristly visitor arrive ast, do the `visit` action.
- * After visit all child node a, b and c, do `post-visit` action.
+ * 1. Firstly visitor arrive `ast`, do `visit` action.
+ * 2. Before visit each children node a, b and c seperately, visitor do
+ * `visit-before-child` action.
+ * 3. After visit each children node, visitor do `visit-before-child` action.
+ * 4. Finally when visitor leave `ast`, do `finish-visit` action.
  *
- * These 2 actions still execute even if ast doesn't have any children.
+ * `visit` and `finish-visit` actions will always been executed even if ast
+ * doesn't have any children node.
+ *
+ * `visit-before-child` and `visit-after-child` actions will been executed only
+ * if ast has any child node.
  */
 class Visitor : public Nameable {
 public:
-  Visitor(const Cowstr &name = "IdleVisitor");
+  Visitor(const Cowstr &name = "Visitor");
   virtual ~Visitor() = default;
 
   // do nothing by default
   virtual void visit(Ast *ast, VisitorContext *context);
-  virtual void postVisit(Ast *ast, VisitorContext *context);
+  virtual void visitBefore(Ast *ast, Ast *child, VisitorContext *context);
+  virtual void visitAfter(Ast *ast, Ast *child, VisitorContext *context);
+  virtual void finishVisit(Ast *ast, VisitorContext *context);
 
   static void traverse(VisitorBinder *binder, Ast *ast);
 };
@@ -65,19 +76,3 @@ protected:
   VisitorContext *context_;
   Visitor *idleVisitor_;
 };
-
-#define VISITOR_DECL0(x)                                                       \
-  class x : public Visitor {}
-
-#define VISITOR_DECL1(x)                                                       \
-  class x : public Visitor {                                                   \
-  public:                                                                      \
-    virtual void visit(Ast *ast, VisitorContext *context);                     \
-  }
-
-#define VISITOR_DECL2(x)                                                       \
-  class x : public Visitor {                                                   \
-  public:                                                                      \
-    virtual void visit(Ast *ast, VisitorContext *context);                     \
-    virtual void postVisit(Ast *ast, VisitorContext *context);                 \
-  }

@@ -445,7 +445,7 @@ struct Graph {
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.push_back(node);                                                \
     }                                                                          \
-    virtual void postVisit(Ast *ast, VisitorContext *context) {                \
+    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
       Graph *g = static_cast<Context *>(context)->g;                           \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
@@ -462,7 +462,7 @@ struct Graph {
       node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.push_back(node);                                                \
     }                                                                          \
-    virtual void postVisit(Ast *ast, VisitorContext *context) {                \
+    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
       Graph *g = static_cast<Context *>(context)->g;                           \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
@@ -478,7 +478,7 @@ struct Graph {
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.push_back(node);                                                \
     }                                                                          \
-    virtual void postVisit(Ast *ast, VisitorContext *context) {                \
+    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
       Graph *g = static_cast<Context *>(context)->g;                           \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
@@ -497,7 +497,7 @@ struct Graph {
       node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.push_back(node);                                                \
     }                                                                          \
-    virtual void postVisit(Ast *ast, VisitorContext *context) {                \
+    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
       Graph *g = static_cast<Context *>(context)->g;                           \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
@@ -515,7 +515,7 @@ struct Graph {
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.push_back(node);                                                \
     }                                                                          \
-    virtual void postVisit(Ast *ast, VisitorContext *context) {                \
+    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
       Graph *g = static_cast<Context *>(context)->g;                           \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
@@ -718,7 +718,7 @@ struct Block : public Visitor {
                block->name());
     linkAstToScope(block, block->localScope, g);
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     linkAstToAst(ast, static_cast<A_Block *>(ast)->blockStats,
                  BOOST_PP_STRINGIZE(blockStats), g);
@@ -739,7 +739,7 @@ struct CompileUnit : public Visitor {
                compileUnit->name());
     linkAstToScope(compileUnit, compileUnit->globalScope, g);
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     linkAstToAst(ast, static_cast<A_CompileUnit *>(ast)->topStats,
                  BOOST_PP_STRINGIZE(topStats), g);
@@ -765,7 +765,7 @@ struct Loop : public Visitor {
                loop->name());
     linkAstToScope(loop, loop->localScope, g);
   }
-  virtual void postVisit(Ast *ast, VisitorContext *context) {
+  virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     linkAstToAst(ast, static_cast<A_Loop *>(ast)->condition,
                  BOOST_PP_STRINGIZE(condition), g);

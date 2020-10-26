@@ -19,11 +19,11 @@ def replace(s:char, n:int, from:char, fromn:int, to:char, ton:int):char {
     while (i < n) {
         if (n - i >= fromn && strncmp(s+i, from, fromn) == 0) {
             if (to && ton > 0) {
-                print(to, ton)
+                ton = to
             }
             i += fromn
         } else {
-            print(from, fromn)
+            fromn = from
             i++;
         }
     }

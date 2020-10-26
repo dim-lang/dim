@@ -6,9 +6,6 @@
 #include "Visitor.h"
 #include <vector>
 
-class Ast;
-class Scope;
-
 class SymbolBuilder : public Phase {
 public:
   SymbolBuilder();

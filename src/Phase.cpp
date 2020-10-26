@@ -9,14 +9,6 @@ Phase::Phase(const Cowstr &name) : Nameable(name) {}
 PhaseManager::PhaseManager(const std::vector<Phase *> phases)
     : phases_(phases) {}
 
-PhaseManager::~PhaseManager() {
-  for (int i = 0; i < (int)phases_.size(); i++) {
-    delete phases_[i];
-    phases_[i] = nullptr;
-  }
-  phases_.clear();
-}
-
 void PhaseManager::add(Phase *phase) {
   LOG_ASSERT(phase, "phase must not null");
   phases_.push_back(phase);
