@@ -361,11 +361,14 @@ struct ScopeToAstEdge : public GEdge {
 };
 
 struct GEdgeRank {
-  GEdgeRank(GNode *a, GNode *b)
-      : rank(fmt::format("{rank=same {} -> {}}", a->id(), b->id())) {}
-  GEdgeRank(GNode *a, GNode *b, GNode *c)
-      : rank(fmt::format("{rank=same {} -> {} -> {}}", a->id(), b->id(),
-                         c->id())) {}
+  GEdgeRank(GNode *a, GNode *b) {
+    rank =
+        fmt::format("{{rank=same {} -> {} [style=invis]}}", a->id(), b->id());
+  }
+  GEdgeRank(GNode *a, GNode *b, GNode *c) {
+    rank = fmt::format("{{rank=same {} -> {} -> {} [style=invis]}}", a->id(),
+                       b->id(), c->id());
+  }
   virtual ~GEdgeRank() {}
 
   Cowstr rank;
@@ -578,8 +581,8 @@ static void rankAst(GNode *a, GNode *b, Graph *g) {
   LOG_ASSERT(a, "a must not null");
   LOG_ASSERT(b, "b must not null");
   LOG_ASSERT(g, "g must not null");
-  // GEdgeRank *r = new GEdgeRank(a, b);
-  // g->ranks.push_back(r);
+  GEdgeRank *r = new GEdgeRank(a, b);
+  g->ranks.push_back(r);
 }
 
 static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
@@ -587,8 +590,8 @@ static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
   LOG_ASSERT(b, "b must not null");
   LOG_ASSERT(c, "c must not null");
   LOG_ASSERT(g, "g must not null");
-  // GEdgeRank *r = new GEdgeRank(a, b, c);
-  // g->ranks.push_back(r);
+  GEdgeRank *r = new GEdgeRank(a, b, c);
+  g->ranks.push_back(r);
 }
 
 static void linkAstToVar(A_VarId *varId, Graph *g) {
