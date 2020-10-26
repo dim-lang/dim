@@ -6,10 +6,10 @@
 #include "Visitor.h"
 #include <vector>
 
-class SymbolReviewer : public Phase {
+class SymbolResolver : public Phase {
 public:
-  SymbolReviewer();
-  virtual ~SymbolReviewer();
+  SymbolResolver();
+  virtual ~SymbolResolver();
   virtual void run(Ast *ast);
 
 private:

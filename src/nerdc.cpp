@@ -7,7 +7,7 @@
 #include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
-#include "SymbolReviewer.h"
+#include "SymbolResolver.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
@@ -22,7 +22,7 @@
 
 static Drawer drawer;
 static SymbolBuilder symbolBuilder;
-static SymbolReviewer symbolReviewer;
+static SymbolResolver symbolResolver;
 
 #define OPT_HELP "help"
 #define OPT_VERSION "version"
@@ -101,7 +101,7 @@ private:
 };
 
 static void dumpAst(const std::vector<std::string> &fileNameList) {
-  PhaseManager pm({&symbolBuilder, &symbolReviewer, &drawer});
+  PhaseManager pm({&symbolBuilder, &symbolResolver, &drawer});
   for (int i = 0; i < (int)fileNameList.size(); i++) {
     std::string fileName = fileNameList[i];
     Scanner scanner(fileName);

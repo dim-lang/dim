@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "SymbolReviewer.h"
+#include "SymbolResolver.h"
 #include "Ast.h"
 #include "Log.h"
 #include "Name.h"
@@ -11,7 +11,7 @@
 
 namespace detail {
 
-namespace symbol_reviewer {
+namespace symbol_resolver {
 
 struct Context : public VisitorContext {
   Context() : scope(nullptr) {}
@@ -19,7 +19,7 @@ struct Context : public VisitorContext {
 };
 
 struct Loop : public Visitor {
-  Loop() : Visitor("SymbolReviewer::Loop::Visitor") {}
+  Loop() : Visitor("SymbolResolver::Loop::Visitor") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push loop scope down to subscope
     static_cast<Context *>(context)->scope =
@@ -33,7 +33,7 @@ struct Loop : public Visitor {
 };
 
 struct Block : public Visitor {
-  Block() : Visitor("SymbolReviewer::Block::Visitor") {}
+  Block() : Visitor("SymbolResolver::Block::Visitor") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push block scope down to subscope
     static_cast<Context *>(context)->scope =
@@ -47,7 +47,7 @@ struct Block : public Visitor {
 };
 
 struct FuncDef : public Visitor {
-  FuncDef() : Visitor("SymbolReviewer::FuncDef::Visitor") {}
+  FuncDef() : Visitor("SymbolResolver::FuncDef::Visitor") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_FuncDef *e = static_cast<A_FuncDef *>(ast);
@@ -65,7 +65,7 @@ struct FuncDef : public Visitor {
 };
 
 struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("SymbolReviewer::CompileUnit::Visitor") {}
+  CompileUnit() : Visitor("SymbolResolver::CompileUnit::Visitor") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // pass global scope down to subscope
     static_cast<Context *>(context)->scope =
@@ -83,7 +83,7 @@ struct CompileUnit : public Visitor {
 };
 
 struct VarId : public Visitor {
-  VarId() : Visitor("SymbolReviewer::VarId::Visitor") {}
+  VarId() : Visitor("SymbolResolver::VarId::Visitor") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Scope *scope = static_cast<Context *>(context)->scope;
     A_VarId *varId = static_cast<A_VarId *>(ast);
@@ -120,21 +120,21 @@ struct VarId : public Visitor {
   }
 };
 
-} // namespace symbol_reviewer
+} // namespace symbol_resolver
 
 } // namespace detail
 
-// SymbolReviewer {
+// SymbolResolver {
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new detail::symbol_reviewer::x();                             \
+    Visitor *v = new detail::symbol_resolver::x();                             \
     binder_.bind((+AstKind::x)._to_integral(), v);                             \
     visitors_.push_back(v);                                                    \
   } while (0)
 
-SymbolReviewer::SymbolReviewer()
-    : Phase("SymbolReviewer"), context_(new detail::symbol_reviewer::Context()),
+SymbolResolver::SymbolResolver()
+    : Phase("SymbolResolver"), context_(new detail::symbol_resolver::Context()),
       binder_(context_) {
   BIND(Loop);
   BIND(Block);
@@ -143,7 +143,7 @@ SymbolReviewer::SymbolReviewer()
   BIND(VarId);
 }
 
-SymbolReviewer::~SymbolReviewer() {
+SymbolResolver::~SymbolResolver() {
   delete context_;
   context_ = nullptr;
   for (int i = 0; i < (int)visitors_.size(); i++) {
@@ -154,6 +154,6 @@ SymbolReviewer::~SymbolReviewer() {
   visitors_.clear();
 }
 
-void SymbolReviewer::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
+void SymbolResolver::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
 
-// SymbolReviewer }
+// SymbolResolver }

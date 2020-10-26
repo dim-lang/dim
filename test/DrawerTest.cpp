@@ -6,7 +6,7 @@
 #include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
-#include "SymbolReviewer.h"
+#include "SymbolResolver.h"
 #include "catch2/catch.hpp"
 
 static void testDrawer(const Cowstr &fileName) {
@@ -14,10 +14,10 @@ static void testDrawer(const Cowstr &fileName) {
   REQUIRE(scanner.parse() == 0);
 
   SymbolBuilder builder;
-  SymbolReviewer reviewer;
+  SymbolResolver resolver;
   Drawer drawer(fileName + ".dot");
 
-  PhaseManager pm({&builder, &reviewer, &drawer});
+  PhaseManager pm({&builder, &resolver, &drawer});
   pm.run(scanner.compileUnit());
 }
 
