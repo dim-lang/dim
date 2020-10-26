@@ -29,6 +29,7 @@ BETTER_ENUM(TypeSymbolKind, int,
             Class)
 
 class Ast;
+class A_VarId;
 class Symbol;
 class TypeSymbol;
 class Scope;
@@ -93,8 +94,7 @@ public:
   virtual ~Symbol() = default;
   virtual SymbolKind kind() const = 0;
 
-  static bool isSymbol(Symbol *sym);
-  static bool isTypeSymbol(Symbol *sym);
+  static bool isDefined(A_VarId *ast);
 };
 
 class TypeSymbol : public virtual Nameable,
@@ -107,6 +107,7 @@ public:
   virtual ~TypeSymbol() = default;
   virtual TypeSymbolKind kind() const = 0;
 
+  static bool isDefined(A_VarId *ast);
   static TypeSymbol *ts_byte();
   static TypeSymbol *ts_ubyte();
   static TypeSymbol *ts_short();

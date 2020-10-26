@@ -199,9 +199,17 @@ Scope::sc_const_iterator ScopeImpl::subscope_cend() const {
 
 Symbol::Symbol(TypeSymbol *type) : detail::Typeable(type) {}
 
+bool Symbol::isDefined(A_VarId *ast) {
+  return ast->symbol && ast->symbol->ast() == ast;
+}
+
 // Symbol }
 
 // TypeSymbol {
+
+bool TypeSymbol::isDefined(A_VarId *ast) {
+  ast->typeSymbol && ast->typeSymbol->ast() == ast;
+}
 
 TypeSymbol *TypeSymbol::ts_byte() {
   static TypeSymbol *ts(new Ts_Plain("byte"));

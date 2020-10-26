@@ -716,7 +716,7 @@ struct VarId : public Visitor {
     if (varId->symbol) {
       switch (varId->symbol->kind()) {
       case SymbolKind::Var: {
-        if (isSymbolDefined(varId)) {
+        if (Symbol::isDefined(varId)) {
           defineAstToVar(varId, g);
         } else {
           resolveAstToVar(varId, g);
@@ -724,7 +724,7 @@ struct VarId : public Visitor {
         break;
       }
       case SymbolKind::Param: {
-        if (isSymbolDefined(varId)) {
+        if (Symbol::isDefined(varId)) {
           defineAstToParam(varId, g);
         } else {
           resolveAstToParam(varId, g);
@@ -732,7 +732,7 @@ struct VarId : public Visitor {
         break;
       }
       case SymbolKind::Func: {
-        if (isSymbolDefined(varId)) {
+        if (Symbol::isDefined(varId)) {
           defineAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
         } else {
           resolveAstToScope(varId, static_cast<S_Func *>(varId->symbol), g);
@@ -746,7 +746,7 @@ struct VarId : public Visitor {
     } else if (varId->typeSymbol) {
       switch (varId->typeSymbol->kind()) {
       case TypeSymbolKind::Class: {
-        if (isTypeSymbolDefined(varId)) {
+        if (TypeSymbol::isDefined(varId)) {
           defineAstToClass(varId, g);
         } else {
           resolveAstToClass(varId, g);
@@ -764,12 +764,6 @@ struct VarId : public Visitor {
       LOG_ASSERT(false, "invalid varId {}:{}", varId->name(),
                  varId->location().str());
     }
-  }
-  bool isSymbolDefined(A_VarId *varId) {
-    return varId->symbol && varId->symbol->ast() == varId;
-  }
-  bool isTypeSymbolDefined(A_VarId *varId) {
-    return varId->typeSymbol && varId->typeSymbol->ast() == varId;
   }
 };
 
