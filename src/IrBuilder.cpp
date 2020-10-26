@@ -4,6 +4,7 @@
 #include "IrBuilder.h"
 #include "Ast.h"
 #include "Log.h"
+#include "Symbol.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/GlobalValue.h"
 #include "llvm/IR/GlobalVariable.h"
@@ -16,9 +17,29 @@ namespace detail {
 namespace ir_builder {
 
 struct Context : public VisitorContext {
-  Context() : llvmValue(nullptr) {}
+  Context()
+      : llvmContext(nullptr), llvmModule(nullptr), llvmIRBuilder(nullptr),
+        llvmValue(nullptr) {}
+
+  virtual ~Context() {
+    if (llvmIRBuilder) {
+      delete llvmIRBuilder;
+      llvmIRBuilder = nullptr;
+    }
+    if (llvmModule) {
+      delete llvmModule;
+      llvmModule = nullptr;
+    }
+    if (llvmContext) {
+      delete llvmContext;
+      llvmContext = nullptr;
+    }
+  }
+
   llvm::LLVMContext *llvmContext;
-  llvm::Value *value;
+  llvm::Module *llvmModule;
+  llvm::IRBuilder<> *llvmIRBuilder;
+  llvm::Value *llvmValue;
 };
 
 struct Integer : public Visitor {
@@ -57,7 +78,15 @@ struct Integer : public Visitor {
 
 struct CompileUnit : public Visitor {
   CompileUnit() : Visitor("IrBuilder::CompileUnit::Visitor") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {}
+  virtual void visit(Ast *ast, VisitorContext *context) {
+    detail::ir_builder::Context *ctx =
+        static_cast<detail::ir_builder::Context *>(context_);
+    A_CompileUnit *node = static_cast<A_CompileUnit *>(ast);
+
+    ctx->llvmContext = new llvm::LLVMContext();
+    ctx->llvmModule = new llvm::Module(node->name().str(), *ctx->llvmContext);
+    ctx->llvmIRBuilder = new llvm::IRBuilder<>(*ctx->llvmContext);
+  }
 };
 
 } // namespace ir_builder
@@ -65,11 +94,11 @@ struct CompileUnit : public Visitor {
 } // namespace detail
 
 IrBuilder::IrBuilder()
-    : context_(new detail::ir_builder::Context()), binder_(context_) {
-  detail::ir_builder::Context *ctx =
-      static_cast<detail::ir_builder::Context *>(context_);
+    : context_(new detail::ir_builder::Context()), binder_(context_) {}
+
+IrBuilder::~IrBuilder() {
+  delete context_;
+  context_ = nullptr;
 }
 
-IrBuilder::~IrBuilder() {}
-
-void IrBuilder::run(Ast *ast);
+void IrBuilder::run(Ast *ast) {}
