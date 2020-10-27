@@ -20,7 +20,7 @@
 
 namespace detail {
 
-namespace graph {
+namespace drawer {
 
 static CounterNameGenerator CNG;
 
@@ -452,7 +452,7 @@ struct Graph {
 // kind, id, location
 #define DECL1(x)                                                               \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -463,7 +463,7 @@ struct Graph {
 // kind, id, location, literal
 #define DECL2(x)                                                               \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -475,7 +475,7 @@ struct Graph {
 // kind, id, location, token
 #define DECL3(x, astype, tok)                                                  \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -487,7 +487,7 @@ struct Graph {
 // kind, id, location, child1
 #define DECL4(x, astype, child1)                                               \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -503,7 +503,7 @@ struct Graph {
 // kind, id, location, token, child1
 #define DECL5(x, astype, tok, child1)                                          \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -520,7 +520,7 @@ struct Graph {
 // kind, id, location, child1, child2
 #define DECL6(x, astype, child1, child2)                                       \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -539,7 +539,7 @@ struct Graph {
 // kind, id, location, token, child1, child2
 #define DECL7(x, astype, tok, child1, child2)                                  \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -559,7 +559,7 @@ struct Graph {
 // kind, id, location, child1, child2, child3
 #define DECL8(x, astype, child1, child2, child3)                               \
   struct x : public Visitor {                                                  \
-    x() : Visitor("Graph::" BOOST_PP_STRINGIZE(x) "::Visitor") {}              \
+    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
     virtual void visit(Ast *ast, VisitorContext *context) {                    \
       Graph *g = static_cast<Context *>(context)->g;                           \
       AstNode *node = new AstNode(ast);                                        \
@@ -700,7 +700,7 @@ DECL2(Character)
 DECL2(String)
 
 struct VarId : public Visitor {
-  VarId() : Visitor("Graph::VarId::Visitor") {}
+  VarId() : Visitor("Drawer::Visitor::VarId") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
 
@@ -762,7 +762,7 @@ struct VarId : public Visitor {
       }
     } else {
       LOG_ASSERT(false, "invalid varId {}:{}", varId->name(),
-                 varId->location().str());
+                 varId->location());
     }
   }
 };
@@ -774,7 +774,7 @@ DECL4(Return, A_Return, expr)
 DECL4(Yield, A_Yield, expr)
 
 struct Block : public Visitor {
-  Block() : Visitor("Graph::Block::Visitor") {}
+  Block() : Visitor("Drawer::Visitor::Block") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     AstNode *node = new AstNode(ast);
@@ -794,7 +794,7 @@ struct Block : public Visitor {
 };
 
 struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("Graph::CompileUnit::Visitor") {}
+  CompileUnit() : Visitor("Drawer::Visitor::CompileUnit") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     AstNode *node = new AstNode(ast);
@@ -821,7 +821,7 @@ DECL6(Call, A_Call, id, args)
 DECL6(Exprs, A_Exprs, expr, next)
 
 struct Loop : public Visitor {
-  Loop() : Visitor("Graph::Loop::Visitor") {}
+  Loop() : Visitor("Drawer::Visitor::Loop") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Graph *g = static_cast<Context *>(context)->g;
     AstNode *node = new AstNode(ast);
@@ -859,20 +859,20 @@ DECL8(Try, A_Try, tryp, catchp, finallyp)
 DECL8(FuncDef, A_FuncDef, funcSign, resultType, body)
 DECL8(VarDef, A_VarDef, id, type, expr)
 
-} // namespace graph
+} // namespace drawer
 
 } // namespace detail
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new detail::graph::x();                                       \
+    Visitor *v = new detail::drawer::x();                                      \
     binder_.bind((+AstKind::x)._to_integral(), v);                             \
     visitors_.push_back(v);                                                    \
   } while (0)
 
 Drawer::Drawer(const Cowstr &output)
     : Phase("Drawer"), fileName_(output),
-      context_(new detail::graph::Context()), binder_(context_) {
+      context_(new detail::drawer::Context()), binder_(context_) {
   BIND(Nil);
   BIND(Void);
   BIND(Break);
@@ -931,8 +931,8 @@ Drawer::~Drawer() {
 }
 
 void Drawer::run(Ast *ast) {
-  detail::graph::Graph g;
-  static_cast<detail::graph::Context *>(context_)->g = &g;
+  detail::drawer::Graph g;
+  static_cast<detail::drawer::Context *>(context_)->g = &g;
   Visitor::traverse(&binder_, ast);
   g.draw(fileName_);
 }

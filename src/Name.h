@@ -64,11 +64,12 @@ public:
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;
     ss << nameGenerator_.generate(args...) << nameGenerator_.delimiter
-       << Counter::instance("CounterNameGenerator")->count();
+       << CoutnerNameGeneratorCounter_.count();
     return ss.str();
   }
 
 private:
+  static Counter CoutnerNameGeneratorCounter_;
   NameGenerator nameGenerator_;
 };
 

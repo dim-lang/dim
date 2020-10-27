@@ -9,6 +9,7 @@
 #include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
+#include "llvm/IR/Value.h"
 
 BETTER_ENUM(SymbolKind, int,
             // symbol
@@ -69,6 +70,17 @@ protected:
   Ast *astable_;
 };
 
+class LLVMValuable {
+public:
+  LLVMValuable(llvm::Value *value = nullptr);
+  virtual ~LLVMValuable() = default;
+  virtual llvm::Value *&llvmValue();
+  virtual llvm::Value *llvmValue() const;
+
+protected:
+  llvm::Value *llvmValuable_;
+};
+
 } // namespace detail
 
 /**
@@ -87,6 +99,7 @@ class Symbol : public virtual Nameable,
                public virtual Identifiable,
                public virtual detail::Ownable,
                public virtual detail::Astable,
+               public virtual detail::LLVMValuable,
                public detail::Typeable,
                private boost::noncopyable {
 public:
@@ -102,6 +115,7 @@ class TypeSymbol : public virtual Nameable,
                    public virtual Identifiable,
                    public virtual detail::Ownable,
                    public virtual detail::Astable,
+                   public virtual detail::LLVMValuable,
                    private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
@@ -128,6 +142,7 @@ class Scope : public virtual Nameable,
               public virtual Identifiable,
               public virtual detail::Ownable,
               public virtual detail::Astable,
+              public virtual detail::LLVMValuable,
               private boost::noncopyable {
 public:
   using s_map = LinkedHashMap<Cowstr, Symbol *>;

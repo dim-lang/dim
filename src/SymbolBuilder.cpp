@@ -21,7 +21,7 @@ struct Context : public VisitorContext {
 };
 
 struct Loop : public Visitor {
-  Loop() : Visitor("SymbolBuilder::Loop::Visitor") {}
+  Loop() : Visitor("SymbolBuilder::Visitor::Loop") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_Loop *e = static_cast<A_Loop *>(ast);
@@ -44,7 +44,7 @@ struct Loop : public Visitor {
 };
 
 struct LoopEnumerator : public Visitor {
-  LoopEnumerator() : Visitor("SymbolBuilder::LoopEnumerator::Visitor") {}
+  LoopEnumerator() : Visitor("SymbolBuilder::Visitor::LoopEnumerator") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_LoopEnumerator *e = static_cast<A_LoopEnumerator *>(ast);
@@ -65,7 +65,7 @@ struct LoopEnumerator : public Visitor {
 };
 
 struct Block : public Visitor {
-  Block() : Visitor("SymbolBuilder::Block::Visitor") {}
+  Block() : Visitor("SymbolBuilder::Visitor::Block") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_Block *e = static_cast<A_Block *>(ast);
@@ -88,7 +88,7 @@ struct Block : public Visitor {
 };
 
 struct VarDef : public Visitor {
-  VarDef() : Visitor("SymbolBuilder::VarDef::Visitor") {}
+  VarDef() : Visitor("SymbolBuilder::Visitor::VarDef") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_VarDef *e = static_cast<A_VarDef *>(ast);
@@ -109,7 +109,7 @@ struct VarDef : public Visitor {
 };
 
 struct Param : public Visitor {
-  Param() : Visitor("SymbolBuilder::Param::Visitor") {}
+  Param() : Visitor("SymbolBuilder::Visitor::Param") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_Param *e = static_cast<A_Param *>(ast);
@@ -137,7 +137,7 @@ struct Param : public Visitor {
 };
 
 struct FuncDef : public Visitor {
-  FuncDef() : Visitor("SymbolBuilder::FuncDef::Visitor") {}
+  FuncDef() : Visitor("SymbolBuilder::Visitor::FuncDef") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_FuncDef *e = static_cast<A_FuncDef *>(ast);
@@ -177,7 +177,7 @@ struct FuncDef : public Visitor {
 };
 
 struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("SymbolBuilder::CompileUnit::Visitor") {}
+  CompileUnit() : Visitor("SymbolBuilder::Visitor::CompileUnit") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);

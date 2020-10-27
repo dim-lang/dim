@@ -6,8 +6,9 @@
 #include "fmt/format.h"
 #include <string>
 
-Identifiable::Identifiable()
-    : identifiable_(Counter::instance("Identifiable")->count()) {}
+static Counter IdentifyCounter;
+
+Identifiable::Identifiable() : identifiable_(IdentifyCounter.count()) {}
 
 unsigned long long Identifiable::identifier() const { return identifiable_; }
 

@@ -3,6 +3,8 @@
 
 #include "Name.h"
 
+Counter CounterNameGenerator::CoutnerNameGeneratorCounter_;
+
 Nameable::Nameable(const Cowstr &name) : nameable_(name) {}
 
 Cowstr &Nameable::name() { return nameable_; }
