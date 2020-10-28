@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #include "Token.h"
-#include "Log.h"
+#include "infra/Log.h"
 #include "parser.tab.hh"
 #include <unordered_map>
 

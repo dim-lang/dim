@@ -2,12 +2,22 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
-#include "Identifiable.h"
-#include "Location.h"
-#include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
+#include "iface/Identifiable.h"
+#include "iface/LLVMModular.h"
+#include "iface/LLVMTypable.h"
+#include "iface/LLVMValuable.h"
+#include "iface/Locationable.h"
+#include "iface/Nameable.h"
+#include "iface/Scoped.h"
+#include "iface/Symbolizable.h"
+#include "iface/TypeSymbolizable.h"
+#include "infra/Cowstr.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
@@ -34,10 +44,6 @@ BETTER_ENUM(AstKind, int,
             CompileUnit, TopStats)
 
 /*================ class ================*/
-
-class Symbol;
-class TypeSymbol;
-class Scope;
 
 /* ast */
 class Ast;
@@ -116,30 +122,19 @@ public:
 
 // literal {
 
-class A_Integer : public Ast {
+class A_Integer : public Ast, public LLVMValuable {
 public:
-  // DecimalKind:
-  // DEC: base 10
-  // HEX: base 16
-  // BIN: base 2
-  // OCT: base 8
-  enum class DecimalKind { DEC = 100, HEX, BIN, OCT };
-
-  // BitKind:
-  // SIGNED: 32 bit signed
-  // UNSIGNED: 32 bit unsigned
-  // LONG: 64 bit signed long
-  // ULONG: 64 bit unsigned long
-  enum class BitKind { SIGNED = 110, UNSIGNED, LONG, ULONG };
-
   A_Integer(const Cowstr &literal, const Location &location);
   virtual ~A_Integer() = default;
   virtual AstKind kind() const;
 
-  virtual int bits() const;
+  // 32, 64
+  virtual int bit() const;
+  // signed or unsigned
+  virtual bool isSigned() const;
+  // 2, 8, 10, 16
   virtual int base() const;
-  virtual DecimalKind decimalKind() const;
-  virtual BitKind bitKind() const;
+  // integer value
   virtual int32_t asInt32() const;
   virtual uint32_t asUInt32() const;
   virtual int64_t asInt64() const;
@@ -147,55 +142,44 @@ public:
 
 private:
   Cowstr parsed_;
-  int bits_;
+  int bit_;
+  bool isSigned_;
   int base_;
-  DecimalKind decimalKind_;
-  BitKind bitKind_;
 };
 
-class A_Float : public Ast {
+class A_Float : public Ast, public LLVMValuable {
 public:
-  // BitKind:
-  // FLT: 32 bit
-  // DBL: 64 bit
-  enum class BitKind { FLT = 130, DBL };
-
   A_Float(const Cowstr &literal, const Location &location);
   virtual ~A_Float() = default;
   virtual AstKind kind() const;
 
-  virtual int bits() const;
-  virtual BitKind bitKind() const;
+  // 32, 64
+  virtual int bit() const;
+  // floating point value
   virtual float asFloat() const;
   virtual double asDouble() const;
 
 private:
   Cowstr parsed_;
-  int bits_;
-  BitKind bitKind_;
+  int bit_;
 };
 
 // string literal
-class A_String : public Ast {
+class A_String : public Ast, public LLVMValuable {
 public:
-  // QuoteKind
-  // Single: "
-  // TRIPLE: """
-  enum class QuoteKind { SINGLE = 140, TRIPLE };
-
   A_String(const Cowstr &literal, const Location &location);
   virtual ~A_String() = default;
   virtual AstKind kind() const;
 
-  virtual QuoteKind quoteKind() const;
+  virtual bool isMultipleLine() const;
   virtual const Cowstr &asString() const;
 
 private:
   Cowstr parsed_;
-  QuoteKind quoteKind_;
+  bool isMultipleLine_;
 };
 
-class A_Character : public Ast {
+class A_Character : public Ast, public LLVMValuable {
 public:
   A_Character(const Cowstr &literal, const Location &location);
   virtual ~A_Character() = default;
@@ -207,7 +191,7 @@ private:
   char parsed_;
 };
 
-class A_Boolean : public Ast {
+class A_Boolean : public Ast, public LLVMValuable {
 public:
   A_Boolean(const Cowstr &literal, const Location &location);
   virtual ~A_Boolean() = default;
@@ -243,14 +227,11 @@ public:
 //   nullptr); virtual ~AstId() = default;
 // };
 
-class A_VarId : public Ast {
+class A_VarId : public Ast, public Symbolizable, public TypeSymbolizable {
 public:
   A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
-
-  Symbol *symbol;
-  TypeSymbol *typeSymbol;
 };
 
 // id }
@@ -360,15 +341,13 @@ public:
 };
 
 // for and while
-class A_Loop : public Ast {
+class A_Loop : public Ast, public Scoped {
 public:
   A_Loop(Ast *a_condition, Ast *a_body, const Location &location);
   virtual ~A_Loop();
   virtual AstKind kind() const;
   Ast *condition;
   Ast *body;
-
-  Scope *localScope;
 };
 
 class A_Yield : public Ast {
@@ -420,14 +399,12 @@ public:
   Ast *finallyp;
 };
 
-class A_Block : public Ast {
+class A_Block : public Ast, public Scoped {
 public:
   A_Block(A_BlockStats *a_blockStats, const Location &location);
   virtual ~A_Block();
   virtual AstKind kind() const;
   A_BlockStats *blockStats;
-
-  Scope *localScope;
 };
 
 class A_BlockStats : public Ast {
@@ -451,7 +428,7 @@ public:
 //   virtual ~AstType() = default;
 // };
 
-class A_PlainType : public Ast {
+class A_PlainType : public Ast, public LLVMTypable {
 public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
@@ -528,15 +505,13 @@ public:
   A_TopStats *next;
 };
 
-class A_CompileUnit : public Ast {
+class A_CompileUnit : public Ast, public Scoped, public LLVMModular {
 public:
   A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                 const Location &location);
   virtual ~A_CompileUnit();
   virtual AstKind kind() const;
   A_TopStats *topStats;
-
-  Scope *globalScope;
 };
 
 // compile unit }

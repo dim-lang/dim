@@ -4,15 +4,20 @@
 #pragma once
 #include "Phase.h"
 #include "Visitor.h"
+#include "infra/Cowstr.h"
+#include "llvm/IR/LLVMContext.h"
 #include <vector>
 
 class IrBuilder : public Phase {
 public:
-  IrBuilder();
+  IrBuilder(const Cowstr &fileName = "");
   virtual ~IrBuilder();
   virtual void run(Ast *ast);
+  virtual Cowstr &fileName();
+  virtual const Cowstr &fileName() const;
 
 private:
+  Cowstr fileName_;
   std::vector<Visitor *> visitors_;
   VisitorContext *context_;
   VisitorBinder binder_;

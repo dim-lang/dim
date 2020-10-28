@@ -3,7 +3,7 @@
 
 #include "Scanner.h"
 #include "Ast.h"
-#include "Log.h"
+#include "infra/Log.h"
 #include "tokenizer.yy.hh"
 #include <algorithm>
 

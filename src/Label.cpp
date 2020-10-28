@@ -2,30 +2,46 @@
 // Apache License Version 2.0
 
 #include "Label.h"
-#include "Log.h"
+#include "Ast.h"
 #include "fmt/format.h"
+#include "infra/Log.h"
 #include <algorithm>
 
-Label::Label(const Cowstr &prefix, const Cowstr &delimiter)
-    : prefix_(prefix), delimiter_(delimiter) {}
+#define L_GVAR "$global.variable."
+#define L_LVAR "$local.variable."
+#define L_FUNC "$function."
+#define L_MOD "$module."
 
-Cowstr Label::encode(Ast *ast) {
-  Cowstr name = ast->name();
-  Cowstr location = Cowstr(ast->location().str()).replace('-', '_');
-  Cowstr result =
-      fmt::format("{0}{1}{2}{1}{3}", prefix_, delimiter_, name, location);
-  result = fmt::format("{0}{1}{2:x}", result, delimiter_,
-                       std::hash<Cowstr>()(result));
-  return result;
+Cowstr Label::globalVariable(Ast *ast) {
+  LOG_ASSERT(ast, "ast must not null");
+  return fmt::format(L_GVAR "{}.{}", ast->name(), ast->location());
 }
 
-Cowstr Label::decode(const Cowstr &value) {
-  LOG_ASSERT(value.length() > prefix_.length() + 3 * delimiter_.length(),
-             "value.length {} > prefix_.length {} + 3 * delimiter_.length {}",
-             value.length(), prefix_.length(), delimiter_.length());
-  Cowstr result = value.subString(prefix_.length() + delimiter_.length());
-  LOG_ASSERT(result.find(delimiter_) >= 0,
-             "result {} contains delimiter_ {} at: {}", result, delimiter_,
-             result.find(delimiter_));
-  return result.subString(0, result.find(delimiter_));
+Cowstr Label::localVariable(Ast *ast) {
+  LOG_ASSERT(ast, "ast must not null");
+  return fmt::format(L_LVAR "{}.{}", ast->name(), ast->location());
+}
+
+Cowstr Label::function(Ast *ast) {
+  LOG_ASSERT(ast, "ast must not null");
+  return fmt::format(L_FUNC "{}.{}", ast->name(), ast->location());
+}
+
+Cowstr Label::modules(Ast *ast) {
+  LOG_ASSERT(ast, "ast must not null");
+  return fmt::format(L_MOD "{}.{}", ast->name(), ast->location());
+}
+
+Label::LabelType Label::what(const Cowstr &label) {
+  if (label.startWith(L_GVAR)) {
+    return Label::GLOBAL_VARIABLE;
+  } else if (label.startWith(L_LVAR)) {
+    return Label::LOCAL_VARIABLE;
+  } else if (label.startWith(L_FUNC)) {
+    return Label::FUNCTION;
+  } else if (label.startWith(L_MOD)) {
+    return Label::MODULE;
+  } else {
+    return Label::UNKNOWN;
+  }
 }

@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
 #include "fmt/format.h"
+#include "infra/Cowstr.h"
 #include "parser.tab.hh"
 #include <iostream>
 
@@ -51,17 +51,6 @@ public:
   bool operator>=(const Location &loc) const;
   bool operator<(const Location &loc) const;
   bool operator<=(const Location &loc) const;
-};
-
-class Locationable {
-public:
-  Locationable(const Location &location = Location());
-  virtual ~Locationable() = default;
-  virtual Location &location();
-  virtual const Location &location() const;
-
-protected:
-  Location locationable_;
 };
 
 std::ostream &operator<<(std::ostream &os, const Location &loc);

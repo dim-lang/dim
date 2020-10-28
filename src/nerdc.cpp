@@ -3,7 +3,6 @@
 
 #include "Configure.h"
 #include "Drawer.h"
-#include "Log.h"
 #include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
@@ -12,10 +11,7 @@
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
-#include "parser.tab.hh"
 #include <exception>
-#include <iostream>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>

@@ -3,7 +3,7 @@
 
 #include "Visitor.h"
 #include "Ast.h"
-#include "Log.h"
+#include "infra/Log.h"
 #include <utility>
 
 VisitorBinder::VisitorBinder(VisitorContext *context)

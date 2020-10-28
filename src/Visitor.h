@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
-#include "Name.h"
+#include "iface/Nameable.h"
+#include "infra/Cowstr.h"
 #include <unordered_map>
 #include <vector>
 

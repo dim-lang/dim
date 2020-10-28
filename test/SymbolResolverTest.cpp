@@ -3,7 +3,6 @@
 
 #include "SymbolResolver.h"
 #include "Ast.h"
-#include "Log.h"
 #include "Phase.h"
 #include "Scanner.h"
 #include "Symbol.h"
@@ -13,10 +12,8 @@
 static void testSymbolResolver(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
-
   SymbolBuilder builder;
   SymbolResolver resolver;
-
   PhaseManager pm({&builder, &resolver});
   pm.run(scanner.compileUnit());
 }

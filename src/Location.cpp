@@ -73,13 +73,6 @@ bool Location::operator<=(const Location &loc) const {
 
 // Location }
 
-Locationable::Locationable(const Location &location)
-    : locationable_(location) {}
-
-Location &Locationable::location() { return locationable_; }
-
-const Location &Locationable::location() const { return locationable_; }
-
 std::ostream &operator<<(std::ostream &os, const Location &loc) {
   os << loc.str().str();
   return os;

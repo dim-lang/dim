@@ -32,12 +32,12 @@ BC  ("/*"((("*"[^/])?)|[^*])*"*/")
 LC  ("//".*\n)
 
 %{
+#include "infra/Log.h"
+#include "infra/Strings.h"
+#include "Scanner.h"
+#include "parser.tab.hh"
 #include <string>
 #include <cctype>
-#include "Log.h"
-#include "Scanner.h"
-#include "Strings.h"
-#include "parser.tab.hh"
 
 #define T_SCANNER               (static_cast<Scanner*>(yyextra))
 #define T_EAT_PARENTHESES(t)    do {    \
