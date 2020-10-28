@@ -7,10 +7,7 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
-#include "iface/Nameable.h"
 #include "iface/Scoped.h"
-#include "iface/Symbolizable.h"
-#include "iface/TypeSymbolizable.h"
 #include "infra/Log.h"
 
 namespace detail {

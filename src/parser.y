@@ -7,8 +7,6 @@
 %param {yyscan_t yyscanner}
 
 %code top {
-#include "infra/Log.h"
-#include "infra/Strings.h"
 #include "Location.h"
 #include "Ast.h"
 #include "Scanner.h"

@@ -20,7 +20,6 @@
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/raw_ostream.h"
 #include <system_error>
-#include <unordered_map>
 #include <utility>
 
 namespace detail {

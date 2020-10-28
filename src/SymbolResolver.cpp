@@ -6,28 +6,26 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
+#include "iface/Scoped.h"
 #include "infra/Log.h"
 
 namespace detail {
 
 namespace symbol_resolver {
 
-struct Context : public VisitorContext {
-  Context() : scope(nullptr) {}
-  Scope *scope;
-};
+struct Context : public VisitorContext, public Scoped {};
 
 struct Loop : public Visitor {
   Loop() : Visitor("SymbolResolver::Visitor::Loop") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push loop scope down to subscope
-    static_cast<Context *>(context)->scope =
+    static_cast<Context *>(context)->scope() =
         static_cast<A_Loop *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop loop scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
-    ctx->scope = ctx->scope->owner();
+    ctx->scope() = ctx->scope()->owner();
   }
 };
 
@@ -35,13 +33,13 @@ struct Block : public Visitor {
   Block() : Visitor("SymbolResolver::Visitor::Block") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push block scope down to subscope
-    static_cast<Context *>(context)->scope =
+    static_cast<Context *>(context)->scope() =
         static_cast<A_Block *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
-    ctx->scope = ctx->scope->owner();
+    ctx->scope() = ctx->scope()->owner();
   }
 };
 
@@ -54,12 +52,12 @@ struct FuncDef : public Visitor {
     A_VarId *varId = static_cast<A_VarId *>(sign->id);
 
     // push block scope down to subscope
-    ctx->scope = dynamic_cast<Scope *>(varId->symbol());
+    ctx->scope() = dynamic_cast<Scope *>(varId->symbol());
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
-    ctx->scope = ctx->scope->owner();
+    ctx->scope() = ctx->scope()->owner();
   }
 };
 
@@ -67,24 +65,24 @@ struct CompileUnit : public Visitor {
   CompileUnit() : Visitor("SymbolResolver::Visitor::CompileUnit") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
     // pass global scope down to subscope
-    static_cast<Context *>(context)->scope =
+    static_cast<Context *>(context)->scope() =
         static_cast<A_CompileUnit *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop global scope back to owner scope
     Context *ctx = static_cast<Context *>(context);
-    ctx->scope = ctx->scope->owner();
+    ctx->scope() = ctx->scope()->owner();
     LOG_ASSERT(
-        !ctx->scope,
+        !ctx->scope(),
         "global scope must has no owner scope, but the owner is not null:{}!",
-        ctx->scope->name());
+        ctx->scope()->name());
   }
 };
 
 struct VarId : public Visitor {
   VarId() : Visitor("SymbolResolver::Visitor::VarId") {}
   virtual void visit(Ast *ast, VisitorContext *context) {
-    Scope *scope = static_cast<Context *>(context)->scope;
+    Scope *scope = static_cast<Context *>(context)->scope();
     A_VarId *varId = static_cast<A_VarId *>(ast);
     Symbol *sym = scope->s_resolve(varId->name());
     TypeSymbol *tsym = scope->ts_resolve(varId->name());
