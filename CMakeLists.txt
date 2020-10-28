@@ -212,21 +212,22 @@ set(NERD_TEST
     test/iface/LLVMValuableTest.cpp
     test/iface/NameableTest.cpp
 
+    test/infra/CounterTest.cpp
     test/infra/CowstrTest.cpp
     test/infra/CycleBufferTest.cpp
     test/infra/FilesTest.cpp
     test/infra/LinkedHashMapTest.cpp
     test/infra/LogTest.cpp
 
-    test/MainTest.cpp
     test/ConfigureTest.cpp
+    test/DrawerTest.cpp
+    test/IrBuilderTest.cpp
     test/LocationTest.cpp
-    test/TokenizerTest.cpp
+    test/MainTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp
-    test/DrawerTest.cpp
-    test/IrBuilderTest.cpp
+    test/TokenizerTest.cpp
 )
 set(NERD_TEST_INC
     ${NERD_INC}

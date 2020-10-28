@@ -14,22 +14,30 @@
 
 Cowstr Label::globalVariable(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
-  return fmt::format(L_GVAR "{}.{}", ast->name(), ast->location());
+  Cowstr r = fmt::format(L_GVAR "{}.{}", ast->name(), ast->location());
+  LOG_INFO("r:{}", r);
+  return r;
 }
 
 Cowstr Label::localVariable(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
-  return fmt::format(L_LVAR "{}.{}", ast->name(), ast->location());
+  Cowstr r = fmt::format(L_LVAR "{}.{}", ast->name(), ast->location());
+  LOG_INFO("r:{}", r);
+  return r;
 }
 
 Cowstr Label::function(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
-  return fmt::format(L_FUNC "{}.{}", ast->name(), ast->location());
+  Cowstr r = fmt::format(L_FUNC "{}.{}", ast->name(), ast->location());
+  LOG_INFO("r:{}", r);
+  return r;
 }
 
 Cowstr Label::modules(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
-  return fmt::format(L_MOD "{}.{}", ast->name(), ast->location());
+  Cowstr r = fmt::format(L_MOD "{}.{}", ast->name(), ast->location());
+  LOG_INFO("r:{}", r);
+  return r;
 }
 
 Label::LabelType Label::what(const Cowstr &label) {

@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #include "infra/Cowstr.h"
+#include "infra/Log.h"
 #include <algorithm>
 #include <cstring>
 #include <sstream>
@@ -186,7 +187,9 @@ bool Cowstr::endWith(const Cowstr &s) const {
 bool Cowstr::endWithAnyOf(std::vector<Cowstr>::const_iterator begin,
                           std::vector<Cowstr>::const_iterator end) const {
   return std::any_of(begin, end, [&](const Cowstr &prefix) {
-    return value_->rfind(prefix.str()) == length() - 1 - prefix.length();
+    size_t pos = value_->rfind(prefix.str());
+    int target = length() - 1 - prefix.length();
+    return pos != std::string::npos && target >= 0 && pos == (size_t)target;
   });
 }
 

@@ -5,6 +5,7 @@
 #include "Ast.h"
 #include "Label.h"
 #include "Symbol.h"
+#include "Token.h"
 #include "iface/LLVMModular.h"
 #include "iface/LLVMTypable.h"
 #include "iface/LLVMValuable.h"
@@ -130,15 +131,15 @@ struct PlainType : public Visitor {
     Context *ctx = static_cast<Context *>(context);
     A_PlainType *node = static_cast<A_PlainType *>(ast);
 
-    TypeSymbol *tsym = ctx->scope()->ts_resolve(node->name());
+    TypeSymbol *tsym = ctx->scope()->ts_resolve(tokenName(node->token));
     LOG_ASSERT(tsym, "type symbol {}:{} cannot resolve in scope {}:{}",
-               node->name(), node->location(), ctx->scope()->name(),
+               tokenName(node->token), node->location(), ctx->scope()->name(),
                ctx->scope()->location());
-    LOG_ASSERT(tsym->kind()._to_integral() ==
-                   (+TypeSymbolKind::Plain)._to_integral(),
-               "tsym {}:{} kind {} != TypeSymbolKind::Plain {}", tsym->name(),
-               tsym->location(), tsym->kind()._to_string(),
-               (+TypeSymbolKind::Plain)._to_string());
+    LOG_ASSERT(
+        tsym->kind()._to_integral() == (+TypeSymbolKind::Plain)._to_integral(),
+        "tsym {}:{} kind {} != TypeSymbolKind::Plain {}",
+        tokenName(node->token), tsym->location(), tsym->kind()._to_string(),
+        (+TypeSymbolKind::Plain)._to_string());
 
     Ts_Plain *tp = static_cast<Ts_Plain *>(tsym);
     if (tp == TypeSymbol::ts_byte() || tp == TypeSymbol::ts_ubyte()) {
@@ -221,12 +222,13 @@ struct VarDef : public Visitor {
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     Context *ctx = static_cast<Context *>(context);
     A_VarDef *node = static_cast<A_VarDef *>(ast);
+    A_VarId *varId = static_cast<A_VarId *>(node->id);
 
     llvm::Type *gty = typeValue;
     llvm::Constant *ginit = llvm::dyn_cast<llvm::Constant>(exprValue);
     llvm::GlobalVariable *gvar = new llvm::GlobalVariable(
-        *ctx->llvmModule(), gty, false, llvm::GlobalValue::CommonLinkage, ginit,
-        Label::globalVariable(node).str(), nullptr,
+        *ctx->llvmModule(), gty, false, llvm::GlobalValue::ExternalLinkage,
+        ginit, Label::globalVariable(varId).str(), nullptr,
         llvm::GlobalValue::NotThreadLocal, 0, false);
     ctx->llvmValue() = llvm::dyn_cast<llvm::Value>(gvar);
   }

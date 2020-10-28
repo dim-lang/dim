@@ -171,19 +171,32 @@ bool A_Integer::isSigned() const { return isSigned_; }
 int A_Integer::base() const { return base_; }
 
 int32_t A_Integer::asInt32() const {
-  return static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
+  LOG_INFO("before parsed: {}", parsed_);
+  int32_t r = static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
+  LOG_INFO("after parsed: {}, result: {}", parsed_, r);
+  return r;
 }
 
 uint32_t A_Integer::asUInt32() const {
-  return static_cast<uint32_t>(std::stoul(parsed_.str(), nullptr, base_));
+  LOG_INFO("before parsed: {}", parsed_);
+  uint32_t r = static_cast<uint32_t>(std::stoul(parsed_.str(), nullptr, base_));
+  LOG_INFO("after parsed: {}, result: {}", parsed_, r);
+  return r;
 }
 
 int64_t A_Integer::asInt64() const {
-  return static_cast<int64_t>(std::stoll(parsed_.str(), nullptr, base_));
+  LOG_INFO("before parsed: {}", parsed_);
+  int64_t r = static_cast<int64_t>(std::stoll(parsed_.str(), nullptr, base_));
+  LOG_INFO("after parsed: {}, result: {}", parsed_, r);
+  return r;
 }
 
 uint64_t A_Integer::asUInt64() const {
-  return static_cast<uint64_t>(std::stoull(parsed_.str(), nullptr, base_));
+  LOG_INFO("before parsed: {}", parsed_);
+  uint64_t r =
+      static_cast<uint64_t>(std::stoull(parsed_.str(), nullptr, base_));
+  LOG_INFO("after parsed: {}, result: {}", parsed_, r);
+  return r;
 }
 
 // A_Integer }

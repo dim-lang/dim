@@ -39,10 +39,9 @@
 //   }
 //   size_t key = std::hash<std::string>()(std::string(s, n));
 //   if (StringPool.find(key) == StringPool.end()) {
-//     std::vector<char *> vec;
 //     StringPool[key] = std::vector<char *>();
 //   }
-//   for (int i = 0; i < (int)StringPool[key].size(); i++) {
+//   for (size_t i = 0; i < StringPool[key].size(); i++) {
 //     char *data = StringPool[key][i];
 //     if (std::strlen(data) == n && std::strncmp(data, s, n) == 0) {
 //       dumpStringPool(fmt::format("find s:{}, n:{} in string pool", s, n));

@@ -1,0 +1,9 @@
+var x:int = 0;
+var y:int = 1;
+var z:int = 2;
+
+def hello():int {
+    var x:int = 3;
+    var y:int = 4;
+    var z:int = 5;
+}

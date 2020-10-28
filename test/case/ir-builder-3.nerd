@@ -1,0 +1,6 @@
+def hello() {
+    var a = 1.2;
+    var b = a + 5.01;
+    var c = 12;
+    var d = c + 1;
+}
