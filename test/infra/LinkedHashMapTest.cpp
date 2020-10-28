@@ -1,11 +1,11 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "LinkedHashMap.h"
-#include "LinkedHashMap.hpp"
-#include "Log.h"
+#include "infra/LinkedHashMap.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "catch2/catch.hpp"
+#include "infra/LinkedHashMap.hpp"
+#include "infra/Log.h"
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -66,9 +66,8 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   REQUIRE(hm1.rbegin() == hm1.rend());
   LOG_INFO("testConstructor: a:{}, b:{}, hm1.begin:{}, hm1.end:{}, "
            "hm1.rbegin():{}, hm1.rend():{}",
-           BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().toString(),
-           hm1.end().toString(), hm1.rbegin().toString(),
-           hm1.rend().toString());
+           BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm1.begin().str(),
+           hm1.end().str(), hm1.rbegin().str(), hm1.rend().str());
 
   int r = std::max(1, rand() % TEST_MAX);
   LinkedHashMap<A, B> hm2(r);
@@ -82,8 +81,8 @@ template <typename A, typename B> void testConstructor(A a, B b) {
   LOG_INFO(
       "testConstructor: a:{}, b:{}, hm2.begin:{}, hm2.end:{}, hm2.rbegin:{}, "
       "hm2.rend:{}",
-      BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().toString(),
-      hm2.end().toString(), hm2.rbegin().toString(), hm2.rend().toString());
+      BOOST_PP_STRINGIZE(a), BOOST_PP_STRINGIZE(b), hm2.begin().str(),
+      hm2.end().str(), hm2.rbegin().str(), hm2.rend().str());
 }
 
 template <typename A> void testInsert(A a, A b) {

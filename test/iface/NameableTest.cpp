@@ -1,11 +1,11 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Name.h"
-#include "Log.h"
+#include "iface/Nameable.h"
 #include "catch2/catch.hpp"
+#include "infra/Log.h"
 
-TEST_CASE("Name", "[Name]") {
+TEST_CASE("Nameable", "[Nameable]") {
   SECTION("Nameable") {
     Nameable a1;
     Nameable a2("a2");

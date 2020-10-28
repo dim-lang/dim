@@ -2,7 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Name.h"
+#include "iface/Nameable.h"
 #include <vector>
 
 class Ast;

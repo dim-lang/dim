@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
 #include "Phase.h"
 #include "Visitor.h"
+#include "infra/Cowstr.h"
 
 class Ast;
 

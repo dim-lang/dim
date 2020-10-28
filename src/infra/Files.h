@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Cowstr.h"
-#include "CycleBuffer.h"
 #include "boost/filesystem.hpp"
 #include "enum.h"
+#include "infra/Cowstr.h"
+#include "infra/CycleBuffer.h"
 #include <vector>
 
 /*================ type start from 3000 ================*/

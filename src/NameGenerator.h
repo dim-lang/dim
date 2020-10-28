@@ -2,22 +2,11 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Counter.h"
-#include "Cowstr.h"
 #include "fmt/format.h"
+#include "infra/Counter.h"
+#include "infra/Cowstr.h"
 #include <algorithm>
 #include <sstream>
-
-class Nameable {
-public:
-  Nameable(const Cowstr &name = "");
-  virtual ~Nameable() = default;
-  virtual Cowstr &name();
-  virtual const Cowstr &name() const;
-
-protected:
-  Cowstr nameable_;
-};
 
 class NameGenerator {
 public:
@@ -64,12 +53,12 @@ public:
   template <typename... Args> Cowstr generate(Args... args) {
     std::stringstream ss;
     ss << nameGenerator_.generate(args...) << nameGenerator_.delimiter
-       << CoutnerNameGeneratorCounter_.count();
+       << counter_.count();
     return ss.str();
   }
 
 private:
-  static Counter CoutnerNameGeneratorCounter_;
+  static Counter counter_;
   NameGenerator nameGenerator_;
 };
 

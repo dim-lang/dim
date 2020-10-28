@@ -3,8 +3,8 @@
 
 #pragma once
 #include "boost/core/noncopyable.hpp"
+#include "infra/Cowstr.h"
 #include <functional>
-#include <string>
 #include <utility>
 
 namespace detail {
@@ -89,7 +89,7 @@ public:
   bool operator!() const;
   std::pair<const K, V> &operator*();
   std::pair<const K, V> *operator->();
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 
 private:
   friend class LinkedConstIterator<K, V, NodePtr>;
@@ -127,7 +127,7 @@ public:
   bool operator!() const;
   const std::pair<const K, V> &operator*() const;
   const std::pair<const K, V> *operator->() const;
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 
 private:
   friend class LinkedIterator<K, V, NodePtr>;
@@ -166,7 +166,7 @@ public:
   bool operator!() const;
   std::pair<const K, V> &operator*();
   std::pair<const K, V> *operator->();
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 
 private:
   friend class LinkedIterator<K, V, NodePtr>;
@@ -206,7 +206,7 @@ public:
   bool operator!() const;
   const std::pair<const K, V> &operator*() const;
   const std::pair<const K, V> *operator->() const;
-  virtual std::string toString() const;
+  virtual Cowstr str() const;
 
 private:
   friend class LinkedIterator<K, V, NodePtr>;

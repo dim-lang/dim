@@ -2,10 +2,10 @@
 // Apache License Version 2.0
 
 #define CATCH_CONFIG_MAIN
-#include "Log.h"
 #include "boost/filesystem.hpp"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
+#include "infra/Log.h"
 #include "spdlog/sinks/basic_file_sink.h"
 
 TEST_CASE("Main", "[Main]") {

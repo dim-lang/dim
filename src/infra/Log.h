@@ -9,9 +9,9 @@
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 #endif // #ifdef NDEBUG
 
-#include "Cowstr.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "fmt/format.h"
+#include "infra/Cowstr.h"
 #include "spdlog/spdlog.h"
 #include <cstdio>
 

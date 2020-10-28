@@ -2,9 +2,9 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
-#include "Log.h"
 #include "Scanner.h"
 #include "catch2/catch.hpp"
+#include "infra/Log.h"
 #include <cstdio>
 
 static void parseSuccess(const char *fileName) {

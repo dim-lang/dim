@@ -1,10 +1,10 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Log.h"
 #include "Scanner.h"
 #include "Token.h"
 #include "catch2/catch.hpp"
+#include "infra/Log.h"
 #include "parser.tab.hh"
 #include <sstream>
 #include <unordered_map>

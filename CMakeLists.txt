@@ -131,20 +131,27 @@ set(NERD_LIB_DIR
 set(NERD_CORE
     # src/Log.cpp
     # src/Exception.cpp
-    src/Cowstr.cpp
-    src/CycleBuffer.cpp
+    src/iface/Identifiable.cpp
+    src/iface/LLVMTypable.cpp
+    src/iface/LLVMValuable.cpp
+    src/iface/Locationable.cpp
+    src/iface/Nameable.cpp
+    src/iface/Scoped.cpp
+    src/iface/Symbolizable.cpp
+    src/iface/TypeSymbolizable.cpp
+    src/infra/Counter.cpp
+    src/infra/Cowstr.cpp
+    src/infra/CycleBuffer.cpp
+    src/infra/Files.cpp
+    src/infra/Strings.cpp
     # src/Timer.cpp
     # src/DateTime.cpp
-    src/Files.cpp
-    src/Strings.cpp
     # src/Hash.cpp
     # src/Random.cpp
     # src/Approximate.cpp
     # src/NameGenerator.cpp
-    src/Name.cpp
+    src/NameGenerator.cpp
     src/Location.cpp
-    src/Identifiable.cpp
-    src/Counter.cpp
     src/Token.cpp
     # src/Buffer.cpp
     # src/BufferStack.cpp
@@ -152,12 +159,14 @@ set(NERD_CORE
     src/Ast.cpp
     # src/Position.cpp
     # src/Dump.cpp
-    src/Symbol.cpp
     src/Visitor.cpp
     src/Phase.cpp
+    src/Symbol.cpp
     src/SymbolBuilder.cpp
     src/SymbolResolver.cpp
     src/Drawer.cpp
+    src/Label.cpp
+    src/IrBuilder.cpp
     # src/Ir.cpp
     # src/IrContext.cpp
     # src/IrFactory.cpp
@@ -165,7 +174,7 @@ set(NERD_CORE
     # src/IrWriter.cpp
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Tokenizer_OUTPUTS}
-)
+        src/iface/LLVMModular.h src/iface/LLVMModular.cpp)
 set(NERDC
     src/nerdc.cpp
 )
@@ -209,15 +218,15 @@ set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
 # 3. testing
 set(NERD_TEST
+    test/iface/NameableTest.cpp
+    test/infra/CowstrTest.cpp
+    test/infra/CycleBufferTest.cpp
+    test/infra/FilesTest.cpp
+    test/infra/LinkedHashMapTest.cpp
+    test/infra/LogTest.cpp
     test/MainTest.cpp
     test/ConfigureTest.cpp
-    test/CowstrTest.cpp
-    test/LogTest.cpp
-    test/CycleBufferTest.cpp
-    test/LinkedHashMapTest.cpp
-    test/FilesTest.cpp
     test/LocationTest.cpp
-    test/NameTest.cpp
     # test/ExceptionTest.cpp
     # test/TimerTest.cpp
     # test/RandomTest.cpp
@@ -228,6 +237,7 @@ set(NERD_TEST
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp
     test/DrawerTest.cpp
+    test/IrBuilderTest.cpp
     # test/IrUtilTest.cpp
     # test/IrWriterTest.cpp
 )

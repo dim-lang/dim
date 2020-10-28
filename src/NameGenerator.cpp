@@ -1,15 +1,9 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Name.h"
+#include "NameGenerator.h"
 
-Counter CounterNameGenerator::CoutnerNameGeneratorCounter_;
-
-Nameable::Nameable(const Cowstr &name) : nameable_(name) {}
-
-Cowstr &Nameable::name() { return nameable_; }
-
-const Cowstr &Nameable::name() const { return nameable_; }
+Counter CounterNameGenerator::counter_;
 
 NameGenerator::NameGenerator(const Cowstr &a_delimiter, const Cowstr &a_prefix,
                              const Cowstr &a_postfix)

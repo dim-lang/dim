@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Log.h"
+#include "infra/Log.h"
 #include "catch2/catch.hpp"
 
 TEST_CASE("Log", "[Log]") {

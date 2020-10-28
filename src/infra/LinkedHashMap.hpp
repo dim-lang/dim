@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "LinkedHashMap.h"
-#include "Log.h"
+#include "infra/LinkedHashMap.h"
+#include "infra/Log.h"
 
 #define LN(x) ((LinkedNode<K, V> *)x)
 
@@ -282,7 +282,7 @@ std::pair<const K, V> *LinkedIterator<K, V, NodePtr>::operator->() {
 /* } */
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedIterator<K, V, NodePtr>::toString() const {
+Cowstr LinkedIterator<K, V, NodePtr>::str() const {
   return fmt::format("[@LinkedIterator node_:{}]", (void *)node_);
 }
 
@@ -418,7 +418,7 @@ LinkedConstIterator<K, V, NodePtr>::operator->() const {
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedConstIterator<K, V, NodePtr>::toString() const {
+Cowstr LinkedConstIterator<K, V, NodePtr>::str() const {
   return fmt::format("[@LinkedConstIterator node_:{}]", (void *)node_);
 }
 
@@ -552,7 +552,7 @@ std::pair<const K, V> *LinkedReverseIterator<K, V, NodePtr>::operator->() {
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedReverseIterator<K, V, NodePtr>::toString() const {
+Cowstr LinkedReverseIterator<K, V, NodePtr>::str() const {
   return fmt::format("[@LinkedReverseIterator node_:{}]", (void *)node_);
 }
 
@@ -689,7 +689,7 @@ LinkedConstReverseIterator<K, V, NodePtr>::operator->() const {
 }
 
 template <typename K, typename V, typename NodePtr>
-std::string LinkedConstReverseIterator<K, V, NodePtr>::toString() const {
+Cowstr LinkedConstReverseIterator<K, V, NodePtr>::str() const {
   return fmt::format("[@LinkedConstReverseIterator node_:{}]", (void *)node_);
 }
 

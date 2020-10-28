@@ -2,13 +2,16 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Identifiable.h"
-#include "LinkedHashMap.h"
-#include "Location.h"
-#include "Log.h"
-#include "Name.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
+#include "iface/Identifiable.h"
+#include "iface/LLVMTypable.h"
+#include "iface/LLVMValuable.h"
+#include "iface/Locationable.h"
+#include "iface/Nameable.h"
+#include "infra/LinkedHashMap.h"
+#include "infra/Log.h"
+#include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 
 BETTER_ENUM(SymbolKind, int,
@@ -70,17 +73,6 @@ protected:
   Ast *astable_;
 };
 
-class LLVMValuable {
-public:
-  LLVMValuable(llvm::Value *value = nullptr);
-  virtual ~LLVMValuable() = default;
-  virtual llvm::Value *&llvmValue();
-  virtual llvm::Value *llvmValue() const;
-
-protected:
-  llvm::Value *llvmValuable_;
-};
-
 } // namespace detail
 
 /**
@@ -99,7 +91,7 @@ class Symbol : public virtual Nameable,
                public virtual Identifiable,
                public virtual detail::Ownable,
                public virtual detail::Astable,
-               public virtual detail::LLVMValuable,
+               public virtual LLVMValuable,
                public detail::Typeable,
                private boost::noncopyable {
 public:
@@ -115,7 +107,7 @@ class TypeSymbol : public virtual Nameable,
                    public virtual Identifiable,
                    public virtual detail::Ownable,
                    public virtual detail::Astable,
-                   public virtual detail::LLVMValuable,
+                   public virtual LLVMTypable,
                    private boost::noncopyable {
 public:
   virtual ~TypeSymbol() = default;
@@ -142,7 +134,8 @@ class Scope : public virtual Nameable,
               public virtual Identifiable,
               public virtual detail::Ownable,
               public virtual detail::Astable,
-              public virtual detail::LLVMValuable,
+              public virtual LLVMValuable,
+              public virtual LLVMTypable,
               private boost::noncopyable {
 public:
   using s_map = LinkedHashMap<Cowstr, Symbol *>;

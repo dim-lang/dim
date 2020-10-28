@@ -3,11 +3,10 @@
 
 #include "SymbolResolver.h"
 #include "Ast.h"
-#include "Log.h"
-#include "Name.h"
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
+#include "infra/Log.h"
 
 namespace detail {
 
@@ -23,7 +22,7 @@ struct Loop : public Visitor {
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push loop scope down to subscope
     static_cast<Context *>(context)->scope =
-        static_cast<A_Loop *>(ast)->localScope;
+        static_cast<A_Loop *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop loop scope back to owner scope
@@ -37,7 +36,7 @@ struct Block : public Visitor {
   virtual void visit(Ast *ast, VisitorContext *context) {
     // push block scope down to subscope
     static_cast<Context *>(context)->scope =
-        static_cast<A_Block *>(ast)->localScope;
+        static_cast<A_Block *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
@@ -55,7 +54,7 @@ struct FuncDef : public Visitor {
     A_VarId *varId = static_cast<A_VarId *>(sign->id);
 
     // push block scope down to subscope
-    ctx->scope = dynamic_cast<Scope *>(varId->symbol);
+    ctx->scope = dynamic_cast<Scope *>(varId->symbol());
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop block scope back to owner scope
@@ -69,7 +68,7 @@ struct CompileUnit : public Visitor {
   virtual void visit(Ast *ast, VisitorContext *context) {
     // pass global scope down to subscope
     static_cast<Context *>(context)->scope =
-        static_cast<A_CompileUnit *>(ast)->globalScope;
+        static_cast<A_CompileUnit *>(ast)->scope();
   }
   virtual void finishVisit(Ast *ast, VisitorContext *context) {
     // pop global scope back to owner scope
@@ -89,22 +88,22 @@ struct VarId : public Visitor {
     A_VarId *varId = static_cast<A_VarId *>(ast);
     Symbol *sym = scope->s_resolve(varId->name());
     TypeSymbol *tsym = scope->ts_resolve(varId->name());
-    if (varId->symbol) {
+    if (varId->symbol()) {
       LOG_ASSERT(sym, "symbol [{}:{}] not exist in scope [{}:{}]",
                  varId->name(), varId->location(), scope->name(),
                  scope->location());
-    } else if (varId->typeSymbol) {
+    } else if (varId->typeSymbol()) {
       LOG_ASSERT(tsym, "symbol [{}:{}] not exist in scope [{}:{}]",
                  varId->name(), varId->location(), scope->name(),
                  scope->location());
     } else {
       if (sym) {
-        varId->symbol = sym;
+        varId->symbol() = sym;
         LOG_ASSERT(sym->ast() != varId, "symbol {}:{} resolve in varId {}:{}",
                    sym->name(), sym->location(), varId->name(),
                    varId->location());
       } else if (tsym) {
-        varId->typeSymbol = tsym;
+        varId->typeSymbol() = tsym;
         LOG_ASSERT(tsym->ast() != varId,
                    "type symbol {}:{} resolve in varId {}:{}", tsym->name(),
                    tsym->location(), varId->name(), varId->location());

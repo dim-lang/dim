@@ -3,8 +3,8 @@
 
 #include "Label.h"
 #include "Ast.h"
-#include "Log.h"
 #include "fmt/format.h"
+#include "infra/Log.h"
 #include <algorithm>
 
 #define L_GVAR "$global.variable."

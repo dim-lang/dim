@@ -1,8 +1,8 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Strings.h"
-#include "Log.h"
+#include "infra/Strings.h"
+#include "infra/Log.h"
 #include <cstdlib>
 #include <cstring>
 // #include <sstream>

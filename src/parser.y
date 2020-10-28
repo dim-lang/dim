@@ -7,13 +7,13 @@
 %param {yyscan_t yyscanner}
 
 %code top {
-#include <cstdlib>
-#include "Log.h"
+#include "infra/Log.h"
+#include "infra/Strings.h"
+#include "Location.h"
 #include "Ast.h"
 #include "Scanner.h"
-#include "Location.h"
-#include "Strings.h"
 #include "tokenizer.yy.hh"
+#include <cstdlib>
 
 #define Y_SCANNER       (static_cast<Scanner*>(yyget_extra(yyscanner)))
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);

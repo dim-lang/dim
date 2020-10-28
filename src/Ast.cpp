@@ -2,8 +2,8 @@
 // Apache License Version 2.0
 
 #include "Ast.h"
-#include "Log.h"
 #include "Token.h"
+#include "infra/Log.h"
 #include <sstream>
 #include <tuple>
 #include <unordered_map>
@@ -105,20 +105,6 @@ bool Ast::isType(Ast *e) { return e && e->kind() == (+AstKind::PlainType); }
 
 // A_Integer {
 
-static const std::unordered_map<A_Integer::DecimalKind, Cowstr> AIL_DC_Map = {
-    {A_Integer::DecimalKind::DEC, "DEC"},
-    {A_Integer::DecimalKind::HEX, "HEX"},
-    {A_Integer::DecimalKind::BIN, "BIN"},
-    {A_Integer::DecimalKind::OCT, "OCT"},
-};
-
-static const std::unordered_map<A_Integer::BitKind, Cowstr> AIL_BC_Map = {
-    {A_Integer::BitKind::SIGNED, "SIGNED"},
-    {A_Integer::BitKind::UNSIGNED, "UNSIGNED"},
-    {A_Integer::BitKind::LONG, "LONG"},
-    {A_Integer::BitKind::ULONG, "ULONG"},
-};
-
 A_Integer::A_Integer(const Cowstr &literal, const Location &location)
     : Ast(literal, location) {
   LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
@@ -129,19 +115,16 @@ A_Integer::A_Integer(const Cowstr &literal, const Location &location)
     switch (literal[1]) {
     case 'x':
     case 'X':
-      decimalKind_ = A_Integer::DecimalKind::HEX;
       base_ = 16;
       startPosition = 2;
       break;
     case 'o':
     case 'O':
-      decimalKind_ = A_Integer::DecimalKind::OCT;
       base_ = 8;
       startPosition = 2;
       break;
     case 'b':
     case 'B':
-      decimalKind_ = A_Integer::DecimalKind::BIN;
       base_ = 2;
       startPosition = 2;
       break;
@@ -149,31 +132,30 @@ A_Integer::A_Integer(const Cowstr &literal, const Location &location)
       break;
     }
   } else {
-    decimalKind_ = A_Integer::DecimalKind::DEC;
     base_ = 10;
     startPosition = 0;
   }
 
   int endPosition = (int)literal.length();
-  std::vector<Cowstr> bitPostfix = {"ul", "UL", "uL", "Ul"};
+  std::vector<Cowstr> ulongPostfix = {"ul", "UL", "uL", "Ul"};
   std::vector<Cowstr> longPostfix = {"l", "L"};
   std::vector<Cowstr> unsignedPostfix = {"u", "U"};
-  if (literal.endWithAnyOf(bitPostfix.begin(), bitPostfix.end())) {
-    bitKind_ = A_Integer::BitKind::ULONG;
-    bits_ = 64;
+  if (literal.endWithAnyOf(ulongPostfix.begin(), ulongPostfix.end())) {
+    bit_ = 64;
+    isSigned_ = false;
     endPosition = (int)literal.length() - 2;
   } else if (literal.endWithAnyOf(longPostfix.begin(), longPostfix.end())) {
-    bitKind_ = A_Integer::BitKind::LONG;
-    bits_ = 64;
+    bit_ = 64;
+    isSigned_ = true;
     endPosition = (int)literal.length() - 1;
   } else if (literal.endWithAnyOf(unsignedPostfix.begin(),
                                   unsignedPostfix.end())) {
-    bitKind_ = A_Integer::BitKind::UNSIGNED;
-    bits_ = 32;
+    bit_ = 32;
+    isSigned_ = false;
     endPosition = (int)literal.length() - 1;
   } else {
-    bitKind_ = A_Integer::BitKind::SIGNED;
-    bits_ = 32;
+    bit_ = 32;
+    isSigned_ = true;
     endPosition = (int)literal.length();
   }
 
@@ -182,13 +164,11 @@ A_Integer::A_Integer(const Cowstr &literal, const Location &location)
 
 AstKind A_Integer::kind() const { return AstKind::Integer; }
 
-int A_Integer::bits() const { return bits_; }
+int A_Integer::bit() const { return bit_; }
+
+bool A_Integer::isSigned() const { return isSigned_; }
 
 int A_Integer::base() const { return base_; }
-
-A_Integer::DecimalKind A_Integer::decimalKind() const { return decimalKind_; }
-
-A_Integer::BitKind A_Integer::bitKind() const { return bitKind_; }
 
 int32_t A_Integer::asInt32() const {
   return static_cast<int32_t>(std::stol(parsed_.str(), nullptr, base_));
@@ -210,11 +190,6 @@ uint64_t A_Integer::asUInt64() const {
 
 // A_Float {
 
-const static std::unordered_map<A_Float::BitKind, Cowstr> AFL_BC_Map = {
-    {A_Float::BitKind::FLT, "FLT"},
-    {A_Float::BitKind::DBL, "DBL"},
-};
-
 A_Float::A_Float(const Cowstr &literal, const Location &location)
     : Ast(literal, location) {
   LOG_ASSERT(literal.length() > 0, "literal.length {} > 0", literal.length());
@@ -223,12 +198,10 @@ A_Float::A_Float(const Cowstr &literal, const Location &location)
   int endPosition = (int)literal.length();
   std::vector<Cowstr> doublePostfix = {"d", "D"};
   if (literal.endWithAnyOf(doublePostfix.begin(), doublePostfix.end())) {
-    bitKind_ = A_Float::BitKind::DBL;
-    bits_ = 64;
+    bit_ = 64;
     endPosition = (int)literal.length();
   } else {
-    bitKind_ = A_Float::BitKind::FLT;
-    bits_ = 32;
+    bit_ = 32;
     endPosition = (int)literal.length() - 1;
   }
 
@@ -237,9 +210,7 @@ A_Float::A_Float(const Cowstr &literal, const Location &location)
 
 AstKind A_Float::kind() const { return AstKind::Float; }
 
-int A_Float::bits() const { return bits_; }
-
-A_Float::BitKind A_Float::bitKind() const { return bitKind_; }
+int A_Float::bit() const { return bit_; }
 
 float A_Float::asFloat() const { return std::stof(parsed_.str()); }
 
@@ -249,27 +220,22 @@ double A_Float::asDouble() const { return std::stod(parsed_.str()); }
 
 // A_String {
 
-const static std::unordered_map<A_String::QuoteKind, Cowstr> ASL_QC_Map = {
-    {A_String::QuoteKind::SINGLE, "SINGLE"},
-    {A_String::QuoteKind::TRIPLE, "TRIPLE"},
-};
-
 A_String::A_String(const Cowstr &literal, const Location &location)
     : Ast(literal, location) {
   std::vector<Cowstr> multiplePrefix = {"\"\"\""};
   if (literal.length() >= 3 &&
       literal.startWithAnyOf(multiplePrefix.begin(), multiplePrefix.end())) {
     parsed_ = literal.subString(3, literal.length() - 6);
-    quoteKind_ = A_String::QuoteKind::TRIPLE;
+    isMultipleLine_ = true;
   } else {
     parsed_ = literal.subString(1, literal.length() - 2);
-    quoteKind_ = A_String::QuoteKind::SINGLE;
+    isMultipleLine_ = false;
   }
 }
 
 AstKind A_String::kind() const { return AstKind::String; }
 
-A_String::QuoteKind A_String::quoteKind() const { return quoteKind_; }
+bool A_String::isMultipleLine() const { return isMultipleLine_; }
 
 const Cowstr &A_String::asString() const { return parsed_; }
 
@@ -323,7 +289,7 @@ AstKind A_Void::kind() const { return AstKind::Void; }
 // A_VarId {
 
 A_VarId::A_VarId(const Cowstr &literal, const Location &location)
-    : Ast(literal, location), symbol(nullptr), typeSymbol(nullptr) {}
+    : Ast(literal, location) {}
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
 
@@ -496,8 +462,7 @@ AstKind A_If::kind() const { return AstKind::If; }
 // A_Loop {
 
 A_Loop::A_Loop(Ast *a_condition, Ast *a_body, const Location &location)
-    : Ast("loop", location), condition(a_condition), body(a_body),
-      localScope(nullptr) {
+    : Ast("loop", location), condition(a_condition), body(a_body) {
   LOG_ASSERT(condition, "condition must not null");
   LOG_ASSERT(body, "body must not null");
 }
@@ -600,7 +565,7 @@ AstKind A_Try::kind() const { return AstKind::Try; }
 // A_Block {
 
 A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
-    : Ast("block", location), blockStats(a_blockStats), localScope(nullptr) {}
+    : Ast("block", location), blockStats(a_blockStats) {}
 
 A_Block::~A_Block() { DESTROY(blockStats); }
 
@@ -731,7 +696,7 @@ AstKind A_TopStats::kind() const { return AstKind::TopStats; }
 
 A_CompileUnit::A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                              const Location &location)
-    : Ast(name, location), topStats(a_topStats), globalScope(nullptr) {}
+    : Ast(name, location), topStats(a_topStats) {}
 
 A_CompileUnit::~A_CompileUnit() { DESTROY(topStats); }
 
