@@ -2,16 +2,16 @@
 # Apache License Version 2.0
 
 $ROOT=(Get-Item .).FullName
-$OS=Windows
-$BuildType=Release
-$InstallPath=$ROOT\install
+$OS="Windows"
+$BuildType="Release"
+$InstallPath=Join-Path -Path $ROOT -ChildPath "install"
 
-$SPDLOG_VERSION=v1.3.1
-$FMTLIB_VERSION=5.3.0
-$ENUM_VERSION=0.11.2
-$CATCH2_VERSION=v2.9.1
-$LLVM_VERSION=v2.9.1
-$BOOST_VERSION=boost-1.70.0
+$SPDLOG_VERSION="v1.3.1"
+$FMTLIB_VERSION="5.3.0"
+$ENUM_VERSION="0.11.2"
+$CATCH2_VERSION="v2.9.1"
+$LLVM_VERSION="v2.9.1"
+$BOOST_VERSION="boost-1.70.0"
 
 Function Build-Dependency {
     Write-Output "[nerd] prepare catchorg/Catch2 $CATCH2_VERSION"
@@ -33,7 +33,7 @@ Function Build-Dependency {
     }
     Write-Output "[nerd] prepare fmtlib/fmt $FMTLIB_VERSION - done"
     Write-Output "[nerd] prepare aantron/better-enums $ENUM_VERSION"
-    If (!(Test-Path $ROOT\src\better-enums) {
+    If (!(Test-Path $ROOT\src\better-enums)) {
         Set-Location -Path $ROOT\src
         git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums
     }
@@ -46,7 +46,7 @@ Function Build-Dependency {
         git submodule update --init
     }
     $BoostVariant=release
-    If ("$BuildType" == "Debug") {
+    If ($BuildType == "Debug") {
         $BoostVariant=debug
     }
     If (!(Test-Path $ROOT\src\boost\$BuildType)) {
@@ -56,15 +56,15 @@ Function Build-Dependency {
     }
     Write-Output "[nerd] prepare boostorg/boost $BOOST_VERSION - done"
     Write-Output "[nerd] prepare llvm/llvm-project $LLVM_VERSION"
-    If (!(Test-Path $ROOT\src\llvm-project) {
+    If (!(Test-Path $ROOT\src\llvm-project)) {
         Set-Location -Path $ROOT\src
         git clone -b $LLVM_VERSION --single-branch --depth 1 https://github.com/llvm/llvm-project
     }
     $LLVMConfig=CMakeConfigRelease
-    If ("$BuildType" == "Debug") {
+    If ($BuildType == "Debug") {
         $LLVMConfig=CMakeConfigDebug
     }
-    If (!(Test-Path $ROOT\src\llvm-project\llvm\$BuildType) {
+    If (!(Test-Path $ROOT\src\llvm-project\llvm\$BuildType)) {
         Set-Location -Path $ROOT\src\llvm-project\llvm
         cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B $LLVMConfig
         Set-Location -Path $ROOT\src\llvm-project\llvm\$LLVMConfig
@@ -93,7 +93,7 @@ Function Build-Routine {
 
 Function Build-Install {
     Write-Output "[nerd] install for $OS, path=$InstallPath"
-    $BuildType=Release
+    $BuildType="Release"
     cd $ROOT\$BuildType
     Write-Output "[nerd] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
@@ -127,3 +127,19 @@ Function Build-Help {
     Write-Output "flag:"
     Write-Output "  build -h/--help                 show help message."
 }
+
+If ($args.Count == 0) {
+    $BuildType="Release"
+} ElseIf ($args[0] == "-r" -Or $args[0] == "--release") {
+    $BuildType="Release"
+} ElseIf ($args[0] == "-d" -Or $args[0] == "--debug") {
+    $BuildType="Debug"
+} ElseIf ($args[0] == "-g" -Or $args[0] == "--graph") {
+    Build-Graph
+    exit 0
+} ElseIf ($args[0] == "-h" -Or $args[0] == "--help") {
+    Build-Help
+    exit 0
+}
+
+Build-Routine
