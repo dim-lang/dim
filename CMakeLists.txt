@@ -129,9 +129,8 @@ set(NERD_LIB_DIR
     ${LLVM_LIBRARY_DIRS}
     )
 set(NERD_CORE
-    # src/Log.cpp
-    # src/Exception.cpp
     src/iface/Identifiable.cpp
+    src/iface/LLVMModular.cpp
     src/iface/LLVMTypable.cpp
     src/iface/LLVMValuable.cpp
     src/iface/Locationable.cpp
@@ -139,42 +138,31 @@ set(NERD_CORE
     src/iface/Scoped.cpp
     src/iface/Symbolizable.cpp
     src/iface/TypeSymbolizable.cpp
+
     src/infra/Counter.cpp
     src/infra/Cowstr.cpp
     src/infra/CycleBuffer.cpp
     src/infra/Files.cpp
     src/infra/Strings.cpp
-    # src/Timer.cpp
-    # src/DateTime.cpp
-    # src/Hash.cpp
-    # src/Random.cpp
-    # src/Approximate.cpp
-    # src/NameGenerator.cpp
-    src/NameGenerator.cpp
-    src/Location.cpp
-    src/Token.cpp
-    # src/Buffer.cpp
-    # src/BufferStack.cpp
-    src/Scanner.cpp
+
     src/Ast.cpp
-    # src/Position.cpp
-    # src/Dump.cpp
-    src/Visitor.cpp
+    src/Compiler.cpp
+    src/Drawer.cpp
+    src/IrBuilder.cpp
+    src/Label.cpp
+    src/Location.cpp
+    src/NameGenerator.cpp
     src/Phase.cpp
+    src/Scanner.cpp
     src/Symbol.cpp
     src/SymbolBuilder.cpp
     src/SymbolResolver.cpp
-    src/Drawer.cpp
-    src/Label.cpp
-    src/IrBuilder.cpp
-    # src/Ir.cpp
-    # src/IrContext.cpp
-    # src/IrFactory.cpp
-    # src/IrUtil.cpp
-    # src/IrWriter.cpp
+    src/Token.cpp
+    src/Visitor.cpp
+
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Tokenizer_OUTPUTS}
-        src/iface/LLVMModular.h src/iface/LLVMModular.cpp)
+)
 set(NERDC
     src/nerdc.cpp
 )
@@ -204,42 +192,41 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${NERD_INC})
 link_directories(${NERD_LIB_DIR})
 
-# 1. nerdcore
+# nerdcore
 add_library(nerdcore STATIC ${NERD_CORE})
 target_include_directories(nerdcore PRIVATE ${NERD_INC})
 target_link_libraries(nerdcore ${NERD_LIB})
 set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
 
-# 2. nerdc
+# nerdc
 add_executable(nerdc ${NERDC})
 target_include_directories(nerdc PRIVATE ${NERD_INC})
 target_link_libraries(nerdc ${NERD_LIB} nerdcore)
 set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
-# 3. testing
+# nerd-test
 set(NERD_TEST
+    test/iface/IdentifiableTest.cpp
+    test/iface/LLVMModularTest.cpp
+    test/iface/LLVMTypableTest.cpp
+    test/iface/LLVMValuableTest.cpp
     test/iface/NameableTest.cpp
+
     test/infra/CowstrTest.cpp
     test/infra/CycleBufferTest.cpp
     test/infra/FilesTest.cpp
     test/infra/LinkedHashMapTest.cpp
     test/infra/LogTest.cpp
+
     test/MainTest.cpp
     test/ConfigureTest.cpp
     test/LocationTest.cpp
-    # test/ExceptionTest.cpp
-    # test/TimerTest.cpp
-    # test/RandomTest.cpp
-    # test/ApproximateTest.cpp
-    # test/HashTest.cpp
     test/TokenizerTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp
     test/DrawerTest.cpp
     test/IrBuilderTest.cpp
-    # test/IrUtilTest.cpp
-    # test/IrWriterTest.cpp
 )
 set(NERD_TEST_INC
     ${NERD_INC}
@@ -251,7 +238,7 @@ target_include_directories(nerd-test PRIVATE ${NERD_TEST_INC})
 target_link_libraries(nerd-test ${NERD_LIB} nerdcore)
 set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})
 
-# 4. examples
+# examples
 add_executable(nerd-llvm_IRBuilder_Add example/llvm_IRBuilder_Add.cpp example/llvm_IRBuilder_Util.cpp)
 target_include_directories(nerd-llvm_IRBuilder_Add PRIVATE ${NERD_INC})
 target_link_libraries(nerd-llvm_IRBuilder_Add ${NERD_LIB})
