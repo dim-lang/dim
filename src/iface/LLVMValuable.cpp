@@ -8,3 +8,5 @@ LLVMValuable::LLVMValuable(llvm::Value *value) : llvmValuable_(value) {}
 llvm::Value *&LLVMValuable::llvmValue() { return llvmValuable_; }
 
 llvm::Value *LLVMValuable::llvmValue() const { return llvmValuable_; }
+
+void LLVMValuable::resetLLVMValue() { llvmValuable_ = nullptr; }

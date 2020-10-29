@@ -2,12 +2,12 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "Ast.h"
 #include "iface/Nameable.h"
 #include "infra/Cowstr.h"
 #include <unordered_map>
 #include <vector>
 
-class Ast;
 class Visitor;
 class VisitorBinder;
 
@@ -52,27 +52,34 @@ public:
   Visitor(const Cowstr &name = "Visitor");
   virtual ~Visitor() = default;
 
+  // get binder, context and visitor
+  virtual VisitorBinder *binder() const;
+  virtual VisitorContext *context() const;
+  virtual Visitor *visitor(AstKind astKind) const;
+
   // do nothing by default
-  virtual void visit(Ast *ast, VisitorContext *context);
-  virtual void visitBefore(Ast *ast, Ast *child, VisitorContext *context);
-  virtual void visitAfter(Ast *ast, Ast *child, VisitorContext *context);
-  virtual void finishVisit(Ast *ast, VisitorContext *context);
+  virtual void visit(Ast *ast);
+  virtual void visitBefore(Ast *ast, Ast *child);
+  virtual void visitAfter(Ast *ast, Ast *child);
+  virtual void finishVisit(Ast *ast);
 
   static void traverse(VisitorBinder *binder, Ast *ast);
+
+protected:
+  VisitorBinder *visitorBinder_;
+  friend class VisitorBinder;
 };
 
 // get visitor for ast
 class VisitorBinder {
 public:
   VisitorBinder(VisitorContext *context = nullptr);
-  virtual ~VisitorBinder();
-  virtual int bind(int astKind, Visitor *visitor);
-  virtual Visitor *get(int astKind) const;
-  virtual Visitor *get(Ast *ast) const;
+  virtual ~VisitorBinder() = default;
+  virtual int bind(AstKind astKind, Visitor *visitor);
+  virtual Visitor *visitor(AstKind astKind) const;
   virtual VisitorContext *context() const;
 
 protected:
-  std::unordered_map<int, Visitor *> visitors_;
+  std::unordered_map<AstKind, Visitor *> visitors_;
   VisitorContext *context_;
-  Visitor *idleVisitor_;
 };

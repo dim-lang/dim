@@ -5,7 +5,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
-#include "iface/LLVMModular.h"
 #include "iface/LLVMTypable.h"
 #include "iface/LLVMValuable.h"
 #include "iface/Locationable.h"

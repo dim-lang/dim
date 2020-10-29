@@ -13,24 +13,28 @@ public:
     GLOBAL_VARIABLE,
     LOCAL_VARIABLE,
     FUNCTION,
+    BASIC_BLOCK,
     MODULE,
   };
 
   /**
-   * 1. For global variable: `HelpMessage` (10.2-10.12) returns
-   * `$global.variable.HelpMessage.10.2-10.12`
+   * For global variable: `HelpMessage` (10.2-10.12) returns
+   * `nerd.global.variable.HelpMessage.10.2-10.12`
    *
-   * 2. For local variable: `x` (1.4-1.5) returns `$local.variable.x.1.4-1.5`
+   * For local variable: `x` (1.4-1.5) returns `$local.variable.x.1.4-1.5`
    *
-   * 3. For function: `hello_world` (2.7-2.18) returns
-   * `$function.hello_world.2.7-2.18`
+   * For function: `hello_world` (2.7-2.18) returns
+   * `nerd.function.hello_world.2.7-2.18`
    *
-   * 4. For module: `test/case/parse-4.nerd` (1.1-101.28) returns
-   * `$module.test.case.parse-4.nerd.1.1-101.28`
+   * For basic block returns `nerd.basic.block.body.2.19-5.1`
+   *
+   * For module: `test/case/parse-4.nerd` (1.1-101.28) returns
+   * `nerd.module.test.case.parse-4.nerd.1.1-101.28`
    */
   static Cowstr globalVariable(Ast *ast);
   static Cowstr localVariable(Ast *ast);
   static Cowstr function(Ast *ast);
+  static Cowstr basicBlock(Ast *ast);
   static Cowstr modules(Ast *ast);
 
   /**

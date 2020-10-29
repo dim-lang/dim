@@ -13,6 +13,7 @@ public:
   virtual ~LLVMValuable() = default;
   virtual llvm::Value *&llvmValue();
   virtual llvm::Value *llvmValue() const;
+  virtual void resetLLVMValue();
 
 protected:
   llvm::Value *llvmValuable_;

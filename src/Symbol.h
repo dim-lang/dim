@@ -5,7 +5,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
-#include "iface/LLVMModular.h"
 #include "iface/LLVMTypable.h"
 #include "iface/LLVMValuable.h"
 #include "iface/Locationable.h"
@@ -352,7 +351,7 @@ public:
   virtual ~S_Local() = default;
 };
 
-class S_Global : public detail::ScopeImpl, public LLVMModular {
+class S_Global : public detail::ScopeImpl {
 public:
   S_Global(const Cowstr &name, const Location &location);
   virtual ~S_Global() = default;

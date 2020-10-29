@@ -450,8 +450,8 @@ struct Graph {
 #define DECL1(x)                                                               \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
@@ -461,8 +461,8 @@ struct Graph {
 #define DECL2(x)                                                               \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       node->add("literal", ast->name());                                       \
       g->nodes.insert(node->id(), node);                                       \
@@ -473,11 +473,10 @@ struct Graph {
 #define DECL3(x, astype, tok)                                                  \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok),                                       \
-                tokenName(static_cast<astype *>(ast)->tok));                   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
   };
@@ -486,13 +485,13 @@ struct Graph {
 #define DECL4(x, astype, child1)                                               \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void finishVisit(Ast *ast) {                                       \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
@@ -502,15 +501,14 @@ struct Graph {
 #define DECL5(x, astype, tok, child1)                                          \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok),                                       \
-                tokenName(static_cast<astype *>(ast)->tok));                   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void finishVisit(Ast *ast) {                                       \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
@@ -520,13 +518,13 @@ struct Graph {
 #define DECL6(x, astype, child1, child2)                                       \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void finishVisit(Ast *ast) {                                       \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
                                BOOST_PP_STRINGIZE(child1), g);                 \
       GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
@@ -539,15 +537,14 @@ struct Graph {
 #define DECL7(x, astype, tok, child1, child2)                                  \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok),                                       \
-                tokenName(static_cast<astype *>(ast)->tok));                   \
+      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void finishVisit(Ast *ast) {                                       \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
                                BOOST_PP_STRINGIZE(child1), g);                 \
       GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
@@ -560,13 +557,13 @@ struct Graph {
 #define DECL8(x, astype, child1, child2, child3)                               \
   struct x : public Visitor {                                                  \
     x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
-    virtual void visit(Ast *ast, VisitorContext *context) {                    \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void visit(Ast *ast) {                                             \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-    virtual void finishVisit(Ast *ast, VisitorContext *context) {              \
-      Graph *g = static_cast<Context *>(context)->g;                           \
+    virtual void finishVisit(Ast *ast) {                                       \
+      Graph *g = static_cast<Context *>(context())->g;                         \
       GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
                                BOOST_PP_STRINGIZE(child1), g);                 \
       GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
@@ -701,8 +698,8 @@ DECL2(String)
 
 struct VarId : public Visitor {
   VarId() : Visitor("Drawer::Visitor::VarId") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void visit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
 
     // create ast gnode
     AstNode *node = new AstNode(ast);
@@ -775,8 +772,8 @@ DECL4(Yield, A_Yield, expr)
 
 struct Block : public Visitor {
   Block() : Visitor("Drawer::Visitor::Block") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void visit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
     g->nodes.insert(node->id(), node);
 
@@ -785,8 +782,8 @@ struct Block : public Visitor {
     LOG_ASSERT(block->scope(), "block's {} scope must not null", block->name());
     defineAstToScope(block, block->scope(), g);
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void finishVisit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     linkAstToAst(ast, static_cast<A_Block *>(ast)->blockStats,
                  BOOST_PP_STRINGIZE(blockStats), g);
   }
@@ -794,8 +791,8 @@ struct Block : public Visitor {
 
 struct CompileUnit : public Visitor {
   CompileUnit() : Visitor("Drawer::Visitor::CompileUnit") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void visit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
     g->nodes.insert(node->id(), node);
 
@@ -805,8 +802,8 @@ struct CompileUnit : public Visitor {
                compileUnit->name());
     defineAstToScope(compileUnit, compileUnit->scope(), g);
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void finishVisit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     linkAstToAst(ast, static_cast<A_CompileUnit *>(ast)->topStats,
                  BOOST_PP_STRINGIZE(topStats), g);
   }
@@ -820,8 +817,8 @@ DECL6(Exprs, A_Exprs, expr, next)
 
 struct Loop : public Visitor {
   Loop() : Visitor("Drawer::Visitor::Loop") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void visit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
     g->nodes.insert(node->id(), node);
 
@@ -830,8 +827,8 @@ struct Loop : public Visitor {
     LOG_ASSERT(loop->scope(), "loop's {} scope must not null", loop->name());
     defineAstToScope(loop, loop->scope(), g);
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    Graph *g = static_cast<Context *>(context)->g;
+  virtual void finishVisit(Ast *ast) {
+    Graph *g = static_cast<Context *>(context())->g;
     linkAstToAst(ast, static_cast<A_Loop *>(ast)->condition,
                  BOOST_PP_STRINGIZE(condition), g);
     linkAstToAst(ast, static_cast<A_Loop *>(ast)->body,
@@ -863,7 +860,7 @@ DECL8(VarDef, A_VarDef, id, type, expr)
 #define BIND(x)                                                                \
   do {                                                                         \
     Visitor *v = new detail::drawer::x();                                      \
-    binder_.bind((+AstKind::x)._to_integral(), v);                             \
+    binder_.bind((+AstKind::x), v);                                            \
     visitors_.push_back(v);                                                    \
   } while (0)
 

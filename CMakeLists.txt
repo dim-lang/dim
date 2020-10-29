@@ -130,7 +130,7 @@ set(NERD_LIB_DIR
     )
 set(NERD_CORE
     src/iface/Identifiable.cpp
-    src/iface/LLVMModular.cpp
+    # src/iface/LLVMModular.cpp
     src/iface/LLVMTypable.cpp
     src/iface/LLVMValuable.cpp
     src/iface/Locationable.cpp
@@ -207,7 +207,7 @@ set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 # nerd-test
 set(NERD_TEST
     test/iface/IdentifiableTest.cpp
-    test/iface/LLVMModularTest.cpp
+    # test/iface/LLVMModularTest.cpp
     test/iface/LLVMTypableTest.cpp
     test/iface/LLVMValuableTest.cpp
     test/iface/NameableTest.cpp
