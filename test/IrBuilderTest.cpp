@@ -8,15 +8,18 @@
 #include "SymbolBuilder.h"
 #include "SymbolResolver.h"
 #include "catch2/catch.hpp"
+#include "infra/Files.h"
 
 static void testIrBuilder(const Cowstr &fileName) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
-  IrBuilder irBuilder(fileName + ".ll");
+  IrBuilder irBuilder;
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
+  FileWriter fwriter(fileName + ".ll");
+  fwriter.write(irBuilder.llvmLL());
 }
 
 TEST_CASE("IrBuilder", "[IrBuilder]") {

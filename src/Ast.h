@@ -428,7 +428,7 @@ public:
 //   virtual ~AstType() = default;
 // };
 
-class A_PlainType : public Ast, public LLVMTypable {
+class A_PlainType : public Ast {
 public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
@@ -505,7 +505,7 @@ public:
   A_TopStats *next;
 };
 
-class A_CompileUnit : public Ast, public Scoped, public LLVMModular {
+class A_CompileUnit : public Ast, public Scoped {
 public:
   A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                 const Location &location);

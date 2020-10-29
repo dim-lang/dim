@@ -7,10 +7,10 @@
 #include "infra/Log.h"
 #include <algorithm>
 
-#define L_GVAR "$nerd.global.variable."
-#define L_LVAR "$nerd.local.variable."
-#define L_FUNC "$nerd.function."
-#define L_MOD "$nerd.module."
+#define L_GVAR "nerd.global.variable."
+#define L_LVAR "nerd.local.variable."
+#define L_FUNC "nerd.function."
+#define L_MOD "nerd.module."
 
 Cowstr Label::globalVariable(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
