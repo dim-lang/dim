@@ -17,12 +17,13 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include <algorithm>
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <deque>
+#include <functional>
 #include <sstream>
-#include <string>
 
 BETTER_ENUM(AstKind, int,
             // literal
@@ -41,6 +42,16 @@ BETTER_ENUM(AstKind, int,
             FuncDef, FuncSign, Params, Param, VarDef,
             // compile unit
             CompileUnit, TopStats)
+
+namespace std {
+
+template <> struct hash<AstKind> {
+  size_t operator()(const AstKind &k) const {
+    return static_cast<size_t>(k._to_integral());
+  }
+};
+
+} // namespace std
 
 /*================ class ================*/
 

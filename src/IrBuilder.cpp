@@ -407,9 +407,9 @@ void VarDef::visitAfter(Ast *ast, Ast *child) {
 void VarDef::finishVisit(Ast *ast) {
   INITIALIZE(A_VarDef)
   if (!ctx->scope()->owner()) {
-    finishVisitGlobalVariable(this, ast, child);
+    finishVisitGlobalVariable(this, ast);
   } else {
-    finishVisitLocalVariable(this, ast, child);
+    finishVisitLocalVariable(this, ast);
   }
 }
 
@@ -427,7 +427,7 @@ void CompileUnit::visit(Ast *ast) {
 }
 
 void CompileUnit::finishVisit(Ast *ast) {
-  Context *ctx = static_cast<Context *>(context);
+  Context *ctx = static_cast<Context *>(context());
   // update scope
   ctx->scope() = ctx->scope()->owner();
   LOG_ASSERT(!ctx->scope(), "global scope's owner scope must be null:{}",

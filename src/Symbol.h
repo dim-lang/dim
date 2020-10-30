@@ -13,6 +13,7 @@
 #include "infra/Log.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include <functional>
 
 BETTER_ENUM(SymbolKind, int,
             // symbol
@@ -31,6 +32,22 @@ BETTER_ENUM(TypeSymbolKind, int,
             Func,
             // class
             Class)
+
+namespace std {
+
+template <> struct hash<SymbolKind> {
+  size_t operator()(const SymbolKind &k) const {
+    return static_cast<size_t>(k._to_integral());
+  }
+};
+
+template <> struct hash<TypeSymbolKind> {
+  size_t operator()(const TypeSymbolKind &k) const {
+    return static_cast<size_t>(k._to_integral());
+  }
+};
+
+} // namespace std
 
 class Ast;
 class A_VarId;
