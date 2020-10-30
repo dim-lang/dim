@@ -1,6 +1,8 @@
 # Copyright 2019- <nerd-lang>
 # Apache License Version 2.0
 
+# common {
+
 cmake_minimum_required(VERSION 3.8)
 project(nerd VERSION 0.0.3 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/src/Configure.h.in ${PROJECT_SOURCE_DIR}/src/Configure.h)
@@ -47,39 +49,39 @@ else()
     add_compile_options("-std=c++14")
     add_compile_options("-Wall")
     find_package(Threads REQUIRED)
-    set(NERD_INC
+    set(NERD_CORE_INC
         Threads::Threads
         )
     if(IS_DIRECTORY /usr/include)
-        set(NERD_INC
-            ${NERD_INC}
+        set(NERD_CORE_INC
+            ${NERD_CORE_INC}
             /usr/include
             )
     endif(IS_DIRECTORY /usr/include)
     if(IS_DIRECTORY /usr/local/include)
-        set(NERD_INC
-            ${NERD_INC}
+        set(NERD_CORE_INC
+            ${NERD_CORE_INC}
             /usr/local/include
             )
     endif(IS_DIRECTORY /usr/local/include)
-    set(NERD_LIB
+    set(NERD_CORE_LIB
         Threads::Threads
         )
-    set(NERD_LIB_DIR
+    set(NERD_CORE_LIB_DIR
         /usr/lib)
     if(IS_DIRECTORY /usr/lib64)
-        set(NERD_LIB_DIR
-            ${NERD_LIB_DIR}
+        set(NERD_CORE_LIB_DIR
+            ${NERD_CORE_LIB_DIR}
             /usr/lib64)
     endif(IS_DIRECTORY /usr/lib64)
     if(IS_DIRECTORY /usr/local/lib)
-        set(NERD_LIB_DIR
-            ${NERD_LIB_DIR}
+        set(NERD_CORE_LIB_DIR
+            ${NERD_CORE_LIB_DIR}
             /usr/local/lib)
     endif(IS_DIRECTORY /usr/local/lib)
     if(IS_DIRECTORY /usr/local/lib64)
-        set(NERD_LIB_DIR
-            ${NERD_LIB_DIR}
+        set(NERD_CORE_LIB_DIR
+            ${NERD_CORE_LIB_DIR}
             /usr/local/lib64)
     endif(IS_DIRECTORY /usr/local/lib64)
 endif(WIN32)
@@ -107,8 +109,8 @@ BISON_TARGET(Parser ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.y ${CMAKE_CURRENT_SOU
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.tab.hh)
 ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
 
-set(NERD_INC
-    ${NERD_INC}
+set(NERD_CORE_INC
+    ${NERD_CORE_INC}
     src
     src/spdlog/include
     src/fmt/include
@@ -116,19 +118,49 @@ set(NERD_INC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(NERD_LIB
-    ${NERD_LIB}
+set(NERD_CORE_LIB
+    ${NERD_CORE_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libs}
     # ${llvm_system_libs}
     )
-set(NERD_LIB_DIR
-    ${NERD_LIB_DIR}
+set(NERD_CORE_LIB_DIR
+    ${NERD_CORE_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
     )
-set(NERD_CORE
+
+add_definitions(-DFMT_HEADER_ONLY)
+add_definitions(-DSPDLOG_FMT_EXTERNAL)
+add_definitions(${Boost_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS})
+include_directories(${NERD_CORE_INC})
+link_directories(${NERD_CORE_LIB_DIR})
+
+message(NERD_BUILD_TYPE: ${NERD_BUILD_TYPE})
+message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
+message(BOOST_ROOT: ${BOOST_ROOT})
+message(BOOST_LIBRARYDIR: ${BOOST_LIBRARYDIR})
+message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
+message(Boost_LIBRARIES: ${Boost_LIBRARIES})
+message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
+message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
+message(LLVM_DIR: ${LLVM_DIR})
+message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
+message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
+message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
+message(llvm_libs: ${llvm_libs})
+# message(llvm_system_libs: ${llvm_system_libs})
+message(NERD_CORE_INC: ${NERD_CORE_INC})
+message(NERD_CORE_LIB: ${NERD_CORE_LIB})
+message(NERD_CORE_LIB_DIR: ${NERD_CORE_LIB_DIR})
+
+# common }
+
+# nerdcore {
+
+set(NERD_CORE_SRC
     src/iface/Identifiable.cpp
     # src/iface/LLVMModular.cpp
     src/iface/LLVMTypable.cpp
@@ -163,49 +195,30 @@ set(NERD_CORE
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Tokenizer_OUTPUTS}
 )
-set(NERDC
+
+add_library(nerdcore STATIC ${NERD_CORE_SRC})
+target_include_directories(nerdcore PRIVATE ${NERD_CORE_INC})
+target_link_libraries(nerdcore ${NERD_CORE_LIB})
+set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
+
+# nerdcore }
+
+# nerdc {
+
+set(NERDC_SRC
     src/nerdc.cpp
 )
 
-message(NERD_BUILD_TYPE: ${NERD_BUILD_TYPE})
-message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
-message(BOOST_ROOT: ${BOOST_ROOT})
-message(BOOST_LIBRARYDIR: ${BOOST_LIBRARYDIR})
-message(Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS})
-message(Boost_LIBRARIES: ${Boost_LIBRARIES})
-message(Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS})
-message(Boost_DEFINITIONS: ${Boost_DEFINITIONS})
-message(LLVM_DIR: ${LLVM_DIR})
-message(LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS})
-message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
-message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
-message(llvm_libs: ${llvm_libs})
-# message(llvm_system_libs: ${llvm_system_libs})
-message(NERD_INC: ${NERD_INC})
-message(NERD_LIB: ${NERD_LIB})
-message(NERD_LIB_DIR: ${NERD_LIB_DIR})
-
-add_definitions(-DFMT_HEADER_ONLY)
-add_definitions(-DSPDLOG_FMT_EXTERNAL)
-add_definitions(${Boost_DEFINITIONS})
-add_definitions(${LLVM_DEFINITIONS})
-include_directories(${NERD_INC})
-link_directories(${NERD_LIB_DIR})
-
-# nerdcore
-add_library(nerdcore STATIC ${NERD_CORE})
-target_include_directories(nerdcore PRIVATE ${NERD_INC})
-target_link_libraries(nerdcore ${NERD_LIB})
-set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
-
-# nerdc
-add_executable(nerdc ${NERDC})
-target_include_directories(nerdc PRIVATE ${NERD_INC})
-target_link_libraries(nerdc ${NERD_LIB} nerdcore)
+add_executable(nerdc ${NERDC_SRC})
+target_include_directories(nerdc PRIVATE ${NERD_CORE_INC})
+target_link_libraries(nerdc ${NERD_CORE_LIB} nerdcore)
 set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 
-# nerd-test
-set(NERD_TEST
+# nerdc }
+
+# nerd-test {
+
+set(NERD_TEST_SRC
     test/iface/IdentifiableTest.cpp
     # test/iface/LLVMModularTest.cpp
     test/iface/LLVMTypableTest.cpp
@@ -230,32 +243,31 @@ set(NERD_TEST
     test/TokenizerTest.cpp
 )
 set(NERD_TEST_INC
-    ${NERD_INC}
+    ${NERD_CORE_INC}
     test/Catch2/single_include
 )
 
-add_executable(nerd-test ${NERD_TEST})
+add_executable(nerd-test ${NERD_TEST_SRC})
 target_include_directories(nerd-test PRIVATE ${NERD_TEST_INC})
-target_link_libraries(nerd-test ${NERD_LIB} nerdcore)
+target_link_libraries(nerd-test ${NERD_CORE_LIB} nerdcore)
 set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})
 
-# examples
-add_executable(nerd-llvm_IRBuilder_Add example/llvm_IRBuilder_Add.cpp example/llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Add PRIVATE ${NERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Add ${NERD_LIB})
-set_target_properties(nerd-llvm_IRBuilder_Add PROPERTIES VERSION ${PROJECT_VERSION})
+# nerd-test }
 
-add_executable(nerd-llvm_IRBuilder_Sub example/llvm_IRBuilder_Sub.cpp example/llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Sub PRIVATE ${NERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Sub ${NERD_LIB})
-set_target_properties(nerd-llvm_IRBuilder_Sub PROPERTIES VERSION ${PROJECT_VERSION})
+# nerd-example {
 
-add_executable(nerd-llvm_IRBuilder_Mul example/llvm_IRBuilder_Mul.cpp example/llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Mul PRIVATE ${NERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Mul ${NERD_LIB})
-set_target_properties(nerd-llvm_IRBuilder_Mul PROPERTIES VERSION ${PROJECT_VERSION})
+set(NERD_EXAMPLE_SRC
+    example/llvms/BinaryOperation.cpp
+    example/llvms/Util.cpp
+    )
+set(NERD_EXAMPLE_INC
+    ${NERD_CORE_INC}
+    example
+    )
 
-add_executable(nerd-llvm_IRBuilder_Div example/llvm_IRBuilder_Div.cpp example/llvm_IRBuilder_Util.cpp)
-target_include_directories(nerd-llvm_IRBuilder_Div PRIVATE ${NERD_INC})
-target_link_libraries(nerd-llvm_IRBuilder_Div ${NERD_LIB})
-set_target_properties(nerd-llvm_IRBuilder_Div PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_SRC})
+target_include_directories(nerd-example-llvms-BinaryOperation PRIVATE ${NERD_EXAMPLE_INC})
+target_link_libraries(nerd-example-llvms-BinaryOperation ${NERD_CORE_LIB})
+set_target_properties(nerd-example-llvms-BinaryOperation PROPERTIES VERSION ${PROJECT_VERSION})
+
+# nerd-example }
