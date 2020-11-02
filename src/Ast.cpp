@@ -375,7 +375,7 @@ AstKind A_Assign::kind() const { return AstKind::Assign; }
 
 A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
                              const Location &location)
-    : Ast(Cowstr("postfix") + tokenName(a_postfixOp), location), expr(a_expr),
+    : Ast(tokenName(a_postfixOp), location), expr(a_expr),
       postfixOp(a_postfixOp) {
   LOG_ASSERT(expr, "expr must not null");
 }
@@ -390,8 +390,8 @@ AstKind A_PostfixExpr::kind() const { return AstKind::PostfixExpr; }
 
 A_InfixExpr::A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
                          const Location &location)
-    : Ast(Cowstr("infix") + tokenName(a_infixOp), location), left(a_left),
-      infixOp(a_infixOp), right(a_right) {
+    : Ast(tokenName(a_infixOp), location), left(a_left), infixOp(a_infixOp),
+      right(a_right) {
   LOG_ASSERT(left, "left must not null");
   LOG_ASSERT(right, "right must not null");
 }
@@ -409,8 +409,7 @@ AstKind A_InfixExpr::kind() const { return AstKind::InfixExpr; }
 
 A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
                            const Location &location)
-    : Ast(Cowstr("prefix") + tokenName(a_prefixOp), location),
-      prefixOp(a_prefixOp), expr(a_expr) {
+    : Ast(tokenName(a_prefixOp), location), prefixOp(a_prefixOp), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
 }
 
@@ -612,7 +611,7 @@ AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
 // A_PlainType {
 
 A_PlainType::A_PlainType(int a_token, const Location &location)
-    : Ast("plainType", location), token(a_token) {}
+    : Ast(tokenName(a_token), location), token(a_token) {}
 
 AstKind A_PlainType::kind() const { return AstKind::PlainType; }
 
