@@ -160,7 +160,6 @@ SymbolResolver::~SymbolResolver() {
   delete context_;
   context_ = nullptr;
   for (int i = 0; i < (int)visitors_.size(); i++) {
-    LOG_ASSERT(visitors_[i], "visitors_[{}] must not null", i);
     delete visitors_[i];
     visitors_[i] = nullptr;
   }

@@ -79,9 +79,9 @@ DECL1(Try);
 DECL1(Block);
 DECL1(FuncDef);
 DECL1(FuncSign);
-DECL0(Param);
-DECL0(VarDef);
-DECL0(CompileUnit);
+DECL1(Param);
+DECL1(VarDef);
+DECL1(CompileUnit);
 
 } // namespace dumper
 } // namespace detail
@@ -89,15 +89,59 @@ DECL0(CompileUnit);
 #define BIND(x)                                                                \
   do {                                                                         \
     Visitor *v = new detail::dumper::VISITOR(x)();                             \
+    binder_.bind((+AstKind::x), v);                                            \
+    visitors_.push_back(v);                                                    \
   } while (0)
 
 Dumper::Dumper()
     : Phase("Dumper"), context_(new detail::dumper::Context()),
-      binder_(context_) {}
+      binder_(context_) {
+  BIND(Integer);
+  BIND(Float);
+  BIND(Boolean);
+  BIND(Character);
+  BIND(String);
+  BIND(Nil);
+  BIND(Void);
+  BIND(VarId);
+  BIND(Break);
+  BIND(Continue);
+  BIND(Exprs);
+  BIND(BlockStats);
+  BIND(PlainType);
+  BIND(Params);
+  BIND(TopStats);
+
+  BIND(Throw);
+  BIND(Return);
+  BIND(Assign);
+  BIND(Postfix);
+  BIND(Prefix);
+  BIND(Infix);
+  BIND(Call);
+  BIND(Group);
+  BIND(If);
+  BIND(Loop);
+  BIND(Yield);
+  BIND(LoopCondition);
+  BIND(LoopEnumerator);
+  BIND(DoWhile);
+  BIND(Try);
+  BIND(Block);
+  BIND(FuncDef);
+  BIND(FuncSign);
+  BIND(Param);
+  BIND(VarDef);
+  BIND(CompileUnit);
+}
 
 Dumper::~Dumper() {
   delete context_;
   context_ = nullptr;
+  for (int i = 0; i < (int)visitors_.size(); i++) {
+    delete visitors_[i];
+    visitors_[i] = nullptr;
+  }
 }
 
 void Dumper::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
