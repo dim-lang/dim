@@ -10,21 +10,21 @@
 
 static Visitor IdleVisitor("IdleVisitor");
 
-VisitorBinder::VisitorBinder(VisitorContext *context) : context_(context) {}
+VisitorBinder::VisitorBinder(void *context) : context_(context) {}
 
-int VisitorBinder::bind(AstKind astKind, Visitor *visitor) {
+int VisitorBinder::bind(AstKind kind, Visitor *visitor) {
   LOG_ASSERT(visitor, "visitor must not null");
   visitor->visitorBinder_ = this;
-  visitors_[astKind] = visitor;
+  visitors_[kind._to_integral()] = visitor;
   return 0;
 }
 
-Visitor *VisitorBinder::visitor(AstKind astKind) const {
-  auto it = visitors_.find(astKind);
+Visitor *VisitorBinder::visitor(AstKind kind) const {
+  auto it = visitors_.find(kind._to_integral());
   return it == visitors_.end() ? &IdleVisitor : it->second;
 }
 
-VisitorContext *VisitorBinder::context() const { return context_; }
+void *VisitorBinder::context() const { return context_; }
 
 // VisitorBinder }
 
@@ -35,12 +35,13 @@ Visitor::Visitor(const Cowstr &name)
 
 VisitorBinder *Visitor::binder() const { return visitorBinder_; }
 
-VisitorContext *Visitor::context() const {
+void *Visitor::context() const {
   return visitorBinder_ ? visitorBinder_->context() : nullptr;
 }
 
-Visitor *Visitor::visitor(AstKind astKind) const {
-  return visitorBinder_ ? visitorBinder_->visitor(astKind) : nullptr;
+Visitor *Visitor::visitor(AstKind kind) const {
+  return visitorBinder_ ? visitorBinder_->visitor(kind._to_integral())
+                        : nullptr;
 }
 
 void Visitor::visit(Ast *ast) {}

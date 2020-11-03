@@ -362,16 +362,16 @@ public:
 
 // scope {
 
-class S_Local : public detail::ScopeImpl {
+class Sc_Local : public detail::ScopeImpl {
 public:
-  S_Local(const Cowstr &name, const Location &location, Scope *owner);
-  virtual ~S_Local() = default;
+  Sc_Local(const Cowstr &name, const Location &location, Scope *owner);
+  virtual ~Sc_Local() = default;
 };
 
-class S_Global : public detail::ScopeImpl {
+class Sc_Global : public detail::ScopeImpl {
 public:
-  S_Global(const Cowstr &name, const Location &location);
-  virtual ~S_Global() = default;
+  Sc_Global(const Cowstr &name, const Location &location);
+  virtual ~Sc_Global() = default;
 };
 
 // scope }

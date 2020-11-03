@@ -8,3 +8,5 @@ Symbolizable::Symbolizable(Symbol *symbol) : symbolizable_(symbol) {}
 Symbol *&Symbolizable::symbol() { return symbolizable_; }
 
 Symbol *Symbolizable::symbol() const { return symbolizable_; }
+
+void Symbolizable::resetSymbol() { symbolizable_ = nullptr; }

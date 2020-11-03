@@ -11,6 +11,7 @@ public:
   virtual ~Symbolizable() = default;
   virtual Symbol *&symbol();
   virtual Symbol *symbol() const;
+  virtual void resetSymbol();
 
 protected:
   Symbol *symbolizable_;

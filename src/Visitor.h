@@ -3,6 +3,8 @@
 
 #pragma once
 #include "Ast.h"
+#include "boost/core/noncopyable.hpp"
+#include "boost/preprocessor/cat.hpp"
 #include "iface/Nameable.h"
 #include "infra/Cowstr.h"
 #include <unordered_map>
@@ -10,11 +12,6 @@
 
 class Visitor;
 class VisitorBinder;
-
-class VisitorContext {
-public:
-  virtual ~VisitorContext() = default;
-};
 
 /**
  * For any tree node which contains N (N >= 0) children node:
@@ -47,14 +44,14 @@ public:
  * `visit-before-child` and `visit-after-child` actions will been executed only
  * if ast has any child node.
  */
-class Visitor : public Nameable {
+class Visitor : public Nameable, private boost::noncopyable {
 public:
   Visitor(const Cowstr &name = "Visitor");
   virtual ~Visitor() = default;
 
   // get binder, context and visitor
   virtual VisitorBinder *binder() const;
-  virtual VisitorContext *context() const;
+  virtual void *context() const;
   virtual Visitor *visitor(AstKind astKind) const;
 
   // do nothing by default
@@ -71,15 +68,26 @@ protected:
 };
 
 // get visitor for ast
-class VisitorBinder {
+class VisitorBinder : private boost::noncopyable {
 public:
-  VisitorBinder(VisitorContext *context = nullptr);
+  VisitorBinder(void *context = nullptr);
   virtual ~VisitorBinder() = default;
-  virtual int bind(AstKind astKind, Visitor *visitor);
-  virtual Visitor *visitor(AstKind astKind) const;
-  virtual VisitorContext *context() const;
+  virtual int bind(AstKind kind, Visitor *visitor);
+  virtual Visitor *visitor(AstKind kind) const;
+  virtual void *context() const;
 
 protected:
-  std::unordered_map<AstKind, Visitor *> visitors_;
-  VisitorContext *context_;
+  void *context_;
+  std::unordered_map<int, Visitor *> visitors_;
 };
+
+#define VISITOR(x) BOOST_PP_CAT(x, Visitor)
+
+#define VISITOR_DECL(x)                                                        \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)();                                                              \
+    virtual void visit(Ast *ast);                                              \
+    virtual void visitBefore(Ast *ast, Ast *child);                            \
+    virtual void visitAfter(Ast *ast, Ast *child);                             \
+    virtual void finishVisit(Ast *ast);                                        \
+  }

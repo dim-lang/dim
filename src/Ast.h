@@ -43,16 +43,6 @@ BETTER_ENUM(AstKind, int,
             // compile unit
             CompileUnit, TopStats)
 
-namespace std {
-
-template <> struct hash<AstKind> {
-  size_t operator()(const AstKind &k) const {
-    return static_cast<size_t>(k._to_integral());
-  }
-};
-
-} // namespace std
-
 /*================ class ================*/
 
 /* ast */

@@ -352,10 +352,10 @@ TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 
 // scope {
 
-S_Local::S_Local(const Cowstr &name, const Location &location, Scope *owner)
+Sc_Local::Sc_Local(const Cowstr &name, const Location &location, Scope *owner)
     : TYPE_SYMBOL_CONSTRUCTOR {}
 
-S_Global::S_Global(const Cowstr &name, const Location &location)
+Sc_Global::Sc_Global(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location), detail::Ownable(nullptr) {}
 
 // scope }
