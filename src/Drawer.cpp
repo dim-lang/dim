@@ -815,8 +815,8 @@ struct CompileUnit : public Visitor {
   }
 };
 
-DECL5(PostfixExpr, A_PostfixExpr, postfixOp, expr)
-DECL5(PrefixExpr, A_PrefixExpr, prefixOp, expr)
+DECL5(Postfix, A_Postfix, postfixOp, expr)
+DECL5(Prefix, A_Prefix, prefixOp, expr)
 
 DECL6(Call, A_Call, id, args)
 DECL6(Exprs, A_Exprs, expr, next)
@@ -850,7 +850,7 @@ DECL6(Param, A_Param, id, type)
 DECL6(TopStats, A_TopStats, topStat, next)
 
 DECL7(Assign, A_Assign, assignOp, assignee, assignor)
-DECL7(InfixExpr, A_InfixExpr, infixOp, left, right)
+DECL7(Infix, A_Infix, infixOp, left, right)
 
 DECL8(If, A_If, condition, thenp, elsep)
 DECL8(LoopCondition, A_LoopCondition, init, condition, update)
@@ -867,7 +867,7 @@ DECL8(VarDef, A_VarDef, id, type, expr)
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new detail::drawer::x();                                      \
+    Visitor *v = new detail::drawer::VISITOR(x)();                             \
     binder_.bind((+AstKind::x), v);                                            \
     visitors_.push_back(v);                                                    \
   } while (0)
@@ -896,8 +896,8 @@ Drawer::Drawer(const Cowstr &output)
   BIND(Block);
   BIND(CompileUnit);
 
-  BIND(PostfixExpr);
-  BIND(PrefixExpr);
+  BIND(Postfix);
+  BIND(Prefix);
 
   BIND(Call);
   BIND(Exprs);
@@ -911,7 +911,7 @@ Drawer::Drawer(const Cowstr &output)
   BIND(TopStats);
 
   BIND(Assign);
-  BIND(InfixExpr);
+  BIND(Infix);
 
   BIND(If);
   BIND(LoopCondition);
