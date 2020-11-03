@@ -6,10 +6,11 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
+#include "boost/preprocessor/stringize.hpp"
 #include "iface/Scoped.h"
 #include "infra/Log.h"
 
-#define INITIALIZE(astype)                                                     \
+#define VINIT(astype)                                                          \
   Context *ctx = static_cast<Context *>(context());                            \
   astype *node = static_cast<astype *>(ast);                                   \
   (void)ctx;                                                                   \
@@ -21,98 +22,110 @@ namespace symbol_resolver {
 
 struct Context : public VisitorContext, public Scoped {};
 
-struct Loop : public Visitor {
-  Loop() : Visitor("SymbolResolver::Visitor::Loop") {}
+struct VISITOR(Loop) : public Visitor {
+  VISITOR(Loop)
+  () : Visitor("SymbolResolver::" BOOST_PP_STRINGIZE(VISITOR(Loop))) {}
+
   virtual void visit(Ast *ast) {
-    INITIALIZE(A_Loop)
-    // push loop scope down to subscope
+    VINIT(A_Loop)
     ctx->scope() = node->scope();
   }
+
   virtual void finishVisit(Ast *ast) {
-    INITIALIZE(A_Loop)
-    // pop loop scope back to owner scope
+    VINIT(A_Loop)
     ctx->scope() = ctx->scope()->owner();
   }
 };
 
-struct Block : public Visitor {
-  Block() : Visitor("SymbolResolver::Visitor::Block") {}
+struct VISITOR(Block) : public Visitor {
+  VISITOR(Block)
+  () : Visitor("SymbolResolver::" BOOST_PP_STRINGIZE(VISITOR(Block))) {}
+
   virtual void visit(Ast *ast) {
-    INITIALIZE(A_Block)
-    // push block scope down to subscope
+    VINIT(A_Block)
     ctx->scope() = node->scope();
   }
+
   virtual void finishVisit(Ast *ast) {
-    INITIALIZE(A_Block)
-    // pop block scope back to owner scope
+    VINIT(A_Block)
     ctx->scope() = ctx->scope()->owner();
   }
 };
 
-struct FuncDef : public Visitor {
-  FuncDef() : Visitor("SymbolResolver::Visitor::FuncDef") {}
-  virtual void visit(Ast *ast) {
-    INITIALIZE(A_FuncDef)
-    A_FuncSign *sign = static_cast<A_FuncSign *>(node->funcSign);
-    A_VarId *varId = static_cast<A_VarId *>(sign->id);
+struct VISITOR(FuncDef) : public Visitor {
+  VISITOR(FuncDef)
+  () : Visitor("SymbolResolver::" BOOST_PP_STRINGIZE(VISITOR(FuncDef))) {}
 
-    // push block scope down to subscope
-    ctx->scope() = dynamic_cast<Scope *>(varId->symbol());
+  virtual void visit(Ast *ast) {
+    VINIT(A_FuncDef)
+    A_FuncSign *funcSign = static_cast<A_FuncSign *>(node->funcSign);
+    A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+
+    ctx->scope() = dynamic_cast<Scope *>(funcId->symbol());
   }
+
   virtual void finishVisit(Ast *ast) {
-    INITIALIZE(A_FuncDef)
-    // pop block scope back to owner scope
+    VINIT(A_FuncDef)
     ctx->scope() = ctx->scope()->owner();
   }
 };
 
-struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("SymbolResolver::Visitor::CompileUnit") {}
+struct VISITOR(CompileUnit) : public Visitor {
+  VISITOR(CompileUnit)
+  () : Visitor("SymbolResolver::" BOOST_PP_STRINGIZE(VISITOR(CompileUnit))) {}
+
   virtual void visit(Ast *ast) {
-    INITIALIZE(A_CompileUnit)
-    // pass global scope down to subscope
+    VINIT(A_CompileUnit)
     ctx->scope() = node->scope();
   }
+
   virtual void finishVisit(Ast *ast) {
-    INITIALIZE(A_CompileUnit)
-    // pop global scope back to owner scope
+    VINIT(A_CompileUnit)
     ctx->scope() = ctx->scope()->owner();
-    LOG_ASSERT(
-        !ctx->scope(),
-        "global scope must has no owner scope, but the owner is not null:{}!",
-        ctx->scope()->name());
+    LOG_ASSERT(!ctx->scope(), "global scope owner scope must null",
+               ctx->scope()->name());
   }
 };
 
-struct VarId : public Visitor {
-  VarId() : Visitor("SymbolResolver::Visitor::VarId") {}
+struct VISITOR(VarId) : public Visitor {
+  VISITOR(VarId)
+  () : Visitor("SymbolResolver::" BOOST_PP_STRINGIZE(VISITOR(VarId))) {}
+
   virtual void visit(Ast *ast) {
-    INITIALIZE(A_VarId)
+    VINIT(A_VarId)
     Symbol *sym = ctx->scope()->s_resolve(node->name());
     TypeSymbol *tsym = ctx->scope()->ts_resolve(node->name());
     if (node->symbol()) {
-      LOG_ASSERT(sym, "symbol {}:{} not exist in scope {}:{}", node->name(),
-                 node->location(), ctx->scope()->name(),
+      LOG_ASSERT(sym, "symbol {}:{} cannot resolve in scope {}:{}",
+                 node->name(), node->location(), ctx->scope()->name(),
+                 ctx->scope()->location());
+      LOG_ASSERT(sym->ast() == node && node->symbol() == sym,
+                 "symbol {}:{} must defined in scope {}:{}", sym->name(),
+                 sym->location(), ctx->scope()->name(),
                  ctx->scope()->location());
     } else if (node->typeSymbol()) {
-      LOG_ASSERT(tsym, "symbol {}:{} not exist in scope {}:{}", node->name(),
-                 node->location(), ctx->scope()->name(),
+      LOG_ASSERT(tsym, "type symbol {}:{} cannot resolve in scope {}:{}",
+                 node->name(), node->location(), ctx->scope()->name(),
+                 ctx->scope()->location());
+      LOG_ASSERT(tsym->ast() == node && node->typeSymbol() == tsym,
+                 "tyep symbol {}:{} must defined in scope {}:{}", tsym->name(),
+                 tsym->location(), ctx->scope()->name(),
                  ctx->scope()->location());
     } else {
       if (sym) {
         node->symbol() = sym;
-        LOG_ASSERT(sym->ast() != node, "symbol {}:{} resolve in varId {}:{}",
+        LOG_ASSERT(sym->ast() != node, "symbol {}:{} resolve as varId {}:{}",
                    sym->name(), sym->location(), node->name(),
                    node->location());
       } else if (tsym) {
         node->typeSymbol() = tsym;
         LOG_ASSERT(tsym->ast() != node,
-                   "type symbol {}:{} resolve in varId {}:{}", tsym->name(),
+                   "type symbol {}:{} resolve as varId {}:{}", tsym->name(),
                    tsym->location(), node->name(), node->location());
       } else {
         LOG_ASSERT(false,
-                   "varId {}:{} not exist as both symbol and type symbol in "
-                   "scope {}:{}",
+                   "varId {}:{} cannot resolve neither as symbol or as type "
+                   "symbol in scope {}:{}",
                    node->name(), node->location(), ctx->scope()->name(),
                    ctx->scope()->location());
       }
@@ -128,7 +141,7 @@ struct VarId : public Visitor {
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new detail::symbol_resolver::x();                             \
+    Visitor *v = new detail::symbol_resolver::VISITOR(x)();                    \
     binder_.bind((+AstKind::x), v);                                            \
     visitors_.push_back(v);                                                    \
   } while (0)

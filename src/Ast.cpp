@@ -55,9 +55,9 @@ bool Ast::isExpr(Ast *e) {
   case AstKind::Break:
   case AstKind::Continue:
   case AstKind::Assign:
-  case AstKind::PostfixExpr:
-  case AstKind::PrefixExpr:
-  case AstKind::InfixExpr:
+  case AstKind::Postfix:
+  case AstKind::Prefix:
+  case AstKind::Infix:
   case AstKind::Call:
   case AstKind::Exprs:
     return true;
@@ -371,57 +371,55 @@ AstKind A_Assign::kind() const { return AstKind::Assign; }
 
 // A_Assign }
 
-// A_PostfixExpr {
+// A_Postfix {
 
-A_PostfixExpr::A_PostfixExpr(Ast *a_expr, int a_postfixOp,
-                             const Location &location)
+A_Postfix::A_Postfix(Ast *a_expr, int a_postfixOp, const Location &location)
     : Ast(tokenName(a_postfixOp), location), expr(a_expr),
       postfixOp(a_postfixOp) {
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PostfixExpr::~A_PostfixExpr() { DESTROY(expr); }
+A_Postfix::~A_Postfix() { DESTROY(expr); }
 
-AstKind A_PostfixExpr::kind() const { return AstKind::PostfixExpr; }
+AstKind A_Postfix::kind() const { return AstKind::Postfix; }
 
-// A_PostfixExpr }
+// A_Postfix }
 
-// A_InfixExpr {
+// A_Infix {
 
-A_InfixExpr::A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
-                         const Location &location)
+A_Infix::A_Infix(Ast *a_left, int a_infixOp, Ast *a_right,
+                 const Location &location)
     : Ast(tokenName(a_infixOp), location), left(a_left), infixOp(a_infixOp),
       right(a_right) {
   LOG_ASSERT(left, "left must not null");
   LOG_ASSERT(right, "right must not null");
 }
 
-A_InfixExpr::~A_InfixExpr() {
+A_Infix::~A_Infix() {
   DESTROY(left);
   DESTROY(right);
 }
 
-AstKind A_InfixExpr::kind() const { return AstKind::InfixExpr; }
+AstKind A_Infix::kind() const { return AstKind::Infix; }
 
-// A_InfixExpr }
+// A_Infix }
 
-// A_PrefixExpr {
+// A_Prefix {
 
-A_PrefixExpr::A_PrefixExpr(int a_prefixOp, Ast *a_expr,
-                           const Location &location)
+A_Prefix::A_Prefix(int a_prefixOp, Ast *a_expr, const Location &location)
     : Ast(tokenName(a_prefixOp), location), prefixOp(a_prefixOp), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
 }
 
-A_PrefixExpr::~A_PrefixExpr() { DESTROY(expr); }
+A_Prefix::~A_Prefix() { DESTROY(expr); }
 
-AstKind A_PrefixExpr::kind() const { return AstKind::PrefixExpr; }
+AstKind A_Prefix::kind() const { return AstKind::Prefix; }
 
-// A_PrefixExpr }
+// A_Prefix }
 
 // A_Call {
 
-A_Call::A_Call(Ast *a_id, A_Exprs *a_args, const Location &location)
+A_Call::A_Call(Ast *a_id, A_Group *a_args, const Location &location)
     : Ast("call", location), id(a_id), args(a_args) {
   LOG_ASSERT(id, "id must not null");
 }
@@ -434,6 +432,17 @@ A_Call::~A_Call() {
 AstKind A_Call::kind() const { return AstKind::Call; }
 
 // A_Call }
+
+// A_Group {
+
+A_Group::A_Group(A_Exprs *a_exprs, const Location &location)
+    : Ast("groupExpr", location), exprs(a_exprs) {}
+
+A_Group::~A_Group() { DESTROY(exprs); }
+
+AstKind A_Group::kind() const { return AstKind::Group; }
+
+// A_Group }
 
 // A_Exprs {
 

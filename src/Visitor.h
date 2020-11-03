@@ -13,6 +13,11 @@
 class Visitor;
 class VisitorBinder;
 
+class VisitorContext {
+public:
+  virtual ~VisitorContext() = default;
+};
+
 /**
  * For any tree node which contains N (N >= 0) children node:
  *
@@ -51,7 +56,7 @@ public:
 
   // get binder, context and visitor
   virtual VisitorBinder *binder() const;
-  virtual void *context() const;
+  virtual VisitorContext *context() const;
   virtual Visitor *visitor(AstKind astKind) const;
 
   // do nothing by default
@@ -70,14 +75,14 @@ protected:
 // get visitor for ast
 class VisitorBinder : private boost::noncopyable {
 public:
-  VisitorBinder(void *context = nullptr);
+  VisitorBinder(VisitorContext *context = nullptr);
   virtual ~VisitorBinder() = default;
   virtual int bind(AstKind kind, Visitor *visitor);
   virtual Visitor *visitor(AstKind kind) const;
-  virtual void *context() const;
+  virtual VisitorContext *context() const;
 
 protected:
-  void *context_;
+  VisitorContext *context_;
   std::unordered_map<int, Visitor *> visitors_;
 };
 

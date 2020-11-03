@@ -31,8 +31,8 @@ BETTER_ENUM(AstKind, int,
             // id
             VarId,
             // expr without block
-            Throw, Return, Break, Continue, Assign, PostfixExpr, PrefixExpr,
-            InfixExpr, Call, Exprs,
+            Throw, Return, Break, Continue, Assign, Postfix, Prefix, Infix,
+            Call, Group, Exprs,
             // expr with block
             If, Loop, Yield, LoopCondition, LoopEnumerator, DoWhile, Try, Block,
             BlockStats,
@@ -67,12 +67,13 @@ class A_Return;
 class A_Break;
 class A_Continue;
 class A_Assign;
-class A_PostfixExpr;
-class A_InfixExpr;
-class A_PrefixExpr;
+class A_Postfix;
+class A_Infix;
+class A_Prefix;
 
 /* expression with block */
 class A_Call;
+class A_Group;
 class A_Exprs;
 class A_If;
 class A_Loop;
@@ -109,6 +110,7 @@ public:
   Ast(const Cowstr &name, const Location &location = Location());
   virtual ~Ast() = default;
   virtual AstKind kind() const = 0;
+  virtual Cowstr str() const = 0;
 
   static bool isLiteral(Ast *e);
   static bool isId(Ast *e);
@@ -127,6 +129,7 @@ public:
   A_Integer(const Cowstr &literal, const Location &location);
   virtual ~A_Integer() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   // 32, 64
   virtual int bit() const;
@@ -279,30 +282,29 @@ public:
   Ast *assignor; // right
 };
 
-class A_PostfixExpr : public Ast {
+class A_Postfix : public Ast {
 public:
-  A_PostfixExpr(Ast *a_expr, int a_postfixOp, const Location &location);
-  virtual ~A_PostfixExpr();
+  A_Postfix(Ast *a_expr, int a_postfixOp, const Location &location);
+  virtual ~A_Postfix();
   virtual AstKind kind() const;
   Ast *expr;
   int postfixOp;
 };
 
-class A_InfixExpr : public Ast {
+class A_Infix : public Ast {
 public:
-  A_InfixExpr(Ast *a_left, int a_infixOp, Ast *a_right,
-              const Location &location);
-  virtual ~A_InfixExpr();
+  A_Infix(Ast *a_left, int a_infixOp, Ast *a_right, const Location &location);
+  virtual ~A_Infix();
   virtual AstKind kind() const;
   Ast *left;
   int infixOp;
   Ast *right;
 };
 
-class A_PrefixExpr : public Ast {
+class A_Prefix : public Ast {
 public:
-  A_PrefixExpr(int a_prefixOp, Ast *a_expr, const Location &location);
-  virtual ~A_PrefixExpr();
+  A_Prefix(int a_prefixOp, Ast *a_expr, const Location &location);
+  virtual ~A_Prefix();
   virtual AstKind kind() const;
   int prefixOp;
   Ast *expr;
@@ -310,11 +312,20 @@ public:
 
 class A_Call : public Ast {
 public:
-  A_Call(Ast *a_id, A_Exprs *a_args, const Location &location);
+  A_Call(Ast *a_id, A_Group *a_args, const Location &location);
   virtual ~A_Call();
   virtual AstKind kind() const;
   Ast *id;
-  A_Exprs *args;
+  A_Group *args;
+};
+
+class A_Group : public Ast {
+public:
+  A_Group(A_Exprs *a_exprs, const Location &location);
+  virtual ~A_Group();
+  virtual AstKind kind() const;
+
+  A_Exprs *exprs;
 };
 
 class A_Exprs : public Ast {

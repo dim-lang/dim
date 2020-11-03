@@ -18,7 +18,7 @@ public:
 
 private:
   Cowstr fileName_;
-  std::vector<Visitor *> visitors_;
   VisitorContext *context_;
   VisitorBinder binder_;
+  std::vector<Visitor *> visitors_;
 };

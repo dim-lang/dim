@@ -10,7 +10,7 @@
 
 static Visitor IdleVisitor("IdleVisitor");
 
-VisitorBinder::VisitorBinder(void *context) : context_(context) {}
+VisitorBinder::VisitorBinder(VisitorContext *context) : context_(context) {}
 
 int VisitorBinder::bind(AstKind kind, Visitor *visitor) {
   LOG_ASSERT(visitor, "visitor must not null");
@@ -24,7 +24,7 @@ Visitor *VisitorBinder::visitor(AstKind kind) const {
   return it == visitors_.end() ? &IdleVisitor : it->second;
 }
 
-void *VisitorBinder::context() const { return context_; }
+VisitorContext *VisitorBinder::context() const { return context_; }
 
 // VisitorBinder }
 
@@ -35,13 +35,12 @@ Visitor::Visitor(const Cowstr &name)
 
 VisitorBinder *Visitor::binder() const { return visitorBinder_; }
 
-void *Visitor::context() const {
+VisitorContext *Visitor::context() const {
   return visitorBinder_ ? visitorBinder_->context() : nullptr;
 }
 
 Visitor *Visitor::visitor(AstKind kind) const {
-  return visitorBinder_ ? visitorBinder_->visitor(kind._to_integral())
-                        : nullptr;
+  return visitorBinder_ ? visitorBinder_->visitor(kind) : nullptr;
 }
 
 void Visitor::visit(Ast *ast) {}
@@ -123,12 +122,12 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     TRAVEL1(ast, A_Return, expr);
     break;
   }
-  case AstKind::PostfixExpr: {
-    TRAVEL1(ast, A_PostfixExpr, expr);
+  case AstKind::Postfix: {
+    TRAVEL1(ast, A_Postfix, expr);
     break;
   }
-  case AstKind::PrefixExpr: {
-    TRAVEL1(ast, A_PrefixExpr, expr);
+  case AstKind::Prefix: {
+    TRAVEL1(ast, A_Prefix, expr);
     break;
   }
   case AstKind::Yield: {
@@ -148,12 +147,16 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     TRAVEL2(ast, A_Assign, assignee, assignor);
     break;
   }
-  case AstKind::InfixExpr: {
-    TRAVEL2(ast, A_InfixExpr, left, right);
+  case AstKind::Infix: {
+    TRAVEL2(ast, A_Infix, left, right);
     break;
   }
   case AstKind::Call: {
     TRAVEL2(ast, A_Call, id, args);
+    break;
+  }
+  case AstKind::Group: {
+    TRAVEL1(ast, A_Group, exprs);
     break;
   }
   case AstKind::Exprs: {

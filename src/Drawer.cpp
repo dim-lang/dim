@@ -22,6 +22,8 @@ namespace detail {
 
 namespace drawer {
 
+// Graph {
+
 static CounterNameGenerator CNG;
 
 static Cowstr identify(Identifiable *identifier) {
@@ -446,10 +448,125 @@ struct Graph {
   }
 };
 
+// Graph }
+
+// Visitor {
+
+struct Context : public VisitorContext {
+  Context() : g(nullptr) {}
+  Graph *g;
+};
+
+static GNode *linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
+  LOG_ASSERT(a, "Ast a is null");
+  if (b) {
+    AstToAstEdge *edge = new AstToAstEdge(a, b, name);
+    g->edges.insert(edge->id(), edge);
+    LinkedHashMap<Cowstr, GNode *>::iterator it = g->nodes.find(identify(b));
+    LOG_ASSERT(it != g->nodes.end(), "AstNode b {} must exist", b->name());
+    LOG_ASSERT(it->second, "AstNode b {} it->second must not null", b->name());
+    return it->second;
+  } else {
+    NilNode *node = new NilNode();
+    g->nodes.insert(node->id(), node);
+    AstToNilEdge *edge = new AstToNilEdge(a, node->id(), name);
+    g->edges.insert(edge->id(), edge);
+    return node;
+  }
+}
+
+static void rankAst(GNode *a, GNode *b, Graph *g) {
+  LOG_ASSERT(a, "a must not null");
+  LOG_ASSERT(b, "b must not null");
+  LOG_ASSERT(g, "g must not null");
+  GEdgeRank *r = new GEdgeRank(a, b);
+  g->ranks.push_back(r);
+}
+
+static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
+  LOG_ASSERT(a, "a must not null");
+  LOG_ASSERT(b, "b must not null");
+  LOG_ASSERT(c, "c must not null");
+  LOG_ASSERT(g, "g must not null");
+  GEdgeRank *r = new GEdgeRank(a, b, c);
+  g->ranks.push_back(r);
+}
+
+static void defineAstToVar(A_VarId *varId, Graph *g) {
+  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
+  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, variableSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void resolveAstToVar(A_VarId *varId, Graph *g) {
+  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, variableSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void defineAstToParam(A_VarId *varId, Graph *g) {
+  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
+  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, parameterSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void resolveAstToParam(A_VarId *varId, Graph *g) {
+  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, parameterSymbol);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void defineAstToClass(A_VarId *varId, Graph *g) {
+  LOG_ASSERT(false, "not implemented!");
+}
+
+static void resolveAstToClass(A_VarId *varId, Graph *g) {
+  LOG_ASSERT(false, "not implemented!");
+}
+
+static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
+  ScopeNode *node = new ScopeNode(scope);
+  if (scope->s_empty() && scope->ts_empty() && scope->subscope_empty()) {
+    node->add("empty");
+  } else {
+    if (!scope->s_empty()) {
+      node->add("symbol");
+      for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
+        node->addSymbol(i->second);
+      }
+    }
+    if (!scope->ts_empty()) {
+      node->add("type_symbol");
+      for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
+        node->addTypeSymbol(i->second);
+      }
+    }
+    if (!scope->subscope_empty()) {
+      node->add("sub_scope");
+      for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
+        node->addScope(i->second);
+      }
+    }
+  }
+  g->nodes.insert(node->id(), node);
+  AstToScopeEdge *edge = new AstToScopeEdge(varId, node);
+  g->edges.insert(edge->id(), edge);
+}
+
+static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
+  auto it = g->nodes.find(identify(scope));
+  LOG_ASSERT(it != g->nodes.end(), "scope {} related ScopeNode not exist",
+             scope->name());
+  GNode *node = it->second;
+  ScopeToAstEdge *edge =
+      new ScopeToAstEdge(varId, static_cast<ScopeNode *>(node));
+  g->edges.insert(edge->id(), edge);
+}
+
 // kind, id, location
 #define DECL1(x)                                                               \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -573,117 +690,6 @@ struct Graph {
       rankAst(a1, a2, a3, g);                                                  \
     }                                                                          \
   };
-
-static GNode *linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
-  LOG_ASSERT(a, "Ast a is null");
-  if (b) {
-    AstToAstEdge *edge = new AstToAstEdge(a, b, name);
-    g->edges.insert(edge->id(), edge);
-    LinkedHashMap<Cowstr, GNode *>::iterator it = g->nodes.find(identify(b));
-    LOG_ASSERT(it != g->nodes.end(), "AstNode b {} not exist", b->name());
-    LOG_ASSERT(it->second, "AstNode b {} it->second must not null", b->name());
-    return it->second;
-  } else {
-    NilNode *node = new NilNode();
-    g->nodes.insert(node->id(), node);
-    AstToNilEdge *edge = new AstToNilEdge(a, node->id(), name);
-    g->edges.insert(edge->id(), edge);
-    return node;
-  }
-}
-
-static void rankAst(GNode *a, GNode *b, Graph *g) {
-  LOG_ASSERT(a, "a must not null");
-  LOG_ASSERT(b, "b must not null");
-  LOG_ASSERT(g, "g must not null");
-  GEdgeRank *r = new GEdgeRank(a, b);
-  g->ranks.push_back(r);
-}
-
-static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
-  LOG_ASSERT(a, "a must not null");
-  LOG_ASSERT(b, "b must not null");
-  LOG_ASSERT(c, "c must not null");
-  LOG_ASSERT(g, "g must not null");
-  GEdgeRank *r = new GEdgeRank(a, b, c);
-  g->ranks.push_back(r);
-}
-
-static void defineAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, variableSymbol);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void resolveAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, variableSymbol);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void defineAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, parameterSymbol);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void resolveAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, parameterSymbol);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void defineAstToClass(A_VarId *varId, Graph *g) {
-  LOG_ASSERT(false, "not implemented!");
-}
-
-static void resolveAstToClass(A_VarId *varId, Graph *g) {
-  LOG_ASSERT(false, "not implemented!");
-}
-
-static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
-  ScopeNode *node = new ScopeNode(scope);
-  if (scope->s_empty() && scope->ts_empty() && scope->subscope_empty()) {
-    node->add("empty");
-  } else {
-    if (!scope->s_empty()) {
-      node->add("symbol");
-      for (auto i = scope->s_begin(); i != scope->s_end(); i++) {
-        node->addSymbol(i->second);
-      }
-    }
-    if (!scope->ts_empty()) {
-      node->add("type_symbol");
-      for (auto i = scope->ts_begin(); i != scope->ts_end(); i++) {
-        node->addTypeSymbol(i->second);
-      }
-    }
-    if (!scope->subscope_empty()) {
-      node->add("sub_scope");
-      for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
-        node->addScope(i->second);
-      }
-    }
-  }
-  g->nodes.insert(node->id(), node);
-  AstToScopeEdge *edge = new AstToScopeEdge(varId, node);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
-  auto it = g->nodes.find(identify(scope));
-  LOG_ASSERT(it != g->nodes.end(), "scope {} related ScopeNode not exist",
-             scope->name());
-  GNode *node = it->second;
-  ScopeToAstEdge *edge =
-      new ScopeToAstEdge(varId, static_cast<ScopeNode *>(node));
-  g->edges.insert(edge->id(), edge);
-}
-
-struct Context : public VisitorContext {
-  Context() : g(nullptr) {}
-  Graph *g;
-};
 
 DECL1(Nil)
 DECL1(Void)
@@ -852,6 +858,8 @@ DECL8(LoopEnumerator, A_LoopEnumerator, id, type, expr)
 DECL8(Try, A_Try, tryp, catchp, finallyp)
 DECL8(FuncDef, A_FuncDef, funcSign, resultType, body)
 DECL8(VarDef, A_VarDef, id, type, expr)
+
+// Visitor }
 
 } // namespace drawer
 

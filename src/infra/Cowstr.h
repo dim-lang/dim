@@ -111,6 +111,8 @@ public:
   bool operator<(const Cowstr &other) const;
   bool operator<=(const Cowstr &other) const;
 
+  Cowstr repeat(int n) const;
+
 private:
   std::shared_ptr<std::string> value_;
 };
