@@ -33,22 +33,6 @@ BETTER_ENUM(TypeSymbolKind, int,
             // class
             Class)
 
-namespace std {
-
-template <> struct hash<SymbolKind> {
-  size_t operator()(const SymbolKind &k) const {
-    return static_cast<size_t>(k._to_integral());
-  }
-};
-
-template <> struct hash<TypeSymbolKind> {
-  size_t operator()(const TypeSymbolKind &k) const {
-    return static_cast<size_t>(k._to_integral());
-  }
-};
-
-} // namespace std
-
 class Ast;
 class A_VarId;
 class Symbol;

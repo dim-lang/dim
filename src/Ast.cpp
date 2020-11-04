@@ -17,6 +17,27 @@
     x = nullptr;                                                               \
   } while (0)
 
+#define PARENT(x)                                                              \
+  do {                                                                         \
+    if (x) {                                                                   \
+      (x)->parent() = this;                                                    \
+    }                                                                          \
+  } while (0)
+
+// detail::Parentable {
+
+namespace detail {
+
+Parentable::Parentable(Ast *parent) : parentable_(parent) {}
+
+Ast *&Parentable::parent() { return parentable_; }
+
+Ast *Parentable::parent() const { return parentable_; }
+
+} // namespace detail
+
+// detail::Parentable }
+
 // Ast {
 
 Ast::Ast(const Cowstr &name, const Location &location)
@@ -339,6 +360,7 @@ Cowstr A_VarId::str() const { return Ast::str(); }
 A_Throw::A_Throw(Ast *a_expr, const Location &location)
     : Ast("throw", location), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(expr);
 }
 
 A_Throw::~A_Throw() { DESTROY(expr); }
@@ -354,7 +376,9 @@ Cowstr A_Throw::str() const {
 // A_Return {
 
 A_Return::A_Return(Ast *a_expr, const Location &location)
-    : Ast("return", location), expr(a_expr) {}
+    : Ast("return", location), expr(a_expr) {
+  PARENT(expr);
+}
 
 A_Return::~A_Return() { DESTROY(expr); }
 
@@ -395,6 +419,8 @@ A_Assign::A_Assign(Ast *a_assignee, int a_assignOp, Ast *a_assignor,
       assignOp(a_assignOp), assignor(a_assignor) {
   LOG_ASSERT(assignee, "assignee must not null");
   LOG_ASSERT(assignor, "assignor must not null");
+  PARENT(assignee);
+  PARENT(assignor);
 }
 
 A_Assign::~A_Assign() {
@@ -417,6 +443,7 @@ A_Postfix::A_Postfix(Ast *a_expr, int a_postfixOp, const Location &location)
     : Ast(tokenName(a_postfixOp), location), expr(a_expr),
       postfixOp(a_postfixOp) {
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(expr);
 }
 
 A_Postfix::~A_Postfix() { DESTROY(expr); }
@@ -437,6 +464,8 @@ A_Infix::A_Infix(Ast *a_left, int a_infixOp, Ast *a_right,
       right(a_right) {
   LOG_ASSERT(left, "left must not null");
   LOG_ASSERT(right, "right must not null");
+  PARENT(left);
+  PARENT(right);
 }
 
 A_Infix::~A_Infix() {
@@ -458,6 +487,7 @@ Cowstr A_Infix::str() const {
 A_Prefix::A_Prefix(int a_prefixOp, Ast *a_expr, const Location &location)
     : Ast(tokenName(a_prefixOp), location), prefixOp(a_prefixOp), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(expr);
 }
 
 A_Prefix::~A_Prefix() { DESTROY(expr); }
@@ -475,6 +505,8 @@ Cowstr A_Prefix::str() const {
 A_Call::A_Call(Ast *a_id, A_Exprs *a_args, const Location &location)
     : Ast("call", location), id(a_id), args(a_args) {
   LOG_ASSERT(id, "id must not null");
+  PARENT(id);
+  PARENT(args);
 }
 
 A_Call::~A_Call() {
@@ -497,6 +529,8 @@ Cowstr A_Call::str() const {
 A_Exprs::A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location)
     : Ast("exprs", location), expr(a_expr), next(a_next) {
   LOG_ASSERT(expr, "id must not null");
+  PARENT(expr);
+  PARENT(next);
 }
 
 A_Exprs::~A_Exprs() {
@@ -522,6 +556,9 @@ A_If::A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep,
       elsep(a_elsep) {
   LOG_ASSERT(condition, "condition must not null");
   LOG_ASSERT(thenp, "thenp must not null");
+  PARENT(condition);
+  PARENT(thenp);
+  PARENT(elsep);
 }
 
 A_If::~A_If() {
@@ -548,6 +585,8 @@ A_Loop::A_Loop(Ast *a_condition, Ast *a_body, const Location &location)
     : Ast("loop", location), condition(a_condition), body(a_body) {
   LOG_ASSERT(condition, "condition must not null");
   LOG_ASSERT(body, "body must not null");
+  PARENT(condition);
+  PARENT(body);
 }
 
 A_Loop::~A_Loop() {
@@ -569,6 +608,7 @@ Cowstr A_Loop::str() const {
 A_Yield::A_Yield(Ast *a_expr, const Location &location)
     : Ast("yield", location), expr(a_expr) {
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(expr);
 }
 
 A_Yield::~A_Yield() { DESTROY(expr); }
@@ -586,7 +626,11 @@ Cowstr A_Yield::str() const {
 A_LoopCondition::A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
                                  const Location &location)
     : Ast("loopCondition", location), init(a_init), condition(a_condition),
-      update(a_update) {}
+      update(a_update) {
+  PARENT(init);
+  PARENT(condition);
+  PARENT(update);
+}
 
 AstKind A_LoopCondition::kind() const { return AstKind::LoopCondition; }
 A_LoopCondition::~A_LoopCondition() {
@@ -621,6 +665,9 @@ A_LoopEnumerator::A_LoopEnumerator(Ast *a_id, Ast *a_type, Ast *a_expr,
   LOG_ASSERT(id, "id must not null");
   LOG_ASSERT(type, "type must not null");
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(id);
+  PARENT(type);
+  PARENT(expr);
 }
 
 A_LoopEnumerator::~A_LoopEnumerator() {
@@ -644,6 +691,8 @@ A_DoWhile::A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location)
     : Ast("doWhile", location), body(a_body), condition(a_condition) {
   LOG_ASSERT(body, "body must not null");
   LOG_ASSERT(condition, "condition must not null");
+  PARENT(body);
+  PARENT(condition);
 }
 
 A_DoWhile::~A_DoWhile() {
@@ -668,6 +717,9 @@ A_Try::A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp,
       finallyp(a_finallyp) {
   LOG_ASSERT(tryp, "tryp must not null");
   LOG_ASSERT(catchp, "catchp must not null");
+  PARENT(tryp);
+  PARENT(catchp);
+  PARENT(finallyp);
 }
 
 A_Try::~A_Try() {
@@ -691,7 +743,9 @@ Cowstr A_Try::str() const {
 // A_Block {
 
 A_Block::A_Block(A_BlockStats *a_blockStats, const Location &location)
-    : Ast("block", location), blockStats(a_blockStats) {}
+    : Ast("block", location), blockStats(a_blockStats) {
+  PARENT(blockStats);
+}
 
 A_Block::~A_Block() { DESTROY(blockStats); }
 
@@ -711,6 +765,8 @@ A_BlockStats::A_BlockStats(Ast *a_blockStat, A_BlockStats *a_next,
                            const Location &location)
     : Ast("blockStats", location), blockStat(a_blockStat), next(a_next) {
   LOG_ASSERT(blockStat, "blockStat must not null");
+  PARENT(blockStat);
+  PARENT(next);
 }
 
 A_BlockStats::~A_BlockStats() {
@@ -759,6 +815,9 @@ A_FuncDef::A_FuncDef(Ast *a_funcSign, Ast *a_resultType, Ast *a_body,
   LOG_ASSERT(funcSign, "funcSign must not null");
   LOG_ASSERT(resultType, "resultType must not null");
   LOG_ASSERT(body, "body must not null");
+  PARENT(funcSign);
+  PARENT(resultType);
+  PARENT(body);
 }
 
 A_FuncDef::~A_FuncDef() {
@@ -778,6 +837,8 @@ Cowstr A_FuncDef::str() const {
 A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
     : Ast("funcSign", location), id(a_id), params(a_params) {
   LOG_ASSERT(id, "id must not null");
+  PARENT(id);
+  PARENT(params);
 }
 
 A_FuncSign::~A_FuncSign() {
@@ -796,6 +857,8 @@ Cowstr A_FuncSign::str() const {
 A_Params::A_Params(A_Param *a_param, A_Params *a_next, const Location &location)
     : Ast("params", location), param(a_param), next(a_next) {
   LOG_ASSERT(param, "param must not null");
+  PARENT(param);
+  PARENT(next);
 }
 
 A_Params::~A_Params() {
@@ -815,6 +878,8 @@ A_Param::A_Param(Ast *a_id, Ast *a_type, const Location &location)
     : Ast("param", location), id(a_id), type(a_type) {
   LOG_ASSERT(id, "id must not null");
   LOG_ASSERT(type, "type must not null");
+  PARENT(id);
+  PARENT(type);
 }
 
 A_Param::~A_Param() {
@@ -835,6 +900,9 @@ A_VarDef::A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr,
   LOG_ASSERT(id, "id must not null");
   LOG_ASSERT(type, "type must not null");
   LOG_ASSERT(expr, "expr must not null");
+  PARENT(id);
+  PARENT(type);
+  PARENT(expr);
 }
 
 A_VarDef::~A_VarDef() {
@@ -858,6 +926,8 @@ A_TopStats::A_TopStats(Ast *a_topStat, A_TopStats *a_next,
                        const Location &location)
     : Ast("topStats", location), topStat(a_topStat), next(a_next) {
   LOG_ASSERT(topStat, "topStat must not null");
+  PARENT(topStat);
+  PARENT(next);
 }
 
 A_TopStats::~A_TopStats() {
@@ -876,7 +946,9 @@ Cowstr A_TopStats::str() const {
 
 A_CompileUnit::A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                              const Location &location)
-    : Ast(name, location), topStats(a_topStats) {}
+    : Ast(name, location), topStats(a_topStats) {
+  PARENT(topStats);
+}
 
 A_CompileUnit::~A_CompileUnit() { DESTROY(topStats); }
 

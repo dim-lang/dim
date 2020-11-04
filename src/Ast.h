@@ -99,11 +99,27 @@ class A_VarDef;
 class A_TopStats;
 class A_CompileUnit;
 
+namespace detail {
+
+class Parentable {
+public:
+  Parentable(Ast *parent = nullptr);
+  virtual ~Parentable() = default;
+  virtual Ast *&parent();
+  virtual Ast *parent() const;
+
+protected:
+  Ast *parentable_;
+};
+
+} // namespace detail
+
 // Ast {
 
 class Ast : public Nameable,
             public Locationable,
             public Identifiable,
+            public detail::Parentable,
             private boost::noncopyable {
 public:
   Ast(const Cowstr &name, const Location &location = Location());
