@@ -8,3 +8,5 @@ LLVMTypable::LLVMTypable(llvm::Type *type) : llvmTypable_(type) {}
 llvm::Type *&LLVMTypable::llvmType() { return llvmTypable_; }
 
 llvm::Type *LLVMTypable::llvmType() const { return llvmTypable_; }
+
+void LLVMTypable::resetLLVMType() { llvmTypable_ = nullptr; }

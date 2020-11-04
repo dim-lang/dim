@@ -7,53 +7,65 @@
 #include "Symbol.h"
 #include "Token.h"
 #include "Visitor.h"
+#include "boost/preprocessor/stringize.hpp"
 #include "iface/Scoped.h"
 #include "infra/Log.h"
+
+#define VINIT(astype)                                                          \
+  Context *ctx = static_cast<Context *>(context());                            \
+  astype *node = static_cast<astype *>(ast);                                   \
+  (void)ctx;                                                                   \
+  (void)node;
 
 namespace detail {
 
 namespace symbol_builder {
 
-static NameGenerator SNG(".");
+static NameGenerator SymbolNG(".");
 
 struct Context : public VisitorContext, public Scoped {};
 
-struct Loop : public Visitor {
-  Loop() : Visitor("SymbolBuilder::Visitor::Loop") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_Loop *e = static_cast<A_Loop *>(ast);
+struct VISITOR(Loop) : public Visitor {
+  VISITOR(Loop)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(Loop))) {}
 
-    // create local scope
-    S_Local *sc_loop = new S_Local(SNG.generate("loop", e->location().str()),
-                                   e->location(), ctx->scope());
-    sc_loop->ast() = e;
-    e->scope() = sc_loop;
+  virtual void visit(Ast *ast) {
+    VINIT(A_Loop)
+
+    // scope
+    Sc_Local *sc_loop =
+        new Sc_Local(SymbolNG.generate("loop", node->location().str()),
+                     node->location(), ctx->scope());
+    sc_loop->ast() = node;
+    node->scope() = sc_loop;
     ctx->scope()->subscope_define(sc_loop);
 
-    // push loop scope down to subscope
+    // new scope
     ctx->scope() = sc_loop;
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    // pop loop scope back to owner scope
-    Context *ctx = static_cast<Context *>(context);
+
+  virtual void finishVisit(Ast *ast) {
+    VINIT(A_Loop)
     ctx->scope() = ctx->scope()->owner();
+    LOG_ASSERT(ctx->scope(), "scope must not null");
   }
 };
 
-struct LoopEnumerator : public Visitor {
-  LoopEnumerator() : Visitor("SymbolBuilder::Visitor::LoopEnumerator") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_LoopEnumerator *e = static_cast<A_LoopEnumerator *>(ast);
-    A_VarId *varId = static_cast<A_VarId *>(e->id);
-    A_PlainType *varType = static_cast<A_PlainType *>(e->type);
+struct VISITOR(LoopEnumerator) : public Visitor {
+  VISITOR(LoopEnumerator)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(LoopEnumerator))) {}
 
-    // get variable type symbol
-    TypeSymbol *ts_var = ctx->scope()->ts_resolve(tokenName(varType->token));
-    LOG_ASSERT(ts_var, "variable type {} is null", tokenName(varType->token));
+  virtual void visit(Ast *ast) {
+    VINIT(A_LoopEnumerator)
+    A_VarId *varId = static_cast<A_VarId *>(node->id);
+    A_PlainType *varType = static_cast<A_PlainType *>(node->type);
 
-    // create variable symbol
+    // type symbol
+    TypeSymbol *ts_var = ctx->scope()->ts_resolve(varType->name());
+    LOG_ASSERT(ts_var, "variable type symbol {}:{} must not null",
+               varType->name(), varType->location());
+
+    // symbol
     S_Var *s_var =
         new S_Var(varId->name(), varId->location(), ctx->scope(), ts_var);
     s_var->ast() = varId;
@@ -62,42 +74,46 @@ struct LoopEnumerator : public Visitor {
   }
 };
 
-struct Block : public Visitor {
-  Block() : Visitor("SymbolBuilder::Visitor::Block") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_Block *e = static_cast<A_Block *>(ast);
+struct VISITOR(Block) : public Visitor {
+  VISITOR(Block)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(Block))) {}
 
-    // create block scope
-    S_Local *sc_block = new S_Local(SNG.generate("block", e->location().str()),
-                                    e->location(), ctx->scope());
-    sc_block->ast() = e;
-    e->scope() = sc_block;
+  virtual void visit(Ast *ast) {
+    VINIT(A_Block)
+
+    // scope
+    Sc_Local *sc_block =
+        new Sc_Local(SymbolNG.generate("block", node->location().str()),
+                     node->location(), ctx->scope());
+    sc_block->ast() = node;
+    node->scope() = sc_block;
     ctx->scope()->subscope_define(sc_block);
 
-    // push block scope down to subscope
+    // new scope
     ctx->scope() = sc_block;
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    // pop block scope back to owner scope
-    Context *ctx = static_cast<Context *>(context);
+  virtual void finishVisit(Ast *ast) {
+    VINIT(A_Block)
     ctx->scope() = ctx->scope()->owner();
+    LOG_ASSERT(ctx->scope(), "scope must not null");
   }
 };
 
-struct VarDef : public Visitor {
-  VarDef() : Visitor("SymbolBuilder::Visitor::VarDef") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_VarDef *e = static_cast<A_VarDef *>(ast);
-    A_VarId *varId = static_cast<A_VarId *>(e->id);
-    A_PlainType *varType = static_cast<A_PlainType *>(e->type);
+struct VISITOR(VarDef) : public Visitor {
+  VISITOR(VarDef)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(VarDef))) {}
 
-    // get variable type symbol
-    TypeSymbol *ts_var = ctx->scope()->ts_resolve(tokenName(varType->token));
-    LOG_ASSERT(ts_var, "variable type {} is null", tokenName(varType->token));
+  virtual void visit(Ast *ast) {
+    VINIT(A_VarDef)
+    A_VarId *varId = static_cast<A_VarId *>(node->id);
+    A_PlainType *varType = static_cast<A_PlainType *>(node->type);
 
-    // create variable symbol
+    // type symbol
+    TypeSymbol *ts_var = ctx->scope()->ts_resolve(varType->name());
+    LOG_ASSERT(ts_var, "variable type symbol {}:{} must not null",
+               varType->name(), varType->location());
+
+    // symbol
     S_Var *s_var =
         new S_Var(varId->name(), varId->location(), ctx->scope(), ts_var);
     s_var->ast() = varId;
@@ -106,83 +122,89 @@ struct VarDef : public Visitor {
   }
 };
 
-struct Param : public Visitor {
-  Param() : Visitor("SymbolBuilder::Visitor::Param") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_Param *e = static_cast<A_Param *>(ast);
-    A_VarId *varId = static_cast<A_VarId *>(e->id);
-    A_PlainType *plainType = static_cast<A_PlainType *>(e->type);
+struct VISITOR(Param) : public Visitor {
+  VISITOR(Param)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(Param))) {}
 
-    // get parameter type symbol
-    TypeSymbol *ts_param =
-        ctx->scope()->ts_resolve(tokenName(plainType->token));
-    LOG_ASSERT(ts_param, "plain type {} is null", tokenName(plainType->token));
+  virtual void visit(Ast *ast) {
+    VINIT(A_Param)
+    A_VarId *paramId = static_cast<A_VarId *>(node->id);
+    A_PlainType *paramType = static_cast<A_PlainType *>(node->type);
 
-    // create parameter symbol
-    S_Param *s_param =
-        new S_Param(varId->name(), varId->location(), ctx->scope(), ts_param);
-    s_param->ast() = varId;
-    varId->symbol() = s_param;
+    // type symbol
+    TypeSymbol *ts_param = ctx->scope()->ts_resolve(paramType->name());
+    LOG_ASSERT(ts_param, "param type symbol {}:{} must not null",
+               paramType->name(), paramType->location());
+
+    // symbol
+    S_Param *s_param = new S_Param(paramId->name(), paramId->location(),
+                                   ctx->scope(), ts_param);
+    s_param->ast() = paramId;
+    paramId->symbol() = s_param;
     ctx->scope()->s_define(s_param);
 
-    // add param to owner function scope
-    LOG_ASSERT(dynamic_cast<Symbol *>(ctx->scope())->kind() ==
-                   (+SymbolKind::Func),
-               "ctx->scope->kind {} != SymbolKind::Func",
-               dynamic_cast<Symbol *>(ctx->scope())->kind()._to_string());
-    static_cast<S_Func *>(ctx->scope())->params.push_back(s_param);
+    // add param
+    Symbol *sym = dynamic_cast<Symbol *>(ctx->scope());
+    S_Func *s_func = static_cast<S_Func *>(sym);
+    LOG_ASSERT(sym->kind() == (+SymbolKind::Func),
+               "ctx->scope {}:{} kind {} != SymbolKind::Func",
+               ctx->scope()->name(), ctx->scope()->location(),
+               sym->kind()._to_string());
+    s_func->params.push_back(s_param);
   }
 };
 
-struct FuncDef : public Visitor {
-  FuncDef() : Visitor("SymbolBuilder::Visitor::FuncDef") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_FuncDef *e = static_cast<A_FuncDef *>(ast);
-    A_FuncSign *sign = static_cast<A_FuncSign *>(e->funcSign);
-    A_VarId *varId = static_cast<A_VarId *>(sign->id);
+struct VISITOR(FuncDef) : public Visitor {
+  VISITOR(FuncDef)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(FuncDef))) {}
 
-    // get function parameter types
+  virtual void visit(Ast *ast) {
+    VINIT(A_FuncDef)
+    A_FuncSign *funcSign = static_cast<A_FuncSign *>(node->funcSign);
+    A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+
+    // parameter types
     std::vector<TypeSymbol *> ts_params;
-    for (A_Params *params = sign->params; params; params = params->next) {
-      LOG_ASSERT(params->param, "params's ({}) param is null", params->name());
-      TypeSymbol *ts_param = ctx->scope()->ts_resolve(
-          tokenName(static_cast<A_PlainType *>(params->param->type)->token));
+    for (A_Params *params = funcSign->params; params; params = params->next) {
+      LOG_ASSERT(params->param, "function params {}:{} param must not null",
+                 params->name(), params->location());
+      A_PlainType *paramType = static_cast<A_PlainType *>(params->param->type);
+      TypeSymbol *ts_param = ctx->scope()->ts_resolve(paramType->name());
       ts_params.push_back(ts_param);
     }
 
-    // get result type
+    // result type
     TypeSymbol *ts_result = ctx->scope()->ts_resolve(
-        tokenName(static_cast<A_PlainType *>(e->resultType)->token));
+        tokenName(static_cast<A_PlainType *>(node->resultType)->token));
 
-    // create function type and symbol
+    // symbol
     Ts_Func *ts_func =
-        new Ts_Func(ts_params, ts_result, sign->location(), ctx->scope());
+        new Ts_Func(ts_params, ts_result, funcSign->location(), ctx->scope());
     S_Func *s_func =
-        new S_Func(varId->name(), varId->location(), ctx->scope(), ts_func);
-    s_func->ast() = varId;
-    varId->symbol() = s_func;
+        new S_Func(funcId->name(), funcId->location(), ctx->scope(), ts_func);
+    s_func->ast() = funcId;
+    funcId->symbol() = s_func;
     ctx->scope()->s_define(s_func);
 
-    // push function scope down to subscope
+    // new scope
     ctx->scope() = s_func;
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    // pop function scope back to owner scope
-    Context *ctx = static_cast<Context *>(context);
+
+  virtual void finishVisit(Ast *ast) {
+    VINIT(A_FuncDef)
     ctx->scope() = ctx->scope()->owner();
   }
 };
 
-struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("SymbolBuilder::Visitor::CompileUnit") {}
-  virtual void visit(Ast *ast, VisitorContext *context) {
-    Context *ctx = static_cast<Context *>(context);
-    A_CompileUnit *e = static_cast<A_CompileUnit *>(ast);
+struct VISITOR(CompileUnit) : public Visitor {
+  VISITOR(CompileUnit)
+  () : Visitor("SymbolBuilder::" BOOST_PP_STRINGIZE(VISITOR(CompileUnit))) {}
 
-    // create global scope
-    S_Global *sc_global = new S_Global("global", e->location());
+  virtual void visit(Ast *ast) {
+    VINIT(A_CompileUnit)
+
+    // scope
+    Sc_Global *sc_global = new Sc_Global("global", node->location());
     sc_global->ts_define(TypeSymbol::ts_byte());
     sc_global->ts_define(TypeSymbol::ts_ubyte());
     sc_global->ts_define(TypeSymbol::ts_short());
@@ -197,18 +219,16 @@ struct CompileUnit : public Visitor {
     sc_global->ts_define(TypeSymbol::ts_boolean());
     sc_global->ts_define(TypeSymbol::ts_void());
 
-    sc_global->ast() = e;
-    e->scope() = sc_global;
+    sc_global->ast() = node;
+    node->scope() = sc_global;
 
-    // pass global scope down to subscope
+    // new scope
     ctx->scope() = sc_global;
   }
-  virtual void finishVisit(Ast *ast, VisitorContext *context) {
-    // pop global scope back to owner scope
-    Context *ctx = static_cast<Context *>(context);
+  virtual void finishVisit(Ast *ast) {
+    VINIT(A_CompileUnit)
     ctx->scope() = ctx->scope()->owner();
-    LOG_ASSERT(!ctx->scope(),
-               "global scope has no owner scope, while not null:{}!",
+    LOG_ASSERT(!ctx->scope(), "global scope owner must null",
                ctx->scope()->name());
   }
 };
@@ -221,8 +241,8 @@ struct CompileUnit : public Visitor {
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new detail::symbol_builder::x();                              \
-    binder_.bind((+AstKind::x)._to_integral(), v);                             \
+    Visitor *v = new detail::symbol_builder::VISITOR(x)();                     \
+    binder_.bind((+AstKind::x), v);                                            \
     visitors_.push_back(v);                                                    \
   } while (0)
 
@@ -242,7 +262,6 @@ SymbolBuilder::~SymbolBuilder() {
   delete context_;
   context_ = nullptr;
   for (int i = 0; i < (int)visitors_.size(); i++) {
-    LOG_ASSERT(visitors_[i], "visitors_[{}] must not null", i);
     delete visitors_[i];
     visitors_[i] = nullptr;
   }

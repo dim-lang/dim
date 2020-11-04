@@ -13,6 +13,7 @@ public:
   virtual ~LLVMTypable() = default;
   virtual llvm::Type *&llvmType();
   virtual llvm::Type *llvmType() const;
+  virtual void resetLLVMType();
 
 protected:
   llvm::Type *llvmTypable_;

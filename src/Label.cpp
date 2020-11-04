@@ -10,6 +10,7 @@
 #define L_GVAR "nerd.global.variable."
 #define L_LVAR "nerd.local.variable."
 #define L_FUNC "nerd.function."
+#define L_BLOCK "nerd.basic.block."
 #define L_MOD "nerd.module."
 
 Cowstr Label::globalVariable(Ast *ast) {
@@ -33,6 +34,13 @@ Cowstr Label::function(Ast *ast) {
   return r;
 }
 
+Cowstr Label::basicBlock(Ast *ast) {
+  LOG_ASSERT(ast, "ast must not null");
+  Cowstr r = fmt::format(L_BLOCK "{}.{}", ast->name(), ast->location());
+  LOG_INFO("r:{}", r);
+  return r;
+}
+
 Cowstr Label::modules(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");
   Cowstr r = fmt::format(L_MOD "{}.{}", ast->name(), ast->location());
@@ -47,6 +55,8 @@ Label::LabelType Label::what(const Cowstr &label) {
     return Label::LOCAL_VARIABLE;
   } else if (label.startWith(L_FUNC)) {
     return Label::FUNCTION;
+  } else if (label.startWith(L_BLOCK)) {
+    return Label::BASIC_BLOCK;
   } else if (label.startWith(L_MOD)) {
     return Label::MODULE;
   } else {

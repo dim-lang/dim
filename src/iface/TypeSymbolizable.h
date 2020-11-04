@@ -11,6 +11,7 @@ public:
   virtual ~TypeSymbolizable() = default;
   virtual TypeSymbol *&typeSymbol();
   virtual TypeSymbol *typeSymbol() const;
+  virtual void resetTypeSymbol();
 
 protected:
   TypeSymbol *typeSymbolizable_;

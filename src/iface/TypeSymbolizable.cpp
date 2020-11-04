@@ -9,3 +9,5 @@ TypeSymbolizable::TypeSymbolizable(TypeSymbol *typeSymbol)
 TypeSymbol *&TypeSymbolizable::typeSymbol() { return typeSymbolizable_; }
 
 TypeSymbol *TypeSymbolizable::typeSymbol() const { return typeSymbolizable_; }
+
+void TypeSymbolizable::resetTypeSymbol() { typeSymbolizable_ = nullptr; }

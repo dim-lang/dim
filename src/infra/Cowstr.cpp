@@ -387,3 +387,15 @@ std::ostream &operator<<(std::ostream &os, const Cowstr &s) {
   os << s.str();
   return os;
 }
+
+Cowstr Cowstr::repeat(int n) const {
+  LOG_ASSERT(n >= 0, "n {} must >= 0", n);
+  if (empty() || n <= 0) {
+    return "";
+  }
+  std::stringstream ss;
+  for (int i = 0; i < n; i++) {
+    ss << *value_;
+  }
+  return ss.str();
+}

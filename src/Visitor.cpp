@@ -6,63 +6,69 @@
 #include "infra/Log.h"
 #include <utility>
 
-VisitorBinder::VisitorBinder(VisitorContext *context)
-    : context_(context), idleVisitor_(new Visitor("IdleVisitor")) {}
+// VisitorBinder {
 
-VisitorBinder::~VisitorBinder() {
-  delete idleVisitor_;
-  idleVisitor_ = nullptr;
-}
+static Visitor IdleVisitor("IdleVisitor");
 
-int VisitorBinder::bind(int astKind, Visitor *visitor) {
+VisitorBinder::VisitorBinder(VisitorContext *context) : context_(context) {}
+
+int VisitorBinder::bind(AstKind kind, Visitor *visitor) {
   LOG_ASSERT(visitor, "visitor must not null");
-  if (visitors_.find(astKind) != visitors_.end()) {
-    return -1;
-  }
-  visitors_.insert(std::make_pair(astKind, visitor));
+  visitor->visitorBinder_ = this;
+  visitors_[kind._to_integral()] = visitor;
   return 0;
 }
 
-Visitor *VisitorBinder::get(int astKind) const {
-  auto it = visitors_.find(astKind);
-  return it == visitors_.end() ? idleVisitor_ : it->second;
-}
-
-Visitor *VisitorBinder::get(Ast *ast) const {
-  LOG_ASSERT(ast, "ast must not null");
-  return get(ast->kind()._to_integral());
+Visitor *VisitorBinder::visitor(AstKind kind) const {
+  auto it = visitors_.find(kind._to_integral());
+  return it == visitors_.end() ? &IdleVisitor : it->second;
 }
 
 VisitorContext *VisitorBinder::context() const { return context_; }
 
-Visitor::Visitor(const Cowstr &name) : Nameable(name) {}
+// VisitorBinder }
 
-void Visitor::visit(Ast *ast, VisitorContext *context) {}
+// Visitor {
 
-void Visitor::visitBefore(Ast *ast, Ast *child, VisitorContext *context) {}
+Visitor::Visitor(const Cowstr &name)
+    : Nameable(name), visitorBinder_(nullptr) {}
 
-void Visitor::visitAfter(Ast *ast, Ast *child, VisitorContext *context) {}
+VisitorBinder *Visitor::binder() const { return visitorBinder_; }
 
-void Visitor::finishVisit(Ast *ast, VisitorContext *context) {}
+VisitorContext *Visitor::context() const {
+  return visitorBinder_ ? visitorBinder_->context() : nullptr;
+}
+
+Visitor *Visitor::visitor(AstKind kind) const {
+  return visitorBinder_ ? visitorBinder_->visitor(kind) : nullptr;
+}
+
+void Visitor::visit(Ast *ast) {}
+
+void Visitor::visitBefore(Ast *ast, Ast *child) {}
+
+void Visitor::visitAfter(Ast *ast, Ast *child) {}
+
+void Visitor::finishVisit(Ast *ast) {}
 
 #define TRAVEL1(ast, astype, child1)                                           \
   do {                                                                         \
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
-    visitor->visitBefore(ast, c1, binder->context());                          \
+    visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
-    visitor->visitAfter(ast, c1, binder->context());                           \
+    visitor->visitAfter(ast, c1);                                              \
   } while (0)
 
 #define TRAVEL2(ast, astype, child1, child2)                                   \
   do {                                                                         \
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
     Ast *c2 = static_cast<astype *>(ast)->child2;                              \
-    visitor->visitBefore(ast, c1, binder->context());                          \
+    visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
-    visitor->visitAfter(ast, c1, binder->context());                           \
-    visitor->visitBefore(ast, c2, binder->context());                          \
+    visitor->visitAfter(ast, c1);                                              \
+    visitor->visitBefore(ast, c2);                                             \
     traverse(binder, c2);                                                      \
-    visitor->visitAfter(ast, c2, binder->context());                           \
+    visitor->visitAfter(ast, c2);                                              \
   } while (0)
 
 #define TRAVEL3(ast, astype, child1, child2, child3)                           \
@@ -70,15 +76,15 @@ void Visitor::finishVisit(Ast *ast, VisitorContext *context) {}
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
     Ast *c2 = static_cast<astype *>(ast)->child2;                              \
     Ast *c3 = static_cast<astype *>(ast)->child3;                              \
-    visitor->visitBefore(ast, c1, binder->context());                          \
+    visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
-    visitor->visitAfter(ast, c1, binder->context());                           \
-    visitor->visitBefore(ast, c2, binder->context());                          \
+    visitor->visitAfter(ast, c1);                                              \
+    visitor->visitBefore(ast, c2);                                             \
     traverse(binder, c2);                                                      \
-    visitor->visitAfter(ast, c2, binder->context());                           \
-    visitor->visitBefore(ast, c3, binder->context());                          \
+    visitor->visitAfter(ast, c2);                                              \
+    visitor->visitBefore(ast, c3);                                             \
     traverse(binder, c3);                                                      \
-    visitor->visitAfter(ast, c3, binder->context());                           \
+    visitor->visitAfter(ast, c3);                                              \
   } while (0)
 
 void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
@@ -86,11 +92,11 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     return;
   }
   LOG_ASSERT(binder, "binder must not null");
-  Visitor *visitor = binder->get(ast);
+  Visitor *visitor = binder->visitor(ast->kind());
   LOG_ASSERT(visitor, "visitor must not null for ast {}", ast->name());
 
   // visit
-  visitor->visit(ast, binder->context());
+  visitor->visit(ast);
 
   // visit
   switch (ast->kind()) {
@@ -116,12 +122,12 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     TRAVEL1(ast, A_Return, expr);
     break;
   }
-  case AstKind::PostfixExpr: {
-    TRAVEL1(ast, A_PostfixExpr, expr);
+  case AstKind::Postfix: {
+    TRAVEL1(ast, A_Postfix, expr);
     break;
   }
-  case AstKind::PrefixExpr: {
-    TRAVEL1(ast, A_PrefixExpr, expr);
+  case AstKind::Prefix: {
+    TRAVEL1(ast, A_Prefix, expr);
     break;
   }
   case AstKind::Yield: {
@@ -141,8 +147,8 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     TRAVEL2(ast, A_Assign, assignee, assignor);
     break;
   }
-  case AstKind::InfixExpr: {
-    TRAVEL2(ast, A_InfixExpr, left, right);
+  case AstKind::Infix: {
+    TRAVEL2(ast, A_Infix, left, right);
     break;
   }
   case AstKind::Call: {
@@ -211,5 +217,7 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
   }
 
   // post visit
-  visitor->finishVisit(ast, binder->context());
+  visitor->finishVisit(ast);
 }
+
+// Visitor }

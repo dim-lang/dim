@@ -9,7 +9,7 @@
 
 class Position {
 public:
-  Position(int a_line = -1, int a_column = -1);
+  Position(int a_line = 0, int a_column = 0);
   Position(const Position &) = default;
   Position &operator=(const Position &) = default;
   virtual ~Position() = default;

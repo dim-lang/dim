@@ -5,7 +5,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
-#include "iface/LLVMModular.h"
 #include "iface/LLVMTypable.h"
 #include "iface/LLVMValuable.h"
 #include "iface/Locationable.h"
@@ -14,6 +13,7 @@
 #include "infra/Log.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include <functional>
 
 BETTER_ENUM(SymbolKind, int,
             // symbol
@@ -32,6 +32,22 @@ BETTER_ENUM(TypeSymbolKind, int,
             Func,
             // class
             Class)
+
+namespace std {
+
+template <> struct hash<SymbolKind> {
+  size_t operator()(const SymbolKind &k) const {
+    return static_cast<size_t>(k._to_integral());
+  }
+};
+
+template <> struct hash<TypeSymbolKind> {
+  size_t operator()(const TypeSymbolKind &k) const {
+    return static_cast<size_t>(k._to_integral());
+  }
+};
+
+} // namespace std
 
 class Ast;
 class A_VarId;
@@ -346,16 +362,16 @@ public:
 
 // scope {
 
-class S_Local : public detail::ScopeImpl {
+class Sc_Local : public detail::ScopeImpl {
 public:
-  S_Local(const Cowstr &name, const Location &location, Scope *owner);
-  virtual ~S_Local() = default;
+  Sc_Local(const Cowstr &name, const Location &location, Scope *owner);
+  virtual ~Sc_Local() = default;
 };
 
-class S_Global : public detail::ScopeImpl, public LLVMModular {
+class Sc_Global : public detail::ScopeImpl {
 public:
-  S_Global(const Cowstr &name, const Location &location);
-  virtual ~S_Global() = default;
+  Sc_Global(const Cowstr &name, const Location &location);
+  virtual ~Sc_Global() = default;
 };
 
 // scope }

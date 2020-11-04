@@ -11,6 +11,7 @@ public:
   virtual ~Scoped() = default;
   virtual Scope *&scope();
   virtual Scope *scope() const;
+  virtual void resetScope();
 
 protected:
   Scope *scoped_;

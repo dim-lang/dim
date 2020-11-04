@@ -8,3 +8,5 @@ Scoped::Scoped(Scope *scope) : scoped_(scope) {}
 Scope *&Scoped::scope() { return scoped_; }
 
 Scope *Scoped::scope() const { return scoped_; }
+
+void Scoped::resetScope() { scoped_ = nullptr; }
