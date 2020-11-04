@@ -258,7 +258,7 @@ set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})
 
 # nerd-example {
 
-set(NERD_EXAMPLE_SRC
+set(NERD_EXAMPLE_llvms_BinaryOperation SRC
     example/llvms/BinaryOperation.cpp
     example/llvms/Util.cpp
     )
@@ -267,7 +267,7 @@ set(NERD_EXAMPLE_INC
     example
     )
 
-add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_SRC})
+add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_llvms_BinaryOperation})
 target_include_directories(nerd-example-llvms-BinaryOperation PRIVATE ${NERD_EXAMPLE_INC})
 target_link_libraries(nerd-example-llvms-BinaryOperation ${NERD_CORE_LIB})
 set_target_properties(nerd-example-llvms-BinaryOperation PROPERTIES VERSION ${PROJECT_VERSION})
