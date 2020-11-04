@@ -32,7 +32,7 @@ BETTER_ENUM(AstKind, int,
             VarId,
             // expr without block
             Throw, Return, Break, Continue, Assign, Postfix, Prefix, Infix,
-            Call, Group, Exprs,
+            Call, Exprs,
             // expr with block
             If, Loop, Yield, LoopCondition, LoopEnumerator, DoWhile, Try, Block,
             BlockStats,
@@ -73,7 +73,6 @@ class A_Prefix;
 
 /* expression with block */
 class A_Call;
-class A_Group;
 class A_Exprs;
 class A_If;
 class A_Loop;
@@ -110,7 +109,7 @@ public:
   Ast(const Cowstr &name, const Location &location = Location());
   virtual ~Ast() = default;
   virtual AstKind kind() const = 0;
-  virtual Cowstr str() const = 0;
+  virtual Cowstr str() const;
 
   static bool isLiteral(Ast *e);
   static bool isId(Ast *e);
@@ -155,6 +154,7 @@ public:
   A_Float(const Cowstr &literal, const Location &location);
   virtual ~A_Float() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   // 32, 64
   virtual int bit() const;
@@ -173,6 +173,7 @@ public:
   A_String(const Cowstr &literal, const Location &location);
   virtual ~A_String() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   virtual bool isMultipleLine() const;
   virtual const Cowstr &asString() const;
@@ -187,6 +188,7 @@ public:
   A_Character(const Cowstr &literal, const Location &location);
   virtual ~A_Character() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   virtual char asChar() const;
 
@@ -199,6 +201,7 @@ public:
   A_Boolean(const Cowstr &literal, const Location &location);
   virtual ~A_Boolean() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   virtual bool asBoolean() const;
 
@@ -211,6 +214,7 @@ public:
   A_Nil(const Location &location);
   virtual ~A_Nil() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 };
 
 class A_Void : public Ast {
@@ -218,6 +222,7 @@ public:
   A_Void(const Location &location);
   virtual ~A_Void() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 };
 
 // literal }
@@ -235,6 +240,7 @@ public:
   A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 };
 
 // id }
@@ -246,6 +252,8 @@ public:
   A_Throw(Ast *a_expr, const Location &location);
   virtual ~A_Throw();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *expr;
 };
 
@@ -254,6 +262,8 @@ public:
   A_Return(Ast *a_expr, const Location &location);
   virtual ~A_Return();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *expr;
 };
 
@@ -262,6 +272,7 @@ public:
   A_Break(const Location &location);
   virtual ~A_Break() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 };
 
 class A_Continue : public Ast {
@@ -269,6 +280,7 @@ public:
   A_Continue(const Location &location);
   virtual ~A_Continue() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 };
 
 class A_Assign : public Ast {
@@ -277,6 +289,8 @@ public:
            const Location &location);
   virtual ~A_Assign();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *assignee; // left
   int assignOp;
   Ast *assignor; // right
@@ -287,6 +301,8 @@ public:
   A_Postfix(Ast *a_expr, int a_postfixOp, const Location &location);
   virtual ~A_Postfix();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *expr;
   int postfixOp;
 };
@@ -296,6 +312,8 @@ public:
   A_Infix(Ast *a_left, int a_infixOp, Ast *a_right, const Location &location);
   virtual ~A_Infix();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *left;
   int infixOp;
   Ast *right;
@@ -306,26 +324,21 @@ public:
   A_Prefix(int a_prefixOp, Ast *a_expr, const Location &location);
   virtual ~A_Prefix();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   int prefixOp;
   Ast *expr;
 };
 
 class A_Call : public Ast {
 public:
-  A_Call(Ast *a_id, A_Group *a_args, const Location &location);
+  A_Call(Ast *a_id, A_Exprs *a_args, const Location &location);
   virtual ~A_Call();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *id;
-  A_Group *args;
-};
-
-class A_Group : public Ast {
-public:
-  A_Group(A_Exprs *a_exprs, const Location &location);
-  virtual ~A_Group();
-  virtual AstKind kind() const;
-
-  A_Exprs *exprs;
+  A_Exprs *args;
 };
 
 class A_Exprs : public Ast {
@@ -333,6 +346,8 @@ public:
   A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location);
   virtual ~A_Exprs();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *expr;
   A_Exprs *next;
 };
@@ -346,6 +361,8 @@ public:
   A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep, const Location &location);
   virtual ~A_If();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *condition;
   Ast *thenp;
   Ast *elsep;
@@ -357,6 +374,8 @@ public:
   A_Loop(Ast *a_condition, Ast *a_body, const Location &location);
   virtual ~A_Loop();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *condition;
   Ast *body;
 };
@@ -366,6 +385,8 @@ public:
   A_Yield(Ast *expr, const Location &location);
   virtual ~A_Yield();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *expr;
 };
 
@@ -375,6 +396,8 @@ public:
                   const Location &location);
   virtual ~A_LoopCondition();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *init;
   Ast *condition;
   Ast *update;
@@ -386,6 +409,8 @@ public:
                    const Location &location);
   virtual ~A_LoopEnumerator();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *id;
   Ast *type;
   Ast *expr;
@@ -396,6 +421,8 @@ public:
   A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location);
   virtual ~A_DoWhile();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *body;
   Ast *condition;
 };
@@ -405,6 +432,8 @@ public:
   A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp, const Location &location);
   virtual ~A_Try();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *tryp;
   Ast *catchp;
   Ast *finallyp;
@@ -415,6 +444,8 @@ public:
   A_Block(A_BlockStats *a_blockStats, const Location &location);
   virtual ~A_Block();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   A_BlockStats *blockStats;
 };
 
@@ -424,6 +455,8 @@ public:
                const Location &location);
   virtual ~A_BlockStats();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *blockStat;
   A_BlockStats *next;
 };
@@ -444,6 +477,7 @@ public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   int token;
 };
@@ -458,6 +492,8 @@ public:
             const Location &location);
   virtual ~A_FuncDef();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *funcSign;
   Ast *resultType;
   Ast *body;
@@ -468,6 +504,7 @@ public:
   A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location);
   virtual ~A_FuncSign();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   Ast *id;
   A_Params *params;
@@ -478,6 +515,7 @@ public:
   A_Params(A_Param *a_param, A_Params *a_next, const Location &location);
   virtual ~A_Params();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   A_Param *param;
   A_Params *next;
@@ -488,6 +526,7 @@ public:
   A_Param(Ast *a_id, Ast *a_type, const Location &location);
   virtual ~A_Param();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
 
   Ast *id;
   Ast *type;
@@ -498,6 +537,8 @@ public:
   A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr, const Location &location);
   virtual ~A_VarDef();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *id;
   Ast *type;
   Ast *expr;
@@ -512,6 +553,8 @@ public:
   A_TopStats(Ast *a_topStat, A_TopStats *a_next, const Location &location);
   virtual ~A_TopStats();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   Ast *topStat;
   A_TopStats *next;
 };
@@ -522,6 +565,8 @@ public:
                 const Location &location);
   virtual ~A_CompileUnit();
   virtual AstKind kind() const;
+  virtual Cowstr str() const;
+
   A_TopStats *topStats;
 };
 

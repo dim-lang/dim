@@ -10,7 +10,7 @@ class Ast;
 
 class Drawer : public Phase {
 public:
-  Drawer(const Cowstr &output = "");
+  Drawer(const Cowstr &fileName = "");
   virtual ~Drawer();
   virtual void run(Ast *ast);
   virtual const Cowstr &fileName() const;

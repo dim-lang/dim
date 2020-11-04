@@ -25,7 +25,7 @@ struct Context : public VisitorContext {
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       VINIT                                                                    \
-      ctx->dumper->dumps().push_back(Cowstr::from(" ").repeat(ctx->indent) +   \
+      ctx->dumper->dumps().push_back(Cowstr(" ").repeat(ctx->indent) +         \
                                      ast->str());                              \
     }                                                                          \
   }
@@ -35,7 +35,7 @@ struct Context : public VisitorContext {
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       VINIT                                                                    \
-      ctx->dumper->dumps().push_back(Cowstr::from(" ").repeat(ctx->indent) +   \
+      ctx->dumper->dumps().push_back(Cowstr(" ").repeat(ctx->indent) +         \
                                      ast->str());                              \
       ctx->indent += 1;                                                        \
     }                                                                          \

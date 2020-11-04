@@ -179,7 +179,7 @@ set(NERD_CORE_SRC
 
     src/Ast.cpp
     src/Compiler.cpp
-    # src/Drawer.cpp
+    src/Drawer.cpp
     src/Dumper.cpp
     src/IrBuilder.cpp
     src/Label.cpp
@@ -234,7 +234,7 @@ set(NERD_TEST_SRC
     test/infra/LogTest.cpp
 
     test/ConfigureTest.cpp
-    # test/DrawerTest.cpp
+    test/DrawerTest.cpp
     test/DumperTest.cpp
     test/IrBuilderTest.cpp
     test/LocationTest.cpp

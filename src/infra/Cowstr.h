@@ -6,9 +6,11 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <list>
 #include <map>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -28,6 +30,28 @@ public:
 
   template <typename T> static Cowstr from(T value) {
     return Cowstr(std::to_string(value));
+  }
+
+  // T could be:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename T>
+  static Cowstr join(const T &value, const Cowstr &delimiter = "") {
+    if (value.empty()) {
+      return Cowstr();
+    }
+    std::stringstream ss;
+    auto e = value.end();
+    e--;
+    for (auto i = value.begin(); i != value.end(); i++) {
+      ss << (*i).str();
+      if (i != e && !delimiter.empty()) {
+        ss << delimiter.str();
+      }
+    }
+    return ss.str();
   }
 
   const std::string &str() const;

@@ -192,8 +192,8 @@ class Ast;
  /* id */
 %type<ast> id varId
  /* expr */
-%type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats groupExpr
-%type<ast> optionalBlockStats optionalVarDef optionalExpr
+%type<ast> expr exprs enumerators assignExpr prefixExpr postfixExpr infixExpr primaryExpr callExpr block blockStat blockStats
+%type<ast> optionalExprs optionalBlockStats optionalVarDef optionalExpr
  /* type */
 %type<ast> type plainType
  /* def */
@@ -437,20 +437,20 @@ prefixExpr : primaryExpr { $$ = $1; }
 
 primaryExpr : literal { $$ = $1; }
             | id { $$ = $1; }
-            | "(" groupExpr ")" { $$ = $2; }
+            | "(" optionalExprs ")" { $$ = $2; }
             | callExpr { $$ = $1; }
             | block { $$ = $1; }
             ;
 
-groupExpr : exprs { A_Exprs *tmp = reverse(static_cast<A_Exprs*>($1)); $$ = new A_GroupExpr(tmp, @$); }
-          | %empty { $$ = new A_GroupExpr(nullptr, @$); }
-          ;
+optionalExprs : exprs { $$ = reverse(static_cast<A_Exprs*>($1)); }
+              | %empty { $$ = nullptr; }
+              ;
 
 exprs : expr { $$ = new A_Exprs($1, nullptr, @$); }
       | exprs "," expr { $$ = new A_Exprs($3, static_cast<A_Exprs*>($1), @$); }
       ;
 
-callExpr : id "(" groupExpr ")" { $$ = new A_Call($1, static_cast<A_GroupExpr*>($3), @$); }
+callExpr : id "(" optionalExprs ")" { $$ = new A_Call($1, static_cast<A_Exprs*>($3), @$); }
          ;
 
 block : "{" blockStat optionalBlockStats "}" {

@@ -24,46 +24,27 @@ namespace drawer {
 
 // Graph {
 
-static CounterNameGenerator CNG;
+static CounterNameGenerator CounterNG;
 
 static Cowstr identify(Identifiable *identifier) {
   return Cowstr("id") + identifier->decIdentifier();
 }
-
-static const std::unordered_map<char, Cowstr> HtmlTranslator = {
-    {'\\', "\\\\"},
-    {'\n', "<BR ALIGN=\"LEFT\"/>"},
-    {'\t', "&#9;"},
-    {'\r', "\\r"},
-    // {'\?', "\\?"},
-    {'\a', "\\a"},
-    {'\b', "\\b"},
-    {'\f', "\\f"},
-    {'\v', "\\v"},
-    {'&', "&#38;"},
-    // {'\'', "\\'"},
-    // {'\"', "\\\""},
-    {'<', "&lt;"},
-    {'>', "&gt;"},
-    {'|', "&#124;"}};
-
-#define TRANSLATE(x) (Cowstr(x).replace(HtmlTranslator))
 
 /**
  * <TD PORT="id"> value </TD>
  * <TD PORT="id" COLSPAN="width" ALIGN="LEFT" BALIGN="LEFT"> value </TD>
  */
 struct GCell {
-  GCell(const Cowstr &a_value)
-      : id(CNG.generate("cell")), value(TRANSLATE(a_value)), width(0),
-        align("") {}
-  GCell(const Cowstr &a_id, const Cowstr &a_value)
-      : id(a_id), value(TRANSLATE(a_value)), width(0), align("") {}
-
   Cowstr id; // PORT="id"
   Cowstr value;
   int width; // COLSPAN="width"
   Cowstr align;
+
+  GCell(const Cowstr &a_value)
+      : id(CounterNG.generate("cell")), value(translate(a_value)), width(0),
+        align("") {}
+  GCell(const Cowstr &a_id, const Cowstr &a_value)
+      : id(a_id), value(translate(a_value)), width(0), align("") {}
 
   Cowstr str() const {
     std::stringstream ss;
@@ -77,15 +58,36 @@ struct GCell {
     ss << ">" << value << "</TD>";
     return ss.str();
   }
+
+  static Cowstr translate(const Cowstr &value) {
+    static const std::unordered_map<char, Cowstr> htmlTranslator = {
+        {'\\', "\\\\"},
+        {'\n', "<BR ALIGN=\"LEFT\"/>"},
+        {'\t', "&#9;"},
+        {'\r', "\\r"},
+        // {'\?', "\\?"},
+        {'\a', "\\a"},
+        {'\b', "\\b"},
+        {'\f', "\\f"},
+        {'\v', "\\v"},
+        {'&', "&#38;"},
+        // {'\'', "\\'"},
+        // {'\"', "\\\""},
+        {'<', "&lt;"},
+        {'>', "&gt;"},
+        {'|', "&#124;"},
+    };
+    return Cowstr(value).replace(htmlTranslator);
+  }
 };
 
 /**
  * <TR> GCell+ </TR>
  */
 struct GLine {
-  GLine(const std::vector<GCell> &a_cells) : cells(a_cells) {}
-
   std::vector<GCell> cells;
+
+  GLine(const std::vector<GCell> &a_cells) : cells(a_cells) {}
 
   Cowstr str() const {
     std::stringstream ss;
@@ -102,38 +104,12 @@ struct GLine {
  * (node)id [label=<<TABLE> GLine+ </TABLE>>]
  */
 struct GNode {
-  GNode() : ident(CNG.generate("node")) {}
-  GNode(const Cowstr &a_ident) : ident(a_ident) {}
-  virtual ~GNode() = default;
-
   Cowstr ident;
   std::vector<GLine> lines;
 
-  virtual void adjust() {
-    if (lines.empty()) {
-      return;
-    }
-
-    // adjust for max width
-    int maxWidth = 0;
-    for (int i = 0; i < (int)lines.size(); i++) {
-      maxWidth = std::max<int>(lines[i].cells.size(), maxWidth);
-    }
-    for (int i = 0; i < (int)lines.size(); i++) {
-      if (lines[i].cells.size() > 0 && lines[i].cells.size() < maxWidth) {
-        lines[i].cells[0].width = maxWidth - lines[i].cells.size() + 1;
-      }
-    }
-
-    // adjust for string literal left align
-    for (int i = 0; i < (int)lines.size(); i++) {
-      for (int j = 0; j < (int)lines[i].cells.size(); j++) {
-        if (lines[i].cells[j].value.startWith('"')) {
-          lines[i].cells[j].align = "LEFT";
-        }
-      }
-    }
-  }
+  GNode() : ident(CounterNG.generate("node")) {}
+  GNode(const Cowstr &a_ident) : ident(a_ident) {}
+  virtual ~GNode() = default;
 
   virtual Cowstr str() const {
     std::stringstream ss;
@@ -145,7 +121,32 @@ struct GNode {
     ss << "    </TABLE>>]";
     return ss.str();
   }
+
   virtual Cowstr id() const { return ident; }
+
+  virtual void adjust() {
+    if (lines.empty()) {
+      return;
+    }
+    // adjust for max width
+    int maxWidth = 0;
+    for (int i = 0; i < (int)lines.size(); i++) {
+      maxWidth = std::max<int>(lines[i].cells.size(), maxWidth);
+    }
+    for (int i = 0; i < (int)lines.size(); i++) {
+      if (lines[i].cells.size() > 0 && lines[i].cells.size() < maxWidth) {
+        lines[i].cells[0].width = maxWidth - lines[i].cells.size() + 1;
+      }
+    }
+    // adjust for string literal left align
+    for (int i = 0; i < (int)lines.size(); i++) {
+      for (int j = 0; j < (int)lines[i].cells.size(); j++) {
+        if (lines[i].cells[j].value.startWith('"')) {
+          lines[i].cells[j].align = "LEFT";
+        }
+      }
+    }
+  }
 };
 
 struct NilNode : public GNode {
@@ -872,8 +873,8 @@ DECL8(VarDef, A_VarDef, id, type, expr)
     visitors_.push_back(v);                                                    \
   } while (0)
 
-Drawer::Drawer(const Cowstr &output)
-    : Phase("Drawer"), fileName_(output),
+Drawer::Drawer(const Cowstr &fileName)
+    : Phase("Drawer"), fileName_(fileName),
       context_(new detail::drawer::Context()), binder_(context_) {
   BIND(Nil);
   BIND(Void);
