@@ -1,21 +1,16 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#pragma once
 #include "Dumper.h"
 #include "Ast.h"
 #include "boost/preprocessor/stringize.hpp"
 #include <vector>
 
-#define VINIT                                                                  \
-  Context *ctx = static_cast<Context *>(context());                            \
-  (void)ctx;
-
 namespace detail {
 namespace dumper {
 
 struct Context : public VisitorContext {
-  Context() : dumper(nullptr), indent(0) {}
+  Context(Dumper *a_dumper) : dumper(a_dumper), indent(0) {}
   Dumper *dumper;
   int indent;
 };
@@ -24,9 +19,9 @@ struct Context : public VisitorContext {
   struct VISITOR(x) : public Visitor {                                         \
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
-      VINIT                                                                    \
-      ctx->dumper->dumps().push_back(Cowstr(" ").repeat(ctx->indent) +         \
-                                     ast->str());                              \
+      Context *ctx = static_cast<Context *>(context());                        \
+      ctx->dumper->dumps().push_back(Cowstr("|  ").repeat(ctx->indent) +       \
+                                     Cowstr("`-") + ast->str());               \
     }                                                                          \
   }
 
@@ -34,13 +29,13 @@ struct Context : public VisitorContext {
   struct VISITOR(x) : public Visitor {                                         \
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
-      VINIT                                                                    \
-      ctx->dumper->dumps().push_back(Cowstr(" ").repeat(ctx->indent) +         \
-                                     ast->str());                              \
+      Context *ctx = static_cast<Context *>(context());                        \
+      ctx->dumper->dumps().push_back(Cowstr("|  ").repeat(ctx->indent) +       \
+                                     Cowstr("`-") + ast->str());               \
       ctx->indent += 1;                                                        \
     }                                                                          \
     virtual void finishVisit(Ast *ast) {                                       \
-      VINIT                                                                    \
+      Context *ctx = static_cast<Context *>(context());                        \
       ctx->indent -= 1;                                                        \
     }                                                                          \
   }
@@ -68,7 +63,6 @@ DECL1(Postfix);
 DECL1(Prefix);
 DECL1(Infix);
 DECL1(Call);
-DECL1(Group);
 DECL1(If);
 DECL1(Loop);
 DECL1(Yield);
@@ -94,7 +88,7 @@ DECL1(CompileUnit);
   } while (0)
 
 Dumper::Dumper()
-    : Phase("Dumper"), context_(new detail::dumper::Context()),
+    : Phase("Dumper"), context_(new detail::dumper::Context(this)),
       binder_(context_) {
   BIND(Integer);
   BIND(Float);
@@ -119,7 +113,6 @@ Dumper::Dumper()
   BIND(Prefix);
   BIND(Infix);
   BIND(Call);
-  BIND(Group);
   BIND(If);
   BIND(Loop);
   BIND(Yield);
@@ -145,3 +138,7 @@ Dumper::~Dumper() {
 }
 
 void Dumper::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
+
+std::vector<Cowstr> &Dumper::dumps() { return dumps_; }
+
+const std::vector<Cowstr> &Dumper::dumps() const { return dumps_; }

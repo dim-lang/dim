@@ -155,10 +155,6 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     TRAVEL2(ast, A_Call, id, args);
     break;
   }
-  case AstKind::Group: {
-    TRAVEL1(ast, A_Group, exprs);
-    break;
-  }
   case AstKind::Exprs: {
     TRAVEL2(ast, A_Exprs, expr, next);
     break;

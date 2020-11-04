@@ -249,31 +249,33 @@ struct ScopeNode : public GNode {
 };
 
 struct GEdgeKey {
+  Cowstr key1;
+  Cowstr key2;
+
   GEdgeKey(const Cowstr &a_key1) : key1(a_key1) {}
   GEdgeKey(const Cowstr &a_key1, const Cowstr &a_key2)
       : key1(a_key1), key2(a_key2) {}
 
-  Cowstr key1;
-  Cowstr key2;
-
   static Cowstr ident(const GEdgeKey &from, const GEdgeKey &to) {
     return from.str() + "-" + to.str();
   }
+
   bool hasCell() const { return !key2.empty(); }
+
   Cowstr str() const { return key2.empty() ? key1 : (key1 + ":" + key2); }
 };
 
 struct GEdge {
-  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "",
-        const Cowstr &a_direction = "")
-      : from(a_from), to(a_to), style(a_style), direction(a_direction) {}
-  virtual ~GEdge() = default;
-
   GEdgeKey from;
   GEdgeKey to;
   std::vector<GLine> lines;
   Cowstr style;
   Cowstr direction;
+
+  GEdge(GEdgeKey a_from, GEdgeKey a_to, const Cowstr &a_style = "",
+        const Cowstr &a_direction = "")
+      : from(a_from), to(a_to), style(a_style), direction(a_direction) {}
+  virtual ~GEdge() = default;
 
   virtual Cowstr id() const { return GEdgeKey::ident(from, to); }
   virtual Cowstr str() const {
@@ -379,6 +381,8 @@ struct ScopeToAstEdge : public GEdge {
 };
 
 struct GEdgeRank {
+  Cowstr rank;
+
   GEdgeRank(GNode *a, GNode *b) {
     rank =
         fmt::format("{{rank=same {} -> {} [style=invis]}}", a->id(), b->id());
@@ -387,9 +391,7 @@ struct GEdgeRank {
     rank = fmt::format("{{rank=same {} -> {} -> {} [style=invis]}}", a->id(),
                        b->id(), c->id());
   }
-  virtual ~GEdgeRank() {}
-
-  Cowstr rank;
+  virtual ~GEdgeRank() = default;
 
   virtual Cowstr str() const { return rank; }
 };
@@ -421,7 +423,6 @@ struct Graph {
   void draw(const Cowstr &fileName) {
     FileWriter fwriter(fileName);
     fwriter.writeln("digraph {");
-    // fontsize: 12
     fwriter.writeln("    node [shape=none, fontname=\"Courier New, Courier\"]");
     fwriter.writeln("    edge [fontname=\"Courier New, Courier\"]");
     fwriter.writeln("    graph [fontname=\"Courier New, Courier\"]");
@@ -458,14 +459,17 @@ struct Context : public VisitorContext {
   Graph *g;
 };
 
+// ast to ast links {
+
 static GNode *linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
-  LOG_ASSERT(a, "Ast a is null");
+  LOG_ASSERT(a, "a must not null");
   if (b) {
     AstToAstEdge *edge = new AstToAstEdge(a, b, name);
     g->edges.insert(edge->id(), edge);
     LinkedHashMap<Cowstr, GNode *>::iterator it = g->nodes.find(identify(b));
-    LOG_ASSERT(it != g->nodes.end(), "AstNode b {} must exist", b->name());
-    LOG_ASSERT(it->second, "AstNode b {} it->second must not null", b->name());
+    LOG_ASSERT(it != g->nodes.end(), "b {} cannot find in nodes", b->name());
+    LOG_ASSERT(it->second, "b {} related GNode cannot find in nodes",
+               b->name());
     return it->second;
   } else {
     NilNode *node = new NilNode();
@@ -476,7 +480,7 @@ static GNode *linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
   }
 }
 
-static void rankAst(GNode *a, GNode *b, Graph *g) {
+static void rankAstNode(GNode *a, GNode *b, Graph *g) {
   LOG_ASSERT(a, "a must not null");
   LOG_ASSERT(b, "b must not null");
   LOG_ASSERT(g, "g must not null");
@@ -484,7 +488,7 @@ static void rankAst(GNode *a, GNode *b, Graph *g) {
   g->ranks.push_back(r);
 }
 
-static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
+static void rankAstNode(GNode *a, GNode *b, GNode *c, Graph *g) {
   LOG_ASSERT(a, "a must not null");
   LOG_ASSERT(b, "b must not null");
   LOG_ASSERT(c, "c must not null");
@@ -493,27 +497,31 @@ static void rankAst(GNode *a, GNode *b, GNode *c, Graph *g) {
   g->ranks.push_back(r);
 }
 
+// ast to ast links }
+
+// ast and symbol links {
+
 static void defineAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, variableSymbol);
+  S_Var *s_var = static_cast<S_Var *>(varId->symbol());
+  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, s_var);
   g->edges.insert(edge->id(), edge);
 }
 
 static void resolveAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *variableSymbol = static_cast<S_Var *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, variableSymbol);
+  S_Var *s_var = static_cast<S_Var *>(varId->symbol());
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, s_var);
   g->edges.insert(edge->id(), edge);
 }
 
 static void defineAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, parameterSymbol);
+  S_Param *s_param = static_cast<S_Param *>(varId->symbol());
+  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, s_param);
   g->edges.insert(edge->id(), edge);
 }
 
 static void resolveAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *parameterSymbol = static_cast<S_Param *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, parameterSymbol);
+  S_Param *s_param = static_cast<S_Param *>(varId->symbol());
+  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, s_param);
   g->edges.insert(edge->id(), edge);
 }
 
@@ -558,11 +566,15 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
   auto it = g->nodes.find(identify(scope));
   LOG_ASSERT(it != g->nodes.end(), "scope {} related ScopeNode not exist",
              scope->name());
+  LOG_ASSERT(it->second, "scope {} related ScopeNode must not null",
+             scope->name());
   GNode *node = it->second;
   ScopeToAstEdge *edge =
       new ScopeToAstEdge(varId, static_cast<ScopeNode *>(node));
   g->edges.insert(edge->id(), edge);
 }
+
+// symbol and ast links }
 
 // kind, id, location
 #define DECL1(x)                                                               \
@@ -573,36 +585,37 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
       AstNode *node = new AstNode(ast);                                        \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, literal
 #define DECL2(x)                                                               \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)                                                                 \
+    () : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}                 \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       node->add("literal", ast->name());                                       \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, token
 #define DECL3(x, astype, tok)                                                  \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
       node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
       g->nodes.insert(node->id(), node);                                       \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, child1
 #define DECL4(x, astype, child1)                                               \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -613,12 +626,12 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, token, child1
 #define DECL5(x, astype, tok, child1)                                          \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -630,12 +643,12 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
       linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
                    BOOST_PP_STRINGIZE(child1), g);                             \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, child1, child2
 #define DECL6(x, astype, child1, child2)                                       \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -647,14 +660,14 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
                                BOOST_PP_STRINGIZE(child1), g);                 \
       GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
                                BOOST_PP_STRINGIZE(child2), g);                 \
-      rankAst(a1, a2, g);                                                      \
+      rankAstNode(a1, a2, g);                                                  \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, token, child1, child2
 #define DECL7(x, astype, tok, child1, child2)                                  \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -667,14 +680,14 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
                                BOOST_PP_STRINGIZE(child1), g);                 \
       GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
                                BOOST_PP_STRINGIZE(child2), g);                 \
-      rankAst(a1, a2, g);                                                      \
+      rankAstNode(a1, a2, g);                                                  \
     }                                                                          \
-  };
+  }
 
 // kind, id, location, child1, child2, child3
 #define DECL8(x, astype, child1, child2, child3)                               \
-  struct x : public Visitor {                                                  \
-    x() : Visitor("Drawer::Visitor::" BOOST_PP_STRINGIZE(x)) {}                \
+  struct VISITOR(x) : public Visitor {                                         \
+    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Graph *g = static_cast<Context *>(context())->g;                         \
       AstNode *node = new AstNode(ast);                                        \
@@ -688,23 +701,23 @@ static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
                                BOOST_PP_STRINGIZE(child2), g);                 \
       GNode *a3 = linkAstToAst(ast, static_cast<astype *>(ast)->child3,        \
                                BOOST_PP_STRINGIZE(child3), g);                 \
-      rankAst(a1, a2, a3, g);                                                  \
+      rankAstNode(a1, a2, a3, g);                                              \
     }                                                                          \
-  };
+  }
 
-DECL1(Nil)
-DECL1(Void)
-DECL1(Break)
-DECL1(Continue)
+DECL1(Nil);
+DECL1(Void);
+DECL1(Break);
+DECL1(Continue);
 
-DECL2(Integer)
-DECL2(Float)
-DECL2(Boolean)
-DECL2(Character)
-DECL2(String)
+DECL2(Integer);
+DECL2(Float);
+DECL2(Boolean);
+DECL2(Character);
+DECL2(String);
 
-struct VarId : public Visitor {
-  VarId() : Visitor("Drawer::Visitor::VarId") {}
+struct VISITOR(VarId) : public Visitor {
+  VISITOR(VarId)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(VarId))) {}
   virtual void visit(Ast *ast) {
     Graph *g = static_cast<Context *>(context())->g;
 
@@ -713,72 +726,72 @@ struct VarId : public Visitor {
     node->add("literal", ast->name());
     g->nodes.insert(node->id(), node);
 
-    // create symbol/typeSymbol/scope gnode
+    // create symbol gnode
     link(static_cast<A_VarId *>(ast), g);
   }
-  void link(A_VarId *varId, Graph *g) {
-    if (varId->symbol()) {
-      switch (varId->symbol()->kind()) {
+  void link(A_VarId *ast, Graph *g) {
+    if (ast->symbol()) {
+      switch (ast->symbol()->kind()) {
       case SymbolKind::Var: {
-        if (Symbol::isDefined(varId)) {
-          defineAstToVar(varId, g);
+        if (Symbol::isDefined(ast)) {
+          defineAstToVar(ast, g);
         } else {
-          resolveAstToVar(varId, g);
+          resolveAstToVar(ast, g);
         }
         break;
       }
       case SymbolKind::Param: {
-        if (Symbol::isDefined(varId)) {
-          defineAstToParam(varId, g);
+        if (Symbol::isDefined(ast)) {
+          defineAstToParam(ast, g);
         } else {
-          resolveAstToParam(varId, g);
+          resolveAstToParam(ast, g);
         }
         break;
       }
       case SymbolKind::Func: {
-        if (Symbol::isDefined(varId)) {
-          defineAstToScope(varId, static_cast<S_Func *>(varId->symbol()), g);
+        if (Symbol::isDefined(ast)) {
+          defineAstToScope(ast, static_cast<S_Func *>(ast->symbol()), g);
         } else {
-          resolveAstToScope(varId, static_cast<S_Func *>(varId->symbol()), g);
+          resolveAstToScope(ast, static_cast<S_Func *>(ast->symbol()), g);
         }
         break;
       }
       default:
-        LOG_ASSERT(false, "invalid symbol {} kind: {}", varId->symbol()->name(),
-                   varId->symbol()->kind()._to_string());
+        LOG_ASSERT(false, "invalid symbol {}:{} kind: {}",
+                   ast->symbol()->name(), ast->symbol()->location(),
+                   ast->symbol()->kind()._to_string());
       }
-    } else if (varId->typeSymbol()) {
-      switch (varId->typeSymbol()->kind()) {
+    } else if (ast->typeSymbol()) {
+      switch (ast->typeSymbol()->kind()) {
       case TypeSymbolKind::Class: {
-        if (TypeSymbol::isDefined(varId)) {
-          defineAstToClass(varId, g);
+        if (TypeSymbol::isDefined(ast)) {
+          defineAstToClass(ast, g);
         } else {
-          resolveAstToClass(varId, g);
+          resolveAstToClass(ast, g);
         }
         break;
       }
       default:
         // TypeSymbolKind::Plain
         // TypeSymbolKind::Func
-        LOG_ASSERT(false, "invalid type symbol {} kind: {}",
-                   varId->typeSymbol()->name(),
-                   varId->typeSymbol()->kind()._to_string());
+        LOG_ASSERT(false, "invalid type symbol {}:{} kind: {}",
+                   ast->typeSymbol()->name(), ast->typeSymbol()->location(),
+                   ast->typeSymbol()->kind()._to_string());
       }
     } else {
-      LOG_ASSERT(false, "invalid varId {}:{}", varId->name(),
-                 varId->location());
+      LOG_ASSERT(false, "invalid ast {}:{}", ast->name(), ast->location());
     }
   }
 };
 
-DECL3(PlainType, A_PlainType, token)
+DECL3(PlainType, A_PlainType, token);
 
-DECL4(Throw, A_Throw, expr)
-DECL4(Return, A_Return, expr)
-DECL4(Yield, A_Yield, expr)
+DECL4(Throw, A_Throw, expr);
+DECL4(Return, A_Return, expr);
+DECL4(Yield, A_Yield, expr);
 
-struct Block : public Visitor {
-  Block() : Visitor("Drawer::Visitor::Block") {}
+struct VISITOR(Block) : public Visitor {
+  VISITOR(Block)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(Block))) {}
   virtual void visit(Ast *ast) {
     Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
@@ -786,7 +799,6 @@ struct Block : public Visitor {
 
     // create local scope
     A_Block *block = static_cast<A_Block *>(ast);
-    LOG_ASSERT(block->scope(), "block's {} scope must not null", block->name());
     defineAstToScope(block, block->scope(), g);
   }
   virtual void finishVisit(Ast *ast) {
@@ -796,17 +808,16 @@ struct Block : public Visitor {
   }
 };
 
-struct CompileUnit : public Visitor {
-  CompileUnit() : Visitor("Drawer::Visitor::CompileUnit") {}
+struct VISITOR(CompileUnit) : public Visitor {
+  VISITOR(CompileUnit)
+  () : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(CompileUnit))) {}
   virtual void visit(Ast *ast) {
     Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
     g->nodes.insert(node->id(), node);
 
-    // create global scope
+    // global scope
     A_CompileUnit *compileUnit = static_cast<A_CompileUnit *>(ast);
-    LOG_ASSERT(compileUnit->scope(), "compile unit's {} scope must not null",
-               compileUnit->name());
     defineAstToScope(compileUnit, compileUnit->scope(), g);
   }
   virtual void finishVisit(Ast *ast) {
@@ -816,14 +827,20 @@ struct CompileUnit : public Visitor {
   }
 };
 
-DECL5(Postfix, A_Postfix, postfixOp, expr)
-DECL5(Prefix, A_Prefix, prefixOp, expr)
+DECL5(Postfix, A_Postfix, postfixOp, expr);
+DECL5(Prefix, A_Prefix, prefixOp, expr);
 
-DECL6(Call, A_Call, id, args)
-DECL6(Exprs, A_Exprs, expr, next)
+DECL6(Call, A_Call, id, args);
+DECL6(Exprs, A_Exprs, expr, next);
+DECL6(DoWhile, A_DoWhile, body, condition);
+DECL6(BlockStats, A_BlockStats, blockStat, next);
+DECL6(FuncSign, A_FuncSign, id, params);
+DECL6(Params, A_Params, param, next);
+DECL6(Param, A_Param, id, type);
+DECL6(TopStats, A_TopStats, topStat, next);
 
-struct Loop : public Visitor {
-  Loop() : Visitor("Drawer::Visitor::Loop") {}
+struct VISITOR(Loop) : public Visitor {
+  VISITOR(Loop)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(Loop))) {}
   virtual void visit(Ast *ast) {
     Graph *g = static_cast<Context *>(context())->g;
     AstNode *node = new AstNode(ast);
@@ -843,22 +860,15 @@ struct Loop : public Visitor {
   }
 };
 
-DECL6(DoWhile, A_DoWhile, body, condition)
-DECL6(BlockStats, A_BlockStats, blockStat, next)
-DECL6(FuncSign, A_FuncSign, id, params)
-DECL6(Params, A_Params, param, next)
-DECL6(Param, A_Param, id, type)
-DECL6(TopStats, A_TopStats, topStat, next)
+DECL7(Assign, A_Assign, assignOp, assignee, assignor);
+DECL7(Infix, A_Infix, infixOp, left, right);
 
-DECL7(Assign, A_Assign, assignOp, assignee, assignor)
-DECL7(Infix, A_Infix, infixOp, left, right)
-
-DECL8(If, A_If, condition, thenp, elsep)
-DECL8(LoopCondition, A_LoopCondition, init, condition, update)
-DECL8(LoopEnumerator, A_LoopEnumerator, id, type, expr)
-DECL8(Try, A_Try, tryp, catchp, finallyp)
-DECL8(FuncDef, A_FuncDef, funcSign, resultType, body)
-DECL8(VarDef, A_VarDef, id, type, expr)
+DECL8(If, A_If, condition, thenp, elsep);
+DECL8(LoopCondition, A_LoopCondition, init, condition, update);
+DECL8(LoopEnumerator, A_LoopEnumerator, id, type, expr);
+DECL8(Try, A_Try, tryp, catchp, finallyp);
+DECL8(FuncDef, A_FuncDef, funcSign, resultType, body);
+DECL8(VarDef, A_VarDef, id, type, expr);
 
 // Visitor }
 
@@ -894,6 +904,7 @@ Drawer::Drawer(const Cowstr &fileName)
   BIND(Throw);
   BIND(Return);
   BIND(Yield);
+
   BIND(Block);
   BIND(CompileUnit);
 
@@ -902,14 +913,14 @@ Drawer::Drawer(const Cowstr &fileName)
 
   BIND(Call);
   BIND(Exprs);
-
-  BIND(Loop);
   BIND(DoWhile);
   BIND(BlockStats);
   BIND(FuncSign);
   BIND(Params);
   BIND(Param);
   BIND(TopStats);
+
+  BIND(Loop);
 
   BIND(Assign);
   BIND(Infix);
@@ -926,7 +937,6 @@ Drawer::~Drawer() {
   delete context_;
   context_ = nullptr;
   for (int i = 0; i < (int)visitors_.size(); i++) {
-    LOG_ASSERT(visitors_[i], "visitors_[{}] must not null", i);
     delete visitors_[i];
     visitors_[i] = nullptr;
   }
@@ -934,6 +944,7 @@ Drawer::~Drawer() {
 }
 
 void Drawer::run(Ast *ast) {
+  LOG_ASSERT(!fileName_.empty(), "fileName_ must not empty");
   detail::drawer::Graph g;
   static_cast<detail::drawer::Context *>(context_)->g = &g;
   Visitor::traverse(&binder_, ast);

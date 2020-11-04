@@ -387,8 +387,8 @@ assignExpr : id "=" expr { $$ = new A_Assign($1, $2, $3, @$); }
  */
 
 postfixExpr : infixExpr { $$ = $1; }
-            | infixExpr "++" { $$ = new A_PostfixExpr($1, $2, @$); }
-            | infixExpr "--" { $$ = new A_PostfixExpr($1, $2, @$); }
+            | infixExpr "++" { $$ = new A_Postfix($1, $2, @$); }
+            | infixExpr "--" { $$ = new A_Postfix($1, $2, @$); }
             ;
 
 /**
@@ -397,27 +397,27 @@ postfixExpr : infixExpr { $$ = $1; }
  */
 
 infixExpr : prefixExpr { $$ = $1; }
-          | infixExpr "||" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "or" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "&&" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "and" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "|" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "^" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "&" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "==" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "!=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr ">" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr ">=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "<" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "<=" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "<<" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr ">>" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr ">>>" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "+" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "-" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "*" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "/" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
-          | infixExpr "%" optionalNewline infixExpr { $$ = new A_InfixExpr($1, $2, $4, @$); }
+          | infixExpr "||" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "or" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "&&" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "and" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "|" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "^" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "&" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "==" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "!=" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr ">" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr ">=" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "<" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "<=" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "<<" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr ">>" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr ">>>" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "+" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "-" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "*" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "/" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
+          | infixExpr "%" optionalNewline infixExpr { $$ = new A_Infix($1, $2, $4, @$); }
           ;
 
 /**
@@ -426,13 +426,13 @@ infixExpr : prefixExpr { $$ = $1; }
  */
 
 prefixExpr : primaryExpr { $$ = $1; }
-           | "-" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "+" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "~" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "!" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "not" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "++" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
-           | "--" primaryExpr { $$ = new A_PrefixExpr($1, $2, @$); }
+           | "-" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "+" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "~" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "!" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "not" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "++" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
+           | "--" primaryExpr { $$ = new A_Prefix($1, $2, @$); }
            ;
 
 primaryExpr : literal { $$ = $1; }

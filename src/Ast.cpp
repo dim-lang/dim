@@ -721,10 +721,10 @@ A_BlockStats::~A_BlockStats() {
 AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
 
 Cowstr A_BlockStats::str() const {
-  return next ? fmt::format("{}: blockStat@{}", Ast::str(),
-                            blockStat->identifier())
-              : fmt::format("{}: blockStat@{} next@{}", Ast::str(),
-                            blockStat->identifier(), next->identifier());
+  return next ? fmt::format("{}: blockStat@{} next@{}", Ast::str(),
+                            blockStat->identifier(), next->identifier())
+              : fmt::format("{}: blockStat@{}", Ast::str(),
+                            blockStat->identifier());
 }
 
 // A_BlockStats }

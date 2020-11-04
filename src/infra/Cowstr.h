@@ -40,7 +40,7 @@ public:
   template <typename T>
   static Cowstr join(const T &value, const Cowstr &delimiter = "") {
     if (value.empty()) {
-      return Cowstr();
+      return "";
     }
     std::stringstream ss;
     auto e = value.end();

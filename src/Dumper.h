@@ -21,5 +21,5 @@ private:
   VisitorContext *context_;
   VisitorBinder binder_;
   std::vector<Visitor *> visitors_;
-  std::vector<Cowstr> dump_;
+  std::vector<Cowstr> dumps_;
 };

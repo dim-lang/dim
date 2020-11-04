@@ -9,6 +9,7 @@
 #include "SymbolResolver.h"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
+#include "infra/Log.h"
 
 static void testDumper(const Cowstr &fileName) {
   Scanner scanner(fileName);
@@ -18,16 +19,14 @@ static void testDumper(const Cowstr &fileName) {
   SymbolResolver resolver;
   Dumper dumper;
 
-  PhaseManager pm({&builder, &resolver, &drawer});
+  PhaseManager pm({&builder, &resolver, &dumper});
   pm.run(scanner.compileUnit());
-  fmt::print("dump {}\n", fileName);
-  for (int i = 0; i < (int)dumper.dumps().size(); i++) {
-    fmt::print("{}\n", dumper.dumps()[i]);
-  }
+  LOG_INFO("dump {}", fileName);
+  LOG_INFO("\n{}", Cowstr::join(dumper.dumps(), "\n"));
 }
 
 TEST_CASE("Dumper", "[Dumper]") {
-  SECTION("dump ast/symbol") {
+  SECTION("dump ast") {
     testDumper("test/case/parse-1.nerd");
     testDumper("test/case/parse-2.nerd");
     testDumper("test/case/parse-3.nerd");
