@@ -3,10 +3,21 @@
 
 #include "IrBuilder.h"
 #include "Ast.h"
+#include "Label.h"
 #include "Symbol.h"
 #include "Token.h"
-#include "boost/preprocessor/stringize.hpp"
+#include "iface/LLVMTypable.h"
+#include "iface/LLVMValuable.h"
+#include "iface/Scoped.h"
 #include "infra/Log.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/GlobalValue.h"
+#include "llvm/IR/GlobalVariable.h"
+#include "llvm/IR/Type.h"
+#include "llvm/Support/Casting.h"
+#include "llvm/Support/raw_ostream.h"
 #include <vector>
 
 #define INITIALIZE(astype)                                                     \
@@ -16,12 +27,6 @@
   (void)ctx;                                                                   \
   (void)ib;                                                                    \
   (void)node;
-
-#define VISIT_BEFORE(x)                                                        \
-  void VISITOR(x)::visitBefore(Ast *ast, Ast *child) {}
-
-#define VISIT_AFTER(x)                                                         \
-  void VISITOR(x)::visitAfter(Ast *ast, Ast *child) {}
 
 #define CHILD(x) ((x) == (child))
 
@@ -42,8 +47,12 @@ namespace detail {
 
 namespace ir_builder {
 
-struct Context : public VisitorContext, public Scoped {
+struct Context : public VisitorContext,
+                 public Scoped,
+                 public LLVMValuable,
+                 public LLVMTypable {
   Context(IrBuilder *a_irBuilder) : irBuilder(a_irBuilder) {}
+
   IrBuilder *irBuilder;
 };
 
@@ -404,110 +413,42 @@ void VarDef::finishVisit(Ast *ast) {
   }
 }
 
-struct VISITOR(VarDef) : public Visitor {
-  Ir *ir;
+CompileUnit::CompileUnit() : Visitor("IrBuilder::Visitor::CompileUnit") {}
 
-  VISITOR(VarDef)
-  () : Visitor("IrBuilder" BOOST_PP_STRINGIZE(VISITOR(VarDef))), ir(nullptr) {}
-
-  virtual void visit(Ast *ast) {
-    INITIALIZE(A_VarDef)
-    S_Var *s_var = static_cast<S_Var *>(node->symbol());
-    if (!s_var->owner()->owner()) {
-      ir = new I_GlobalVar();
-    }
-  }
-
-  virtual void finishVisit(Ast *ast) { INITIALIZE(A_VarDef) }
-};
-
-// VarDefVisitor {
-
-IrBuilder::VISITOR(VarDef)::VISITOR(VarDef)()
-    : Visitor("IrBuilder::" BOOST_PP_STRINGIZE(VISITOR(VarDef))), ir(nullptr) {}
-
-void IrBuilder::VISITOR(VarDef)::visitAfter(Ast *ast, Ast *child) {
-  INITIALIZE(A_VarDef)
-  if (node->id == child) {
-    IrBuilder::VISITOR(VarId) *v = visitor(+AstKind::VarId);
-    if (!v->symbol->owner()->owner()) {
-      // global variable
-      ir = new I_GlobalVar();
-    } else {
-      // local variable
-      ir = new I_Stat();
-    }
-  } else if (node->type == child) {
-
-  } else if (node->expr == child) {
-  }
-}
-
-void IrBuilder::VISITOR(VarDef)::finishVisit(Ast *ast) {}
-
-// VarDefVisitor }
-
-// VarIdVisitor {
-
-IrBuilder::VISITOR(VarId)::VISITOR(VarId)()
-    : Visitor("IrBuilder::" BOOST_PP_STRINGIZE(VISITOR(VarId))),
-              symbol(nullptr) {}
-
-void IrBuilder::VISITOR(VarId)::visit(Ast *ast) {
-  INITIALIZE(A_VarId)
-  LOG_ASSERT(node->symbol()->kind() == (+SymbolKind::Var),
-             "symbol {}:{} kind {} != SymbolKind::Var", node->symbol());
-  symbol = node->symbol();
-}
-
-// VarIdVisitor }
-
-// PlainTypeVisitor {
-
-IrBuilder::VISITOR(PlainType)::VISITOR(PlainType)()
-    : Visitor("IrBuilder::" BOOST_PP_STRINGIZE(VISITOR(PlainType))),
-              typeSymbol(nullptr) {}
-
-void IrBuilder::VISITOR(PlainType)::visit(Ast *ast) {
-  INITIALIZE(A_PlainType)
-  typeSymbol = ctx->scope()->ts_resolve(node->name());
-  LOG_ASSERT(typeSymbol, "plain type {}:{} cannot resolve in scope {}:{}",
-             node->name(), node->location(), ctx->scope()->name(),
-             ctx->scope()->location());
-}
-
-// PlainTypeVisitor }
-
-// CompileUnitVisitor {
-
-IrBuilder::VISITOR(CompileUnit)::VISITOR(CompileUnit)()
-    : Visitor("IrBuilder::" BOOST_PP_STRINGIZE(VISITOR(CompileUnit))),
-              ir(nullptr) {}
-
-void IrBuilder::VISITOR(CompileUnit)::visit(Ast *ast) {
+void CompileUnit::visit(Ast *ast) {
   INITIALIZE(A_CompileUnit)
+  // update scope
+  LOG_ASSERT(!ctx->scope(), "context scope must be null before compile unit:{}",
+             ctx->scope()->name());
   ctx->scope() = node->scope();
-  ir = new I_Mod();
-  ib->ir() = ir;
+  // init llvmModule
+  llvm::Module *m = new llvm::Module(node->name().str(), ib->llvmContext());
+  ib->llvmModule() = m;
 }
 
-void IrBuilder::VISITOR(CompileUnit)::finishVisit(Ast *ast) {
-  INITIALIZE(A_CompileUnit)
+void CompileUnit::finishVisit(Ast *ast) {
+  Context *ctx = static_cast<Context *>(context());
+  // update scope
   ctx->scope() = ctx->scope()->owner();
+  LOG_ASSERT(!ctx->scope(), "global scope's owner scope must be null:{}",
+             ctx->scope()->name());
 }
 
-// CompileUnitVisitor }
+} // namespace ir_builder
+
+} // namespace detail
 
 #define BIND(x)                                                                \
   do {                                                                         \
-    Visitor *v = new IrBuilder::VISITOR(x)();                                  \
+    Visitor *v = new detail::ir_builder::x();                                  \
     binder_.bind(+AstKind::x, v);                                              \
     visitors_.push_back(v);                                                    \
   } while (0)
 
 IrBuilder::IrBuilder()
-    : Phase("IrBuilder"), ir_(nullptr),
-      context_(new detail::ir_builder::Context(this)), binder_(context_) {
+    : Phase("IrBuilder"), llvmContext_(), llvmIRBuilder_(llvmContext_),
+      llvmModule_(nullptr), context_(new detail::ir_builder::Context(this)),
+      binder_(context_) {
   BIND(Integer);
   BIND(Float);
   BIND(Block);
@@ -519,8 +460,10 @@ IrBuilder::IrBuilder()
 }
 
 IrBuilder::~IrBuilder() {
-  delete ir_;
-  ir_ = nullptr;
+  delete llvmModule_;
+  llvmModule_ = nullptr;
+  delete context_;
+  context_ = nullptr;
   for (int i = 0; i < (int)visitors_.size(); i++) {
     delete visitors_[i];
     visitors_[i] = nullptr;
@@ -528,8 +471,27 @@ IrBuilder::~IrBuilder() {
   visitors_.clear();
 }
 
-void IrBuilder::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
+void IrBuilder::run(Ast *ast) {
+  Visitor::traverse(&binder_, ast);
 
-Ir *&IrBuilder::ir() { return ir_; }
+  std::string s;
+  llvm::raw_string_ostream sos(s);
+  llvmModule_->print(sos, nullptr);
+  llvmLL_ = s;
+}
 
-Ir *IrBuilder::ir() const { return ir_; }
+const Cowstr &IrBuilder::llvmLL() const { return llvmLL_; }
+
+llvm::LLVMContext &IrBuilder::llvmContext() { return llvmContext_; }
+
+const llvm::LLVMContext &IrBuilder::llvmContext() const { return llvmContext_; }
+
+llvm::IRBuilder<> &IrBuilder::llvmIRBuilder() { return llvmIRBuilder_; }
+
+const llvm::IRBuilder<> &IrBuilder::llvmIRBuilder() const {
+  return llvmIRBuilder_;
+}
+
+llvm::Module *&IrBuilder::llvmModule() { return llvmModule_; }
+
+const llvm::Module *IrBuilder::llvmModule() const { return llvmModule_; }

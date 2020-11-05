@@ -5,8 +5,6 @@
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
-#include "iface/LLVMTypable.h"
-#include "iface/LLVMValuable.h"
 #include "iface/Locationable.h"
 #include "iface/Nameable.h"
 #include "iface/Scoped.h"
@@ -139,7 +137,7 @@ public:
 
 // literal {
 
-class A_Integer : public Ast, public LLVMValuable {
+class A_Integer : public Ast {
 public:
   A_Integer(const Cowstr &literal, const Location &location);
   virtual ~A_Integer() = default;
@@ -165,7 +163,7 @@ private:
   int base_;
 };
 
-class A_Float : public Ast, public LLVMValuable {
+class A_Float : public Ast {
 public:
   A_Float(const Cowstr &literal, const Location &location);
   virtual ~A_Float() = default;
@@ -184,7 +182,7 @@ private:
 };
 
 // string literal
-class A_String : public Ast, public LLVMValuable {
+class A_String : public Ast {
 public:
   A_String(const Cowstr &literal, const Location &location);
   virtual ~A_String() = default;
@@ -199,7 +197,7 @@ private:
   bool isMultipleLine_;
 };
 
-class A_Character : public Ast, public LLVMValuable {
+class A_Character : public Ast {
 public:
   A_Character(const Cowstr &literal, const Location &location);
   virtual ~A_Character() = default;
@@ -212,7 +210,7 @@ private:
   char parsed_;
 };
 
-class A_Boolean : public Ast, public LLVMValuable {
+class A_Boolean : public Ast {
 public:
   A_Boolean(const Cowstr &literal, const Location &location);
   virtual ~A_Boolean() = default;

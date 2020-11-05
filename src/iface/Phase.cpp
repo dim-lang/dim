@@ -1,7 +1,7 @@
 // Copyright 2019- <nerd-lang>
 // Apache License Version 2.0
 
-#include "Phase.h"
+#include "iface/Phase.h"
 #include "infra/Log.h"
 
 Phase::Phase(const Cowstr &name) : Nameable(name) {}

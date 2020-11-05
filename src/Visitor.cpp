@@ -6,21 +6,28 @@
 #include "infra/Log.h"
 #include <utility>
 
+#define ID(x) ((x)._to_integral())
+#define NAME(x) ((x)._to_string())
+
 // VisitorBinder {
 
 static Visitor IdleVisitor("IdleVisitor");
 
 VisitorBinder::VisitorBinder(VisitorContext *context) : context_(context) {}
 
+// each kind must bind at most once, while it's visitor could be NULL
 int VisitorBinder::bind(AstKind kind, Visitor *visitor) {
-  LOG_ASSERT(visitor, "visitor must not null");
   visitor->visitorBinder_ = this;
-  visitors_[kind._to_integral()] = visitor;
+  LOG_ASSERT(visitors_.find(ID(kind)) == visitors_.end(),
+             "kind {} already bind", NAME(kind));
+  visitors_[ID(kind)] = visitor;
   return 0;
 }
 
+// if kind not bind, return IdleVisitor
+// if kind bind to NULL, return NULL
 Visitor *VisitorBinder::visitor(AstKind kind) const {
-  auto it = visitors_.find(kind._to_integral());
+  auto it = visitors_.find(ID(kind));
   return it == visitors_.end() ? &IdleVisitor : it->second;
 }
 
@@ -117,7 +124,9 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
   }
   LOG_ASSERT(binder, "binder must not null");
   Visitor *visitor = binder->visitor(ast->kind());
-  LOG_ASSERT(visitor, "visitor must not null for ast {}", ast->name());
+  if (!visitor) {
+    return;
+  }
 
   // visit
   visitor->visit(ast);
@@ -237,7 +246,7 @@ void Visitor::traverse(VisitorBinder *binder, Ast *ast) {
     break;
   }
   default:
-    LOG_ASSERT(false, "invalid ast node kind: {}", ast->kind()._to_string());
+    LOG_ASSERT(false, "invalid ast node kind: {}", NAME(ast->kind()));
   }
 
   // post visit
