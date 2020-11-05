@@ -20,8 +20,8 @@ struct Context : public VisitorContext {
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Context *ctx = static_cast<Context *>(context());                        \
-      ctx->dumper->dumps().push_back(Cowstr("|  ").repeat(ctx->indent) +       \
-                                     Cowstr("`-") + ast->str());               \
+      ctx->dumper->dump().push_back(Cowstr("|  ").repeat(ctx->indent) +        \
+                                    Cowstr("`-") + ast->str());                \
     }                                                                          \
   }
 
@@ -30,8 +30,8 @@ struct Context : public VisitorContext {
     VISITOR(x)() : Visitor("Dumper::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
     virtual void visit(Ast *ast) {                                             \
       Context *ctx = static_cast<Context *>(context());                        \
-      ctx->dumper->dumps().push_back(Cowstr("|  ").repeat(ctx->indent) +       \
-                                     Cowstr("`-") + ast->str());               \
+      ctx->dumper->dump().push_back(Cowstr("|  ").repeat(ctx->indent) +        \
+                                    Cowstr("`-") + ast->str());                \
       ctx->indent += 1;                                                        \
     }                                                                          \
     virtual void finishVisit(Ast *ast) {                                       \
@@ -139,6 +139,6 @@ Dumper::~Dumper() {
 
 void Dumper::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
 
-std::vector<Cowstr> &Dumper::dumps() { return dumps_; }
+std::vector<Cowstr> &Dumper::dump() { return dump_; }
 
-const std::vector<Cowstr> &Dumper::dumps() const { return dumps_; }
+const std::vector<Cowstr> &Dumper::dump() const { return dump_; }

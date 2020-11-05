@@ -22,7 +22,7 @@ static void testDumper(const Cowstr &fileName) {
   PhaseManager pm({&builder, &resolver, &dumper});
   pm.run(scanner.compileUnit());
   LOG_INFO("dump {}", fileName);
-  LOG_INFO("\n{}", Cowstr::join(dumper.dumps(), "\n"));
+  LOG_INFO("\n{}", Cowstr::join(dumper.dump(), "\n"));
 }
 
 TEST_CASE("Dumper", "[Dumper]") {

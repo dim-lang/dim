@@ -14,19 +14,24 @@
 #include <cstdlib>
 
 #define Y_SCANNER       (static_cast<Scanner*>(yyget_extra(yyscanner)))
+
 void yyerror(YYLTYPE *yyllocp, yyscan_t yyscanner, const char *msg);
+
 template<typename T> T* reverse(T* list) {
   // nil node
   if (!list) {
     return list;
   }
   T* head = nullptr;
-  T* tail = nullptr;
+  T* tmp = nullptr;
   while (list) {
     head = list;
     list = list->next;
-    head->next = tail;
-    tail = head;
+    head->next = tmp;
+    if (tmp) {
+      tmp->parent() = head;
+    }
+    tmp = head;
   }
   return head;
 }

@@ -14,12 +14,12 @@ public:
   Dumper();
   virtual ~Dumper();
   virtual void run(Ast *ast);
-  virtual std::vector<Cowstr> &dumps();
-  virtual const std::vector<Cowstr> &dumps() const;
+  virtual std::vector<Cowstr> &dump();
+  virtual const std::vector<Cowstr> &dump() const;
 
 private:
   VisitorContext *context_;
   VisitorBinder binder_;
   std::vector<Visitor *> visitors_;
-  std::vector<Cowstr> dumps_;
+  std::vector<Cowstr> dump_;
 };

@@ -54,6 +54,10 @@ void Visitor::finishVisit(Ast *ast) {}
 #define TRAVEL1(ast, astype, child1)                                           \
   do {                                                                         \
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
+    if (c1) {                                                                  \
+      LOG_ASSERT(c1->parent() == ast, "c1 {}:{} parent != ast {}:{}",          \
+                 c1->name(), c1->location(), ast->name(), ast->location());    \
+    }                                                                          \
     visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
     visitor->visitAfter(ast, c1);                                              \
@@ -63,6 +67,14 @@ void Visitor::finishVisit(Ast *ast) {}
   do {                                                                         \
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
     Ast *c2 = static_cast<astype *>(ast)->child2;                              \
+    if (c1) {                                                                  \
+      LOG_ASSERT(c1->parent() == ast, "c1 {}:{} parent != ast {}:{}",          \
+                 c1->name(), c1->location(), ast->name(), ast->location());    \
+    }                                                                          \
+    if (c2) {                                                                  \
+      LOG_ASSERT(c2->parent() == ast, "c2 {}:{} parent != ast {}:{}",          \
+                 c2->name(), c2->location(), ast->name(), ast->location());    \
+    }                                                                          \
     visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
     visitor->visitAfter(ast, c1);                                              \
@@ -76,6 +88,18 @@ void Visitor::finishVisit(Ast *ast) {}
     Ast *c1 = static_cast<astype *>(ast)->child1;                              \
     Ast *c2 = static_cast<astype *>(ast)->child2;                              \
     Ast *c3 = static_cast<astype *>(ast)->child3;                              \
+    if (c1) {                                                                  \
+      LOG_ASSERT(c1->parent() == ast, "c1 {}:{} parent != ast {}:{}",          \
+                 c1->name(), c1->location(), ast->name(), ast->location());    \
+    }                                                                          \
+    if (c2) {                                                                  \
+      LOG_ASSERT(c2->parent() == ast, "c2 {}:{} parent != ast {}:{}",          \
+                 c2->name(), c2->location(), ast->name(), ast->location());    \
+    }                                                                          \
+    if (c3) {                                                                  \
+      LOG_ASSERT(c3->parent() == ast, "c3 {}:{} parent != ast {}:{}",          \
+                 c3->name(), c3->location(), ast->name(), ast->location());    \
+    }                                                                          \
     visitor->visitBefore(ast, c1);                                             \
     traverse(binder, c1);                                                      \
     visitor->visitAfter(ast, c1);                                              \
