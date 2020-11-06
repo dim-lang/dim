@@ -9,36 +9,82 @@
 #include "infra/Log.h"
 #include <vector>
 
-#define INITIALIZE(astype)                                                     \
-  Context *ctx = static_cast<Context *>(context());                            \
-  IrBuilder *ib = ctx->irBuilder;                                              \
-  astype *node = static_cast<astype *>(ast);                                   \
-  (void)ctx;                                                                   \
-  (void)ib;                                                                    \
-  (void)node;
-
-#define VISIT_BEFORE(x)                                                        \
-  void VISITOR(x)::visitBefore(Ast *ast, Ast *child) {}
-
-#define VISIT_AFTER(x)                                                         \
-  void VISITOR(x)::visitAfter(Ast *ast, Ast *child) {}
-
-#define CHILD(x) ((x) == (child))
-
-#define VDECL1(x)                                                              \
-  struct x : public Visitor {                                                  \
-    x();                                                                       \
-    virtual void visit(Ast *ast);                                              \
-  }
-
-#define VDECL2(x)                                                              \
-  struct x : public Visitor {                                                  \
-    x();                                                                       \
-    virtual void visit(Ast *ast);                                              \
-    virtual void finishVisit(Ast *ast);                                        \
-  }
-
 namespace detail {
+
+// I_Mod {
+
+I_Mod::VISITOR(GlobalVar)::VISITOR(GlobalVar)()
+    : Visitor("IrBuilder::I_Mod::" BOOST_PP_STRINGIZE(VISITOR(GlobalVar))) {}
+
+void I_Mod::VISITOR(GlobalVar)::visit(Ast *ast) {
+  I_Mod::Context *ctx = static_cast<I_Mod::Context *>(context());
+  ctx->iMod->iGlobalVar->run(ast);
+}
+
+I_Mod::VISITOR(FuncDef)::VISITOR(FuncDef)()
+    : Visitor("IrBuilder::I_Mod::" BOOST_PP_STRINGIZE(VISITOR(FuncDef))) {}
+
+void I_Mod::VISITOR(FuncDef)::visit(Ast *ast) {
+  I_Mod::Context *ctx = static_cast<I_Mod::Context *>(context());
+  ctx->iMod->iFuncDef->run(ast);
+}
+
+#define BIND(x, y)                                                             \
+  do {                                                                         \
+    Visitor *v = new detail::I_Mod::VISITOR(x)();                              \
+    binder.bind((+AstKind::y), v);                                             \
+    visitors.push_back(v);                                                     \
+  } while (0)
+
+I_Mod::I_Mod(IrBuilder *irBuilder)
+    : Phase("I_Mod"),
+      // traversor
+      context(new I_Mod::Context(irBuilder, this)), binder(context),
+      // other traversors
+      iGlobalVar(new I_GlobalVar()), iFuncDef(new I_FuncDef()) {
+  BIND(GlobalVar, VarDef);
+  BIND(FuncDef, FuncDef);
+}
+
+I_Mod::~I_Mod() {
+  delete context;
+  context = nullptr;
+  for (int i = 0; i < (int)visitors.size(); i++) {
+    delete visitors[i];
+    visitors[i] = nullptr;
+  }
+  delete iGlobalVar;
+  iGlobalVar = nullptr;
+  delete iFuncDef;
+  iFuncDef = nullptr;
+}
+
+void I_Mod::run(Ast *ast) { Visitor::traverse(&binder, ast); }
+
+#undef BIND
+
+// I_Mod }
+
+struct Context : public VisitorContext, public Scoped, public Modular {};
+struct VISITOR(GlobalVar) : public Visitor {
+  VISITOR(GlobalVar)();
+  virtual void visit(Ast *ast);
+};
+struct VISITOR(FuncDef) : public Visitor {
+  VISITOR(FuncDef)();
+  virtual void visit(Ast *ast);
+};
+
+VisitorContext *context;
+VisitorBinder binder;
+std::vector<Visitor *> visitors;
+
+I_GlobalVar *iGlobalVar;
+I_FuncDef *iFuncDef;
+
+llvm::LLVMContext llvmContext;
+llvm::IRBuilder<> llvmIRBuilder;
+llvm::Module *llvmModule;
 
 namespace ir_builder {
 
@@ -506,8 +552,8 @@ void IrBuilder::VISITOR(CompileUnit)::finishVisit(Ast *ast) {
   } while (0)
 
 IrBuilder::IrBuilder()
-    : Phase("IrBuilder"), ir_(nullptr),
-      context_(new detail::ir_builder::Context(this)), binder_(context_) {
+    : Phase("IrBuilder"), llvmContext(), llvmIRBuilder(llvmContext),
+      llvmModule(nullptr), iMod(new detail::I_Mod(this)) {
   BIND(Integer);
   BIND(Float);
   BIND(Block);

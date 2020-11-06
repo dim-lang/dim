@@ -4,6 +4,7 @@
 #include "Ast.h"
 #include "Token.h"
 #include "fmt/format.h"
+#include "iface/Visitor2.h"
 #include "infra/Log.h"
 #include <sstream>
 #include <tuple>
@@ -191,6 +192,8 @@ A_Integer::A_Integer(const Cowstr &literal, const Location &location)
 
 AstKind A_Integer::kind() const { return AstKind::Integer; }
 
+void A_Integer::accept(Visitor *visitor) { visitor->visitInteger(this); }
+
 Cowstr A_Integer::str() const { return Ast::str(); }
 
 int A_Integer::bit() const { return bit_; }
@@ -251,6 +254,8 @@ A_Float::A_Float(const Cowstr &literal, const Location &location)
 }
 
 AstKind A_Float::kind() const { return AstKind::Float; }
+
+void A_Float::accept(Visitor *visitor) { visitor->visitFloat(this); }
 
 Cowstr A_Float::str() const { return Ast::str(); }
 

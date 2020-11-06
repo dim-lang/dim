@@ -2,11 +2,14 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ir.h"
-#include "Phase.h"
+// #include "Ir.h"
 #include "Symbol.h"
 #include "Visitor.h"
+#include "iface/Phase.h"
 #include "iface/Scoped.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 #include <vector>
 
 #define DECL(x)                                                                \
@@ -17,12 +20,117 @@
     virtual void finishVisit(Ast *ast);                                        \
   }
 
+class IrBuilder;
+
 namespace detail {
 
-namespace ir_mod {}
-namespace ir_global_var {}
-namespace ir_func_decl {}
-namespace ir_func_def {}
+struct I_Mod;
+struct I_GlobalVar;
+struct I_FuncDef;
+struct I_FuncDecl;
+struct I_Param;
+struct I_Block;
+struct I_Var;
+struct I_ConstantExpr;
+struct I_Expr;
+
+struct I_Mod : public Phase {
+  I_Mod(IrBuilder *irBuilder);
+  virtual ~I_Mod();
+  virtual void run(Ast *ast);
+
+  struct Context : public VisitorContext, public Scoped {
+    Context(IrBuilder *a_irBuilder, I_Mod *mod)
+        : irBuilder(a_irBuilder), iMod(mod) {}
+    IrBuilder *irBuilder;
+    I_Mod *iMod;
+  };
+  struct VISITOR(GlobalVar) : public Visitor {
+    VISITOR(GlobalVar)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(FuncDef) : public Visitor {
+    VISITOR(FuncDef)();
+    virtual void visit(Ast *ast);
+  };
+
+  VisitorContext *context;
+  VisitorBinder binder;
+  std::vector<Visitor *> visitors;
+
+  I_GlobalVar *iGlobalVar;
+  I_FuncDef *iFuncDef;
+};
+
+struct I_GlobalVar : public Phase {
+  I_GlobalVar(IrBuilder *irBuilder);
+  virtual ~I_GlobalVar();
+  virtual void run(Ast *ast);
+
+  struct Context : public VisitorContext, public Scoped {
+    Context(IrBuilder *a_irBuilder, I_GlobalVar *globalVar)
+        : irBuilder(a_irBuilder), iGlobalVar(globalVar) {}
+    IrBuilder *irBuilder;
+    I_GlobalVar *iGlobalVar;
+  };
+  struct VISITOR(VarId) : public Visitor {
+    VISITOR(VarId)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(PlainType) : public Visitor {
+    VISITOR(PlainType)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(ConstantExpr) : public Visitor {
+    VISITOR(ConstantExpr)();
+    virtual void visit(Ast *ast);
+  };
+
+  VisitorContext *context;
+  VisitorBinder binder;
+  std::vector<Visitor *> visitors;
+
+  I_ConstantExpr *iConstantExpr;
+};
+
+struct I_FuncDef : public Phase {
+  I_FuncDef(IrBuilder *irBuilder);
+  virtual ~I_FuncDef();
+  virtual void run(Ast *ast);
+
+  struct Context : public VisitorContext, public Scoped {
+    Context(IrBuilder *a_irBuilder, I_FuncDef *funcDef)
+        : irBuilder(a_irBuilder), iFuncDef(funcDef) {}
+    IrBuilder *irBuilder;
+    I_FuncDef *iFuncDef;
+  };
+  struct VISITOR(FuncDecl) : public Visitor {
+    VISITOR(FuncDecl)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(PlainType) : public Visitor {
+    VISITOR(PlainType)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(ConstantExpr) : public Visitor {
+    VISITOR(ConstantExpr)();
+    virtual void visit(Ast *ast);
+  };
+
+  VisitorContext *context;
+  VisitorBinder binder;
+  std::vector<Visitor *> visitors;
+
+  I_FuncDecl *iFuncDecl;
+  I_Block *iBlock;
+};
+
+struct I_FuncDecl : public Phase {};
+struct I_Param : public Phase {};
+struct I_Block : public Phase {};
+struct I_Var : public Phase {};
+struct I_ConstantExpr : public Phase {};
+struct I_Expr : public Phase {};
 
 } // namespace detail
 
@@ -31,8 +139,6 @@ public:
   IrBuilder();
   virtual ~IrBuilder();
   virtual void run(Ast *ast);
-  virtual Ir *&ir();
-  virtual Ir *ir() const;
 
   struct Context : public VisitorContext, public Scoped {
     Context(IrBuilder *a_irBuilder);
@@ -40,7 +146,6 @@ public:
   };
 
   struct VISITOR(CompileUnit) : public Visitor {
-    Ir *ir;
     VISITOR(CompileUnit)();
     virtual void visit(Ast *ast);
     virtual void finishVisit(Ast *ast);
@@ -63,10 +168,11 @@ public:
   };
 
 private:
-  Ir *ir_;
-  VisitorContext *context_;
-  VisitorBinder binder_;
-  std::vector<Visitor *> visitors_;
+  llvm::LLVMContext llvmContext;
+  llvm::IRBuilder<> llvmIRBuilder;
+  llvm::Module *llvmModule;
+
+  detail::I_Mod *iMod;
 };
 
 #undef DECL
