@@ -167,9 +167,11 @@ set(NERD_CORE_SRC
     src/iface/LLVMValuable.cpp
     src/iface/Locationable.cpp
     src/iface/Nameable.cpp
+    src/iface/Phase.cpp
     src/iface/Scoped.cpp
     src/iface/Symbolizable.cpp
     src/iface/TypeSymbolizable.cpp
+    src/iface/Visitor.cpp
 
     src/infra/Counter.cpp
     src/infra/Cowstr.cpp
@@ -185,13 +187,11 @@ set(NERD_CORE_SRC
     src/Label.cpp
     src/Location.cpp
     src/NameGenerator.cpp
-    src/Phase.cpp
     src/Scanner.cpp
     src/Symbol.cpp
     src/SymbolBuilder.cpp
     src/SymbolResolver.cpp
     src/Token.cpp
-    src/Visitor.cpp
 
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Tokenizer_OUTPUTS}

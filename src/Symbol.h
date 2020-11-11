@@ -2,6 +2,8 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "AstClasses.h"
+#include "SymbolClasses.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
@@ -32,12 +34,6 @@ BETTER_ENUM(TypeSymbolKind, int,
             Func,
             // class
             Class)
-
-class Ast;
-class A_VarId;
-class Symbol;
-class TypeSymbol;
-class Scope;
 
 namespace detail {
 

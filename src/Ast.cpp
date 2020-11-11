@@ -4,7 +4,7 @@
 #include "Ast.h"
 #include "Token.h"
 #include "fmt/format.h"
-#include "iface/Visitor2.h"
+#include "iface/Visitor.h"
 #include "infra/Log.h"
 #include <sstream>
 #include <tuple>
@@ -43,11 +43,6 @@ Ast *Parentable::parent() const { return parentable_; }
 
 Ast::Ast(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location) {}
-
-Cowstr Ast::str() const {
-  return fmt::format("{}@{} \'{}\' <{}>", kind()._to_string(), identifier(),
-                     name(), location());
-}
 
 bool Ast::isLiteral(Ast *e) {
   if (!e)
@@ -194,8 +189,6 @@ AstKind A_Integer::kind() const { return AstKind::Integer; }
 
 void A_Integer::accept(Visitor *visitor) { visitor->visitInteger(this); }
 
-Cowstr A_Integer::str() const { return Ast::str(); }
-
 int A_Integer::bit() const { return bit_; }
 
 bool A_Integer::isSigned() const { return isSigned_; }
@@ -257,8 +250,6 @@ AstKind A_Float::kind() const { return AstKind::Float; }
 
 void A_Float::accept(Visitor *visitor) { visitor->visitFloat(this); }
 
-Cowstr A_Float::str() const { return Ast::str(); }
-
 int A_Float::bit() const { return bit_; }
 
 float A_Float::asFloat() const { return std::stof(parsed_.str()); }
@@ -284,7 +275,7 @@ A_String::A_String(const Cowstr &literal, const Location &location)
 
 AstKind A_String::kind() const { return AstKind::String; }
 
-Cowstr A_String::str() const { return Ast::str(); }
+void A_String::accept(Visitor *visitor) { visitor->visitString(this); }
 
 bool A_String::isMultipleLine() const { return isMultipleLine_; }
 
@@ -299,7 +290,7 @@ A_Character::A_Character(const Cowstr &literal, const Location &location)
 
 AstKind A_Character::kind() const { return AstKind::Character; }
 
-Cowstr A_Character::str() const { return Ast::str(); }
+void A_Character::accept(Visitor *visitor) { visitor->visitCharacter(this); }
 
 char A_Character::asChar() const { return parsed_; }
 
@@ -312,7 +303,7 @@ A_Boolean::A_Boolean(const Cowstr &literal, const Location &location)
 
 AstKind A_Boolean::kind() const { return AstKind::Boolean; }
 
-Cowstr A_Boolean::str() const { return Ast::str(); }
+void A_Boolean::accept(Visitor *visitor) { visitor->visitBoolean(this); }
 
 bool A_Boolean::asBoolean() const { return parsed_; }
 
@@ -324,7 +315,7 @@ A_Nil::A_Nil(const Location &location) : Ast("nil", location) {}
 
 AstKind A_Nil::kind() const { return AstKind::Nil; }
 
-Cowstr A_Nil::str() const { return Ast::str(); }
+void A_Nil::accept(Visitor *visitor) { visitor->visitNil(this); }
 
 // A_Nil }
 
@@ -334,7 +325,7 @@ A_Void::A_Void(const Location &location) : Ast("void", location) {}
 
 AstKind A_Void::kind() const { return AstKind::Void; }
 
-Cowstr A_Void::str() const { return Ast::str(); }
+void A_Void::accept(Visitor *visitor) { visitor->visitVoid(this); }
 
 // A_Void }
 
@@ -352,7 +343,7 @@ A_VarId::A_VarId(const Cowstr &literal, const Location &location)
 
 AstKind A_VarId::kind() const { return AstKind::VarId; }
 
-Cowstr A_VarId::str() const { return Ast::str(); }
+void A_VarId::accept(Visitor *visitor) { visitor->visitVarId(this); }
 
 // A_VarId }
 
@@ -372,9 +363,7 @@ A_Throw::~A_Throw() { DESTROY(expr); }
 
 AstKind A_Throw::kind() const { return AstKind::Throw; }
 
-Cowstr A_Throw::str() const {
-  return fmt::format("{}: expr@{}", Ast::str(), expr->identifier());
-}
+void A_Throw::accept(Visitor *visitor) { visitor->visitThrow(this); }
 
 // A_Throw }
 
@@ -389,10 +378,7 @@ A_Return::~A_Return() { DESTROY(expr); }
 
 AstKind A_Return::kind() const { return AstKind::Return; }
 
-Cowstr A_Return::str() const {
-  return expr ? fmt::format("{}: expr@{}", Ast::str(), expr->identifier())
-              : Ast::str();
-}
+void A_Return::accept(Visitor *visitor) { visitor->visitReturn(this); }
 
 // A_Return }
 
@@ -402,7 +388,7 @@ A_Break::A_Break(const Location &location) : Ast("break", location) {}
 
 AstKind A_Break::kind() const { return AstKind::Break; }
 
-Cowstr A_Break::str() const { return Ast::str(); }
+void A_Break::accept(Visitor *visitor) { visitor->visitBreak(this); }
 
 // A_Break }
 
@@ -412,7 +398,7 @@ A_Continue::A_Continue(const Location &location) : Ast("continue", location) {}
 
 AstKind A_Continue::kind() const { return AstKind::Continue; }
 
-Cowstr A_Continue::str() const { return Ast::str(); }
+void A_Continue::accept(Visitor *visitor) { visitor->visitContinue(this); }
 
 // A_Continue }
 
@@ -435,10 +421,7 @@ A_Assign::~A_Assign() {
 
 AstKind A_Assign::kind() const { return AstKind::Assign; }
 
-Cowstr A_Assign::str() const {
-  return fmt::format("{}: assignee@{} assignor@{}", Ast::str(),
-                     assignee->identifier(), assignor->identifier());
-}
+void A_Assign::accept(Visitor *visitor) { visitor->visitAssign(this); }
 
 // A_Assign }
 
@@ -455,9 +438,7 @@ A_Postfix::~A_Postfix() { DESTROY(expr); }
 
 AstKind A_Postfix::kind() const { return AstKind::Postfix; }
 
-Cowstr A_Postfix::str() const {
-  return fmt::format("{}: expr@{}", Ast::str(), expr->identifier());
-}
+void A_Postfix::accept(Visitor *visitor) { visitor->visitPostfix(this); }
 
 // A_Postfix }
 
@@ -480,10 +461,7 @@ A_Infix::~A_Infix() {
 
 AstKind A_Infix::kind() const { return AstKind::Infix; }
 
-Cowstr A_Infix::str() const {
-  return fmt::format("{}: left@{} right@{}", Ast::str(), left->identifier(),
-                     right->identifier());
-}
+void A_Infix::accept(Visitor *visitor) { visitor->visitInfix(this); }
 
 // A_Infix }
 
@@ -499,9 +477,7 @@ A_Prefix::~A_Prefix() { DESTROY(expr); }
 
 AstKind A_Prefix::kind() const { return AstKind::Prefix; }
 
-Cowstr A_Prefix::str() const {
-  return fmt::format("{}: expr@{}", Ast::str(), expr->identifier());
-}
+void A_Prefix::accept(Visitor *visitor) { visitor->visitPrefix(this); }
 
 // A_Prefix }
 
@@ -521,11 +497,7 @@ A_Call::~A_Call() {
 
 AstKind A_Call::kind() const { return AstKind::Call; }
 
-Cowstr A_Call::str() const {
-  return args ? fmt::format("{}: id@{} args@{}", Ast::str(), id->identifier(),
-                            args->identifier())
-              : fmt::format("{}: id@{}", Ast::str(), id->identifier());
-}
+void A_Call::accept(Visitor *visitor) { visitor->visitCall(this); }
 
 // A_Call }
 
@@ -545,11 +517,7 @@ A_Exprs::~A_Exprs() {
 
 AstKind A_Exprs::kind() const { return AstKind::Exprs; }
 
-Cowstr A_Exprs::str() const {
-  return next ? fmt::format("{}: expr@{} next@{}", Ast::str(),
-                            expr->identifier(), next->identifier())
-              : fmt::format("{}: expr@{}", Ast::str(), expr->identifier());
-}
+void A_Exprs::accept(Visitor *visitor) { visitor->visitExprs(this); }
 
 // A_Exprs }
 
@@ -574,13 +542,7 @@ A_If::~A_If() {
 
 AstKind A_If::kind() const { return AstKind::If; }
 
-Cowstr A_If::str() const {
-  return elsep ? fmt::format("{}: condition@{} thenp@{} elsep@{}", Ast::str(),
-                             condition->identifier(), thenp->identifier(),
-                             elsep->identifier())
-               : fmt::format("{}: condition@{} thenp@{}", Ast::str(),
-                             condition->identifier(), thenp->identifier());
-}
+void A_If::accept(Visitor *visitor) { visitor->visitIf(this); }
 
 // A_If }
 
@@ -601,10 +563,7 @@ A_Loop::~A_Loop() {
 
 AstKind A_Loop::kind() const { return AstKind::Loop; }
 
-Cowstr A_Loop::str() const {
-  return fmt::format("{}: condition@{} body@{}", Ast::str(),
-                     condition->identifier(), body->identifier());
-}
+void A_Loop::accept(Visitor *visitor) { visitor->visitLoop(this); }
 
 // A_Loop }
 
@@ -620,9 +579,7 @@ A_Yield::~A_Yield() { DESTROY(expr); }
 
 AstKind A_Yield::kind() const { return AstKind::Yield; }
 
-Cowstr A_Yield::str() const {
-  return fmt::format("{}: expr@{}", Ast::str(), expr->identifier());
-}
+void A_Yield::accept(Visitor *visitor) { visitor->visitYield(this); }
 
 // A_Yield }
 
@@ -638,26 +595,15 @@ A_LoopCondition::A_LoopCondition(Ast *a_init, Ast *a_condition, Ast *a_update,
 }
 
 AstKind A_LoopCondition::kind() const { return AstKind::LoopCondition; }
+
 A_LoopCondition::~A_LoopCondition() {
   DESTROY(init);
   DESTROY(condition);
   DESTROY(update);
 }
 
-Cowstr A_LoopCondition::str() const {
-  std::vector<Cowstr> value;
-  value.push_back((init || condition || update) ? fmt::format("{}:", Ast::str())
-                                                : Ast::str());
-  if (init) {
-    value.push_back(fmt::format("init@{}", init->identifier()));
-  }
-  if (condition) {
-    value.push_back(fmt::format("condition@{}", condition->identifier()));
-  }
-  if (update) {
-    value.push_back(fmt::format("update@{}", update->identifier()));
-  }
-  return Cowstr::join(value, " ");
+void A_LoopCondition::accept(Visitor *visitor) {
+  visitor->visitLoopCondition(this);
 }
 
 // A_LoopCondition }
@@ -683,9 +629,8 @@ A_LoopEnumerator::~A_LoopEnumerator() {
 
 AstKind A_LoopEnumerator::kind() const { return AstKind::LoopEnumerator; }
 
-Cowstr A_LoopEnumerator::str() const {
-  return fmt::format("{}: id@{} type@{} expr@{}", Ast::str(), id->identifier(),
-                     type->identifier(), expr->identifier());
+void A_LoopEnumerator::accept(Visitor *visitor) {
+  visitor->visitLoopEnumerator(this);
 }
 
 // A_LoopEnumerator }
@@ -707,10 +652,7 @@ A_DoWhile::~A_DoWhile() {
 
 AstKind A_DoWhile::kind() const { return AstKind::DoWhile; }
 
-Cowstr A_DoWhile::str() const {
-  return fmt::format("{}: body@{} condition@{}", Ast::str(), body->identifier(),
-                     condition->identifier());
-}
+void A_DoWhile::accept(Visitor *visitor) { visitor->visitDoWhile(this); }
 
 // A_DoWhile }
 
@@ -735,13 +677,7 @@ A_Try::~A_Try() {
 
 AstKind A_Try::kind() const { return AstKind::Try; }
 
-Cowstr A_Try::str() const {
-  return finallyp ? fmt::format("{}: tryp@{} catchp@{} finallyp@{}", Ast::str(),
-                                tryp->identifier(), catchp->identifier(),
-                                finallyp->identifier())
-                  : fmt::format("{}: tryp@{} catchp@{}", Ast::str(),
-                                tryp->identifier(), catchp->identifier());
-}
+void A_Try::accept(Visitor *visitor) { visitor->visitTry(this); }
 
 // A_Try }
 
@@ -756,11 +692,7 @@ A_Block::~A_Block() { DESTROY(blockStats); }
 
 AstKind A_Block::kind() const { return AstKind::Block; }
 
-Cowstr A_Block::str() const {
-  return blockStats ? fmt::format("{}: blockStats@{}", Ast::str(),
-                                  blockStats->identifier())
-                    : fmt::format("{}", Ast::str());
-}
+void A_Block::accept(Visitor *visitor) { visitor->visitBlock(this); }
 
 // A_Block }
 
@@ -781,12 +713,7 @@ A_BlockStats::~A_BlockStats() {
 
 AstKind A_BlockStats::kind() const { return AstKind::BlockStats; }
 
-Cowstr A_BlockStats::str() const {
-  return next ? fmt::format("{}: blockStat@{} next@{}", Ast::str(),
-                            blockStat->identifier(), next->identifier())
-              : fmt::format("{}: blockStat@{}", Ast::str(),
-                            blockStat->identifier());
-}
+void A_BlockStats::accept(Visitor *visitor) { visitor->visitBlockStats(this); }
 
 // A_BlockStats }
 
@@ -805,7 +732,7 @@ A_PlainType::A_PlainType(int a_token, const Location &location)
 
 AstKind A_PlainType::kind() const { return AstKind::PlainType; }
 
-Cowstr A_PlainType::str() const { return Ast::str(); }
+void A_PlainType::accept(Visitor *visitor) { visitor->visitPlainType(this); }
 
 // A_PlainType }
 
@@ -833,11 +760,7 @@ A_FuncDef::~A_FuncDef() {
 
 AstKind A_FuncDef::kind() const { return AstKind::FuncDef; }
 
-Cowstr A_FuncDef::str() const {
-  return fmt::format("{}: funcSign@{} resultType@{} body@{}", Ast::str(),
-                     funcSign->identifier(), resultType->identifier(),
-                     body->identifier());
-}
+void A_FuncDef::accept(Visitor *visitor) { visitor->visitFuncDef(this); }
 
 A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
     : Ast("funcSign", location), id(a_id), params(a_params) {
@@ -853,11 +776,7 @@ A_FuncSign::~A_FuncSign() {
 
 AstKind A_FuncSign::kind() const { return AstKind::FuncSign; }
 
-Cowstr A_FuncSign::str() const {
-  return params ? fmt::format("{}: id@{} params@{}", Ast::str(),
-                              id->identifier(), params->identifier())
-                : fmt::format("{}: id@{}", Ast::str(), id->identifier());
-}
+void A_FuncSign::accept(Visitor *visitor) { visitor->visitFuncSign(this); }
 
 A_Params::A_Params(A_Param *a_param, A_Params *a_next, const Location &location)
     : Ast("params", location), param(a_param), next(a_next) {
@@ -873,11 +792,7 @@ A_Params::~A_Params() {
 
 AstKind A_Params::kind() const { return AstKind::Params; }
 
-Cowstr A_Params::str() const {
-  return next ? fmt::format("{}: param@{} next@{}", Ast::str(),
-                            param->identifier(), next->identifier())
-              : fmt::format("{}: param@{}", Ast::str(), param->identifier());
-}
+void A_Params::accept(Visitor *visitor) { visitor->visitParams(this); }
 
 A_Param::A_Param(Ast *a_id, Ast *a_type, const Location &location)
     : Ast("param", location), id(a_id), type(a_type) {
@@ -894,10 +809,7 @@ A_Param::~A_Param() {
 
 AstKind A_Param::kind() const { return AstKind::Param; }
 
-Cowstr A_Param::str() const {
-  return fmt::format("{}: id@{} type@{}", Ast::str(), id->identifier(),
-                     type->identifier());
-}
+void A_Param::accept(Visitor *visitor) { visitor->visitParam(this); }
 
 A_VarDef::A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr,
                    const Location &location)
@@ -918,10 +830,7 @@ A_VarDef::~A_VarDef() {
 
 AstKind A_VarDef::kind() const { return AstKind::VarDef; }
 
-Cowstr A_VarDef::str() const {
-  return fmt::format("{}: id@{} type@{} expr@{}", Ast::str(), id->identifier(),
-                     type->identifier(), expr->identifier());
-}
+void A_VarDef::accept(Visitor *visitor) { visitor->visitVarDef(this); }
 
 // definition and declaration }
 
@@ -942,12 +851,7 @@ A_TopStats::~A_TopStats() {
 
 AstKind A_TopStats::kind() const { return AstKind::TopStats; }
 
-Cowstr A_TopStats::str() const {
-  return next
-             ? fmt::format("{}: topStat@{} next@{}", Ast::str(),
-                           topStat->identifier(), next->identifier())
-             : fmt::format("{}: topStat@{}", Ast::str(), topStat->identifier());
-}
+void A_TopStats::accept(Visitor *visitor) { visitor->visitTopStats(this); }
 
 A_CompileUnit::A_CompileUnit(const Cowstr &name, A_TopStats *a_topStats,
                              const Location &location)
@@ -959,10 +863,8 @@ A_CompileUnit::~A_CompileUnit() { DESTROY(topStats); }
 
 AstKind A_CompileUnit::kind() const { return AstKind::CompileUnit; }
 
-Cowstr A_CompileUnit::str() const {
-  return topStats ? fmt::format("{}: topStats@{}", Ast::str(),
-                                topStats->identifier())
-                  : Ast::str();
+void A_CompileUnit::accept(Visitor *visitor) {
+  visitor->visitCompileUnit(this);
 }
 
 // compile unit }
