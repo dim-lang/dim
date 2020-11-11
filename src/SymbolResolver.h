@@ -9,7 +9,7 @@
 class SymbolResolver : public Phase, public Visitor {
 public:
   SymbolResolver();
-  virtual ~SymbolResolver();
+  virtual ~SymbolResolver() = default;
   virtual void run(Ast *ast);
 
   virtual void visitLoop(A_Loop *ast);

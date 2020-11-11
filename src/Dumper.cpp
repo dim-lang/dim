@@ -8,8 +8,6 @@
 
 Dumper::Dumper() : Phase("Dumper") {}
 
-Dumper::~Dumper() {}
-
 void Dumper::run(Ast *ast) { ast->accept(this); }
 
 std::vector<Cowstr> &Dumper::dump() { return dump_; }

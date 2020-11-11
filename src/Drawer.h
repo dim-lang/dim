@@ -16,7 +16,7 @@ struct Graph;
 class Drawer : public Phase, public Visitor {
 public:
   Drawer(const Cowstr &fileName = "");
-  virtual ~Drawer();
+  virtual ~Drawer() = default;
   virtual void run(Ast *ast);
   virtual const Cowstr &fileName() const;
   virtual Cowstr &fileName();

@@ -9,7 +9,7 @@
 class SymbolBuilder : public Phase, public Visitor {
 public:
   SymbolBuilder();
-  virtual ~SymbolBuilder();
+  virtual ~SymbolBuilder() = default;
   virtual void run(Ast *ast);
 
   virtual void visitLoop(A_Loop *ast);

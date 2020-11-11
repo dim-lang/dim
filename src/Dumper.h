@@ -11,7 +11,7 @@
 class Dumper : public Phase, public Visitor {
 public:
   Dumper();
-  virtual ~Dumper();
+  virtual ~Dumper() = default;
   virtual void run(Ast *ast);
   virtual std::vector<Cowstr> &dump();
   virtual const std::vector<Cowstr> &dump() const;

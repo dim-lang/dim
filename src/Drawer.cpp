@@ -535,8 +535,6 @@ static void linkAstToScope(Ast *varId, Scope *scope, Graph *g) {
 Drawer::Drawer(const Cowstr &fileName)
     : Phase("Drawer"), fileName_(fileName), g_(new detail::drawer::Graph()) {}
 
-Drawer::~Drawer() {}
-
 void Drawer::run(Ast *ast) {
   LOG_ASSERT(!fileName_.empty(), "fileName_ must not empty");
   ast->accept(this);

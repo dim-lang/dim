@@ -12,8 +12,6 @@ static NameGenerator SymbolNG(".");
 SymbolBuilder::SymbolBuilder()
     : Phase("SymbolBuilder"), currentScope_(nullptr) {}
 
-SymbolBuilder::~SymbolBuilder() {}
-
 void SymbolBuilder::run(Ast *ast) { ast->accept(this); }
 
 void SymbolBuilder::visitLoop(A_Loop *ast) {

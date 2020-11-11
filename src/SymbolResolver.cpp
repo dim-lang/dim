@@ -10,8 +10,6 @@
 SymbolResolver::SymbolResolver()
     : Phase("SymbolResolver"), currentScope_(nullptr) {}
 
-SymbolResolver::~SymbolResolver() {}
-
 void SymbolResolver::run(Ast *ast) { ast->accept(this); }
 
 void SymbolResolver::visitLoop(A_Loop *ast) {

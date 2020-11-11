@@ -544,38 +544,154 @@ void IrBuilder::VISITOR(CompileUnit)::finishVisit(Ast *ast) {
 
 // CompileUnitVisitor }
 
-#define BIND(x)                                                                \
-  do {                                                                         \
-    Visitor *v = new IrBuilder::VISITOR(x)();                                  \
-    binder_.bind(+AstKind::x, v);                                              \
-    visitors_.push_back(v);                                                    \
-  } while (0)
+static Cowstr label(Ast *ast) {
+  return fmt::format("{}.{}", ast->name(), ast->location());
+}
 
 IrBuilder::IrBuilder()
-    : Phase("IrBuilder"), llvmContext(), llvmIRBuilder(llvmContext),
-      llvmModule(nullptr), iMod(new detail::I_Mod(this)) {
-  BIND(Integer);
-  BIND(Float);
-  BIND(Block);
-  BIND(CompileUnit);
-  BIND(FuncDef);
-  BIND(Loop);
-  BIND(PlainType);
-  BIND(VarDef);
-}
+    : Phase("IrBuilder"), llvmContext_(), llvmIRBuilder_(llvmContext_),
+      llvmModule_(nullptr), currentScope_(nullptr) {}
 
-IrBuilder::~IrBuilder() {
-  delete ir_;
-  ir_ = nullptr;
-  for (int i = 0; i < (int)visitors_.size(); i++) {
-    delete visitors_[i];
-    visitors_[i] = nullptr;
+IrBuilder::~IrBuilder() {}
+
+void IrBuilder::run(Ast *ast) { ast->accept(this); }
+
+void IrBuilder::visitInteger(A_Integer *ast) {
+  switch (ast->bit()) {
+  case 32: {
+    llvm::APInt ap = ast->isSigned() ? llvm::APInt(32, ast->asInt32(), true)
+                                     : llvm::APInt(ast->asUInt32(), false);
+    llvm::ConstantInt *ci = llvm::ConstantInt::get(llvmContext_, ap);
+    llvmValue_ = llvm::dyn_cast<llvm::Value>(ci);
+    break;
   }
-  visitors_.clear();
+  case 64: {
+    llvm::APInt ap = ast->isSigned() ? llvm::APInt(64, ast->asInt64(), true)
+                                     : llvm::APInt(64, ast->asUInt64(), false);
+    llvm::ConstantInt *ci = llvm::ConstantInt::get(llvmContext_, ap);
+    llvmValue_ = llvm::dyn_cast<llvm::Value>(ci);
+    break;
+  }
+  default:
+    LOG_ASSERT(false, "invalid bit {} in ast {}:{}", ast->bit(), ast->name(),
+               ast->location());
+    break;
+  }
 }
 
-void IrBuilder::run(Ast *ast) { Visitor::traverse(&binder_, ast); }
+void IrBuilder::visitFloat(A_Float *ast) {
+  switch (ast->bit()) {
+  case 32: {
+    llvm::APFloat ap = llvm::APFloat(ast->asFloat());
+    llvm::ConstantFP *cf = llvm::ConstantFP::get(llvmContext_, ap);
+    llvmValue_ = llvm::dyn_cast<llvm::Value>(cf);
+    break;
+  }
+  case 64: {
+    llvm::APFloat ap = llvm::APFloat(ast->asDouble());
+    llvm::ConstantFP *cf = llvm::ConstantFP::get(llvmContext_, ap);
+    llvmValue_ = llvm::dyn_cast<llvm::Value>(cf);
+    break;
+  }
+  default:
+    LOG_ASSERT(false, "invalid float ast {}:{}", ast->name(), ast->location());
+    break;
+  }
+}
 
-Ir *&IrBuilder::ir() { return ir_; }
+void IrBuilder::visitBoolean(A_Boolean *ast) {}
 
-Ir *IrBuilder::ir() const { return ir_; }
+void IrBuilder::visitCharacter(A_Character *ast);
+
+void IrBuilder::visitString(A_String *ast);
+
+void IrBuilder::visitNil(A_Nil *ast);
+
+void IrBuilder::visitVoid(A_Void *ast);
+void IrBuilder::visitVarId(A_VarId *ast);
+void IrBuilder::visitBreak(A_Break *ast);
+void IrBuilder::visitContinue(A_Continue *ast);
+
+void IrBuilder::visitThrow(A_Throw *ast);
+void IrBuilder::visitReturn(A_Return *ast);
+void IrBuilder::visitAssign(A_Assign *ast);
+void IrBuilder::visitPostfix(A_Postfix *ast);
+void IrBuilder::visitInfix(A_Infix *ast);
+void IrBuilder::visitPrefix(A_Prefix *ast);
+void IrBuilder::visitCall(A_Call *ast);
+void IrBuilder::visitExprs(A_Exprs *ast);
+void IrBuilder::visitIf(A_If *ast);
+void IrBuilder::visitLoop(A_Loop *ast);
+void IrBuilder::visitYield(A_Yield *ast);
+void IrBuilder::visitLoopCondition(A_LoopCondition *ast);
+void IrBuilder::visitLoopEnumerator(A_LoopEnumerator *ast);
+void IrBuilder::visitDoWhile(A_DoWhile *ast);
+void IrBuilder::visitTry(A_Try *ast);
+void IrBuilder::visitBlock(A_Block *ast);
+void IrBuilder::visitBlockStats(A_BlockStats *ast);
+
+void IrBuilder::visitPlainType(A_PlainType *ast) {
+  TypeSymbol *ts = currentScope_->ts_resolve(ast->name());
+  Ts_Plain *tp = static_cast<Ts_Plain *>(ts);
+  llvm::Type *ty = nullptr;
+  if (tp == TypeSymbol::ts_byte() || tp == TypeSymbol::ts_ubyte()) {
+    ty = llvm::Type::getInt8Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_short() || tp == TypeSymbol::ts_ushort()) {
+    ty = llvm::Type::getInt16Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_int() || tp == TypeSymbol::ts_uint()) {
+    ty = llvm::Type::getInt32Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_long() || tp == TypeSymbol::ts_ulong()) {
+    ty = llvm::Type::getInt64Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_float()) {
+    ty = llvm::Type::getFloatTy(llvmContext_);
+  } else if (tp == TypeSymbol::ts_double()) {
+    ty = llvm::Type::getDoubleTy(llvmContext_);
+  } else if (tp == TypeSymbol::ts_char()) {
+    ty = llvm::Type::getInt8Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_boolean()) {
+    ty = llvm::Type::getInt1Ty(llvmContext_);
+  } else if (tp == TypeSymbol::ts_void()) {
+    ty = llvm::Type::getVoidTy(llvmContext_);
+  } else {
+    LOG_ASSERT(false, "invalid plain type{}:{}", tp->name(), tp->location());
+  }
+  llvmType_ = ty;
+}
+
+void IrBuilder::visitFuncDef(A_FuncDef *ast);
+void IrBuilder::visitFuncSign(A_FuncSign *ast);
+void IrBuilder::visitParams(A_Params *ast);
+void IrBuilder::visitParam(A_Param *ast);
+
+void IrBuilder::visitVarDef(A_VarDef *ast) {
+  A_VarId *varId = static_cast<A_VarId *>(ast->id);
+
+  ast->type->accept(this);
+  llvm::Type *ty_var = llvmType_;
+
+  if (ast->parent()->kind() == (+AstKind::TopStats) ||
+      ast->parent()->kind() == (+AstKind::CompileUnit)) {
+    IrBuilder::ConstantBuilder cb;
+    ast->expr->accept(&cb);
+    llvm::GlobalVariable *gv = new llvm::GlobalVariable(
+        llvmModule_, ty_var, false, llvm::GlobalValue::ExternalLinkage,
+        cb.llvmConstant, label(ast), nullptr, llvm::GlobalValue::NotThreadLocal,
+        0, false);
+  } else if (ast->parent()->kind() == (+AstKind::BlockStats)) {
+    ast->expr->accept(this);
+    llvm::AllocaInst *ai =
+        llvmIRBuilder_.CreateAlloca(ty_var, nullptr, label(varId).str());
+    llvm::StoreInst *si = llvmIRBuilder_.CreateStore(llvmValue_, ai, false);
+  }
+}
+
+void IrBuilder::visitCompileUnit(A_CompileUnit *ast) {
+  llvmModule_ = new llvm::Module(ast->name(), llvmContext_);
+  currentScope_ = ast->scope();
+
+  if (ast->topStats) {
+    ast->topStats->accept(this);
+  }
+
+  currentScope_ = currentScope_->owner();
+}
