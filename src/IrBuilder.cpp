@@ -7,7 +7,7 @@
 #include "Token.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "infra/Log.h"
-#include <vector>
+#include "llvm/Support/Casting.h"
 
 namespace detail {
 
@@ -139,8 +139,9 @@ void Integer::visit(Ast *ast) {
 
   switch (node->bit()) {
   case 32: {
-    llvm::APInt ap = node->isSigned() ? llvm::APInt(32, node->asInt32(), true)
-                                      : llvm::APInt(node->asUInt32(), false);
+    llvm::APInt ap = node->isSigned()
+                         ? llvm::APInt(32, node->asInt32(), true)
+                         : llvm::APInt(32, node->asUInt32(), false);
     llvm::ConstantInt *ci = llvm::ConstantInt::get(ib->llvmContext(), ap);
     node->llvmValue() = ci;
     ctx->llvmValue() = llvm::dyn_cast<llvm::Value>(ci);
@@ -544,8 +545,12 @@ void IrBuilder::VISITOR(CompileUnit)::finishVisit(Ast *ast) {
 
 // CompileUnitVisitor }
 
-static Cowstr label(Ast *ast) {
-  return fmt::format("{}.{}", ast->name(), ast->location());
+static Cowstr label(Symbol *symbol) {
+  return fmt::format("{}.{}", symbol->name(), symbol->location());
+}
+
+static Cowstr label(TypeSymbol *typeSymbol) {
+  return fmt::format("{}.{}", typeSymbol->name(), typeSymbol->location());
 }
 
 IrBuilder::IrBuilder()
@@ -575,7 +580,6 @@ void IrBuilder::visitInteger(A_Integer *ast) {
   default:
     LOG_ASSERT(false, "invalid bit {} in ast {}:{}", ast->bit(), ast->name(),
                ast->location());
-    break;
   }
 }
 
@@ -595,40 +599,67 @@ void IrBuilder::visitFloat(A_Float *ast) {
   }
   default:
     LOG_ASSERT(false, "invalid float ast {}:{}", ast->name(), ast->location());
-    break;
   }
 }
 
-void IrBuilder::visitBoolean(A_Boolean *ast) {}
+void IrBuilder::visitBoolean(A_Boolean *ast) {
+  llvmValue_ = ast->asBoolean() ? llvm::ConstantInt::getTrue(llvmContext_)
+                                : llvm::ConstantInt::getFalse(llvmContext_);
+}
 
-void IrBuilder::visitCharacter(A_Character *ast);
+void IrBuilder::visitCharacter(A_Character *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
 
-void IrBuilder::visitString(A_String *ast);
+void IrBuilder::visitString(A_String *ast) {
+  // llvmValue_ = llvmIRBuilder_.CreateGlobalString(ast->asString().str());
+  LOG_ASSERT(false, "not implemented");
+}
 
-void IrBuilder::visitNil(A_Nil *ast);
+void IrBuilder::visitNil(A_Nil *ast) { LOG_ASSERT(false, "not implemented"); }
 
-void IrBuilder::visitVoid(A_Void *ast);
-void IrBuilder::visitVarId(A_VarId *ast);
-void IrBuilder::visitBreak(A_Break *ast);
-void IrBuilder::visitContinue(A_Continue *ast);
+void IrBuilder::visitVoid(A_Void *ast) { LOG_ASSERT(false, "not implemented"); }
 
-void IrBuilder::visitThrow(A_Throw *ast);
-void IrBuilder::visitReturn(A_Return *ast);
-void IrBuilder::visitAssign(A_Assign *ast);
-void IrBuilder::visitPostfix(A_Postfix *ast);
-void IrBuilder::visitInfix(A_Infix *ast);
-void IrBuilder::visitPrefix(A_Prefix *ast);
-void IrBuilder::visitCall(A_Call *ast);
-void IrBuilder::visitExprs(A_Exprs *ast);
-void IrBuilder::visitIf(A_If *ast);
-void IrBuilder::visitLoop(A_Loop *ast);
-void IrBuilder::visitYield(A_Yield *ast);
-void IrBuilder::visitLoopCondition(A_LoopCondition *ast);
-void IrBuilder::visitLoopEnumerator(A_LoopEnumerator *ast);
-void IrBuilder::visitDoWhile(A_DoWhile *ast);
-void IrBuilder::visitTry(A_Try *ast);
-void IrBuilder::visitBlock(A_Block *ast);
-void IrBuilder::visitBlockStats(A_BlockStats *ast);
+void IrBuilder::visitVarId(A_VarId *ast) {}
+void IrBuilder::visitBreak(A_Break *ast) {}
+void IrBuilder::visitContinue(A_Continue *ast) {}
+
+void IrBuilder::visitThrow(A_Throw *ast) {}
+void IrBuilder::visitReturn(A_Return *ast) {}
+void IrBuilder::visitAssign(A_Assign *ast) {}
+void IrBuilder::visitPostfix(A_Postfix *ast) {}
+void IrBuilder::visitInfix(A_Infix *ast) {}
+void IrBuilder::visitPrefix(A_Prefix *ast) {}
+void IrBuilder::visitCall(A_Call *ast) {}
+void IrBuilder::visitExprs(A_Exprs *ast) {}
+void IrBuilder::visitIf(A_If *ast) {}
+void IrBuilder::visitLoop(A_Loop *ast) {}
+void IrBuilder::visitYield(A_Yield *ast) {}
+void IrBuilder::visitLoopCondition(A_LoopCondition *ast) {}
+void IrBuilder::visitLoopEnumerator(A_LoopEnumerator *ast) {}
+void IrBuilder::visitDoWhile(A_DoWhile *ast) {}
+void IrBuilder::visitTry(A_Try *ast) {}
+
+void IrBuilder::visitBlock(A_Block *ast) {
+  if (ast->parent()->kind() == (+AstKind::FuncDef)) {
+    // entry block of function
+    llvm::BasicBlock *entryBlock =
+        llvm::BasicBlock::Create(llvmContext_, "entry", llvmFunction_);
+    llvmIRBuilder_.SetInsertPoint(entryBlock);
+    if (ast->blockStats) {
+      ast->blockStats->accept(this);
+    }
+  } else {
+    LOG_ASSERT(false, "not implemented");
+  }
+}
+
+void IrBuilder::visitBlockStats(A_BlockStats *ast) {
+  ast->blockStat->accept(this);
+  if (ast->next) {
+    ast->next->accept(this);
+  }
+}
 
 void IrBuilder::visitPlainType(A_PlainType *ast) {
   TypeSymbol *ts = currentScope_->ts_resolve(ast->name());
@@ -658,10 +689,39 @@ void IrBuilder::visitPlainType(A_PlainType *ast) {
   llvmType_ = ty;
 }
 
-void IrBuilder::visitFuncDef(A_FuncDef *ast);
-void IrBuilder::visitFuncSign(A_FuncSign *ast);
-void IrBuilder::visitParams(A_Params *ast);
-void IrBuilder::visitParam(A_Param *ast);
+void IrBuilder::visitFuncDef(A_FuncDef *ast) {
+  A_FuncSign *funcSign = ast->funcSign;
+  A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+
+  std::vector<Symbol *> funcParamSymbols;
+  std::vector<llvm::Type *> funcParamTypes;
+  for (A_Params *params = funcSign->params; params; params = params->next) {
+    params->param->type->accept(this);
+    funcParamTypes.push_back(llvmType_);
+    funcParamSymbols.push_back(
+        static_cast<A_VarId *>(params->param->id)->symbol());
+  }
+
+  ast->resultType->accept(this);
+  llvm::Type *funcResultType = llvmType_;
+
+  llvm::FunctionType *funcType =
+      llvm::FunctionType::get(funcResultType, funcParamTypes, false);
+  llvm::Function *func =
+      llvm::Function::Create(funcType, llvm::Function::ExternalLinkage,
+                             label(funcId->symbol()), llvmModule_);
+  int i = 0;
+  for (auto &funcParam : func->args()) {
+    funcParam.setName(label(funcParamSymbols[i++]));
+  }
+
+  llvmFunction_ = func;
+  ast->body->accept(this);
+}
+
+void IrBuilder::visitFuncSign(A_FuncSign *ast) {}
+void IrBuilder::visitParams(A_Params *ast) {}
+void IrBuilder::visitParam(A_Param *ast) {}
 
 void IrBuilder::visitVarDef(A_VarDef *ast) {
   A_VarId *varId = static_cast<A_VarId *>(ast->id);
@@ -675,12 +735,12 @@ void IrBuilder::visitVarDef(A_VarDef *ast) {
     ast->expr->accept(&cb);
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
         llvmModule_, ty_var, false, llvm::GlobalValue::ExternalLinkage,
-        cb.llvmConstant, label(ast), nullptr, llvm::GlobalValue::NotThreadLocal,
-        0, false);
+        cb.llvmConstant, label(varId->symbol()), nullptr,
+        llvm::GlobalValue::NotThreadLocal, 0, false);
   } else if (ast->parent()->kind() == (+AstKind::BlockStats)) {
     ast->expr->accept(this);
-    llvm::AllocaInst *ai =
-        llvmIRBuilder_.CreateAlloca(ty_var, nullptr, label(varId).str());
+    llvm::AllocaInst *ai = llvmIRBuilder_.CreateAlloca(
+        ty_var, nullptr, label(varId->symbol()).str());
     llvm::StoreInst *si = llvmIRBuilder_.CreateStore(llvmValue_, ai, false);
   }
 }
@@ -695,3 +755,247 @@ void IrBuilder::visitCompileUnit(A_CompileUnit *ast) {
 
   currentScope_ = currentScope_->owner();
 }
+
+// ConstantBuilder {
+
+void IrBuilder::ConstantBuilder::visitInteger(A_Integer *ast) {
+  switch (ast->bit()) {
+  case 32: {
+    llvm::APInt ap = ast->isSigned() ? llvm::APInt(32, ast->asInt32(), true)
+                                     : llvm::APInt(ast->asUInt32(), false);
+    llvm::ConstantInt *ci = llvm::ConstantInt::get(llvmContext_, ap);
+    llvmConstant = llvm::dyn_cast<llvm::Constant>(ci);
+    break;
+  }
+  case 64: {
+    llvm::APInt ap = ast->isSigned() ? llvm::APInt(64, ast->asInt64(), true)
+                                     : llvm::APInt(64, ast->asUInt64(), false);
+    llvm::ConstantInt *ci = llvm::ConstantInt::get(llvmContext_, ap);
+    llvmConstant = llvm::dyn_cast<llvm::Constant>(ci);
+    break;
+  }
+  default:
+    LOG_ASSERT(false, "invalid bit {} in ast {}:{}", ast->bit(), ast->name(),
+               ast->location());
+  }
+}
+
+void IrBuilder::ConstantBuilder::visitFloat(A_Float *ast) {
+  switch (ast->bit()) {
+  case 32: {
+    llvm::APFloat ap = llvm::APFloat(ast->asFloat());
+    llvm::ConstantFP *cf = llvm::ConstantFP::get(llvmContext_, ap);
+    llvmConstant = llvm::dyn_cast<llvm::Constant>(cf);
+    break;
+  }
+  case 64: {
+    llvm::APFloat ap = llvm::APFloat(ast->asDouble());
+    llvm::ConstantFP *cf = llvm::ConstantFP::get(llvmContext_, ap);
+    llvmConstant = llvm::dyn_cast<llvm::Constant>(cf);
+    break;
+  }
+  default:
+    LOG_ASSERT(false, "invalid float ast {}:{}", ast->name(), ast->location());
+  }
+}
+
+void IrBuilder::ConstantBuilder::visitBoolean(A_Boolean *ast) {
+  llvmConstant = ast->asBoolean() ? llvm::ConstantInt::getTrue(llvmContext_)
+                                  : llvm::ConstantInt::getFalse(llvmContext_);
+}
+
+void IrBuilder::ConstantBuilder::visitCharacter(A_Character *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitString(A_String *ast) {
+
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitNil(A_Nil *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitVoid(A_Void *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitVarId(A_VarId *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitAssign(A_Assign *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitPostfix(A_Postfix *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
+  ast->left->accept(this);
+  llvm::Constant *a = llvmConstant;
+  ast->right->accept(this);
+  llvm::Constant *b = llvmConstant;
+  switch (ast->infixOp) {
+  case T_PLUS: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant = llvm::ConstantExpr::getAdd(a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant = llvm::ConstantExpr::getFAdd(a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_MINUS: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant = llvm::ConstantExpr::getSub(a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant = llvm::ConstantExpr::getFSub(a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_ASTERISK: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant = llvm::ConstantExpr::getMul(a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant = llvm::ConstantExpr::getFMul(a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_SLASH: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant = llvm::ConstantExpr::getSDiv(a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant = llvm::ConstantExpr::getFDiv(a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_PERCENT: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant = llvm::ConstantExpr::getSRem(a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant = llvm::ConstantExpr::getFRem(a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_BAR2:
+  case T_OR: {
+    // a and b must be 1-bit unsigned true/false value
+    LOG_ASSERT(llvm::isa<llvm::ConstantInt>(a), "a must be ConstantInt:{}", a);
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(a)->getBitWidth() == 1,
+               "a bitWidth != 1:{}", a);
+    LOG_ASSERT(llvm::isa<llvm::ConstantInt>(b), "b must be ConstantInt:{}", b);
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(b)->getBitWidth() == 1,
+               "b bitWidth != 1:{}", b);
+    llvmConstant = llvm::ConstantExpr::getOr(a, b);
+    break;
+  }
+  case T_AMPERSAND2:
+  case T_AND: {
+    // a and b must be 1-bit unsigned true/false value
+    LOG_ASSERT(llvm::isa<llvm::ConstantInt>(a), "a must be ConstantInt:{}", a);
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(a)->getBitWidth() == 1,
+               "a bitWidth != 1:{}", a);
+    LOG_ASSERT(llvm::isa<llvm::ConstantInt>(b), "b must be ConstantInt:{}", b);
+    LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(b)->getBitWidth() == 1,
+               "b bitWidth != 1:{}", b);
+    llvmConstant = llvm::ConstantExpr::getAnd(a, b);
+    break;
+  }
+  case T_BAR: {
+    llvmConstant = llvm::ConstantExpr::getOr(a, b);
+    break;
+  }
+  case T_AMPERSAND: {
+    llvmConstant = llvm::ConstantExpr::getAnd(a, b);
+    break;
+  }
+  case T_CARET: {
+    llvmConstant = llvm::ConstantExpr::getXor(a, b);
+    break;
+  }
+  case T_EQ: {
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_EQ, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_EQ, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_NEQ:
+  case T_LT:
+  case T_LE:
+  case T_GT:
+  case T_GE:
+  default:
+    LOG_ASSERT(false, "invalid infixOp {} in ast {}:{}",
+               tokenName(ast->infixOp), ast->name(), ast->location());
+  }
+}
+
+void IrBuilder::ConstantBuilder::visitPrefix(A_Prefix *ast) {
+  ast->expr->accept(this);
+  llvm::Constant *a = llvmConstant;
+  switch (ast->prefixOp) {
+  case T_PLUS: {
+    // do nothing
+    break;
+  }
+  case T_MINUS: {
+    if (llvm::isa<llvm::ConstantInt>(a)) {
+      llvmConstant = llvm::ConstantExpr::getNeg(a);
+    } else if (llvm::isa<llvm::ConstantFP>(a)) {
+      llvmConstant = llvm::ConstantExpr::getFNeg(a);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_TILDE: {
+    llvmConstant = llvm::ConstantExpr::getNeg(a);
+    break;
+  }
+  case T_EXCLAM:
+  case T_NOT: {
+    llvmConstant = llvm::ConstantExpr::getNeg(a);
+    break;
+  }
+  default:
+    LOG_ASSERT(false, "invalid prefixOp {} in ast {}:{}",
+               tokenName(ast->prefixOp), ast->name(), ast->location());
+  }
+}
+
+void IrBuilder::ConstantBuilder::visitExprs(A_Exprs *ast) {
+  LOG_ASSERT(false, "not implemented");
+}
+
+// ConstantBuilder {

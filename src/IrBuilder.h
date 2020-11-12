@@ -6,9 +6,13 @@
 #include "SymbolClasses.h"
 #include "iface/Phase.h"
 #include "iface/Visitor.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
 #include <vector>
 
 // #define DECL(x)                                                                \
@@ -247,4 +251,5 @@ private:
 
   llvm::Value *llvmValue_;
   llvm::Type *llvmType_;
+  llvm::Function *llvmFunction_;
 };
