@@ -553,6 +553,8 @@ static Cowstr label(TypeSymbol *typeSymbol) {
   return fmt::format("{}.{}", typeSymbol->name(), typeSymbol->location());
 }
 
+// IrBuilder {
+
 IrBuilder::IrBuilder()
     : Phase("IrBuilder"), llvmContext_(), llvmIRBuilder_(llvmContext_),
       llvmModule_(nullptr), currentScope_(nullptr) {}
@@ -621,10 +623,7 @@ void IrBuilder::visitNil(A_Nil *ast) { LOG_ASSERT(false, "not implemented"); }
 void IrBuilder::visitVoid(A_Void *ast) { LOG_ASSERT(false, "not implemented"); }
 
 void IrBuilder::visitVarId(A_VarId *ast) {}
-void IrBuilder::visitBreak(A_Break *ast) {}
-void IrBuilder::visitContinue(A_Continue *ast) {}
 
-void IrBuilder::visitThrow(A_Throw *ast) {}
 void IrBuilder::visitReturn(A_Return *ast) {}
 void IrBuilder::visitAssign(A_Assign *ast) {}
 void IrBuilder::visitPostfix(A_Postfix *ast) {}
@@ -632,13 +631,6 @@ void IrBuilder::visitInfix(A_Infix *ast) {}
 void IrBuilder::visitPrefix(A_Prefix *ast) {}
 void IrBuilder::visitCall(A_Call *ast) {}
 void IrBuilder::visitExprs(A_Exprs *ast) {}
-void IrBuilder::visitIf(A_If *ast) {}
-void IrBuilder::visitLoop(A_Loop *ast) {}
-void IrBuilder::visitYield(A_Yield *ast) {}
-void IrBuilder::visitLoopCondition(A_LoopCondition *ast) {}
-void IrBuilder::visitLoopEnumerator(A_LoopEnumerator *ast) {}
-void IrBuilder::visitDoWhile(A_DoWhile *ast) {}
-void IrBuilder::visitTry(A_Try *ast) {}
 
 void IrBuilder::visitBlock(A_Block *ast) {
   if (ast->parent()->kind() == (+AstKind::FuncDef)) {
@@ -756,6 +748,8 @@ void IrBuilder::visitCompileUnit(A_CompileUnit *ast) {
   currentScope_ = currentScope_->owner();
 }
 
+// IrBuilder }
+
 // ConstantBuilder {
 
 void IrBuilder::ConstantBuilder::visitInteger(A_Integer *ast) {
@@ -839,7 +833,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
   ast->right->accept(this);
   llvm::Constant *b = llvmConstant;
   switch (ast->infixOp) {
-  case T_PLUS: {
+  case T_PLUS: { // +
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant = llvm::ConstantExpr::getAdd(a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
@@ -851,7 +845,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     }
     break;
   }
-  case T_MINUS: {
+  case T_MINUS: { // -
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant = llvm::ConstantExpr::getSub(a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
@@ -863,7 +857,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     }
     break;
   }
-  case T_ASTERISK: {
+  case T_ASTERISK: { // *
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant = llvm::ConstantExpr::getMul(a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
@@ -875,7 +869,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     }
     break;
   }
-  case T_SLASH: {
+  case T_SLASH: { // /
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant = llvm::ConstantExpr::getSDiv(a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
@@ -887,7 +881,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     }
     break;
   }
-  case T_PERCENT: {
+  case T_PERCENT: { // %
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant = llvm::ConstantExpr::getSRem(a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
@@ -900,7 +894,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     break;
   }
   case T_BAR2:
-  case T_OR: {
+  case T_OR: { // || or
     // a and b must be 1-bit unsigned true/false value
     LOG_ASSERT(llvm::isa<llvm::ConstantInt>(a), "a must be ConstantInt:{}", a);
     LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(a)->getBitWidth() == 1,
@@ -912,7 +906,7 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     break;
   }
   case T_AMPERSAND2:
-  case T_AND: {
+  case T_AND: { // && and
     // a and b must be 1-bit unsigned true/false value
     LOG_ASSERT(llvm::isa<llvm::ConstantInt>(a), "a must be ConstantInt:{}", a);
     LOG_ASSERT(llvm::dyn_cast<llvm::ConstantInt>(a)->getBitWidth() == 1,
@@ -923,37 +917,105 @@ void IrBuilder::ConstantBuilder::visitInfix(A_Infix *ast) {
     llvmConstant = llvm::ConstantExpr::getAnd(a, b);
     break;
   }
-  case T_BAR: {
+  case T_BAR: { // |
     llvmConstant = llvm::ConstantExpr::getOr(a, b);
     break;
   }
-  case T_AMPERSAND: {
+  case T_AMPERSAND: { // &
     llvmConstant = llvm::ConstantExpr::getAnd(a, b);
     break;
   }
-  case T_CARET: {
+  case T_CARET: { // ^
     llvmConstant = llvm::ConstantExpr::getXor(a, b);
     break;
   }
-  case T_EQ: {
+  case T_EQ: { // ==
     if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
       llvmConstant =
           llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_EQ, a, b);
     } else if (llvm::isa<llvm::ConstantFP>(a) &&
                llvm::isa<llvm::ConstantFP>(b)) {
       llvmConstant =
-          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_EQ, a, b);
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_OEQ, a, b);
     } else {
       LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
                  ast->location());
     }
     break;
   }
-  case T_NEQ:
-  case T_LT:
-  case T_LE:
-  case T_GT:
-  case T_GE:
+  case T_NEQ: { // !=
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_NE, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_ONE, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_LT: { // <
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SLT, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_OLT, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_LE: { // <=
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SLE, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_OLE, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_GT: { // >
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SGT, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_OGT, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  case T_GE: { // >=
+    if (llvm::isa<llvm::ConstantInt>(a) && llvm::isa<llvm::ConstantInt>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::ICMP_SGE, a, b);
+    } else if (llvm::isa<llvm::ConstantFP>(a) &&
+               llvm::isa<llvm::ConstantFP>(b)) {
+      llvmConstant =
+          llvm::ConstantExpr::getCompare(llvm::CmpInst::FCMP_OGE, a, b);
+    } else {
+      LOG_ASSERT(false, "invalid operation for {}:{}", ast->name(),
+                 ast->location());
+    }
+    break;
+  }
+  // case T_LSHIFT:
+  // case T_RSHIFT:
+  // case T_ARSHIFT:
   default:
     LOG_ASSERT(false, "invalid infixOp {} in ast {}:{}",
                tokenName(ast->infixOp), ast->name(), ast->location());
@@ -964,11 +1026,11 @@ void IrBuilder::ConstantBuilder::visitPrefix(A_Prefix *ast) {
   ast->expr->accept(this);
   llvm::Constant *a = llvmConstant;
   switch (ast->prefixOp) {
-  case T_PLUS: {
+  case T_PLUS: { // +
     // do nothing
     break;
   }
-  case T_MINUS: {
+  case T_MINUS: { // -
     if (llvm::isa<llvm::ConstantInt>(a)) {
       llvmConstant = llvm::ConstantExpr::getNeg(a);
     } else if (llvm::isa<llvm::ConstantFP>(a)) {
@@ -979,12 +1041,12 @@ void IrBuilder::ConstantBuilder::visitPrefix(A_Prefix *ast) {
     }
     break;
   }
-  case T_TILDE: {
+  case T_TILDE: { // ~
     llvmConstant = llvm::ConstantExpr::getNeg(a);
     break;
   }
   case T_EXCLAM:
-  case T_NOT: {
+  case T_NOT: { // ! not
     llvmConstant = llvm::ConstantExpr::getNeg(a);
     break;
   }
@@ -998,4 +1060,4 @@ void IrBuilder::ConstantBuilder::visitExprs(A_Exprs *ast) {
   LOG_ASSERT(false, "not implemented");
 }
 
-// ConstantBuilder {
+// ConstantBuilder }
