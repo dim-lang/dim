@@ -88,17 +88,15 @@ void SymbolBuilder::visitVarDef(A_VarDef *ast) {
 }
 
 void SymbolBuilder::visitFuncDef(A_FuncDef *ast) {
-  A_FuncSign *funcSign = static_cast<A_FuncSign *>(ast->funcSign);
-  A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+  A_VarId *funcId = static_cast<A_VarId *>(ast->getId());
+  std::vector<std::pair<Ast *, Ast *>> funcArgs = ast->getArguments();
   A_PlainType *funcResultType = static_cast<A_PlainType *>(ast->resultType);
 
   // parameter types
   std::vector<TypeSymbol *> ts_params;
-  for (A_Params *params = funcSign->params; params; params = params->next) {
-    LOG_ASSERT(params->param, "function params {}:{} param must not null",
-               params->name(), params->location());
-    A_PlainType *paramType = static_cast<A_PlainType *>(params->param->type);
-    TypeSymbol *ts_param = currentScope_->ts_resolve(paramType->name());
+  for (int i = 0; i < (int)funcArgs.size(); i++) {
+    A_PlainType *argType = static_cast<A_PlainType *>(funcArgs[i].second);
+    TypeSymbol *ts_param = currentScope_->ts_resolve(argType->name());
     ts_params.push_back(ts_param);
   }
 
