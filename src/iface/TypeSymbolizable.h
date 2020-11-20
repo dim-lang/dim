@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-
-class TypeSymbol;
+#include "SymbolClasses.h"
 
 class TypeSymbolizable {
 public:

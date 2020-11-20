@@ -23,6 +23,7 @@
 #include <deque>
 #include <functional>
 #include <sstream>
+#include <utility>
 
 BETTER_ENUM(AstKind, int,
             // literal
@@ -456,6 +457,11 @@ public:
   virtual ~A_FuncDef();
   virtual AstKind kind() const;
   virtual void accept(Visitor *visitor);
+
+  virtual Ast *getId() const;
+  // first: id
+  // second: type
+  virtual std::vector<std::pair<Ast *, Ast *>> getArguments() const;
 
   Ast *funcSign;
   Ast *resultType;

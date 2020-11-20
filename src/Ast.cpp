@@ -762,6 +762,26 @@ AstKind A_FuncDef::kind() const { return AstKind::FuncDef; }
 
 void A_FuncDef::accept(Visitor *visitor) { visitor->visitFuncDef(this); }
 
+Ast *A_FuncDef::getId() const {
+  LOG_ASSERT(funcSign->kind() == +AstKind::FuncSign,
+             "funcSign kind {} != AstKind::FuncSign",
+             funcSign->kind()._to_string());
+  return static_cast<A_FuncSign *>(funcSign)->id;
+}
+
+std::vector<std::pair<Ast *, Ast *>> A_FuncDef::getArguments() const {
+  LOG_ASSERT(funcSign->kind() == +AstKind::FuncSign,
+             "funcSign kind {} != AstKind::FuncSign",
+             funcSign->kind()._to_string());
+  A_FuncSign *fs = static_cast<A_FuncSign *>(funcSign);
+  std::vector<std::pair<Ast *, Ast *>> argList;
+  for (A_Params *params = fs->params; params; params = params->next) {
+    A_Param *param = params->param;
+    argList.push_back(std::make_pair(param->id, param->type));
+  }
+  return argList;
+}
+
 A_FuncSign::A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location)
     : Ast("funcSign", location), id(a_id), params(a_params) {
   LOG_ASSERT(id, "id must not null");

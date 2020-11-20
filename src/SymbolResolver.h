@@ -15,7 +15,6 @@ public:
   virtual void visitLoop(A_Loop *ast);
   virtual void visitBlock(A_Block *ast);
   virtual void visitFuncDef(A_FuncDef *ast);
-  virtual void visitFuncSign(A_FuncSign *ast);
   virtual void visitCompileUnit(A_CompileUnit *ast);
   virtual void visitVarId(A_VarId *ast);
 

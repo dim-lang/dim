@@ -3,11 +3,11 @@
 
 #include "Drawer.h"
 #include "Ast.h"
-#include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
 #include "SymbolResolver.h"
 #include "catch2/catch.hpp"
+#include "iface/Phase.h"
 
 static void testDrawer(const Cowstr &fileName) {
   Scanner scanner(fileName);

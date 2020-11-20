@@ -163,8 +163,8 @@ message(NERD_CORE_LIB_DIR: ${NERD_CORE_LIB_DIR})
 set(NERD_CORE_SRC
     src/iface/Identifiable.cpp
     # src/iface/LLVMModular.cpp
-    src/iface/LLVMTypable.cpp
-    src/iface/LLVMValuable.cpp
+    # src/iface/LLVMTypable.cpp
+    # src/iface/LLVMValuable.cpp
     src/iface/Locationable.cpp
     src/iface/Nameable.cpp
     src/iface/Phase.cpp
@@ -184,7 +184,7 @@ set(NERD_CORE_SRC
     src/Drawer.cpp
     src/Dumper.cpp
     src/IrBuilder.cpp
-    src/Label.cpp
+    # src/Label.cpp
     src/Location.cpp
     src/NameGenerator.cpp
     src/Scanner.cpp
@@ -222,8 +222,8 @@ set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 set(NERD_TEST_SRC
     test/iface/IdentifiableTest.cpp
     # test/iface/LLVMModularTest.cpp
-    test/iface/LLVMTypableTest.cpp
-    test/iface/LLVMValuableTest.cpp
+    # test/iface/LLVMTypableTest.cpp
+    # test/iface/LLVMValuableTest.cpp
     test/iface/NameableTest.cpp
 
     test/infra/CounterTest.cpp

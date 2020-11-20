@@ -2,10 +2,9 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "AstClasses.h"
 #include "iface/Nameable.h"
 #include <vector>
-
-class Ast;
 
 class Phase : public Nameable {
 public:

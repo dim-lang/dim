@@ -3,11 +3,12 @@
 
 #include "IrBuilder.h"
 #include "Ast.h"
-#include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
 #include "SymbolResolver.h"
 #include "catch2/catch.hpp"
+#include "iface/Phase.h"
+#include "infra/Cowstr.h"
 #include "infra/Files.h"
 
 static void testIrBuilder(const Cowstr &fileName) {
@@ -19,7 +20,7 @@ static void testIrBuilder(const Cowstr &fileName) {
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
   FileWriter fwriter(fileName + ".ll");
-  fwriter.write(irBuilder.llvmLL());
+  fwriter.write(Cowstr::from(irBuilder.llvmModule()));
 }
 
 TEST_CASE("IrBuilder", "[IrBuilder]") {

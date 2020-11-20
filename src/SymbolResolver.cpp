@@ -30,8 +30,7 @@ void SymbolResolver::visitBlock(A_Block *ast) {
 }
 
 void SymbolResolver::visitFuncDef(A_FuncDef *ast) {
-  A_FuncSign *funcSign = static_cast<A_FuncSign *>(node->funcSign);
-  A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+  A_VarId *funcId = static_cast<A_VarId *>(ast->getId());
 
   currentScope_ = dynamic_cast<Scope *>(funcId->symbol());
 

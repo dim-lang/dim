@@ -2,8 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
-
-class Symbol;
+#include "SymbolClasses.h"
 
 class Symbolizable {
 public:
