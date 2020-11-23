@@ -238,11 +238,11 @@ set(NERD_TEST_SRC
     test/DumperTest.cpp
     test/IrBuilderTest.cpp
     test/LocationTest.cpp
-    test/MainTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp
     test/TokenizerTest.cpp
+    test/UnitTest.cpp
 )
 set(NERD_TEST_INC
     ${NERD_CORE_INC}

@@ -20,220 +20,51 @@
 #include <unordered_set>
 #include <vector>
 
-// #define DECL(x)                                                                \
-//   struct VISITOR(x) : public Visitor {                                         \
-//     Ir *ir;                                                                    \
-//     VISITOR(x)();                                                              \
-//     virtual void visit(Ast *ast);                                              \
-//     virtual void finishVisit(Ast *ast);                                        \
-//   }
-//
-// class IrBuilder;
-//
-// namespace detail {
-//
-// struct I_Mod;
-// struct I_GlobalVar;
-// struct I_FuncDef;
-// struct I_FuncDecl;
-// struct I_Param;
-// struct I_Block;
-// struct I_Var;
-// struct I_ConstantExpr;
-// struct I_Expr;
-//
-// struct I_Mod : public Phase {
-//   I_Mod(IrBuilder *irBuilder);
-//   virtual ~I_Mod();
-//   virtual void run(Ast *ast);
-//
-//   struct Context : public VisitorContext, public Scoped {
-//     Context(IrBuilder *a_irBuilder, I_Mod *mod)
-//         : irBuilder(a_irBuilder), iMod(mod) {}
-//     IrBuilder *irBuilder;
-//     I_Mod *iMod;
-//   };
-//   struct VISITOR(GlobalVar) : public Visitor {
-//     VISITOR(GlobalVar)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(FuncDef) : public Visitor {
-//     VISITOR(FuncDef)();
-//     virtual void visit(Ast *ast);
-//   };
-//
-//   VisitorContext *context;
-//   VisitorBinder binder;
-//   std::vector<Visitor *> visitors;
-//
-//   I_GlobalVar *iGlobalVar;
-//   I_FuncDef *iFuncDef;
-// };
-//
-// struct I_GlobalVar : public Phase {
-//   I_GlobalVar(IrBuilder *irBuilder);
-//   virtual ~I_GlobalVar();
-//   virtual void run(Ast *ast);
-//
-//   struct Context : public VisitorContext, public Scoped {
-//     Context(IrBuilder *a_irBuilder, I_GlobalVar *globalVar)
-//         : irBuilder(a_irBuilder), iGlobalVar(globalVar) {}
-//     IrBuilder *irBuilder;
-//     I_GlobalVar *iGlobalVar;
-//   };
-//   struct VISITOR(VarId) : public Visitor {
-//     VISITOR(VarId)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(PlainType) : public Visitor {
-//     VISITOR(PlainType)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(ConstantExpr) : public Visitor {
-//     VISITOR(ConstantExpr)();
-//     virtual void visit(Ast *ast);
-//   };
-//
-//   VisitorContext *context;
-//   VisitorBinder binder;
-//   std::vector<Visitor *> visitors;
-//
-//   I_ConstantExpr *iConstantExpr;
-// };
-//
-// struct I_FuncDef : public Phase {
-//   I_FuncDef(IrBuilder *irBuilder);
-//   virtual ~I_FuncDef();
-//   virtual void run(Ast *ast);
-//
-//   struct Context : public VisitorContext, public Scoped {
-//     Context(IrBuilder *a_irBuilder, I_FuncDef *funcDef)
-//         : irBuilder(a_irBuilder), iFuncDef(funcDef) {}
-//     IrBuilder *irBuilder;
-//     I_FuncDef *iFuncDef;
-//   };
-//   struct VISITOR(FuncDecl) : public Visitor {
-//     VISITOR(FuncDecl)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(PlainType) : public Visitor {
-//     VISITOR(PlainType)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(ConstantExpr) : public Visitor {
-//     VISITOR(ConstantExpr)();
-//     virtual void visit(Ast *ast);
-//   };
-//
-//   VisitorContext *context;
-//   VisitorBinder binder;
-//   std::vector<Visitor *> visitors;
-//
-//   I_FuncDecl *iFuncDecl;
-//   I_Block *iBlock;
-// };
-//
-// struct I_FuncDecl : public Phase {};
-// struct I_Param : public Phase {};
-// struct I_Block : public Phase {};
-// struct I_Var : public Phase {};
-// struct I_ConstantExpr : public Phase {};
-// struct I_Expr : public Phase {};
-//
-// } // namespace detail
+namespace detail {
 
-// class IrBuilder : public Phase {
-// public:
-//   IrBuilder();
-//   virtual ~IrBuilder();
-//   virtual void run(Ast *ast);
-//
-//   struct Context : public VisitorContext, public Scoped {
-//     Context(IrBuilder *a_irBuilder);
-//     IrBuilder *irBuilder;
-//   };
-//
-//   struct VISITOR(CompileUnit) : public Visitor {
-//     VISITOR(CompileUnit)();
-//     virtual void visit(Ast *ast);
-//     virtual void finishVisit(Ast *ast);
-//   };
-//   struct VISITOR(VarId) : public Visitor {
-//     Symbol *symbol;
-//     VISITOR(VarId)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(PlainType) : public Visitor {
-//     TypeSymbol *typeSymbol;
-//     VISITOR(PlainType)();
-//     virtual void visit(Ast *ast);
-//   };
-//   struct VISITOR(VarDef) : public Visitor {
-//     Ir *ir;
-//     VISITOR(VarDef)();
-//     virtual void visit(Ast *ast);
-//     virtual void visitAfter(Ast *ast, Ast *child);
-//   };
-//
-// private:
-//   llvm::LLVMContext llvmContext;
-//   llvm::IRBuilder<> llvmIRBuilder;
-//   llvm::Module *llvmModule;
-//
-//   detail::I_Mod *iMod;
-// };
-//
-// #undef DECL
+struct SpaceData {
+  enum SpaceDataKind { VALUE = 0, TYPE, CONSTANT, FUNCTION };
 
-// Copyright 2019- <nerd-lang>
-// Apache License Version 2.0
+  int kind;
+  union {
+    llvm::Value *value;
+    llvm::Type *type;
+    llvm::Constant *constant;
+    llvm::Function *function;
+  } data;
 
-class IrSpace {
+  virtual ~SpaceData() = default;
+
+  static SpaceData fromValue(llvm::Value *a_value);
+  static SpaceData fromType(llvm::Type *a_type);
+  static SpaceData fromConstant(llvm::Constant *a_constant);
+  static SpaceData fromFunction(llvm::Function *a_function);
+
+  llvm::Value *asValue() const;
+  llvm::Type *asType() const;
+  llvm::Constant *asConstant() const;
+  llvm::Function *asFunction() const;
+};
+
+class Space {
 public:
-  IrSpace(IrSpace *owner = nullptr);
-  virtual ~IrSpace();
+  Space();
+  virtual ~Space() = default;
 
-  virtual IrSpace *owner() const;
-  virtual void defineValue(const Cowstr &name, llvm::Value *value);
-  virtual void defineType(const Cowstr &name, llvm::Type *type);
-  virtual void defineConstant(const Cowstr &name, llvm::Constant *constant);
-  virtual void defineFunction(const Cowstr &name, llvm::Function *function);
-  virtual llvm::Value *resolveValue(const Cowstr &name) const;
-  virtual llvm::Type *resolveType(const Cowstr &name) const;
-  virtual llvm::Constant *resolveConstant(const Cowstr &name) const;
-  virtual llvm::Function *resolveFunction(const Cowstr &name) const;
-
-  struct Data {
-  public:
-    enum DataKind { UNKNOWN = 0, VALUE, TYPE, CONSTANT, FUNCTION };
-
-    int kind;
-    union {
-      llvm::Value *value;
-      llvm::Type *type;
-      llvm::Constant *constant;
-      llvm::Function *function;
-    } data;
-
-    virtual ~Data() = default;
-
-    static Data fromUnknown();
-    static Data fromValue(llvm::Value *a_value);
-    static Data fromType(llvm::Type *a_type);
-    static Data fromConstant(llvm::Constant *a_constant);
-    static Data fromFunction(llvm::Function *a_function);
-
-    virtual llvm::Value *asValue() const;
-    virtual llvm::Type *asType() const;
-    virtual llvm::Constant *asConstant() const;
-    virtual llvm::Function *asFunction() const;
-  };
+  void setValue(const Cowstr &name, llvm::Value *value);
+  void setType(const Cowstr &name, llvm::Type *type);
+  void setConstant(const Cowstr &name, llvm::Constant *constant);
+  void setFunction(const Cowstr &name, llvm::Function *function);
+  llvm::Value *getValue(const Cowstr &name) const;
+  llvm::Type *getType(const Cowstr &name) const;
+  llvm::Constant *getConstant(const Cowstr &name) const;
+  llvm::Function *getFunction(const Cowstr &name) const;
 
 private:
-  IrSpace *owner_;
-  LinkedHashMap<Cowstr, Data> dataMap_;
-  std::vector<IrSpace *> children_;
+  LinkedHashMap<Cowstr, SpaceData> dataMap_;
 };
+
+} // namespace detail
 
 class IrBuilder : public Phase, public Visitor {
 public:
@@ -305,8 +136,6 @@ private:
   llvm::IRBuilder<> llvmIRBuilder_;
   llvm::Module *llvmModule_;
 
-  Scope *currentScope_;
-
-  IrSpace *globalSpace_;
-  IrSpace *currentSpace_;
+  detail::Space space_;
+  Scope *scope_;
 };

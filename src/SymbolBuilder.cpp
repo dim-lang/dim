@@ -87,6 +87,28 @@ void SymbolBuilder::visitVarDef(A_VarDef *ast) {
   currentScope_->s_define(s_var);
 }
 
+void SymbolBuilder::visitParam(A_Param *ast) {
+  A_VarId *paramId = static_cast<A_VarId *>(ast->id);
+  A_PlainType *paramType = static_cast<A_PlainType *>(ast->type);
+
+  TypeSymbol *ts_param = currentScope_->ts_resolve(paramType->name());
+  LOG_ASSERT(ts_param, "paramType {}:{} must not null", paramType->name(),
+             paramType->location());
+
+  S_Param *s_param = new S_Param(paramId->name(), paramId->location(),
+                                 currentScope_, ts_param);
+  s_param->ast() = paramId;
+  paramId->symbol() = s_param;
+  currentScope_->s_define(s_param);
+
+  Symbol *sym = dynamic_cast<Symbol *>(currentScope_);
+  LOG_ASSERT(sym->kind() == +SymbolKind::Func,
+             "currentScope_ kind {} != SymbolKind::Func",
+             sym->kind()._to_string());
+  S_Func *s_func = static_cast<S_Func *>(sym);
+  s_func->params.push_back(s_param);
+}
+
 void SymbolBuilder::visitFuncDef(A_FuncDef *ast) {
   A_VarId *funcId = static_cast<A_VarId *>(ast->getId());
   std::vector<std::pair<Ast *, Ast *>> funcArgs = ast->getArguments();
@@ -115,6 +137,7 @@ void SymbolBuilder::visitFuncDef(A_FuncDef *ast) {
   // update scope
   currentScope_ = s_func;
 
+  ast->funcSign->accept(this);
   ast->body->accept(this);
 
   // update scope

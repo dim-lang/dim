@@ -25,8 +25,8 @@ struct LogInitializer {
 
 static LogInitializer initializer;
 
-TEST_CASE("Main", "[Main]") {
-  SECTION("Main Initialize") {
+TEST_CASE("Unit Test", "[Unit Test]") {
+  SECTION("Unit Test Initialize") {
     fmt::print(
         "nerd-test start at:{}\n",
         boost::filesystem::path(boost::filesystem::current_path()).string());

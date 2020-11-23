@@ -15,6 +15,7 @@ public:
   virtual void visitLoop(A_Loop *ast);
   virtual void visitLoopEnumerator(A_LoopEnumerator *ast);
   virtual void visitBlock(A_Block *ast);
+  virtual void visitParam(A_Param *ast);
   virtual void visitFuncDef(A_FuncDef *ast);
   virtual void visitVarDef(A_VarDef *ast);
   virtual void visitCompileUnit(A_CompileUnit *ast);
