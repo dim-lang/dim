@@ -46,7 +46,6 @@ static Cowstr stringize(const Cowstr &key, Ast *value) {
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
     }                                                                          \
     if (a->c) {                                                                \
-      a->c->accept(this);                                                      \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c));                \
     }                                                                          \
     dump_.push_back(Cowstr::join(joiner, " "));                                \
