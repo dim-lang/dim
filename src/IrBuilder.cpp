@@ -44,25 +44,43 @@ SpaceData SpaceData::fromFunction(llvm::Function *a_function) {
 }
 
 llvm::Value *SpaceData::asValue() const {
-  LOG_ASSERT(kind == +SpaceData::VALUE, "kind {} != DataKind::VALUE", kind);
+  LOG_ASSERT(kind == +SpaceData::VALUE, "kind {} != DataKind::VALUE:{}", kind,
+             str());
   return data.value;
 }
 
 llvm::Type *SpaceData::asType() const {
-  LOG_ASSERT(kind == +SpaceData::TYPE, "kind {} != DataKind::TYPE", kind);
+  LOG_ASSERT(kind == +SpaceData::TYPE, "kind {} != DataKind::TYPE:{}", kind,
+             str());
   return data.type;
 }
 
 llvm::Constant *SpaceData::asConstant() const {
-  LOG_ASSERT(kind == +SpaceData::CONSTANT, "kind {} != DataKind::CONSTANT",
-             kind);
+  LOG_ASSERT(kind == +SpaceData::CONSTANT, "kind {} != DataKind::CONSTANT:{}",
+             kind, str());
   return data.constant;
 }
 
 llvm::Function *SpaceData::asFunction() const {
-  LOG_ASSERT(kind == +SpaceData::FUNCTION, "kind {} != DataKind::FUNCTION",
-             kind);
+  LOG_ASSERT(kind == +SpaceData::FUNCTION, "kind {} != DataKind::FUNCTION:{}",
+             kind, str());
   return data.function;
+}
+
+Cowstr SpaceData::str() const {
+  switch (kind) {
+  case VALUE:
+    return Cowstr::from(asValue());
+  case TYPE:
+    return Cowstr::from(asType());
+  case CONSTANT:
+    return Cowstr::from(asConstant());
+  case FUNCTION:
+    return Cowstr::from(asFunction());
+  default:
+    LOG_ASSERT(false, "invalid kind:{}", kind);
+  }
+  return "";
 }
 
 // SpaceData }

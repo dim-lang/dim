@@ -44,6 +44,8 @@ struct SpaceData {
   llvm::Type *asType() const;
   llvm::Constant *asConstant() const;
   llvm::Function *asFunction() const;
+
+  Cowstr str() const;
 };
 
 class Space {
