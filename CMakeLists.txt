@@ -236,7 +236,7 @@ set(NERD_TEST_SRC
     test/ConfigureTest.cpp
     test/DrawerTest.cpp
     test/DumperTest.cpp
-    test/IrBuilderTest.cpp
+    # test/IrBuilderTest.cpp
     test/LocationTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp

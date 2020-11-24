@@ -158,8 +158,7 @@ struct NilNode : public GNode {
 
 struct AstNode : public GNode {
   AstNode(Ast *ast) : GNode(identify(ast)) {
-    add(ast->kind()._to_string());
-    add("id", ast->decIdentifier());
+    add(fmt::format("{}@{}", ast->kind()._to_string(), ast->identifier()));
     add("location", ast->location().str());
   }
 
@@ -178,8 +177,7 @@ struct AstNode : public GNode {
 
 struct ScopeNode : public GNode {
   ScopeNode(Scope *scope) : GNode(identify(scope)) {
-    add(scope->name());
-    add("id", scope->decIdentifier());
+    add(fmt::format("{}@{}", scope->name(), scope->identifier()));
     add("location", scope->location().str());
   }
 
@@ -221,28 +219,25 @@ struct ScopeNode : public GNode {
     lines.push_back(line);
   }
   virtual void addSymbol(Symbol *sym) {
-    GCell c1(identify(sym), sym->decIdentifier());
-    GCell c2(sym->name());
-    GCell c3(sym->type()->name());
-    GCell c4(sym->kind()._to_string());
-    GCell c5(sym->location().str());
-    GLine line({c1, c2, c3, c4, c5});
+    GCell c1(fmt::format("{}@{}", sym->name(), sym->identifier()));
+    GCell c2(sym->type()->name());
+    GCell c3(sym->kind()._to_string());
+    GCell c4(sym->location().str());
+    GLine line({c1, c2, c3, c4});
     lines.push_back(line);
   }
   virtual void addTypeSymbol(TypeSymbol *tsym) {
-    GCell c1(identify(tsym), tsym->decIdentifier());
-    GCell c2(tsym->name());
-    GCell c3(" ");
-    GCell c4(tsym->kind()._to_string());
-    GCell c5(tsym->location().str());
-    GLine line({c1, c2, c3, c4, c5});
+    GCell c1(fmt::format("{}@{}", tsym->name(), tsym->identifier()));
+    GCell c2(" ");
+    GCell c3(tsym->kind()._to_string());
+    GCell c4(tsym->location().str());
+    GLine line({c1, c2, c3, c4});
     lines.push_back(line);
   }
   virtual void addScope(Scope *scope) {
-    GCell c1(identify(scope), scope->decIdentifier());
-    GCell c2(scope->name());
-    GCell c3(scope->location().str());
-    GLine line({c1, c2, c3});
+    GCell c1(fmt::format("{}@{}", scope->name(), scope->identifier()));
+    GCell c2(scope->location().str());
+    GLine line({c1, c2});
     lines.push_back(line);
   }
 };
@@ -332,51 +327,19 @@ struct AstToAstEdge : public GEdge {
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
-    add("#");
-  }
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
-    add("#");
-  }
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {
-    add("#");
-  }
-};
-
-// resolve edge
-
-struct SymbolToAstEdge : public GEdge {
-  SymbolToAstEdge(Ast *from, Symbol *to)
-      : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dotted") {
-    add("&");
-  }
-};
-
-struct TypeSymbolToAstEdge : public GEdge {
-  TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
-      : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), "dotted") {
-    add("&");
-  }
-};
-
-struct ScopeToAstEdge : public GEdge {
-  ScopeToAstEdge(Ast *from, ScopeNode *to)
-      : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dotted") {
-    add("&");
-  }
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {}
 };
 
 struct GEdgeRank {
