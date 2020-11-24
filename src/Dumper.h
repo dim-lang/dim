@@ -55,4 +55,5 @@ public:
 
 private:
   std::vector<Cowstr> dump_;
+  int indent_;
 };

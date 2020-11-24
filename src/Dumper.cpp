@@ -6,7 +6,7 @@
 #include "boost/preprocessor/stringize.hpp"
 #include "fmt/format.h"
 
-Dumper::Dumper() : Phase("Dumper") {}
+Dumper::Dumper() : Phase("Dumper"), indent_(0) {}
 
 void Dumper::run(Ast *ast) { ast->accept(this); }
 
@@ -14,23 +14,40 @@ std::vector<Cowstr> &Dumper::dump() { return dump_; }
 
 const std::vector<Cowstr> &Dumper::dump() const { return dump_; }
 
-static Cowstr stringize(Ast *ast) {
-  return fmt::format("{}@{} \'{}\' <{}>", ast->kind()._to_string(),
+static Cowstr stringize(Ast *ast, int indent) {
+  return Cowstr("|  ").repeat(indent) + Cowstr("`-") +
+         fmt::format("{}@{} \'{}\' <{}>", ast->kind()._to_string(),
                      ast->identifier(), ast->name(), ast->location());
 }
 
-static Cowstr stringize(const Cowstr &key, Ast *value) {
-  return fmt::format("{}@{}", key, value->identifier());
+static Cowstr stringize(const Cowstr &key, Ast *value, int indent) {
+  return fmt::format("{}:{}@{}", key, value->kind()._to_string(),
+                     value->identifier());
 }
 
-#define STRINGIZE0(a) dump_.push_back(stringize(a))
+#define STRINGIZE0(a) dump_.push_back(stringize(a, indent_))
 
 #define STRINGIZE1(a, b)                                                       \
   do {                                                                         \
     std::vector<Cowstr> joiner;                                                \
-    joiner.push_back(stringize(a));                                            \
+    joiner.push_back(stringize(a, indent_));                                   \
     if (a->b) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
+    }                                                                          \
+    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    indent_ += 1;                                                              \
+    if (a->b) {                                                                \
+      a->b->accept(this);                                                      \
+    }                                                                          \
+    indent_ -= 1;                                                              \
+  } while (0)
+
+#define STRINGIZE1_NO_INDENT(a, b)                                             \
+  do {                                                                         \
+    std::vector<Cowstr> joiner;                                                \
+    joiner.push_back(stringize(a, indent_));                                   \
+    if (a->b) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
     }                                                                          \
     dump_.push_back(Cowstr::join(joiner, " "));                                \
     if (a->b) {                                                                \
@@ -41,12 +58,33 @@ static Cowstr stringize(const Cowstr &key, Ast *value) {
 #define STRINGIZE2(a, b, c)                                                    \
   do {                                                                         \
     std::vector<Cowstr> joiner;                                                \
-    joiner.push_back(stringize(a));                                            \
+    joiner.push_back(stringize(a, indent_));                                   \
     if (a->b) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
     }                                                                          \
     if (a->c) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c, indent_));       \
+    }                                                                          \
+    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    indent_ += 1;                                                              \
+    if (a->b) {                                                                \
+      a->b->accept(this);                                                      \
+    }                                                                          \
+    if (a->c) {                                                                \
+      a->c->accept(this);                                                      \
+    }                                                                          \
+    indent_ -= 1;                                                              \
+  } while (0)
+
+#define STRINGIZE2_NO_INDENT(a, b, c)                                          \
+  do {                                                                         \
+    std::vector<Cowstr> joiner;                                                \
+    joiner.push_back(stringize(a, indent_));                                   \
+    if (a->b) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
+    }                                                                          \
+    if (a->c) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c, indent_));       \
     }                                                                          \
     dump_.push_back(Cowstr::join(joiner, " "));                                \
     if (a->b) {                                                                \
@@ -60,15 +98,42 @@ static Cowstr stringize(const Cowstr &key, Ast *value) {
 #define STRINGIZE3(a, b, c, d)                                                 \
   do {                                                                         \
     std::vector<Cowstr> joiner;                                                \
-    joiner.push_back(stringize(a));                                            \
+    joiner.push_back(stringize(a, indent_));                                   \
     if (a->b) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
     }                                                                          \
     if (a->c) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c, indent_));       \
     }                                                                          \
     if (a->d) {                                                                \
-      joiner.push_back(stringize(BOOST_PP_STRINGIZE(d), a->d));                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(d), a->d, indent_));       \
+    }                                                                          \
+    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    indent_ += 1;                                                              \
+    if (a->b) {                                                                \
+      a->b->accept(this);                                                      \
+    }                                                                          \
+    if (a->c) {                                                                \
+      a->c->accept(this);                                                      \
+    }                                                                          \
+    if (a->d) {                                                                \
+      a->d->accept(this);                                                      \
+    }                                                                          \
+    indent_ -= 1;                                                              \
+  } while (0)
+
+#define STRINGIZE3_NO_INDENT(a, b, c, d)                                       \
+  do {                                                                         \
+    std::vector<Cowstr> joiner;                                                \
+    joiner.push_back(stringize(a, indent_));                                   \
+    if (a->b) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b, indent_));       \
+    }                                                                          \
+    if (a->c) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c, indent_));       \
+    }                                                                          \
+    if (a->d) {                                                                \
+      joiner.push_back(stringize(BOOST_PP_STRINGIZE(d), a->d, indent_));       \
     }                                                                          \
     dump_.push_back(Cowstr::join(joiner, " "));                                \
     if (a->b) {                                                                \
@@ -100,7 +165,7 @@ void Dumper::visitPostfix(A_Postfix *ast) { STRINGIZE1(ast, expr); }
 void Dumper::visitInfix(A_Infix *ast) { STRINGIZE2(ast, left, right); }
 void Dumper::visitPrefix(A_Prefix *ast) { STRINGIZE1(ast, expr); }
 void Dumper::visitCall(A_Call *ast) { STRINGIZE2(ast, id, args); }
-void Dumper::visitExprs(A_Exprs *ast) { STRINGIZE2(ast, expr, next); }
+void Dumper::visitExprs(A_Exprs *ast) { STRINGIZE2_NO_INDENT(ast, expr, next); }
 void Dumper::visitIf(A_If *ast) { STRINGIZE3(ast, condition, thenp, elsep); }
 void Dumper::visitLoop(A_Loop *ast) { STRINGIZE2(ast, condition, body); }
 void Dumper::visitYield(A_Yield *ast) { STRINGIZE1(ast, expr); }
@@ -114,15 +179,19 @@ void Dumper::visitDoWhile(A_DoWhile *ast) { STRINGIZE2(ast, body, condition); }
 void Dumper::visitTry(A_Try *ast) { STRINGIZE3(ast, tryp, catchp, finallyp); }
 void Dumper::visitBlock(A_Block *ast) { STRINGIZE1(ast, blockStats); }
 void Dumper::visitBlockStats(A_BlockStats *ast) {
-  STRINGIZE2(ast, blockStat, next);
+  STRINGIZE2_NO_INDENT(ast, blockStat, next);
 }
 void Dumper::visitPlainType(A_PlainType *ast) { STRINGIZE0(ast); }
 void Dumper::visitFuncDef(A_FuncDef *ast) {
   STRINGIZE3(ast, funcSign, resultType, body);
 }
 void Dumper::visitFuncSign(A_FuncSign *ast) { STRINGIZE2(ast, id, params); }
-void Dumper::visitParams(A_Params *ast) { STRINGIZE2(ast, param, next); }
+void Dumper::visitParams(A_Params *ast) {
+  STRINGIZE2_NO_INDENT(ast, param, next);
+}
 void Dumper::visitParam(A_Param *ast) { STRINGIZE2(ast, id, type); }
 void Dumper::visitVarDef(A_VarDef *ast) { STRINGIZE3(ast, id, type, expr); }
-void Dumper::visitTopStats(A_TopStats *ast) { STRINGIZE2(ast, topStat, next); }
+void Dumper::visitTopStats(A_TopStats *ast) {
+  STRINGIZE2_NO_INDENT(ast, topStat, next);
+}
 void Dumper::visitCompileUnit(A_CompileUnit *ast) { STRINGIZE1(ast, topStats); }
