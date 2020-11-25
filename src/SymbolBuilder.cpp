@@ -21,7 +21,7 @@ void SymbolBuilder::visitLoop(A_Loop *ast) {
                    ast->location(), currentScope_);
   sc_loop->ast() = ast;
   ast->scope() = sc_loop;
-  currentScope_->subscope_define(sc_loop);
+  currentScope_->sc_define(sc_loop);
 
   // update scope
   currentScope_ = sc_loop;
@@ -57,7 +57,7 @@ void SymbolBuilder::visitBlock(A_Block *ast) {
                    ast->location(), currentScope_);
   sc_block->ast() = ast;
   ast->scope() = sc_block;
-  currentScope_->subscope_define(sc_block);
+  currentScope_->sc_define(sc_block);
 
   // update scope
   currentScope_ = sc_block;

@@ -44,9 +44,9 @@ SpaceData SpaceData::fromFunction(llvm::Function *a_function) {
 }
 
 llvm::Value *SpaceData::asValue() const {
-  LOG_ASSERT(kind == +SpaceData::VALUE, "kind {} != DataKind::VALUE:{}", kind,
-             str());
-  return data.value;
+  LOG_ASSERT(kind == +SpaceData::VALUE || kind == +SpaceData::CONSTANT,
+             "kind {} != DataKind::VALUE or CONSTANT:{}", kind, str());
+  return (kind == +SpaceData::VALUE) ? data.value : data.constant;
 }
 
 llvm::Type *SpaceData::asType() const {
@@ -136,8 +136,21 @@ llvm::Function *Space::getFunction(const Cowstr &name) const {
 // IrBuilder {
 
 static Cowstr label(Ast *ast) {
-  return fmt::format("{}.{}", ast->name(), ast->location());
+  return fmt::format("{}.{}_{}_{}_{}", ast->name(), ast->location().begin.line,
+                     ast->location().begin.column, ast->location().end.line,
+                     ast->location().end.column);
 }
+
+static Cowstr label(Symbol *symbol) {
+  return fmt::format(
+      "{}.{}_{}_{}_{}", symbol->name(), symbol->location().begin.line,
+      symbol->location().begin.column, symbol->location().end.line,
+      symbol->location().end.column);
+}
+
+// static Cowstr label(TypeSymbol *typeSymbol) {
+//   return fmt::format("{}.{}", typeSymbol->name(), typeSymbol->location());
+// }
 
 IrBuilder::IrBuilder()
     : Phase("IrBuilder"), llvmContext_(), llvmIRBuilder_(llvmContext_),
@@ -211,8 +224,19 @@ void IrBuilder::visitNil(A_Nil *ast) { LOG_ASSERT(false, "not implemented"); }
 void IrBuilder::visitVoid(A_Void *ast) { LOG_ASSERT(false, "not implemented"); }
 
 void IrBuilder::visitVarId(A_VarId *ast) {
-  LOG_ASSERT(space_.getValue(label(ast)), "ast {}:{} LLVMValue not exist",
-             ast->name(), ast->location());
+  if (ast->symbol()) {
+    llvm::Value *value = space_.getValue(label(ast->symbol()));
+    LOG_ASSERT(value, "ast {}:{} symbol {}:{} does not has llvm value",
+               ast->name(), ast->location(), ast->symbol()->name(),
+               ast->symbol()->location());
+    space_.setValue(label(ast), value);
+  } else if (ast->typeSymbol()) {
+    llvm::Type *type = space_.getType(label(ast->symbol()));
+    LOG_ASSERT(type, "ast {}:{} type symbol {}:{} does not has llvm type",
+               ast->name(), ast->location(), ast->typeSymbol()->name(),
+               ast->typeSymbol()->location());
+    space_.setType(label(ast), type);
+  }
 }
 
 void IrBuilder::visitReturn(A_Return *ast) {
@@ -334,6 +358,23 @@ void IrBuilder::visitBlock(A_Block *ast) {
     if (ast->blockStats) {
       ast->blockStats->accept(this);
     }
+    // insert `return void` if there's no return instruction in function
+    bool hasReturn = false;
+    for (llvm::Function::const_iterator i = func->getBasicBlockList().begin();
+         i != func->getBasicBlockList().end() && !hasReturn; ++i) {
+      for (llvm::BasicBlock::const_iterator j = i->getInstList().begin();
+           j != i->getInstList().end() && !hasReturn; ++j) {
+        const llvm::Instruction *inst = &(*j);
+        // const llvm::Instruction *inst = j;
+        if (llvm::ReturnInst::classof(inst)) {
+          hasReturn = true;
+        }
+      }
+    }
+    // llvm::BasicBlock *lastBlock = &(*func->getBasicBlockList().rbegin());
+    if (!hasReturn) {
+      llvmIRBuilder_.CreateRetVoid();
+    }
   } else {
     LOG_ASSERT(false, "not implemented");
   }
@@ -370,11 +411,11 @@ void IrBuilder::visitPlainType(A_PlainType *ast) {
 }
 
 void IrBuilder::visitFuncDef(A_FuncDef *ast) {
-  Ast *funcId = ast->getId();
+  A_VarId *funcId = static_cast<A_VarId *>(ast->getId());
   std::vector<std::pair<Ast *, Ast *>> funcArgs = ast->getArguments();
 
   std::vector<llvm::Type *> funcArgTypes;
-  for (int i = 0; i < (int)funcArgs.size(); i++) {
+  for (int i = 0; i < (int)funcArgs.size(); ++i) {
     funcArgTypes.push_back(space_.getType(label(funcArgs[i].second)));
   }
 
@@ -386,21 +427,23 @@ void IrBuilder::visitFuncDef(A_FuncDef *ast) {
   llvm::Function *func =
       llvm::Function::Create(funcType, llvm::Function::ExternalLinkage,
                              label(funcId).str(), llvmModule_);
-  space_.setFunction(label(funcId), func);
+  space_.setFunction(label(funcId->symbol()), func);
+  // space_.setFunction(label(funcId), func);
 
   int i = 0;
   for (llvm::Function::arg_iterator it = func->args().begin();
-       it != func->args().end(); it++, i++) {
+       it != func->args().end(); ++it, ++i) {
     llvm::Argument *arg = it;
     arg->setName(label(funcArgs[i].first).str());
-    space_.setValue(label(funcArgs[i].first), arg);
+    space_.setValue(label(static_cast<A_VarId *>(funcArgs[i].first)), arg);
+    // space_.setValue(label(funcArgs[i].first), arg);
   }
 
   ast->body->accept(this);
 }
 
 void IrBuilder::visitVarDef(A_VarDef *ast) {
-  Ast *varId = ast->id;
+  A_VarId *varId = static_cast<A_VarId *>(ast->id);
 
   ast->type->accept(this);
   llvm::Type *ty_var = space_.getType(label(ast->type));
@@ -410,21 +453,21 @@ void IrBuilder::visitVarDef(A_VarDef *ast) {
       ast->parent()->kind() == (+AstKind::CompileUnit)) {
     IrBuilder::ConstantBuilder cb(this);
     ast->expr->accept(&cb);
-    llvm::Constant *globalInitializer = space_.getConstant(label(ast->expr));
+    llvm::Constant *gc = space_.getConstant(label(ast->expr));
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
-        *llvmModule_, ty_var, false, llvm::GlobalValue::ExternalLinkage,
-        globalInitializer, label(varId).str(), nullptr,
-        llvm::GlobalValue::NotThreadLocal, 0, false);
+        *llvmModule_, ty_var, false, llvm::GlobalValue::ExternalLinkage, gc,
+        label(varId).str(), nullptr, llvm::GlobalValue::NotThreadLocal, 0,
+        false);
     space_.setValue(label(varId), llvm::dyn_cast<llvm::Value>(gv));
   } else if (ast->parent()->kind() == (+AstKind::BlockStats)) {
     // local variable
     ast->expr->accept(this);
-    llvm::Value *localInitializer = space_.getValue(label(ast->expr));
+    llvm::Value *ae = space_.getValue(label(ast->expr));
     llvm::AllocaInst *ai =
         llvmIRBuilder_.CreateAlloca(ty_var, nullptr, label(varId).str());
-    llvm::StoreInst *si =
-        llvmIRBuilder_.CreateStore(localInitializer, ai, false);
-    space_.setValue(label(varId), llvm::dyn_cast<llvm::Value>(si));
+    llvm::StoreInst *si = llvmIRBuilder_.CreateStore(ae, ai, false);
+    space_.setValue(label(varId->symbol()), llvm::dyn_cast<llvm::Value>(si));
+    // space_.setValue(label(varId), llvm::dyn_cast<llvm::Value>(si));
   }
 }
 

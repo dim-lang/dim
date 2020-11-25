@@ -18,7 +18,7 @@
 
 #define DESTROY_MAP_SECOND(x)                                                  \
   do {                                                                         \
-    for (auto i = x.begin(); i != x.end(); i++) {                              \
+    for (auto i = x.begin(); i != x.end(); ++i) {                              \
       delete i->second;                                                        \
       i->second = nullptr;                                                     \
     }                                                                          \
@@ -149,45 +149,41 @@ Scope::ts_const_iterator ScopeImpl::ts_cend() const { return ts_data_.cend(); }
 
 // sub scope api {
 
-void ScopeImpl::subscope_define(Scope *scope) {
+void ScopeImpl::sc_define(Scope *scope) {
   LOG_ASSERT(scope, "scope must not null");
   LOG_ASSERT(!sc_data_.contains(scope->name()), "scope already exist: {}",
              scope->name());
   sc_data_.insert(scope->name(), scope);
 }
 
-Scope *ScopeImpl::subscope_resolve(const Cowstr &name) const {
+Scope *ScopeImpl::sc_resolve(const Cowstr &name) const {
   auto it = sc_data_.find(name);
   return it == sc_data_.end() ? nullptr : it->second;
 }
 
-bool ScopeImpl::subscope_contains(const Cowstr &name) const {
+bool ScopeImpl::sc_contains(const Cowstr &name) const {
   return sc_data_.find(name) != sc_data_.end();
 }
 
-bool ScopeImpl::subscope_empty() const { return sc_data_.empty(); }
+bool ScopeImpl::sc_empty() const { return sc_data_.empty(); }
 
-int ScopeImpl::subscope_size() const { return sc_data_.size(); }
+int ScopeImpl::sc_size() const { return sc_data_.size(); }
 
-Scope::sc_iterator ScopeImpl::subscope_begin() { return sc_data_.begin(); }
+Scope::sc_iterator ScopeImpl::sc_begin() { return sc_data_.begin(); }
 
-Scope::sc_const_iterator ScopeImpl::subscope_begin() const {
+Scope::sc_const_iterator ScopeImpl::sc_begin() const {
   return sc_data_.begin();
 }
 
-Scope::sc_const_iterator ScopeImpl::subscope_cbegin() const {
+Scope::sc_const_iterator ScopeImpl::sc_cbegin() const {
   return sc_data_.cbegin();
 }
 
-Scope::sc_iterator ScopeImpl::subscope_end() { return sc_data_.end(); }
+Scope::sc_iterator ScopeImpl::sc_end() { return sc_data_.end(); }
 
-Scope::sc_const_iterator ScopeImpl::subscope_end() const {
-  return sc_data_.end();
-}
+Scope::sc_const_iterator ScopeImpl::sc_end() const { return sc_data_.end(); }
 
-Scope::sc_const_iterator ScopeImpl::subscope_cend() const {
-  return sc_data_.cend();
-}
+Scope::sc_const_iterator ScopeImpl::sc_cend() const { return sc_data_.cend(); }
 
 // sub scope api }
 
@@ -294,6 +290,8 @@ S_Func::S_Func(const Cowstr &name, const Location &location, Scope *owner,
 
 SymbolKind S_Func::kind() const { return SymbolKind::Func; }
 
+ScopeKind S_Func::sc_kind() const { return ScopeKind::Symbol; }
+
 S_Param::S_Param(const Cowstr &name, const Location &location, Scope *owner,
                  TypeSymbol *type)
     : SYMBOL_CONSTRUCTOR {}
@@ -312,6 +310,8 @@ S_Method::S_Method(const Cowstr &name, const Location &location, Scope *owner,
 
 SymbolKind S_Method::kind() const { return SymbolKind::Method; }
 
+ScopeKind S_Method::sc_kind() const { return ScopeKind::Symbol; }
+
 // symbol }
 
 // type symbol {
@@ -326,11 +326,13 @@ Ts_Class::Ts_Class(const Cowstr &name, const Location &location, Scope *owner)
 
 TypeSymbolKind Ts_Class::kind() const { return TypeSymbolKind::Class; }
 
+ScopeKind Ts_Class::sc_kind() const { return ScopeKind::TypeSymbol; }
+
 static Cowstr createFunctionName(const std::vector<TypeSymbol *> &params,
                                  TypeSymbol *result) {
   std::stringstream ss;
   ss << "(";
-  for (int i = 0; i < (int)params.size(); i++) {
+  for (int i = 0; i < (int)params.size(); ++i) {
     ss << params[i]->name();
     if (i < (int)params.size() - 1) {
       ss << ",";
@@ -355,7 +357,11 @@ TypeSymbolKind Ts_Func::kind() const { return TypeSymbolKind::Func; }
 Sc_Local::Sc_Local(const Cowstr &name, const Location &location, Scope *owner)
     : TYPE_SYMBOL_CONSTRUCTOR {}
 
+ScopeKind Sc_Local::sc_kind() const { return ScopeKind::LocalScope; }
+
 Sc_Global::Sc_Global(const Cowstr &name, const Location &location)
     : Nameable(name), Locationable(location), detail::Ownable(nullptr) {}
+
+ScopeKind Sc_Global::sc_kind() const { return ScopeKind::GlobalScope; }
 
 // scope }

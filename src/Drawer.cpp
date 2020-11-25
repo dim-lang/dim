@@ -178,6 +178,18 @@ struct AstNode : public GNode {
 struct ScopeNode : public GNode {
   ScopeNode(Scope *scope) : GNode(identify(scope)) {
     add(fmt::format("{}@{}", scope->name(), scope->identifier()));
+    switch (scope->sc_kind()) {
+    case ScopeKind::Symbol:
+      add("symbol", dynamic_cast<Symbol *>(scope)->kind()._to_string());
+      break;
+    case ScopeKind::TypeSymbol:
+      add("type symbol",
+          dynamic_cast<TypeSymbol *>(scope)->kind()._to_string());
+      break;
+    default:
+      add("scope", scope->sc_kind()._to_string());
+      break;
+    }
     add("location", scope->location().str());
   }
 
@@ -462,7 +474,7 @@ static void linkAstToClass(A_VarId *varId, Graph *g) {
 
 static void linkAstToScope(Ast *varId, Scope *scope, Graph *g) {
   ScopeNode *node = new ScopeNode(scope);
-  if (scope->s_empty() && scope->ts_empty() && scope->subscope_empty()) {
+  if (scope->s_empty() && scope->ts_empty() && scope->sc_empty()) {
     node->add("empty");
   } else {
     if (!scope->s_empty()) {
@@ -477,9 +489,9 @@ static void linkAstToScope(Ast *varId, Scope *scope, Graph *g) {
         node->addTypeSymbol(i->second);
       }
     }
-    if (!scope->subscope_empty()) {
+    if (!scope->sc_empty()) {
       node->add("sub_scope");
-      for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
+      for (auto i = scope->sc_begin(); i != scope->sc_end(); i++) {
         node->addScope(i->second);
       }
     }
@@ -621,16 +633,14 @@ void Drawer::visitVarId(A_VarId *ast) {
   // create ast gnode
   detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
   node->add("literal", ast->name());
-  node->add("symbol",
-            ast->symbol()
-                ? fmt::format("{}@{}", ast->symbol()->kind()._to_string(),
-                              ast->symbol()->identifier())
-                : "null");
-  node->add("typeSymbol",
-            ast->typeSymbol()
-                ? fmt::format("{}@{}", ast->typeSymbol()->kind()._to_string(),
-                              ast->typeSymbol()->identifier())
-                : "null");
+  node->add("symbol", ast->symbol()
+                          ? fmt::format("{}@{}", ast->symbol()->name(),
+                                        ast->symbol()->identifier())
+                          : "null");
+  node->add("type symbol", ast->typeSymbol()
+                               ? fmt::format("{}@{}", ast->typeSymbol()->name(),
+                                             ast->typeSymbol()->identifier())
+                               : "null");
   g_->nodes.insert(node->id(), node);
 
   // link symbol gnode

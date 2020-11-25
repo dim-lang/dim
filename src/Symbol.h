@@ -33,6 +33,8 @@ BETTER_ENUM(TypeSymbolKind, int,
             // class
             Class)
 
+BETTER_ENUM(ScopeKind, int, Symbol, TypeSymbol, LocalScope, GlobalScope)
+
 namespace detail {
 
 class Ownable {
@@ -140,6 +142,7 @@ public:
   using sc_const_iterator = scope_map::const_iterator;
 
   virtual ~Scope() = default;
+  virtual ScopeKind sc_kind() const = 0;
 
   /**
    * symbol interface
@@ -174,17 +177,17 @@ public:
   /**
    * scope interface
    */
-  virtual void subscope_define(Scope *scope) = 0;
-  virtual Scope *subscope_resolve(const Cowstr &name) const = 0;
-  virtual bool subscope_contains(const Cowstr &name) const = 0;
-  virtual bool subscope_empty() const = 0;
-  virtual int subscope_size() const = 0;
-  virtual sc_iterator subscope_begin() = 0;
-  virtual sc_const_iterator subscope_begin() const = 0;
-  virtual sc_const_iterator subscope_cbegin() const = 0;
-  virtual sc_iterator subscope_end() = 0;
-  virtual sc_const_iterator subscope_end() const = 0;
-  virtual sc_const_iterator subscope_cend() const = 0;
+  virtual void sc_define(Scope *scope) = 0;
+  virtual Scope *sc_resolve(const Cowstr &name) const = 0;
+  virtual bool sc_contains(const Cowstr &name) const = 0;
+  virtual bool sc_empty() const = 0;
+  virtual int sc_size() const = 0;
+  virtual sc_iterator sc_begin() = 0;
+  virtual sc_const_iterator sc_begin() const = 0;
+  virtual sc_const_iterator sc_cbegin() const = 0;
+  virtual sc_iterator sc_end() = 0;
+  virtual sc_const_iterator sc_end() const = 0;
+  virtual sc_const_iterator sc_cend() const = 0;
 };
 
 namespace detail {
@@ -192,6 +195,7 @@ namespace detail {
 class ScopeImpl : public Scope {
 public:
   virtual ~ScopeImpl();
+  virtual ScopeKind sc_kind() const = 0;
 
   /**
    * symbol interface
@@ -226,17 +230,17 @@ public:
   /**
    * scope interface
    */
-  virtual void subscope_define(Scope *scope);
-  virtual Scope *subscope_resolve(const Cowstr &name) const;
-  virtual bool subscope_contains(const Cowstr &name) const;
-  virtual bool subscope_empty() const;
-  virtual int subscope_size() const;
-  virtual sc_iterator subscope_begin();
-  virtual sc_const_iterator subscope_begin() const;
-  virtual sc_const_iterator subscope_cbegin() const;
-  virtual sc_iterator subscope_end();
-  virtual sc_const_iterator subscope_end() const;
-  virtual sc_const_iterator subscope_cend() const;
+  virtual void sc_define(Scope *scope);
+  virtual Scope *sc_resolve(const Cowstr &name) const;
+  virtual bool sc_contains(const Cowstr &name) const;
+  virtual bool sc_empty() const;
+  virtual int sc_size() const;
+  virtual sc_iterator sc_begin();
+  virtual sc_const_iterator sc_begin() const;
+  virtual sc_const_iterator sc_cbegin() const;
+  virtual sc_iterator sc_end();
+  virtual sc_const_iterator sc_end() const;
+  virtual sc_const_iterator sc_cend() const;
 
 protected:
   s_map s_data_;
@@ -262,6 +266,7 @@ public:
          TypeSymbol *type);
   virtual ~S_Func() = default;
   virtual SymbolKind kind() const;
+  virtual ScopeKind sc_kind() const;
 
   std::vector<Symbol *> params;
 };
@@ -288,6 +293,7 @@ public:
            TypeSymbol *type);
   virtual ~S_Method() = default;
   virtual SymbolKind kind() const;
+  virtual ScopeKind sc_kind() const;
 
   std::vector<Symbol *> params;
 };
@@ -316,6 +322,7 @@ public:
   Ts_Class(const Cowstr &name, const Location &location, Scope *owner);
   virtual ~Ts_Class() = default;
   virtual TypeSymbolKind kind() const;
+  virtual ScopeKind sc_kind() const;
 
   std::vector<Symbol *> fields;
   std::vector<Symbol *> methods;
@@ -340,12 +347,14 @@ class Sc_Local : public detail::ScopeImpl {
 public:
   Sc_Local(const Cowstr &name, const Location &location, Scope *owner);
   virtual ~Sc_Local() = default;
+  virtual ScopeKind sc_kind() const;
 };
 
 class Sc_Global : public detail::ScopeImpl {
 public:
   Sc_Global(const Cowstr &name, const Location &location);
   virtual ~Sc_Global() = default;
+  virtual ScopeKind sc_kind() const;
 };
 
 // scope }
