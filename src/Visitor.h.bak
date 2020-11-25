@@ -87,12 +87,3 @@ protected:
 };
 
 #define VISITOR(x) BOOST_PP_CAT(x, Visitor)
-
-#define VISITOR_DECL(x)                                                        \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)();                                                              \
-    virtual void visit(Ast *ast);                                              \
-    virtual void visitBefore(Ast *ast, Ast *child);                            \
-    virtual void visitAfter(Ast *ast, Ast *child);                             \
-    virtual void finishVisit(Ast *ast);                                        \
-  }

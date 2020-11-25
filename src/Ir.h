@@ -2,165 +2,160 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "Ast.h"
-#include "Cowstr.h"
-#include "Name.h"
-#include "Phase.h"
+#include "Symbol.h"
 #include "Visitor.h"
 #include "enum.h"
-#include "llvm/IR/GlobalValue.h"
-#include "llvm/IR/GlobalVariable.h"
+#include "iface/LLVMTypable.h"
+#include "iface/LLVMValuable.h"
+#include "iface/Nameable.h"
+#include "iface/Phase.h"
+#include "iface/Scoped.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include <vector>
 
-/*================ kind start from 5000 ================*/
 BETTER_ENUM(IrKind, int,
-            // literal
-            Module = 4000,
+            // module
+            Mod = 5000,
+            // global variable
+            GlobalVar,
             // function
-            FuncDef, FuncDecl,
-            // variable
-            GVarDef, VarDef,
-            // call
-            Call, Constant, BinaryOp, UnaryOp, Loop, Condition, Return)
+            FuncDecl, FuncDef, Param, Block,
+            // expression
+            Var, ConstantExpr, Expr)
 
 /*================ class ================*/
 
-/* class list */
 class Ir;
+class I_Mod;
+class I_GlobalVar;
+class I_FuncDecl;
+class I_FuncDef;
+class I_Param;
+class I_Block;
+class I_Var;
+class I_ConstantExpr;
+class I_Stat;
 
-class I_Module;
-class I_GlobalVariable;
-class I_Funcion;
-class I_Instruction;
+namespace detail {
 
-// Ir {
-
-class Ir {
+class Modular {
 public:
-  Ir(llvm::Value *value = nullptr);
-  virtual ~Ir() = default;
-  virtual llvm::Value *value() const;
-  virtual Cowstr str() const;
-
-protected:
-  llvm::Value *value_;
+  Modular(I_Mod *mod = nullptr);
+  virtual ~Modular() = default;
+  virtual I_Mod *&iMod();
+  virtual I_Mod *iMod() const;
 };
 
-// Ir }
+} // namespace detail
 
-class I_Module : public Ir, public Nameable {
+class Ir : public Nameable, public LLVMValuable, public LLVMTypable {
 public:
-  I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope);
-  virtual ~I_Module();
-  virtual llvm::Value *value() const;
-  virtual Cowstr str() const;
+  virtual ~Ir() = default;
+  virtual IrKind kind() const = 0;
+};
 
-  Ast *ast;
-  std::shared_ptr<Scope> scope;
+class I_Mod : public Ir, public Phase {
+public:
+  I_Mod();
+  virtual ~I_Mod();
+  virtual IrKind kind() const;
+  virtual void run(Ast *ast);
+
+  struct Context : public VisitorContext,
+                   public Scoped,
+                   public detail::Modular {
+    Context(I_Mod *mod);
+  };
+  struct VISITOR(GlobalVar) : public Visitor {
+    VISITOR(GlobalVar)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(FuncDecl) : public Visitor {
+    VISITOR(FuncDecl)();
+    virtual void visit(Ast *ast);
+  };
+  struct VISITOR(FuncDef) : public Visitor {
+    VISITOR(FuncDef)();
+    virtual void visit(Ast *ast);
+  };
+
+  VisitorContext *context;
+  VisitorBinder binder;
+  std::vector<Visitor *> visitors;
+
+  I_GlobalVar *iGlobalVar;
+  I_FuncDecl *iFuncDecl;
+  I_FuncDef *iFuncDef;
 
   llvm::LLVMContext llvmContext;
-  llvm::IRBuilder<> llvmIrBuilder;
+  llvm::IRBuilder<> llvmIRBuilder;
   llvm::Module *llvmModule;
-
-  std::vector<std::shared_ptr<Ir>> functions;
-  std::vector<std::shared_ptr<Ir>> globalVariables;
 };
 
-// class I_FuncDecl : public Ir, public Nameable {};
-
-class I_FuncDef : public Ir, public Nameable {
+class I_GlobalVar : public Ir, public Phase {
 public:
-  I_FuncDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope);
-  virtual ~I_FuncDef() = default;
-  virtual llvm::Value *value() const;
-  virtual Cowstr str() const;
+  I_GlobalVar();
+  virtual ~I_GlobalVar();
+  virtual IrKind kind() const;
+  virtual void run(Ast *ast);
 
-  I_Module *iModule;
+  struct Context : public VisitorContext {};
 
-  Ast *ast;
-  std::shared_ptr<Scope> scope;
-
-  std::vector<std::shared_ptr<Ir>> parameters;
-  std::vector<std::shared_ptr<Ir>> basicBlocks;
+  S_Var *variableSymbol; // S_Var
+  I_ConstantExpr *constantExpr;
 };
 
-// boolean
-// byte, ubyte
-// short, ushort
-// int, uint
-// long, ulong
-// float, double
-class I_GVarDef : public Ir, public Nameable {
-public:
-  I_IGVarDef(I_Module *a_iModule, Ast *a_ast, std::shared_ptr<Scope> a_scope);
-  virtual ~I_IGVarDef() = default;
-  virtual llvm::Value *value() const;
-  virtual Cowstr str() const;
-
-  I_Module *iModule;
-  Ast *ast;
-  std::shared_ptr<Scope> scope;
-
-  llvm::GlobalVariable *globalVariable;
-
-  std::shared_ptr<Ir> expr;
-
-private:
-  llvm::GlobalVariable *getInt(const Cowstr &name,
-                               llvm::ConstantInt *initializer);
-  llvm::GlobalVariable *getFP(const Cowstr &name,
-                              llvm::ConstantFP *initializer);
-};
-
-class I_VarDef : public Ir, public Nameable {
-public:
-  I_VarDef(I_FuncDef *a_iFunc, const Cowstr &a_name,
-           llvm::ConstantInt *a_initializer = nullptr);
-  virtual ~I_VarDef() = default;
-  virtual llvm::Value *value();
-
-  I_FuncDef *iFunc;
-  Ast *ast;
-  std::shared_ptr<Scope> scope;
-
-  llvm::AllocaInst *allocaVariable;
-
-  std::shared_ptr<Ir> expr;
-};
-
-class I_ConstantExpr : public Ir, public Nameable {
+class I_ConstantExpr : public Ir, public Phase {
 public:
   I_ConstantExpr();
+  virtual ~I_ConstantExpr();
+  virtual IrKind kind() const;
 };
 
-class I_ConstantInt : public Ir, public Nameable {};
-
-class I_ConstantFP : public Ir, public Nameable {};
-
-class I_ConstantVoid : public Ir, public Nameable {};
-
-class I_Condition : public Ir {
+class I_FuncDecl : public Ir, public Phase {
 public:
-  virtual ~I_Condition() = default;
-  virtual llvm::Value *value();
+  I_FuncDecl();
+  virtual ~I_FuncDecl();
+  virtual IrKind kind() const;
+
+  S_Func *functionSymbol; // S_Func
+  std::vector<I_Param> params;
 };
 
-class I_Call : public Ir {
+class I_Param : public Ir, public Phase {
 public:
-  virtual ~I_Call() = default;
-  virtual llvm::Value *value();
+  I_Param();
+  virtual ~I_Param();
+  virtual IrKind kind() const;
+
+  S_Param *parameterSymbol; // S_Param
 };
 
-class I_BinaryOp : public Ir {
+class I_FuncDef : public Ir, public Phase {
 public:
-  virtual ~I_BinaryOp() = default;
-  virtual llvm::Value *value();
+  I_FuncDef();
+  virtual ~I_FuncDef();
+  virtual IrKind kind() const;
+
+  I_FuncDecl *funcDecl;
+  I_Block *funcBody;
+  TypeSymbol *functionResultTypeSymbol;
 };
 
-class I_UnaryOp : public Ir {
+class I_Block : public Ir {
 public:
-  virtual ~I_UnaryOp() = default;
-  virtual llvm::Value *value();
+  I_Block();
+  virtual ~I_Block();
+  virtual IrKind kind() const;
+
+  std::vector<I_Stat> stats;
+};
+
+class I_Stat : public Ir {
+public:
+  I_Stat();
+  virtual ~I_Stat();
+  virtual IrKind kind() const;
 };

@@ -3,6 +3,12 @@
 
 #pragma once
 #include "fmt/format.h"
+#include "llvm/IR/Constant.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
+#include "llvm/Support/raw_ostream.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -29,7 +35,37 @@ public:
   Cowstr &operator=(const Cowstr &) = default;
 
   template <typename T> static Cowstr from(T value) {
-    return Cowstr(std::to_string(value));
+    return fmt::format("{}", value);
+  }
+  static Cowstr from(llvm::Value *llvmValue) {
+    std::string s;
+    llvm::raw_string_ostream sos(s);
+    sos << *llvmValue;
+    return s;
+  }
+  static Cowstr from(llvm::Type *llvmType) {
+    std::string s;
+    llvm::raw_string_ostream sos(s);
+    sos << *llvmType;
+    return s;
+  }
+  static Cowstr from(llvm::Constant *llvmConstant) {
+    std::string s;
+    llvm::raw_string_ostream sos(s);
+    sos << *llvmConstant;
+    return s;
+  }
+  static Cowstr from(llvm::Function *llvmFunction) {
+    std::string s;
+    llvm::raw_string_ostream sos(s);
+    sos << *llvmFunction;
+    return s;
+  }
+  static Cowstr from(llvm::Module *llvmModule) {
+    std::string s;
+    llvm::raw_string_ostream sos(s);
+    sos << *llvmModule;
+    return s;
   }
 
   // T could be:

@@ -3,12 +3,12 @@
 
 #include "Dumper.h"
 #include "Ast.h"
-#include "Phase.h"
 #include "Scanner.h"
 #include "SymbolBuilder.h"
 #include "SymbolResolver.h"
 #include "catch2/catch.hpp"
 #include "fmt/format.h"
+#include "iface/Phase.h"
 #include "infra/Log.h"
 
 static void testDumper(const Cowstr &fileName) {
@@ -22,7 +22,7 @@ static void testDumper(const Cowstr &fileName) {
   PhaseManager pm({&builder, &resolver, &dumper});
   pm.run(scanner.compileUnit());
   LOG_INFO("dump {}", fileName);
-  LOG_INFO("\n{}", Cowstr::join(dumper.dumps(), "\n"));
+  LOG_INFO("\n{}", Cowstr::join(dumper.dump(), "\n"));
 }
 
 TEST_CASE("Dumper", "[Dumper]") {

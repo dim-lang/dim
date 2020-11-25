@@ -6,7 +6,6 @@
 #include "NameGenerator.h"
 #include "Symbol.h"
 #include "Token.h"
-#include "Visitor.h"
 #include "boost/preprocessor/stringize.hpp"
 #include "infra/Counter.h"
 #include "infra/Files.h"
@@ -159,8 +158,7 @@ struct NilNode : public GNode {
 
 struct AstNode : public GNode {
   AstNode(Ast *ast) : GNode(identify(ast)) {
-    add(ast->kind()._to_string());
-    add("id", ast->decIdentifier());
+    add(fmt::format("{}@{}", ast->kind()._to_string(), ast->identifier()));
     add("location", ast->location().str());
   }
 
@@ -179,8 +177,19 @@ struct AstNode : public GNode {
 
 struct ScopeNode : public GNode {
   ScopeNode(Scope *scope) : GNode(identify(scope)) {
-    add(scope->name());
-    add("id", scope->decIdentifier());
+    add(fmt::format("{}@{}", scope->name(), scope->identifier()));
+    switch (scope->sc_kind()) {
+    case ScopeKind::Symbol:
+      add("symbol", dynamic_cast<Symbol *>(scope)->kind()._to_string());
+      break;
+    case ScopeKind::TypeSymbol:
+      add("type symbol",
+          dynamic_cast<TypeSymbol *>(scope)->kind()._to_string());
+      break;
+    default:
+      add("scope", scope->sc_kind()._to_string());
+      break;
+    }
     add("location", scope->location().str());
   }
 
@@ -222,28 +231,25 @@ struct ScopeNode : public GNode {
     lines.push_back(line);
   }
   virtual void addSymbol(Symbol *sym) {
-    GCell c1(identify(sym), sym->decIdentifier());
-    GCell c2(sym->name());
-    GCell c3(sym->type()->name());
-    GCell c4(sym->kind()._to_string());
-    GCell c5(sym->location().str());
-    GLine line({c1, c2, c3, c4, c5});
+    GCell c1(fmt::format("{}@{}", sym->name(), sym->identifier()));
+    GCell c2(sym->type()->name());
+    GCell c3(sym->kind()._to_string());
+    GCell c4(sym->location().str());
+    GLine line({c1, c2, c3, c4});
     lines.push_back(line);
   }
   virtual void addTypeSymbol(TypeSymbol *tsym) {
-    GCell c1(identify(tsym), tsym->decIdentifier());
-    GCell c2(tsym->name());
-    GCell c3(" ");
-    GCell c4(tsym->kind()._to_string());
-    GCell c5(tsym->location().str());
-    GLine line({c1, c2, c3, c4, c5});
+    GCell c1(fmt::format("{}@{}", tsym->name(), tsym->identifier()));
+    GCell c2(" ");
+    GCell c3(tsym->kind()._to_string());
+    GCell c4(tsym->location().str());
+    GLine line({c1, c2, c3, c4});
     lines.push_back(line);
   }
   virtual void addScope(Scope *scope) {
-    GCell c1(identify(scope), scope->decIdentifier());
-    GCell c2(scope->name());
-    GCell c3(scope->location().str());
-    GLine line({c1, c2, c3});
+    GCell c1(fmt::format("{}@{}", scope->name(), scope->identifier()));
+    GCell c2(scope->location().str());
+    GLine line({c1, c2});
     lines.push_back(line);
   }
 };
@@ -333,51 +339,19 @@ struct AstToAstEdge : public GEdge {
 struct AstToSymbolEdge : public GEdge {
   AstToSymbolEdge(Ast *from, Symbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
-    add("#");
-  }
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToTypeSymbolEdge : public GEdge {
   AstToTypeSymbolEdge(Ast *from, TypeSymbol *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {
-    add("#");
-  }
+              GEdgeKey(identify(to->owner()), identify(to)), "dashed") {}
 };
 
 struct AstToScopeEdge : public GEdge {
   AstToScopeEdge(Ast *from, ScopeNode *to)
       : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {
-    add("#");
-  }
-};
-
-// resolve edge
-
-struct SymbolToAstEdge : public GEdge {
-  SymbolToAstEdge(Ast *from, Symbol *to)
-      : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(identify(to->owner()), identify(to)), "dotted") {
-    add("&");
-  }
-};
-
-struct TypeSymbolToAstEdge : public GEdge {
-  TypeSymbolToAstEdge(TypeSymbol *from, Ast *to)
-      : GEdge(GEdgeKey(identify(from->owner()), identify(from)),
-              GEdgeKey(identify(to)), "dotted") {
-    add("&");
-  }
-};
-
-struct ScopeToAstEdge : public GEdge {
-  ScopeToAstEdge(Ast *from, ScopeNode *to)
-      : GEdge(GEdgeKey(identify(from)),
-              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dotted") {
-    add("&");
-  }
+              GEdgeKey(to->id(), to->lines[0].cells[0].id), "dashed") {}
 };
 
 struct GEdgeRank {
@@ -452,13 +426,6 @@ struct Graph {
 
 // Graph }
 
-// Visitor {
-
-struct Context : public VisitorContext {
-  Context() : g(nullptr) {}
-  Graph *g;
-};
-
 // ast to ast links {
 
 static GNode *linkAstToAst(Ast *a, Ast *b, const Cowstr &name, Graph *g) {
@@ -501,41 +468,13 @@ static void rankAstNode(GNode *a, GNode *b, GNode *c, Graph *g) {
 
 // ast and symbol links {
 
-static void defineAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *s_var = static_cast<S_Var *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, s_var);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void resolveAstToVar(A_VarId *varId, Graph *g) {
-  S_Var *s_var = static_cast<S_Var *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, s_var);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void defineAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *s_param = static_cast<S_Param *>(varId->symbol());
-  AstToSymbolEdge *edge = new AstToSymbolEdge(varId, s_param);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void resolveAstToParam(A_VarId *varId, Graph *g) {
-  S_Param *s_param = static_cast<S_Param *>(varId->symbol());
-  SymbolToAstEdge *edge = new SymbolToAstEdge(varId, s_param);
-  g->edges.insert(edge->id(), edge);
-}
-
-static void defineAstToClass(A_VarId *varId, Graph *g) {
+static void linkAstToClass(A_VarId *varId, Graph *g) {
   LOG_ASSERT(false, "not implemented!");
 }
 
-static void resolveAstToClass(A_VarId *varId, Graph *g) {
-  LOG_ASSERT(false, "not implemented!");
-}
-
-static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
+static void linkAstToScope(Ast *varId, Scope *scope, Graph *g) {
   ScopeNode *node = new ScopeNode(scope);
-  if (scope->s_empty() && scope->ts_empty() && scope->subscope_empty()) {
+  if (scope->s_empty() && scope->ts_empty() && scope->sc_empty()) {
     node->add("empty");
   } else {
     if (!scope->s_empty()) {
@@ -550,9 +489,9 @@ static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
         node->addTypeSymbol(i->second);
       }
     }
-    if (!scope->subscope_empty()) {
+    if (!scope->sc_empty()) {
       node->add("sub_scope");
-      for (auto i = scope->subscope_begin(); i != scope->subscope_end(); i++) {
+      for (auto i = scope->sc_begin(); i != scope->sc_end(); i++) {
         node->addScope(i->second);
       }
     }
@@ -562,395 +501,265 @@ static void defineAstToScope(Ast *varId, Scope *scope, Graph *g) {
   g->edges.insert(edge->id(), edge);
 }
 
-static void resolveAstToScope(Ast *varId, Scope *scope, Graph *g) {
-  auto it = g->nodes.find(identify(scope));
-  LOG_ASSERT(it != g->nodes.end(), "scope {} related ScopeNode not exist",
-             scope->name());
-  LOG_ASSERT(it->second, "scope {} related ScopeNode must not null",
-             scope->name());
-  GNode *node = it->second;
-  ScopeToAstEdge *edge =
-      new ScopeToAstEdge(varId, static_cast<ScopeNode *>(node));
-  g->edges.insert(edge->id(), edge);
-}
-
 // symbol and ast links }
-
-// kind, id, location
-#define DECL1(x)                                                               \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-  }
-
-// kind, id, location, literal
-#define DECL2(x)                                                               \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)                                                                 \
-    () : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}                 \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      node->add("literal", ast->name());                                       \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-  }
-
-// kind, id, location, token
-#define DECL3(x, astype, tok)                                                  \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-  }
-
-// kind, id, location, child1
-#define DECL4(x, astype, child1)                                               \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-    virtual void finishVisit(Ast *ast) {                                       \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
-                   BOOST_PP_STRINGIZE(child1), g);                             \
-    }                                                                          \
-  }
-
-// kind, id, location, token, child1
-#define DECL5(x, astype, tok, child1)                                          \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-    virtual void finishVisit(Ast *ast) {                                       \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      linkAstToAst(ast, static_cast<astype *>(ast)->child1,                    \
-                   BOOST_PP_STRINGIZE(child1), g);                             \
-    }                                                                          \
-  }
-
-// kind, id, location, child1, child2
-#define DECL6(x, astype, child1, child2)                                       \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-    virtual void finishVisit(Ast *ast) {                                       \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
-                               BOOST_PP_STRINGIZE(child1), g);                 \
-      GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
-                               BOOST_PP_STRINGIZE(child2), g);                 \
-      rankAstNode(a1, a2, g);                                                  \
-    }                                                                          \
-  }
-
-// kind, id, location, token, child1, child2
-#define DECL7(x, astype, tok, child1, child2)                                  \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      node->add(BOOST_PP_STRINGIZE(tok), tokenName(static_cast<astype *>(ast)->tok));                   \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-    virtual void finishVisit(Ast *ast) {                                       \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
-                               BOOST_PP_STRINGIZE(child1), g);                 \
-      GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
-                               BOOST_PP_STRINGIZE(child2), g);                 \
-      rankAstNode(a1, a2, g);                                                  \
-    }                                                                          \
-  }
-
-// kind, id, location, child1, child2, child3
-#define DECL8(x, astype, child1, child2, child3)                               \
-  struct VISITOR(x) : public Visitor {                                         \
-    VISITOR(x)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(x))) {}       \
-    virtual void visit(Ast *ast) {                                             \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      AstNode *node = new AstNode(ast);                                        \
-      g->nodes.insert(node->id(), node);                                       \
-    }                                                                          \
-    virtual void finishVisit(Ast *ast) {                                       \
-      Graph *g = static_cast<Context *>(context())->g;                         \
-      GNode *a1 = linkAstToAst(ast, static_cast<astype *>(ast)->child1,        \
-                               BOOST_PP_STRINGIZE(child1), g);                 \
-      GNode *a2 = linkAstToAst(ast, static_cast<astype *>(ast)->child2,        \
-                               BOOST_PP_STRINGIZE(child2), g);                 \
-      GNode *a3 = linkAstToAst(ast, static_cast<astype *>(ast)->child3,        \
-                               BOOST_PP_STRINGIZE(child3), g);                 \
-      rankAstNode(a1, a2, a3, g);                                              \
-    }                                                                          \
-  }
-
-DECL1(Nil);
-DECL1(Void);
-DECL1(Break);
-DECL1(Continue);
-
-DECL2(Integer);
-DECL2(Float);
-DECL2(Boolean);
-DECL2(Character);
-DECL2(String);
-
-struct VISITOR(VarId) : public Visitor {
-  VISITOR(VarId)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(VarId))) {}
-  virtual void visit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-
-    // create ast gnode
-    AstNode *node = new AstNode(ast);
-    node->add("literal", ast->name());
-    g->nodes.insert(node->id(), node);
-
-    // create symbol gnode
-    link(static_cast<A_VarId *>(ast), g);
-  }
-  void link(A_VarId *ast, Graph *g) {
-    if (ast->symbol()) {
-      switch (ast->symbol()->kind()) {
-      case SymbolKind::Var: {
-        if (Symbol::isDefined(ast)) {
-          defineAstToVar(ast, g);
-        } else {
-          resolveAstToVar(ast, g);
-        }
-        break;
-      }
-      case SymbolKind::Param: {
-        if (Symbol::isDefined(ast)) {
-          defineAstToParam(ast, g);
-        } else {
-          resolveAstToParam(ast, g);
-        }
-        break;
-      }
-      case SymbolKind::Func: {
-        if (Symbol::isDefined(ast)) {
-          defineAstToScope(ast, static_cast<S_Func *>(ast->symbol()), g);
-        } else {
-          resolveAstToScope(ast, static_cast<S_Func *>(ast->symbol()), g);
-        }
-        break;
-      }
-      default:
-        LOG_ASSERT(false, "invalid symbol {}:{} kind: {}",
-                   ast->symbol()->name(), ast->symbol()->location(),
-                   ast->symbol()->kind()._to_string());
-      }
-    } else if (ast->typeSymbol()) {
-      switch (ast->typeSymbol()->kind()) {
-      case TypeSymbolKind::Class: {
-        if (TypeSymbol::isDefined(ast)) {
-          defineAstToClass(ast, g);
-        } else {
-          resolveAstToClass(ast, g);
-        }
-        break;
-      }
-      default:
-        // TypeSymbolKind::Plain
-        // TypeSymbolKind::Func
-        LOG_ASSERT(false, "invalid type symbol {}:{} kind: {}",
-                   ast->typeSymbol()->name(), ast->typeSymbol()->location(),
-                   ast->typeSymbol()->kind()._to_string());
-      }
-    } else {
-      LOG_ASSERT(false, "invalid ast {}:{}", ast->name(), ast->location());
-    }
-  }
-};
-
-DECL3(PlainType, A_PlainType, token);
-
-DECL4(Throw, A_Throw, expr);
-DECL4(Return, A_Return, expr);
-DECL4(Yield, A_Yield, expr);
-
-struct VISITOR(Block) : public Visitor {
-  VISITOR(Block)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(Block))) {}
-  virtual void visit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    AstNode *node = new AstNode(ast);
-    g->nodes.insert(node->id(), node);
-
-    // create local scope
-    A_Block *block = static_cast<A_Block *>(ast);
-    defineAstToScope(block, block->scope(), g);
-  }
-  virtual void finishVisit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    linkAstToAst(ast, static_cast<A_Block *>(ast)->blockStats,
-                 BOOST_PP_STRINGIZE(blockStats), g);
-  }
-};
-
-struct VISITOR(CompileUnit) : public Visitor {
-  VISITOR(CompileUnit)
-  () : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(CompileUnit))) {}
-  virtual void visit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    AstNode *node = new AstNode(ast);
-    g->nodes.insert(node->id(), node);
-
-    // global scope
-    A_CompileUnit *compileUnit = static_cast<A_CompileUnit *>(ast);
-    defineAstToScope(compileUnit, compileUnit->scope(), g);
-  }
-  virtual void finishVisit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    linkAstToAst(ast, static_cast<A_CompileUnit *>(ast)->topStats,
-                 BOOST_PP_STRINGIZE(topStats), g);
-  }
-};
-
-DECL5(Postfix, A_Postfix, postfixOp, expr);
-DECL5(Prefix, A_Prefix, prefixOp, expr);
-
-DECL6(Call, A_Call, id, args);
-DECL6(Exprs, A_Exprs, expr, next);
-DECL6(DoWhile, A_DoWhile, body, condition);
-DECL6(BlockStats, A_BlockStats, blockStat, next);
-DECL6(FuncSign, A_FuncSign, id, params);
-DECL6(Params, A_Params, param, next);
-DECL6(Param, A_Param, id, type);
-DECL6(TopStats, A_TopStats, topStat, next);
-
-struct VISITOR(Loop) : public Visitor {
-  VISITOR(Loop)() : Visitor("Drawer::" BOOST_PP_STRINGIZE(VISITOR(Loop))) {}
-  virtual void visit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    AstNode *node = new AstNode(ast);
-    g->nodes.insert(node->id(), node);
-
-    // create local scope
-    A_Loop *loop = static_cast<A_Loop *>(ast);
-    LOG_ASSERT(loop->scope(), "loop's {} scope must not null", loop->name());
-    defineAstToScope(loop, loop->scope(), g);
-  }
-  virtual void finishVisit(Ast *ast) {
-    Graph *g = static_cast<Context *>(context())->g;
-    linkAstToAst(ast, static_cast<A_Loop *>(ast)->condition,
-                 BOOST_PP_STRINGIZE(condition), g);
-    linkAstToAst(ast, static_cast<A_Loop *>(ast)->body,
-                 BOOST_PP_STRINGIZE(body), g);
-  }
-};
-
-DECL7(Assign, A_Assign, assignOp, assignee, assignor);
-DECL7(Infix, A_Infix, infixOp, left, right);
-
-DECL8(If, A_If, condition, thenp, elsep);
-DECL8(LoopCondition, A_LoopCondition, init, condition, update);
-DECL8(LoopEnumerator, A_LoopEnumerator, id, type, expr);
-DECL8(Try, A_Try, tryp, catchp, finallyp);
-DECL8(FuncDef, A_FuncDef, funcSign, resultType, body);
-DECL8(VarDef, A_VarDef, id, type, expr);
-
-// Visitor }
 
 } // namespace drawer
 
 } // namespace detail
 
-#define BIND(x)                                                                \
-  do {                                                                         \
-    Visitor *v = new detail::drawer::VISITOR(x)();                             \
-    binder_.bind((+AstKind::x), v);                                            \
-    visitors_.push_back(v);                                                    \
-  } while (0)
-
 Drawer::Drawer(const Cowstr &fileName)
-    : Phase("Drawer"), fileName_(fileName),
-      context_(new detail::drawer::Context()), binder_(context_) {
-  BIND(Nil);
-  BIND(Void);
-  BIND(Break);
-  BIND(Continue);
-
-  BIND(Integer);
-  BIND(Float);
-  BIND(Boolean);
-  BIND(Character);
-  BIND(String);
-
-  BIND(VarId);
-
-  BIND(PlainType);
-
-  BIND(Throw);
-  BIND(Return);
-  BIND(Yield);
-
-  BIND(Block);
-  BIND(CompileUnit);
-
-  BIND(Postfix);
-  BIND(Prefix);
-
-  BIND(Call);
-  BIND(Exprs);
-  BIND(DoWhile);
-  BIND(BlockStats);
-  BIND(FuncSign);
-  BIND(Params);
-  BIND(Param);
-  BIND(TopStats);
-
-  BIND(Loop);
-
-  BIND(Assign);
-  BIND(Infix);
-
-  BIND(If);
-  BIND(LoopCondition);
-  BIND(LoopEnumerator);
-  BIND(Try);
-  BIND(FuncDef);
-  BIND(VarDef);
-}
-
-Drawer::~Drawer() {
-  delete context_;
-  context_ = nullptr;
-  for (int i = 0; i < (int)visitors_.size(); i++) {
-    delete visitors_[i];
-    visitors_[i] = nullptr;
-  }
-  visitors_.clear();
-}
+    : Phase("Drawer"), fileName_(fileName), g_(new detail::drawer::Graph()) {}
 
 void Drawer::run(Ast *ast) {
   LOG_ASSERT(!fileName_.empty(), "fileName_ must not empty");
-  detail::drawer::Graph g;
-  static_cast<detail::drawer::Context *>(context_)->g = &g;
-  Visitor::traverse(&binder_, ast);
-  g.draw(fileName_);
+  ast->accept(this);
+  g_->draw(fileName_);
 }
 
 const Cowstr &Drawer::fileName() const { return fileName_; }
 
 Cowstr &Drawer::fileName() { return fileName_; }
+
+static void emptyImpl(Ast *ast, detail::drawer::Graph *g) {
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  g->nodes.insert(node->id(), node);
+}
+
+static void literalImpl(Ast *ast, detail::drawer::Graph *g) {
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  node->add("literal", ast->name());
+  g->nodes.insert(node->id(), node);
+}
+
+#define VISIT_TOKEN(ast, g, token)                                             \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    node->add(BOOST_PP_STRINGIZE(token), tokenName(ast->token));               \
+    g->nodes.insert(node->id(), node);                                         \
+  } while (0)
+
+#define VISIT_CHILD1(ast, g, child1)                                           \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    g->nodes.insert(node->id(), node);                                         \
+    if (ast->child1) {                                                         \
+      ast->child1->accept(this);                                               \
+    }                                                                          \
+    detail::drawer::linkAstToAst(ast, ast->child1,                             \
+                                 BOOST_PP_STRINGIZE(child1), g);               \
+  } while (0)
+
+#define VISIT_TOKEN_CHILD1(ast, g, token, child1)                              \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    node->add(BOOST_PP_STRINGIZE(token), tokenName(ast->token));               \
+    g->nodes.insert(node->id(), node);                                         \
+    if (ast->child1) {                                                         \
+      ast->child1->accept(this);                                               \
+    }                                                                          \
+    detail::drawer::linkAstToAst(ast, ast->child1,                             \
+                                 BOOST_PP_STRINGIZE(child1), g);               \
+  } while (0)
+
+#define VISIT_CHILD2(ast, g, child1, child2)                                   \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    g->nodes.insert(node->id(), node);                                         \
+    if (ast->child1) {                                                         \
+      ast->child1->accept(this);                                               \
+    }                                                                          \
+    if (ast->child2) {                                                         \
+      ast->child2->accept(this);                                               \
+    }                                                                          \
+    detail::drawer::GNode *a1 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child1, BOOST_PP_STRINGIZE(child1), g);                      \
+    detail::drawer::GNode *a2 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child2, BOOST_PP_STRINGIZE(child2), g);                      \
+    detail::drawer::rankAstNode(a1, a2, g_);                                   \
+  } while (0)
+
+#define VISIT_TOKEN_CHILD2(ast, g, token, child1, child2)                      \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    node->add(BOOST_PP_STRINGIZE(token), tokenName(ast->token));               \
+    g->nodes.insert(node->id(), node);                                         \
+    if (ast->child1) {                                                         \
+      ast->child1->accept(this);                                               \
+    }                                                                          \
+    if (ast->child2) {                                                         \
+      ast->child2->accept(this);                                               \
+    }                                                                          \
+    detail::drawer::GNode *a1 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child1, BOOST_PP_STRINGIZE(child1), g);                      \
+    detail::drawer::GNode *a2 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child2, BOOST_PP_STRINGIZE(child2), g);                      \
+    detail::drawer::rankAstNode(a1, a2, g_);                                   \
+  } while (0)
+
+#define VISIT_CHILD3(ast, g, child1, child2, child3)                           \
+  do {                                                                         \
+    detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);          \
+    g->nodes.insert(node->id(), node);                                         \
+    if (ast->child1) {                                                         \
+      ast->child1->accept(this);                                               \
+    }                                                                          \
+    if (ast->child2) {                                                         \
+      ast->child2->accept(this);                                               \
+    }                                                                          \
+    if (ast->child3) {                                                         \
+      ast->child3->accept(this);                                               \
+    }                                                                          \
+    detail::drawer::GNode *a1 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child1, BOOST_PP_STRINGIZE(child1), g);                      \
+    detail::drawer::GNode *a2 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child2, BOOST_PP_STRINGIZE(child2), g);                      \
+    detail::drawer::GNode *a3 = detail::drawer::linkAstToAst(                  \
+        ast, ast->child3, BOOST_PP_STRINGIZE(child3), g);                      \
+    detail::drawer::rankAstNode(a1, a2, a3, g);                                \
+  } while (0)
+
+void Drawer::visitInteger(A_Integer *ast) { literalImpl(ast, g_); }
+void Drawer::visitFloat(A_Float *ast) { literalImpl(ast, g_); }
+void Drawer::visitBoolean(A_Boolean *ast) { literalImpl(ast, g_); }
+void Drawer::visitCharacter(A_Character *ast) { literalImpl(ast, g_); }
+void Drawer::visitString(A_String *ast) { literalImpl(ast, g_); }
+
+void Drawer::visitNil(A_Nil *ast) { emptyImpl(ast, g_); }
+void Drawer::visitVoid(A_Void *ast) { emptyImpl(ast, g_); }
+void Drawer::visitBreak(A_Break *ast) { emptyImpl(ast, g_); }
+void Drawer::visitContinue(A_Continue *ast) { emptyImpl(ast, g_); }
+
+void Drawer::visitVarId(A_VarId *ast) {
+  // create ast gnode
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  node->add("literal", ast->name());
+  node->add("symbol", ast->symbol()
+                          ? fmt::format("{}@{}", ast->symbol()->name(),
+                                        ast->symbol()->identifier())
+                          : "null");
+  node->add("type symbol", ast->typeSymbol()
+                               ? fmt::format("{}@{}", ast->typeSymbol()->name(),
+                                             ast->typeSymbol()->identifier())
+                               : "null");
+  g_->nodes.insert(node->id(), node);
+
+  // link symbol gnode
+  if (ast->symbol()) {
+    switch (ast->symbol()->kind()) {
+    case SymbolKind::Func: {
+      if (Symbol::isDefined(ast)) {
+        linkAstToScope(ast, static_cast<S_Func *>(ast->symbol()), g_);
+      }
+      break;
+    }
+    default:
+      break;
+    }
+  } else if (ast->typeSymbol()) {
+    switch (ast->typeSymbol()->kind()) {
+    case TypeSymbolKind::Class: {
+      if (TypeSymbol::isDefined(ast)) {
+        linkAstToClass(ast, g_);
+      }
+      break;
+    }
+    default:
+      break;
+    }
+  } else {
+    LOG_ASSERT(false, "invalid ast {}:{}", ast->name(), ast->location());
+  }
+}
+
+void Drawer::visitPlainType(A_PlainType *ast) { VISIT_TOKEN(ast, g_, token); }
+
+void Drawer::visitThrow(A_Throw *ast) { VISIT_CHILD1(ast, g_, expr); }
+void Drawer::visitReturn(A_Return *ast) { VISIT_CHILD1(ast, g_, expr); }
+void Drawer::visitYield(A_Yield *ast) { VISIT_CHILD1(ast, g_, expr); }
+void Drawer::visitBlock(A_Block *ast) {
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  g_->nodes.insert(node->id(), node);
+  linkAstToScope(ast, ast->scope(), g_);
+
+  if (ast->blockStats) {
+    ast->blockStats->accept(this);
+  }
+
+  linkAstToAst(ast, ast->blockStats, BOOST_PP_STRINGIZE(blockStats), g_);
+}
+void Drawer::visitCompileUnit(A_CompileUnit *ast) {
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  g_->nodes.insert(node->id(), node);
+  linkAstToScope(ast, ast->scope(), g_);
+
+  if (ast->topStats) {
+    ast->topStats->accept(this);
+  }
+
+  linkAstToAst(ast, ast->topStats, BOOST_PP_STRINGIZE(topStats), g_);
+}
+
+void Drawer::visitPostfix(A_Postfix *ast) {
+  VISIT_TOKEN_CHILD1(ast, g_, postfixOp, expr);
+}
+void Drawer::visitPrefix(A_Prefix *ast) {
+  VISIT_TOKEN_CHILD1(ast, g_, prefixOp, expr);
+}
+
+void Drawer::visitCall(A_Call *ast) { VISIT_CHILD2(ast, g_, id, args); }
+void Drawer::visitExprs(A_Exprs *ast) { VISIT_CHILD2(ast, g_, expr, next); }
+void Drawer::visitDoWhile(A_DoWhile *ast) {
+  VISIT_CHILD2(ast, g_, body, condition);
+}
+void Drawer::visitBlockStats(A_BlockStats *ast) {
+  VISIT_CHILD2(ast, g_, blockStat, next);
+}
+void Drawer::visitFuncSign(A_FuncSign *ast) {
+  VISIT_CHILD2(ast, g_, id, params);
+}
+void Drawer::visitParams(A_Params *ast) { VISIT_CHILD2(ast, g_, param, next); }
+void Drawer::visitParam(A_Param *ast) { VISIT_CHILD2(ast, g_, id, type); }
+void Drawer::visitTopStats(A_TopStats *ast) {
+  VISIT_CHILD2(ast, g_, topStat, next);
+}
+void Drawer::visitLoop(A_Loop *ast) {
+  detail::drawer::AstNode *node = new detail::drawer::AstNode(ast);
+  g_->nodes.insert(node->id(), node);
+  linkAstToScope(ast, ast->scope(), g_);
+
+  if (ast->condition) {
+    ast->condition->accept(this);
+  }
+  if (ast->body) {
+    ast->body->accept(this);
+  }
+
+  linkAstToAst(ast, ast->condition, BOOST_PP_STRINGIZE(condition), g_);
+  linkAstToAst(ast, ast->body, BOOST_PP_STRINGIZE(body), g_);
+}
+
+void Drawer::visitAssign(A_Assign *ast) {
+  VISIT_TOKEN_CHILD2(ast, g_, assignOp, assignee, assignor);
+}
+void Drawer::visitInfix(A_Infix *ast) {
+  VISIT_TOKEN_CHILD2(ast, g_, infixOp, left, right);
+}
+
+void Drawer::visitIf(A_If *ast) {
+  VISIT_CHILD3(ast, g_, condition, thenp, elsep);
+}
+void Drawer::visitLoopCondition(A_LoopCondition *ast) {
+  VISIT_CHILD3(ast, g_, init, condition, update);
+}
+void Drawer::visitLoopEnumerator(A_LoopEnumerator *ast) {
+  VISIT_CHILD3(ast, g_, id, type, expr);
+}
+void Drawer::visitTry(A_Try *ast) {
+  VISIT_CHILD3(ast, g_, tryp, catchp, finallyp);
+}
+void Drawer::visitFuncDef(A_FuncDef *ast) {
+  VISIT_CHILD3(ast, g_, funcSign, resultType, body);
+}
+void Drawer::visitVarDef(A_VarDef *ast) {
+  VISIT_CHILD3(ast, g_, id, type, expr);
+}

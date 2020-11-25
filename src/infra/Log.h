@@ -13,7 +13,14 @@
 #include "fmt/format.h"
 #include "infra/Cowstr.h"
 #include "spdlog/spdlog.h"
+#include "llvm/IR/Constant.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Value.h"
+#include "llvm/Support/raw_ostream.h"
 #include <cstdio>
+#include <string>
 
 #define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
 #define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)

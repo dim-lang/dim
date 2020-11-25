@@ -163,13 +163,15 @@ message(NERD_CORE_LIB_DIR: ${NERD_CORE_LIB_DIR})
 set(NERD_CORE_SRC
     src/iface/Identifiable.cpp
     # src/iface/LLVMModular.cpp
-    src/iface/LLVMTypable.cpp
-    src/iface/LLVMValuable.cpp
+    # src/iface/LLVMTypable.cpp
+    # src/iface/LLVMValuable.cpp
     src/iface/Locationable.cpp
     src/iface/Nameable.cpp
+    src/iface/Phase.cpp
     src/iface/Scoped.cpp
     src/iface/Symbolizable.cpp
     src/iface/TypeSymbolizable.cpp
+    src/iface/Visitor.cpp
 
     src/infra/Counter.cpp
     src/infra/Cowstr.cpp
@@ -182,16 +184,14 @@ set(NERD_CORE_SRC
     src/Drawer.cpp
     src/Dumper.cpp
     src/IrBuilder.cpp
-    src/Label.cpp
+    # src/Label.cpp
     src/Location.cpp
     src/NameGenerator.cpp
-    src/Phase.cpp
     src/Scanner.cpp
     src/Symbol.cpp
     src/SymbolBuilder.cpp
     src/SymbolResolver.cpp
     src/Token.cpp
-    src/Visitor.cpp
 
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Tokenizer_OUTPUTS}
@@ -222,8 +222,8 @@ set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
 set(NERD_TEST_SRC
     test/iface/IdentifiableTest.cpp
     # test/iface/LLVMModularTest.cpp
-    test/iface/LLVMTypableTest.cpp
-    test/iface/LLVMValuableTest.cpp
+    # test/iface/LLVMTypableTest.cpp
+    # test/iface/LLVMValuableTest.cpp
     test/iface/NameableTest.cpp
 
     test/infra/CounterTest.cpp
@@ -238,11 +238,11 @@ set(NERD_TEST_SRC
     test/DumperTest.cpp
     test/IrBuilderTest.cpp
     test/LocationTest.cpp
-    test/MainTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp
     test/TokenizerTest.cpp
+    test/UnitTest.cpp
 )
 set(NERD_TEST_INC
     ${NERD_CORE_INC}
@@ -258,7 +258,7 @@ set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})
 
 # nerd-example {
 
-set(NERD_EXAMPLE_SRC
+set(NERD_EXAMPLE_llvms_BinaryOperation SRC
     example/llvms/BinaryOperation.cpp
     example/llvms/Util.cpp
     )
@@ -267,7 +267,7 @@ set(NERD_EXAMPLE_INC
     example
     )
 
-add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_SRC})
+add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_llvms_BinaryOperation})
 target_include_directories(nerd-example-llvms-BinaryOperation PRIVATE ${NERD_EXAMPLE_INC})
 target_link_libraries(nerd-example-llvms-BinaryOperation ${NERD_CORE_LIB})
 set_target_properties(nerd-example-llvms-BinaryOperation PROPERTIES VERSION ${PROJECT_VERSION})

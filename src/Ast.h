@@ -2,11 +2,10 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "AstClasses.h"
 #include "boost/core/noncopyable.hpp"
 #include "enum.h"
 #include "iface/Identifiable.h"
-#include "iface/LLVMTypable.h"
-#include "iface/LLVMValuable.h"
 #include "iface/Locationable.h"
 #include "iface/Nameable.h"
 #include "iface/Scoped.h"
@@ -24,6 +23,7 @@
 #include <deque>
 #include <functional>
 #include <sstream>
+#include <utility>
 
 BETTER_ENUM(AstKind, int,
             // literal
@@ -45,71 +45,35 @@ BETTER_ENUM(AstKind, int,
 
 /*================ class ================*/
 
-/* ast */
-class Ast;
+class Visitor;
 
-/* literal */
-class A_Integer;
-class A_Float;
-class A_Boolean;
-class A_Character;
-class A_String;
-class A_Nil;
-class A_Void;
+namespace detail {
 
-/* id */
-// class AstId;
-class A_VarId;
+class Parentable {
+public:
+  Parentable(Ast *parent = nullptr);
+  virtual ~Parentable() = default;
+  virtual Ast *&parent();
+  virtual Ast *parent() const;
 
-/* expression without block */
-class A_Throw;
-class A_Return;
-class A_Break;
-class A_Continue;
-class A_Assign;
-class A_Postfix;
-class A_Infix;
-class A_Prefix;
+protected:
+  Ast *parentable_;
+};
 
-/* expression with block */
-class A_Call;
-class A_Exprs;
-class A_If;
-class A_Loop;
-class A_Yield;
-class A_LoopCondition;
-class A_LoopEnumerator;
-class A_DoWhile;
-class A_Try;
-class A_Block;
-class A_BlockStats;
-
-/* type */
-// class AstType;
-class A_PlainType;
-
-/* declaration and definition */
-class A_FuncDef;
-class A_FuncSign;
-class A_Params;
-class A_Param;
-class A_VarDef;
-
-/* compile unit */
-class A_TopStats;
-class A_CompileUnit;
+} // namespace detail
 
 // Ast {
 
 class Ast : public Nameable,
             public Locationable,
             public Identifiable,
+            public detail::Parentable,
             private boost::noncopyable {
 public:
   Ast(const Cowstr &name, const Location &location = Location());
   virtual ~Ast() = default;
   virtual AstKind kind() const = 0;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor) = 0;
 
   static bool isLiteral(Ast *e);
   static bool isId(Ast *e);
@@ -123,12 +87,12 @@ public:
 
 // literal {
 
-class A_Integer : public Ast, public LLVMValuable {
+class A_Integer : public Ast {
 public:
   A_Integer(const Cowstr &literal, const Location &location);
   virtual ~A_Integer() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   // 32, 64
   virtual int bit() const;
@@ -149,12 +113,12 @@ private:
   int base_;
 };
 
-class A_Float : public Ast, public LLVMValuable {
+class A_Float : public Ast {
 public:
   A_Float(const Cowstr &literal, const Location &location);
   virtual ~A_Float() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   // 32, 64
   virtual int bit() const;
@@ -168,12 +132,12 @@ private:
 };
 
 // string literal
-class A_String : public Ast, public LLVMValuable {
+class A_String : public Ast {
 public:
   A_String(const Cowstr &literal, const Location &location);
   virtual ~A_String() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   virtual bool isMultipleLine() const;
   virtual const Cowstr &asString() const;
@@ -183,12 +147,12 @@ private:
   bool isMultipleLine_;
 };
 
-class A_Character : public Ast, public LLVMValuable {
+class A_Character : public Ast {
 public:
   A_Character(const Cowstr &literal, const Location &location);
   virtual ~A_Character() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   virtual char asChar() const;
 
@@ -196,12 +160,12 @@ private:
   char parsed_;
 };
 
-class A_Boolean : public Ast, public LLVMValuable {
+class A_Boolean : public Ast {
 public:
   A_Boolean(const Cowstr &literal, const Location &location);
   virtual ~A_Boolean() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   virtual bool asBoolean() const;
 
@@ -214,7 +178,7 @@ public:
   A_Nil(const Location &location);
   virtual ~A_Nil() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 };
 
 class A_Void : public Ast {
@@ -222,7 +186,7 @@ public:
   A_Void(const Location &location);
   virtual ~A_Void() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 };
 
 // literal }
@@ -240,7 +204,7 @@ public:
   A_VarId(const Cowstr &literal, const Location &location);
   virtual ~A_VarId() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 };
 
 // id }
@@ -252,7 +216,7 @@ public:
   A_Throw(Ast *a_expr, const Location &location);
   virtual ~A_Throw();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *expr;
 };
@@ -262,7 +226,7 @@ public:
   A_Return(Ast *a_expr, const Location &location);
   virtual ~A_Return();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *expr;
 };
@@ -272,7 +236,7 @@ public:
   A_Break(const Location &location);
   virtual ~A_Break() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 };
 
 class A_Continue : public Ast {
@@ -280,7 +244,7 @@ public:
   A_Continue(const Location &location);
   virtual ~A_Continue() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 };
 
 class A_Assign : public Ast {
@@ -289,7 +253,7 @@ public:
            const Location &location);
   virtual ~A_Assign();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *assignee; // left
   int assignOp;
@@ -301,7 +265,7 @@ public:
   A_Postfix(Ast *a_expr, int a_postfixOp, const Location &location);
   virtual ~A_Postfix();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *expr;
   int postfixOp;
@@ -312,7 +276,7 @@ public:
   A_Infix(Ast *a_left, int a_infixOp, Ast *a_right, const Location &location);
   virtual ~A_Infix();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *left;
   int infixOp;
@@ -324,7 +288,7 @@ public:
   A_Prefix(int a_prefixOp, Ast *a_expr, const Location &location);
   virtual ~A_Prefix();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   int prefixOp;
   Ast *expr;
@@ -335,7 +299,7 @@ public:
   A_Call(Ast *a_id, A_Exprs *a_args, const Location &location);
   virtual ~A_Call();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *id;
   A_Exprs *args;
@@ -346,7 +310,7 @@ public:
   A_Exprs(Ast *a_expr, A_Exprs *a_next, const Location &location);
   virtual ~A_Exprs();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *expr;
   A_Exprs *next;
@@ -361,7 +325,7 @@ public:
   A_If(Ast *a_condition, Ast *a_thenp, Ast *a_elsep, const Location &location);
   virtual ~A_If();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *condition;
   Ast *thenp;
@@ -374,7 +338,7 @@ public:
   A_Loop(Ast *a_condition, Ast *a_body, const Location &location);
   virtual ~A_Loop();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *condition;
   Ast *body;
@@ -385,7 +349,7 @@ public:
   A_Yield(Ast *expr, const Location &location);
   virtual ~A_Yield();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *expr;
 };
@@ -396,7 +360,7 @@ public:
                   const Location &location);
   virtual ~A_LoopCondition();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *init;
   Ast *condition;
@@ -409,7 +373,7 @@ public:
                    const Location &location);
   virtual ~A_LoopEnumerator();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *id;
   Ast *type;
@@ -421,7 +385,7 @@ public:
   A_DoWhile(Ast *a_body, Ast *a_condition, const Location &location);
   virtual ~A_DoWhile();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *body;
   Ast *condition;
@@ -432,7 +396,7 @@ public:
   A_Try(Ast *a_tryp, Ast *a_catchp, Ast *a_finallyp, const Location &location);
   virtual ~A_Try();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *tryp;
   Ast *catchp;
@@ -444,7 +408,7 @@ public:
   A_Block(A_BlockStats *a_blockStats, const Location &location);
   virtual ~A_Block();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   A_BlockStats *blockStats;
 };
@@ -455,7 +419,7 @@ public:
                const Location &location);
   virtual ~A_BlockStats();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *blockStat;
   A_BlockStats *next;
@@ -477,7 +441,7 @@ public:
   A_PlainType(int a_token, const Location &location);
   virtual ~A_PlainType() = default;
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   int token;
 };
@@ -492,7 +456,12 @@ public:
             const Location &location);
   virtual ~A_FuncDef();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
+
+  virtual Ast *getId() const;
+  // first: id
+  // second: type
+  virtual std::vector<std::pair<Ast *, Ast *>> getArguments() const;
 
   Ast *funcSign;
   Ast *resultType;
@@ -504,7 +473,7 @@ public:
   A_FuncSign(Ast *a_id, A_Params *a_params, const Location &location);
   virtual ~A_FuncSign();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *id;
   A_Params *params;
@@ -515,7 +484,7 @@ public:
   A_Params(A_Param *a_param, A_Params *a_next, const Location &location);
   virtual ~A_Params();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   A_Param *param;
   A_Params *next;
@@ -526,7 +495,7 @@ public:
   A_Param(Ast *a_id, Ast *a_type, const Location &location);
   virtual ~A_Param();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *id;
   Ast *type;
@@ -537,7 +506,7 @@ public:
   A_VarDef(Ast *a_id, Ast *a_type, Ast *a_expr, const Location &location);
   virtual ~A_VarDef();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *id;
   Ast *type;
@@ -553,7 +522,7 @@ public:
   A_TopStats(Ast *a_topStat, A_TopStats *a_next, const Location &location);
   virtual ~A_TopStats();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   Ast *topStat;
   A_TopStats *next;
@@ -565,7 +534,7 @@ public:
                 const Location &location);
   virtual ~A_CompileUnit();
   virtual AstKind kind() const;
-  virtual Cowstr str() const;
+  virtual void accept(Visitor *visitor);
 
   A_TopStats *topStats;
 };

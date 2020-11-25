@@ -3,11 +3,11 @@
 
 #include "SymbolResolver.h"
 #include "Ast.h"
-#include "Phase.h"
 #include "Scanner.h"
 #include "Symbol.h"
 #include "SymbolBuilder.h"
 #include "catch2/catch.hpp"
+#include "iface/Phase.h"
 
 static void testSymbolResolver(const Cowstr &fileName) {
   Scanner scanner(fileName);
