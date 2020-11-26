@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Dumper.h"
@@ -27,9 +27,9 @@ static void testDumper(const Cowstr &fileName) {
 
 TEST_CASE("Dumper", "[Dumper]") {
   SECTION("dump ast") {
-    testDumper("test/case/parse-1.nerd");
-    testDumper("test/case/parse-2.nerd");
-    testDumper("test/case/parse-3.nerd");
-    testDumper("test/case/parse-4.nerd");
+    testDumper("test/case/parse-1.dim");
+    testDumper("test/case/parse-2.dim");
+    testDumper("test/case/parse-3.dim");
+    testDumper("test/case/parse-4.dim");
   }
 }

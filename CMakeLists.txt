@@ -1,10 +1,10 @@
-# Copyright 2019- <nerd-lang>
+# Copyright 2019- <dim-lang>
 # Apache License Version 2.0
 
 # common {
 
 cmake_minimum_required(VERSION 3.8)
-project(nerd VERSION 0.0.3 LANGUAGES CXX)
+project(dim VERSION 0.0.3 LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/src/Configure.h.in ${PROJECT_SOURCE_DIR}/src/Configure.h)
 set(CMAKE_CXX_STANDARD 14)
 
@@ -34,13 +34,13 @@ if(WIN32)
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_THREADAPI win32)
     set(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/boost")
-    if(${NERD_BUILD_TYPE} STREQUAL "Debug")
+    if(${DIM_BUILD_TYPE} STREQUAL "Debug")
         set(BOOST_LIBRARYDIR "${BOOST_ROOT}/Debug/lib")
         set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/llvm-project/llvm/Debug/lib/cmake/llvm")
-    else(${NERD_BUILD_TYPE} STREQUAL "Debug")
+    else(${DIM_BUILD_TYPE} STREQUAL "Debug")
         set(BOOST_LIBRARYDIR "${BOOST_ROOT}/Release/lib")
         set(LLVM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/llvm-project/llvm/Release/lib/cmake/llvm")
-    endif(${NERD_BUILD_TYPE} STREQUAL "Debug")
+    endif(${DIM_BUILD_TYPE} STREQUAL "Debug")
     set(BOOST_INCLUDEDIR "${BOOST_ROOT}")
     set(TokenizerFlags "${TokenizerFlags} --wincompat")
 else()
@@ -49,39 +49,39 @@ else()
     add_compile_options("-std=c++14")
     add_compile_options("-Wall")
     find_package(Threads REQUIRED)
-    set(NERD_CORE_INC
+    set(DIM_CORE_INC
         Threads::Threads
         )
     if(IS_DIRECTORY /usr/include)
-        set(NERD_CORE_INC
-            ${NERD_CORE_INC}
+        set(DIM_CORE_INC
+            ${DIM_CORE_INC}
             /usr/include
             )
     endif(IS_DIRECTORY /usr/include)
     if(IS_DIRECTORY /usr/local/include)
-        set(NERD_CORE_INC
-            ${NERD_CORE_INC}
+        set(DIM_CORE_INC
+            ${DIM_CORE_INC}
             /usr/local/include
             )
     endif(IS_DIRECTORY /usr/local/include)
-    set(NERD_CORE_LIB
+    set(DIM_CORE_LIB
         Threads::Threads
         )
-    set(NERD_CORE_LIB_DIR
+    set(DIM_CORE_LIB_DIR
         /usr/lib)
     if(IS_DIRECTORY /usr/lib64)
-        set(NERD_CORE_LIB_DIR
-            ${NERD_CORE_LIB_DIR}
+        set(DIM_CORE_LIB_DIR
+            ${DIM_CORE_LIB_DIR}
             /usr/lib64)
     endif(IS_DIRECTORY /usr/lib64)
     if(IS_DIRECTORY /usr/local/lib)
-        set(NERD_CORE_LIB_DIR
-            ${NERD_CORE_LIB_DIR}
+        set(DIM_CORE_LIB_DIR
+            ${DIM_CORE_LIB_DIR}
             /usr/local/lib)
     endif(IS_DIRECTORY /usr/local/lib)
     if(IS_DIRECTORY /usr/local/lib64)
-        set(NERD_CORE_LIB_DIR
-            ${NERD_CORE_LIB_DIR}
+        set(DIM_CORE_LIB_DIR
+            ${DIM_CORE_LIB_DIR}
             /usr/local/lib64)
     endif(IS_DIRECTORY /usr/local/lib64)
 endif(WIN32)
@@ -109,8 +109,8 @@ BISON_TARGET(Parser ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.y ${CMAKE_CURRENT_SOU
     DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/parser.tab.hh)
 ADD_FLEX_BISON_DEPENDENCY(Tokenizer Parser)
 
-set(NERD_CORE_INC
-    ${NERD_CORE_INC}
+set(DIM_CORE_INC
+    ${DIM_CORE_INC}
     src
     src/spdlog/include
     src/fmt/include
@@ -118,14 +118,14 @@ set(NERD_CORE_INC
     ${LLVM_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     )
-set(NERD_CORE_LIB
-    ${NERD_CORE_LIB}
+set(DIM_CORE_LIB
+    ${DIM_CORE_LIB}
     ${Boost_LIBRARIES}
     ${llvm_libs}
     # ${llvm_system_libs}
     )
-set(NERD_CORE_LIB_DIR
-    ${NERD_CORE_LIB_DIR}
+set(DIM_CORE_LIB_DIR
+    ${DIM_CORE_LIB_DIR}
     .
     ${Boost_LIBRARY_DIRS}
     ${LLVM_LIBRARY_DIRS}
@@ -135,10 +135,10 @@ add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DSPDLOG_FMT_EXTERNAL)
 add_definitions(${Boost_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS})
-include_directories(${NERD_CORE_INC})
-link_directories(${NERD_CORE_LIB_DIR})
+include_directories(${DIM_CORE_INC})
+link_directories(${DIM_CORE_LIB_DIR})
 
-message(NERD_BUILD_TYPE: ${NERD_BUILD_TYPE})
+message(DIM_BUILD_TYPE: ${DIM_BUILD_TYPE})
 message(CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS})
 message(BOOST_ROOT: ${BOOST_ROOT})
 message(BOOST_LIBRARYDIR: ${BOOST_LIBRARYDIR})
@@ -152,15 +152,15 @@ message(LLVM_LIBRARY_DIRS: ${LLVM_LIBRARY_DIRS})
 message(LLVM_DEFINITIONS: ${LLVM_DEFINITIONS})
 message(llvm_libs: ${llvm_libs})
 # message(llvm_system_libs: ${llvm_system_libs})
-message(NERD_CORE_INC: ${NERD_CORE_INC})
-message(NERD_CORE_LIB: ${NERD_CORE_LIB})
-message(NERD_CORE_LIB_DIR: ${NERD_CORE_LIB_DIR})
+message(DIM_CORE_INC: ${DIM_CORE_INC})
+message(DIM_CORE_LIB: ${DIM_CORE_LIB})
+message(DIM_CORE_LIB_DIR: ${DIM_CORE_LIB_DIR})
 
 # common }
 
-# nerdcore {
+# dimcore {
 
-set(NERD_CORE_SRC
+set(DIM_CORE_SRC
     src/iface/Identifiable.cpp
     # src/iface/LLVMModular.cpp
     # src/iface/LLVMTypable.cpp
@@ -197,29 +197,29 @@ set(NERD_CORE_SRC
     ${FLEX_Tokenizer_OUTPUTS}
 )
 
-add_library(nerdcore STATIC ${NERD_CORE_SRC})
-target_include_directories(nerdcore PRIVATE ${NERD_CORE_INC})
-target_link_libraries(nerdcore ${NERD_CORE_LIB})
-set_target_properties(nerdcore PROPERTIES VERSION ${PROJECT_VERSION})
+add_library(dimcore STATIC ${DIM_CORE_SRC})
+target_include_directories(dimcore PRIVATE ${DIM_CORE_INC})
+target_link_libraries(dimcore ${DIM_CORE_LIB})
+set_target_properties(dimcore PROPERTIES VERSION ${PROJECT_VERSION})
 
-# nerdcore }
+# dimcore }
 
-# nerdc {
+# dimc {
 
-set(NERDC_SRC
-    src/nerdc.cpp
+set(DIMC_SRC
+    src/dimc.cpp
 )
 
-add_executable(nerdc ${NERDC_SRC})
-target_include_directories(nerdc PRIVATE ${NERD_CORE_INC})
-target_link_libraries(nerdc ${NERD_CORE_LIB} nerdcore)
-set_target_properties(nerdc PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(dimc ${DIMC_SRC})
+target_include_directories(dimc PRIVATE ${DIM_CORE_INC})
+target_link_libraries(dimc ${DIM_CORE_LIB} dimcore)
+set_target_properties(dimc PROPERTIES VERSION ${PROJECT_VERSION})
 
-# nerdc }
+# dimc }
 
-# nerd-test {
+# dim-test {
 
-set(NERD_TEST_SRC
+set(DIM_TEST_SRC
     test/iface/IdentifiableTest.cpp
     # test/iface/LLVMModularTest.cpp
     # test/iface/LLVMTypableTest.cpp
@@ -244,32 +244,32 @@ set(NERD_TEST_SRC
     test/TokenizerTest.cpp
     test/UnitTest.cpp
 )
-set(NERD_TEST_INC
-    ${NERD_CORE_INC}
+set(DIM_TEST_INC
+    ${DIM_CORE_INC}
     test/Catch2/single_include
 )
 
-add_executable(nerd-test ${NERD_TEST_SRC})
-target_include_directories(nerd-test PRIVATE ${NERD_TEST_INC})
-target_link_libraries(nerd-test ${NERD_CORE_LIB} nerdcore)
-set_target_properties(nerd-test PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(dim-test ${DIM_TEST_SRC})
+target_include_directories(dim-test PRIVATE ${DIM_TEST_INC})
+target_link_libraries(dim-test ${DIM_CORE_LIB} dimcore)
+set_target_properties(dim-test PROPERTIES VERSION ${PROJECT_VERSION})
 
-# nerd-test }
+# dim-test }
 
-# nerd-example {
+# dim-example {
 
-set(NERD_EXAMPLE_llvms_BinaryOperation SRC
+set(DIM_EXAMPLE_llvms_BinaryOperation SRC
     example/llvms/BinaryOperation.cpp
     example/llvms/Util.cpp
     )
-set(NERD_EXAMPLE_INC
-    ${NERD_CORE_INC}
+set(DIM_EXAMPLE_INC
+    ${DIM_CORE_INC}
     example
     )
 
-add_executable(nerd-example-llvms-BinaryOperation ${NERD_EXAMPLE_llvms_BinaryOperation})
-target_include_directories(nerd-example-llvms-BinaryOperation PRIVATE ${NERD_EXAMPLE_INC})
-target_link_libraries(nerd-example-llvms-BinaryOperation ${NERD_CORE_LIB})
-set_target_properties(nerd-example-llvms-BinaryOperation PROPERTIES VERSION ${PROJECT_VERSION})
+add_executable(dim-example-llvms-BinaryOperation ${DIM_EXAMPLE_llvms_BinaryOperation})
+target_include_directories(dim-example-llvms-BinaryOperation PRIVATE ${DIM_EXAMPLE_INC})
+target_link_libraries(dim-example-llvms-BinaryOperation ${DIM_CORE_LIB})
+set_target_properties(dim-example-llvms-BinaryOperation PROPERTIES VERSION ${PROJECT_VERSION})
 
-# nerd-example }
+# dim-example }

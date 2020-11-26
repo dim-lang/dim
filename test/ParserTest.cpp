@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Ast.h"
@@ -23,15 +23,15 @@ static void parseError(const char *fileName) {
 
 TEST_CASE("parser", "[parser]") {
   SECTION("success") {
-    parseSuccess("test/case/parse-1.nerd");
-    parseSuccess("test/case/parse-2.nerd");
-    parseSuccess("test/case/parse-3.nerd");
-    parseSuccess("test/case/parse-4.nerd");
+    parseSuccess("test/case/parse-1.dim");
+    parseSuccess("test/case/parse-2.dim");
+    parseSuccess("test/case/parse-3.dim");
+    parseSuccess("test/case/parse-4.dim");
   }
 
   SECTION("error") {
-    parseError("test/case/parse-integer-literal-error-1.nerd");
-    parseError("test/case/parse-float-literal-error-1.nerd");
-    parseError("test/case/parse-float-literal-error-2.nerd");
+    parseError("test/case/parse-integer-literal-error-1.dim");
+    parseError("test/case/parse-float-literal-error-1.dim");
+    parseError("test/case/parse-float-literal-error-2.dim");
   }
 }

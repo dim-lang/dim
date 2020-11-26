@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "SymbolResolver.h"
@@ -20,9 +20,9 @@ static void testSymbolResolver(const Cowstr &fileName) {
 
 TEST_CASE("SymbolResolver", "[SymbolResolver]") {
   SECTION("resolve symbol") {
-    testSymbolResolver("test/case/parse-1.nerd");
-    testSymbolResolver("test/case/parse-2.nerd");
-    testSymbolResolver("test/case/parse-3.nerd");
-    testSymbolResolver("test/case/parse-4.nerd");
+    testSymbolResolver("test/case/parse-1.dim");
+    testSymbolResolver("test/case/parse-2.dim");
+    testSymbolResolver("test/case/parse-3.dim");
+    testSymbolResolver("test/case/parse-4.dim");
   }
 }

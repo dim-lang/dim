@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #pragma once
@@ -18,7 +18,7 @@
 
 class Option {
 public:
-  Option(int argc, char **argv) : opt_desc("nerdc options") {
+  Option(int argc, char **argv) : opt_desc("dimc options") {
     opt_desc.add_options()(OPT_HELP ",h", "help message")(
         OPT_VERSION ",v", "version information")(
         OPT_INPUT_FILE,
@@ -58,7 +58,7 @@ public:
       return ss.str();
     }
     if (opt == OPT_VERSION) {
-      return "nerdc-" PROJECT_VERSION;
+      return "dimc-" PROJECT_VERSION;
     }
     return var_map[opt].as<std::string>();
   }

@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Ir.h"
@@ -13,8 +13,8 @@
 #include "llvm/Support/raw_ostream.h"
 #include <unordered_set>
 
-static Label GlobalLabel("@nerd.global.ir", ".");
-static Label LocalLabel("%nerd.local.ir", ".");
+static Label GlobalLabel("@dim.global.ir", ".");
+static Label LocalLabel("%dim.local.ir", ".");
 
 I_Module::I_Module(Ast *a_ast, std::shared_ptr<Scope> a_scope)
     : Nameable(a_ast->name()), ast(a_ast), scope(a_scope), llvmContext(),

@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "IrBuilder.h"
@@ -25,8 +25,8 @@ static void testIrBuilder(const Cowstr &fileName) {
 
 TEST_CASE("IrBuilder", "[IrBuilder]") {
   SECTION("ir builder") {
-    testIrBuilder("test/case/ir-builder-1.nerd");
-    // testIrBuilder("test/case/ir-builder-2.nerd");
-    // testIrBuilder("test/case/ir-builder-3.nerd");
+    testIrBuilder("test/case/ir-builder-1.dim");
+    // testIrBuilder("test/case/ir-builder-2.dim");
+    // testIrBuilder("test/case/ir-builder-3.dim");
   }
 }

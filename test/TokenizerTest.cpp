@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Scanner.h"
@@ -38,12 +38,12 @@ static void tokenize(const char *fileName) {
 
 TEST_CASE("tokenizer", "[tokenizer]") {
   SECTION("tokenize") {
-    tokenize("test/case/parse-1.nerd");
-    tokenize("test/case/parse-2.nerd");
-    tokenize("test/case/parse-3.nerd");
-    tokenize("test/case/parse-4.nerd");
-    tokenize("test/case/parse-integer-literal-error-1.nerd");
-    tokenize("test/case/parse-float-literal-error-1.nerd");
-    tokenize("test/case/parse-float-literal-error-2.nerd");
+    tokenize("test/case/parse-1.dim");
+    tokenize("test/case/parse-2.dim");
+    tokenize("test/case/parse-3.dim");
+    tokenize("test/case/parse-4.dim");
+    tokenize("test/case/parse-integer-literal-error-1.dim");
+    tokenize("test/case/parse-float-literal-error-1.dim");
+    tokenize("test/case/parse-float-literal-error-2.dim");
   }
 }

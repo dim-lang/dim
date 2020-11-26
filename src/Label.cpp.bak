@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Label.h"
@@ -7,9 +7,9 @@
 #include "infra/Log.h"
 #include <algorithm>
 
-#define L_FUNC "nerd.function."
-#define L_BLOCK "nerd.basic.block."
-#define L_MOD "nerd.module."
+#define L_FUNC "dim.function."
+#define L_BLOCK "dim.basic.block."
+#define L_MOD "dim.module."
 
 Cowstr Label::globalVariable(Ast *ast) {
   LOG_ASSERT(ast, "ast must not null");

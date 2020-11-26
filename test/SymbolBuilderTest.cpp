@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "SymbolBuilder.h"
@@ -16,9 +16,9 @@ static void testSymbolBuilder(const Cowstr &fileName) {
 
 TEST_CASE("SymbolBuilder", "[SymbolBuilder]") {
   SECTION("build symbol") {
-    testSymbolBuilder("test/case/parse-1.nerd");
-    testSymbolBuilder("test/case/parse-2.nerd");
-    testSymbolBuilder("test/case/parse-3.nerd");
-    testSymbolBuilder("test/case/parse-4.nerd");
+    testSymbolBuilder("test/case/parse-1.dim");
+    testSymbolBuilder("test/case/parse-2.dim");
+    testSymbolBuilder("test/case/parse-3.dim");
+    testSymbolBuilder("test/case/parse-4.dim");
   }
 }

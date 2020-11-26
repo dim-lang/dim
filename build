@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-# Copyright 2019- <nerd-lang>
+# Copyright 2019- <dim-lang>
 # Apache License Version 2.0
 
 ROOT=`pwd`
@@ -7,7 +7,7 @@ FOS=$(bash -c "echo \$OSTYPE")
 
 function check_return() {
     if [ $1 -ne 0 ]; then
-        echo [nerd] $2
+        echo [dim] $2
         exit $1
     fi
 }
@@ -25,26 +25,26 @@ function build_dependency() {
     FMTLIB_VERSION=5.3.0
     ENUM_VERSION=0.11.2
     cd $ROOT
-    echo [nerd] prepare catchorg/Catch2 $CATCH2_VERSION
+    echo [dim] prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
         cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2 && cd $ROOT
     fi
-    echo [nerd] prepare catchorg/Catch2 $CATCH2_VERSION - done
-    echo [nerd] prepare gabime/spdlog $SPDLOG_VERSION
+    echo [dim] prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo [dim] prepare gabime/spdlog $SPDLOG_VERSION
     if [ ! -d src/spdlog ]; then
         cd src && git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog && cd $ROOT
     fi
-    echo [nerd] prepare gabime/spdlog $SPDLOG_VERSION - done
-    echo [nerd] prepare fmtlib/fmt $FMTLIB_VERSION
+    echo [dim] prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo [dim] prepare fmtlib/fmt $FMTLIB_VERSION
     if [ ! -d src/fmt ]; then
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
-    echo [nerd] prepare fmtlib/fmt $FMTLIB_VERSION - done
-    echo [nerd] prepare aantron/better-enums $ENUM_VERSION
+    echo [dim] prepare fmtlib/fmt $FMTLIB_VERSION - done
+    echo [dim] prepare aantron/better-enums $ENUM_VERSION
     if [ ! -d src/better-enums ]; then
         cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums && cd $ROOT
     fi
-    echo [nerd] prepare aantron/better-enums $ENUM_VERSION - done
+    echo [dim] prepare aantron/better-enums $ENUM_VERSION - done
 }
 
 function build_make() {
@@ -66,9 +66,9 @@ function build_routine() {
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[nerd] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[dim] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [nerd] build for $FOS, mode=$1
+    echo [dim] build for $FOS, mode=$1
     build_dependency $1
     build_make $1
 }
@@ -80,9 +80,9 @@ function build_install() {
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[nerd] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "[dim] unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [nerd] install for $FOS, path=$1
+    echo [dim] install for $FOS, path=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 -B release
@@ -94,14 +94,14 @@ function build_graph() {
     for f in *
     do
         if [ ${f: -4} == ".dot" ]; then
-            echo [nerd] generate $f.png for $f
+            echo [dim] generate $f.png for $f
             dot -Tpng $f -o $f.png
         fi
     done
 }
 
 function build_help() {
-    echo '[nerd] build help message:'
+    echo '[dim] build help message:'
     echo 'usage:'
     echo '  build -r/--release              build release.'
     echo '  build -d/--debug                build debug.'
@@ -133,7 +133,7 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         -t|--test)
-            debug/nerd-test
+            debug/dim-test
             exit 0
             ;;
         --parser)

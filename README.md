@@ -1,12 +1,12 @@
-# Nerd Programming Languge
+# Dim Programming Languge
 
-Nerd - a modern, multiple paradigms, high performance and friendly programming language.
+Dim - a static typed, multiple paradigms, high performance and friendly programming language.
 
-## Why Nerd?
+## Why Dim?
 
-Nerd is a modern, multiple paradigms, high performance and friendly programming language running on multiple platforms.
+Dim is a static typed, multiple paradigms, high performance and friendly programming language running on multiple platforms.
 
-Nerd combines object-oriented and functional programming paradigms, inspired by many modern programming languages such as C++, Java, Scala, Rust and Haskell, backended with [LLVM](https://llvm.org/). Nerd try to balance performance, efficiency and ease, so let you build highly functional system easily.
+Dim use a modern and static typed syntax, combines object-oriented and functional programming paradigms inspired by many programming languages such as C++, Java, Scala, Rust, Haskell, etc. Dim use [LLVM](https://llvm.org/) as binary code backend to improve performance. Dim's efficiency and ease to use let you build highly functional system easily.
 
 ## How to start?
 
@@ -43,11 +43,11 @@ Note: we use PowerShell as default command line instead of legacy cmd on Windows
 $ choco install git cmake winflexbison3 python
 ```
 
-Nerd installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `nerd/src` if these 2 packages are too large to git clone.
+Nerd installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `dim/src` if these 2 packages are too large to git clone.
 
 #### Build
 
 | Platform     | Build                                                                         |
 |--------------|-------------------------------------------------------------------------------|
-| Linux & UNIX | `$ git clone https://github.com/nerd-lang/nerd.git && cd nerd && ./build -r`  |
-| Windows      | `$ git clone https://github.com/nerd-lang/nerd.git && cd nerd && .\build.bat` |
+| Linux & UNIX | `$ git clone https://github.com/dim-lang/dim.git && cd dim && ./build -r`  |
+| Windows      | `$ git clone https://github.com/dim-lang/dim.git && cd dim && .\build.bat` |

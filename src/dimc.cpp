@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Configure.h"
@@ -32,8 +32,8 @@ static SymbolResolver symbolResolver;
 class Option {
 public:
   /**
-   * nerdc usage:
-   *  nerdc [options] [input files]
+   * dimc usage:
+   *  dimc [options] [input files]
    *
    * options:
    *  --help, -h          help message
@@ -48,7 +48,7 @@ public:
    *                        lib: library file
    */
   Option(int argc, char **argv)
-      : desc_flags("nerdc usage:\n  nerdc [options] [input files] -o output "
+      : desc_flags("dimc usage:\n  dimc [options] [input files] -o output "
                    "file\n\n") {
     desc_flags.add_options()(OPT_HELP ",h", "help message")(
         OPT_VERSION ",v", "version information")(
@@ -84,7 +84,7 @@ public:
       return ss.str();
     }
     if (opt == OPT_VERSION) {
-      return "nerdc-" PROJECT_VERSION;
+      return "dimc-" PROJECT_VERSION;
     }
     return var_map[opt].as<std::string>();
   }

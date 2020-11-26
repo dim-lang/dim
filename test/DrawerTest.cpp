@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #include "Drawer.h"
@@ -23,9 +23,9 @@ static void testDrawer(const Cowstr &fileName) {
 
 TEST_CASE("Drawer", "[Drawer]") {
   SECTION("ast/symbol graph") {
-    testDrawer("test/case/parse-1.nerd");
-    testDrawer("test/case/parse-2.nerd");
-    testDrawer("test/case/parse-3.nerd");
-    testDrawer("test/case/parse-4.nerd");
+    testDrawer("test/case/parse-1.dim");
+    testDrawer("test/case/parse-2.dim");
+    testDrawer("test/case/parse-3.dim");
+    testDrawer("test/case/parse-4.dim");
   }
 }

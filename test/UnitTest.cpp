@@ -1,4 +1,4 @@
-// Copyright 2019- <nerd-lang>
+// Copyright 2019- <dim-lang>
 // Apache License Version 2.0
 
 #define CATCH_CONFIG_MAIN
@@ -10,7 +10,7 @@
 
 struct LogInitializer {
   LogInitializer() {
-    std::string logName = "nerd-test";
+    std::string logName = "dim-test";
     std::time_t timestamp = std::time(nullptr);
     std::tm dt = *std::localtime(&timestamp);
     std::string logFile =
@@ -28,10 +28,10 @@ static LogInitializer initializer;
 TEST_CASE("Unit Test", "[Unit Test]") {
   SECTION("Unit Test Initialize") {
     fmt::print(
-        "nerd-test start at:{}\n",
+        "dim-test start at:{}\n",
         boost::filesystem::path(boost::filesystem::current_path()).string());
     LOG_INFO(
-        "nerd-test start at:{}",
+        "dim-test start at:{}",
         boost::filesystem::path(boost::filesystem::current_path()).string());
   }
 }

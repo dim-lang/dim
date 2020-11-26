@@ -1,4 +1,4 @@
-@rem Copyright 2019- <nerd-lang>
+@rem Copyright 2019- <dim-lang>
 @rem Apache License Version 2.0
 
 @echo off
@@ -32,38 +32,38 @@ if "%1" == "" (
 ) else if "%1" == "--help" (
     goto :HELP
 ) else (
-    echo [nerd] unknown build option: "%1"
+    echo [dim] unknown build option: "%1"
     goto :EOF
 )
 
-echo [nerd] build for %OS%, mode=%BUILD_TYPE%
+echo [dim] build for %OS%, mode=%BUILD_TYPE%
 
 @rem init third party library
-echo [nerd] prepare catchorg/Catch2 %CATCH2_VERSION%
+echo [dim] prepare catchorg/Catch2 %CATCH2_VERSION%
 if not exist %ROOT%\test\catch2 (
     cd %ROOT%\test
     git clone -b %CATCH2_VERSION% --single-branch --depth 1 https://github.com/catchorg/Catch2
 )
-echo [nerd] prepare catchorg/Catch2 %CATCH2_VERSION% - done
-echo [nerd] prepare gabime/spdlog %SPDLOG_VERSION%
+echo [dim] prepare catchorg/Catch2 %CATCH2_VERSION% - done
+echo [dim] prepare gabime/spdlog %SPDLOG_VERSION%
 if not exist %ROOT%\src\spdlog (
     cd %ROOT%\src
     git clone -b %SPDLOG_VERSION% --single-branch --depth 1 https://github.com/gabime/spdlog
 )
-echo [nerd] prepare gabime/spdlog %SPDLOG_VERSION% - done
-echo [nerd] prepare fmtlib/fmt %FMTLIB_VERSION%
+echo [dim] prepare gabime/spdlog %SPDLOG_VERSION% - done
+echo [dim] prepare fmtlib/fmt %FMTLIB_VERSION%
 if not exist %ROOT%\src\fmt (
     cd %ROOT%\src
     git clone -b %FMTLIB_VERSION% --single-branch --depth 1 https://github.com/fmtlib/fmt
 )
-echo [nerd] prepare fmtlib/fmt %FMTLIB_VERSION% - done
-echo [nerd] prepare aantron/better-enums %ENUM_VERSION%
+echo [dim] prepare fmtlib/fmt %FMTLIB_VERSION% - done
+echo [dim] prepare aantron/better-enums %ENUM_VERSION%
 if not exist %ROOT%\src\better-enums (
     cd %ROOT%\src
     git clone -b %ENUM_VERSION% --single-branch --depth 1 https://github.com/aantron/better-enums
 )
-echo [nerd] prepare aantron/better-enums %ENUM_VERSION% - done
-echo [nerd] prepare boostorg/boost %BOOST_VERSION%
+echo [dim] prepare aantron/better-enums %ENUM_VERSION% - done
+echo [dim] prepare boostorg/boost %BOOST_VERSION%
 if not exist %ROOT%\src\boost (
     cd %ROOT%\src
     git clone -b %BOOST_VERSION% --single-branch --depth 1 https://github.com/boostorg/boost
@@ -79,8 +79,8 @@ if not exist %ROOT%\src\boost\%BUILD_TYPE% (
     cmd /c bootstrap.bat
     cmd /c b2 address-model=64 variant=%BOOST_VARIANT% link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=%BUILD_TYPE% stage
 )
-echo [nerd] prepare boostorg/boost %BOOST_VERSION% - done
-echo [nerd] prepare llvm/llvm-project %LLVM_VERSION%
+echo [dim] prepare boostorg/boost %BOOST_VERSION% - done
+echo [dim] prepare llvm/llvm-project %LLVM_VERSION%
 if not exist %ROOT%\src\llvm-project (
     cd %ROOT%\src
     git clone -b %LLVM_VERSION% --single-branch --depth 1 https://github.com/llvm/llvm-project
@@ -95,20 +95,20 @@ if not exist %ROOT%\src\llvm-project\llvm\%BUILD_TYPE% (
     cd %ROOT%\src\llvm-project\llvm\%LLVM_CONFIG%
     cmake --build . --config %BUILD_TYPE% --target INSTALL
 )
-echo [nerd] prepare llvm/llvm-project %LLVM_VERSION% - done
+echo [dim] prepare llvm/llvm-project %LLVM_VERSION% - done
 
-echo [nerd] build %BUILD_TYPE%
+echo [dim] build %BUILD_TYPE%
 set PATH=%ROOT%\src\llvm-project\llvm\%BUILD_TYPE%\bin;%PATH%
 cd %ROOT%
 cmake -DNERD_BUILD_TYPE=%BUILD_TYPE% -A x64 -Thost=x64 -B %BUILD_TYPE%
 cd %BUILD_TYPE%
 cmake --build . --config %BUILD_TYPE%
 cd %ROOT%
-echo [nerd] build %BUILD_TYPE% - done
+echo [dim] build %BUILD_TYPE% - done
 goto :EOF
 
 :HELP
-echo [nerd] build help message:
+echo [dim] build help message:
 echo usage:
 echo   build -r/--release       build release.
 echo   build -d/--debug         build debug.
@@ -121,14 +121,14 @@ goto :EOF
 if exist %ROOT%\Debug\test\case (
     cd %ROOT%\Debug\test\case
     for /r %%x in (*.dot) do (
-        echo [nerd] generate %%x.png for %%x
+        echo [dim] generate %%x.png for %%x
         dot -Tpng -Gdpi=300 %%x -o %%x.png
     )
 )
 if exist %ROOT%\Release\test\case (
     cd %ROOT%\Release\test\case
     for /r %%x in (*.dot) do (
-        echo [nerd] generate %%x.png for %%x
+        echo [dim] generate %%x.png for %%x
         dot -Tpng -Gdpi=300 %%x -o %%x.png
     )
 )
