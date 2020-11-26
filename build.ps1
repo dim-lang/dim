@@ -78,7 +78,7 @@ Function Build-Make {
     Write-Output "[dim] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
     Set-Location -Path $ROOT
-    cmake -DNERD_BUILD_TYPE=$BuildType -A x64 -Thost=x64 -B $BuildType
+    cmake -DDIM_BUILD_TYPE=$BuildType -A x64 -Thost=x64 -B $BuildType
     cd $BuildType
     cmake --build . --config $BuildType
     Set-Location -Path $ROOT
@@ -98,7 +98,7 @@ Function Build-Install {
     Write-Output "[dim] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
     Set-Location -Path $ROOT
-    cmake -DNERD_BUILD_TYPE=$BuildType -DCMAKE_INSTALL_PREFIX=$InstallPath -A x64 -Thost=x64 -B $BuildType
+    cmake -DDIM_BUILD_TYPE=$BuildType -DCMAKE_INSTALL_PREFIX=$InstallPath -A x64 -Thost=x64 -B $BuildType
     cd $BuildType
     cmake --build . --config $BuildType --target INSTALL
     Set-Location -Path $ROOT
