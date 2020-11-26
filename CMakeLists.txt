@@ -258,7 +258,7 @@ set_target_properties(dim-test PROPERTIES VERSION ${PROJECT_VERSION})
 
 # dim-example {
 
-set(DIM_EXAMPLE_llvms_BinaryOperation SRC
+set(DIM_EXAMPLE_llvms_BinaryOperation
     example/llvms/BinaryOperation.cpp
     example/llvms/Util.cpp
     )
