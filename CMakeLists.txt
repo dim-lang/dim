@@ -176,6 +176,7 @@ set(DIM_CORE_SRC
     src/infra/Counter.cpp
     src/infra/Cowstr.cpp
     src/infra/CycleBuffer.cpp
+    src/infra/Exception.cpp
     src/infra/Files.cpp
     src/infra/Strings.cpp
 

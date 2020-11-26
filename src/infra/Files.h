@@ -8,10 +8,9 @@
 #include "infra/CycleBuffer.h"
 #include <vector>
 
-/*================ type start from 3000 ================*/
 BETTER_ENUM(FileMode, int,
             // type
-            Read = 4000, Write, Append, ReadUpdate, WriteUpdate, AppendUpdate)
+            Read = 10000, Write, Append, ReadUpdate, WriteUpdate, AppendUpdate)
 
 class FileReader;
 class FileWriter;

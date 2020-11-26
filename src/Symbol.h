@@ -33,7 +33,7 @@ BETTER_ENUM(TypeSymbolKind, int,
             // class
             Class)
 
-BETTER_ENUM(ScopeKind, int, Symbol, TypeSymbol, LocalScope, GlobalScope)
+BETTER_ENUM(ScopeKind, int, Symbol = 4000, TypeSymbol, LocalScope, GlobalScope)
 
 namespace detail {
 

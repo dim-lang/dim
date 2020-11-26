@@ -27,13 +27,11 @@ static void testIrBuilder(const Cowstr &fileName, bool enableFunctionPass) {
 TEST_CASE("IrBuilder", "[IrBuilder]") {
   SECTION("ir builder without LLVM::FunctionPass") {
     testIrBuilder("test/case/ir-var-def-1.dim", false);
-    // testIrBuilder("test/case/ir-builder-2.dim");
-    // testIrBuilder("test/case/ir-builder-3.dim");
+    testIrBuilder("test/case/ir-var-def-2.dim", false);
   }
 
   SECTION("ir builder with LLVM::FunctionPass") {
     testIrBuilder("test/case/ir-var-def-1.dim", true);
-    // testIrBuilder("test/case/ir-builder-2.dim");
-    // testIrBuilder("test/case/ir-builder-3.dim");
+    testIrBuilder("test/case/ir-var-def-2.dim", true);
   }
 }
