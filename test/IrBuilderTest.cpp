@@ -25,7 +25,7 @@ static void testIrBuilder(const Cowstr &fileName) {
 
 TEST_CASE("IrBuilder", "[IrBuilder]") {
   SECTION("ir builder") {
-    testIrBuilder("test/case/ir-builder-1.dim");
+    testIrBuilder("test/case/ir-var-def-1.dim");
     // testIrBuilder("test/case/ir-builder-2.dim");
     // testIrBuilder("test/case/ir-builder-3.dim");
   }
