@@ -5,11 +5,15 @@
 #include "Ast.h"
 #include "Symbol.h"
 #include "Token.h"
-#include "boost/preprocessor/cat.hpp"
 #include "boost/preprocessor/stringize.hpp"
 #include "infra/LinkedHashMap.hpp"
 #include "infra/Log.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/Transforms/Utils.h"
 
 namespace detail {
 
@@ -148,15 +152,22 @@ static Cowstr label(Symbol *symbol) {
       symbol->location().end.column);
 }
 
-// static Cowstr label(TypeSymbol *typeSymbol) {
-//   return fmt::format("{}.{}", typeSymbol->name(), typeSymbol->location());
-// }
+static Cowstr label(TypeSymbol *typeSymbol) {
+  return fmt::format(
+      "{}.{}_{}_{}_{}", typeSymbol->name(), typeSymbol->location().begin.line,
+      typeSymbol->location().begin.column, typeSymbol->location().end.line,
+      typeSymbol->location().end.column);
+}
 
-IrBuilder::IrBuilder()
+IrBuilder::IrBuilder(bool enableFunctionPass)
     : Phase("IrBuilder"), llvmContext_(), llvmIRBuilder_(llvmContext_),
-      llvmModule_(nullptr), scope_(nullptr) {}
+      llvmModule_(nullptr), enableFunctionPass_(enableFunctionPass),
+      llvmFunctionPassManager_(nullptr), scope_(nullptr) {}
 
-IrBuilder::~IrBuilder() { delete llvmModule_; }
+IrBuilder::~IrBuilder() {
+  delete llvmModule_;
+  delete llvmFunctionPassManager_;
+}
 
 void IrBuilder::run(Ast *ast) { ast->accept(this); }
 
@@ -229,9 +240,10 @@ void IrBuilder::visitVarId(A_VarId *ast) {
     LOG_ASSERT(value, "ast {}:{} symbol {}:{} does not has llvm value",
                ast->name(), ast->location(), ast->symbol()->name(),
                ast->symbol()->location());
-    space_.setValue(label(ast), value);
+    llvm::LoadInst *li = llvmIRBuilder_.CreateLoad(value);
+    space_.setValue(label(ast), llvm::dyn_cast<llvm::Value>(li));
   } else if (ast->typeSymbol()) {
-    llvm::Type *type = space_.getType(label(ast->symbol()));
+    llvm::Type *type = space_.getType(label(ast->typeSymbol()));
     LOG_ASSERT(type, "ast {}:{} type symbol {}:{} does not has llvm type",
                ast->name(), ast->location(), ast->typeSymbol()->name(),
                ast->typeSymbol()->location());
@@ -243,6 +255,9 @@ void IrBuilder::visitReturn(A_Return *ast) {
   if (ast->expr) {
     ast->expr->accept(this);
     llvm::Value *retValue = space_.getValue(label(ast->expr));
+    LOG_INFO("ast {}:{} ast->expr {}:{} retValue:{}", ast->name(),
+             ast->location(), ast->expr->name(), ast->expr->location(),
+             Cowstr::from(retValue));
     llvmIRBuilder_.CreateRet(retValue);
   } else {
     llvmIRBuilder_.CreateRetVoid();
@@ -349,8 +364,10 @@ void IrBuilder::visitCall(A_Call *ast) { LOG_ASSERT(false, "not implemented"); }
 
 void IrBuilder::visitBlock(A_Block *ast) {
   if (ast->parent()->kind() == (+AstKind::FuncDef)) {
-    llvm::Function *func = space_.getFunction(
-        label(static_cast<A_FuncDef *>(ast->parent())->getId()));
+    A_FuncDef *funcDef = static_cast<A_FuncDef *>(ast->parent());
+    A_FuncSign *funcSign = static_cast<A_FuncSign *>(funcDef->funcSign);
+    A_VarId *funcId = static_cast<A_VarId *>(funcSign->id);
+    llvm::Function *func = space_.getFunction(label(funcId->symbol()));
     // entry block of function
     llvm::BasicBlock *entryBlock =
         llvm::BasicBlock::Create(llvmContext_, "entry", func);
@@ -426,7 +443,7 @@ void IrBuilder::visitFuncDef(A_FuncDef *ast) {
       llvm::FunctionType::get(funcResultType, funcArgTypes, false);
   llvm::Function *func =
       llvm::Function::Create(funcType, llvm::Function::ExternalLinkage,
-                             label(funcId).str(), llvmModule_);
+                             label(funcId->symbol()).str(), llvmModule_);
   space_.setFunction(label(funcId->symbol()), func);
   // space_.setFunction(label(funcId), func);
 
@@ -440,6 +457,10 @@ void IrBuilder::visitFuncDef(A_FuncDef *ast) {
   }
 
   ast->body->accept(this);
+
+  if (enableFunctionPass_) {
+    llvmFunctionPassManager_->run(*func);
+  }
 }
 
 void IrBuilder::visitVarDef(A_VarDef *ast) {
@@ -456,23 +477,35 @@ void IrBuilder::visitVarDef(A_VarDef *ast) {
     llvm::Constant *gc = space_.getConstant(label(ast->expr));
     llvm::GlobalVariable *gv = new llvm::GlobalVariable(
         *llvmModule_, ty_var, false, llvm::GlobalValue::ExternalLinkage, gc,
-        label(varId).str(), nullptr, llvm::GlobalValue::NotThreadLocal, 0,
-        false);
-    space_.setValue(label(varId), llvm::dyn_cast<llvm::Value>(gv));
+        label(varId->symbol()).str(), nullptr,
+        llvm::GlobalValue::NotThreadLocal, 0, false);
+    space_.setValue(label(varId->symbol()), llvm::dyn_cast<llvm::Value>(gv));
   } else if (ast->parent()->kind() == (+AstKind::BlockStats)) {
     // local variable
     ast->expr->accept(this);
     llvm::Value *ae = space_.getValue(label(ast->expr));
-    llvm::AllocaInst *ai =
-        llvmIRBuilder_.CreateAlloca(ty_var, nullptr, label(varId).str());
+    llvm::AllocaInst *ai = llvmIRBuilder_.CreateAlloca(
+        ty_var, nullptr, label(varId->symbol()).str());
     llvm::StoreInst *si = llvmIRBuilder_.CreateStore(ae, ai, false);
-    space_.setValue(label(varId->symbol()), llvm::dyn_cast<llvm::Value>(si));
+    (void)si;
+    space_.setValue(label(varId->symbol()), llvm::dyn_cast<llvm::Value>(ai));
     // space_.setValue(label(varId), llvm::dyn_cast<llvm::Value>(si));
   }
 }
 
 void IrBuilder::visitCompileUnit(A_CompileUnit *ast) {
   llvmModule_ = new llvm::Module(ast->name().str(), llvmContext_);
+  if (enableFunctionPass_) {
+    llvmFunctionPassManager_ =
+        new llvm::legacy::FunctionPassManager(llvmModule_);
+    llvmFunctionPassManager_->add(llvm::createInstructionCombiningPass());
+    llvmFunctionPassManager_->add(llvm::createReassociatePass());
+    llvmFunctionPassManager_->add(llvm::createGVNPass());
+    llvmFunctionPassManager_->add(llvm::createCFGSimplificationPass());
+    llvmFunctionPassManager_->add(llvm::createPromoteMemoryToRegisterPass());
+    llvmFunctionPassManager_->doInitialization();
+  }
+
   scope_ = ast->scope();
 
   if (ast->topStats) {

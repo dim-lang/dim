@@ -11,21 +11,28 @@
 #include "infra/Cowstr.h"
 #include "infra/Files.h"
 
-static void testIrBuilder(const Cowstr &fileName) {
+static void testIrBuilder(const Cowstr &fileName, bool enableFunctionPass) {
   Scanner scanner(fileName);
   REQUIRE(scanner.parse() == 0);
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
-  IrBuilder irBuilder;
+  IrBuilder irBuilder(enableFunctionPass);
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
-  FileWriter fwriter(fileName + ".ll");
+  FileWriter fwriter(fileName + ".enableFunctionPass." +
+                     Cowstr::from(enableFunctionPass) + ".ll");
   fwriter.write(Cowstr::from(irBuilder.llvmModule()));
 }
 
 TEST_CASE("IrBuilder", "[IrBuilder]") {
-  SECTION("ir builder") {
-    testIrBuilder("test/case/ir-var-def-1.dim");
+  SECTION("ir builder without LLVM::FunctionPass") {
+    testIrBuilder("test/case/ir-var-def-1.dim", false);
+    // testIrBuilder("test/case/ir-builder-2.dim");
+    // testIrBuilder("test/case/ir-builder-3.dim");
+  }
+
+  SECTION("ir builder with LLVM::FunctionPass") {
+    testIrBuilder("test/case/ir-var-def-1.dim", true);
     // testIrBuilder("test/case/ir-builder-2.dim");
     // testIrBuilder("test/case/ir-builder-3.dim");
   }
