@@ -45,14 +45,14 @@ function Build-Dependency {
         Set-Location -Path boost
         git submodule update --init
     }
+    $BoostVariant="release"
+    if ($BuildType -eq "Debug") {
+        $BoostVariant="debug"
+    }
     if (!(Test-Path $ROOT\src\boost\$BuildType)) {
         Set-Location -Path $ROOT\src\boost
         cmd /c bootstrap.bat
-        if ($BuildType -eq "Debug") {
-            .\b2 address-model=64 variant=debug link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
-        } else {
-            .\b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
-        }
+        .\b2 address-model=64 variant=$BoostVariant link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
     }
     Write-Output "[dim] prepare boostorg/boost $BOOST_VERSION - done"
     Write-Output "[dim] prepare llvm/llvm-project $LLVM_VERSION"
@@ -60,18 +60,15 @@ function Build-Dependency {
         Set-Location -Path $ROOT\src
         git clone -b $LLVM_VERSION --single-branch --depth 1 https://github.com/llvm/llvm-project
     }
+    $LLVMCMakeConfig="CMakeConfigRelease"
+    if ($BuildType -eq "Debug") {
+        $LLVMCMakeConfig="CMakeConfigDebug"
+    }
     if (!(Test-Path $ROOT\src\llvm-project\llvm\$BuildType)) {
-        if ($BuildType -eq "Debug") {
-            Set-Location -Path $ROOT\src\llvm-project\llvm
-            cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B CMakeConfigDebug
-            Set-Location -Path $ROOT\src\llvm-project\llvm\CMakeConfigDebug
-            cmake --build . --config $BuildType --target INSTALL
-        } else {
-            Set-Location -Path $ROOT\src\llvm-project\llvm
-            cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B CMakeConfigRelease
-            Set-Location -Path $ROOT\src\llvm-project\llvm\CMakeConfigRelease
-            cmake --build . --config $BuildType --target INSTALL
-        }
+        Set-Location -Path $ROOT\src\llvm-project\llvm
+        cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B $LLVMCMakeConfig
+        Set-Location -Path $ROOT\src\llvm-project\llvm\$LLVMCMakeConfig
+        cmake --build . --config $BuildType --target INSTALL
     }
     Write-Output "[dim] prepare llvm/llvm-project $LLVM_VERSION - done"
 }
