@@ -42,12 +42,16 @@ Note: we use PowerShell as default command line instead of legacy cmd on Windows
 ```
 $ choco install git cmake winflexbison3 python
 ```
+* Allow local PowerShell script execution, execute commands with administrator:
+```
+$ Set-ExecutionPolicy RemoteSigned
+```
 
-Nerd installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `dim/src` if these 2 packages are too large to git clone.
+Dim installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `dim/src` if these 2 packages are too large to git clone.
 
 #### Build
 
-| Platform     | Build                                                                         |
-|--------------|-------------------------------------------------------------------------------|
+| Platform     | Build                                                                      |
+|--------------|----------------------------------------------------------------------------|
 | Linux & UNIX | `$ git clone https://github.com/dim-lang/dim.git && cd dim && ./build -r`  |
 | Windows      | `$ git clone https://github.com/dim-lang/dim.git && cd dim && .\build.bat` |

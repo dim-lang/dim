@@ -13,67 +13,70 @@ $CATCH2_VERSION="v2.9.1"
 $LLVM_VERSION="v2.9.1"
 $BOOST_VERSION="boost-1.70.0"
 
-Function Build-Dependency {
+function Build-Dependency {
     Write-Output "[dim] prepare catchorg/Catch2 $CATCH2_VERSION"
-    If (!(Test-Path $ROOT\test\catch2)) {
+    if (!(Test-Path $ROOT\test\catch2)) {
         Set-Location -Path $ROOT\test
         git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2
     }
     Write-Output "[dim] prepare catchorg/Catch2 $CATCH2_VERSION - done"
     Write-Output "[dim] prepare gabime/spdlog $SPDLOG_VERSION"
-    If (!(Test-Path $ROOT\src\spdlog)) {
+    if (!(Test-Path $ROOT\src\spdlog)) {
         Set-Location -Path $ROOT\src
         git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog
     }
     Write-Output "[dim] prepare gabime/spdlog $SPDLOG_VERSION - done"
     Write-Output "[dim] prepare fmtlib/fmt $FMTLIB_VERSION"
-    If (!(Test-Path $ROOT\src\fmt)) {
+    if (!(Test-Path $ROOT\src\fmt)) {
         Set-Location -Path $ROOT\src
         git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt
     }
     Write-Output "[dim] prepare fmtlib/fmt $FMTLIB_VERSION - done"
     Write-Output "[dim] prepare aantron/better-enums $ENUM_VERSION"
-    If (!(Test-Path $ROOT\src\better-enums)) {
+    if (!(Test-Path $ROOT\src\better-enums)) {
         Set-Location -Path $ROOT\src
         git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums
     }
     Write-Output "[dim] prepare aantron/better-enums $ENUM_VERSION - done"
     Write-Output "[dim] prepare boostorg/boost $BOOST_VERSION"
-    If (!(Test-Path $ROOT\src\boost)) {
+    if (!(Test-Path $ROOT\src\boost)) {
         Set-Location -Path $ROOT\src
         git clone -b $BOOST_VERSION --single-branch --depth 1 https://github.com/boostorg/boost
         Set-Location -Path boost
         git submodule update --init
     }
-    $BoostVariant=release
-    If ($BuildType == "Debug") {
-        $BoostVariant=debug
-    }
-    If (!(Test-Path $ROOT\src\boost\$BuildType)) {
+    if (!(Test-Path $ROOT\src\boost\$BuildType)) {
         Set-Location -Path $ROOT\src\boost
         cmd /c bootstrap.bat
-        b2 address-model=64 variant=$BoostVariant link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
+        if ($BuildType -eq "Debug") {
+            .\b2 address-model=64 variant=debug link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
+        } else {
+            .\b2 address-model=64 variant=release link=static runtime-link=shared threading=multi --with-program_options --with-system --with-filesystem --stagedir=$BuildType stage
+        }
     }
     Write-Output "[dim] prepare boostorg/boost $BOOST_VERSION - done"
     Write-Output "[dim] prepare llvm/llvm-project $LLVM_VERSION"
-    If (!(Test-Path $ROOT\src\llvm-project)) {
+    if (!(Test-Path $ROOT\src\llvm-project)) {
         Set-Location -Path $ROOT\src
         git clone -b $LLVM_VERSION --single-branch --depth 1 https://github.com/llvm/llvm-project
     }
-    $LLVMConfig=CMakeConfigRelease
-    If ($BuildType == "Debug") {
-        $LLVMConfig=CMakeConfigDebug
-    }
-    If (!(Test-Path $ROOT\src\llvm-project\llvm\$BuildType)) {
-        Set-Location -Path $ROOT\src\llvm-project\llvm
-        cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B $LLVMConfig
-        Set-Location -Path $ROOT\src\llvm-project\llvm\$LLVMConfig
-        cmake --build . --config $BuildType --target INSTALL
+    if (!(Test-Path $ROOT\src\llvm-project\llvm\$BuildType)) {
+        if ($BuildType -eq "Debug") {
+            Set-Location -Path $ROOT\src\llvm-project\llvm
+            cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B CMakeConfigDebug
+            Set-Location -Path $ROOT\src\llvm-project\llvm\CMakeConfigDebug
+            cmake --build . --config $BuildType --target INSTALL
+        } else {
+            Set-Location -Path $ROOT\src\llvm-project\llvm
+            cmake -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_BUILD_TESTS=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_BUILD_BENCHMARKS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX="$ROOT\src\llvm-project\llvm\$BuildType" -A x64 -Thost=x64 -B CMakeConfigRelease
+            Set-Location -Path $ROOT\src\llvm-project\llvm\CMakeConfigRelease
+            cmake --build . --config $BuildType --target INSTALL
+        }
     }
     Write-Output "[dim] prepare llvm/llvm-project $LLVM_VERSION - done"
 }
 
-Function Build-Make {
+function Build-Make {
     Set-Location -Path $ROOT
     Write-Output "[dim] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
@@ -85,13 +88,13 @@ Function Build-Make {
     Write-Output "[dim] build $BuildType - done"
 }
 
-Function Build-Routine {
+function Build-Routine {
     Write-Output "[dim] build for $OS, mode=$BuildType"
     Build-Dependency
     Build-Make
 }
 
-Function Build-Install {
+function Build-Install {
     Write-Output "[dim] install for $OS, path=$InstallPath"
     $BuildType="Release"
     cd $ROOT\$BuildType
@@ -105,7 +108,7 @@ Function Build-Install {
     Write-Output "[dim] build $BuildType - done"
 }
 
-Function Build-Graph {
+function Build-Graph {
     Set-Location -Path $ROOT\test\case
     Get-ChildItem "$ROOT\test\case" -Filter *.dot |
     Foreach-Object {
@@ -115,7 +118,7 @@ Function Build-Graph {
     }
 }
 
-Function Build-Help {
+function Build-Help {
     Write-Output "[dim] build help message:"
     Write-Output "usage:"
     Write-Output "  build -r/--release              build release."
@@ -128,16 +131,16 @@ Function Build-Help {
     Write-Output "  build -h/--help                 show help message."
 }
 
-If ($args.Count == 0) {
+if ($args.Count -eq 0) {
     $BuildType="Release"
-} ElseIf ($args[0] == "-r" -Or $args[0] == "--release") {
+} elseif ($args[0] -eq "-r" -Or $args[0] -eq "--release") {
     $BuildType="Release"
-} ElseIf ($args[0] == "-d" -Or $args[0] == "--debug") {
+} elseif ($args[0] -eq "-d" -Or $args[0] -eq "--debug") {
     $BuildType="Debug"
-} ElseIf ($args[0] == "-g" -Or $args[0] == "--graph") {
+} elseif ($args[0] -eq "-g" -Or $args[0] -eq "--graph") {
     Build-Graph
     exit 0
-} ElseIf ($args[0] == "-h" -Or $args[0] == "--help") {
+} elseif ($args[0] -eq "-h" -Or $args[0] -eq "--help") {
     Build-Help
     exit 0
 }
