@@ -78,9 +78,15 @@ function Build-Make {
     Write-Output "[dim] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
     Set-Location -Path $ROOT
-    cmake -DDIM_BUILD_TYPE=$BuildType -A x64 -Thost=x64 -B $BuildType
-    cd $BuildType
-    cmake --build . --config $BuildType
+    if ($BuildType -eq "Debug") {
+        cmake -DDIM_BUILD_DEBUG=1 -A x64 -Thost=x64 -B $BuildType
+        cd $BuildType
+        cmake --build . --config $BuildType
+    } else {
+        cmake -DDIM_BUILD_DEBUG=0 -A x64 -Thost=x64 -B $BuildType
+        cd $BuildType
+        cmake --build . --config $BuildType
+    }
     Set-Location -Path $ROOT
     Write-Output "[dim] build $BuildType - done"
 }
@@ -98,7 +104,7 @@ function Build-Install {
     Write-Output "[dim] build $BuildType"
     $env:Path="$ROOT\src\llvm-project\llvm\$BuildType\bin;" + $env:Path
     Set-Location -Path $ROOT
-    cmake -DDIM_BUILD_TYPE=$BuildType -DCMAKE_INSTALL_PREFIX=$InstallPath -A x64 -Thost=x64 -B $BuildType
+    cmake -DDIM_BUILD_DEBUG=0 -DCMAKE_INSTALL_PREFIX=$InstallPath -A x64 -Thost=x64 -B $BuildType
     cd $BuildType
     cmake --build . --config $BuildType --target INSTALL
     Set-Location -Path $ROOT
