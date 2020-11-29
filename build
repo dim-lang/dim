@@ -4,10 +4,11 @@
 
 ROOT=`pwd`
 FOS=$(bash -c "echo \$OSTYPE")
+HINT="[dim]"
 
 function check_return() {
     if [ $1 -ne 0 ]; then
-        echo [dim] $2
+        echo $HINT $2
         exit $1
     fi
 }
@@ -19,35 +20,35 @@ function clean_all() {
     if [ -d release ]; then cd release && make clean && cd ..; fi
 }
 
-function build_dependency() {
+function check_dependency() {
     CATCH2_VERSION=v2.9.1
     SPDLOG_VERSION=v1.3.1
     FMTLIB_VERSION=5.3.0
     ENUM_VERSION=0.11.2
     cd $ROOT
-    echo [dim] prepare catchorg/Catch2 $CATCH2_VERSION
+    echo $HINT prepare catchorg/Catch2 $CATCH2_VERSION
     if [ ! -d test/Catch2 ]; then
         cd test && git clone -b $CATCH2_VERSION --single-branch --depth 1 https://github.com/catchorg/Catch2 && cd $ROOT
     fi
-    echo [dim] prepare catchorg/Catch2 $CATCH2_VERSION - done
-    echo [dim] prepare gabime/spdlog $SPDLOG_VERSION
+    echo $HINT prepare catchorg/Catch2 $CATCH2_VERSION - done
+    echo $HINT prepare gabime/spdlog $SPDLOG_VERSION
     if [ ! -d src/spdlog ]; then
         cd src && git clone -b $SPDLOG_VERSION --single-branch --depth 1 https://github.com/gabime/spdlog && cd $ROOT
     fi
-    echo [dim] prepare gabime/spdlog $SPDLOG_VERSION - done
-    echo [dim] prepare fmtlib/fmt $FMTLIB_VERSION
+    echo $HINT prepare gabime/spdlog $SPDLOG_VERSION - done
+    echo $HINT prepare fmtlib/fmt $FMTLIB_VERSION
     if [ ! -d src/fmt ]; then
         cd src && git clone -b $FMTLIB_VERSION --single-branch --depth 1 https://github.com/fmtlib/fmt && cd $ROOT
     fi
-    echo [dim] prepare fmtlib/fmt $FMTLIB_VERSION - done
-    echo [dim] prepare aantron/better-enums $ENUM_VERSION
+    echo $HINT prepare fmtlib/fmt $FMTLIB_VERSION - done
+    echo $HINT prepare aantron/better-enums $ENUM_VERSION
     if [ ! -d src/better-enums ]; then
         cd src && git clone -b $ENUM_VERSION --single-branch --depth 1 https://github.com/aantron/better-enums && cd $ROOT
     fi
-    echo [dim] prepare aantron/better-enums $ENUM_VERSION - done
+    echo $HINT prepare aantron/better-enums $ENUM_VERSION - done
 }
 
-function build_make() {
+function make_proj() {
     cd $ROOT
     if [ "$1" == "release" ]; then
         cmake -DCMAKE_BUILD_TYPE=Release -B release
@@ -60,52 +61,59 @@ function build_make() {
 }
 
 # $1: debug/release
-function build_routine() {
+function build_proj() {
     case "$FOS" in
       solaris*) ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[dim] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "$HINT unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [dim] build for $FOS, mode=$1
-    build_dependency $1
-    build_make $1
+    echo $HINT build for $FOS, mode=$1
+    check_dependency $1
+    make_proj $1
 }
 
 # $1: install path
-function build_install() {
+function install_proj() {
     case "$FOS" in
       solaris*) ;;
       darwin*)  ;;
       linux*)   ;;
       *bsd*)    ;;
-      *)        echo "[dim] unknown os: $FOS!" && exit 3 ;;
+      *)        echo "$HINT unknown os: $FOS!" && exit 3 ;;
     esac
-    echo [dim] install for $FOS, path=$1
+    echo $HINT install for $FOS, path=$1
     cd $ROOT
     if [ ! -d release ]; then mkdir release; fi
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX==$1 -B release
     cd release && cmake --build . --config Release --target INSTALL
 }
 
-function build_graph() {
+function dump_ast() {
     cd test/case
     for f in *
     do
         if [ ${f: -4} == ".dot" ]; then
-            echo [dim] generate $f.png for $f
+            echo $HINT generate $f.png for $f
             dot -Tpng $f -o $f.png
         fi
     done
 }
 
-function build_help() {
-    echo '[dim] build help message:'
+function generate_parser() {
+    cd $ROOT/src
+    flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
+    bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
+}
+
+function help_msg() {
+    echo '$HINT build help message:'
     echo 'usage:'
     echo '  build -r/--release              build release.'
     echo '  build -d/--debug                build debug.'
     echo '  build -p/--parser               generate tokenizer and parser.'
+    echo '  build -g/--graph                generate abstract syntax tree graph.'
     echo '  build [option] -i/--install     install with [--path] option.'
     echo '  build -t/--test                 run unit tests in debug mode.'
     echo '  build -c/--clean                clean objects.'
@@ -118,14 +126,14 @@ function build_help() {
 # ---- main ----
 
 BUILD_TYPE=release
-INSTALL=0
+INSTALL_OPTION=0
 INSTALL_PATH=/usr/local
 
 while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
         -h|--help)
-            build_help
+            help_msg
             exit 0
             ;;
         -c|--clean)
@@ -137,13 +145,11 @@ while [[ $# -gt 0 ]]; do
             exit 0
             ;;
         --parser)
-            cd src
-            flex --debug -o tokenizer.yy.cc --header-file=tokenizer.yy.hh tokenizer.l
-            bison --debug -v -o parser.tab.cc --defines=parser.tab.hh parser.y
+            generate_parser
             exit 0
             ;;
         -g|--graph)
-            build_graph
+            dump_ast
             exit 0
             ;;
         -d|--debug)
@@ -155,21 +161,22 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -i|--install)
-            INSTALL=1
+            INSTALL_OPTION=1
+            shift
             ;;
         -p|--path)
-            shift
             INSTALL_PATH=$1
             shift
             ;;
         *)
-            build_help
+            help_msg
             exit 0
             ;;
     esac
 done
 
-build_routine $BUILD_TYPE
-if [[ $INSTALL -gt 0 ]]; then
-    build_install $INSTALL_PATH
+# default option: build
+build_proj $BUILD_TYPE
+if [[ $INSTALL_OPTION -gt 0 ]]; then
+    install_proj $INSTALL_PATH
 fi
