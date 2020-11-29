@@ -112,12 +112,23 @@ function Build-Install {
 }
 
 function Build-Graph {
-    Set-Location -Path $ROOT\test\case
-    Get-ChildItem "$ROOT\test\case" -Filter *.dot |
-    Foreach-Object {
-        $FileName=Get-Content $_.FullName
-        Write-Output "[dim] generate $FileName.png for $FileName"
-        dot -Tpng $FileName -o $FileName.png
+    if (Test-Path $ROOT\Debug\test\catch2) {
+        Set-Location -Path $ROOT\Debug\test\case
+        Get-ChildItem -Path "." -Filter *.dot -File -Name |
+        Foreach-Object {
+            $FileName=$_
+            Write-Output "[dim] generate $FileName.png for $FileName"
+            dot -Tpng .\$FileName -o .\$FileName.png
+        }
+    }
+    if (Test-Path $ROOT\Release\test\catch2) {
+        Set-Location -Path $ROOT\Release\test\case
+        Get-ChildItem -Path "." -Filter *.dot -File -Name |
+        Foreach-Object {
+            $FileName=$_
+            Write-Output "[dim] generate $FileName.png for $FileName"
+            dot -Tpng .\$FileName -o .\$FileName.png
+        }
     }
 }
 

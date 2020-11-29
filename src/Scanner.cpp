@@ -3,6 +3,7 @@
 
 #include "Scanner.h"
 #include "Ast.h"
+#include "infra/Exception.h"
 #include "infra/Log.h"
 #include "tokenizer.yy.hh"
 #include <algorithm>
@@ -17,10 +18,10 @@ Scanner::Scanner(const Cowstr &fileName)
 
   // init buffer
   fp_ = std::fopen(fileName_.rawstr(), "r");
-  LOG_ASSERT(fp_, "file {} cannot open!", fileName_);
+  MUST(fp_, "error: cannot open file {}", fileName_);
   yyBufferState_ = yy_create_buffer(fp_, YY_BUF_SIZE, yyscanner_);
-  LOG_ASSERT(yyBufferState_, "yyBufferState_ {} on file {} create fail!",
-             (void *)yyBufferState_, fileName_);
+  MUST(yyBufferState_,
+       "error: Scanner create lexer buffer state fail for file {}", fileName_);
   yy_switch_to_buffer(yyBufferState_, yyscanner_);
   yyset_lineno(1, yyscanner_);
 }

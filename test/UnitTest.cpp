@@ -20,6 +20,9 @@ struct LogInitializer {
     spdlog::set_pattern(
         "%Y-%m-%d %H:%M:%S.%e [%n] %l process-%P thread-%t [%@ %!] %v");
     spdlog::set_default_logger(spdlog::basic_logger_mt(logName, logFile));
+    fmt::print(
+        "dim-test start at:{}\n",
+        boost::filesystem::path(boost::filesystem::current_path()).string());
   }
 };
 
@@ -27,9 +30,6 @@ static LogInitializer initializer;
 
 TEST_CASE("Unit Test", "[Unit Test]") {
   SECTION("Unit Test Initialize") {
-    fmt::print(
-        "dim-test start at:{}\n",
-        boost::filesystem::path(boost::filesystem::current_path()).string());
     LOG_INFO(
         "dim-test start at:{}",
         boost::filesystem::path(boost::filesystem::current_path()).string());

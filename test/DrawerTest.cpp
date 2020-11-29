@@ -22,7 +22,7 @@ static void testDrawer(const Cowstr &fileName) {
 }
 
 TEST_CASE("Drawer", "[Drawer]") {
-  SECTION("ast/symbol graph") {
+  SECTION("ast graph") {
     testDrawer("test/case/parse-1.dim");
     testDrawer("test/case/parse-2.dim");
     testDrawer("test/case/parse-3.dim");
