@@ -4,6 +4,7 @@
 #include "iface/Identifiable.h"
 #include "fmt/format.h"
 #include "infra/Counter.h"
+#include "infra/Log.h"
 #include <string>
 
 static Counter IdentifyCounter;
@@ -17,7 +18,7 @@ Cowstr Identifiable::hexIdentifier() const {
 }
 
 Cowstr Identifiable::decIdentifier() const {
-  return std::to_string(identifiable_);
+  return fmt::format("{}", identifiable_);
 }
 
 Cowstr Identifiable::octIdentifier() const {

@@ -68,22 +68,23 @@ public:
     return s;
   }
 
-  // T could be:
+  // Iterator could be iterator or const_iterator of std containers:
   // - std::vector<Cowstr>
   // - std::list<Cowstr>
   // - std::set<Cowstr>
   // - std::unordered_set<Cowstr>
-  template <typename T>
-  static Cowstr join(const T &value, const Cowstr &delimiter = "") {
-    if (value.empty()) {
+  template <typename Iterator>
+  static Cowstr join(Iterator begin, Iterator end,
+                     const Cowstr &delimiter = "") {
+    if (begin == end) {
       return "";
     }
     std::stringstream ss;
     auto e = value.end();
     e--;
-    for (auto i = value.begin(); i != value.end(); i++) {
-      ss << (*i).str();
-      if (i != e && !delimiter.empty()) {
+    for (; begin != end; ++begin) {
+      ss << (*begin).str();
+      if (begin != end - 1 && !delimiter.empty()) {
         ss << delimiter.str();
       }
     }

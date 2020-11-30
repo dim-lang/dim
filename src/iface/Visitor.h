@@ -7,6 +7,7 @@
 class Visitor {
 public:
   virtual ~Visitor() = default;
+
   // by default do nothing
   virtual void visitInteger(A_Integer *ast);
   virtual void visitFloat(A_Float *ast);
