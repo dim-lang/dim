@@ -17,7 +17,7 @@ BETTER_ENUM(CompileMode, int,
             // compile source files to LLVM binary code .bc files.
             LLVM_BC,
             // dump abstract syntax tree
-            AST)
+            DUMP_AST)
 
 class Compiler {
 public:

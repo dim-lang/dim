@@ -13,7 +13,7 @@
 #include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
 #include "iface/Phase.h"
-#include "infra/Exception.h"
+#include "infra/Log.h"
 #include <string>
 #include <vector>
 
@@ -51,21 +51,17 @@ int main(int argc, char **argv) {
       return 0;
     }
     if (opt.has("dump")) {
-      if (opt.get<std::string>("dump") != "ast") {
-        FAIL("error: unknown dump type:{}\n", opt.get<std::string>("dump"));
-        return 0;
-      }
-      if (!opt.has("input-files")) {
-        FAIL("error: missing input file names\n");
-        return 0;
-      }
-      if (opt.get<std::vector<std::string>>("input-files").size() > 1) {
-        FAIL("error: input one file name at a time\n");
-        return 0;
-      }
-      Compiler compiler(opt.get<std::vector<std::string>>("input-files")[0],
-                        CompileMode::AST, false, 0, false);
-      compiler.compile();
+      CHECK_THROW_ERROR(opt.get<std::string>("dump") == "ast",
+                        "error: unknown dump type:{}\n",
+                        opt.get<std::string>("dump"));
+      CHECK_THROW_ERROR(opt.has("input-files"),
+                        "error: missing input file names\n");
+      CHECK_THROW_ERROR(
+          opt.get<std::vector<std::string>>("input-files").size() == 1,
+          "error: input one file at a time\n");
+      Compiler dumper(opt.get<std::vector<std::string>>("input-files")[0],
+                      CompileMode::DUMP_AST, false, 0, false);
+      dumper.compile();
     }
   } catch (boost::program_options::unknown_option &unknown) {
     fmt::print("error: {}\n", unknown.what());

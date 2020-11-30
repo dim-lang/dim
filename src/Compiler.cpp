@@ -8,12 +8,12 @@
 #include "SymbolBuilder.h"
 #include "SymbolResolver.h"
 #include "iface/Phase.h"
-#include "infra/Exception.h"
 #include "infra/Files.h"
+#include "infra/Log.h"
 
 static Cowstr sourcePrefix(const Cowstr source) {
-  MUST(source.endWith(".dim"), "error: source file {} does not end with .dim",
-       source);
+  CHECK_PRINT_ERROR(source.endWith(".dim"),
+                    "source file {} does not end with .dim", source);
   return source.subString(0, source.length() - 4);
 }
 
@@ -50,25 +50,25 @@ void Compiler::compile() {
     }
     createLLVM_BinaryCode();
     break;
-  case CompileMode::AST:
+  case CompileMode::DUMP_AST:
     dumpAbstractSyntaxTree();
     break;
   default:
-    FAIL("error: unknown compile mode {}", mode_._to_string());
+    THROW_ERROR("error: unknown compile mode {}", mode_._to_string());
   }
 }
 
 void Compiler::createObjectFile() {
-  FAIL("error: create object file .o not implemented");
+  THROW_ERROR("error: create object file .o not implemented");
 }
 
 void Compiler::createAssembleFile() {
-  FAIL("error: create assemble file .s not implemented");
+  THROW_ERROR("error: create assemble file .s not implemented");
 }
 
 void Compiler::createLLVM_LL() {
   Scanner scanner(source_);
-  MUST(scanner.parse() == 0, "error: parsing {} fail", source_);
+  CHECK_THROW_ERROR(scanner.parse() == 0, "error: parsing {} fail", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
@@ -82,12 +82,12 @@ void Compiler::createLLVM_LL() {
 }
 
 void Compiler::createLLVM_BinaryCode() {
-  FAIL("error: create LLVM binary code file .bc not implemented");
+  THROW_ERROR("error: create LLVM binary code file .bc not implemented");
 }
 
 void Compiler::dumpAbstractSyntaxTree() {
   Scanner scanner(source_);
-  MUST(scanner.parse() == 0, "error: syntax error in {}", source_);
+  CHECK_THROW_ERROR(scanner.parse() == 0, "error: syntax error in {}", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;

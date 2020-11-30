@@ -16,8 +16,13 @@ TEST_CASE("Log", "[Log]") {
     LOG_ERROR("error test with args:{} {} {}", "hello", 1, 4.281);
     try {
       LOG_ASSERT(false, "this is a wrong message which throw a string");
-    } catch (const Cowstr &e) {
-      LOG_ERROR("catch it:{}", e);
+    } catch (const Exception &e) {
+      LOG_ERROR("catch it:{}", e.what());
     }
+  }
+  SECTION("print") {
+    PRINT("{}", "print something\n");
+    PRINT_ERROR("{}", "error message");
+    PRINT_WARN("{}", "warning message");
   }
 }
