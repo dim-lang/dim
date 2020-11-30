@@ -14,6 +14,8 @@
 #include "infra/Cowstr.h"
 #include "infra/Log.h"
 #include "spdlog/spdlog.h"
+#include <cstdio>
+#include <cstdlib>
 #include <exception>
 #include <stdexcept>
 
@@ -106,6 +108,6 @@ protected:
                       BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
       fmt::print(stderr, "{}", msg);                                           \
       LOG_ERROR("{}", msg);                                                    \
-      throw Exception(__FILE__, __LINE__, __FUNCTION__, msg);                  \
+      THROW("{}", msg);                                                        \
     }                                                                          \
   } while (0)
