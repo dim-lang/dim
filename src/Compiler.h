@@ -21,8 +21,8 @@ BETTER_ENUM(CompileMode, int,
 
 class Compiler {
 public:
-  Compiler(const Cowstr &source, CompileMode mode, bool optimizeLLFunction,
-           int optimizationLevel, bool debugInfo, const Cowstr &output = "");
+  Compiler(const Cowstr &source, CompileMode mode, int optimizationLevel,
+           bool debugInfo, const Cowstr &output = "");
   virtual ~Compiler() = default;
   virtual void compile();
 
@@ -35,11 +35,9 @@ private:
   // compile mode
   CompileMode mode_;
 
-  // use llvm::legacy::FunctionPass to optimize LLVM functions
-  bool optimizeLLFunction_;
-
   // optimization level in [0,3], only work when mode=OBJ
   // equal to `clang -O` optimization levels option
+  // when level > 0, LLVM function optimizations are enabled
   int optimizationLevel_;
 
   // add debugging information

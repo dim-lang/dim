@@ -177,18 +177,24 @@ bool Cowstr::startWithAnyOf(std::vector<Cowstr>::const_iterator begin,
 }
 
 bool Cowstr::endWith(const char &c) const {
-  return value_->rfind(c) == length() - 1;
+  size_t pos = value_->rfind(c);
+  int target = length() - 1;
+  return pos != std::string::npos && target >= 0 && pos == (size_t)target;
+  // return value_->rfind(c) == length() - 1;
 }
 
 bool Cowstr::endWith(const Cowstr &s) const {
-  return value_->rfind(s.str()) == length() - 1 - s.length();
+  size_t pos = value_->rfind(s.str());
+  int target = length() - s.length();
+  return pos != std::string::npos && target >= 0 && pos == (size_t)target;
+  // return value_->rfind(s.str()) == length() - 1 - s.length();
 }
 
 bool Cowstr::endWithAnyOf(std::vector<Cowstr>::const_iterator begin,
                           std::vector<Cowstr>::const_iterator end) const {
   return std::any_of(begin, end, [&](const Cowstr &prefix) {
     size_t pos = value_->rfind(prefix.str());
-    int target = length() - 1 - prefix.length();
+    int target = length() - prefix.length();
     return pos != std::string::npos && target >= 0 && pos == (size_t)target;
   });
 }

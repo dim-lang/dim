@@ -28,8 +28,8 @@ Option::Option(int argc, char **argv)
       ("output,o", po::value<std::string>(),
        "output file name\n"
        "for input file 'source.dim', if [file name] is not specified, default "
-       "emit object file name is 'source.o', assemble file name is 'source.s', "
-       "LLVM ll file name is 'source.ll', LLVM binary code file name is "
+       "object file name is 'source.o', assemble file name is 'source.s', LLVM "
+       "ll file name is 'source.ll', LLVM binary code file name is "
        "'source.bc'.")
 
       // --codegen, -c
@@ -45,11 +45,11 @@ Option::Option(int argc, char **argv)
       // --optimize, -O
       ("optimize,O", po::value<int>()->default_value(0),
        "optimization level [0-4], by default level is 0\n"
-       "only works when --emit=obj.")
+       "only works when --codegen=obj.")
 
-      // -g
+      // --debug, -g
       ("debug,g", "add debugging information in object file\n"
-                  "only works when --emit=obj.")
+                  "only works when --codegen=obj.")
 
       // --dump, -d
       ("dump,d", po::value<std::string>(),

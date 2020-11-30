@@ -79,4 +79,18 @@ TEST_CASE("Cowstr", "[Cowstr]") {
     s1.append('o');
     REQUIRE(s1.str() == "hello");
   }
+  SECTION("end with") {
+    Cowstr s1 = "test/case/parse-1.dim";
+
+    std::vector<Cowstr> suffixList1 = {".dim"};
+    std::vector<Cowstr> suffixList2 = {"--------------------------.dim"};
+    REQUIRE(s1.endWith('m'));
+    REQUIRE(s1.endWith(".dim"));
+    REQUIRE(s1.endWithAnyOf(suffixList1.begin(), suffixList1.end()));
+
+    REQUIRE(!s1.endWith('.'));
+    REQUIRE(!s1.endWith("asdfdim"));
+    REQUIRE(!s1.endWith("---------------------------dim"));
+    REQUIRE(!s1.endWithAnyOf(suffixList2.begin(), suffixList2.end()));
+  }
 }

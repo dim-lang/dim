@@ -11,18 +11,16 @@
 #include "infra/Files.h"
 #include "infra/Log.h"
 
-static Cowstr sourcePrefix(const Cowstr source) {
+static Cowstr sourcePrefix(const Cowstr &source) {
   ASSERT(source.endWith(".dim"),
          "error: source file {} does not end with .dim\n", source);
   return source.subString(0, source.length() - 4);
 }
 
 Compiler::Compiler(const Cowstr &source, CompileMode mode,
-                   bool optimizeLLFunction, int optimizationLevel,
-                   bool debugInfo, const Cowstr &output)
-    : source_(source), mode_(mode), optimizeLLFunction_(optimizeLLFunction),
-      optimizationLevel_(optimizationLevel), debugInfo_(debugInfo),
-      output_(output) {}
+                   int optimizationLevel, bool debugInfo, const Cowstr &output)
+    : source_(source), mode_(mode), optimizationLevel_(optimizationLevel),
+      debugInfo_(debugInfo), output_(output) {}
 
 void Compiler::compile() {
   switch (mode_) {
@@ -72,7 +70,7 @@ void Compiler::createLLVM_LL() {
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
-  IrBuilder irBuilder(optimizeLLFunction_);
+  IrBuilder irBuilder(optimizationLevel_ > 0);
 
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
@@ -97,6 +95,6 @@ void Compiler::dumpAbstractSyntaxTree() {
   pm.run(scanner.compileUnit());
 
   for (int i = 0; i < (int)dumper.dump().size(); ++i) {
-    PRINT("{}", dumper.dump()[i]);
+    PRINT("{}\n", dumper.dump()[i]);
   }
 }

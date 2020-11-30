@@ -41,15 +41,15 @@
  *                            bin: generate native executable file
  *
  *  --optimize, -O [level]    optimization level [0-4], by default level is 0
- *                            only works when --emit=obj.
+ *                            only works when --codegen=obj.
  *
  *  -g                        add debugging information in object file
- *                            only works when --emit=obj.
+ *                            only works when --codegen=obj.
  *
  *  --dump, -d                dump compile information
  *                            ast: dump abstract syntax file
  *
- *  --input-files [input files]   input multiple files only when --emit=lib/bin
+ *  --input-files [input files]   input multiple files only when --codegen=lib/bin
  */
 class Option {
 public:
