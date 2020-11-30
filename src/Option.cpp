@@ -9,25 +9,52 @@
 
 namespace po = boost::program_options;
 
-DimCompilerOption::DimCompilerOption(int argc, char **argv)
-    : desc_("dim-compiler usage:\n"
-            "dim-compiler [options] [input file]\n"),
+Option::Option(int argc, char **argv)
+    : desc_("dimc usage:\n"
+            "dimc [options] [input file]"),
       success_(true) {
-  desc_.add_options()("help,h", "help message")("version,v",
-                                                "version information")(
-      "input-files,i", po::value<std::vector<std::string>>(), "input files")(
-      "o", po::value<std::string>(),
-      "output file name\n"
-      "for input file 'source.dim', default object file name is 'source.o' if "
-      "[file name] is not specified, assemble file name is 'source.s', LLVM ll "
-      "file name is 'source.ll', LLVM binary code file name is 'source.bc'.")(
-      "O", po::value<int>()->default_value(0),
-      "optimization level, default level=0")("dump-ast",
-                                             "dump abstract syntax tree")(
-      "c", "create object file")("s", "create assemble file")(
-      "ll", "create LLVM ll file")("bc", "create LLVM binary code file")(
-      "g", "add debugging information in object file\n"
-           "only works when -c is specified and optimization level=0.");
+
+  desc_.add_options()
+      // --help,-h
+      ("help,h", "help message")
+
+      // --version,-v
+      ("version,v", "version information")
+
+      // --input-files
+      ("input-files", po::value<std::vector<std::string>>(), "input files")
+
+      // --output,-o
+      ("output,o", po::value<std::string>(),
+       "output file name\n"
+       "for input file 'source.dim', if [file name] is not specified, default "
+       "emit object file name is 'source.o', assemble file name is 'source.s', "
+       "LLVM ll file name is 'source.ll', LLVM binary code file name is "
+       "'source.bc'.")
+
+      // --codegen, -c
+      ("codegen,c", po::value<std::string>(),
+       "specify the types of output files to generate\n"
+       "asm: generate assemble *.s file\n"
+       "llvm-ll: generate LLVM *.ll file\n"
+       "llvm-bc: generate LLVM binary code *.bc file\n"
+       "obj: generate object *.o file\n"
+       "lib: generate dynamic library\n"
+       "bin: generate native executable file")
+
+      // --optimize, -O
+      ("optimize,O", po::value<int>()->default_value(0),
+       "optimization level [0-4], by default level is 0\n"
+       "only works when --emit=obj.")
+
+      // -g
+      ("debug,g", "add debugging information in object file\n"
+                  "only works when --emit=obj.")
+
+      // --dump, -d
+      ("dump,d", po::value<std::string>(),
+       "dump compile information\n"
+       "ast: dump abstract syntax file\n");
 
   pos_desc_.add("input-files", -1);
 
@@ -45,10 +72,8 @@ DimCompilerOption::DimCompilerOption(int argc, char **argv)
   }
 }
 
-bool DimCompilerOption::success() const { return success_; }
+bool Option::success() const { return success_; }
 
-const std::string &DimCompilerOption::message() const { return message_; }
+const std::string &Option::message() const { return message_; }
 
-bool DimCompilerOption::has(const std::string &opt) const {
-  return vm_.count(opt);
-}
+bool Option::has(const std::string &opt) const { return vm_.count(opt); }

@@ -4,6 +4,8 @@
 #pragma once
 #include "infra/Cowstr.h"
 #include "infra/Log.h"
+#include <exception>
+#include <stdexcept>
 
 class Exception {
 public:

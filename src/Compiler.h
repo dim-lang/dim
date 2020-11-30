@@ -13,15 +13,15 @@ BETTER_ENUM(CompileMode, int,
             // equal to `clang -S`
             ASM,
             // compile source files to LLVM IR language .ll files.
-            LL,
+            LLVM_LL,
             // compile source files to LLVM binary code .bc files.
-            BC,
+            LLVM_BC,
             // dump abstract syntax tree
             AST)
 
 class Compiler {
 public:
-  Compiler(const Cowstr &source, CompileMode mode, bool optimizeFunction,
+  Compiler(const Cowstr &source, CompileMode mode, bool optimizeLLFunction,
            int optimizationLevel, bool debugInfo, const Cowstr &output = "");
   virtual ~Compiler() = default;
   virtual void compile();
@@ -36,7 +36,7 @@ private:
   CompileMode mode_;
 
   // use llvm::legacy::FunctionPass to optimize LLVM functions
-  bool optimizeFunction_;
+  bool optimizeLLFunction_;
 
   // optimization level in [0,3], only work when mode=OBJ
   // equal to `clang -O` optimization levels option
@@ -55,7 +55,7 @@ private:
 
   virtual void createObjectFile();
   virtual void createAssembleFile();
-  virtual void createLLVMLL();
-  virtual void createLLVMBinaryCode();
+  virtual void createLLVM_LL();
+  virtual void createLLVM_BinaryCode();
   virtual void dumpAbstractSyntaxTree();
 };

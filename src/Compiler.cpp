@@ -18,9 +18,9 @@ static Cowstr sourcePrefix(const Cowstr source) {
 }
 
 Compiler::Compiler(const Cowstr &source, CompileMode mode,
-                   bool optimizeFunction, int optimizationLevel, bool debugInfo,
-                   const Cowstr &output)
-    : source_(source), mode_(mode), optimizeFunction_(optimizeFunction),
+                   bool optimizeLLFunction, int optimizationLevel,
+                   bool debugInfo, const Cowstr &output)
+    : source_(source), mode_(mode), optimizeLLFunction_(optimizeLLFunction),
       optimizationLevel_(optimizationLevel), debugInfo_(debugInfo),
       output_(output) {}
 
@@ -38,17 +38,17 @@ void Compiler::compile() {
     }
     createAssembleFile();
     break;
-  case CompileMode::LL:
+  case CompileMode::LLVM_LL:
     if (output_.empty()) {
       output_ = sourcePrefix(source_) + ".ll";
     }
-    createLLVMLL();
+    createLLVM_LL();
     break;
-  case CompileMode::BC:
+  case CompileMode::LLVM_BC:
     if (output_.empty()) {
       output_ = sourcePrefix(source_) + ".bc";
     }
-    createLLVMBinaryCode();
+    createLLVM_BinaryCode();
     break;
   case CompileMode::AST:
     dumpAbstractSyntaxTree();
@@ -66,13 +66,13 @@ void Compiler::createAssembleFile() {
   FAIL("error: create assemble file .s not implemented");
 }
 
-void Compiler::createLLVMLL() {
+void Compiler::createLLVM_LL() {
   Scanner scanner(source_);
   MUST(scanner.parse() == 0, "error: parsing {} fail", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
-  IrBuilder irBuilder;
+  IrBuilder irBuilder(optimizeLLFunction_);
 
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
@@ -81,13 +81,13 @@ void Compiler::createLLVMLL() {
   fwriter.write(Cowstr::from(irBuilder.llvmModule()));
 }
 
-void Compiler::createLLVMBinaryCode() {
+void Compiler::createLLVM_BinaryCode() {
   FAIL("error: create LLVM binary code file .bc not implemented");
 }
 
 void Compiler::dumpAbstractSyntaxTree() {
   Scanner scanner(source_);
-  MUST(scanner.parse() == 0, "error: parsing {} fail", source_);
+  MUST(scanner.parse() == 0, "error: syntax error in {}", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;

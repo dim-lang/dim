@@ -188,6 +188,7 @@ set(DIM_CORE_SRC
     # src/Label.cpp
     src/Location.cpp
     src/NameGenerator.cpp
+    src/Option.cpp
     src/Scanner.cpp
     src/Symbol.cpp
     src/SymbolBuilder.cpp
