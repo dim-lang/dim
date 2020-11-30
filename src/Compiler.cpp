@@ -12,8 +12,8 @@
 #include "infra/Log.h"
 
 static Cowstr sourcePrefix(const Cowstr source) {
-  CHECK_PRINT_ERROR(source.endWith(".dim"),
-                    "source file {} does not end with .dim", source);
+  ASSERT(source.endWith(".dim"),
+         "error: source file {} does not end with .dim\n", source);
   return source.subString(0, source.length() - 4);
 }
 
@@ -54,21 +54,21 @@ void Compiler::compile() {
     dumpAbstractSyntaxTree();
     break;
   default:
-    THROW_ERROR("error: unknown compile mode {}", mode_._to_string());
+    ERROR("error: unknown compile mode:{}\n", mode_._to_string());
   }
 }
 
 void Compiler::createObjectFile() {
-  THROW_ERROR("error: create object file .o not implemented");
+  ERROR("error: create object file .o not implemented\n");
 }
 
 void Compiler::createAssembleFile() {
-  THROW_ERROR("error: create assemble file .s not implemented");
+  ERROR("error: create assemble file .s not implemented\n");
 }
 
 void Compiler::createLLVM_LL() {
   Scanner scanner(source_);
-  CHECK_THROW_ERROR(scanner.parse() == 0, "error: parsing {} fail", source_);
+  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
@@ -82,12 +82,12 @@ void Compiler::createLLVM_LL() {
 }
 
 void Compiler::createLLVM_BinaryCode() {
-  THROW_ERROR("error: create LLVM binary code file .bc not implemented");
+  ERROR("error: create LLVM binary code file .bc not implemented\n");
 }
 
 void Compiler::dumpAbstractSyntaxTree() {
   Scanner scanner(source_);
-  CHECK_THROW_ERROR(scanner.parse() == 0, "error: syntax error in {}", source_);
+  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", source_);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
@@ -97,6 +97,6 @@ void Compiler::dumpAbstractSyntaxTree() {
   pm.run(scanner.compileUnit());
 
   for (int i = 0; i < (int)dumper.dump().size(); ++i) {
-    fmt::print(stdout, "{}", dumper.dump()[i]);
+    PRINT("{}", dumper.dump()[i]);
   }
 }

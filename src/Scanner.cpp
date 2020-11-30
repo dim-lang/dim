@@ -12,16 +12,15 @@ Scanner::Scanner(const Cowstr &fileName)
       yyscanner_(nullptr), compileUnit_(nullptr) {
   // init scanner
   int r = yylex_init_extra(this, &yyscanner_);
-  LOG_ASSERT(r == 0, "yylex_init_extra fail: {}", r);
+  LOG_ASSERT(r == 0, "lexer initialize fail with code {}", r);
   LOG_ASSERT(yyscanner_, "yyscanner_ must not null");
 
   // init buffer
   fp_ = std::fopen(fileName_.rawstr(), "r");
-  CHECK_THROW_ERROR(fp_, "error: cannot open file {}", fileName_);
+  ASSERT(fp_, "error: cannot open file {}\n", fileName_);
   yyBufferState_ = yy_create_buffer(fp_, YY_BUF_SIZE, yyscanner_);
-  CHECK_THROW_ERROR(yyBufferState_,
-                    "error: Scanner create lexer buffer state fail for file {}",
-                    fileName_);
+  LOG_ASSERT(yyBufferState_, "lexer buffer state creation fail with file {}",
+             fileName_);
   yy_switch_to_buffer(yyBufferState_, yyscanner_);
   yyset_lineno(1, yyscanner_);
 }

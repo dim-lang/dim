@@ -240,6 +240,7 @@ set(DIM_TEST_SRC
     test/DumperTest.cpp
     test/IrBuilderTest.cpp
     test/LocationTest.cpp
+    test/OptionTest.cpp
     test/ParserTest.cpp
     test/SymbolBuilderTest.cpp
     test/SymbolResolverTest.cpp

@@ -51,22 +51,19 @@ int main(int argc, char **argv) {
       return 0;
     }
     if (opt.has("dump")) {
-      CHECK_THROW_ERROR(opt.get<std::string>("dump") == "ast",
-                        "error: unknown dump type:{}\n",
-                        opt.get<std::string>("dump"));
-      CHECK_THROW_ERROR(opt.has("input-files"),
-                        "error: missing input file names\n");
-      CHECK_THROW_ERROR(
-          opt.get<std::vector<std::string>>("input-files").size() == 1,
-          "error: input one file at a time\n");
+      ASSERT(opt.get<std::string>("dump") == "ast",
+             "error: unknown dump type {}\n", opt.get<std::string>("dump"));
+      ASSERT(opt.has("input-files"), "error: missing input file names\n");
+      ASSERT(opt.get<std::vector<std::string>>("input-files").size() == 1,
+             "error: input one file at a time\n");
       Compiler dumper(opt.get<std::vector<std::string>>("input-files")[0],
                       CompileMode::DUMP_AST, false, 0, false);
       dumper.compile();
     }
   } catch (boost::program_options::unknown_option &unknown) {
-    fmt::print("error: {}\n", unknown.what());
+    PRINT("error: {}\n", unknown.what());
   } catch (Exception &e) {
-    fmt::print("error: {}\n", e.message());
+    PRINT("error: {}\n", e.message());
   }
 
   return 0;

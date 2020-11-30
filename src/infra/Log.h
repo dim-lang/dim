@@ -37,30 +37,27 @@ protected:
   Cowstr function_;
 };
 
-// check
+// print
 
-#define CHECK_PRINT(cond, ...)                                                 \
+#undef PRINT
+#define PRINT(...) fmt::print(__VA_ARGS__)
+
+#undef PRINT_IF
+#define PRINT_IF(cond, ...)                                                    \
   do {                                                                         \
-    if (!(cond)) {                                                             \
-      fmt::print(stdout, __VA_ARGS__);                                         \
+    if (cond) {                                                                \
+      fmt::print(__VA_ARGS__);                                         \
     }                                                                          \
   } while (0)
 
-#define CHECK_PRINT_ERROR(cond, ...)                                           \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      fmt::print(stdout, "error: {}\n", fmt::format(__VA_ARGS__));             \
-    }                                                                          \
-  } while (0)
+// assert
 
-#define CHECK_PRINT_WARN(cond, ...)                                            \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      fmt::print(stdout, "warn: {}\n", fmt::format(__VA_ARGS__));              \
-    }                                                                          \
-  } while (0)
+#undef ERROR
+#define ERROR(...)                                                              \
+  throw Exception(__FILE__, __LINE__, __FUNCTION__, fmt::format(__VA_ARGS__))
 
-#define CHECK_THROW(cond, ...)                                                 \
+#undef ASSERT
+#define ASSERT(cond, ...)                                                \
   do {                                                                         \
     if (!(cond)) {                                                             \
       throw Exception(__FILE__, __LINE__, __FUNCTION__,                        \
@@ -68,28 +65,13 @@ protected:
     }                                                                          \
   } while (0)
 
-#define CHECK_THROW_ERROR(cond, ...)                                           \
+#undef ASSERT_MSG
+#define ASSERT_MSG(cond, ...)                                                \
   do {                                                                         \
     if (!(cond)) {                                                             \
-      throw Exception(__FILE__, __LINE__, __FUNCTION__,                        \
-                      fmt::format("error: {}\n", fmt::format(__VA_ARGS__)));   \
+      fmt::print(stderr, __VA_ARGS__);                                         \
     }                                                                          \
   } while (0)
-
-// log
-
-#define PRINT(...) fmt::print(stdout, __VA_ARGS__)
-#define PRINT_ERROR(...)                                                       \
-  fmt::print(stdout, "error: {}\n", fmt::format(__VA_ARGS__))
-#define PRINT_WARN(...)                                                        \
-  fmt::print(stdout, "warn: {}\n", fmt::format(__VA_ARGS__))
-
-#define THROW(...)                                                             \
-  throw Exception(__FILE__, __LINE__, __FUNCTION__, fmt::format(__VA_ARGS__))
-
-#define THROW_ERROR(...)                                                       \
-  throw Exception(__FILE__, __LINE__, __FUNCTION__,                            \
-                  fmt::format("error: {}\n", fmt::format(__VA_ARGS__)))
 
 // file log
 
@@ -108,6 +90,6 @@ protected:
                       BOOST_PP_STRINGIZE(cond), fmt::format(__VA_ARGS__));     \
       fmt::print(stderr, "{}", msg);                                           \
       LOG_ERROR("{}", msg);                                                    \
-      THROW("{}", msg);                                                        \
+      ERROR("{}", msg);                                                        \
     }                                                                          \
   } while (0)

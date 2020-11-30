@@ -22,7 +22,10 @@ TEST_CASE("Log", "[Log]") {
   }
   SECTION("print") {
     PRINT("{}", "print something\n");
-    PRINT_ERROR("{}", "error message");
-    PRINT_WARN("{}", "warning message");
+    try {
+      ERROR("{}", "throw error\n");
+    } catch (const Exception &e) {
+      LOG_ERROR("catch it:{}", e.what());
+    }
   }
 }
