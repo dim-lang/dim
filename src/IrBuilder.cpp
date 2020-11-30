@@ -255,9 +255,9 @@ void IrBuilder::visitReturn(A_Return *ast) {
   if (ast->expr) {
     ast->expr->accept(this);
     llvm::Value *retValue = space_.getValue(label(ast->expr));
-    LOG_INFO("ast {}:{} ast->expr {}:{} retValue:{}", ast->name(),
-             ast->location(), ast->expr->name(), ast->expr->location(),
-             Cowstr::from(retValue));
+    LOG_ASSERT(retValue, "ast {}:{} ast->expr {}:{} retValue:{} must not null",
+               ast->name(), ast->location(), ast->expr->name(),
+               ast->expr->location(), Cowstr::from(retValue));
     llvmIRBuilder_.CreateRet(retValue);
   } else {
     llvmIRBuilder_.CreateRetVoid();
