@@ -2,7 +2,6 @@
 // Apache License Version 2.0
 
 #include "infra/Cowstr.h"
-#include "infra/Log.h"
 using sps = std::shared_ptr<std::string>;
 
 static sps dupsps(sps s) {
