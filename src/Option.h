@@ -32,10 +32,8 @@
  *                            bin: generate native executable file
  *
  *  --optimize, -O [level]    optimization `level` [0-3], by default level is 0
- *                            only works when --codegen=obj.
  *
- *  -g                        add debugging information in object file
- *                            only works when --codegen=obj.
+ *  --debug, -g               add debugging information in object file
  *
  *  --dump, -d [type]         dump compile information `type`
  *                            ast: dump abstract syntax file

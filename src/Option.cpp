@@ -5,9 +5,7 @@
 namespace po = boost::program_options;
 
 Option::Option(int argc, char **argv)
-    : desc_("dimc usage:\n"
-            "dimc [options] [input file]"),
-      success_(true) {
+    : desc_("dimc [options] [input files]"), success_(true) {
 
   desc_.add_options()
       // --help,-h
@@ -23,15 +21,15 @@ Option::Option(int argc, char **argv)
 
       // --output,-o
       ("output,o", po::value<std::string>()->value_name("output file"),
-       "output file name\n"
-       "for input file 'source.dim', if `output file` is not specified, "
+       "output file\n"
+       "for input file 'source.dim', if output file is not specified, "
        "default object file name is 'source.o', assemble file name is "
        "'source.s', LLVM ll file name is 'source.ll', LLVM binary code file "
        "name is 'source.bc'.")
 
       // --codegen, -c
       ("codegen,c", po::value<std::string>()->value_name("type"),
-       "specify the `type` of output files to generate\n"
+       "specify the type of output files to generate\n"
        "asm: generate assemble *.s file\n"
        "llvm-ll: generate LLVM *.ll file\n"
        "llvm-bc: generate LLVM binary code *.bc file\n"
@@ -41,16 +39,14 @@ Option::Option(int argc, char **argv)
 
       // --optimize, -O
       ("optimize,O", po::value<int>()->default_value(0)->value_name("level"),
-       "optimization `level` [0-3], by default level is 0\n"
-       "only works when --codegen=obj.")
+       "optimization level [0-3], by default level is 0")
 
       // --debug, -g
-      ("debug,g", "add debugging information in object file\n"
-                  "only works when --codegen=obj.")
+      ("debug,g", "add debugging information in object file")
 
       // --dump, -d
       ("dump,d", po::value<std::string>()->value_name("type"),
-       "dump compile information `type`\n"
+       "dump compile information type\n"
        "ast: dump abstract syntax file\n");
 
   pos_desc_.add("input-files", -1);
