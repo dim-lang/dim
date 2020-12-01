@@ -32,12 +32,17 @@ Catch2
 boost
 llvm-project
 
-# auto generate source code
+# generate
 tokenizer.yy.hh
 tokenizer.yy.cc
 parser.tab.hh
 parser.tab.cc
 src/Configure.h
+*.dot
+*.png
+*.ll
+*.bc
+*.heap
 
 # vscode
 compile_commands.json
@@ -48,10 +53,3 @@ compile_flags.txt
 # clion
 cmake-build-debug
 .idea
-
-# graphviz
-*.dot
-*.png
-*.ll
-*.bc
-
