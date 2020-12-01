@@ -47,7 +47,7 @@ $ choco install git cmake winflexbison3 python
 $ Set-ExecutionPolicy RemoteSigned
 ```
 
-Dim installation requires LLVM and Boost library on Windows, please download [llvm-project-10.0.1.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.1) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `dim/src` if these 2 packages are too large to git clone.
+Dim installation requires LLVM and Boost library on Windows, please download [llvm-project-11.0.0.tar.xz](https://github.com/llvm/llvm-project/releases/tag/llvmorg-11.0.0) and [boost_1_70_0.tar.gz](https://sourceforge.net/projects/boost/files/boost/1.70.0/), put in `dim/src` if these 2 packages are too large to git clone.
 
 #### Build
 
