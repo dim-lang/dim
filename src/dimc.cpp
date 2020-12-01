@@ -72,6 +72,9 @@ int main(int argc, char **argv) {
       if (codegenOpt == "llvm-ll") {
         ASSERT(opt.has("input-files"), "error: missing input file name\n");
         int optimizationLevel = opt.get<int>("optimize");
+        ASSERT(optimizationLevel >= 0 && optimizationLevel <= 3,
+               "error: invalid optimization level --optimize={}",
+               optimizationLevel);
         bool debugInfo = opt.has("debug");
 
         std::vector<std::string> inputFileList =

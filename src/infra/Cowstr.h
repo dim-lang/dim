@@ -11,6 +11,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <list>
 #include <map>
@@ -28,8 +29,7 @@ public:
   Cowstr(const std::string &s);
   Cowstr(const char *s);
   Cowstr(const char *s, int n);
-  Cowstr(std::vector<Cowstr>::const_iterator begin,
-         std::vector<Cowstr>::const_iterator end);
+
   virtual ~Cowstr() = default;
   Cowstr(const Cowstr &) = default;
   Cowstr &operator=(const Cowstr &) = default;
@@ -68,7 +68,7 @@ public:
     return s;
   }
 
-  // Iterator could be iterator or const_iterator of std containers:
+  // Iterator is iterator/const_iterator of:
   // - std::vector<Cowstr>
   // - std::list<Cowstr>
   // - std::set<Cowstr>
@@ -80,10 +80,8 @@ public:
       return "";
     }
     std::stringstream ss;
-    auto e = value.end();
-    e--;
     for (; begin != end; ++begin) {
-      ss << (*begin).str();
+      ss << begin->str();
       if (begin != end - 1 && !delimiter.empty()) {
         ss << delimiter.str();
       }
@@ -105,19 +103,52 @@ public:
   const char *rbegin() const;
   const char *rend() const;
 
-  // return *this
+  // modify and return self
   Cowstr &insert(int index, const char &c, int count = 1);
   Cowstr &insert(int index, const Cowstr &s);
-  Cowstr &insert(int index, std::vector<Cowstr>::const_iterator begin,
-                 std::vector<Cowstr>::const_iterator end);
+
+  // Iterator is iterator/const_iterator of:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename Iterator>
+  Cowstr &insert(int index, Iterator begin, Iterator end) {
+    if (begin == end) {
+      return *this;
+    }
+    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
+        (value_ && !value_->empty()) ? new std::string(*value_)
+                                     : new std::string());
+    nv->insert(index, Cowstr::join(begin, end).str());
+    value_ = nv;
+    return *this;
+  }
 
   Cowstr &erase(int index, int count = 1);
-  Cowstr &popend(int count = 1); // equal to erase(length()-1)
+  // pop out the last char, equal to erase(length() - 1)
+  Cowstr &popend(int count = 1);
 
   Cowstr &append(const char &c, int count = 1);
   Cowstr &append(const Cowstr &s);
-  Cowstr &append(std::vector<Cowstr>::const_iterator begin,
-                 std::vector<Cowstr>::const_iterator end);
+
+  // Iterator is iterator/const_iterator of:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename Iterator> Cowstr &append(Iterator begin, Iterator end) {
+    if (begin == end) {
+      return *this;
+    }
+    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
+        (value_ && !value_->empty()) ? new std::string(*value_)
+                                     : new std::string());
+    nv->append(Cowstr::join(begin, end));
+    value_ = nv;
+    return *this;
+  }
+
   Cowstr &operator+=(const Cowstr &s);
 
   Cowstr operator+(const char &c) const;
@@ -127,20 +158,86 @@ public:
 
   bool startWith(const char &c) const;
   bool startWith(const Cowstr &s) const;
-  bool startWithAnyOf(std::vector<Cowstr>::const_iterator begin,
-                      std::vector<Cowstr>::const_iterator end) const;
+
+  // Iterator is iterator/const_iterator of:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename Iterator>
+  bool startWithAnyOf(Iterator begin, Iterator end) const {
+    if (begin == end) {
+      return false;
+    }
+    return std::any_of(begin, end, [&](const Cowstr &prefix) {
+      return value_->find(prefix.str()) == 0;
+    });
+  }
 
   bool endWith(const char &c) const;
   bool endWith(const Cowstr &s) const;
-  bool endWithAnyOf(std::vector<Cowstr>::const_iterator begin,
-                    std::vector<Cowstr>::const_iterator end) const;
+
+  // Iterator is iterator/const_iterator:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename Iterator>
+  bool endWithAnyOf(Iterator begin, Iterator end) const {
+    if (begin == end) {
+      return false;
+    }
+    return std::any_of(begin, end, [&](const Cowstr &suffix) {
+      size_t pos = value_->rfind(suffix.str());
+      int target = length() - suffix.length();
+      return pos != std::string::npos && target >= 0 && pos == (size_t)target;
+    });
+  }
 
   Cowstr &replace(const char &from, const char &to);
   Cowstr &replace(const Cowstr &from, const Cowstr &to);
-  Cowstr &replace(const std::unordered_set<char> &from, const char &to);
-  Cowstr &replace(const std::unordered_set<char> &from, const Cowstr &to);
-  Cowstr &replace(const std::set<char> &from, const char &to);
-  Cowstr &replace(const std::set<char> &from, const Cowstr &to);
+
+  // Iterator is iterator/const_iterator of:
+  // - std::vector<Cowstr>
+  // - std::list<Cowstr>
+  // - std::set<Cowstr>
+  // - std::unordered_set<Cowstr>
+  template <typename Iterator>
+  Cowstr &replace(Iterator frombegin, Iterator fromend, const Cowstr &to) {
+    if (frombegin == fromend) {
+      return *this;
+    }
+    std::stringstream ss;
+    for (int i = 0; i < (int)value_->length(); ++i) {
+      bool found = false;
+      for (auto j = frombegin; j != fromend; ++j) {
+        if ((*j) == value_->at(i)) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        ss << to.str();
+      } else {
+        ss << value_->at(i);
+      }
+    }
+    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
+        ss.str().empty() ? new std::string() : new std::string(ss.str()));
+    value_ = nv;
+    return *this;
+  }
+
+  // Iterator is iterator/const_iterator of:
+  // - std::vector<char>
+  // - std::list<char>
+  // - std::set<char>
+  // - std::unordered_set<char>
+  template <typename Iterator>
+  Cowstr &replace(Iterator frombegin, Iterator fromend, const char &to) {
+    return replace(frombegin, fromend, Cowstr(&to, 1));
+  }
+
   Cowstr &replace(const std::unordered_map<char, Cowstr> &mapping);
   Cowstr &replace(const std::map<char, Cowstr> &mapping);
 

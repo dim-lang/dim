@@ -22,19 +22,21 @@ Option::Option(int argc, char **argv)
       ("version,v", "version information")
 
       // --input-files
-      ("input-files", po::value<std::vector<std::string>>(), "input files")
+      ("input-files",
+       po::value<std::vector<std::string>>()->value_name("input files"),
+       "input files")
 
       // --output,-o
-      ("output,o", po::value<std::string>(),
+      ("output,o", po::value<std::string>()->value_name("output file"),
        "output file name\n"
-       "for input file 'source.dim', if [file name] is not specified, default "
-       "object file name is 'source.o', assemble file name is 'source.s', LLVM "
-       "ll file name is 'source.ll', LLVM binary code file name is "
-       "'source.bc'.")
+       "for input file 'source.dim', if `output file` is not specified, "
+       "default object file name is 'source.o', assemble file name is "
+       "'source.s', LLVM ll file name is 'source.ll', LLVM binary code file "
+       "name is 'source.bc'.")
 
       // --codegen, -c
-      ("codegen,c", po::value<std::string>(),
-       "specify the types of output files to generate\n"
+      ("codegen,c", po::value<std::string>()->value_name("type"),
+       "specify the `type` of output files to generate\n"
        "asm: generate assemble *.s file\n"
        "llvm-ll: generate LLVM *.ll file\n"
        "llvm-bc: generate LLVM binary code *.bc file\n"
@@ -43,8 +45,8 @@ Option::Option(int argc, char **argv)
        "bin: generate native executable file")
 
       // --optimize, -O
-      ("optimize,O", po::value<int>()->default_value(0),
-       "optimization level [0-4], by default level is 0\n"
+      ("optimize,O", po::value<int>()->default_value(0)->value_name("level"),
+       "optimization `level` [0-3], by default level is 0\n"
        "only works when --codegen=obj.")
 
       // --debug, -g
@@ -52,8 +54,8 @@ Option::Option(int argc, char **argv)
                   "only works when --codegen=obj.")
 
       // --dump, -d
-      ("dump,d", po::value<std::string>(),
-       "dump compile information\n"
+      ("dump,d", po::value<std::string>()->value_name("type"),
+       "dump compile information `type`\n"
        "ast: dump abstract syntax file\n");
 
   pos_desc_.add("input-files", -1);

@@ -50,7 +50,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     } else {                                                                   \
       joiner.push_back("typeSymbol:null");                                     \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
   } while (0)
 
 #define STRINGIZE1(a, b)                                                       \
@@ -60,7 +60,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->b) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     indent_ += 1;                                                              \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
@@ -75,7 +75,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->b) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(b), a->b));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
     }                                                                          \
@@ -91,7 +91,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->c) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     indent_ += 1;                                                              \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
@@ -112,7 +112,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->c) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(c), a->c));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
     }                                                                          \
@@ -134,7 +134,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->d) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(d), a->d));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     indent_ += 1;                                                              \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
@@ -161,7 +161,7 @@ static Cowstr stringize(const Cowstr &hint, TypeSymbol *tsym) {
     if (a->d) {                                                                \
       joiner.push_back(stringize(BOOST_PP_STRINGIZE(d), a->d));                \
     }                                                                          \
-    dump_.push_back(Cowstr::join(joiner, " "));                                \
+    dump_.push_back(Cowstr::join(joiner.begin(), joiner.end(), " "));          \
     if (a->b) {                                                                \
       a->b->accept(this);                                                      \
     }                                                                          \

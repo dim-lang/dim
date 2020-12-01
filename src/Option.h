@@ -21,18 +21,18 @@
  *  dimc [options] [input files]
  *
  * options:
- *  --help, -h                help message
+ *  --help, -h                  help message
  *
- *  --version, -v             version information
+ *  --version, -v               version information
  *
- *  --output, -o [file name]  output file name
- *                            for input file 'source.dim', if [file name] is not
- *                            specified, default generate object file name is
- *                            'source.o', assemble file name is 'source.s', LLVM
- *                            ll file name is 'source.ll', LLVM binary code file
- *                            name is 'source.bc'.
+ *  --output, -o [output file]  output file name
+ *                              for input file 'source.dim', if `output file` is
+ *                              not specified, default generate object file name
+ *                              is 'source.o', assemble file name is 'source.s',
+ *                              LLVM ll file name is 'source.ll', LLVM binary
+ *                              code file name is 'source.bc'.
  *
- *  --codegen, -c             specify the types of output files to generate
+ *  --codegen, -c [type]      specify the `type` of output files to generate
  *                            asm: generate assemble file
  *                            llvm-ll: generate LLVM LL file
  *                            llvm-bc: generate LLVM binary code file
@@ -40,17 +40,19 @@
  *                            lib: generate dynamic library
  *                            bin: generate native executable file
  *
- *  --optimize, -O [level]    optimization level [0-4], by default level is 0
+ *  --optimize, -O [level]    optimization `level` [0-3], by default level is 0
  *                            only works when --codegen=obj.
  *
  *  -g                        add debugging information in object file
  *                            only works when --codegen=obj.
  *
- *  --dump, -d                dump compile information
+ *  --dump, -d [type]         dump compile information `type`
  *                            ast: dump abstract syntax file
  *
- *  --input-files [input files]   input multiple files only when --codegen=lib/bin
+ *  --input-files [input files]   input multiple files only when
+ *                                --codegen=lib/bin
  */
+
 class Option {
 public:
   Option(int argc, char **argv);
