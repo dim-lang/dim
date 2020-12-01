@@ -63,11 +63,14 @@ public:
     return s;
   }
 
-  // Iterator is iterator/const_iterator of:
+  // Iterator is iterator/const_iterator of STL containers with typename Cowstr,
+  // such as:
   // - std::vector<Cowstr>
   // - std::list<Cowstr>
   // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
+  // - etc
+  // But except mapping STL data structures like std::map, std::unordered_map,
+  // etc.
   template <typename Iterator>
   static Cowstr join(Iterator begin, Iterator end,
                      const Cowstr &delimiter = "") {
@@ -102,11 +105,6 @@ public:
   Cowstr &insert(int index, const char &c, int count = 1);
   Cowstr &insert(int index, const Cowstr &s);
 
-  // Iterator is iterator/const_iterator of:
-  // - std::vector<Cowstr>
-  // - std::list<Cowstr>
-  // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
   template <typename Iterator>
   Cowstr &insert(int index, Iterator begin, Iterator end) {
     if (begin == end) {
@@ -127,11 +125,6 @@ public:
   Cowstr &append(const char &c, int count = 1);
   Cowstr &append(const Cowstr &s);
 
-  // Iterator is iterator/const_iterator of:
-  // - std::vector<Cowstr>
-  // - std::list<Cowstr>
-  // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
   template <typename Iterator> Cowstr &append(Iterator begin, Iterator end) {
     if (begin == end) {
       return *this;
@@ -154,11 +147,6 @@ public:
   bool startWith(const char &c) const;
   bool startWith(const Cowstr &s) const;
 
-  // Iterator is iterator/const_iterator of:
-  // - std::vector<Cowstr>
-  // - std::list<Cowstr>
-  // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
   template <typename Iterator>
   bool startWithAnyOf(Iterator begin, Iterator end) const {
     if (begin == end) {
@@ -172,11 +160,6 @@ public:
   bool endWith(const char &c) const;
   bool endWith(const Cowstr &s) const;
 
-  // Iterator is iterator/const_iterator:
-  // - std::vector<Cowstr>
-  // - std::list<Cowstr>
-  // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
   template <typename Iterator>
   bool endWithAnyOf(Iterator begin, Iterator end) const {
     if (begin == end) {
@@ -192,11 +175,6 @@ public:
   Cowstr &replace(const char &from, const char &to);
   Cowstr &replace(const Cowstr &from, const Cowstr &to);
 
-  // Iterator is iterator/const_iterator of:
-  // - std::vector<Cowstr>
-  // - std::list<Cowstr>
-  // - std::set<Cowstr>
-  // - std::unordered_set<Cowstr>
   template <typename Iterator>
   Cowstr &replace(Iterator frombegin, Iterator fromend, const Cowstr &to) {
     if (frombegin == fromend) {
@@ -223,11 +201,14 @@ public:
     return *this;
   }
 
-  // Iterator is iterator/const_iterator of:
+  // Iterator is iterator/const_iterator of STL containers with typename char,
+  // such as:
   // - std::vector<char>
   // - std::list<char>
   // - std::set<char>
-  // - std::unordered_set<char>
+  // - etc
+  // But except mapping STL data structures like std::map, std::unordered_map,
+  // etc.
   template <typename Iterator>
   Cowstr &replace(Iterator frombegin, Iterator fromend, const char &to) {
     return replace(frombegin, fromend, Cowstr(&to, 1));
