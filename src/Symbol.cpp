@@ -5,7 +5,6 @@
 #include "Ast.h"
 #include "iface/Locationable.h"
 #include "iface/Nameable.h"
-#include "infra/Counter.h"
 #include "infra/LinkedHashMap.hpp"
 #include "infra/Log.h"
 #include <algorithm>

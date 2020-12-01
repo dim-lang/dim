@@ -4,7 +4,6 @@
 #include "SymbolResolver.h"
 #include "Ast.h"
 #include "Symbol.h"
-#include "iface/Scoped.h"
 #include "infra/Log.h"
 
 SymbolResolver::SymbolResolver()

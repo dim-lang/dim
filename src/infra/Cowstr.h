@@ -11,17 +11,12 @@
 #include "llvm/Support/raw_ostream.h"
 #include <algorithm>
 #include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <list>
 #include <map>
 #include <memory>
 #include <set>
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
-#include <vector>
 
 class Cowstr {
 public:

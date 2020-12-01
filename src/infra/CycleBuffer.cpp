@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <tuple>
 
 #define ALIGN(n) (n < 8 ? 8 : (n % 8 == 0 ? n : ((n / 8 + 1) * 8)))
 #define MIN(a, b) (std::min<int>(a, b))

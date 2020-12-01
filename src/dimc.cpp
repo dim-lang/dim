@@ -2,24 +2,13 @@
 // Apache License Version 2.0
 
 #include "Compiler.h"
-#include "Configure.h"
-#include "Dumper.h"
 #include "Option.h"
-#include "Scanner.h"
-#include "SymbolBuilder.h"
-#include "SymbolResolver.h"
 #include "boost/filesystem.hpp"
-#include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
 #include "fmt/format.h"
-#include "iface/Phase.h"
 #include "infra/Log.h"
 #include <string>
 #include <vector>
-
-static Dumper dumper;
-static SymbolBuilder symbolBuilder;
-static SymbolResolver symbolResolver;
 
 static void dumpArgs(int argc, char **argv) {
   LOG_INFO("working at {}, argc:{}",

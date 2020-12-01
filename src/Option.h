@@ -7,15 +7,6 @@
 #include "boost/program_options.hpp"
 #include "boost/program_options/parsers.hpp"
 
-#define OPT_HELP "help"
-#define OPT_VERSION "version"
-#define OPT_INPUT_FILE "input-file"
-#define OPT_DUMP_AST "dump-ast"
-#define OPT_DUMP_LL "dump-ll"
-#define OPT_DUMP_BC "dump-bc"
-#define OPT_C "c"
-#define OPT_O "o"
-
 /**
  * dimc usage:
  *  dimc [options] [input files]

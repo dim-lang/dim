@@ -2,11 +2,6 @@
 // Apache License Version 2.0
 
 #include "Option.h"
-#include "Configure.h"
-#include "boost/filesystem.hpp"
-#include "boost/program_options.hpp"
-#include "boost/program_options/parsers.hpp"
-
 namespace po = boost::program_options;
 
 Option::Option(int argc, char **argv)
