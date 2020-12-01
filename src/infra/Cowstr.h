@@ -2,6 +2,7 @@
 // Apache License Version 2.0
 
 #pragma once
+#include "boost/smart_ptr/local_shared_ptr.hpp"
 #include "fmt/format.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Function.h"
@@ -12,7 +13,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <map>
-#include <memory>
 #include <set>
 #include <sstream>
 #include <string>
@@ -20,6 +20,8 @@
 
 class Cowstr {
 public:
+  using blsp = boost::local_shared_ptr<std::string>;
+
   Cowstr();
   Cowstr(const std::string &s);
   Cowstr(const char *s);
@@ -110,9 +112,8 @@ public:
     if (begin == end) {
       return *this;
     }
-    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
-        (value_ && !value_->empty()) ? new std::string(*value_)
-                                     : new std::string());
+    blsp nv = blsp((value_ && !value_->empty()) ? new std::string(*value_)
+                                                : new std::string());
     nv->insert(index, Cowstr::join(begin, end).str());
     value_ = nv;
     return *this;
@@ -129,9 +130,8 @@ public:
     if (begin == end) {
       return *this;
     }
-    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
-        (value_ && !value_->empty()) ? new std::string(*value_)
-                                     : new std::string());
+    blsp nv = blsp((value_ && !value_->empty()) ? new std::string(*value_)
+                                                : new std::string());
     nv->append(Cowstr::join(begin, end));
     value_ = nv;
     return *this;
@@ -195,8 +195,8 @@ public:
         ss << value_->at(i);
       }
     }
-    std::shared_ptr<std::string> nv = std::shared_ptr<std::string>(
-        ss.str().empty() ? new std::string() : new std::string(ss.str()));
+    blsp nv =
+        blsp(ss.str().empty() ? new std::string() : new std::string(ss.str()));
     value_ = nv;
     return *this;
   }
@@ -248,7 +248,7 @@ public:
   Cowstr repeat(int n) const;
 
 private:
-  std::shared_ptr<std::string> value_;
+  blsp value_;
 };
 
 namespace std {

@@ -3,10 +3,12 @@
 
 #include "infra/Cowstr.h"
 #include <cstring>
-using sps = std::shared_ptr<std::string>;
 
-static sps dupsps(sps s) {
-  return (s && !s->empty()) ? sps(new std::string(*s)) : sps(new std::string());
+using blsp = Cowstr::blsp;
+
+static blsp dupblsp(blsp s) {
+  return (s && !s->empty()) ? blsp(new std::string(*s))
+                            : blsp(new std::string());
 }
 
 static std::string *dupstd(const std::string &s) {
@@ -54,21 +56,21 @@ const char *Cowstr::rbegin() const {
 const char *Cowstr::rend() const { return value_->c_str() - 1; }
 
 Cowstr &Cowstr::insert(int index, const char &c, int count) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->insert(index, count, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::insert(int index, const Cowstr &s) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->insert(index, s.str());
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::erase(int index, int count) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->erase(index, count);
   value_ = nv;
   return *this;
@@ -76,28 +78,28 @@ Cowstr &Cowstr::erase(int index, int count) {
 
 Cowstr &Cowstr::popend(int count) {
   count = std::min<int>(count, length());
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->erase(length() - count, count);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::append(const char &c, int count) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->append(count, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::append(const Cowstr &s) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->append(s.str());
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::operator+=(const Cowstr &s) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   *nv += s.str();
   value_ = nv;
   return *this;
@@ -157,7 +159,7 @@ Cowstr &Cowstr::replace(const Cowstr &from, const Cowstr &to) {
       ss << (*value_)[i++];
     }
   }
-  sps nv(dupstd(ss.str()));
+  blsp nv(dupstd(ss.str()));
   value_ = nv;
   return *this;
 }
@@ -179,7 +181,7 @@ Cowstr &Cowstr::replace(const std::unordered_map<char, Cowstr> &mapping) {
   if (mapping.empty()) {
     return *this;
   }
-  sps nv(dupstd(replaceMap(mapping, *value_)));
+  blsp nv(dupstd(replaceMap(mapping, *value_)));
   value_ = nv;
   return *this;
 }
@@ -188,20 +190,20 @@ Cowstr &Cowstr::replace(const std::map<char, Cowstr> &mapping) {
   if (mapping.empty()) {
     return *this;
   }
-  sps nv(dupstd(replaceMap(mapping, *value_)));
+  blsp nv(dupstd(replaceMap(mapping, *value_)));
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::replace(int index, int count, const char &c) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->replace(index, count, 1, c);
   value_ = nv;
   return *this;
 }
 
 Cowstr &Cowstr::replace(int index, int count, const Cowstr &s) {
-  sps nv = dupsps(value_);
+  blsp nv = dupblsp(value_);
   nv->replace(index, count, s.str());
   value_ = nv;
   return *this;
