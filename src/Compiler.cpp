@@ -105,6 +105,9 @@ void Compiler::dumpAst(const Cowstr &inputFile) {
   Scanner scanner(inputFile);
   ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
 
+  SymbolBuilder symbolBuilder;
+  SymbolResolver symbolResolver;
+  Dumper dumper;
   PhaseManager pm({&symbolBuilder, &symbolResolver, &dumper});
   pm.run(scanner.compileUnit());
 
