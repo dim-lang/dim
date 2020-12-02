@@ -80,11 +80,11 @@ function Make-Proj {
     $env:Path="$ROOT\src\llvm-project\llvm\$BUILD_TYPE\bin;" + $env:Path
     Set-Location -Path $ROOT
     if ($BUILD_TYPE -eq "Debug") {
-        cmake -DDIM_BUILD_DEBUG=1 -A x64 -Thost=x64 -B $BUILD_TYPE
+        cmake -DDIM_NDEBUG=0 -A x64 -Thost=x64 -B $BUILD_TYPE
         cd $BUILD_TYPE
         cmake --build . --config $BUILD_TYPE
     } else {
-        cmake -DDIM_BUILD_DEBUG=0 -A x64 -Thost=x64 -B $BUILD_TYPE
+        cmake -DDIM_NDEBUG=1 -A x64 -Thost=x64 -B $BUILD_TYPE
         cd $BUILD_TYPE
         cmake --build . --config $BUILD_TYPE
     }
@@ -105,7 +105,7 @@ function Install-Proj {
     Write-Output "$HINT build $BUILD_TYPE"
     $env:Path="$ROOT\src\llvm-project\llvm\$BUILD_TYPE\bin;" + $env:Path
     Set-Location -Path $ROOT
-    cmake -DDIM_BUILD_DEBUG=0 -DCMAKE_INSTALL_PREFIX="$ROOT\install" -A x64 -Thost=x64 -B $BUILD_TYPE
+    cmake -DDIM_NDEBUG=1 -DCMAKE_INSTALL_PREFIX="$ROOT\install" -A x64 -Thost=x64 -B $BUILD_TYPE
     cd $BUILD_TYPE
     cmake --build . --config $BUILD_TYPE --target INSTALL
     Set-Location -Path $ROOT
