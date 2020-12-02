@@ -10,6 +10,7 @@
 #include "iface/Phase.h"
 #include "infra/Files.h"
 #include "infra/Log.h"
+#include "llvm/Config/llvm-config.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Support/FileSystem.h"
@@ -71,7 +72,12 @@ void Compiler::createObjectFile(const Cowstr &inputFile,
          dest_errcode.message());
 
   llvm::legacy::PassManager passManager;
+#if (LLVM_VERSION_MAJOR > 9)
   llvm::CodeGenFileType objFileType = llvm::CGFT_ObjectFile;
+#else
+  llvm::TargetMachine::CodeGenFileType objFileType =
+      llvm::TargetMachine::CGFT_ObjectFile;
+#endif
   ASSERT(!targetMachine->addPassesToEmitFile(passManager, dest_os, nullptr,
                                              objFileType),
          "error: LLVM target machine cannot emit object file");
