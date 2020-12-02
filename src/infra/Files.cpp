@@ -134,7 +134,7 @@ Cowstr FileReader::readln() {
 FileWriter::FileWriter(const Cowstr &fileName)
     : detail::FileWriterImpl(fileName) {
   fp_ = std::fopen(fileName.rawstr(), "w");
-  LOG_ASSERT(fp_, "fp_ is null, open fileName {} failed", fileName);
+  ASSERT(fp_, "error: cannot open file {}", fileName);
 }
 
 FileMode FileWriter::mode() const { return FileMode::Write; }

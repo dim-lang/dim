@@ -40,10 +40,7 @@ int main(int argc, char **argv) {
       ASSERT(opt.has("input-files"), "error: missing input file names\n");
       ASSERT(opt.get<std::vector<std::string>>("input-files").size() == 1,
              "error: input one file at a time\n");
-      Compiler dump_compiler(
-          opt.get<std::vector<std::string>>("input-files")[0],
-          CompileMode::DUMP_AST, 0, false);
-      dump_compiler.compile();
+      Compiler::dumpAst(opt.get<std::vector<std::string>>("input-files")[0]);
     }
     if (opt.has("codegen")) {
       std::string codegenOpt = opt.get<std::string>("codegen");
@@ -56,46 +53,72 @@ int main(int argc, char **argv) {
       ASSERT(codegenOpt != "llvm-bc",
              "error: --codegen=llvm-bc not implemented\n");
       ASSERT(codegenOpt != "asm", "error: --codegen=asm not implemented\n");
-      ASSERT(codegenOpt != "obj", "error: --codegen=obj not implemented\n");
 
-      if (codegenOpt == "llvm-ll") {
+      if (codegenOpt == "obj") {
         ASSERT(opt.has("input-files"), "error: missing input file name\n");
-        int optimizationLevel = opt.get<int>("optimize");
-        ASSERT(optimizationLevel >= 0 && optimizationLevel <= 3,
-               "error: invalid optimization level --optimize={}",
-               optimizationLevel);
+        int optLevel = opt.get<int>("optimize");
+        if (optLevel < 0 || optLevel > 3) {
+          PRINT("warn: invalid optLevel {}, using optLevel=0\n");
+          optLevel = 0;
+        }
         bool debugInfo = opt.has("debug");
+        (void)debugInfo;
 
         std::vector<std::string> inputFileList =
             opt.get<std::vector<std::string>>("input-files");
 
         // multiple input files
         if (inputFileList.size() > 1) {
-          ASSERT(!opt.has("output"),
-                 "error: output file name {} cannot work "
-                 "for more than 2 input files\n",
-                 opt.get<std::string>("output"));
+          ASSERT_MSG(
+              !opt.has("output"),
+              "warn: output file {} cannot work for more than 2 input files\n",
+              opt.get<std::string>("output"));
           for (int i = 0; i < (int)inputFileList.size(); ++i) {
-            Compiler ll_compiler(inputFileList[i], CompileMode::LLVM_LL,
-                                 optimizationLevel, debugInfo);
-            ll_compiler.compile();
+            Compiler::createObjectFile(inputFileList[i], "", optLevel);
           }
         } else if (inputFileList.size() == 1) {
           // single input file
-          Cowstr outputFile = "";
-          if (opt.has("output")) {
-            outputFile = opt.get<std::string>("output");
+          Cowstr outputFile =
+              opt.has("output") ? opt.get<std::string>("output") : "";
+          Compiler::createObjectFile(inputFileList[0], outputFile, optLevel);
+        }
+      } // obj
+
+      if (codegenOpt == "llvm-ll") {
+        ASSERT(opt.has("input-files"), "error: missing input file name\n");
+        int optLevel = opt.get<int>("optimize");
+        if (optLevel < 0 || optLevel > 3) {
+          PRINT("warn: invalid optLevel {}, using optLevel=0\n");
+          optLevel = 0;
+        }
+        bool debugInfo = opt.has("debug");
+        (void)debugInfo;
+
+        std::vector<std::string> inputFileList =
+            opt.get<std::vector<std::string>>("input-files");
+
+        // multiple input files
+        if (inputFileList.size() > 1) {
+          ASSERT_MSG(
+              !opt.has("output"),
+              "warn: output file {} cannot work for more than 2 input files\n",
+              opt.get<std::string>("output"));
+          for (int i = 0; i < (int)inputFileList.size(); ++i) {
+            Compiler::create_llvm_ll_file(inputFileList[i], "", optLevel > 0);
           }
-          Compiler ll_compiler(inputFileList[0], CompileMode::LLVM_LL,
-                               optimizationLevel, debugInfo, outputFile);
-          ll_compiler.compile();
+        } else if (inputFileList.size() == 1) {
+          // single input file
+          Cowstr outputFile =
+              opt.has("output") ? opt.get<std::string>("output") : "";
+          Compiler::create_llvm_ll_file(inputFileList[0], outputFile,
+                                        optLevel > 0);
         }
       } // llvm-ll
     }
-  } catch (boost::program_options::unknown_option &unknown) {
-    PRINT("error: {}\n", unknown.what());
   } catch (Exception &e) {
     PRINT("{}", e.message());
+  } catch (std::exception &e) {
+    PRINT("error: {}\n", e.what());
   }
 
   return 0;

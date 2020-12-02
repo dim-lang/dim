@@ -10,82 +10,101 @@
 #include "iface/Phase.h"
 #include "infra/Files.h"
 #include "infra/Log.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/Support/CodeGen.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/Host.h"
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+#include <string>
+#include <system_error>
 
-static Cowstr sourcePrefix(const Cowstr &source) {
-  ASSERT(source.endWith(".dim"),
-         "error: source file {} does not end with .dim\n", source);
-  return source.subString(0, source.length() - 4);
+static Cowstr fileNamePrefix(const Cowstr &input) {
+  int lastDotPos = input.rfind('.');
+  return lastDotPos > 0 ? input.subString(0, lastDotPos) : input;
 }
 
-Compiler::Compiler(const Cowstr &source, CompileMode mode,
-                   int optimizationLevel, bool debugInfo, const Cowstr &output)
-    : source_(source), mode_(mode), optimizationLevel_(optimizationLevel),
-      debugInfo_(debugInfo), output_(output) {}
+void Compiler::createObjectFile(const Cowstr &inputFile,
+                                const Cowstr &outputFile, int optLevel,
+                                bool debugInfo, const Cowstr &cpu,
+                                const Cowstr &features) {
+  Cowstr dest =
+      outputFile.empty() ? (fileNamePrefix(inputFile) + ".o") : outputFile;
 
-void Compiler::compile() {
-  switch (mode_) {
-  case CompileMode::OBJ:
-    if (output_.empty()) {
-      output_ = sourcePrefix(source_) + ".o";
-    }
-    createObjectFile();
-    break;
-  case CompileMode::ASM:
-    if (output_.empty()) {
-      output_ = sourcePrefix(source_) + ".s";
-    }
-    createAssembleFile();
-    break;
-  case CompileMode::LLVM_LL:
-    if (output_.empty()) {
-      output_ = sourcePrefix(source_) + ".ll";
-    }
-    createLLVM_LL();
-    break;
-  case CompileMode::LLVM_BC:
-    if (output_.empty()) {
-      output_ = sourcePrefix(source_) + ".bc";
-    }
-    createLLVM_BinaryCode();
-    break;
-  case CompileMode::DUMP_AST:
-    dumpAbstractSyntaxTree();
-    break;
-  default:
-    ERROR("error: unknown compile mode:{}\n", mode_._to_string());
-  }
-}
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmParser();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetDisassembler();
 
-void Compiler::createObjectFile() {
-  ERROR("error: create object file .o not implemented\n");
-}
+  std::string targetTriple = llvm::sys::getDefaultTargetTriple();
+  // LOG_INFO("targetTriple:{}", targetTriple);
+  std::string lookupTargetError;
+  const llvm::Target *target =
+      llvm::TargetRegistry::lookupTarget(targetTriple, lookupTargetError);
+  ASSERT(target, "error: {}", lookupTargetError);
 
-void Compiler::createAssembleFile() {
-  ERROR("error: create assemble file .s not implemented\n");
-}
+  llvm::TargetOptions targetOptions;
+  llvm::Optional<llvm::Reloc::Model> relocModel =
+      llvm::Optional<llvm::Reloc::Model>();
+  llvm::TargetMachine *targetMachine = target->createTargetMachine(
+      targetTriple, cpu.str(), features.str(), targetOptions, relocModel);
 
-void Compiler::createLLVM_LL() {
-  Scanner scanner(source_);
-  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", source_);
+  Scanner scanner(inputFile);
+  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;
-  IrBuilder irBuilder(optimizationLevel_ > 0);
+  IrBuilder irBuilder(optLevel > 0);
 
   PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
   pm.run(scanner.compileUnit());
 
-  FileWriter fwriter(output_);
+  irBuilder.llvmModule()->setDataLayout(targetMachine->createDataLayout());
+  irBuilder.llvmModule()->setTargetTriple(targetTriple);
+
+  std::error_code dest_errcode;
+  llvm::raw_fd_ostream dest_os(dest.str(), dest_errcode,
+                               llvm::sys::fs::OF_None);
+  ASSERT(!dest_errcode, "error: cannot create file for {}: {}", dest,
+         dest_errcode.message());
+
+  llvm::legacy::PassManager passManager;
+  llvm::CodeGenFileType objFileType = llvm::CGFT_ObjectFile;
+  ASSERT(!targetMachine->addPassesToEmitFile(passManager, dest_os, nullptr,
+                                             objFileType),
+         "error: LLVM target machine cannot emit object file");
+
+  passManager.run(*irBuilder.llvmModule());
+  dest_os.flush();
+  dest_os.close();
+}
+
+void Compiler::create_llvm_ll_file(const Cowstr &inputFile,
+                                   const Cowstr &outputFile,
+                                   bool enableFunctionPass) {
+  Cowstr dest =
+      outputFile.empty() ? (fileNamePrefix(inputFile) + ".ll") : outputFile;
+
+  Scanner scanner(inputFile);
+  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
+
+  SymbolBuilder symbolBuilder;
+  SymbolResolver symbolResolver;
+  IrBuilder irBuilder(enableFunctionPass);
+
+  PhaseManager pm({&symbolBuilder, &symbolResolver, &irBuilder});
+  pm.run(scanner.compileUnit());
+
+  FileWriter fwriter(dest);
   fwriter.write(Cowstr::from(irBuilder.llvmModule()));
 }
 
-void Compiler::createLLVM_BinaryCode() {
-  ERROR("error: create LLVM binary code file .bc not implemented\n");
-}
-
-void Compiler::dumpAbstractSyntaxTree() {
-  Scanner scanner(source_);
-  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", source_);
+void Compiler::dumpAst(const Cowstr &inputFile) {
+  Scanner scanner(inputFile);
+  ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
 
   SymbolBuilder symbolBuilder;
   SymbolResolver symbolResolver;

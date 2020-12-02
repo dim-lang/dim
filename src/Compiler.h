@@ -2,58 +2,19 @@
 // Apache License Version 2.0
 
 #pragma once
-#include "enum.h"
 #include "infra/Cowstr.h"
-
-BETTER_ENUM(CompileMode, int,
-            // compile source files to .o object files, but do not link.
-            // equal to `clang -c`
-            OBJ = 20000,
-            // compile source files to .s assemble code files.
-            // equal to `clang -S`
-            ASM,
-            // compile source files to LLVM IR language .ll files.
-            LLVM_LL,
-            // compile source files to LLVM binary code .bc files.
-            LLVM_BC,
-            // dump abstract syntax tree
-            DUMP_AST)
 
 class Compiler {
 public:
-  Compiler(const Cowstr &source, CompileMode mode, int optimizationLevel,
-           bool debugInfo, const Cowstr &output = "");
-  virtual ~Compiler() = default;
-  virtual void compile();
+  static void createObjectFile(const Cowstr &inputFile,
+                               const Cowstr &outputFile = "", int optLevel = 0,
+                               bool debugInfo = false,
+                               const Cowstr &cpu = "generic",
+                               const Cowstr &features = "");
 
-private:
-  // source file name
-  Cowstr source_;
+  static void create_llvm_ll_file(const Cowstr &inputFile,
+                                  const Cowstr &outputFile = "",
+                                  bool enableFunctionPass = false);
 
-  // compile options {
-
-  // compile mode
-  CompileMode mode_;
-
-  // optimization level in [0,3], only work when mode=OBJ
-  // equal to `clang -O` optimization levels option
-  // when level > 0, LLVM function optimizations are enabled
-  int optimizationLevel_;
-
-  // add debugging information
-  // equal to `clang -g`
-  bool debugInfo_;
-
-  // output file name, not work for mode=AST
-  // if not specified, default OBJ file name for source.dim is source.o, ASM
-  // file name is source.s, LL file name is source.ll, BC file name is source.bc
-  Cowstr output_;
-
-  // compile options }
-
-  virtual void createObjectFile();
-  virtual void createAssembleFile();
-  virtual void createLLVM_LL();
-  virtual void createLLVM_BinaryCode();
-  virtual void dumpAbstractSyntaxTree();
+  static void dumpAst(const Cowstr &inputFile);
 };
