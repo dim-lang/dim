@@ -49,7 +49,7 @@ Option::Option(int argc, char **argv)
       // --dump, -d
       ("dump,d", po::value<std::string>()->value_name("type"),
        "dump compile information type\n"
-       "ast: dump abstract syntax file\n");
+       "ast: dump abstract syntax file");
 
   pos_desc_.add("input-files", -1);
 
