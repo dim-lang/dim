@@ -16,13 +16,13 @@ Dim use a modern and static typed syntax, combines object-oriented and functiona
 
 | Platform          |  Dependencies                                                                                                                 |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| MacOS             | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm gperftools`                                     |
+| MacOS             | Install Xcode, homebrew, then:<br>`$ brew install cmake flex bison boost llvm`                                                |
 | *BSD              | `$ sudo pkg install bash git cmake flex bison boost-all llvm`                                                                 |
 | Oracle Solaris    | `$ sudo pkg install bash clang git cmake flex bison llvm clang-build llvm-build`                                              |
 | Debian/Ubuntu     | `$ sudo apt-get install git clang make cmake flex bison libboost-all-dev llvm-dev`                                            |
 | Fedora            | `$ sudo dnf install git clang make cmake flex bison boost-devel llvm-devel llvm-static`                                       |
 | CentOS            | `$ sudo yum install git clang make cmake flex bison boost-devel llvm-devel llvm-static llvm-toolset zlib-devel ncurses-devel` |
-| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm gperftools`                                                      |
+| Archlinux/Manjaro | `$ sudo pacman -S git clang make cmake flex bison boost llvm`                                                                 |
 | OpenSUSE          | `$ sudo zypper install git gcc gcc-c++ clang cmake flex bison libboost*devel llvm-devel`                                      |
 
 * Fix tool chain version on macOS:

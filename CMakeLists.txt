@@ -84,12 +84,6 @@ else()
             ${DIM_CORE_LIB_DIR}
             /usr/local/lib64)
     endif(IS_DIRECTORY /usr/local/lib64)
-    if(NOT DEFINED NDEBUG)
-        set(DIM_CORE_LIB
-            ${DIM_CORE_LIB}
-            tcmalloc
-            )
-    endif(NOT DEFINED NDEBUG)
 endif(WIN32)
 
 find_package(Boost COMPONENTS program_options system filesystem REQUIRED)

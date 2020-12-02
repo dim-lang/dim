@@ -40,7 +40,6 @@ void Compiler::createObjectFile(const Cowstr &inputFile,
   llvm::InitializeNativeTargetDisassembler();
 
   std::string targetTriple = llvm::sys::getDefaultTargetTriple();
-  // LOG_INFO("targetTriple:{}", targetTriple);
   std::string lookupTargetError;
   const llvm::Target *target =
       llvm::TargetRegistry::lookupTarget(targetTriple, lookupTargetError);
@@ -105,10 +104,6 @@ void Compiler::create_llvm_ll_file(const Cowstr &inputFile,
 void Compiler::dumpAst(const Cowstr &inputFile) {
   Scanner scanner(inputFile);
   ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
-
-  SymbolBuilder symbolBuilder;
-  SymbolResolver symbolResolver;
-  Dumper dumper;
 
   PhaseManager pm({&symbolBuilder, &symbolResolver, &dumper});
   pm.run(scanner.compileUnit());
