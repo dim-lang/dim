@@ -17,11 +17,13 @@
  *  --version, -v               version information
  *
  *  --output, -o [output file]  output file name
- *                              for input file 'source.dim', if `output file` is
- *                              not specified, default generate object file name
- *                              is 'source.o', assemble file name is 'source.s',
- *                              LLVM ll file name is 'source.ll', LLVM binary
- *                              code file name is 'source.bc'.
+ *                              if `output file` is not specified, output file
+ *                              name generated with input file concatinate with
+ *                              certain suffix:
+ *                              object file: '.o'
+ *                              assemble file: '.s'
+ *                              LLVM ll file: '.ll'
+ *                              LLVM bitcode file: '.bc'
  *
  *  --codegen, -c [type]      specify the `type` of output files to generate
  *                            asm: generate assemble file

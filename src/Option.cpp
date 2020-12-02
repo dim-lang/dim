@@ -22,10 +22,12 @@ Option::Option(int argc, char **argv)
       // --output,-o
       ("output,o", po::value<std::string>()->value_name("output file"),
        "output file\n"
-       "for input file 'source.dim', if output file is not specified, "
-       "default object file name is 'source.o', assemble file name is "
-       "'source.s', LLVM ll file name is 'source.ll', LLVM binary code file "
-       "name is 'source.bc'.")
+       "if `output file` is not specified, output file name generated with "
+       "input file concatinate with certain suffix:\n"
+       "object file: '.o'\n"
+       "assemble file: '.s'\n"
+       "LLVM ll file: '.ll'\n"
+       "LLVM bitcode file: '.bc'")
 
       // --codegen, -c
       ("codegen,c", po::value<std::string>()->value_name("type"),

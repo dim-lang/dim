@@ -23,17 +23,11 @@
 #include <string>
 #include <system_error>
 
-static Cowstr fileNamePrefix(const Cowstr &input) {
-  int lastDotPos = input.rfind('.');
-  return lastDotPos > 0 ? input.subString(0, lastDotPos) : input;
-}
-
 void Compiler::createObjectFile(const Cowstr &inputFile,
                                 const Cowstr &outputFile, int optLevel,
                                 bool debugInfo, const Cowstr &cpu,
                                 const Cowstr &features) {
-  Cowstr dest =
-      outputFile.empty() ? (fileNamePrefix(inputFile) + ".o") : outputFile;
+  Cowstr dest = outputFile.empty() ? (inputFile + ".o") : outputFile;
 
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmParser();
@@ -90,8 +84,7 @@ void Compiler::createObjectFile(const Cowstr &inputFile,
 void Compiler::create_llvm_ll_file(const Cowstr &inputFile,
                                    const Cowstr &outputFile,
                                    bool enableFunctionPass) {
-  Cowstr dest =
-      outputFile.empty() ? (fileNamePrefix(inputFile) + ".ll") : outputFile;
+  Cowstr dest = outputFile.empty() ? (inputFile + ".ll") : outputFile;
 
   Scanner scanner(inputFile);
   ASSERT(scanner.parse() == 0, "error: syntax error in {}\n", inputFile);
